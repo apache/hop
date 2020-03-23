@@ -304,32 +304,6 @@ public class HopGuiTransStepDelegate {
     }
   }
 
-  public void dupeStep( TransMeta transMeta, StepMeta stepMeta ) {
-    hopUi.getLog().logDebug(
-      toString(), BaseMessages.getString( PKG, "HopGui.Log.DuplicateStep" ) + stepMeta.getName() ); // Duplicate
-    // step:
-
-    StepMeta stMeta = (StepMeta) stepMeta.clone();
-    if ( stMeta != null ) {
-      String newname = transMeta.getAlternativeStepname( stepMeta.getName() );
-      int nr = 2;
-      while ( transMeta.findStep( newname ) != null ) {
-        newname = stepMeta.getName() + " (copy " + nr + ")";
-        nr++;
-      }
-      stMeta.setName( newname );
-      // Don't select this new step!
-      stMeta.setSelected( false );
-      Point loc = stMeta.getLocation();
-      stMeta.setLocation( loc.x + 20, loc.y + 20 );
-      transMeta.addStep( stMeta );
-      // TODO: Create new Undo/Redo system
-      //
-      // hopUi.addUndoNew( transMeta, new StepMeta[] { (StepMeta) stMeta.clone() }, new int[] { transMeta.indexOfStep( stMeta ) } );
-      transGraph.redraw();
-    }
-  }
-
   public void editStepPartitioning( TransMeta transMeta, StepMeta stepMeta ) {
     String[] schemaNames;
     try {

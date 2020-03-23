@@ -41,7 +41,6 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Redrawable;
@@ -85,11 +84,15 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.job.context.HopGuiJobContext;
+import org.apache.hop.ui.hopgui.file.job.context.HopGuiJobEntryContext;
+import org.apache.hop.ui.hopgui.file.job.context.HopGuiJobNoteContext;
 import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobClipboardDelegate;
 import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobEntryDelegate;
 import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobGridDelegate;
@@ -99,9 +102,7 @@ import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobMetricsDelegate;
 import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobRunDelegate;
 import org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobUndoDelegate;
 import org.apache.hop.ui.hopgui.file.job.extension.HopGuiJobGraphExtension;
-import org.apache.hop.ui.hopgui.file.shared.DelayListener;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
-import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransContext;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.shared.SWTGC;
@@ -163,7 +164,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * Handles the display of Jobs in HopGui, in a graphical form.
@@ -297,8 +297,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   private List<AreaOwner> areaOwners;
 
-  private Set<JobEntryCopy> mouseOverEntries;
-
   /**
    * A map that keeps track of which log line was written by which job entry
    */
@@ -335,7 +333,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
     this.props = PropsUI.getInstance();
     this.areaOwners = new ArrayList<>();
-    this.mouseOverEntries = new HashSet<>();
     this.delayTimers = new HashMap<>();
 
     jobLogDelegate = new HopGuiJobLogDelegate( hopUi, this );
@@ -788,28 +785,50 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     }
   }
 
+  private enum SingleClickType {
+    Job,
+    Entry,
+    Note
+  }
+
   public void mouseUp( MouseEvent e ) {
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
+
+    boolean singleClick = false;
+    HopGuiJobGraph.SingleClickType singleClickType = null;
+    JobEntryCopy singleClickEntry = null;
+    NotePadMeta singleClickNote = null;
 
     if ( iconoffset == null ) {
       iconoffset = new Point( 0, 0 );
     }
     Point real = screen2real( e.x, e.y );
     Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
+    AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
     // Quick new hop option? (drag from one step to another)
     //
-    if ( hop_candidate != null ) {
+    if ( hop_candidate != null && areaOwner != null && areaOwner.getAreaType() != null ) {
+      switch ( areaOwner.getAreaType() ) {
+        case JOB_ENTRY_ICON:
+          currentEntry = (JobEntryCopy) areaOwner.getOwner();
+          break;
+        default:
+          break;
+      }
       addCandidateAsHop();
       redraw();
     } else {
-      // Did we select a region on the screen? Mark steps in region as
-      // selected
+      // Did we select a region on the screen? Mark entries in region as selected
       //
       if ( selectionRegion != null ) {
         selectionRegion.width = real.x - selectionRegion.x;
         selectionRegion.height = real.y - selectionRegion.y;
 
+        if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
+          singleClick = true;
+          singleClickType = HopGuiJobGraph.SingleClickType.Job;
+        }
         jobMeta.unselectAll();
         selectInRect( jobMeta, selectionRegion );
         selectionRegion = null;
@@ -826,9 +845,9 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
               if ( control ) {
                 selectedEntry.flipSelected();
               } else {
-                // Otherwise, select only the icon clicked on!
-                jobMeta.unselectAll();
-                selectedEntry.setSelected( true );
+                singleClick = true;
+                singleClickType = SingleClickType.Entry;
+                singleClickEntry = selectedEntry;
               }
             } else {
               // Find out which Steps & Notes are selected
@@ -937,9 +956,11 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                 if ( control ) {
                   selectedNote.flipSelected();
                 } else {
-                  // Otherwise, select only the note clicked on!
-                  jobMeta.unselectAll();
-                  selectedNote.setSelected( true );
+                  // single click on a note: ask what needs to happen...
+                  //
+                  singleClick = true;
+                  singleClickType = HopGuiJobGraph.SingleClickType.Note;
+                  singleClickNote = selectedNote;
                 }
               } else {
                 // Find out which Steps & Notes are selected
@@ -970,15 +991,37 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
             selectedNote = null;
             startHopEntry = null;
             endHopLocation = null;
-          } else {
-            AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
-            if ( areaOwner == null && selectionRegion == null ) {
-              // Hit absolutely nothing: clear the settings
-              //
-              clearSettings();
-            }
           }
         }
+      }
+    }
+
+    // Just a single click on the background:
+    // We have a bunch of possible actions for you...
+    //
+    if ( singleClick && singleClickType != null ) {
+      IGuiContextHandler contextHandler = null;
+      String message = null;
+      switch ( singleClickType ) {
+        case Job:
+          message = "Select the action to execute or the job entry to create:";
+          contextHandler = new HopGuiJobContext( jobMeta, this, real );
+          break;
+        case Entry:
+          message = "Select the action to take on job entry '" + singleClickEntry.getName() + "':";
+          contextHandler = new HopGuiJobEntryContext( jobMeta, singleClickEntry, this, real );
+          break;
+        case Note:
+          message = "Select the note action to take:";
+          contextHandler = new HopGuiJobNoteContext( jobMeta, singleClickNote, this, real );
+          break;
+        default:
+          break;
+      }
+      if ( contextHandler != null ) {
+        Shell parent = hopShell();
+        org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
+        GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
       }
     }
 
@@ -1188,14 +1231,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
         case JOB_ENTRY_ICON:
-          JobEntryCopy jobEntryCopy = (JobEntryCopy) areaOwner.getOwner();
-          isDeprecated = jobEntryCopy.isDeprecated();
-          if ( !jobEntryCopy.isMissing() && !mouseOverEntries.contains( jobEntryCopy ) ) {
-            addEntryMouseOverDelayTimer( jobEntryCopy );
-            redraw();
-            tip = false;
-          }
-          break;
         default:
           break;
       }
@@ -1283,46 +1318,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       }
     }
     return null;
-  }
-
-  private synchronized void addEntryMouseOverDelayTimer( final JobEntryCopy jobEntryCopy ) {
-
-    // Don't add the same mouse over delay timer twice...
-    //
-    if ( mouseOverEntries.contains( jobEntryCopy ) ) {
-      return;
-    }
-
-    mouseOverEntries.add( jobEntryCopy );
-
-    DelayTimer delayTimer = new DelayTimer( 500, new DelayListener() {
-      public void expired() {
-        mouseOverEntries.remove( jobEntryCopy );
-        delayTimers.remove( jobEntryCopy );
-        asyncRedraw();
-      }
-    }, new Callable<Boolean>() {
-
-      @Override
-      public Boolean call() throws Exception {
-        Point cursor = getLastMove();
-        if ( cursor != null ) {
-          AreaOwner areaOwner = getVisibleAreaOwner( cursor.x, cursor.y );
-          if ( areaOwner != null && areaOwner.getAreaType() != null ) {
-            AreaType areaType = areaOwner.getAreaType();
-            if ( areaType == AreaType.JOB_ENTRY_ICON || areaType.belongsToJobContextMenu() ) {
-              JobEntryCopy selectedJobEntryCopy = (JobEntryCopy) areaOwner.getOwner();
-              return selectedJobEntryCopy == jobEntryCopy;
-            }
-          }
-        }
-        return false;
-      }
-    } );
-
-    new Thread( delayTimer ).start();
-
-    delayTimers.put( jobEntryCopy, delayTimer );
   }
 
   private void stopEntryMouseOverDelayTimer( final JobEntryCopy jobEntryCopy ) {
@@ -1747,6 +1742,20 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     return jobEntry;
   }
 
+  @GuiContextAction(
+    id = "jobgraph-entry-10050-create-hop",
+    parentId = HopGuiJobEntryContext.CONTEXT_ID,
+    type = GuiActionType.Create,
+    name = "Create hop",
+    tooltip = "Create a new hop between 2 entries",
+    image = "ui/images/HOP.svg"
+  )
+  public void newHopCandidate( HopGuiJobEntryContext context ) {
+    startHopEntry = context.getJobEntryCopy();
+    endHopEntry = null;
+    redraw();
+  }
+
   public void newHopClick() {
     selectedEntries = null;
     newHop();
@@ -1757,10 +1766,18 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     editEntry( getJobEntry() );
   }
 
-  public void editEntryDescription() {
+  @GuiContextAction(
+    id = "jobgraph-entry-10800-edit-description",
+    parentId = HopGuiJobEntryContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit entry description",
+    tooltip = "Modify the job entry description",
+    image = "ui/images/Edit.svg"
+  )
+  public void editEntryDescription( HopGuiJobEntryContext context ) {
     String title = BaseMessages.getString( PKG, "JobGraph.Dialog.EditDescription.Title" );
     String message = BaseMessages.getString( PKG, "JobGraph.Dialog.EditDescription.Message" );
-    EnterTextDialog dd = new EnterTextDialog( hopShell(), title, message, getJobEntry().getDescription() );
+    EnterTextDialog dd = new EnterTextDialog( hopShell(), title, message, context.getJobEntryCopy().getDescription() );
     String des = dd.open();
     if ( des != null ) {
       jobEntry.setDescription( des );
@@ -1772,16 +1789,23 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   /**
    * Go from serial to parallel to serial execution
    */
-  public void editEntryParallel() {
+  @GuiContextAction(
+    id = "jobgraph-step-10600-parallel",
+    parentId = HopGuiJobEntryContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Parallel execution",
+    tooltip = "Enable of disable parallel execution of next job entries",
+    image = "ui/images/parallel-hop.svg"
+  )
+  public void editEntryParallel( HopGuiJobEntryContext context ) {
 
-    JobEntryCopy je = getJobEntry();
+    JobEntryCopy je = context.getJobEntryCopy();
     JobEntryCopy jeOld = (JobEntryCopy) je.clone_deep();
 
     je.setLaunchingInParallel( !je.isLaunchingInParallel() );
     JobEntryCopy jeNew = (JobEntryCopy) je.clone_deep();
 
-    hopUi.undoDelegate.addUndoChange( jobMeta, new JobEntryCopy[] { jeOld }, new JobEntryCopy[] { jeNew }, new int[] { jobMeta
-      .indexOfJobEntry( jeNew ) } );
+    hopUi.undoDelegate.addUndoChange( jobMeta, new JobEntryCopy[] { jeOld }, new JobEntryCopy[] { jeNew }, new int[] { jobMeta.indexOfJobEntry( jeNew ) } );
     jobMeta.setChanged();
 
     if ( getJobEntry().isLaunchingInParallel() ) {
@@ -1808,28 +1832,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   }
 
-  public void duplicateEntry() throws HopException {
-    if ( !canDup( jobEntry ) ) {
-      HopGuiJobGraph.showOnlyStartOnceMessage( hopUi.getShell() );
-    }
-
-    jobEntryDelegate.dupeJobEntry( jobMeta, jobEntry );
-  }
-
-  public void copyEntry() {
-    List<JobEntryCopy> entries = jobMeta.getSelectedEntries();
-    Iterator<JobEntryCopy> iterator = entries.iterator();
-    while ( iterator.hasNext() ) {
-      JobEntryCopy entry = iterator.next();
-      if ( !canDup( entry ) ) {
-        iterator.remove();
-      }
-    }
-
-    jobClipboardDelegate.copyJobEntries( entries );
-  }
-
-  private boolean canDup( JobEntryCopy entry ) {
+  private boolean canBeDuplicated( JobEntryCopy entry ) {
     return !entry.isStart();
   }
 
@@ -1838,19 +1841,16 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     jobMeta.unselectAll();
   }
 
-  public void hideEntry() {
-    getJobEntry().setDrawn( false );
-    // nr > 1: delete
-    if ( jobEntry.getNr() > 0 ) {
-      int ind = jobMeta.indexOfJobEntry( jobEntry );
-      jobMeta.removeJobEntry( ind );
-      hopUi.undoDelegate.addUndoDelete( jobMeta, new JobEntryCopy[] { getJobEntry() }, new int[] { ind } );
-    }
-    redraw();
-  }
-
-  public void deleteEntry() {
-    delSelected();
+  @GuiContextAction(
+    id = "jobgraph-entry-10900-delete",
+    parentId = HopGuiJobEntryContext.CONTEXT_ID,
+    type = GuiActionType.Delete,
+    name = "Delete this entry",
+    tooltip = "Delete the selected job entry from the job",
+    image = "ui/images/generic-delete.svg"
+  )
+  public void deleteEntry( HopGuiJobEntryContext context ) {
+    delSelected( context.getJobEntryCopy() );
     redraw();
   }
 
@@ -1901,7 +1901,31 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOSXKeyboardShortcut( command = true, key = 'v' )
   @Override public void pasteFromClipboard() {
+    jobClipboardDelegate.pasteXML( jobMeta, jobClipboardDelegate.fromClipboard(), new Point( 50, 50 ) );
+  }
 
+  @GuiContextAction(
+    id = "jobgraph-job-paste",
+    parentId = HopGuiJobContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Paste from the clipboard",
+    tooltip = "Paste job entries, notes or a whole job from the clipboard",
+    image = "ui/images/CPY.svg"
+  )
+  public void pasteFromClipboard( HopGuiJobContext context ) {
+    jobClipboardDelegate.pasteXML( jobMeta, jobClipboardDelegate.fromClipboard(), context.getClick() );
+  }
+
+  @GuiContextAction(
+    id = "jobgraph-edit-job",
+    parentId = HopGuiJobContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit job",
+    tooltip = "Edit the job properties",
+    image = "ui/images/JOB.svg"
+  )
+  public void editJobProperties( HopGuiJobContext context ) {
+    editProperties( jobMeta, hopUi, true );
   }
 
   public void editJobProperties() {
@@ -1910,23 +1934,22 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   @GuiContextAction(
     id = "jobgraph-new-note",
-    parentId = HopGuiTransContext.CONTEXT_ID,
+    parentId = HopGuiJobContext.CONTEXT_ID,
     type = GuiActionType.Create,
     name = "Create a note",
     tooltip = "Create a new note",
     image = "ui/images/new.svg"
   )
-  public void newNote() {
+  public void newNote( HopGuiJobContext context ) {
     String title = BaseMessages.getString( PKG, "JobGraph.Dialog.EditNote.Title" );
     NotePadDialog dd = new NotePadDialog( jobMeta, hopShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
-      NotePadMeta npi =
-        new NotePadMeta( n.getNote(), lastclick.x, lastclick.y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
-          .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
-          .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
-          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
-          .isDrawShadow() );
+      NotePadMeta npi = new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+        .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
+        .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
+        .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
+        .isDrawShadow() );
       jobMeta.addNote( npi );
       hopUi.undoDelegate.addUndoNew( jobMeta, new NotePadMeta[] { npi }, new int[] { jobMeta.indexOfNote( npi ) } );
       redraw();
@@ -1946,12 +1969,21 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     editNote( getCurrentNote() );
   }
 
-  public void deleteNote() {
+  @GuiContextAction(
+    id = "jobgraph-delete-note",
+    parentId = HopGuiJobNoteContext.CONTEXT_ID,
+    type = GuiActionType.Delete,
+    name = "Delete the note",
+    tooltip = "Delete the note",
+    image = "ui/images/generic-delete.svg"
+  )
+  public void deleteNote( HopGuiJobNoteContext context ) {
     selectionRegion = null;
-    int idx = jobMeta.indexOfNote( getCurrentNote() );
+    NotePadMeta note = context.getNotePadMeta();
+    int idx = jobMeta.indexOfNote( note );
     if ( idx >= 0 ) {
       jobMeta.removeNote( idx );
-      hopUi.undoDelegate.addUndoDelete( jobMeta, new NotePadMeta[] { getCurrentNote() }, new int[] { idx } );
+      hopUi.undoDelegate.addUndoDelete( jobMeta, new NotePadMeta[] { note }, new int[] { idx } );
     }
     redraw();
   }
@@ -2359,17 +2391,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     if ( !Utils.isEmpty( references ) ) {
       loadReferencedObject( jobEntryCopy, 0 );
     }
-
-    /*
-     * if (jobEntryCopy.isJob()) { final JobEntryJob entry = (JobEntryJob) jobEntryCopy.getEntry(); if ((entry != null
-     * && entry.getJobObjectId() == null && !Utils.isEmpty(entry.getFilename()) && spoon.rep == null) || (entry != null
-     * && !Utils.isEmpty(entry.getName()) && spoon.rep != null) || (entry != null && entry.getJobObjectId()!=null &&
-     * spoon.rep != null) ) { openJob(entry, jobEntryCopy); } } else if (jobEntryCopy.isTransformation()) { final
-     * JobEntryTrans entry = (JobEntryTrans) jobEntryCopy.getEntry(); if ((entry != null && entry.getTransObjectId() ==
-     * null && !Utils.isEmpty(entry.getFilename()) && spoon.rep == null) || (entry != null && entry.getName() != null &&
-     * spoon.rep != null) || (entry != null && entry.getTransObjectId()!=null && spoon.rep != null) ) {
-     * openTransformation(entry, jobEntryCopy); } }
-     */
   }
 
   public void launchStuff() {
@@ -2430,7 +2451,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     JobPainter jobPainter =
       new JobPainter(
         gc, jobMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hop_candidate,
-        drop_candidate, selectionRegion, areaOwners, mouseOverEntries, PropsUI.getInstance().getIconSize(),
+        drop_candidate, selectionRegion, areaOwners, PropsUI.getInstance().getIconSize(),
         PropsUI.getInstance().getLineWidth(), gridSize, PropsUI
         .getInstance().getShadowSize(), PropsUI.getInstance().isAntiAliasingEnabled(), PropsUI
         .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight(), PropsUI.getInstance().getZoomFactor() );
@@ -2488,7 +2509,20 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     jobHopDelegate.newHop( jobMeta, fr, to );
   }
 
-  protected void editEntry( JobEntryCopy je ) {
+  @GuiContextAction(
+    id = "jobgraph-entry-10000-edit",
+    parentId = HopGuiJobEntryContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit the entry",
+    tooltip = "Edit the job entry properties",
+    image = "ui/images/Edit.svg"
+  )
+  public void editEntry( HopGuiJobEntryContext context ) {
+
+    jobEntryDelegate.editJobEntry( jobMeta, context.getJobEntryCopy() );
+  }
+
+  public void editEntry( JobEntryCopy je ) {
     jobEntryDelegate.editJobEntry( jobMeta, je );
   }
 
@@ -3259,8 +3293,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
             //
             if ( !Utils.isEmpty( executionConfiguration.getStartCopyName() ) ) {
               JobEntryCopy startJobEntryCopy =
-                runJobMeta.findJobEntry( executionConfiguration.getStartCopyName(), executionConfiguration
-                  .getStartCopyNr(), false );
+                runJobMeta.findJobEntry( executionConfiguration.getStartCopyName(), executionConfiguration.getStartCopyNr() );
               job.setStartJobEntryCopy( startJobEntryCopy );
             }
 
@@ -3411,7 +3444,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
     //Is the lastChained entry still valid?
     //
-    if ( lastChained != null && jobMeta.findJobEntry( lastChained.getName(), lastChained.getNr(), false ) == null ) {
+    if ( lastChained != null && jobMeta.findJobEntry( lastChained.getName(), lastChained.getNr() ) == null ) {
       lastChained = null;
     }
 
@@ -3441,7 +3474,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       return;
     }
     newEntry.setLocation( p.x, p.y );
-    newEntry.setDrawn();
 
     if ( lastChained != null ) {
       jobHopDelegate.newHop( jobMeta, lastChained, newEntry );

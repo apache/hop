@@ -77,8 +77,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
    */
   private boolean launchingInParallel;
 
-  private boolean draw;
-
   private JobMeta parentJobMeta;
 
   private Map<String, Map<String, String>> attributesMap;
@@ -100,7 +98,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     retval.append( entry.getXML() );
 
     retval.append( "      " ).append( XMLHandler.addTagValue( "parallel", launchingInParallel ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "draw", draw ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "nr", nr ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "yloc", location.y ) );
@@ -134,7 +131,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XMLHandler.getTagValue( entrynode, "nr" ), 0 ) );
         setLaunchingInParallel( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "parallel" ) ) );
-        setDrawn( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "draw" ) ) );
         int x = Const.toInt( XMLHandler.getTagValue( entrynode, "xloc" ), 0 );
         int y = Const.toInt( XMLHandler.getTagValue( entrynode, "yloc" ), 0 );
         setLocation( x, y );
@@ -187,7 +183,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
       location = new Point( jobEntryCopy.location.x, jobEntryCopy.location.y );
     }
     launchingInParallel = jobEntryCopy.launchingInParallel;
-    draw = jobEntryCopy.draw;
 
     setChanged();
   }
@@ -285,18 +280,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
 
   public void setLaunchingInParallel( boolean p ) {
     launchingInParallel = p;
-  }
-
-  public boolean isDrawn() {
-    return draw;
-  }
-
-  public void setDrawn() {
-    setDrawn( true );
-  }
-
-  public void setDrawn( boolean d ) {
-    draw = d;
   }
 
   public boolean isLaunchingInParallel() {

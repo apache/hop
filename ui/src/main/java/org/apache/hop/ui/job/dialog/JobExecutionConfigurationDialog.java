@@ -228,8 +228,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     String startCopy = "";
     if ( !Utils.isEmpty( getConfiguration().getStartCopyName() ) ) {
       JobEntryCopy copy =
-        ( (JobMeta) abstractMeta ).findJobEntry( getConfiguration().getStartCopyName(), getConfiguration()
-          .getStartCopyNr(), false );
+        ( (JobMeta) abstractMeta ).findJobEntry( getConfiguration().getStartCopyName(), getConfiguration().getStartCopyNr() );
       if ( copy != null ) {
         startCopy = getJobEntryCopyName( copy );
       }

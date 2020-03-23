@@ -75,6 +75,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   private int cellHeight;
   private int margin;
 
+  private boolean shiftClicked;
+  private boolean ctrlClicked;
+
   public ContextDialog( Shell parent, String message, Point location, List<GuiAction> actions ) {
     this.parent = parent;
     this.message = message;
@@ -85,6 +88,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     imageMap = new HashMap<>();
     filteredActions = new HashSet<>();
     selectionMap = new HashMap<>();
+
+    shiftClicked = false;
+    ctrlClicked = false;
 
     if ( actions.isEmpty() ) {
       selectedAction = null;
@@ -531,6 +537,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     GuiAction action = findAction( e.x, e.y );
     if ( action != null ) {
       selectedAction = action;
+      shiftClicked = (e.stateMask & SWT.SHIFT)!=0;
+      ctrlClicked = (e.stateMask & SWT.CONTROL)!=0 || (Const.isOSX() && (e.stateMask & SWT.COMMAND)!=0);
+
       dispose();
     }
   }
@@ -575,7 +584,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     for ( PluginInterface stepPlugin : stepPlugins ) {
       GuiAction createStepAction =
         new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-          t -> System.out.println( "Create step action : " + stepPlugin.getName() )
+          (shiftClicked, controlClicked, t) -> System.out.println( "Create step action : " + stepPlugin.getName() + ", shift="+shiftClicked+", control="+controlClicked )
         );
       createStepAction.getKeywords().add( stepPlugin.getCategory() );
       // if (actions.size()<2) {
@@ -593,5 +602,37 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     // Cleanup
     //
     display.dispose();
+  }
+
+  /**
+   * Gets shiftClicked
+   *
+   * @return value of shiftClicked
+   */
+  public boolean isShiftClicked() {
+    return shiftClicked;
+  }
+
+  /**
+   * @param shiftClicked The shiftClicked to set
+   */
+  public void setShiftClicked( boolean shiftClicked ) {
+    this.shiftClicked = shiftClicked;
+  }
+
+  /**
+   * Gets ctrlClicked
+   *
+   * @return value of ctrlClicked
+   */
+  public boolean isCtrlClicked() {
+    return ctrlClicked;
+  }
+
+  /**
+   * @param ctrlClicked The ctrlClicked to set
+   */
+  public void setCtrlClicked( boolean ctrlClicked ) {
+    this.ctrlClicked = ctrlClicked;
   }
 }

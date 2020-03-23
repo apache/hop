@@ -471,7 +471,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       Result res = null;
 
       if ( startJobEntryCopy == null ) {
-        startpoint = jobMeta.findJobEntry( JobMeta.STRING_SPECIAL_START, 0, false );
+        startpoint = jobMeta.findJobEntry( JobMeta.STRING_SPECIAL_START, 0 );
       } else {
         startpoint = startJobEntryCopy;
         res = startJobEntryResult;
@@ -540,7 +540,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       result.setRows( getSourceRows() );
     }
 
-    startpoint = jobMeta.findJobEntry( JobMeta.STRING_SPECIAL_START, 0, false );
+    startpoint = jobMeta.findJobEntry( JobMeta.STRING_SPECIAL_START, 0 );
     if ( startpoint == null ) {
       throw new HopJobException( BaseMessages.getString( PKG, "Job.Log.CounldNotFindStartingPoint" ) );
     }

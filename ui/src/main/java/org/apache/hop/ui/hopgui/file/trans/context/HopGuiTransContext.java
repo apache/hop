@@ -63,8 +63,8 @@ public class HopGuiTransContext extends BaseGuiContextHandler implements IGuiCon
     for ( PluginInterface stepPlugin : stepPlugins ) {
       GuiAction createStepAction =
         new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-          t -> {
-            transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click );
+          (shiftClicked, controlClicked, t) -> {
+            transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), controlClicked, true, click );
           }
         );
       try {

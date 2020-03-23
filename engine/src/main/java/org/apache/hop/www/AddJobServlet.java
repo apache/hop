@@ -226,7 +226,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       String startCopyName = jobExecutionConfiguration.getStartCopyName();
       if ( startCopyName != null && !startCopyName.isEmpty() ) {
         int startCopyNr = jobExecutionConfiguration.getStartCopyNr();
-        JobEntryCopy startJobEntryCopy = jobMeta.findJobEntry( startCopyName, startCopyNr, false );
+        JobEntryCopy startJobEntryCopy = jobMeta.findJobEntry( startCopyName, startCopyNr );
         job.setStartJobEntryCopy( startJobEntryCopy );
       }
 

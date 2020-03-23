@@ -1,0 +1,29 @@
+<translator-config>
+  <reference-locale>en_US</reference-locale>
+  <locale-list>
+    <locale>en_US</locale>
+    <locale>de_DE</locale>
+    <locale>fr_FR</locale>
+    <locale>zh_CN</locale>
+    <locale>ja_JP</locale>
+    <locale>ko_KR</locale>
+    <locale>nl_NL</locale>
+    <locale>pt_PT</locale>
+    <locale>pt_BR</locale>
+    <locale>no_NO</locale>
+    <locale>es_ES</locale>
+    <locale>es_AR</locale>
+  </locale-list>
+
+  <scan-phrases>
+    <scan-phrase>BaseMessages.getString(PKG,</scan-phrase>
+  </scan-phrases>
+
+  <root-folder>../../../</root-folder>
+  <folders-to-avoid>.*archive.*</folders-to-avoid>
+
+  <files-to-avoid>
+    <!-- <filename></filename> -->
+  </files-to-avoid>
+
+</translator-config>

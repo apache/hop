@@ -78,8 +78,12 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -146,9 +150,11 @@ public class Translator2 {
   private Button wAll;
 
   private String referenceLocale;
-  private java.util.List<String> rootDirectories;
+  private String rootFolder;
+  private java.util.List<String> sourceDirectories;
+  private java.util.List<String> bundleDirectories;
   private java.util.List<String> localeList;
-  private java.util.List<String> filesToAvoid;
+
   protected String lastValue;
   protected boolean lastValueChanged;
   protected String selectedKey;
@@ -156,8 +162,6 @@ public class Translator2 {
   protected String lastFoundKey;
   private String singleMessagesFile;
   private String[] scanPhrases;
-
-  private java.util.List<SourceCrawlerXMLFolder> xmlFolders;
 
   private String selectedSourceFolder;
 
@@ -176,24 +180,56 @@ public class Translator2 {
     try {
       // crawl through the source directories...
       //
-      crawler = new MessagesSourceCrawler( log, rootDirectories, singleMessagesFile, xmlFolders );
+      crawler = new MessagesSourceCrawler( log, sourceDirectories );
       crawler.setScanPhrases( scanPhrases );
-      crawler.setFilesToAvoid( filesToAvoid );
       crawler.crawl();
 
       store = new TranslationsStore( log, localeList, referenceLocale, crawler.getSourcePackageOccurrences() );
-      store.read( rootDirectories );
+      store.read( sourceDirectories );
 
-      // What are the statistics?
+      // Let's look for all the src/main/java folders in the root folder.
+      //
+      Files
+        .walk( Paths.get(rootFolder))
+        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/java" ) )
+        .forEach( path -> sourceDirectories.add( path.toAbsolutePath().toFile().getPath() ) );
+      ;
+
+      // Print these files
+      Files
+        .walk( Paths.get(rootFolder))
+        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/java" ) )
+        .forEach( path -> System.out.println( path.toAbsolutePath().toFile().getPath() ) );
+      ;
+
+      // Let's look at all the messages bundle package root folders
+      // We only look at src/main/resources/
+      //
+      Files
+        .walk( Paths.get(rootFolder))
+        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/resources" ) )
+        .forEach( path -> sourceDirectories.add( path.toAbsolutePath().toFile().getPath() ) );
+      ;
+
+      // Print these messages folders
+      //
+      Files
+        .walk( Paths.get(rootFolder))
+        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/resources" ) )
+        .forEach( path -> System.out.println( path.toAbsolutePath().toFile().getPath() ) );
+      ;
+
+
+      // Keep some statistics
       //
       Map<String, int[]> folderKeyCounts = new HashMap<String, int[]>();
       Map<String, Integer> nrKeysPerFolder = new HashMap<String, Integer>();
 
-      for ( String sourceFolder : rootDirectories ) {
+      for ( String sourceFolder : sourceDirectories ) {
         folderKeyCounts.put( sourceFolder, new int[ localeList.size() ] );
       }
 
-      for ( String sourceFolder : rootDirectories ) {
+      for ( String sourceFolder : sourceDirectories ) {
 
         int[] keyCounts = folderKeyCounts.get( sourceFolder );
         int nrKeys = 0;
@@ -224,7 +260,7 @@ public class Translator2 {
       DecimalFormat pctFormat = new DecimalFormat( "#00.00" );
       DecimalFormat nrFormat = new DecimalFormat( "00" );
 
-      for ( String sourceFolder : rootDirectories ) {
+      for ( String sourceFolder : sourceDirectories ) {
         System.out.println( "-------------------------------------" );
         System.out.println( "Folder: " + sourceFolder );
         System.out.println( "-------------------------------------" );
@@ -261,7 +297,7 @@ public class Translator2 {
         }
       }
     } catch ( Exception e ) {
-      throw new HopFileException( BaseMessages.getString( PKG, "i18n.Log.UnableToGetFiles", rootDirectories
+      throw new HopFileException( BaseMessages.getString( PKG, "i18n.Log.UnableToGetFiles", sourceDirectories
         .toString() ), e );
 
     }
@@ -271,9 +307,7 @@ public class Translator2 {
     // What are the locale to handle?
     //
     localeList = new ArrayList<>();
-    rootDirectories = new ArrayList<>();
-    filesToAvoid = new ArrayList<>();
-    xmlFolders = new ArrayList<SourceCrawlerXMLFolder>();
+    sourceDirectories = new ArrayList<>();
 
     FileObject file = HopVFS.getFileObject( configFile );
     if ( file.exists() ) {
@@ -283,7 +317,6 @@ public class Translator2 {
         Node configNode = XMLHandler.getSubNode( doc, "translator-config" );
 
         referenceLocale = XMLHandler.getTagValue( configNode, "reference-locale" );
-
         singleMessagesFile = XMLHandler.getTagValue( configNode, "single-messages-file" );
 
         Node localeListNode = XMLHandler.getSubNode( configNode, "locale-list" );
@@ -293,7 +326,7 @@ public class Translator2 {
         }
         for ( int i = 0; i < nrLocale; i++ ) {
           Node localeNode = XMLHandler.getSubNodeByNr( localeListNode, "locale", i );
-          String locale = XMLHandler.getTagValue( localeNode, "code" );
+          String locale = XMLHandler.getNodeValue( localeNode );
           localeList.add( locale );
         }
 
@@ -305,73 +338,7 @@ public class Translator2 {
           scanPhrases[ i ] = XMLHandler.getNodeValue( phraseNode );
         }
 
-        Node rootsNode = XMLHandler.getSubNode( configNode, "source-directories" );
-        int nrRoots = XMLHandler.countNodes( rootsNode, "root" );
-        if ( nrRoots > 0 ) {
-          rootDirectories.clear();
-        }
-        for ( int i = 0; i < nrRoots; i++ ) {
-          Node rootNode = XMLHandler.getSubNodeByNr( rootsNode, "root", i );
-          String directory = XMLHandler.getNodeValue( rootNode );
-          directory = sourceFolder + File.separator + directory;
-          rootDirectories.add( directory );
-        }
-
-        Node filesNode = XMLHandler.getSubNode( configNode, "files-to-avoid" );
-        int nrFiles = XMLHandler.countNodes( filesNode, "filename" );
-        if ( nrFiles > 0 ) {
-          filesToAvoid.clear();
-        }
-        for ( int i = 0; i < nrFiles; i++ ) {
-          Node fileNode = XMLHandler.getSubNodeByNr( filesNode, "filename", i );
-          String filename = XMLHandler.getNodeValue( fileNode );
-          filesToAvoid.add( filename );
-        }
-
-        Node foldersToScanNode = XMLHandler.getSubNode( configNode, "xml-folders-to-scan" );
-        int nrFolders = XMLHandler.countNodes( foldersToScanNode, "xml-folder-to-scan" );
-        if ( nrFolders > 0 ) {
-          xmlFolders.clear();
-        }
-        for ( int i = 0; i < nrFolders; i++ ) {
-          Node folderToScanNode = XMLHandler.getSubNodeByNr( foldersToScanNode, "xml-folder-to-scan", i );
-          String folderName = sourceFolder + File.separator + XMLHandler.getTagValue( folderToScanNode, "folder" );
-          String wildcard = XMLHandler.getTagValue( folderToScanNode, "wildcard" );
-          String keyPrefix = XMLHandler.getTagValue( folderToScanNode, "key-prefix" );
-          SourceCrawlerXMLFolder xmlFolder = new SourceCrawlerXMLFolder( folderName, wildcard, keyPrefix );
-
-          Node elementsNode = XMLHandler.getSubNode( folderToScanNode, "elements-to-scan" );
-          int nrElements = XMLHandler.countNodes( elementsNode, "element-to-scan" );
-          for ( int j = 0; j < nrElements; j++ ) {
-            Node elementNode = XMLHandler.getSubNodeByNr( elementsNode, "element-to-scan", j );
-            String element = XMLHandler.getTagValue( elementNode, "element" );
-            String tag = XMLHandler.getTagValue( elementNode, "tag" );
-            String attribute = XMLHandler.getTagValue( elementNode, "attribute" );
-            xmlFolder.getElements().add( new SourceCrawlerXMLElement( element, tag, attribute ) );
-          }
-
-          String defaultPackage = XMLHandler.getTagValue( folderToScanNode, "package-default" );
-          xmlFolder.setDefaultPackage( defaultPackage );
-          String defaultSourceFolder = XMLHandler.getTagValue( folderToScanNode, "package-source-folder" );
-          xmlFolder.setDefaultSourceFolder( sourceFolder + File.separator + defaultSourceFolder );
-
-          Node packageExceptionsNode = XMLHandler.getSubNode( folderToScanNode, "package-exceptions" );
-          int nrExceptions = XMLHandler.countNodes( packageExceptionsNode, "package-exception" );
-          for ( int j = 0; j < nrExceptions; j++ ) {
-            Node packageExceptionNode = XMLHandler.getSubNodeByNr( packageExceptionsNode, "package-exception", j );
-            String startsWith = XMLHandler.getTagValue( packageExceptionNode, "starts-with" );
-            String packageName = XMLHandler.getTagValue( packageExceptionNode, "package" );
-            xmlFolder.getPackageExceptions().add( new SourceCrawlerPackageException( startsWith, packageName ) );
-          }
-
-          xmlFolders.add( xmlFolder );
-        }
-
-        System.out.println( BaseMessages.getString( PKG, "i18n.Log.XMLFoldersToScan", xmlFolders.size() ) );
-        for ( SourceCrawlerXMLFolder xmlFolder : xmlFolders ) {
-          System.out.println( BaseMessages.getString( PKG, "i18n.Log.Folder", xmlFolder.getFolder(), xmlFolder
-            .getWildcard(), xmlFolder.getElements().size() ) );
-        }
+        rootFolder = XMLHandler.getTagValue( configNode, "root-folder" );
       } catch ( Exception e ) {
         log.logError( "Translator", "Error reading translator.xml", e );
       }
@@ -851,7 +818,7 @@ public class Translator2 {
           MessagesStore mainLocaleMessagesStore =
             store.findMainLocaleMessagesStore( messagesStore.getSourceFolder(), messagesStore
               .getMessagesPackage() );
-          String sourceDirectory = mainLocaleMessagesStore.getSourceDirectory( rootDirectories );
+          String sourceDirectory = mainLocaleMessagesStore.getSourceDirectory( sourceDirectories );
           String filename = messagesStore.getSaveFilename( sourceDirectory );
           messagesStore.setFilename( filename );
           msg.append( filename ).append( Const.CR );

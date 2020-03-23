@@ -39,8 +39,8 @@ public class HopGuiJobContext extends BaseGuiContextHandler implements IGuiConte
   }
 
   /**
-   * Create a list of supported actions on a transformation.
-   * We'll add the creation of every possible step as well as the modification of the transformation itself.
+   * Create a list of supported actions on a job.
+   * We'll add the creation of every possible job entry as well as the modification of the job itself from the annotations.
    *
    * @return The list of supported actions
    */
@@ -56,17 +56,23 @@ public class HopGuiJobContext extends BaseGuiContextHandler implements IGuiConte
       }
     }
 
-    // Also add all the step creation actions...
+    // Add the special entries : Start and Dummy first
+    //
+    actions.add(createStartGuiAction());
+    actions.add(createDummyGuiAction());
+
+    // Also add all the entry creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
     List<PluginInterface> entryPlugins = registry.getPlugins( JobEntryPluginType.class );
     for ( PluginInterface entryPlugin : entryPlugins ) {
-      GuiAction createEntryAction =
-        new GuiAction( "jobgraph-create-job-entry-" + entryPlugin.getIds()[ 0 ], GuiActionType.Create, entryPlugin.getName(), entryPlugin.getDescription(), entryPlugin.getImageFile(),
-          t -> {
-            jobGraph.jobEntryDelegate.newJobEntry( jobMeta, entryPlugin.getIds()[ 0 ], entryPlugin.getName(), false, click );
-          }
-        );
+      if (!entryPlugin.getIds()[0].equals( JobMeta.STRING_SPECIAL )) {
+        GuiAction createEntryAction =
+          new GuiAction( "jobgraph-create-job-entry-" + entryPlugin.getIds()[ 0 ], GuiActionType.Create, entryPlugin.getName(), entryPlugin.getDescription(), entryPlugin.getImageFile(),
+            (shiftClicked, controlClicked, t) -> {
+              jobGraph.jobEntryDelegate.newJobEntry( jobMeta, entryPlugin.getIds()[ 0 ], entryPlugin.getName(), controlClicked, click );
+            }
+          );
       try {
         createEntryAction.setClassLoader( registry.getClassLoader( entryPlugin ) );
       } catch ( HopPluginException e ) {
@@ -74,9 +80,26 @@ public class HopGuiJobContext extends BaseGuiContextHandler implements IGuiConte
       }
       createEntryAction.getKeywords().add( entryPlugin.getCategory() );
       actions.add( createEntryAction );
+      }
     }
 
     return actions;
+  }
+
+  private GuiAction createStartGuiAction() {
+    return new GuiAction( "jobgraph-create-job-entry-start", GuiActionType.Create, JobMeta.STRING_SPECIAL_START, null, "ui/images/STR.svg",
+      (shiftClicked, controlClicked, t) -> {
+          jobGraph.jobEntryDelegate.newJobEntry( jobMeta, JobMeta.STRING_SPECIAL, JobMeta.STRING_SPECIAL_START, controlClicked, click );
+        }
+      );
+  }
+
+  private GuiAction createDummyGuiAction() {
+    return new GuiAction( "jobgraph-create-job-entry-dummy", GuiActionType.Create, JobMeta.STRING_SPECIAL_DUMMY, null, "ui/images/DUM.svg",
+      (shiftClicked, controlClicked, t) -> {
+        jobGraph.jobEntryDelegate.newJobEntry( jobMeta, JobMeta.STRING_SPECIAL, JobMeta.STRING_SPECIAL_DUMMY, controlClicked, click );
+      }
+    );
   }
 
   /**

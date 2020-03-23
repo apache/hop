@@ -29,6 +29,7 @@
         <module>databases</module>
         <module>steps</module>
         <module>jobentries</module>
+        <module>misc</module>
       </modules>
     </profile>
 

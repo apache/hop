@@ -60,10 +60,10 @@ public class HopGuiJobEntryDelegate {
         //
         String entry_name = pluginName;
         int nr = 2;
-        JobEntryCopy check = jobMeta.findJobEntry( entry_name, 0, true );
+        JobEntryCopy check = jobMeta.findJobEntry( entry_name, 0 );
         while ( check != null ) {
           entry_name = pluginName + " " + nr++;
-          check = jobMeta.findJobEntry( entry_name, 0, true );
+          check = jobMeta.findJobEntry( entry_name, 0 );
         }
 
         // Generate the appropriate class...
@@ -111,7 +111,11 @@ public class HopGuiJobEntryDelegate {
         } else {
           JobEntryCopy jge = new JobEntryCopy();
           jge.setEntry( jei );
-          jge.setLocation( 50, 50 );
+          if ( location != null ) {
+            jge.setLocation( location.x, location.y );
+          } else {
+            jge.setLocation( 50, 50 );
+          }
           jge.setNr( 0 );
           jobMeta.addJobEntry( jge );
           hopUi.undoDelegate.addUndoNew( jobMeta, new JobEntryCopy[] { jge }, new int[] { jobMeta.indexOfJobEntry( jge ) } );
@@ -266,10 +270,10 @@ public class HopGuiJobEntryDelegate {
 
     JobEntryCopy dupejge = (JobEntryCopy) jobEntry.clone();
     dupejge.setNr( jobMeta.findUnusedNr( dupejge.getName() ) );
-    if ( dupejge.isDrawn() ) {
-      Point p = jobEntry.getLocation();
-      dupejge.setLocation( p.x + 10, p.y + 10 );
-    }
+
+    Point p = jobEntry.getLocation();
+    dupejge.setLocation( p.x + 10, p.y + 10 );
+
     jobMeta.addJobEntry( dupejge );
 
     jobGraph.updateGui();

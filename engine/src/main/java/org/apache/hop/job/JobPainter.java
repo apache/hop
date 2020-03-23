@@ -51,7 +51,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   private JobMeta jobMeta;
 
-  private Set<JobEntryCopy> mouseOverEntries;
   private Map<JobEntryCopy, String> entryLogMap;
   private JobEntryCopy startHopEntry;
   private Point endHopLocation;
@@ -62,7 +61,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   public JobPainter( GCInterface gc, JobMeta jobMeta, Point area, ScrollBarInterface hori,
                      ScrollBarInterface vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
-                     List<AreaOwner> areaOwners, Set<JobEntryCopy> mouseOverEntries, int iconsize, int linewidth, int gridsize,
+                     List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                      int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
     super(
       gc, jobMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
@@ -70,8 +69,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
     this.jobMeta = jobMeta;
 
     this.candidate = candidate;
-
-    this.mouseOverEntries = mouseOverEntries;
 
     entryLogMap = null;
   }
@@ -211,10 +208,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   }
 
   protected void drawJobEntryCopy( JobEntryCopy jobEntryCopy ) {
-    if ( !jobEntryCopy.isDrawn() ) {
-      return;
-    }
-
     int alpha = gc.getAlpha();
 
     Point pt = jobEntryCopy.getLocation();
@@ -297,125 +290,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       }
     }
 
-    // Optionally drawn the mouse-over information
-    //
-    if ( mouseOverEntries.contains( jobEntryCopy ) && !jobEntryCopy.isDeprecated() ) {
-      gc.setTransform( translationX, translationY, 0, (float) zoomFactor );
-
-      EImage[] miniIcons = new EImage[] { EImage.INPUT, EImage.EDIT, EImage.CONTEXT_MENU, EImage.OUTPUT, };
-
-      // First drawn the mini-icons balloon below the job entry
-      //
-      int totalHeight = 0;
-      int totalIconsWidth = 0;
-      int totalWidth = 2 * MINI_ICON_MARGIN;
-      for ( EImage miniIcon : miniIcons ) {
-        Point bounds = gc.getImageBounds( miniIcon );
-        totalWidth += bounds.x + MINI_ICON_MARGIN;
-        totalIconsWidth += bounds.x + MINI_ICON_MARGIN;
-        if ( bounds.y > totalHeight ) {
-          totalHeight = bounds.y;
-        }
-      }
-      totalHeight += 2 * MINI_ICON_MARGIN;
-
-      gc.setFont( EFont.SMALL );
-      String trimmedName =
-        jobEntryCopy.getName().length() < 30 ? jobEntryCopy.getName() : jobEntryCopy.getName().substring( 0, 30 );
-      Point nameExtent = gc.textExtent( trimmedName );
-      nameExtent.y += 2 * MINI_ICON_MARGIN;
-      nameExtent.x += 3 * MINI_ICON_MARGIN;
-      totalHeight += nameExtent.y;
-      if ( nameExtent.x > totalWidth ) {
-        totalWidth = nameExtent.x;
-      }
-
-      int areaX =
-        translateToCurrentScale( x ) + translateToCurrentScale( iconsize ) / 2 - totalWidth / 2 + MINI_ICON_SKEW;
-      int areaY =
-        translateToCurrentScale( y ) + translateToCurrentScale( iconsize ) + MINI_ICON_DISTANCE
-          + BasePainter.CONTENT_MENU_INDENT;
-
-      gc.setForeground( EColor.CRYSTAL );
-      gc.setBackground( EColor.CRYSTAL );
-      gc.setLineWidth( 1 );
-      gc.fillRoundRectangle( areaX, areaY, totalWidth, totalHeight, BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
-
-      gc.setBackground( EColor.WHITE );
-
-      gc.fillRoundRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ),
-        BasePainter.CORNER_RADIUS_5,
-        BasePainter.CORNER_RADIUS_5 );
-      gc.fillRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ) / 2 );
-
-      gc.drawRoundRectangle( areaX, areaY, totalWidth, totalHeight, BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
-
-      gc.setForeground( EColor.WHITE );
-
-      gc.drawText( trimmedName, areaX + ( totalWidth - nameExtent.x ) / 2 + MINI_ICON_MARGIN, areaY
-        + MINI_ICON_MARGIN, true );
-      gc.setForeground( EColor.CRYSTAL );
-      gc.setBackground( EColor.CRYSTAL );
-
-      gc.setFont( EFont.GRAPH );
-      areaOwners.add( new AreaOwner(
-        AreaType.MINI_ICONS_BALLOON, translateTo1To1( areaX ), translateTo1To1( areaY ), translateTo1To1( totalWidth ), translateTo1To1( totalHeight ), offset, jobMeta, jobEntryCopy ) );
-
-      gc.fillPolygon( new int[] {
-        areaX + totalWidth / 2 - MINI_ICON_TRIANGLE_BASE / 2 + 1, areaY + 2,
-        areaX + totalWidth / 2 + MINI_ICON_TRIANGLE_BASE / 2, areaY + 2,
-        areaX + totalWidth / 2 - MINI_ICON_SKEW, areaY - MINI_ICON_DISTANCE - 3, } );
-      gc.setBackground( EColor.WHITE );
-
-      // Put on the icons...
-      //
-      int xIcon = areaX + ( totalWidth - totalIconsWidth ) / 2 + MINI_ICON_MARGIN;
-      int yIcon = areaY + 5 + nameExtent.y;
-
-      for ( int i = 0; i < miniIcons.length; i++ ) {
-        EImage miniIcon = miniIcons[ i ];
-        Point bounds = gc.getImageBounds( miniIcon );
-        boolean enabled = false;
-        switch ( i ) {
-          case 0: // INPUT
-            enabled = !jobEntryCopy.isStart();
-            areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_INPUT, translateTo1To1( xIcon ),
-              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-              jobEntryCopy ) );
-            break;
-          case 1: // EDIT
-            enabled = true;
-            areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_EDIT, translateTo1To1( xIcon ),
-              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-              jobEntryCopy ) );
-            break;
-          case 2: // Job entry context menu
-            enabled = true;
-            areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_CONTEXT, translateTo1To1( xIcon ),
-              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-              jobEntryCopy ) );
-            break;
-          case 3: // OUTPUT
-            enabled = true;
-            areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_OUTPUT, translateTo1To1( xIcon ),
-              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-              jobEntryCopy ) );
-            break;
-          default:
-            break;
-        }
-
-        if ( enabled ) {
-          gc.setAlpha( 255 );
-        } else {
-          gc.setAlpha( 100 );
-        }
-        gc.drawImage( miniIcon, xIcon, yIcon, (float) zoomFactor );
-        xIcon += bounds.x + 5;
-      }
-      gc.setTransform( translationX, translationY, 0, magnification );
-    }
-
     // Restore the previous alpha value
     //
     gc.setAlpha( alpha );
@@ -441,9 +315,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   protected void drawJobHop( JobHopMeta hop, boolean candidate ) {
     if ( hop == null || hop.getFromEntry() == null || hop.getToEntry() == null ) {
-      return;
-    }
-    if ( !hop.getFromEntry().isDrawn() || !hop.getToEntry().isDrawn() ) {
       return;
     }
 
@@ -603,20 +474,6 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
         LogChannel.GENERAL.logError( "Error calling extension point(s) for the job painter arrow", e );
       }
     }
-  }
-
-  /**
-   * @return the mouseOverEntries
-   */
-  public Set<JobEntryCopy> getMouseOverEntries() {
-    return mouseOverEntries;
-  }
-
-  /**
-   * @param mouseOverEntries the mouseOverEntries to set
-   */
-  public void setMouseOverEntries( Set<JobEntryCopy> mouseOverEntries ) {
-    this.mouseOverEntries = mouseOverEntries;
   }
 
   /**

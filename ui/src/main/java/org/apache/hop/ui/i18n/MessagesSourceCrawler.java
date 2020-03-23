@@ -79,13 +79,6 @@ public class MessagesSourceCrawler {
    */
   private List<String> filesToAvoid;
 
-  private String singleMessagesFile;
-
-  /**
-   * The folders with XML files to scan for keys in
-   */
-  private List<SourceCrawlerXMLFolder> xmlFolders;
-
   private Pattern packagePattern;
   private Pattern importPattern;
   private Pattern importMessagesPattern;
@@ -96,16 +89,12 @@ public class MessagesSourceCrawler {
 
   /**
    * @param sourceDirectories  The source directories to crawl through
-   * @param singleMessagesFile the messages file if there is only one, otherwise: null
    */
-  public MessagesSourceCrawler( LogChannelInterface log, List<String> sourceDirectories,
-                                String singleMessagesFile, List<SourceCrawlerXMLFolder> xmlFolders ) {
+  public MessagesSourceCrawler( LogChannelInterface log, List<String> sourceDirectories ) {
     super();
     this.log = log;
     this.sourceDirectories = sourceDirectories;
-    this.singleMessagesFile = singleMessagesFile;
     this.filesToAvoid = new ArrayList<>();
-    this.xmlFolders = xmlFolders;
 
     this.sourcePackageOccurrences = new HashMap<String, Map<String, List<KeyOccurrence>>>();
 
@@ -220,35 +209,6 @@ public class MessagesSourceCrawler {
         // For each of these files we look for keys...
         //
         lookForOccurrencesInFile( sourceDirectory, javaFile );
-      }
-    }
-
-    // Also search for keys in the XUL files...
-    //
-    for ( SourceCrawlerXMLFolder xmlFolder : xmlFolders ) {
-      String[] xmlDirs = { xmlFolder.getFolder(), };
-      String[] xmlMasks = { xmlFolder.getWildcard(), };
-      String[] xmlReq = { "N", };
-      boolean[] xmlSubdirs = { true, }; // search sub-folders too
-
-      FileInputList xulFileInputList =
-        FileInputList.createFileList( new Variables(), xmlDirs, xmlMasks, xmlReq, xmlSubdirs );
-      for ( FileObject fileObject : xulFileInputList.getFiles() ) {
-        try {
-          Document doc = XMLHandler.loadXMLFile( fileObject );
-
-          // Scan for elements and tags in this file...
-          //
-          for ( SourceCrawlerXMLElement xmlElement : xmlFolder.getElements() ) {
-
-            addLabelOccurrences( xmlFolder.getDefaultSourceFolder(), fileObject, doc
-              .getElementsByTagName( xmlElement.getSearchElement() ), xmlFolder.getKeyPrefix(), xmlElement
-              .getKeyTag(), xmlElement.getKeyAttribute(), xmlFolder.getDefaultPackage(), xmlFolder
-              .getPackageExceptions() );
-          }
-        } catch ( HopXMLException e ) {
-          log.logError( "Unable to open XUL / XML document: " + fileObject );
-        }
       }
     }
   }
@@ -542,7 +502,6 @@ public class MessagesSourceCrawler {
   /**
    * Get all the key occurrences for a certain messages package.
    *
-   * @param sourceFolder    the source folder to reference
    * @param messagesPackage the package to hunt for
    * @return all the key occurrences for a certain messages package.
    */
@@ -575,20 +534,6 @@ public class MessagesSourceCrawler {
       }
     }
     return null;
-  }
-
-  /**
-   * @return the singleMessagesFile
-   */
-  public String getSingleMessagesFile() {
-    return singleMessagesFile;
-  }
-
-  /**
-   * @param singleMessagesFile the singleMessagesFile to set
-   */
-  public void setSingleMessagesFile( String singleMessagesFile ) {
-    this.singleMessagesFile = singleMessagesFile;
   }
 
   /**

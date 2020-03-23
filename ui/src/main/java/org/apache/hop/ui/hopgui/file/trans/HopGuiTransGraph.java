@@ -807,7 +807,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           }
 
           if ( !hit ) {
-            settings( new HopGuiTransContext( transMeta, this, real ) );
+            editTransformationProperties( new HopGuiTransContext( transMeta, this, real ) );
           }
 
         }
@@ -2190,23 +2190,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-step-10600-edit-duplicate",
-    parentId = HopGuiTransStepContext.CONTEXT_ID,
-    type = GuiActionType.Modify,
-    name = "Duplicate this step",
-    tooltip = "Creates a duplicate of the selected step",
-    image = "ui/images/CPY.svg"
-  )
-  public void dupeStep( HopGuiTransStepContext context ) {
-    try {
-      transStepDelegate.dupeStep( transMeta, context.getStepMeta() );
-    } catch ( Exception ex ) {
-      new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Title" ),
-        BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Message" ), ex );
-    }
-  }
-
-  @GuiContextAction(
     id = "transgraph-step-10900-delete",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Delete,
@@ -2459,7 +2442,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Edit transformation properties",
     image = "ui/images/TRN.svg"
   )
-  public void settings( HopGuiTransContext context ) {
+  public void editTransformationProperties( HopGuiTransContext context ) {
     editProperties( transMeta, hopUi, true );
   }
 

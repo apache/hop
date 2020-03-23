@@ -29,7 +29,7 @@ public class GuiActionLambdaBuilder<T> {
       if ( method == null ) {
         throw new RuntimeException( "Unable to find method " + action.getMethodName() + " with parameter " + methodParameter.getClass().getName() + " in class " + methodParent.getClass().getName() );
       }
-      IGuiActionLambda<T> actionLambda = ( objects ) -> {
+      IGuiActionLambda<T> actionLambda = ( shiftClicked, controlClicked, objects ) -> {
         try {
           method.invoke( methodParent, methodParameter );
           if ( refresher != null ) {

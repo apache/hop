@@ -74,7 +74,7 @@ public class GuiContextUtil {
       ContextDialog contextDialog = new ContextDialog( parent, message, clickLocation, actions );
       GuiAction selectedAction = contextDialog.open();
       if ( selectedAction != null ) {
-        selectedAction.getActionLambda().executeAction();
+        selectedAction.getActionLambda().executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
       }
     } catch ( Exception e ) {
       new ErrorDialog( parent, "Error", "An error occurred executing action", e );

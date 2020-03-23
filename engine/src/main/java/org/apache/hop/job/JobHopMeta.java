@@ -103,8 +103,8 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
       from_nr = Const.toInt( sfrom_nr, 0 );
       to_nr = Const.toInt( sto_nr, 0 );
 
-      this.from = job.findJobEntry( from_name, from_nr, true );
-      this.to = job.findJobEntry( to_name, to_nr, true );
+      this.from = job.findJobEntry( from_name, from_nr );
+      this.to = job.findJobEntry( to_name, to_nr );
 
       if ( senabled == null ) {
         enabled = true;

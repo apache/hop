@@ -251,7 +251,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     JobEntryCopy jobEntry = new JobEntryCopy();
     jobEntry.setEntry( jobEntrySpecial );
     jobEntry.setLocation( 50, 50 );
-    jobEntry.setDrawn( false );
     jobEntry.setDescription( BaseMessages.getString( PKG, "JobMeta.StartJobEntry.Description" ) );
     return jobEntry;
 
@@ -267,7 +266,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     JobEntryCopy jobEntry = new JobEntryCopy();
     jobEntry.setEntry( jobEntrySpecial );
     jobEntry.setLocation( 50, 50 );
-    jobEntry.setDrawn( false );
     jobEntry.setDescription( BaseMessages.getString( PKG, "JobMeta.DummyJobEntry.Description" ) );
     return jobEntry;
   }
@@ -769,7 +767,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         if ( je.isSpecial() && je.isMissing() ) {
           addMissingEntry( (MissingEntry) je.getEntry() );
         }
-        JobEntryCopy prev = findJobEntry( je.getName(), 0, true );
+        JobEntryCopy prev = findJobEntry( je.getName(), 0 );
         if ( prev != null ) {
           // See if the #0 (root entry) already exists!
           //
@@ -787,7 +785,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
             je.setEntry( prev.getEntry() );
 
             // See if entry already exists...
-            prev = findJobEntry( je.getName(), je.getNr(), true );
+            prev = findJobEntry( je.getName(), je.getNr() );
             if ( prev != null ) {
               // remove the old one!
               //
@@ -1016,13 +1014,11 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param nr   The number of the job entry copy
    * @return The JobEntryCopy or null if nothing was found!
    */
-  public JobEntryCopy findJobEntry( String name, int nr, boolean searchHiddenToo ) {
+  public JobEntryCopy findJobEntry( String name, int nr) {
     for ( int i = 0; i < nrJobEntries(); i++ ) {
       JobEntryCopy jec = getJobEntry( i );
       if ( jec.getName().equalsIgnoreCase( name ) && jec.getNr() == nr ) {
-        if ( searchHiddenToo || jec.isDrawn() ) {
-          return jec;
-        }
+        return jec;
       }
     }
     return null;
@@ -1352,11 +1348,11 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    */
   public int findUnusedNr( String name ) {
     int nr = 1;
-    JobEntryCopy je = findJobEntry( name, nr, true );
+    JobEntryCopy je = findJobEntry( name, nr );
     while ( je != null ) {
       nr++;
       // log.logDebug("findUnusedNr()", "Trying unused nr: "+nr);
-      je = findJobEntry( name, nr, true );
+      je = findJobEntry( name, nr );
     }
     return nr;
   }

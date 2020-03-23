@@ -141,7 +141,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
         List<GuiAction> actions = new ArrayList<>();
 
         GuiAction newAction = new GuiAction( ACTION_ID_NEW_TRANSFORMATION, GuiActionType.Create, "New job", "Create a new job", "ui/images/JOB.svg",
-          ( parameters ) -> {
+          ( shiftClicked, controlClicked, parameters ) -> {
             try {
               HopJobFileType.this.newFile( hopGui, hopGui.getVariableSpace() );
             } catch ( Exception e ) {

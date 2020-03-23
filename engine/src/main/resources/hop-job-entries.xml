@@ -10,7 +10,7 @@
     <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
     <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
   </job-entry>
-  <job-entry id="JOB">
+  <job-entry id="Sp">
     <description>i18n:org.apache.hop.job.entry:JobEntry.Job.TypeDesc</description>
     <classname>org.apache.hop.job.entries.job.JobEntryJob</classname>
     <category>i18n:org.apache.hop.job:JobCategory.Category.General</category>
