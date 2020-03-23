@@ -70,32 +70,32 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator2!!
 
   public boolean argFromPrevious;
 
   public String[] arguments;
 
-  private String success_condition;
-  public String SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED = "success_when_at_least";
-  public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-  public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  private String successCondition;
+  public static final String SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED = "success_when_at_least";
+  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
+  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
-  private String limit_folders;
+  private String limitFolders;
 
-  int NrErrors = 0;
-  int NrSuccess = 0;
+  int nrErrors = 0;
+  int nrSuccess = 0;
   boolean successConditionBroken = false;
   boolean successConditionBrokenExit = false;
-  int limitFolders = 0;
+  int nrLimitFolders = 0;
 
-  public JobEntryDeleteFolders( String n ) {
-    super( n, "" );
+  public JobEntryDeleteFolders( String name ) {
+    super( name, "" );
     argFromPrevious = false;
     arguments = null;
 
-    success_condition = SUCCESS_IF_NO_ERRORS;
-    limit_folders = "10";
+    successCondition = SUCCESS_IF_NO_ERRORS;
+    limitFolders = "10";
   }
 
   public JobEntryDeleteFolders() {
@@ -116,13 +116,14 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( super.getXML() );
     retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "limit_folders", limit_folders ) );
+    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", successCondition ) );
+    retval.append( "      " ).append( XMLHandler.addTagValue( "limit_folders", limitFolders ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( arguments != null ) {
@@ -137,13 +138,14 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
+  @Override
   public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
       super.loadXML( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      limit_folders = XMLHandler.getTagValue( entrynode, "limit_folders" );
+      successCondition = XMLHandler.getTagValue( entrynode, "success_condition" );
+      limitFolders = XMLHandler.getTagValue( entrynode, "limit_folders" );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
 
@@ -162,38 +164,37 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     }
   }
 
+  @Override
   public Result execute( Result result, int nr ) throws HopException {
     List<RowMetaAndData> rows = result.getRows();
 
     result.setNrErrors( 1 );
     result.setResult( false );
 
-    NrErrors = 0;
-    NrSuccess = 0;
+    nrErrors = 0;
+    nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
-    limitFolders = Const.toInt( environmentSubstitute( getLimitFolders() ), 10 );
+    nrLimitFolders = Const.toInt( environmentSubstitute( getLimitFolders() ), 10 );
 
-    if ( argFromPrevious ) {
-      if ( log.isDetailed() ) {
+    if ( argFromPrevious && log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.FoundPreviousRows", String
-          .valueOf( ( rows != null ? rows.size() : 0 ) ) ) );
-      }
+          .valueOf( ( rows != null ? rows.size() : 0 ) ) ) );      
     }
 
     if ( argFromPrevious && rows != null ) {
       for ( int iteration = 0; iteration < rows.size() && !parentJob.isStopped(); iteration++ ) {
         if ( successConditionBroken ) {
           logError( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Error.SuccessConditionbroken", ""
-            + NrErrors ) );
-          result.setNrErrors( NrErrors );
-          result.setNrLinesDeleted( NrSuccess );
+            + nrErrors ) );
+          result.setNrErrors( nrErrors );
+          result.setNrLinesDeleted( nrSuccess );
           return result;
         }
         RowMetaAndData resultRow = rows.get( iteration );
-        String args_previous = resultRow.getString( 0, null );
-        if ( !Utils.isEmpty( args_previous ) ) {
-          if ( deleteFolder( args_previous ) ) {
+        String argsPrevious = resultRow.getString( 0, null );
+        if ( !Utils.isEmpty( argsPrevious ) ) {
+          if ( deleteFolder( argsPrevious ) ) {
             updateSuccess();
           } else {
             updateErrors();
@@ -207,9 +208,9 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
       for ( int i = 0; i < arguments.length && !parentJob.isStopped(); i++ ) {
         if ( successConditionBroken ) {
           logError( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Error.SuccessConditionbroken", ""
-            + NrErrors ) );
-          result.setNrErrors( NrErrors );
-          result.setNrLinesDeleted( NrSuccess );
+            + nrErrors ) );
+          result.setNrErrors( nrErrors );
+          result.setNrLinesDeleted( nrSuccess );
           return result;
         }
         String realfilename = environmentSubstitute( arguments[ i ] );
@@ -228,13 +229,13 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
 
     if ( log.isDetailed() ) {
       logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Log.Info.NrError", "" + NrErrors ) );
-      logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Log.Info.NrDeletedFolders", "" + NrSuccess ) );
+      logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Log.Info.NrError", "" + nrErrors ) );
+      logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.Log.Info.NrDeletedFolders", "" + nrSuccess ) );
       logDetailed( "=======================================" );
     }
 
-    result.setNrErrors( NrErrors );
-    result.setNrLinesDeleted( NrSuccess );
+    result.setNrErrors( nrErrors );
+    result.setNrLinesDeleted( nrSuccess );
     if ( getSuccessStatus() ) {
       result.setResult( true );
     }
@@ -243,7 +244,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
   }
 
   private void updateErrors() {
-    NrErrors++;
+    nrErrors++;
     if ( checkIfSuccessConditionBroken() ) {
       // Success condition was broken
       successConditionBroken = true;
@@ -252,23 +253,23 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ( ( NrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrErrors >= limitFolders && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrErrors >= nrLimitFolders && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
     return retval;
   }
 
   private void updateSuccess() {
-    NrSuccess++;
+    nrSuccess++;
   }
 
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrSuccess >= limitFolders && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED ) )
-      || ( NrErrors <= limitFolders && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrSuccess >= nrLimitFolders && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED ) )
+      || ( nrErrors <= nrLimitFolders && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
 
@@ -290,11 +291,11 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
             logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.ProcessingFolder", foldername ) );
           }
           // Delete Files
-          int Nr = filefolder.delete( new TextFileSelector() );
+          int count = filefolder.delete( new TextFileSelector() );
 
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFolders.TotalDeleted", foldername, String
-              .valueOf( Nr ) ) );
+              .valueOf( count ) ) );
           }
           rcode = true;
         } else {
@@ -338,10 +339,12 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     this.argFromPrevious = argFromPrevious;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
                      IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
@@ -359,6 +362,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     }
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
     if ( arguments != null ) {
@@ -383,20 +387,20 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     return arguments;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
-  public void setLimitFolders( String limit_folders ) {
-    this.limit_folders = limit_folders;
+  public void setLimitFolders( String limitFolders ) {
+    this.limitFolders = limitFolders;
   }
 
   public String getLimitFolders() {
-    return limit_folders;
+    return limitFolders;
   }
 
 }

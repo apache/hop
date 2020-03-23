@@ -61,16 +61,16 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryCheckDbConnections.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCheckDbConnections.class; // for i18n purposes, needed by Translator2!!
 
   private DatabaseMeta[] connections;
 
-  public static final String[] unitTimeDesc = new String[] {
+  protected static final String[] unitTimeDesc = new String[] {
     BaseMessages.getString( PKG, "JobEntryCheckDbConnections.UnitTimeMilliSecond.Label" ),
     BaseMessages.getString( PKG, "JobEntryCheckDbConnections.UnitTimeSecond.Label" ),
     BaseMessages.getString( PKG, "JobEntryCheckDbConnections.UnitTimeMinute.Label" ),
     BaseMessages.getString( PKG, "JobEntryCheckDbConnections.UnitTimeHour.Label" ), };
-  public static final String[] unitTimeCode = new String[] { "millisecond", "second", "minute", "hour" };
+  protected static final String[] unitTimeCode = new String[] { "millisecond", "second", "minute", "hour" };
 
   public static final int UNIT_TIME_MILLI_SECOND = 0;
   public static final int UNIT_TIME_SECOND = 1;
@@ -83,8 +83,8 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
   private long timeStart;
   private long now;
 
-  public JobEntryCheckDbConnections( String n ) {
-    super( n, "" );
+  public JobEntryCheckDbConnections( String name ) {
+    super( name, "" );
     connections = null;
     waitfors = null;
     waittimes = null;
@@ -173,6 +173,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     return 0;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 120 );
     retval.append( super.getXML() );
@@ -193,19 +194,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     return retval.toString();
   }
 
-  private static int getWaitByCode( String tt ) {
-    if ( tt == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < unitTimeCode.length; i++ ) {
-      if ( unitTimeCode[ i ].equalsIgnoreCase( tt ) ) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
+  @Override
   public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
       super.loadXML( entrynode );
@@ -222,7 +211,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
         String dbname = XMLHandler.getTagValue( fnode, "name" );
         connections[ i ] = DatabaseMeta.loadDatabase( metaStore, dbname );
         waitfors[ i ] = XMLHandler.getTagValue( fnode, "waitfor" );
-        waittimes[ i ] = getWaitByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
+        waittimes[ i ] = getWaitTimeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -230,6 +219,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     }
   }
 
+  @Override
   public Result execute( Result previousResult, int nr ) {
     Result result = previousResult;
     result.setResult( true );
@@ -251,27 +241,27 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
           int iMaximumTimeout = Const.toInt( environmentSubstitute( waitfors[ i ] ), 0 );
           if ( iMaximumTimeout > 0 ) {
 
-            int Multiple = 1;
+            int multiple = 1;
             String waitTimeMessage = unitTimeDesc[ 0 ];
             switch ( waittimes[ i ] ) {
               case JobEntryCheckDbConnections.UNIT_TIME_MILLI_SECOND:
-                Multiple = 1;
+                multiple = 1;
                 waitTimeMessage = unitTimeDesc[ 0 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_SECOND:
-                Multiple = 1000; // Second
+                multiple = 1000; // Second
                 waitTimeMessage = unitTimeDesc[ 1 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_MINUTE:
-                Multiple = 60000; // Minute
+                multiple = 60000; // Minute
                 waitTimeMessage = unitTimeDesc[ 2 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_HOUR:
-                Multiple = 3600000; // Hour
+                multiple = 3600000; // Hour
                 waitTimeMessage = unitTimeDesc[ 3 ];
                 break;
               default:
-                Multiple = 1000; // Second
+                multiple = 1000; // Second
                 waitTimeMessage = unitTimeDesc[ 1 ];
                 break;
             }
@@ -288,7 +278,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
               // Update Time value
               now = System.currentTimeMillis();
               // Let's check the limit time
-              if ( ( now >= ( timeStart + iMaximumTimeout * Multiple ) ) ) {
+              if ( ( now >= ( timeStart + iMaximumTimeout * multiple ) ) ) {
                 // We have reached the time limit
                 if ( isDetailed() ) {
                   logDetailed( BaseMessages.getString(
@@ -345,14 +335,17 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     return result;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return connections;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
     if ( connections != null ) {
