@@ -64,14 +64,14 @@ import java.util.List;
 
 @Step(
   id = "PGBulkLoader",
-  i18nPackageName = "org.apache.hop.trans.step",
+  i18nPackageName = "org.apache.hop.trans.steps.pgbulkloader",
   description = "PGBulkLoader.Description",
   name = "PGBulkLoader.Name",
   categoryDescription = "BaseStep.Category.Bulk",
   image = "PGBulkLoader.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/PostgreSQL+Bulk+Loader"
 )
-public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionInterface, StepMetaInterface,
+public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface,
   ProvidesDatabaseConnectionInformation {
 
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
@@ -645,10 +645,6 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
   public void setStopOnError( boolean value ) {
     this.stopOnError = value;
-  }
-
-  public StepMetaInjectionInterface getStepMetaInjectionInterface() {
-    return this;
   }
 
   /**

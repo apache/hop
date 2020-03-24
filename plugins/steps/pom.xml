@@ -64,6 +64,7 @@
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
+        <module>filterrows</module>
         <module>fieldschangesequence</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>

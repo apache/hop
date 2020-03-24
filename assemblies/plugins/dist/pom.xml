@@ -969,6 +969,19 @@
 
      <dependency>
          <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-filterrows</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-pgbulkloader</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>
