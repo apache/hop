@@ -37,12 +37,20 @@ public class GuiCompositeWidgets {
   private Map<String, Control> labelsMap;
   private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
+  private int maxNrItems;
+  private int nrItems;
 
   public GuiCompositeWidgets( VariableSpace space ) {
+    this(space, 0);
+  }
+
+  public GuiCompositeWidgets( VariableSpace space, int maxNrItems ) {
     this.space = space;
+    this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
+    nrItems =0;
   }
 
   public void createCompositeWidgets( Object sourceData, String parentKey, Composite parent, String parentGuiElementId, Control lastControl ) {
@@ -183,7 +191,29 @@ public class GuiCompositeWidgets {
     Control previousControl = lastControl;
     for ( GuiElements child : guiElements.getChildren() ) {
       previousControl = addCompositeWidgets( sourceObject, parent, child, previousControl );
+      nrItems++;
     }
+
+    // We might need to add a number of extra lines...
+    // Let's just add empty labels..
+    //
+    for (;nrItems<maxNrItems;nrItems++) {
+      label = new Label( parent, SWT.RIGHT | SWT.SINGLE );
+      props.setLook( label );
+      label.setText( "                                                                    " );
+      FormData fdLabel = new FormData();
+      fdLabel.left = new FormAttachment( 0, 0 );
+      if ( previousControl == null ) {
+        fdLabel.top = new FormAttachment( 0, 0 );
+      } else {
+        fdLabel.top = new FormAttachment( previousControl, props.getMargin() );
+      }
+      fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
+      label.setLayoutData( fdLabel );
+      previousControl = label;
+    }
+
+
     return previousControl;
   }
 
@@ -353,7 +383,7 @@ public class GuiCompositeWidgets {
         }
 
       } else {
-        System.err.println( "Widget not found to set value on for id: " + guiElements );
+        System.err.println( "Widget not found to set value on for id: " + guiElements.getId()+", label: "+guiElements.getLabel() );
       }
     } else {
 
