@@ -840,7 +840,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     for ( int i = 0; i < types.length; i++ ) {
       types[ i ] = plugins.get( i ).getName();
     }
-    Arrays.sort( types );
+    Arrays.sort( types, String.CASE_INSENSITIVE_ORDER);
     return types;
   }
 
