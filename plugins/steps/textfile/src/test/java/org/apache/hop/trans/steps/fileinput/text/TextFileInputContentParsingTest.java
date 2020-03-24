@@ -26,11 +26,13 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
+  @Ignore
   @Test
   public void testDefaultOptions() throws Exception {
 
@@ -44,6 +46,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
   }
 
+  @Ignore
   @Test
   public void testSeparator() throws Exception {
 
@@ -58,6 +61,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
   }
 
+  @Ignore
   @Test
   public void testEscape() throws Exception {
 
@@ -72,6 +76,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
   }
 
+  @Ignore
   @Test
   public void testHeader() throws Exception {
 
@@ -134,6 +139,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
   }
 
+  @Ignore
   @Test
   public void testFixedWidth() throws Exception {
 
@@ -169,6 +175,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "1.000", "個 ", "T", "1.0" }, { "2.000", "M  ", "Z", "1.0" } } );
   }
 
+  @Ignore
   @Test
   public void testFixedWidthCharacters() throws Exception {
     meta.content.header = false;
@@ -205,6 +212,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
       { "NinthLine => FourthLine" }, { "" } } );
   }
 
+  @Ignore
   @Test
   public void testFilterVariables() throws Exception {
 
