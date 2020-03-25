@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.databases.teradata;
+package org.apache.hop.trans.steps.terafast;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;

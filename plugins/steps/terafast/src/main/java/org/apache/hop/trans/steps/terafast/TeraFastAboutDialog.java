@@ -20,9 +20,8 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.trans.steps.terafast;
+package org.apache.hop.trans.steps.terafast;
 
-import org.apache.hop.databases.teradata.TeraFastMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

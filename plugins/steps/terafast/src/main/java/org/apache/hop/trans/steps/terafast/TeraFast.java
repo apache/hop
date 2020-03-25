@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.databases.teradata;
+package org.apache.hop.trans.steps.terafast;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class TeraFast extends AbstractStep implements StepInterface {
 
-  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
 
   private TeraFastMeta meta;
 

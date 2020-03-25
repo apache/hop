@@ -20,17 +20,17 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.trans.steps.terafast;
+package org.apache.hop.trans.steps.terafast;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.KeyValue;
 import org.apache.hop.core.util.PluginProperty;
-import org.apache.hop.databases.teradata.TeraFastMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -59,9 +59,16 @@ import java.util.*;
  *
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  */
+
+@PluginDialog( 
+		  id = "TeraFast", 
+		  image = "TeraFast.svg", 
+		  pluginType = PluginDialog.PluginType.STEP,
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+)
 public class TeraFastDialog extends BaseStepDialog implements StepDialogInterface {
 
-  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 
@@ -203,7 +210,6 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     this.shell.setText( BaseMessages.getString( PKG, "TeraFastDialog.Shell.Title" ) );
 
     buildUi();
-    assignChangeListener();
     listeners();
 
     //
@@ -525,13 +531,28 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
   protected void buildUi() {
     final PluginWidgetFactory factory = new PluginWidgetFactory( this.shell, this.transMeta );
     factory.setMiddle( this.props.getMiddlePct() );
+    
+    final ModifyListener lsMod = new ModifyListener() {
+        public void modifyText( final ModifyEvent event ) {
+          getMeta().setChanged();
+        }
+      };
+      final SelectionAdapter lsSel = new SelectionAdapter() {
+        @Override
+        public void widgetSelected( final SelectionEvent event ) {
+          getMeta().setChanged();
+        }
+      };
+    
     this.buildStepNameLine( factory );
     this.buildUseControlFileLine( factory );
     this.buildControlFileLine( factory );
     this.buildVariableSubstitutionLine( factory );
     this.buildFastloadLine( factory );
     this.buildLogFileLine( factory );
-    this.wConnection = addConnectionLine( this.shell, this.wLogFile, meta.getDbMeta(), null );
+
+    // Connection line
+    this.wConnection = addConnectionLine( this.shell, this.wLogFile, meta.getDbMeta(), lsMod );
     this.buildTableLine( factory );
     this.buildTruncateTableLine( factory );
     this.buildDataFileLine( factory );
@@ -544,6 +565,20 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     this.wCancel = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     this.wAbout = factory.createPushButton( BaseMessages.getString( PKG, "TeraFastDialog.About.Button" ) );
     setButtonPositions( new Button[] { this.wOK, this.wCancel, this.wAbout }, factory.getMargin(), this.wAscLink );
+    
+    this.wStepname.addModifyListener( lsMod );
+    this.wControlFile.addModifyListener( lsMod );
+    this.wFastLoadPath.addModifyListener( lsMod );
+    this.wLogFile.addModifyListener( lsMod );
+    this.wConnection.addModifyListener( lsMod );
+    this.wTable.addModifyListener( lsMod );
+    this.wDataFile.addModifyListener( lsMod );
+    this.wSessions.addModifyListener( lsMod );
+    this.wErrLimit.addModifyListener( lsMod );
+    this.wbTruncateTable.addSelectionListener( lsSel );
+    this.wUseControlFile.addSelectionListener( lsSel );
+    this.wVariableSubstitution.addSelectionListener( lsSel );
+    this.wReturn.addModifyListener( lsMod );
   }
 
   /**
@@ -830,36 +865,6 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     this.wReturn.setLayoutData( formData );
   }
 
-  /**
-   * ...
-   */
-  protected void assignChangeListener() {
-    final ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( final ModifyEvent event ) {
-        getMeta().setChanged();
-      }
-    };
-    final SelectionAdapter lsSel = new SelectionAdapter() {
-      @Override
-      public void widgetSelected( final SelectionEvent event ) {
-        getMeta().setChanged();
-      }
-    };
-
-    this.wStepname.addModifyListener( lsMod );
-    this.wControlFile.addModifyListener( lsMod );
-    this.wFastLoadPath.addModifyListener( lsMod );
-    this.wLogFile.addModifyListener( lsMod );
-    this.wConnection.addModifyListener( lsMod );
-    this.wTable.addModifyListener( lsMod );
-    this.wDataFile.addModifyListener( lsMod );
-    this.wSessions.addModifyListener( lsMod );
-    this.wErrLimit.addModifyListener( lsMod );
-    this.wbTruncateTable.addSelectionListener( lsSel );
-    this.wUseControlFile.addSelectionListener( lsSel );
-    this.wVariableSubstitution.addSelectionListener( lsSel );
-    this.wReturn.addModifyListener( lsMod );
-  }
 
   /**
    * Disable inputs.
