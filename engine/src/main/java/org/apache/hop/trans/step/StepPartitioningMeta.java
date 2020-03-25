@@ -22,6 +22,7 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -29,9 +30,12 @@ import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.Partitioner;
 import org.w3c.dom.Node;
@@ -49,7 +53,6 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   private int methodType;
   private String method;
 
-  private String partitionSchemaName; // to allow delayed binding...
   private PartitionSchema partitionSchema;
 
   private Partitioner partitioner;
@@ -75,10 +78,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
 
   public StepPartitioningMeta clone() {
     try {
-      StepPartitioningMeta stepPartitioningMeta =
-        new StepPartitioningMeta( method, partitionSchema != null
-          ? (PartitionSchema) partitionSchema.clone() : null );
-      stepPartitioningMeta.partitionSchemaName = partitionSchemaName;
+      StepPartitioningMeta stepPartitioningMeta = new StepPartitioningMeta( method, partitionSchema != null ? (PartitionSchema) partitionSchema.clone() : null );
       stepPartitioningMeta.setMethodType( methodType );
       stepPartitioningMeta.setPartitioner( partitioner == null ? null : partitioner.clone() );
       return stepPartitioningMeta;
@@ -95,19 +95,19 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
     if ( obj == null ) {
       return false;
     }
-    if ( partitionSchemaName == null ) {
+    if ( partitionSchema == null ) {
       return false;
     }
     StepPartitioningMeta meta = (StepPartitioningMeta) obj;
-    if ( meta.partitionSchemaName == null ) {
+    if ( meta.partitionSchema == null ) {
       return false;
     }
-    return partitionSchemaName.equalsIgnoreCase( meta.partitionSchemaName );
+    return partitionSchema.getName().equalsIgnoreCase( meta.partitionSchema.getName() );
   }
 
   @Override
   public int hashCode() {
-    return partitionSchemaName == null ? 0 : partitionSchemaName.toLowerCase().hashCode();
+    return partitionSchema == null ? 0 : partitionSchema.getName().hashCode();
   }
 
   @Override
@@ -160,10 +160,19 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
     return xml.toString();
   }
 
-  public StepPartitioningMeta( Node partitioningMethodNode ) throws HopException {
+  public StepPartitioningMeta( Node partitioningMethodNode, IMetaStore metaStore ) throws HopException {
     this();
     setMethod( getMethod( XMLHandler.getTagValue( partitioningMethodNode, "method" ) ) );
-    partitionSchemaName = XMLHandler.getTagValue( partitioningMethodNode, "schema_name" );
+    String partitionSchemaName = XMLHandler.getTagValue( partitioningMethodNode, "schema_name" );
+    if ( StringUtils.isEmpty(partitionSchemaName) ) {
+      partitionSchema = new PartitionSchema(  );
+    } else {
+      try {
+        partitionSchema = PartitionSchema.createFactory( metaStore ).loadElement( partitionSchemaName );
+      } catch(Exception e) {
+        throw new HopException( "Unable to load partition schema with name '"+partitionSchemaName+"'", e );
+      }
+    }
     hasChanged = false;
     if ( partitioner != null ) {
       partitioner.loadXML( partitioningMethodNode );
@@ -248,10 +257,6 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
     return methodType != PARTITIONING_METHOD_NONE;
   }
 
-  public void setPartitionSchemaName( String partitionSchemaName ) {
-    this.partitionSchemaName = partitionSchemaName;
-  }
-
   /**
    * @return the partitionSchema
    */
@@ -265,30 +270,6 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   public void setPartitionSchema( PartitionSchema partitionSchema ) {
     this.partitionSchema = partitionSchema;
     hasChanged = true;
-  }
-
-  /**
-   * Set the partitioning schema after loading from XML
-   *
-   * @param partitionSchemas the list of partitioning schemas
-   */
-  public void setPartitionSchemaAfterLoading( List<PartitionSchema> partitionSchemas ) throws HopException {
-    partitionSchema = null; // sorry, not found!
-
-    for ( int i = 0; i < partitionSchemas.size() && partitionSchema == null; i++ ) {
-      PartitionSchema schema = partitionSchemas.get( i );
-      if ( schema.getName().equalsIgnoreCase( partitionSchemaName ) ) {
-        partitionSchema = schema; // found!
-      }
-    }
-
-    /*
-     * if (methodType!=PARTITIONING_METHOD_NONE && partitionSchema==null) { String message =
-     * "Unable to set partition schema for name ["+partitionSchemaName+"], method: "+getMethodDescription()+Const.CR;
-     * message += "This is the list of available partition schema:"+Const.CR; for (int i=0;i<partitionSchemas.size() &&
-     * partitionSchema==null;i++) { PartitionSchema schema = partitionSchemas.get(i);
-     * message+="  --> "+schema.getName()+Const.CR; } throw new HopException(message); }
-     */
   }
 
   public void createPartitioner( String method ) throws HopPluginException {

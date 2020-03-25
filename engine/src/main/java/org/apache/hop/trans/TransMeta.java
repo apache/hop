@@ -2636,19 +2636,6 @@ public class TransMeta extends AbstractMeta
           partitionSchemas.add( partitionSchema );
         }
 
-        // Have all step partitioning meta-data reference the correct schemas that we just loaded
-        //
-        for ( int i = 0; i < nrSteps(); i++ ) {
-          StepPartitioningMeta stepPartitioningMeta = getStep( i ).getStepPartitioningMeta();
-          if ( stepPartitioningMeta != null ) {
-            stepPartitioningMeta.setPartitionSchemaAfterLoading( partitionSchemas );
-          }
-          StepPartitioningMeta targetStepPartitioningMeta = getStep( i ).getTargetStepPartitioningMeta();
-          if ( targetStepPartitioningMeta != null ) {
-            targetStepPartitioningMeta.setPartitionSchemaAfterLoading( partitionSchemas );
-          }
-        }
-
         String srowset = XMLHandler.getTagValue( infonode, "size_rowset" );
         sizeRowset = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
         sleepTimeEmpty =

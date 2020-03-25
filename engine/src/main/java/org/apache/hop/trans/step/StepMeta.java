@@ -273,14 +273,14 @@ public class StepMeta implements
         // The partitioning information?
         //
         Node partNode = XMLHandler.getSubNode( stepnode, "partitioning" );
-        stepPartitioningMeta = new StepPartitioningMeta( partNode );
+        stepPartitioningMeta = new StepPartitioningMeta( partNode, metaStore );
 
         // Target partitioning information?
         //
         Node targetPartNode = XMLHandler.getSubNode( stepnode, "target_step_partitioning" );
         partNode = XMLHandler.getSubNode( targetPartNode, "partitioning" );
         if ( partNode != null ) {
-          targetStepPartitioningMeta = new StepPartitioningMeta( partNode );
+          targetStepPartitioningMeta = new StepPartitioningMeta( partNode, metaStore );
         }
       }
     } catch ( HopPluginLoaderException e ) {

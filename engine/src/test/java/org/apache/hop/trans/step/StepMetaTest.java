@@ -127,7 +127,7 @@ public class StepMetaTest {
   private static StepPartitioningMeta createStepPartitioningMeta( String method, String schemaName ) throws Exception {
     StepPartitioningMeta meta = new StepPartitioningMeta( method, new PartitionSchema( schemaName,
       Collections.<String>emptyList() ) );
-    meta.setPartitionSchemaName( "schema_name" );
+    meta.setPartitionSchema( new PartitionSchema() );
     return meta;
   }
 

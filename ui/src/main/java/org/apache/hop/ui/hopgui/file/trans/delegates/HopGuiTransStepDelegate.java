@@ -324,23 +324,22 @@ public class HopGuiTransStepDelegate {
         PluginRegistry registry = PluginRegistry.getInstance();
         List<PluginInterface> plugins = registry.getPlugins( PartitionerPluginType.class );
         int exactSize = StepPartitioningMeta.methodDescriptions.length + plugins.size();
-        PartitionSettings settings = new PartitionSettings( exactSize, transMeta, stepMeta, hopUi.partitionManager );
-        settings.fillOptionsAndCodesByPlugins( plugins );
+        PartitionSettings partitionSettings = new PartitionSettings( exactSize, transMeta, stepMeta, hopUi.partitionManager );
+        partitionSettings.fillOptionsAndCodesByPlugins( plugins );
 
         /*Method selection*/
         PartitionMethodSelector methodSelector = new PartitionMethodSelector();
-        String partitionMethodDescription =
-          methodSelector.askForPartitionMethod( hopUi.getShell(), settings );
+        String partitionMethodDescription = methodSelector.askForPartitionMethod( hopUi.getShell(), partitionSettings );
         if ( !StringUtil.isEmpty( partitionMethodDescription ) ) {
-          String method = settings.getMethodByMethodDescription( partitionMethodDescription );
+          String method = partitionSettings.getMethodByMethodDescription( partitionMethodDescription );
           int methodType = StepPartitioningMeta.getMethodType( method );
 
-          settings.updateMethodType( methodType );
-          settings.updateMethod( method );
+          partitionSettings.updateMethodType( methodType );
+          partitionSettings.updateMethod( method );
 
           /*Schema selection*/
           MethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
-          methodProcessor.schemaSelection( settings, hopUi.getShell(), new IPartitionSchemaSelection() {
+          methodProcessor.schemaSelection( partitionSettings, hopUi.getShell(), new IPartitionSchemaSelection() {
             @Override public String schemaFieldSelection( Shell shell, PartitionSettings settings ) throws HopException {
               StepPartitioningMeta partitioningMeta = settings.getStepMeta().getStepPartitioningMeta();
               StepDialogInterface dialog = getPartitionerDialog( shell, settings.getStepMeta(), partitioningMeta, settings.getTransMeta() );
@@ -348,12 +347,11 @@ public class HopGuiTransStepDelegate {
             }
           } );
         }
-        /** TODO: Add new Undo/Redo system
-         addUndoChange( settings.getTransMeta(), new StepMeta[] { settings.getBefore() },
-         new StepMeta[] { settings.getAfter() }, new int[] { settings.getTransMeta()
-         .indexOfStep( settings.getStepMeta() ) }
+        stepMeta.setChanged();
+        hopUi.undoDelegate.addUndoChange( partitionSettings.getTransMeta(), new StepMeta[] { partitionSettings.getBefore() },
+         new StepMeta[] { partitionSettings.getAfter() }, new int[] { partitionSettings.getTransMeta()
+         .indexOfStep( partitionSettings.getStepMeta() ) }
          );
-         */
         transGraph.redraw();
       }
     } catch ( Exception e ) {
@@ -368,8 +366,7 @@ public class HopGuiTransStepDelegate {
     if ( ( schemaNames == null ) || ( schemaNames.length == 0 ) ) {
       MessageBox box = new MessageBox( hopUi.getShell(), SWT.ICON_ERROR | SWT.OK );
       box.setText( "Create a partition schema" );
-      box.setMessage( "You first need to create one or more partition schemas in "
-        + "the transformation settings dialog before you can select one!" );
+      box.setMessage( "You first need to create one or more partition schemas before you can select one!" );
       box.open();
       return false;
     }

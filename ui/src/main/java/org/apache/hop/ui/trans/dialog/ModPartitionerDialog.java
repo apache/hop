@@ -172,9 +172,12 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
       }
     } );
 
-    // Set the shell size, based upon previous time...
-    setSize();
     getData();
+
+    // Set the shell size, based upon previous time, current content......
+    //
+    setSize();
+
     partitioningMeta.hasChanged( changed );
 
     setSize();

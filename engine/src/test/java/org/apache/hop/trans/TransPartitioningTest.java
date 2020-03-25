@@ -488,7 +488,7 @@ public class TransPartitioningTest {
     // explicitly. See equals implementation for StepPartitioningMeta.
     StepPartitioningMeta partMeta = new StepPartitioningMeta( "Mirror to all partitions", schema );
     // that is what I am talking about:
-    partMeta.setPartitionSchemaName( schema.getName() );
+    partMeta.setPartitionSchema( schema );
 
     dummy1.setStepPartitioningMeta( partMeta );
     dummy2.setStepPartitioningMeta( partMeta );
@@ -514,8 +514,8 @@ public class TransPartitioningTest {
 
     StepPartitioningMeta partMeta1 = new StepPartitioningMeta( "Mirror to all partitions", schema1 );
     StepPartitioningMeta partMeta2 = new StepPartitioningMeta( "Mirror to all partitions", schema2 );
-    partMeta1.setPartitionSchemaName( schema1.getName() );
-    partMeta2.setPartitionSchemaName( schema2.getName() );
+    partMeta1.setPartitionSchema( schema1 );
+    partMeta2.setPartitionSchema( schema2 );
 
     dummy1.setStepPartitioningMeta( partMeta1 );
     dummy2.setStepPartitioningMeta( partMeta2 );
