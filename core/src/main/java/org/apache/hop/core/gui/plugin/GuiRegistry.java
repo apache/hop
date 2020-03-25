@@ -1,11 +1,15 @@
 package org.apache.hop.core.gui.plugin;
 
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,11 +26,13 @@ public class GuiRegistry {
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
+  private Set<Class<IHopMetaStoreElement<?>>> metaStoreTypeSet;
 
   private GuiRegistry() {
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
+    metaStoreTypeSet = new HashSet<>(  );
   }
 
   public static final GuiRegistry getInstance() {
@@ -268,6 +274,9 @@ public class GuiRegistry {
     return contextActionsMap.get( parentContextId );
   }
 
+  public void addMetaStoreElementType( Class<IHopMetaStoreElement<?>> elementClass ) {
+    metaStoreTypeSet.add( elementClass );
+  }
 
   /**
    * Gets dataElementsMap

@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.DatabasePluginType;
@@ -76,6 +77,7 @@ import java.util.concurrent.Future;
   name = "Relational Database Connection",
   description = "This contains all the metadata needed to connect to a relational database"
 )
+@GuiMetaStoreElement
 public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator2!!
 

@@ -99,7 +99,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       selectedAction = actions.get( 0 );
     }
 
-    iconSize = (int) Math.round( 2 * props.getZoomFactor() * props.getIconSize() );
+    iconSize = (int) Math.round( props.getZoomFactor() * props.getIconSize() );
   }
 
   public GuiAction open() {

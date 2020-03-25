@@ -40,16 +40,16 @@ public interface GUIOption<E> {
     CHECK_BOX, TEXT_FIELD, ACTION_BUTTON
   }
 
-  public E getLastValue();
+  E getLastValue();
 
   /**
    * Sets the value; should also persist it.
    *
    * @param value
    */
-  public void setValue( E value );
+  void setValue( E value );
 
-  public DisplayType getType();
+  DisplayType getType();
 
   String getLabelText();
 

@@ -22,9 +22,13 @@
 
 package org.apache.hop.core.logging;
 
+import java.util.Timer;
+
 public class ConsoleLoggingEventListener implements HopLoggingEventListener {
 
   private HopLogLayout layout;
+
+  private Timer flushTimer;
 
   public ConsoleLoggingEventListener() {
     this.layout = new HopLogLayout( true );
@@ -37,8 +41,10 @@ public class ConsoleLoggingEventListener implements HopLoggingEventListener {
 
     if ( event.getLevel() == LogLevel.ERROR ) {
       HopLogStore.OriginalSystemErr.println( logText );
+      HopLogStore.OriginalSystemErr.flush();
     } else {
       HopLogStore.OriginalSystemOut.println( logText );
+      HopLogStore.OriginalSystemOut.flush();
     }
   }
 }
