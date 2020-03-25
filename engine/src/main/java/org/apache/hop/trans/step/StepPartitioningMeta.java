@@ -99,10 +99,22 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
       return false;
     }
     StepPartitioningMeta meta = (StepPartitioningMeta) obj;
-    if ( meta.partitionSchema == null ) {
+    if ( partitionSchema==null && meta.partitionSchema == null ) {
+      return true;
+    }
+    if ( partitionSchema!=null && meta.partitionSchema == null || partitionSchema==null && meta.partitionSchema != null ) {
       return false;
     }
-    return partitionSchema.getName().equalsIgnoreCase( meta.partitionSchema.getName() );
+    String schemaName = partitionSchema.getName();
+    String otherName = meta.getPartitionSchema().getName();
+
+    if (schemaName==null && otherName==null) {
+      return true;
+    }
+    if (schemaName!=null && otherName==null || schemaName==null && otherName!=null) {
+      return false;
+    }
+    return schemaName.equalsIgnoreCase( otherName );
   }
 
   @Override

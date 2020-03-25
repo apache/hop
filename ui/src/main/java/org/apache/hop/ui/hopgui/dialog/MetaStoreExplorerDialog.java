@@ -175,6 +175,18 @@ public class MetaStoreExplorerDialog {
             final String elementName = labels[ 3 ];
 
             Menu menu = new Menu( tree );
+
+            // Find the class that corresponds to the selected item...
+            //
+            MenuItem editItem = new MenuItem( menu, SWT.POP_UP );
+            editItem.setText( "Edit element" );
+            editItem.addSelectionListener( new SelectionAdapter() {
+              @Override
+              public void widgetSelected( SelectionEvent arg0 ) {
+                editElement( metaStoreName, namespace, elementTypeName, elementName );
+              }
+            } );
+
             MenuItem removeItem = new MenuItem( menu, SWT.POP_UP );
             removeItem.setText( "Remove element" );
             removeItem.addSelectionListener( new SelectionAdapter() {
@@ -183,6 +195,8 @@ public class MetaStoreExplorerDialog {
                 removeElement( metaStoreName, namespace, elementTypeName, elementName );
               }
             } );
+
+
             tree.setMenu( menu );
             menu.setVisible( true );
           }
@@ -213,6 +227,10 @@ public class MetaStoreExplorerDialog {
         display.sleep();
       }
     }
+  }
+
+  private void editElement( String metaStoreName, String namespace, String elementTypeName, String elementName ) {
+    // TODO
   }
 
   private void removeElement( String metaStoreName, String namespace, String elementTypeName, String elementName ) {

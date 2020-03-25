@@ -46,6 +46,7 @@ import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -97,6 +98,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_FILE_OPEN = "10020-menu-file-open";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
+  public static final String ID_MAIN_MENU_FILE_METASTORE = "10060-menu-file-metastore";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
@@ -401,6 +403,13 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE_AS, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/saveas.svg", toolTip = "Save as...", parentId = ID_MAIN_TOOLBAR )
   public void menuFileSaveAs() {
     System.out.println( "fileSaveAs" );
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_METASTORE, type = GuiElementType.MENU_ITEM, label = "Explore MetaStore", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiKeyboardShortcut( control = true, shift=true, key = SWT.F5 )
+  @GuiOSXKeyboardShortcut( command = true, shift=true, key = SWT.F5 )
+  public void menuFileMetaStore() {
+    new MetaStoreExplorerDialog( shell, metaStore ).open();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_CLOSE, type = GuiElementType.MENU_ITEM, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
