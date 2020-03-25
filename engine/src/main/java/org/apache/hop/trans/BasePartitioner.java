@@ -82,7 +82,7 @@ public abstract class BasePartitioner implements Partitioner {
   public void init( RowMetaInterface rowMeta ) throws HopException {
 
     if ( nrPartitions < 0 ) {
-      nrPartitions = meta.getPartitionSchema().getPartitionIDs().size();
+      nrPartitions = meta.getPartitionSchema().calculatePartitionIDs().size();
     }
 
   }

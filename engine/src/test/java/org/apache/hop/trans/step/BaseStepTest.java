@@ -333,50 +333,6 @@ public class BaseStepTest {
   }
 
   @Test
-  public void testCleanupRemoteSteps() {
-    RemoteStep remoteStepMock = mock( RemoteStep.class );
-    BaseStep.cleanupRemoteSteps( Collections.singletonList( remoteStepMock ) );
-    verify( remoteStepMock ).cleanup();
-  }
-
-  @Test
-  public void testCleanup() throws IOException {
-    BaseStep baseStep =
-      new BaseStep( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
-    ServerSocket serverSocketMock = mock( ServerSocket.class );
-    doReturn( 0 ).when( serverSocketMock ).getLocalPort();
-    baseStep.setServerSockets( Collections.singletonList( serverSocketMock ) );
-    SocketRepository socketRepositoryMock = mock( SocketRepository.class );
-    baseStep.setSocketRepository( socketRepositoryMock );
-
-    baseStep.cleanup();
-
-    verify( socketRepositoryMock ).releaseSocket( 0 );
-  }
-
-  @Test
-  public void testCleanupWithInexistentRemoteSteps() throws IOException {
-    BaseStep baseStep =
-      spy( new BaseStep( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-        mockHelper.trans ) );
-    ServerSocket serverSocketMock = mock( ServerSocket.class );
-    doReturn( 0 ).when( serverSocketMock ).getLocalPort();
-    baseStep.setServerSockets( Collections.singletonList( serverSocketMock ) );
-    SocketRepository socketRepositoryMock = mock( SocketRepository.class );
-    baseStep.setSocketRepository( socketRepositoryMock );
-    RemoteStep inputStep = mock( RemoteStep.class );
-    doReturn( Collections.singletonList( inputStep ) ).when( baseStep ).getRemoteInputSteps();
-    RemoteStep outputStep = mock( RemoteStep.class );
-    doReturn( Collections.singletonList( outputStep ) ).when( baseStep ).getRemoteOutputSteps();
-
-    baseStep.cleanup();
-
-    verify( inputStep ).cleanup();
-    verify( outputStep ).cleanup();
-    verify( socketRepositoryMock ).releaseSocket( 0 );
-  }
-
-  @Test
   public void getRowWithRowHandler() throws HopException {
     BaseStep baseStep =
       new BaseStep( mockHelper.stepMeta, mockHelper.stepDataInterface,
@@ -517,7 +473,6 @@ public class BaseStepTest {
       spy( new BaseStep( mockHelper.stepMeta, mockHelper.stepDataInterface,
         0, mockHelper.transMeta, transMock ) );
     doNothing().when( baseStepSpy ).waitUntilTransformationIsStarted();
-    doNothing().when( baseStepSpy ).openRemoteInputStepSocketsOnce();
 
     BlockingRowSet rowSet = new BlockingRowSet( 1 );
     List<ValueMetaInterface> valueMetaList = Arrays.asList( new ValueMetaInteger( "x" ), new ValueMetaString( "a" ) );

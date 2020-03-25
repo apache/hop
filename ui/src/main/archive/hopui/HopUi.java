@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.AddUndoPositionInterface;
 import org.apache.hop.core.Const;

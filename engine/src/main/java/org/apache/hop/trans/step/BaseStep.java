@@ -53,12 +53,9 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.BasePartitioner;
-import org.apache.hop.trans.SlaveStepCopyPartitionDistribution;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.cluster.TransSplitter;
 import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.steps.mapping.Mapping;
@@ -68,7 +65,6 @@ import org.apache.hop.www.SocketRepository;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -248,16 +244,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   private final ReadWriteLock outputRowSetsLock = new ReentrantReadWriteLock();
 
   /**
-   * The remote input steps.
-   */
-  private List<RemoteStep> remoteInputSteps;
-
-  /**
-   * The remote output steps.
-   */
-  private List<RemoteStep> remoteOutputSteps;
-
-  /**
    * the rowset for the error rows
    */
   private RowSet errorRowSet;
@@ -350,38 +336,13 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
   private boolean checkTransRunning;
 
-  private int slaveNr;
-
-  private int clusterSize;
-
-  private int uniqueStepNrAcrossSlaves;
-
-  private int uniqueStepCountAcrossSlaves;
-
-  private boolean remoteOutputStepsInitialized;
-
-  private boolean remoteInputStepsInitialized;
-
-  private RowSet[] partitionNrRowSetList;
-
-  /**
-   * A list of server sockets that need to be closed during transformation cleanup.
-   */
-  private List<ServerSocket> serverSockets;
-
   private static int NR_OF_ROWS_IN_BLOCK = 500;
 
   private int blockPointer;
 
   /**
-   * A flag to indicate that clustered partitioning was not yet initialized
-   */
-  private boolean clusteredPartitioningFirst;
-
-  /**
    * A flag to determine whether or not we are doing local or clustered (remote) par
    */
-  private boolean clusteredPartitioning;
 
   private boolean usingThreadPriorityManagment;
 
@@ -470,7 +431,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     log = HopLogStore.getLogChannelInterfaceFactory().create( this, trans );
 
     first = true;
-    clusteredPartitioningFirst = true;
 
     running = new AtomicBoolean( false );
     stopped = new AtomicBoolean( false );
@@ -495,7 +455,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
     terminator = stepMeta.hasTerminator();
     if ( terminator ) {
-      terminator_rows = new ArrayList<Object[]>();
+      terminator_rows = new ArrayList<>();
     } else {
       terminator_rows = null;
     }
@@ -532,9 +492,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     repartitioning = StepPartitioningMeta.PARTITIONING_METHOD_NONE;
     partitionTargets = new Hashtable<String, BlockingRowSet>();
 
-    serverSockets = new ArrayList<ServerSocket>();
-
-    extensionDataMap = new HashMap<String, Object>();
+    extensionDataMap = new HashMap<>();
 
     // tuning parameters
     // putTimeOut = 10; //s
@@ -568,185 +526,31 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     sdi.setStatus( StepExecutionStatus.STATUS_INIT );
 
-    String slaveNr = transMeta.getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER );
-    String clusterSize = transMeta.getVariable( Const.INTERNAL_VARIABLE_CLUSTER_SIZE );
-    boolean master = "Y".equalsIgnoreCase( transMeta.getVariable( Const.INTERNAL_VARIABLE_CLUSTER_MASTER ) );
-
-    if ( !Utils.isEmpty( slaveNr ) && !Utils.isEmpty( clusterSize ) && !master ) {
-      this.slaveNr = Integer.parseInt( slaveNr );
-      this.clusterSize = Integer.parseInt( clusterSize );
-
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "BaseStep.Log.ReleasedServerSocketOnPort", slaveNr, clusterSize ) );
-      }
-    } else {
-      this.slaveNr = 0;
-      this.clusterSize = 0;
-    }
-
-    // Also set the internal variable for the partition
-    //
-    SlaveStepCopyPartitionDistribution partitionDistribution = transMeta.getSlaveStepCopyPartitionDistribution();
-
     if ( stepMeta.isPartitioned() ) {
-      // See if we are partitioning remotely
+      // This is a locally partitioned step...
       //
-      if ( partitionDistribution != null && !partitionDistribution.getDistribution().isEmpty() ) {
-        String slaveServerName = getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME );
-        int stepCopyNr = copyNr;
+      int partitionNr = copyNr;
+      String partitionNrString = new DecimalFormat( "000" ).format( partitionNr );
+      setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_NR, partitionNrString );
+      final List<String> partitionIDList = stepMeta.getStepPartitioningMeta().getPartitionSchema().calculatePartitionIDs();
 
-        // Look up the partition nr...
-        // Set the partition ID (string) as well as the partition nr [0..size[
-        //
-        PartitionSchema partitionSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
-        int partitionNr =
-          partitionDistribution.getPartition( slaveServerName, partitionSchema.getName(), stepCopyNr );
-        if ( partitionNr >= 0 ) {
-          String partitionNrString = new DecimalFormat( "000" ).format( partitionNr );
-          setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_NR, partitionNrString );
-
-          if ( partitionDistribution.getOriginalPartitionSchemas() != null ) {
-            // What is the partition schema name?
-            //
-            String partitionSchemaName = stepMeta.getStepPartitioningMeta().getPartitionSchema().getName();
-
-            // Search the original partition schema in the distribution...
-            //
-            for ( PartitionSchema originalPartitionSchema : partitionDistribution.getOriginalPartitionSchemas() ) {
-              String slavePartitionSchemaName =
-                TransSplitter.createSlavePartitionSchemaName( originalPartitionSchema.getName() );
-              if ( slavePartitionSchemaName.equals( partitionSchemaName ) ) {
-                PartitionSchema schema = (PartitionSchema) originalPartitionSchema.clone();
-
-                // This is the one...
-                //
-                if ( schema.isDynamicallyDefined() ) {
-                  schema.expandPartitionsDynamically( this.clusterSize, this );
-                }
-
-                String partID = schema.getPartitionIDs().get( partitionNr );
-                setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_ID, partID );
-                break;
-              }
-            }
-          }
-        }
+      if ( partitionIDList.size() > 0 ) {
+        String partitionID = partitionIDList.get( partitionNr );
+        setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_ID, partitionID );
       } else {
-        // This is a locally partitioned step...
-        //
-        int partitionNr = copyNr;
-        String partitionNrString = new DecimalFormat( "000" ).format( partitionNr );
-        setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_NR, partitionNrString );
-        final List<String> partitionIDList = stepMeta.getStepPartitioningMeta().getPartitionSchema().getPartitionIDs();
-
-        if ( partitionIDList.size() > 0 ) {
-          String partitionID = partitionIDList.get( partitionNr );
-          setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_ID, partitionID );
-        } else {
-          logError( BaseMessages.getString( PKG, "BaseStep.Log.UnableToRetrievePartitionId",
-            stepMeta.getStepPartitioningMeta().getPartitionSchema().getName() ) );
-          return false;
-        }
+        logError( BaseMessages.getString( PKG, "BaseStep.Log.UnableToRetrievePartitionId",
+          stepMeta.getStepPartitioningMeta().getPartitionSchema().getName() ) );
+        return false;
       }
     } else if ( !Utils.isEmpty( partitionID ) ) {
       setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_ID, partitionID );
     }
 
-    // Set a unique step number across all slave servers
-    //
-    // slaveNr * nrCopies + copyNr
-    //
-    uniqueStepNrAcrossSlaves = this.slaveNr * getStepMeta().getCopies() + copyNr;
-    uniqueStepCountAcrossSlaves =
-      this.clusterSize <= 1 ? getStepMeta().getCopies() : this.clusterSize * getStepMeta().getCopies();
-    if ( uniqueStepCountAcrossSlaves == 0 ) {
-      uniqueStepCountAcrossSlaves = 1;
-    }
-
-    setVariable( Const.INTERNAL_VARIABLE_STEP_UNIQUE_NUMBER, Integer.toString( uniqueStepNrAcrossSlaves ) );
-    setVariable( Const.INTERNAL_VARIABLE_STEP_UNIQUE_COUNT, Integer.toString( uniqueStepCountAcrossSlaves ) );
     setVariable( Const.INTERNAL_VARIABLE_STEP_COPYNR, Integer.toString( copyNr ) );
 
     // BACKLOG-18004
-    allowEmptyFieldNamesAndTypes = Boolean.parseBoolean( System.getProperties().getProperty(
-      Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "false" ) );
+    allowEmptyFieldNamesAndTypes = Boolean.parseBoolean( System.getProperties().getProperty( Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "false" ) );
 
-    // Now that these things have been done, we also need to start a number of server sockets.
-    // One for each of the remote output steps that we're going to write to.
-    //
-    try {
-      // If this is on the master, separate logic applies.
-      //
-      // boolean isMaster = "Y".equalsIgnoreCase(getVariable(Const.INTERNAL_VARIABLE_CLUSTER_MASTER));
-
-      remoteOutputSteps = new ArrayList<RemoteStep>();
-      for ( int i = 0; i < stepMeta.getRemoteOutputSteps().size(); i++ ) {
-        RemoteStep remoteStep = stepMeta.getRemoteOutputSteps().get( i );
-
-        // If the step run in multiple copies, we only want to open every socket once.
-        //
-        if ( getCopy() == remoteStep.getSourceStepCopyNr() ) {
-          // Open a server socket to allow the remote output step to connect.
-          //
-          RemoteStep copy = (RemoteStep) remoteStep.clone();
-          try {
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "BaseStep.Log.SelectedRemoteOutputStepToServer",
-                copy, copy.getTargetStep(), copy.getTargetStepCopyNr(), copy.getPort() ) );
-            }
-            copy.openServerSocket( this );
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "BaseStep.Log.OpenedServerSocketConnectionTo", copy ) );
-            }
-          } catch ( Exception e ) {
-            logError( "Unable to open server socket during step initialisation: " + copy.toString(), e );
-            throw e;
-          }
-          remoteOutputSteps.add( copy );
-        }
-      }
-    } catch ( Exception e ) {
-      for ( RemoteStep remoteStep : remoteOutputSteps ) {
-        if ( remoteStep.getServerSocket() != null ) {
-          try {
-            ServerSocket serverSocket = remoteStep.getServerSocket();
-            getTrans().getSocketRepository().releaseSocket( serverSocket.getLocalPort() );
-          } catch ( IOException e1 ) {
-            logError( "Unable to close server socket after error during step initialisation", e );
-          }
-        }
-      }
-      return false;
-    }
-
-    // For the remote input steps to read from, we do the same: make a list and initialize what we can...
-    //
-    try {
-      remoteInputSteps = new ArrayList<RemoteStep>();
-
-      if ( ( stepMeta.isPartitioned() && getClusterSize() > 1 ) || stepMeta.getCopies() > 1 ) {
-        // If the step is partitioned or has multiple copies and clustered, we only want to take one remote input step
-        // per copy.
-        // This is where we make that selection...
-        //
-        for ( int i = 0; i < stepMeta.getRemoteInputSteps().size(); i++ ) {
-          RemoteStep remoteStep = stepMeta.getRemoteInputSteps().get( i );
-          if ( remoteStep.getTargetStepCopyNr() == copyNr ) {
-            RemoteStep copy = (RemoteStep) remoteStep.clone();
-            remoteInputSteps.add( copy );
-          }
-        }
-      } else {
-        for ( RemoteStep remoteStep : stepMeta.getRemoteInputSteps() ) {
-          RemoteStep copy = (RemoteStep) remoteStep.clone();
-          remoteInputSteps.add( copy );
-        }
-      }
-
-    } catch ( Exception e ) {
-      logError( "Unable to initialize remote input steps during step initialisation", e );
-      return false;
-    }
 
     // Getting ans setting the error handling values
     // first, get the step meta
@@ -821,31 +625,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   @Override
   public void cleanup() {
-    for ( ServerSocket serverSocket : serverSockets ) {
-      try {
-        socketRepository.releaseSocket( serverSocket.getLocalPort() );
-        logDetailed(
-          BaseMessages.getString( PKG, "BaseStep.Log.ReleasedServerSocketOnPort", serverSocket.getLocalPort() ) );
-      } catch ( IOException e ) {
-        logError( "Cleanup: Unable to release server socket (" + serverSocket.getLocalPort() + ")", e );
-      }
-    }
-
-    List<RemoteStep> remoteInputSteps = getRemoteInputSteps();
-    if ( remoteInputSteps != null ) {
-      cleanupRemoteSteps( remoteInputSteps );
-    }
-
-    List<RemoteStep> remoteOutputSteps = getRemoteOutputSteps();
-    if ( remoteOutputSteps != null ) {
-      cleanupRemoteSteps( remoteOutputSteps );
-    }
-  }
-
-  static void cleanupRemoteSteps( List<RemoteStep> remoteSteps ) {
-    for ( RemoteStep remoteStep : remoteSteps ) {
-      remoteStep.cleanup();
-    }
   }
 
   /*
@@ -1384,122 +1163,37 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
     RowSet selectedRowSet = null;
 
-    if ( clusteredPartitioningFirst ) {
-      clusteredPartitioningFirst = false;
 
-      // We are only running remotely if both the distribution is there AND if the distribution is actually contains
-      // something.
-      //
-      clusteredPartitioning =
-        transMeta.getSlaveStepCopyPartitionDistribution() != null
-          && !transMeta.getSlaveStepCopyPartitionDistribution().getDistribution().isEmpty();
-    }
-
-    // OK, we have a SlaveStepCopyPartitionDistribution in the transformation...
-    // We want to pre-calculate what rowset we're sending data to for which partition...
-    // It is only valid in clustering / partitioning situations.
-    // When doing a local partitioning, it is much simpler.
+    // Local partitioning...
+    // Put the row forward to the next step according to the partition rule.
     //
-    if ( clusteredPartitioning ) {
 
-      // This next block is only performed once for speed...
-      //
-      if ( partitionNrRowSetList == null ) {
-        partitionNrRowSetList = new RowSet[ outputRowSets.size() ];
+    // Count of partitioned row at one step
+    int partCount = ( (BasePartitioner) nextStepPartitioningMeta.getPartitioner() ).getNrPartitions();
 
-        // The distribution is calculated during transformation split
-        // The slave-step-copy distribution is passed onto the slave transformation
-        //
-        SlaveStepCopyPartitionDistribution distribution = transMeta.getSlaveStepCopyPartitionDistribution();
+    for ( int i = 0; i < nextSteps.length; i++ ) {
 
-        String nextPartitionSchemaName =
-          TransSplitter.createPartitionSchemaNameFromTarget( nextStepPartitioningMeta
-            .getPartitionSchema().getName() );
-
-        for ( RowSet outputRowSet : outputRowSets ) {
-          try {
-            // Look at the pre-determined distribution, decided at "transformation split" time.
-            //
-            int partNr =
-              distribution.getPartition(
-                outputRowSet.getRemoteSlaveServerName(), nextPartitionSchemaName, outputRowSet
-                  .getDestinationStepCopy() );
-
-            if ( partNr < 0 ) {
-              throw new HopStepException( "Unable to find partition using rowset data, slave="
-                + outputRowSet.getRemoteSlaveServerName() + ", partition schema="
-                + nextStepPartitioningMeta.getPartitionSchema().getName() + ", copy="
-                + outputRowSet.getDestinationStepCopy() );
-            }
-            partitionNrRowSetList[ partNr ] = outputRowSet;
-          } catch ( NullPointerException e ) {
-            throw ( e );
-          }
-        }
-      }
-
-      // OK, now get the target partition based on the partition nr...
-      // This should be very fast
-      //
-      if ( partitionNr < partitionNrRowSetList.length ) {
-        selectedRowSet = partitionNrRowSetList[ partitionNr ];
-      } else {
-        String rowsets = "";
-        for ( RowSet rowSet : partitionNrRowSetList ) {
-          rowsets += "[" + rowSet.toString() + "] ";
-        }
-        throw new HopStepException( "Internal error: the referenced partition nr '"
-          + partitionNr + "' is higher than the maximum of '" + ( partitionNrRowSetList.length - 1 )
-          + ".  The available row sets are: {" + rowsets + "}" );
-      }
+      selectedRowSet = outputRowSets.get( partitionNr + i * partCount );
 
       if ( selectedRowSet == null ) {
         logBasic( BaseMessages.getString( PKG, "BaseStep.TargetRowsetIsNotAvailable", partitionNr ) );
       } else {
+
         // Wait
         putRowToRowSet( selectedRowSet, rowMeta, row );
         incrementLinesWritten();
 
         if ( log.isRowLevel() ) {
           try {
-            logRowlevel(
-              "Partitioned #" + partitionNr + " to " + selectedRowSet + ", row=" + rowMeta.getString( row ) );
+            logRowlevel( BaseMessages.getString( PKG, "BaseStep.PartitionedToRow", partitionNr,
+              selectedRowSet, rowMeta.getString( row ) ) );
           } catch ( HopValueException e ) {
             throw new HopStepException( e );
           }
         }
       }
-    } else {
-      // Local partitioning...
-      // Put the row forward to the next step according to the partition rule.
-      //
-
-      // Count of partitioned row at one step
-      int partCount = ( (BasePartitioner) nextStepPartitioningMeta.getPartitioner() ).getNrPartitions();
-
-      for ( int i = 0; i < nextSteps.length; i++ ) {
-
-        selectedRowSet = outputRowSets.get( partitionNr + i * partCount );
-
-        if ( selectedRowSet == null ) {
-          logBasic( BaseMessages.getString( PKG, "BaseStep.TargetRowsetIsNotAvailable", partitionNr ) );
-        } else {
-
-          // Wait
-          putRowToRowSet( selectedRowSet, rowMeta, row );
-          incrementLinesWritten();
-
-          if ( log.isRowLevel() ) {
-            try {
-              logRowlevel( BaseMessages.getString( PKG, "BaseStep.PartitionedToRow", partitionNr,
-                selectedRowSet, rowMeta.getString( row ) ) );
-            } catch ( HopValueException e ) {
-              throw new HopStepException( e );
-            }
-          }
-        }
-      }
     }
+
   }
 
   private void noPartitioning( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
@@ -1846,10 +1540,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     //
     waitUntilTransformationIsStarted();
 
-    // See if we need to open sockets to remote input steps...
-    //
-    openRemoteInputStepSocketsOnce();
-
     RowSet inputRowSet = null;
     Object[] row = null;
 
@@ -2013,89 +1703,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
       rowHandler = new DefaultRowHandler();
     }
     return this.rowHandler;
-  }
-
-  /**
-   * Opens socket connections to the remote input steps of this step. <br>
-   * This method should be used by steps that don't call getRow() first in which it is executed automatically. <br>
-   * <b>This method should be called before any data is read from previous steps.</b> <br>
-   * This action is executed only once.
-   *
-   * @throws HopStepException
-   */
-  protected void openRemoteInputStepSocketsOnce() throws HopStepException {
-    if ( !remoteInputSteps.isEmpty() ) {
-      if ( !remoteInputStepsInitialized ) {
-        // Loop over the remote steps and open client sockets to them
-        // Just be careful in case we're dealing with a partitioned clustered step.
-        // A partitioned clustered step has only one. (see dispatch())
-        //
-        inputRowSetsLock.writeLock().lock();
-        try {
-          for ( RemoteStep remoteStep : remoteInputSteps ) {
-            try {
-              BlockingRowSet rowSet = remoteStep.openReaderSocket( this );
-              inputRowSets.add( rowSet );
-            } catch ( Exception e ) {
-              throw new HopStepException( "Error opening reader socket to remote step '" + remoteStep + "'", e );
-            }
-          }
-        } finally {
-          inputRowSetsLock.writeLock().unlock();
-        }
-        remoteInputStepsInitialized = true;
-      }
-    }
-  }
-
-  /**
-   * Opens socket connections to the remote output steps of this step. <br>
-   * This method is called in method initBeforeStart() because it needs to connect to the server sockets (remote steps)
-   * as soon as possible to avoid time-out situations. <br>
-   * This action is executed only once.
-   *
-   * @throws HopStepException
-   */
-  protected void openRemoteOutputStepSocketsOnce() throws HopStepException {
-    if ( !remoteOutputSteps.isEmpty() ) {
-      if ( !remoteOutputStepsInitialized ) {
-
-        outputRowSetsLock.writeLock().lock();
-        try {
-          // Set the current slave target name on all the current output steps (local)
-          //
-          for ( RowSet rowSet : outputRowSets ) {
-            rowSet.setRemoteSlaveServerName( getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME ) );
-            if ( getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME ) == null ) {
-              throw new HopStepException( "Variable '"
-                + Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME + "' is not defined." );
-            }
-          }
-
-          // Start threads: one per remote step to funnel the data through...
-          //
-          for ( RemoteStep remoteStep : remoteOutputSteps ) {
-            try {
-              if ( remoteStep.getTargetSlaveServerName() == null ) {
-                throw new HopStepException(
-                  "The target slave server name is not defined for remote output step: " + remoteStep );
-              }
-              BlockingRowSet rowSet = remoteStep.openWriterSocket();
-              if ( log.isDetailed() ) {
-                logDetailed( BaseMessages.getString( PKG, "BaseStep.Log.OpenedWriterSocketToRemoteStep", remoteStep ) );
-              }
-              outputRowSets.add( rowSet );
-            } catch ( IOException e ) {
-              throw new HopStepException( "Error opening writer socket to remote step '" + remoteStep + "'", e );
-            }
-          }
-        } finally {
-          outputRowSetsLock.writeLock().unlock();
-        }
-
-        remoteOutputStepsInitialized = true;
-      }
-    }
   }
 
   /**
@@ -3302,11 +2909,8 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
     if ( !Utils.isEmpty( partitionID ) ) {
       string.append( stepname ).append( '.' ).append( partitionID );
-    } else if ( clusterSize > 1 ) {
-      string
-        .append( stepname ).append( '.' ).append( slaveNr ).append( '.' ).append( Integer.toString( getCopy() ) );
     } else {
-      string.append( stepname ).append( '.' ).append( Integer.toString( getCopy() ) );
+      string.append( stepname ).append( '.' ).append( getCopy() );
     }
 
     return string.toString();
@@ -3926,59 +3530,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   }
 
   /**
-   * Returns the unique slave number in the cluster.
-   *
-   * @return the unique slave number in the cluster
-   */
-  public int getSlaveNr() {
-    return slaveNr;
-  }
-
-  /**
-   * Returns the cluster size.
-   *
-   * @return the cluster size
-   */
-  public int getClusterSize() {
-    return clusterSize;
-  }
-
-  /**
-   * Returns a unique step number across all slave servers: slaveNr * nrCopies + copyNr.
-   *
-   * @return a unique step number across all slave servers: slaveNr * nrCopies + copyNr
-   */
-  public int getUniqueStepNrAcrossSlaves() {
-    return uniqueStepNrAcrossSlaves;
-  }
-
-  /**
-   * Returns the number of unique steps across all slave servers.
-   *
-   * @return the number of unique steps across all slave servers
-   */
-  public int getUniqueStepCountAcrossSlaves() {
-    return uniqueStepCountAcrossSlaves;
-  }
-
-  /**
-   * Returns the serverSockets.
-   *
-   * @return the serverSockets
-   */
-  public List<ServerSocket> getServerSockets() {
-    return serverSockets;
-  }
-
-  /**
-   * @param serverSockets the serverSockets to set
-   * @return serverSockets the serverSockets to set.
-   */
-  public void setServerSockets( List<ServerSocket> serverSockets ) {
-    this.serverSockets = serverSockets;
-  }
-
-  /**
    * Set to true to actively manage priorities of step threads.
    *
    * @param usingThreadPriorityManagment set to true to actively manage priorities of step threads
@@ -4007,7 +3558,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   @Override
   public void initBeforeStart() throws HopStepException {
-    openRemoteOutputStepSocketsOnce();
   }
 
   /**
@@ -4270,24 +3820,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   @Override
   public void batchComplete() throws HopException {
-  }
-
-  /**
-   * Gets the remote input steps.
-   *
-   * @return the remote input steps
-   */
-  public List<RemoteStep> getRemoteInputSteps() {
-    return remoteInputSteps;
-  }
-
-  /**
-   * Gets the remote output steps.
-   *
-   * @return the remote output steps
-   */
-  public List<RemoteStep> getRemoteOutputSteps() {
-    return remoteOutputSteps;
   }
 
   /**

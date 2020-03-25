@@ -1,7 +1,6 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -170,7 +169,6 @@ public class HopGui implements IActionContextHandlersProvider {
   public MetaStoreManager<DatabaseMeta> databaseMetaManager;
   public MetaStoreManager<SlaveServer> slaveServerManager;
   public MetaStoreManager<PartitionSchema> partitionManager;
-  public MetaStoreManager<ClusterSchema> clusterManager;
 
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
@@ -205,7 +203,6 @@ public class HopGui implements IActionContextHandlersProvider {
     databaseMetaManager = new MetaStoreManager<>( variableSpace, metaStore, DatabaseMeta.class );
     slaveServerManager = new MetaStoreManager<>( variableSpace, metaStore, SlaveServer.class );
     partitionManager = new MetaStoreManager<>( variableSpace, metaStore, PartitionSchema.class );
-    clusterManager = new MetaStoreManager<>( variableSpace, metaStore, ClusterSchema.class );
 
     metaStoreContext = new MetaStoreContext( this, metaStore );
   }
@@ -959,22 +956,6 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public void setPartitionManager( MetaStoreManager<PartitionSchema> partitionManager ) {
     this.partitionManager = partitionManager;
-  }
-
-  /**
-   * Gets clusterManager
-   *
-   * @return value of clusterManager
-   */
-  public MetaStoreManager<ClusterSchema> getClusterManager() {
-    return clusterManager;
-  }
-
-  /**
-   * @param clusterManager The clusterManager to set
-   */
-  public void setClusterManager( MetaStoreManager<ClusterSchema> clusterManager ) {
-    this.clusterManager = clusterManager;
   }
 
   /**

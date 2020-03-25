@@ -23,7 +23,6 @@
 package org.apache.hop.trans.step;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.util.AbstractStepMeta;
 import org.apache.hop.partition.PartitionSchema;
@@ -98,7 +97,6 @@ public class StepMetaTest {
     meta.setLocation( 1, 2 );
     meta.setDescription( "description" );
     meta.setTerminator( true );
-    meta.setClusterSchemaName( "clusterSchemaName" );
 
     boolean shouldDistribute = rand.nextBoolean();
     meta.setDistributes( shouldDistribute );
@@ -118,8 +116,6 @@ public class StepMetaTest {
 
     meta.setStepPartitioningMeta( createStepPartitioningMeta( "stepMethod", "stepSchema" ) );
     meta.setTargetStepPartitioningMeta( createStepPartitioningMeta( "targetMethod", "targetSchema" ) );
-
-    meta.setClusterSchema( new ClusterSchema( "cluster_schema", Collections.<SlaveServer>emptyList() ) );
 
     return meta;
   }

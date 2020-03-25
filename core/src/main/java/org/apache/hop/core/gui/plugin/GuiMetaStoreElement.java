@@ -10,5 +10,7 @@ import java.lang.annotation.Target;
 @Retention( RetentionPolicy.RUNTIME )
 @Target( { ElementType.TYPE, } )
 public @interface GuiMetaStoreElement {
-
+  String name();
+  String description();
+  String iconImage();
 }

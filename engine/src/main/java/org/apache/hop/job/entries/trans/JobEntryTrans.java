@@ -65,8 +65,6 @@ import org.apache.hop.trans.StepWithMappingMeta;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.cluster.TransSplitter;
-import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.www.SlaveServerTransStatus;
 import org.w3c.dom.Node;
 
@@ -116,10 +114,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   public boolean addDate, addTime;
 
   public LogLevel logFileLevel;
-
-  private String directoryPath;
-
-  private boolean clustering;
 
   public boolean waitingToFinish = true;
 
@@ -233,7 +227,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", addTime ) );
     retval.append( "      " ).append(
       XMLHandler.addTagValue( "loglevel", logFileLevel != null ? logFileLevel.getCode() : null ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "cluster", clustering ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
@@ -289,7 +282,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
       logfile = XMLHandler.getTagValue( entrynode, "logfile" );
       logext = XMLHandler.getTagValue( entrynode, "logext" );
       logFileLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
-      clustering = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "cluster" ) );
       createParentFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "create_parent_folder" ) );
       loggingRemoteWork = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "logging_remote_work" ) );
       runConfiguration = XMLHandler.getTagValue( entrynode, "run_configuration" );
@@ -591,11 +583,10 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
             } catch ( Exception ignored ) {
               // Ignored
             }
-            if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() && !executionConfiguration.isExecutingClustered() ) {
+            if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() ) {
               result.setResult( true );
               return result;
             }
-            clustering = executionConfiguration.isExecutingClustered();
             remoteSlaveServer = executionConfiguration.getRemoteServer();
             doFallback = false;
           } catch ( HopException e ) {
@@ -619,76 +610,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           }
         }
 
-
-        // Execute this transformation across a cluster of servers
-        //
-        if ( clustering ) {
-          executionConfiguration.setClusterPosting( true );
-          executionConfiguration.setClusterPreparing( true );
-          executionConfiguration.setClusterStarting( true );
-          executionConfiguration.setClusterShowingTransformation( false );
-          executionConfiguration.setSafeModeEnabled( false );
-          executionConfiguration.setLogLevel( transLogLevel );
-          executionConfiguration.setPreviousResult( previousResult );
-
-          // Also pass the variables from the transformation into the execution configuration
-          // That way it can go over the HTTP connection to the slave server.
-          //
-          executionConfiguration.setVariables( transMeta );
-
-          if ( parentJob.getJobMeta().isBatchIdPassed() ) {
-            executionConfiguration.setPassedBatchId( parentJob.getPassedBatchId() );
-          }
-
-          TransSplitter transSplitter = null;
-          long errors = 0;
-          try {
-            transSplitter = Trans.executeClustered( transMeta, executionConfiguration );
-
-            // Monitor the running transformations, wait until they are done.
-            // Also kill them all if anything goes bad
-            // Also clean up afterwards...
-            //
-            errors += Trans.monitorClusteredTransformation( log, transSplitter, parentJob );
-
-          } catch ( Exception e ) {
-            logError( "Error during clustered execution. Cleaning up clustered execution.", e );
-            // In case something goes wrong, make sure to clean up afterwards!
-            //
-            errors++;
-            if ( transSplitter != null ) {
-              Trans.cleanupCluster( log, transSplitter );
-            } else {
-              // Try to clean anyway...
-              //
-              SlaveServer master = null;
-              for ( StepMeta stepMeta : transMeta.getSteps() ) {
-                if ( stepMeta.isClustered() ) {
-                  for ( SlaveServer slaveServer : stepMeta.getClusterSchema().getSlaveServers() ) {
-                    if ( slaveServer.isMaster() ) {
-                      master = slaveServer;
-                      break;
-                    }
-                  }
-                }
-              }
-              if ( master != null ) {
-                master.deAllocateServerSockets( transMeta.getName(), null );
-              }
-            }
-          }
-
-          result.clear();
-
-          if ( transSplitter != null ) {
-            Result clusterResult = Trans.getClusteredTransformationResult( log, transSplitter, parentJob,
-              executionConfiguration.isLogRemoteExecutionLocally() );
-            result.add( clusterResult );
-          }
-
-          result.setNrErrors( result.getNrErrors() + errors );
-
-        } else if ( remoteSlaveServer != null ) {
+        if ( remoteSlaveServer != null ) {
           // Execute this transformation remotely
           //
 
@@ -972,34 +894,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     TransMeta transMeta = getTransMeta( metaStore, this );
 
     return transMeta.getSQLStatements();
-  }
-
-  /**
-   * @return Returns the directoryPath.
-   */
-  public String getDirectoryPath() {
-    return directoryPath;
-  }
-
-  /**
-   * @param directoryPath The directoryPath to set.
-   */
-  public void setDirectoryPath( String directoryPath ) {
-    this.directoryPath = directoryPath;
-  }
-
-  /**
-   * @return the clustering
-   */
-  public boolean isClustering() {
-    return clustering;
-  }
-
-  /**
-   * @param clustering the clustering to set
-   */
-  public void setClustering( boolean clustering ) {
-    this.clustering = clustering;
   }
 
   @Override

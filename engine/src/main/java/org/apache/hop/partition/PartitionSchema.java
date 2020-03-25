@@ -24,7 +24,13 @@ package org.apache.hop.partition;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.metastore.IHopMetaStoreElement;
@@ -33,12 +39,11 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.resource.ResourceHolderInterface;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A partition schema allow you to partition a step according into a number of partitions that run independendly. It
@@ -50,7 +55,12 @@ import java.util.List;
   name = "Partition Schema",
   description = "Describes a partition schema"
 )
-public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceHolderInterface, XMLInterface, IHopMetaStoreElement<PartitionSchema> {
+@GuiMetaStoreElement(
+  name = "Partition Schema",
+  description = "Describes a partition schema",
+  iconImage = "ui/images/partition_schema.svg"
+)
+public class PartitionSchema extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<PartitionSchema> {
   public static final String XML_TAG = "partitionschema";
 
   private String name;
@@ -62,13 +72,14 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
   private boolean dynamicallyDefined;
 
   @MetaStoreAttribute
-  private String numberOfPartitionsPerSlave;
+  private String numberOfPartitions;
 
-  private Date changedDate;
+  private VariableSpace variables = new Variables();
 
   public PartitionSchema() {
+    this.dynamicallyDefined = true;
+    this.numberOfPartitions = "4";
     this.partitionIDs = new ArrayList<>();
-    this.changedDate = new Date();
   }
 
   /**
@@ -78,7 +89,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
   public PartitionSchema( String name, List<String> partitionIDs ) {
     this.name = name;
     this.partitionIDs = partitionIDs;
-    this.changedDate = new Date();
   }
 
   public Object clone() {
@@ -93,7 +103,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
     this.partitionIDs.addAll( partitionSchema.partitionIDs );
 
     this.dynamicallyDefined = partitionSchema.dynamicallyDefined;
-    this.numberOfPartitionsPerSlave = partitionSchema.numberOfPartitionsPerSlave;
+    this.numberOfPartitions = partitionSchema.numberOfPartitions;
 
     this.setChanged( true );
   }
@@ -113,6 +123,115 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
     return name.hashCode();
   }
 
+  public String getXML() {
+    StringBuilder xml = new StringBuilder( 200 );
+
+    xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
+    for ( int i = 0; i < partitionIDs.size(); i++ ) {
+      xml.append( "        " ).append( XMLHandler.openTag( "partition" ) ).append( Const.CR );
+      xml.append( "          " ).append( XMLHandler.addTagValue( "id", partitionIDs.get( i ) ) );
+      xml.append( "        " ).append( XMLHandler.closeTag( "partition" ) ).append( Const.CR );
+    }
+
+    xml.append( "        " ).append( XMLHandler.addTagValue( "dynamic", dynamicallyDefined ) );
+    xml
+      .append( "        " ).append(
+      XMLHandler.addTagValue( "nr_partitions", numberOfPartitions ) );
+
+    xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    return xml.toString();
+  }
+
+  public PartitionSchema( Node partitionSchemaNode ) {
+    name = XMLHandler.getTagValue( partitionSchemaNode, "name" );
+
+    int nrIDs = XMLHandler.countNodes( partitionSchemaNode, "partition" );
+    partitionIDs = new ArrayList<>();
+    for ( int i = 0; i < nrIDs; i++ ) {
+      Node partitionNode = XMLHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
+      partitionIDs.add( XMLHandler.getTagValue( partitionNode, "id" ) );
+    }
+
+    dynamicallyDefined = "Y".equalsIgnoreCase( XMLHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
+    numberOfPartitions = XMLHandler.getTagValue( partitionSchemaNode, "nr_partitions" );
+  }
+
+  public List<String> calculatePartitionIDs() {
+    int nrPartitions = Const.toInt(environmentSubstitute( numberOfPartitions ), -1);
+    if (dynamicallyDefined) {
+      List<String> list = new ArrayList<>(  );
+      for (int i=0;i<nrPartitions;i++) {
+        list.add("Partition-"+(i+1));
+      }
+      return list;
+    } else {
+      return partitionIDs;
+    }
+  }
+
+  public void copyVariablesFrom( VariableSpace space ) {
+    variables.copyVariablesFrom( space );
+  }
+
+  public String environmentSubstitute( String aString ) {
+    return variables.environmentSubstitute( aString );
+  }
+
+  public String[] environmentSubstitute( String[] aString ) {
+    return variables.environmentSubstitute( aString );
+  }
+
+  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+    throws HopValueException {
+    return variables.fieldSubstitute( aString, rowMeta, rowData );
+  }
+
+  public VariableSpace getParentVariableSpace() {
+    return variables.getParentVariableSpace();
+  }
+
+  public void setParentVariableSpace( VariableSpace parent ) {
+    variables.setParentVariableSpace( parent );
+  }
+
+  public String getVariable( String variableName, String defaultValue ) {
+    return variables.getVariable( variableName, defaultValue );
+  }
+
+  public String getVariable( String variableName ) {
+    return variables.getVariable( variableName );
+  }
+
+  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+    if ( !Utils.isEmpty( variableName ) ) {
+      String value = environmentSubstitute( variableName );
+      if ( !Utils.isEmpty( value ) ) {
+        return ValueMetaString.convertStringToBoolean( value );
+      }
+    }
+    return defaultValue;
+  }
+
+  public void initializeVariablesFrom( VariableSpace parent ) {
+    variables.initializeVariablesFrom( parent );
+  }
+
+  public String[] listVariables() {
+    return variables.listVariables();
+  }
+
+  public void setVariable( String variableName, String variableValue ) {
+    variables.setVariable( variableName, variableValue );
+  }
+
+  public void shareVariablesWith( VariableSpace space ) {
+    variables = space;
+  }
+
+  public void injectVariables( Map<String, String> prop ) {
+    variables.injectVariables( prop );
+  }
   /**
    * @return the name
    */
@@ -141,57 +260,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
     this.partitionIDs = partitionIDs;
   }
 
-  public String getXML() {
-    StringBuilder xml = new StringBuilder( 200 );
-
-    xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
-    for ( int i = 0; i < partitionIDs.size(); i++ ) {
-      xml.append( "        " ).append( XMLHandler.openTag( "partition" ) ).append( Const.CR );
-      xml.append( "          " ).append( XMLHandler.addTagValue( "id", partitionIDs.get( i ) ) );
-      xml.append( "        " ).append( XMLHandler.closeTag( "partition" ) ).append( Const.CR );
-    }
-
-    xml.append( "        " ).append( XMLHandler.addTagValue( "dynamic", dynamicallyDefined ) );
-    xml
-      .append( "        " ).append(
-      XMLHandler.addTagValue( "partitions_per_slave", numberOfPartitionsPerSlave ) );
-
-    xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
-    return xml.toString();
-  }
-
-  public PartitionSchema( Node partitionSchemaNode ) {
-    changedDate = new Date();
-    name = XMLHandler.getTagValue( partitionSchemaNode, "name" );
-
-    int nrIDs = XMLHandler.countNodes( partitionSchemaNode, "partition" );
-    partitionIDs = new ArrayList<>();
-    for ( int i = 0; i < nrIDs; i++ ) {
-      Node partitionNode = XMLHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
-      partitionIDs.add( XMLHandler.getTagValue( partitionNode, "id" ) );
-    }
-
-    dynamicallyDefined = "Y".equalsIgnoreCase( XMLHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
-    numberOfPartitionsPerSlave = XMLHandler.getTagValue( partitionSchemaNode, "partitions_per_slave" );
-  }
-
-  public String getDescription() {
-    return null;
-  }
-
-  public String getHolderType() {
-    return "PARTITION_SCHEMA";
-  }
-
-  public String getTypeId() {
-    return null;
-  }
-
-  public String getPluginId() {
-    return null;
-  }
-
   /**
    * @return the dynamicallyDefined
    */
@@ -207,79 +275,20 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
   }
 
   /**
-   * @return the numberOfStepCopiesPerSlave
+   * @return the number of partitions
    */
-  public String getNumberOfPartitionsPerSlave() {
-    return numberOfPartitionsPerSlave;
+  public String getNumberOfPartitions() {
+    return numberOfPartitions;
   }
 
   /**
-   * @param numberOfPartitionsPerSlave the number of partitions per slave to set...
+   * @param numberOfPartitions the number of partitions to set...
    */
-  public void setNumberOfPartitionsPerSlave( String numberOfPartitionsPerSlave ) {
-    this.numberOfPartitionsPerSlave = numberOfPartitionsPerSlave;
+  public void setNumberOfPartitions( String numberOfPartitions ) {
+    this.numberOfPartitions = numberOfPartitions;
   }
 
-  public void expandPartitionsDynamically( int nrSlaves, VariableSpace space ) {
-    // Let's change the partition list...
-    //
-    partitionIDs.clear();
 
-    // What's the number of partitions to create per slave server?
-    // --> defaults to 1
-    //
-    int nrPartitionsPerSlave = Const.toInt( space.environmentSubstitute( numberOfPartitionsPerSlave ), 1 );
-    int totalNumberOfPartitions = nrSlaves * nrPartitionsPerSlave;
-    for ( int partitionNumber = 0; partitionNumber < totalNumberOfPartitions; partitionNumber++ ) {
-      partitionIDs.add( "PDyn" + partitionNumber );
-    }
-
-    dynamicallyDefined = false;
-    numberOfPartitionsPerSlave = null;
-  }
-
-  /**
-   * Slaves don't need ALL the partitions, they just need a few.<br>
-   * So we should only retain those partitions that are of interest to the slave server.<br>
-   * Divide the number of partitions (6) through the number of slaves (2)<br>
-   * That gives you 0, 1, 2, 3, 4, 5<br>
-   * Slave 0 : 0, 2, 4<br>
-   * Slave 1 : 1, 3, 5<br>
-   * --> slaveNumber == partitionNr % slaveCount<br>
-   *
-   * @param slaveCount
-   * @param slaveNumber
-   */
-  public void retainPartitionsForSlaveServer( int slaveCount, int slaveNumber ) {
-    List<String> ids = new ArrayList<>();
-    int partitionCount = partitionIDs.size();
-
-    for ( int i = 0; i < partitionCount; i++ ) {
-      if ( slaveNumber == ( i % slaveCount ) ) {
-        ids.add( partitionIDs.get( i ) );
-      }
-    }
-    partitionIDs.clear();
-    partitionIDs.addAll( ids );
-  }
-
-  public void setDescription( String description ) {
-    // NOT USED
-  }
-
-  /**
-   * @return the changedDate
-   */
-  public Date getChangedDate() {
-    return changedDate;
-  }
-
-  /**
-   * @param changedDate the changedDate to set
-   */
-  public void setChangedDate( Date changedDate ) {
-    this.changedDate = changedDate;
-  }
 
   @Override public MetaStoreFactory<PartitionSchema> getFactory( IMetaStore metaStore ) {
     return createFactory( metaStore );

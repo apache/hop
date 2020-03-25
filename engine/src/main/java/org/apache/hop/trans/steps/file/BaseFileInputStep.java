@@ -113,16 +113,6 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
       return false;
     }
 
-    String clusterSize = getVariable( Const.INTERNAL_VARIABLE_CLUSTER_SIZE );
-    if ( !Utils.isEmpty( clusterSize ) && Integer.valueOf( clusterSize ) > 1 ) {
-      // TODO: add metadata to configure this.
-      String nr = getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER );
-      if ( log.isDetailed() ) {
-        logDetailed( "Running on slave server #" + nr
-          + " : assuming that each slave reads a dedicated part of the same file(s)." );
-      }
-    }
-
     return init();
   }
 

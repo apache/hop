@@ -566,77 +566,6 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       }
     }
 
-    // REMOTE STEPS
-
-    // First draw an extra indicator for remote input steps...
-    //
-    if ( !stepMeta.getRemoteInputSteps().isEmpty() ) {
-      gc.setLineWidth( 1 );
-      gc.setForeground( EColor.GRAY );
-      gc.setBackground( EColor.BACKGROUND );
-      gc.setFont( EFont.GRAPH );
-      String nrInput = Integer.toString( stepMeta.getRemoteInputSteps().size() );
-      Point textExtent = gc.textExtent( nrInput );
-      textExtent.x += 2; // add a tiny listartHopStepttle bit of a margin
-      textExtent.y += 2;
-
-      // Draw it an icon above the step icon.
-      // Draw it an icon and a half to the left
-      //
-      Point point = new Point( x - iconsize - iconsize / 2, y - iconsize );
-      gc.drawRectangle( point.x, point.y, textExtent.x, textExtent.y );
-      gc.drawText( nrInput, point.x + 1, point.y + 1 );
-
-      // Now we draw an arrow from the cube to the step...
-      //
-      gc.drawLine( point.x + textExtent.x, point.y + textExtent.y / 2, x - iconsize / 2, point.y
-        + textExtent.y / 2 );
-      drawArrow( EImage.ARROW_DISABLED,
-        x - iconsize / 2, point.y + textExtent.y / 2, x + iconsize / 3, y, Math.toRadians( 15 ), 15, 1.8, null,
-        null, null );
-
-      // Add to the list of areas...
-      if ( !shadow ) {
-        areaOwners.add( new AreaOwner(
-          AreaType.REMOTE_INPUT_STEP, point.x, point.y, textExtent.x, textExtent.y, offset, stepMeta,
-          STRING_REMOTE_INPUT_STEPS ) );
-      }
-    }
-
-    // Then draw an extra indicator for remote output steps...
-    //
-    if ( !stepMeta.getRemoteOutputSteps().isEmpty() ) {
-      gc.setLineWidth( 1 );
-      gc.setForeground( EColor.GRAY );
-      gc.setBackground( EColor.BACKGROUND );
-      gc.setFont( EFont.GRAPH );
-      String nrOutput = Integer.toString( stepMeta.getRemoteOutputSteps().size() );
-      Point textExtent = gc.textExtent( nrOutput );
-      textExtent.x += 2; // add a tiny little bit of a margin
-      textExtent.y += 2;
-
-      // Draw it an icon above the step icon.
-      // Draw it an icon and a half to the right
-      //
-      Point point = new Point( x + 2 * iconsize + iconsize / 2 - textExtent.x, y - iconsize );
-      gc.drawRectangle( point.x, point.y, textExtent.x, textExtent.y );
-      gc.drawText( nrOutput, point.x + 1, point.y + 1 );
-
-      // Now we draw an arrow from the cube to the step...
-      // This time, we start at the left side...
-      //
-      gc.drawLine( point.x, point.y + textExtent.y / 2, x + iconsize + iconsize / 2, point.y + textExtent.y / 2 );
-      drawArrow( EImage.ARROW_DISABLED, x + 2 * iconsize / 3, y, x + iconsize + iconsize / 2, point.y + textExtent.y / 2, Math
-        .toRadians( 15 ), 15, 1.8, null, null, null );
-
-      // Add to the list of areas...
-      if ( !shadow ) {
-        areaOwners.add( new AreaOwner(
-          AreaType.REMOTE_OUTPUT_STEP, point.x, point.y, textExtent.x, textExtent.y, offset, stepMeta,
-          STRING_REMOTE_OUTPUT_STEPS ) );
-      }
-    }
-
     // PARTITIONING
 
     // If this step is partitioned, we're drawing a small symbol indicating this...
@@ -649,14 +578,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
       PartitionSchema partitionSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
       if ( partitionSchema != null ) {
-
-        String nrInput;
-
-        if ( partitionSchema.isDynamicallyDefined() ) {
-          nrInput = "Dx" + partitionSchema.getNumberOfPartitionsPerSlave();
-        } else {
-          nrInput = "Px" + Integer.toString( partitionSchema.getPartitionIDs().size() );
-        }
+        String nrInput = "Px" + partitionSchema.calculatePartitionIDs().size();
 
         Point textExtent = gc.textExtent( nrInput );
         textExtent.x += 2; // add a tiny little bit of a margin
@@ -744,35 +666,15 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       partitioned = true;
     }
 
-    String clusterMessage = "";
-    if ( stepMeta.getClusterSchema() != null ) {
-      clusterMessage = "C";
-      if ( stepMeta.getClusterSchema().isDynamic() ) {
-        clusterMessage += "xN";
-      } else {
-        clusterMessage += "x" + stepMeta.getClusterSchema().findNrSlaves();
-      }
-      Point textExtent = gc.textExtent( clusterMessage );
-      gc.setBackground( EColor.BACKGROUND );
-      gc.setForeground( EColor.BLACK );
-      gc.drawText( clusterMessage, x - textExtent.x + 1, y - textExtent.y + 1 );
-    }
 
     if ( !stepMeta.getCopiesString().equals( "1" ) && !partitioned ) {
       gc.setBackground( EColor.BACKGROUND );
       gc.setForeground( EColor.BLACK );
       String copies = "x" + stepMeta.getCopiesString();
       Point textExtent = gc.textExtent( copies );
-      if ( stepMeta.getClusterSchema() != null ) {
-        Point clusterTextExtent = gc.textExtent( clusterMessage );
-        gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y - clusterTextExtent.y + 1, false );
-        areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y
-          - clusterTextExtent.y + 1, textExtent.x, textExtent.y, offset, transMeta, stepMeta ) );
-      } else {
-        gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y + 1, false );
-        areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y + 1, textExtent.x,
-          textExtent.y, offset, transMeta, stepMeta ) );
-      }
+
+      gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y + 1, false );
+      areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y + 1, textExtent.x, textExtent.y, offset, transMeta, stepMeta ) );
     }
 
     // If there was an error during the run, the map "stepLogMap" is not empty and not null.

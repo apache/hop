@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.partition.dialog;
+package org.apache.hop.ui.partition;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUI;
@@ -50,6 +50,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -70,7 +71,7 @@ import java.util.List;
  * @since 17-11-2006
  */
 
-public class PartitionSchemaDialog extends Dialog {
+public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
   private static Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final IMetaStore metaStore;
@@ -86,6 +87,7 @@ public class PartitionSchemaDialog extends Dialog {
   private TextVar wNumber;
 
   // Partitions
+  private Label wlPartitions;
   private TableView wPartitions;
 
   private Button wOK, wGet, wCancel;
@@ -98,9 +100,7 @@ public class PartitionSchemaDialog extends Dialog {
   private int margin;
 
   private PartitionSchema originalSchema;
-  private boolean ok;
-
-  private List<DatabaseMeta> databases;
+  private String result;
 
   private VariableSpace variableSpace;
 
@@ -109,14 +109,13 @@ public class PartitionSchemaDialog extends Dialog {
     this.metaStore = metaStore;
     this.partitionSchema = (PartitionSchema) partitionSchema.clone();
     this.originalSchema = partitionSchema;
-    this.databases = databases;
     this.variableSpace = variableSpace;
 
     props = PropsUI.getInstance();
-    ok = false;
+    result = null;
   }
 
-  public boolean open() {
+  public String open() {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
@@ -167,10 +166,11 @@ public class PartitionSchemaDialog extends Dialog {
     props.setLook( wName );
     wName.addModifyListener( lsMod );
     FormData fdName = new FormData();
-    fdName.top = new FormAttachment( 0, 0 );
+    fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
     fdName.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdName.right = new FormAttachment( 95, 0 );
+    fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
+    Control lastControl = wlName;
 
     // is the schema defined dynamically using the number of slave servers in the used cluster.
     //
@@ -178,7 +178,7 @@ public class PartitionSchemaDialog extends Dialog {
     props.setLook( wlDynamic );
     wlDynamic.setText( BaseMessages.getString( PKG, "PartitionSchemaDialog.Dynamic.Label" ) );
     FormData fdlDynamic = new FormData();
-    fdlDynamic.top = new FormAttachment( wName, margin );
+    fdlDynamic.top = new FormAttachment( lastControl, margin );
     fdlDynamic.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlDynamic.right = new FormAttachment( middle, 0 );
     wlDynamic.setLayoutData( fdlDynamic );
@@ -187,10 +187,15 @@ public class PartitionSchemaDialog extends Dialog {
     props.setLook( wDynamic );
     wDynamic.setToolTipText( BaseMessages.getString( PKG, "PartitionSchemaDialog.Dynamic.Tooltip" ) );
     FormData fdDynamic = new FormData();
-    fdDynamic.top = new FormAttachment( wName, margin );
+    fdDynamic.top = new FormAttachment( wlDynamic, 0, SWT.CENTER );
     fdDynamic.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdDynamic.right = new FormAttachment( 95, 0 );
+    fdDynamic.right = new FormAttachment( 100, 0 );
     wDynamic.setLayoutData( fdDynamic );
+    lastControl = wlDynamic;
+
+    // If dynamic is chosen, disable to list of partition names
+    //
+    wDynamic.addListener( SWT.Selection, e-> enableFields());
 
     // The number of partitions per cluster schema
     //
@@ -198,56 +203,45 @@ public class PartitionSchemaDialog extends Dialog {
     props.setLook( wlNumber );
     wlNumber.setText( BaseMessages.getString( PKG, "PartitionSchemaDialog.Number.Label" ) );
     FormData fdlNumber = new FormData();
-    fdlNumber.top = new FormAttachment( wDynamic, margin );
+    fdlNumber.top = new FormAttachment( lastControl, margin );
     fdlNumber.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlNumber.right = new FormAttachment( middle, 0 );
     wlNumber.setLayoutData( fdlNumber );
 
-    wNumber =
-      new TextVar( variableSpace, shell, SWT.LEFT | SWT.BORDER | SWT.SINGLE, BaseMessages.getString(
-        PKG, "PartitionSchemaDialog.Number.Tooltip" ) );
+    wNumber = new TextVar( variableSpace, shell, SWT.LEFT | SWT.BORDER | SWT.SINGLE, BaseMessages.getString( PKG, "PartitionSchemaDialog.Number.Tooltip" ) );
     props.setLook( wNumber );
     FormData fdNumber = new FormData();
-    fdNumber.top = new FormAttachment( wDynamic, margin );
+    fdNumber.top = new FormAttachment( wlNumber, 0, SWT.CENTER );
     fdNumber.left = new FormAttachment( middle, margin ); // To the right of the label
     fdNumber.right = new FormAttachment( 95, 0 );
     wNumber.setLayoutData( fdNumber );
+    lastControl = wlNumber;
 
     // Schema list:
-    Label wlPartitions = new Label( shell, SWT.RIGHT );
+    wlPartitions = new Label( shell, SWT.RIGHT );
     wlPartitions.setText( BaseMessages.getString( PKG, "PartitionSchemaDialog.Partitions.Label" ) );
     props.setLook( wlPartitions );
     FormData fdlPartitions = new FormData();
     fdlPartitions.left = new FormAttachment( 0, 0 );
     fdlPartitions.right = new FormAttachment( middle, 0 );
-    fdlPartitions.top = new FormAttachment( wNumber, margin );
+    fdlPartitions.top = new FormAttachment( lastControl, margin );
     wlPartitions.setLayoutData( fdlPartitions );
 
-    ColumnInfo[] partitionColumns =
-      new ColumnInfo[] { new ColumnInfo(
-        BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionID.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
-        false, false ), };
-    wPartitions = new TableView( Variables.getADefaultVariableSpace(), // probably better push this up. TODO
-      shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, partitionColumns, 1, lsMod, props );
+    ColumnInfo[] partitionColumns = new ColumnInfo[] {
+      new ColumnInfo( BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionID.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
+    };
+    wPartitions = new TableView( partitionSchema, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, partitionColumns, 1, lsMod, props );
     props.setLook( wPartitions );
     FormData fdPartitions = new FormData();
     fdPartitions.left = new FormAttachment( middle, margin );
     fdPartitions.right = new FormAttachment( 100, 0 );
-    fdPartitions.top = new FormAttachment( wNumber, margin );
+    fdPartitions.top = new FormAttachment( lastControl, margin );
     fdPartitions.bottom = new FormAttachment( wOK, -margin * 2 );
     wPartitions.setLayoutData( fdPartitions );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
+    wOK.addListener( SWT.Selection, e -> ok() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -255,6 +249,7 @@ public class PartitionSchemaDialog extends Dialog {
       }
     };
     wName.addSelectionListener( selAdapter );
+    wNumber.addSelectionListener( selAdapter );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -274,7 +269,13 @@ public class PartitionSchemaDialog extends Dialog {
         display.sleep();
       }
     }
-    return ok;
+    return result;
+  }
+
+  private void enableFields() {
+    boolean tableEnabled = !wDynamic.getSelection();
+    wlPartitions.setEnabled( tableEnabled );
+    wPartitions.setEnabled( tableEnabled );
   }
 
   public void dispose() {
@@ -288,7 +289,9 @@ public class PartitionSchemaDialog extends Dialog {
     refreshPartitions();
 
     wDynamic.setSelection( partitionSchema.isDynamicallyDefined() );
-    wNumber.setText( Const.NVL( partitionSchema.getNumberOfPartitionsPerSlave(), "" ) );
+    wNumber.setText( Const.NVL( partitionSchema.getNumberOfPartitions(), "" ) );
+
+    enableFields();
 
     wName.setFocus();
   }
@@ -332,10 +335,10 @@ public class PartitionSchemaDialog extends Dialog {
       originalSchema.setName( partitionSchema.getName() );
       originalSchema.setPartitionIDs( partitionSchema.getPartitionIDs() );
       originalSchema.setDynamicallyDefined( wDynamic.getSelection() );
-      originalSchema.setNumberOfPartitionsPerSlave( wNumber.getText() );
+      originalSchema.setNumberOfPartitions( wNumber.getText() );
       originalSchema.setChanged();
 
-      ok = true;
+      result = originalSchema.getName();
 
       dispose();
     } catch ( Exception e ) {

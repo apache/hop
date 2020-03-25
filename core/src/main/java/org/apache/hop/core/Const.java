@@ -536,41 +536,9 @@ public class Const {
     + ".Step.Partition.Number";
 
   /**
-   * The slave transformation number
-   */
-  public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER = INTERNAL_VARIABLE_PREFIX
-    + ".Slave.Transformation.Number";
-
-  /**
-   * The slave transformation name
+   * The slave server name
    */
   public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NAME = INTERNAL_VARIABLE_PREFIX + ".Slave.Server.Name";
-
-  /**
-   * The size of the cluster : number of slaves
-   */
-  public static final String INTERNAL_VARIABLE_CLUSTER_SIZE = INTERNAL_VARIABLE_PREFIX + ".Cluster.Size";
-
-  /**
-   * The slave transformation number
-   */
-  public static final String INTERNAL_VARIABLE_STEP_UNIQUE_NUMBER = INTERNAL_VARIABLE_PREFIX
-    + ".Step.Unique.Number";
-
-  /**
-   * Is this transformation running clustered, on the master?
-   */
-  public static final String INTERNAL_VARIABLE_CLUSTER_MASTER = INTERNAL_VARIABLE_PREFIX + ".Cluster.Master";
-
-  /**
-   * The internal clustered run ID, unique across a clustered execution, important while doing parallel clustered runs
-   */
-  public static final String INTERNAL_VARIABLE_CLUSTER_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Cluster.Run.ID";
-
-  /**
-   * The size of the cluster : number of slaves
-   */
-  public static final String INTERNAL_VARIABLE_STEP_UNIQUE_COUNT = INTERNAL_VARIABLE_PREFIX + ".Step.Unique.Count";
 
   /**
    * The step name

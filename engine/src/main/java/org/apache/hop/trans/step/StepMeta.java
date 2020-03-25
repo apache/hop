@@ -24,7 +24,6 @@ package org.apache.hop.trans.step;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.base.BaseMeta;
-import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
@@ -114,28 +113,7 @@ public class StepMeta implements
 
   private StepPartitioningMeta targetStepPartitioningMeta;
 
-  private ClusterSchema clusterSchema;
-
-  private String clusterSchemaName; // temporary to resolve later.
-
   private StepErrorMeta stepErrorMeta;
-
-  // OK, we need to explain to this running step that we expect input from remote steps.
-  // This only happens when the previous step "repartitions". (previous step has different
-  // partitioning method than this one)
-  //
-  // So here we go, let's create List members for the remote input and output step
-  //
-
-  /**
-   * These are the remote input steps to read from, one per host:port combination
-   */
-  private List<RemoteStep> remoteInputSteps;
-
-  /**
-   * These are the remote output steps to write to, one per host:port combination
-   */
-  private List<RemoteStep> remoteOutputSteps;
 
   private TransMeta parentTransMeta;
 
@@ -175,12 +153,7 @@ public class StepMeta implements
     location = new Point( 0, 0 );
     description = null;
     stepPartitioningMeta = new StepPartitioningMeta();
-    // targetStepPartitioningMeta = new StepPartitioningMeta();
-
-    clusterSchema = null; // non selected by default.
-
-    remoteInputSteps = new ArrayList<RemoteStep>();
-    remoteOutputSteps = new ArrayList<RemoteStep>();
+    targetStepPartitioningMeta = null;
 
     attributesMap = new HashMap<String, Map<String, String>>();
   }
@@ -216,29 +189,6 @@ public class StepMeta implements
     }
 
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
-
-    retval.append( "    " ).append( XMLHandler.addTagValue( "cluster_schema", clusterSchema == null ? ""
-      : clusterSchema.getName() ) );
-
-    retval.append( "    " ).append( XMLHandler.openTag( "remotesteps" ) ).append( Const.CR );
-    // Output the remote input steps
-    List<RemoteStep> inputSteps = new ArrayList<RemoteStep>( remoteInputSteps );
-    Collections.sort( inputSteps ); // sort alphabetically, making it easier to compare XML files
-    retval.append( "      " ).append( XMLHandler.openTag( "input" ) ).append( Const.CR );
-    for ( RemoteStep remoteStep : inputSteps ) {
-      retval.append( "      " ).append( remoteStep.getXML() ).append( Const.CR );
-    }
-    retval.append( "      " ).append( XMLHandler.closeTag( "input" ) ).append( Const.CR );
-
-    // Output the remote output steps
-    List<RemoteStep> outputSteps = new ArrayList<RemoteStep>( remoteOutputSteps );
-    Collections.sort( outputSteps ); // sort alphabetically, making it easier to compare XML files
-    retval.append( "      " ).append( XMLHandler.openTag( "output" ) ).append( Const.CR );
-    for ( RemoteStep remoteStep : outputSteps ) {
-      retval.append( "      " ).append( remoteStep.getXML() ).append( Const.CR );
-    }
-    retval.append( "      " ).append( XMLHandler.closeTag( "output" ) ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.closeTag( "remotesteps" ) ).append( Const.CR );
 
     retval.append( "    " ).append( XMLHandler.openTag( "GUI" ) ).append( Const.CR );
     retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
@@ -332,22 +282,6 @@ public class StepMeta implements
         if ( partNode != null ) {
           targetStepPartitioningMeta = new StepPartitioningMeta( partNode );
         }
-
-        clusterSchemaName = XMLHandler.getTagValue( stepnode, "cluster_schema" );
-
-        // The remote input and output steps...
-        Node remotestepsNode = XMLHandler.getSubNode( stepnode, "remotesteps" );
-        Node inputNode = XMLHandler.getSubNode( remotestepsNode, "input" );
-        int nrInput = XMLHandler.countNodes( inputNode, RemoteStep.XML_TAG );
-        for ( int i = 0; i < nrInput; i++ ) {
-          remoteInputSteps.add( new RemoteStep( XMLHandler.getSubNodeByNr( inputNode, RemoteStep.XML_TAG, i ) ) );
-
-        }
-        Node outputNode = XMLHandler.getSubNode( remotestepsNode, "output" );
-        int nrOutput = XMLHandler.countNodes( outputNode, RemoteStep.XML_TAG );
-        for ( int i = 0; i < nrOutput; i++ ) {
-          remoteOutputSteps.add( new RemoteStep( XMLHandler.getSubNodeByNr( outputNode, RemoteStep.XML_TAG, i ) ) );
-        }
       }
     } catch ( HopPluginLoaderException e ) {
       throw e;
@@ -356,23 +290,6 @@ public class StepMeta implements
         .toString(), e );
     }
   }
-
-  /**
-   * Resolves the name of the cluster loaded from XML to the correct clusterSchema object
-   *
-   * @param clusterSchemas The list of clusterSchemas to reference.
-   */
-  public void setClusterSchemaAfterLoading( List<ClusterSchema> clusterSchemas ) {
-    if ( clusterSchemaName == null ) {
-      return;
-    }
-    for ( ClusterSchema look : clusterSchemas ) {
-      if ( look.getName().equals( clusterSchemaName ) ) {
-        clusterSchema = look;
-      }
-    }
-  }
-
 
   public static StepMeta fromXml( String metaXml ) {
     Document doc;
@@ -405,7 +322,7 @@ public class StepMeta implements
     // If the step is partitioned, that's going to determine the number of copies, nothing else...
     //
     if ( isPartitioned() && getStepPartitioningMeta().getPartitionSchema() != null ) {
-      List<String> partitionIDs = getStepPartitioningMeta().getPartitionSchema().getPartitionIDs();
+      List<String> partitionIDs = getStepPartitioningMeta().getPartitionSchema().calculatePartitionIDs();
       if ( partitionIDs != null && partitionIDs.size() > 0 ) { // these are the partitions the step can "reach"
         return partitionIDs.size();
       }
@@ -510,23 +427,6 @@ public class StepMeta implements
       this.stepPartitioningMeta = stepMeta.stepPartitioningMeta.clone();
     } else {
       this.stepPartitioningMeta = null;
-    }
-    if ( stepMeta.clusterSchema != null ) {
-      this.clusterSchema = stepMeta.clusterSchema.clone();
-    } else {
-      this.clusterSchema = null;
-    }
-    this.clusterSchemaName = stepMeta.clusterSchemaName; // temporary to resolve later.
-
-    // Also replace the remote steps with cloned versions...
-    //
-    this.remoteInputSteps = new ArrayList<RemoteStep>();
-    for ( RemoteStep remoteStep : stepMeta.remoteInputSteps ) {
-      this.remoteInputSteps.add( (RemoteStep) remoteStep.clone() );
-    }
-    this.remoteOutputSteps = new ArrayList<RemoteStep>();
-    for ( RemoteStep remoteStep : stepMeta.remoteOutputSteps ) {
-      this.remoteOutputSteps.add( (RemoteStep) remoteStep.clone() );
     }
 
     // The error handling needs to be done too...
@@ -682,20 +582,6 @@ public class StepMeta implements
   }
 
   /**
-   * @return the clusterSchema
-   */
-  public ClusterSchema getClusterSchema() {
-    return clusterSchema;
-  }
-
-  /**
-   * @param clusterSchema the clusterSchema to set
-   */
-  public void setClusterSchema( ClusterSchema clusterSchema ) {
-    this.clusterSchema = clusterSchema;
-  }
-
-  /**
    * @return the distributes
    */
   public boolean isDistributes() {
@@ -830,34 +716,6 @@ public class StepMeta implements
   }
 
   /**
-   * @return the remoteInputSteps
-   */
-  public List<RemoteStep> getRemoteInputSteps() {
-    return remoteInputSteps;
-  }
-
-  /**
-   * @param remoteInputSteps the remoteInputSteps to set
-   */
-  public void setRemoteInputSteps( List<RemoteStep> remoteInputSteps ) {
-    this.remoteInputSteps = remoteInputSteps;
-  }
-
-  /**
-   * @return the remoteOutputSteps
-   */
-  public List<RemoteStep> getRemoteOutputSteps() {
-    return remoteOutputSteps;
-  }
-
-  /**
-   * @param remoteOutputSteps the remoteOutputSteps to set
-   */
-  public void setRemoteOutputSteps( List<RemoteStep> remoteOutputSteps ) {
-    this.remoteOutputSteps = remoteOutputSteps;
-  }
-
-  /**
    * @return the targetStepPartitioningMeta
    */
   public StepPartitioningMeta getTargetStepPartitioningMeta() {
@@ -881,10 +739,6 @@ public class StepMeta implements
     return false;
   }
 
-  public boolean isClustered() {
-    return clusterSchema != null;
-  }
-
   /**
    * Set the plugin step id (code)
    *
@@ -892,10 +746,6 @@ public class StepMeta implements
    */
   public void setStepID( String stepid ) {
     this.stepid = stepid;
-  }
-
-  public void setClusterSchemaName( String clusterSchemaName ) {
-    this.clusterSchemaName = clusterSchemaName;
   }
 
   public void setParentTransMeta( TransMeta parentTransMeta ) {

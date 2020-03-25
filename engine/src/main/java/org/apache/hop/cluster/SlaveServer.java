@@ -29,6 +29,8 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -115,6 +117,12 @@ import java.util.Random;
 @MetaStoreElementType(
   name = "Slave Server",
   description = "Defines a Hop Slave Server"
+)
+@GuiPlugin
+@GuiMetaStoreElement(
+  name = "Slave Server",
+  description = "Defines a Hop Slave Server",
+  iconImage = "ui/images/slave.svg"
 )
 public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<SlaveServer> {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator2!!

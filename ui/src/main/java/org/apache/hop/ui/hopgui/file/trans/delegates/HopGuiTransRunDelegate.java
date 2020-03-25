@@ -97,7 +97,7 @@ public class HopGuiTransRunDelegate {
   }
 
   public TransExecutionConfiguration executeTransformation( final LogChannelInterface log, final TransMeta transMeta, final boolean local, final boolean remote,
-                                                            final boolean cluster, final boolean preview, final boolean debug, final boolean safe, LogLevel logLevel ) throws HopException {
+                                                            final boolean preview, final boolean debug, final boolean safe, LogLevel logLevel ) throws HopException {
 
     if ( transMeta == null ) {
       return null;
@@ -119,7 +119,6 @@ public class HopGuiTransRunDelegate {
     // Set defaults so the run configuration can set it up correctly
     executionConfiguration.setExecutingLocally( true );
     executionConfiguration.setExecutingRemotely( false );
-    executionConfiguration.setExecutingClustered( false );
 
     // Set MetaStore and safe mode information in both the exec config and the metadata
     //
@@ -182,7 +181,6 @@ public class HopGuiTransRunDelegate {
       if ( debugAnswer != TransDebugDialog.DEBUG_CANCEL ) {
         executionConfiguration.setExecutingLocally( true );
         executionConfiguration.setExecutingRemotely( false );
-        executionConfiguration.setExecutingClustered( false );
       } else {
         // If we cancel the debug dialog, we don't go further with the execution either.
         //

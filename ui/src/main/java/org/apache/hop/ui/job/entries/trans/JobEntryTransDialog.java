@@ -493,7 +493,6 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
       // Ignore errors
     }
 
-    jet.setClustering( executionConfiguration.isExecutingClustered() );
     if ( executionConfiguration.getRemoteServer() != null ) {
       jet.setRemoteSlaveServerName( executionConfiguration.getRemoteServer().getName() );
     }

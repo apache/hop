@@ -495,49 +495,6 @@ public class HopRun implements Runnable {
     return filename.toLowerCase().endsWith( ".kjb" );
   }
 
-  /*
-  private void parseRunConfiguration( CommandLine cmd, ExecutionConfiguration configuration, IMetaStore metaStore ) throws ParameterException {
-    realRunConfigurationName = space.environmentSubstitute( runConfigurationName );
-    if ( StringUtils.isEmpty( realRunConfigurationName ) ) {
-      return;
-    }
-    try {
-      MetaStoreFactory<RunConfiguration> configFactory = new MetaStoreFactory<>( RunConfiguration.class, metaStore, PentahoDefaults.NAMESPACE );
-      RunConfiguration runConfiguration = configFactory.loadElement( realRunConfigurationName );
-      if ( runConfiguration == null ) {
-        // Not found!
-        throw new ParameterException( cmd, "Run configuration '" + realRunConfigurationName + "' couldn't be found" );
-      }
-
-      // Handle details
-      //
-      if ( StringUtils.isNotEmpty( runConfiguration.getServer() ) ) {
-        realSlaveServerName = space.environmentSubstitute( runConfiguration.getServer() );
-        configureSlaveServer( configuration, sharedObjects, realSlaveServerName );
-      }
-      configuration.setExecutingLocally( runConfiguration.isLocal() );
-      configuration.setExecutingRemotely( runConfiguration.isRemote() );
-      configuration.setPassingExport( runConfiguration.isSendResources() );
-
-      // Trans specific
-      //
-      if ( configuration instanceof TransExecutionConfiguration ) {
-        ( (TransExecutionConfiguration) configuration ).setExecutingClustered( runConfiguration.isClustered() );
-      }
-
-      // Job specific
-      //
-      if ( configuration instanceof JobExecutionConfiguration ) {
-        // Nothing so far
-      }
-
-    } catch ( Exception e ) {
-      throw new ParameterException( cmd, "Unable to load run configuration '" + realRunConfigurationName + "'", e );
-    }
-  }
-
-   */
-
 
   /**
    * Set the variables and parameters
@@ -664,19 +621,12 @@ public class HopRun implements Runnable {
     if ( StringUtils.isNotEmpty( realSlaveServerName ) ) {
       log.logMinimal( "OPTION: slave server: '" + realSlaveServerName + "'" );
     }
-    // Where are we executing? Local, Remote, Clustered?
+    // Where are we executing? Local or Remote?
     if ( configuration.isExecutingLocally() ) {
       log.logMinimal( "OPTION: Local execution" );
     } else {
       if ( configuration.isExecutingRemotely() ) {
         log.logMinimal( "OPTION: Remote execution" );
-
-        // Clustered?
-        if ( configuration instanceof TransExecutionConfiguration ) {
-          if ( ( (TransExecutionConfiguration) configuration ).isExecutingClustered() ) {
-            log.logMinimal( "OPTION: Clustered execution" );
-          }
-        }
       }
     }
     if ( configuration.isPassingExport() ) {

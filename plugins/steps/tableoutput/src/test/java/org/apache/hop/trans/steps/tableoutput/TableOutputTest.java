@@ -110,7 +110,6 @@ public class TableOutputTest {
   public void testTruncateTable_on() throws Exception {
     when( tableOutputMeta.truncateTable() ).thenReturn( true );
     when( tableOutputSpy.getCopy() ).thenReturn( 0 );
-    when( tableOutputSpy.getUniqueStepNrAcrossSlaves() ).thenReturn( 0 );
 
     tableOutputSpy.truncateTable();
     verify( db ).truncateTable( anyString(), anyString() );
@@ -120,7 +119,6 @@ public class TableOutputTest {
   public void testTruncateTable_on_PartitionId() throws Exception {
     when( tableOutputMeta.truncateTable() ).thenReturn( true );
     when( tableOutputSpy.getCopy() ).thenReturn( 1 );
-    when( tableOutputSpy.getUniqueStepNrAcrossSlaves() ).thenReturn( 0 );
     when( tableOutputSpy.getPartitionID() ).thenReturn( "partition id" );
 
     tableOutputSpy.truncateTable();

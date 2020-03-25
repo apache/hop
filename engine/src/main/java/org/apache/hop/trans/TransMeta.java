@@ -30,8 +30,6 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
@@ -89,7 +87,6 @@ import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -279,16 +276,6 @@ public class TransMeta extends AbstractMeta
    * by default.
    */
   protected boolean usingThreadPriorityManagment;
-
-  /**
-   * The slave-step-copy/partition distribution. Only used for slave transformations in a clustering environment.
-   */
-  protected SlaveStepCopyPartitionDistribution slaveStepCopyPartitionDistribution;
-
-  /**
-   * Just a flag indicating that this is a slave transformation - internal use only, no GUI option.
-   */
-  protected boolean slaveTransformation;
 
   /**
    * Whether the transformation is capturing step performance snap shots.
@@ -655,8 +642,6 @@ public class TransMeta extends AbstractMeta
     partitionSchemas = new ArrayList<>();
     namedParams = new NamedParamsDefault();
     stepChangeListeners = new ArrayList<>();
-
-    slaveStepCopyPartitionDistribution = new SlaveStepCopyPartitionDistribution();
 
     trans_status = -1;
     trans_version = null;
@@ -1767,21 +1752,6 @@ public class TransMeta extends AbstractMeta
       }
     }
 
-    if ( nrPrevious == 0 && stepMeta.getRemoteInputSteps().size() > 0 ) {
-      // Also check the remote input steps (clustering)
-      // Typically, if there are any, row is still empty at this point
-      // We'll also be at a starting point in the transformation
-      //
-      for ( RemoteStep remoteStep : stepMeta.getRemoteInputSteps() ) {
-        RowMetaInterface inputFields = remoteStep.getRowMeta();
-        for ( ValueMetaInterface inputField : inputFields.getValueMetaList() ) {
-          if ( row.searchValueMeta( inputField.getName() ) == null ) {
-            row.addValueMeta( inputField );
-          }
-        }
-      }
-    }
-
     // Finally, see if we need to add/modify/delete fields with this step "name"
     rowMeta = getThisStepFields( stepMeta, targetStep, row, monitor );
 
@@ -2050,54 +2020,6 @@ public class TransMeta extends AbstractMeta
     return false;
   }
 
-  /**
-   * Checks if the transformation is using a cluster schema.
-   *
-   * @return true if a cluster schema is used on one or more steps in this transformation, false otherwise
-   */
-  public boolean isUsingAClusterSchema() {
-    return isUsingClusterSchema( null );
-  }
-
-  /**
-   * Checks if the transformation is using the specified cluster schema.
-   *
-   * @param clusterSchema the cluster schema to check
-   * @return true if the specified cluster schema is used on one or more steps in this transformation
-   */
-  public boolean isUsingClusterSchema( ClusterSchema clusterSchema ) {
-    // Loop over all steps and see if the partition schema is used.
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      ClusterSchema check = getStep( i ).getClusterSchema();
-      if ( check != null && ( clusterSchema == null || check.equals( clusterSchema ) ) ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Checks if the transformation is using the specified slave server.
-   *
-   * @param slaveServer the slave server
-   * @return true if the transformation is using the slave server, false otherwise
-   * @throws HopException if any errors occur while checking for the slave server
-   */
-  public boolean isUsingSlaveServer( SlaveServer slaveServer ) throws HopException {
-    // Loop over all steps and see if the slave server is used.
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      ClusterSchema clusterSchema = getStep( i ).getClusterSchema();
-      if ( clusterSchema != null ) {
-        for ( SlaveServer check : clusterSchema.getSlaveServers() ) {
-          if ( check.equals( slaveServer ) ) {
-            return true;
-          }
-        }
-        return true;
-      }
-    }
-    return false;
-  }
 
   /**
    * Finds the location (index) of the specified hop.
@@ -2332,12 +2254,6 @@ public class TransMeta extends AbstractMeta
       }
       retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_STEP_ERROR_HANDLING ) ).append( Const.CR );
     }
-
-    // The slave-step-copy/partition distribution. Only used for slave transformations in a clustering environment.
-    retval.append( slaveStepCopyPartitionDistribution.getXML() );
-
-    // Is this a slave transformation or not?
-    retval.append( "  " ).append( XMLHandler.addTagValue( "slave_transformation", slaveTransformation ) );
 
     // Also store the attribute groups
     //
@@ -2767,16 +2683,6 @@ public class TransMeta extends AbstractMeta
           modifiedDate = XMLHandler.stringToDate( modDate );
         }
 
-        Node partitionDistNode = XMLHandler.getSubNode( transnode, SlaveStepCopyPartitionDistribution.XML_TAG );
-        if ( partitionDistNode != null ) {
-          slaveStepCopyPartitionDistribution = new SlaveStepCopyPartitionDistribution( partitionDistNode );
-        } else {
-          slaveStepCopyPartitionDistribution = new SlaveStepCopyPartitionDistribution(); // leave empty
-        }
-
-        // Is this a slave transformation?
-        //
-        slaveTransformation = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transnode, "slave_transformation" ) );
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.NumberOfStepsReaded" ) + nrSteps() );
           log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.NumberOfHopsReaded" ) + nrTransHops() );
@@ -2869,11 +2775,6 @@ public class TransMeta extends AbstractMeta
       StepMeta stepMeta = getStep( x );
       if ( !isStepUsedInTransHops( stepMeta ) ) {
         st.add( stepMeta );
-      }
-      if ( !stepMeta.getRemoteInputSteps().isEmpty() || !stepMeta.getRemoteOutputSteps().isEmpty() ) {
-        if ( !st.contains( stepMeta ) ) {
-          st.add( stepMeta );
-        }
       }
     }
 
@@ -4812,57 +4713,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Gets the slave step copy partition distribution.
-   *
-   * @return the SlaveStepCopyPartitionDistribution
-   */
-  public SlaveStepCopyPartitionDistribution getSlaveStepCopyPartitionDistribution() {
-    return slaveStepCopyPartitionDistribution;
-  }
-
-  /**
-   * Sets the slave step copy partition distribution.
-   *
-   * @param slaveStepCopyPartitionDistribution the slaveStepCopyPartitionDistribution to set
-   */
-  public void setSlaveStepCopyPartitionDistribution(
-    SlaveStepCopyPartitionDistribution slaveStepCopyPartitionDistribution ) {
-    this.slaveStepCopyPartitionDistribution = slaveStepCopyPartitionDistribution;
-  }
-
-  /**
-   * Finds the first used cluster schema.
-   *
-   * @return the first used cluster schema
-   */
-  public ClusterSchema findFirstUsedClusterSchema() {
-    for ( StepMeta stepMeta : steps ) {
-      if ( stepMeta.getClusterSchema() != null ) {
-        return stepMeta.getClusterSchema();
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Checks whether the transformation is a slave transformation.
-   *
-   * @return true if the transformation is a slave transformation, false otherwise
-   */
-  public boolean isSlaveTransformation() {
-    return slaveTransformation;
-  }
-
-  /**
-   * Sets whether the transformation is a slave transformation.
-   *
-   * @param slaveTransformation true if the transformation is a slave transformation, false otherwise
-   */
-  public void setSlaveTransformation( boolean slaveTransformation ) {
-    this.slaveTransformation = slaveTransformation;
-  }
-
-  /**
    * Checks whether the transformation is capturing step performance snapshots.
    *
    * @return true if the transformation is capturing step performance snapshots, false otherwise
@@ -5218,8 +5068,6 @@ public class TransMeta extends AbstractMeta
 
       .append( this.getDependencies() )
       .append( this.getPartitionSchemas() )
-      .append( this.getSlaveStepCopyPartitionDistribution() )
-      .append( this.isSlaveTransformation() )
 
       .append( this.nrTransHops() )
 
@@ -5236,8 +5084,6 @@ public class TransMeta extends AbstractMeta
       hashCodeBuilder
         .append( step.getName() )
         .append( step.getStepMetaInterface().getXML() )
-        .append( step.getRemoteInputSteps() )
-        .append( step.getRemoteOutputSteps() )
         .append( step.isDoingErrorHandling() );
     }
     return hashCodeBuilder.toHashCode();

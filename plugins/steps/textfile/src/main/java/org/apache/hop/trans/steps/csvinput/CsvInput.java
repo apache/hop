@@ -886,14 +886,13 @@ public class CsvInput extends BaseStep implements StepInterface {
       data.stopReading = false;
 
       if ( meta.isRunningInParallel() ) {
-        data.stepNumber = getUniqueStepNrAcrossSlaves();
-        data.totalNumberOfSteps = getUniqueStepCountAcrossSlaves();
+        data.stepNumber = getCopyNr();
+        data.totalNumberOfSteps = getStepMeta().getCopies();
 
         // We are not handling a single file, but possibly a list of files...
         // As such, the fair thing to do is calculate the total size of the files
         // Then read the required block.
         //
-
         data.fileSizes = new ArrayList<Long>();
         data.totalFileSize = 0L;
       }

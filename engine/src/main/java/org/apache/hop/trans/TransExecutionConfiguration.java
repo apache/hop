@@ -57,12 +57,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   private SlaveServer remoteServer;
   private boolean passingExport;
 
-  private boolean executingClustered;
-  private boolean clusterPosting;
-  private boolean clusterPreparing;
-  private boolean clusterStarting;
-  private boolean clusterShowingTransformation;
-
   private Map<String, String> params;
   private Map<String, String> variables;
 
@@ -87,11 +81,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
   public TransExecutionConfiguration() {
     executingLocally = true;
-
-    clusterPosting = true;
-    clusterPreparing = true;
-    clusterStarting = true;
-    clusterShowingTransformation = false;
 
     passingExport = false;
 
@@ -138,49 +127,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     return params;
   }
 
-
-  /**
-   * @return the clusteredExecution
-   */
-  public boolean isExecutingClustered() {
-    return executingClustered;
-  }
-
-  /**
-   * @param clusteredExecution the clusteredExecution to set
-   */
-  public void setExecutingClustered( boolean clusteredExecution ) {
-    this.executingClustered = clusteredExecution;
-  }
-
-  /**
-   * @return the notExecuting
-   */
-  public boolean isClusterStarting() {
-    return clusterStarting;
-  }
-
-  /**
-   * @param notExecuting the notExecuting to set
-   */
-  public void setClusterStarting( boolean notExecuting ) {
-    this.clusterStarting = notExecuting;
-  }
-
-  /**
-   * @return the showingTransformations
-   */
-  public boolean isClusterShowingTransformation() {
-    return clusterShowingTransformation;
-  }
-
-  /**
-   * @param showingTransformations the showingTransformations to set
-   */
-  public void setClusterShowingTransformation( boolean showingTransformations ) {
-    this.clusterShowingTransformation = showingTransformations;
-  }
-
   /**
    * @return the variables
    */
@@ -218,19 +164,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     this.executingRemotely = remoteExecution;
   }
 
-  /**
-   * @return the clusterPosting
-   */
-  public boolean isClusterPosting() {
-    return clusterPosting;
-  }
-
-  /**
-   * @param clusterPosting the clusterPosting to set
-   */
-  public void setClusterPosting( boolean clusterPosting ) {
-    this.clusterPosting = clusterPosting;
-  }
 
   /**
    * @return the localExecution
@@ -244,20 +177,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
    */
   public void setExecutingLocally( boolean localExecution ) {
     this.executingLocally = localExecution;
-  }
-
-  /**
-   * @return the clusterPreparing
-   */
-  public boolean isClusterPreparing() {
-    return clusterPreparing;
-  }
-
-  /**
-   * @param clusterPreparing the clusterPreparing to set
-   */
-  public void setClusterPreparing( boolean clusterPreparing ) {
-    this.clusterPreparing = clusterPreparing;
   }
 
   /**
@@ -379,12 +298,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     }
     xml.append( "    " ).append( XMLHandler.addTagValue( "pass_export", passingExport ) );
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "exec_cluster", executingClustered ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "cluster_post", clusterPosting ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "cluster_prepare", clusterPreparing ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "cluster_start", clusterStarting ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "cluster_show_trans", clusterShowingTransformation ) );
-
     // Serialize the parameters...
     //
     xml.append( "    <parameters>" ).append( Const.CR );
@@ -452,12 +365,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
       remoteServer = new SlaveServer( remoteHostNode );
     }
     passingExport = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "pass_export" ) );
-
-    executingClustered = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "exec_cluster" ) );
-    clusterPosting = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "cluster_post" ) );
-    clusterPreparing = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "cluster_prepare" ) );
-    clusterStarting = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "cluster_start" ) );
-    clusterShowingTransformation = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "cluster_show_trans" ) );
 
     // Read the variables...
     //

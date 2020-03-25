@@ -110,6 +110,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     if ( element == null ) {
       return false;
     }
+    HopGui hopGui = HopGui.getInstance();
 
     String dialogClassName = calculateDialogClassname();
 
@@ -121,6 +122,9 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       IMetaStore.class,
       managedClass
     };
+    Object[] constructorParameters = new Object[] {
+      hopGui.getShell(), metaStore, element
+    };
 
     Class<IMetaStoreDialog> dialogClass;
     try {
@@ -128,8 +132,26 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     } catch ( ClassNotFoundException e1 ) {
       dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
     }
-    Constructor<IMetaStoreDialog> constructor = dialogClass.getDeclaredConstructor( constructorArguments );
-    IMetaStoreDialog dialog = constructor.newInstance( HopGui.getInstance().getShell(), metaStore, element );
+    Constructor<IMetaStoreDialog> constructor;
+    try {
+      constructor = dialogClass.getDeclaredConstructor( constructorArguments );
+    } catch(NoSuchMethodException nsm) {
+      constructorArguments = new Class<?>[] {
+        Shell.class,
+        IMetaStore.class,
+        managedClass,
+        VariableSpace.class
+      };
+      constructorParameters = new Object[] {
+        hopGui.getShell(), metaStore, element, hopGui.getVariableSpace()
+      };
+      constructor = dialogClass.getDeclaredConstructor( constructorArguments );
+    }
+    if (constructor==null) {
+      throw new HopException( "Unable to find dialog class ("+dialogClassName+") constructor with arguments: Shell, IMetaStore, T and optionally VariableSpace");
+    }
+
+    IMetaStoreDialog dialog = constructor.newInstance( constructorParameters );
     String name = dialog.open();
     if ( name != null ) {
       // Save it in the MetaStore

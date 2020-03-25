@@ -77,7 +77,6 @@ import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMetaWrapper;
 import org.apache.hop.trans.engine.IEngine;
-import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowDistributionInterface;
 import org.apache.hop.trans.step.RowDistributionPluginType;
 import org.apache.hop.trans.step.RowListener;

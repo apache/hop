@@ -37,7 +37,6 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
@@ -110,36 +109,6 @@ public class Mapping extends BaseStep implements StepInterface {
             clearInputRowSets();
           }
 
-          // Do the same thing for remote input steps...
-          //
-          if ( !getRemoteInputSteps().isEmpty() ) {
-            // The remote server is likely a master or a slave server sending data
-            // over remotely to this mapping.
-            // However, the data needs to end up at a Mapping Input step of the
-            // sub-transformation, not in this step.
-            // We can move over the remote steps to the Mapping Input step as long
-            // as the threads haven't started yet.
-            //
-            for ( RemoteStep remoteStep : getRemoteInputSteps() ) {
-              // Pass this rowset down to a mapping input step in the
-              // sub-transformation...
-              //
-              if ( mappingInputs.length == 1 ) {
-                // Simple case: only one input mapping. Move the remote step over
-                //
-                mappingInputs[ 0 ].getRemoteInputSteps().add( remoteStep );
-              } else {
-                // TODO: figure out where this remote step needs to go and where
-                // it comes from.
-                //
-                throw new HopException(
-                  "Unsupported situation detected where a remote input step is expecting data "
-                    + "to end up in a particular Mapping Input step of a sub-transformation.  "
-                    + "To solve it, insert a dummy step before the mapping." );
-              }
-            }
-            getRemoteInputSteps().clear();
-          }
 
           // Do the same thing for output row sets
           //
@@ -164,37 +133,6 @@ public class Mapping extends BaseStep implements StepInterface {
               }
             }
             clearOutputRowSets();
-          }
-
-          // Do the same thing for remote output steps...
-          //
-          if ( !getRemoteOutputSteps().isEmpty() ) {
-            // The remote server is likely a master or a slave server sending data
-            // over remotely to this mapping.
-            // However, the data needs to end up at a Mapping Output step of the
-            // sub-transformation, not in this step.
-            // We can move over the remote steps to the Mapping Output step as long
-            // as the threads haven't started yet.
-            //
-            for ( RemoteStep remoteStep : getRemoteOutputSteps() ) {
-              // Pass this rowset down to a mapping output step in the
-              // sub-transformation...
-              //
-              if ( mappingOutputs.length == 1 ) {
-                // Simple case: only one output mapping. Move the remote step over
-                //
-                mappingOutputs[ 0 ].getRemoteOutputSteps().add( remoteStep );
-              } else {
-                // TODO: figure out where this remote step needs to go and where
-                // it comes from.
-                //
-                throw new HopException(
-                  "Unsupported situation detected where a remote output step is expecting data "
-                    + "to end up in a particular Mapping Output step of a sub-transformation.  "
-                    + "To solve it, insert a dummy step after the mapping." );
-              }
-            }
-            getRemoteOutputSteps().clear();
           }
 
           // Start the mapping/sub-transformation threads

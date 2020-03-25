@@ -26,13 +26,13 @@ public class GuiRegistry {
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
-  private Set<Class<IHopMetaStoreElement<?>>> metaStoreTypeSet;
+  private Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap;
 
   private GuiRegistry() {
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
-    metaStoreTypeSet = new HashSet<>(  );
+    metaStoreTypeMap = new HashMap<>(  );
   }
 
   public static final GuiRegistry getInstance() {
@@ -274,9 +274,10 @@ public class GuiRegistry {
     return contextActionsMap.get( parentContextId );
   }
 
-  public void addMetaStoreElementType( Class<IHopMetaStoreElement<?>> elementClass ) {
-    metaStoreTypeSet.add( elementClass );
+  public void addMetaStoreElementType( Class<? extends IHopMetaStoreElement> elementClass, GuiMetaStoreElement guiMetaStoreElement ) {
+    metaStoreTypeMap.put( elementClass, guiMetaStoreElement );
   }
+
 
   /**
    * Gets dataElementsMap
@@ -324,5 +325,21 @@ public class GuiRegistry {
    */
   public void setContextActionsMap( Map<String, List<GuiAction>> contextActionsMap ) {
     this.contextActionsMap = contextActionsMap;
+  }
+
+  /**
+   * Gets metaStoreTypeMap
+   *
+   * @return value of metaStoreTypeMap
+   */
+  public Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> getMetaStoreTypeMap() {
+    return metaStoreTypeMap;
+  }
+
+  /**
+   * @param metaStoreTypeMap The metaStoreTypeMap to set
+   */
+  public void setMetaStoreTypeMap( Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap ) {
+    this.metaStoreTypeMap = metaStoreTypeMap;
   }
 }

@@ -7,6 +7,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -15,6 +16,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -137,6 +139,19 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addMethodElement( parentClassName, parentClass, item.toolBarElement, item.method );
           } else {
             guiRegistry.addMethodElement( item.toolBarElement.parent(), parentClass, item.toolBarElement, item.method );
+          }
+        }
+
+        // Is this class annotated with @GuiMetaStoreElement ?
+        //
+        GuiMetaStoreElement guiMetaStoreElement = parentClass.getAnnotation( GuiMetaStoreElement.class );
+        if (guiMetaStoreElement!=null) {
+          // The parent class is capable of serializing to a metastore
+          //
+          try {
+            guiRegistry.addMetaStoreElementType( (Class<IHopMetaStoreElement>) parentClass, guiMetaStoreElement );
+          } catch(ClassCastException e) {
+            System.err.println( "Classes annotated with @"+GuiMetaStoreElement.class.getSimpleName()+" need to implement interface "+IHopMetaStoreElement.class.getSimpleName() );
           }
         }
 

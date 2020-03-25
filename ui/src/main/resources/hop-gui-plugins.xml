@@ -51,4 +51,19 @@
     <description>Job Graph Log Delegate</description>
   </gui-plugin>
 
+  <!-- metastore elements to pop up in the GUI -->
+  <gui-plugin>
+    <classname>org.apache.hop.core.database.DatabaseMeta</classname>
+    <description>Database connection metadata</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.cluster.SlaveServer</classname>
+    <description>Slave server metadata</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.partition.PartitionSchema</classname>
+    <description>Partition schema metadata</description>
+  </gui-plugin>
+
+
 </gui-plugins>

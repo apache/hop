@@ -1,25 +1,86 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 19.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-     viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
-<style type="text/css">
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 24 24"
+   style="enable-background:new 0 0 24 24;"
+   xml:space="preserve"
+   sodipodi:docname="partition_schema.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"><metadata
+   id="metadata26"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs24">
+	
+    
+
+		
+	
+			
+      
+      
+      
+		</defs><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="640"
+   inkscape:window-height="480"
+   id="namedview22"
+   showgrid="false"
+   inkscape:zoom="45.254834"
+   inkscape:cx="-0.78033121"
+   inkscape:cy="11.703124"
+   inkscape:current-layer="Layer_1" />
+<style
+   type="text/css"
+   id="style2">
 	.st0{fill:none;}
 	.st1{fill:#1CB24B;}
 </style>
-  <g>
-	<g id="Layer_2">
-		<g id="Layer_2_1_">
-			<rect x="4" y="4" class="st0" width="16" height="16"/>
+  <g
+   id="Layer_2">
+		<g
+   id="Layer_2_1_">
+			<rect
+   style="fill:none"
+   id="rect4"
+   height="16"
+   width="16"
+   class="st0"
+   y="4"
+   x="4" />
 		</g>
-	</g>
-    <g id="art_1_">
-		<g>
-			<polygon class="st1" points="17.8,14.7 17.8,13 12.9,13 12.9,17.9 14.6,17.9 14.6,16 18.7,20 19.9,18.8 15.9,14.7 			"/>
-      <polygon class="st1" points="11.1,17.9 9.4,17.9 9.4,16 5.3,20 4.1,18.8 8.1,14.7 6.2,14.7 6.2,13 11.1,13 			"/>
-      <polygon class="st1" points="12.9,11 17.8,11 17.8,9.3 15.9,9.3 19.9,5.2 18.7,4 14.6,8 14.6,6.1 12.9,6.1 			"/>
-      <polygon class="st1" points="6.2,11 6.2,9.3 8.1,9.3 4.1,5.2 5.3,4 9.4,8 9.4,6.1 11.1,6.1 11.1,11 			"/>
-		</g>
-	</g>
-</g>
-</svg>
+	</g><polygon
+   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
+   id="polygon10"
+   points="9.4,16 5.3,20 4.1,18.8 8.1,14.7 6.2,14.7 6.2,13 11.1,13 11.1,17.9 9.4,17.9 "
+   class="st1"
+   transform="rotate(75,8.3208332,19.780427)" /><polygon
+   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
+   id="polygon14"
+   points="6.2,9.3 8.1,9.3 4.1,5.2 5.3,4 9.4,8 9.4,6.1 11.1,6.1 11.1,11 6.2,11 "
+   class="st1"
+   transform="rotate(-75,7.8832501,3.9973663)" />
+<polygon
+   style="opacity:1;fill:#3d6380;fill-opacity:1;fill-rule:nonzero"
+   id="polygon14-3"
+   points="11.1,6.1 11.1,11 6.2,11 6.2,9.3 8.1,9.3 4.1,5.2 5.3,4 9.4,8 9.4,6.1 "
+   class="st1"
+   transform="rotate(-45,14.53231,5.1348391)" /></svg>

@@ -87,7 +87,6 @@ import org.apache.hop.trans.debug.BreakPointListener;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.engine.IEngine;
-import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowDistributionInterface;
 import org.apache.hop.trans.step.RowDistributionPluginType;
 import org.apache.hop.trans.step.RowListener;
@@ -2053,12 +2052,28 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     selectedSteps = null;
   }
 
-  public void partitioning() {
-    transStepDelegate.editStepPartitioning( transMeta, getCurrentStep() );
+  @GuiContextAction(
+    id = "transgraph-step-10700-partitioning",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Specify step partitioning",
+    tooltip = "Specify how rows of data need to be grouped into partitions allowing parallel execution where similar rows need to end up on the same step copy",
+    image = "ui/images/partition_schema.svg"
+  )
+  public void partitioning(HopGuiTransStepContext context) {
+    transStepDelegate.editStepPartitioning( transMeta, context.getStepMeta() );
   }
 
-  public void errorHandling() {
-    transStepDelegate.editStepErrorHandling( transMeta, getCurrentStep() );
+  @GuiContextAction(
+    id = "transgraph-step-10800-error-handling",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Step error handling",
+    tooltip = "Specify how error handling is behaving for this step",
+    image = "ui/images/step_error.svg"
+  )
+  public void errorHandling(HopGuiTransStepContext context) {
+    transStepDelegate.editStepErrorHandling( transMeta, context.getStepMeta() );
   }
 
   public void newHopChoice() {
@@ -2511,23 +2526,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       areaType = areaOwner.getAreaType();
       switch ( areaType ) {
-        case REMOTE_INPUT_STEP:
-          StepMeta step = (StepMeta) areaOwner.getParent();
-          tip.append( "Remote input steps:" ).append( Const.CR ).append( "-----------------------" ).append( Const.CR );
-          for ( RemoteStep remoteStep : step.getRemoteInputSteps() ) {
-            tip.append( remoteStep.toString() ).append( Const.CR );
-          }
-          break;
-        case REMOTE_OUTPUT_STEP:
-          step = (StepMeta) areaOwner.getParent();
-          tip.append( "Remote output steps:" ).append( Const.CR ).append( "-----------------------" )
-            .append( Const.CR );
-          for ( RemoteStep remoteStep : step.getRemoteOutputSteps() ) {
-            tip.append( remoteStep.toString() ).append( Const.CR );
-          }
-          break;
         case STEP_PARTITIONING:
-          step = (StepMeta) areaOwner.getParent();
+          StepMeta step = (StepMeta) areaOwner.getParent();
           tip.append( "Step partitioning:" ).append( Const.CR ).append( "-----------------------" ).append( Const.CR );
           tip.append( step.getStepPartitioningMeta().toString() ).append( Const.CR );
           if ( step.getTargetStepPartitioningMeta() != null ) {
@@ -3146,7 +3146,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void preview() {
     try {
-      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true, transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, true, false, true, transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error previewing transformation", e );
     }
@@ -3163,7 +3163,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void debug() {
     try {
-      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true, transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, true, transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error debugging transformation", e );
     }
@@ -3364,7 +3364,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           @Override
           public void run() {
             try {
-              transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, debug, false, LogLevel.BASIC );
+              transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, debug, false, LogLevel.BASIC );
             } catch ( Exception e ) {
               new ErrorDialog( getShell(), "Execute transformation", "There was an error during transformation execution", e );
             }
