@@ -39,6 +39,7 @@
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
+        <module>terafast</module>
     </modules>
 
 </project>
