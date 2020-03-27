@@ -53,7 +53,7 @@ import java.util.List;
  * @since 5-apr-2003
  */
 public class SelectValues extends BaseStep implements StepInterface {
-  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   private SelectValuesMeta meta;
   private SelectValuesData data;

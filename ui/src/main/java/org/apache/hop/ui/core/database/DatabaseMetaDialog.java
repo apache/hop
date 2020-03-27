@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
-  private static Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
   private Shell parent;
   private Shell shell;
   private IMetaStore metaStore;

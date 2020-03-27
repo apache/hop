@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
  */
 
 public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
-  private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator!!
   private final IMetaStore metaStore;
 
   private SlaveServer slaveServer;

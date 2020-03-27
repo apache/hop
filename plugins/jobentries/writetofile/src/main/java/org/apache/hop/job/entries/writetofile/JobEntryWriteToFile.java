@@ -65,7 +65,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryWriteToFile extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryWriteToFile.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryWriteToFile.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
   private boolean createParentFolder;

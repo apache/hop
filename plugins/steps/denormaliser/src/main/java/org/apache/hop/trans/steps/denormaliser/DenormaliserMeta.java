@@ -58,7 +58,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Fields to group over

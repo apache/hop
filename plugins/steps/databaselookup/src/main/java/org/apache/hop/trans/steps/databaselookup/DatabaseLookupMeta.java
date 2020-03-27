@@ -64,7 +64,7 @@ import java.util.List;
 )
 public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterface,
   ProvidesModelerMeta {
-  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] conditionStrings = new String[] {
     "=", "<>", "<", "<=", ">", ">=", "LIKE", "BETWEEN", "IS NULL", "IS NOT NULL", };

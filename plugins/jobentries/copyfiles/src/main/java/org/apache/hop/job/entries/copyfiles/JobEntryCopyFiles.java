@@ -79,7 +79,7 @@ import java.util.regex.Pattern;
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement" 
 )
 public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator!!
 
   public static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
   public static final String SOURCE_FILE_FOLDER = "source_filefolder";

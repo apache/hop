@@ -176,7 +176,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   LogParentProvidedInterface, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener,
   KeyListener {
 
-  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_JOB_GRAPH = "ui/job-graph.xul";
 

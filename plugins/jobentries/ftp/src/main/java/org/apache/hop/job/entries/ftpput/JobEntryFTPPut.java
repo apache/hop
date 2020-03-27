@@ -76,7 +76,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileTransfer"
 )
 public class JobEntryFTPPut extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFTPPut.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPPut.class; // for i18n purposes, needed by Translator!!
 
   public static final int FTP_DEFAULT_PORT = 21;
 

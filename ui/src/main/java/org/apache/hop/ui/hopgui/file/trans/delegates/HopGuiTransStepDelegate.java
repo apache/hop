@@ -44,7 +44,7 @@ import java.util.List;
 public class HopGuiTransStepDelegate {
 
   // TODO: move i18n package to HopGui
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
   private HopGui hopUi;

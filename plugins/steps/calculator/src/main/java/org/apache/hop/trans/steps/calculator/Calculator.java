@@ -51,7 +51,7 @@ import java.util.List;
  * @since 8-sep-2005
  */
 public class Calculator extends BaseStep implements StepInterface {
-  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public class FieldIndexes {
     public int indexName;

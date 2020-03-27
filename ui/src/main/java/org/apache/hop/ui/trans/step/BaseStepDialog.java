@@ -93,7 +93,7 @@ public class BaseStepDialog extends Dialog {
   /**
    * The package name used for internationalization
    */
-  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The logging object interface for this dialog.

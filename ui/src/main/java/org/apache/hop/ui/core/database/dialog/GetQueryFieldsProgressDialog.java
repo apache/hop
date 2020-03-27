@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 12-may-2005
  */
 public class GetQueryFieldsProgressDialog {
-  private static Class<?> PKG = GetQueryFieldsProgressDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetQueryFieldsProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private DatabaseMeta dbMeta;

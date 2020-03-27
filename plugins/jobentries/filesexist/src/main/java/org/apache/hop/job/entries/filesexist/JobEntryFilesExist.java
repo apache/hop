@@ -57,7 +57,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFilesExist.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFilesExist.class; // for i18n purposes, needed by Translator!!
 
   private String filename; // TODO: looks like it is not used: consider deleting
 

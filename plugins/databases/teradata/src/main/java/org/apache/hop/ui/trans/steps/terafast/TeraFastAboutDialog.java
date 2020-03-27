@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class TeraFastAboutDialog {
 
-  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int DEFAULT_INDENT = 20;
 

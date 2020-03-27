@@ -79,7 +79,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
   private Display display;
 

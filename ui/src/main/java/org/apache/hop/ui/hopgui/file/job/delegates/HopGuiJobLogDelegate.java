@@ -55,7 +55,7 @@ import java.util.ArrayList;
 
 @GuiPlugin
 public class HopGuiJobLogDelegate {
-  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator!!
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiJobLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";

@@ -86,7 +86,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
   public static final String STEP_ATTRIBUTES_FILE = "/step-attributes.xml";
 
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

@@ -71,7 +71,7 @@ import java.util.Properties;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntrySetVariables extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntrySetVariables.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntrySetVariables.class; // for i18n purposes, needed by Translator!!
 
   public boolean replaceVars;
 

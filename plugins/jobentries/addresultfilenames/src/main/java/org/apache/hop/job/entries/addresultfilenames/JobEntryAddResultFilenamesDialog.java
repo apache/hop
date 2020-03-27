@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog( id = "ADD_RESULT_FILENAMES", image = "AddResultFileNames.svg", pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Add+filenames+to+result" )
 public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobEntryAddResultFilenames.Filetype.All" ) };

@@ -59,7 +59,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Mail"
 )
 public class JobEntryMailValidator extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryMailValidator.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryMailValidator.class; // for i18n purposes, needed by Translator!!
 
   private boolean smtpCheck;
   private String timeout;

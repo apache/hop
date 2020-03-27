@@ -45,7 +45,7 @@ import java.util.List;
  * @since 16-apr-2003, 07-nov-2004 (rewrite)
  */
 public class FilterRows extends BaseStep implements StepInterface {
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private FilterRowsMeta meta;
   private FilterRowsData data;

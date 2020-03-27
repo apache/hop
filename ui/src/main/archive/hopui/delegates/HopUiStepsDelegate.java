@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HopUiStepsDelegate extends HopUiDelegate {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   public HopUiStepsDelegate( HopUi hopUi ) {
     super( hopUi );

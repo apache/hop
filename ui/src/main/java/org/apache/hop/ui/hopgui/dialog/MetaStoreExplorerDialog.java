@@ -65,7 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MetaStoreExplorerDialog {
-  private static Class<?> PKG = MetaStoreExplorerDialog.class; // for i18n purposes, needed by Translator2
+  private static Class<?> PKG = MetaStoreExplorerDialog.class; // for i18n purposes, needed by Translator
 
   private static final String META_STORE_EXPLORER_DIALOG_TREE = "MetaStore explorer dialog tree";
 

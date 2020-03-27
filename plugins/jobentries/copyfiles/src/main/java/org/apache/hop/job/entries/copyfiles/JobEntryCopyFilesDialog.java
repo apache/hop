@@ -23,12 +23,10 @@
 package org.apache.hop.job.entries.copyfiles;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -87,7 +85,7 @@ import java.util.Map;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator!!
 
   protected static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCopyFiles.Filetype.All" ) };
@@ -243,29 +241,46 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
       }
     };
 
-    wIncludeSubfolders = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.IncludeSubfolders.Label", "JobCopyFiles.IncludeSubfolders.Tooltip", null, listener );
+    wIncludeSubfolders = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.IncludeSubfolders.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.IncludeSubfolders.Tooltip" ),
+      null, listener );
 
-    wDestinationIsAFile = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.DestinationIsAFile.Label", "JobCopyFiles.DestinationIsAFile.Tooltip", wIncludeSubfolders, listener );
+    wDestinationIsAFile = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.DestinationIsAFile.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.DestinationIsAFile.Tooltip" ),
+      wIncludeSubfolders, listener );
 
-    wCopyEmptyFolders = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.CopyEmptyFolders.Label", "JobCopyFiles.CopyEmptyFolders.Tooltip", wDestinationIsAFile, listener );
+    wCopyEmptyFolders = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.CopyEmptyFolders.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.CopyEmptyFolders.Tooltip" ),
+      wDestinationIsAFile, listener );
 
-    wCreateDestinationFolder = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.CreateDestinationFolder.Label", "JobCopyFiles.CreateDestinationFolder.Tooltip", wCopyEmptyFolders, listener );
+    wCreateDestinationFolder = createSettingsButton(wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.CreateDestinationFolder.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.CreateDestinationFolder.Tooltip" ),
+      wCopyEmptyFolders,
+      listener );
 
-    wOverwriteFiles = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.OverwriteFiles.Label", "JobCopyFiles.OverwriteFiles.Tooltip", wCreateDestinationFolder, listener );
+    wOverwriteFiles = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.OverwriteFiles.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.OverwriteFiles.Tooltip" ),
+      wCreateDestinationFolder, listener );
 
-    wRemoveSourceFiles = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.RemoveSourceFiles.Label", "JobCopyFiles.RemoveSourceFiles.Tooltip", wOverwriteFiles, listener );
+    wRemoveSourceFiles = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.RemoveSourceFiles.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.RemoveSourceFiles.Tooltip" ),
+      wOverwriteFiles, listener );
 
-    wPrevious = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.Previous.Label", "JobCopyFiles.Previous.Tooltip", wRemoveSourceFiles, listener );
+    wPrevious = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.Previous.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.Previous.Tooltip" ),
+      wRemoveSourceFiles, listener );
 
-    wAddFileToResult = createSettingsButton(
-      wSettingsComp, "JobCopyFiles.AddFileToResult.Label", "JobCopyFiles.AddFileToResult.Tooltip", wPrevious, listener );
+    wAddFileToResult = createSettingsButton( wSettingsComp,
+      BaseMessages.getString( PKG, "JobCopyFiles.AddFileToResult.Label" ),
+      BaseMessages.getString( PKG, "JobCopyFiles.AddFileToResult.Tooltip" ),
+      wPrevious, listener );
 
     FormData fdSettingsComp = new FormData();
     fdSettingsComp.left = new FormAttachment( 0, 0 );
@@ -384,8 +399,12 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     helpButton.setLayoutData( fdHelpButton );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, ( Event e ) -> {  cancel();  } );
-    wOK.addListener( SWT.Selection, ( Event e ) -> {  ok();  } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> {
+      cancel();
+    } );
+    wOK.addListener( SWT.Selection, ( Event e ) -> {
+      ok();
+    } );
 
     SelectionAdapter lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -423,8 +442,8 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
   protected Button createSettingsButton( Composite p, String text, String title, Control top, SelectionAdapter sa ) {
     Button button = new Button( p, SWT.CHECK );
-    button.setText( BaseMessages.getString( PKG, text ) );
-    button.setToolTipText( BaseMessages.getString( PKG, title ) );
+    button.setText( text );
+    button.setToolTipText( title );
     props.setLook( button );
     FormData fd = new FormData();
     fd.left = new FormAttachment( 0, Const.MARGIN * 2 );

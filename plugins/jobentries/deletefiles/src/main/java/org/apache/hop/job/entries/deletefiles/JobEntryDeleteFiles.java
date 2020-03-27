@@ -78,7 +78,7 @@ import java.util.regex.Pattern;
 )
 public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
 
-  private static final Class<?> PKG = JobEntryDeleteFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDeleteFiles.class; // for i18n purposes, needed by Translator!!
 
   private boolean argFromPrevious;
 

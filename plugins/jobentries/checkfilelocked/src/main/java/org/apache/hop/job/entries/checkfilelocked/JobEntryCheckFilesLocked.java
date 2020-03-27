@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions" 
 )
 public class JobEntryCheckFilesLocked extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryCheckFilesLocked.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryCheckFilesLocked.class; // for i18n purposes, needed by Translator!!
 
   public boolean argFromPrevious;
 

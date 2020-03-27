@@ -41,7 +41,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * @since 03June2008
  */
 public class DetectLastRow extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private DetectLastRowMeta meta;
 

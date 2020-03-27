@@ -93,7 +93,7 @@ import java.util.TimerTask;
  * @since 12 nov 2006
  */
 public class HopUiSlave extends Composite implements TabItemInterface {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   public static final long UPDATE_TIME_VIEW = Long.parseLong( Const.getEnvironmentVariable( "SPOON_CARTE_VIEW_UPDATE_TIME", "30000" ) );
 

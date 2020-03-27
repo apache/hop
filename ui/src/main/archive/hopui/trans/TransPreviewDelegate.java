@@ -78,7 +78,7 @@ import java.util.ResourceBundle;
 import static java.util.stream.Collectors.toList;
 
 public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_TRANS_PREVIEW_TOOLBAR = "ui/trans-preview-toolbar.xul";
 

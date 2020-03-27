@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Composite;
  * @since 17-may-2006
  */
 public class ComboVar extends Composite {
-  private static Class<?> PKG = ComboVar.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ComboVar.class; // for i18n purposes, needed by Translator!!
 
   private String toolTipText;
 

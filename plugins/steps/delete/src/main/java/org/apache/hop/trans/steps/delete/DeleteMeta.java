@@ -62,7 +62,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The target schema name

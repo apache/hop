@@ -63,7 +63,7 @@ import java.util.StringTokenizer;
 
 public class MVSFileParser extends FTPFileParser {
 
-  private static Class<?> PKG = MVSFileParser.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = MVSFileParser.class; // for i18n purposes, needed by Translator!!
 
   /*** DO NOT TRANSLATE THESE ***/
   private static final String PARSER_KEY = "MVS";

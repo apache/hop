@@ -93,7 +93,7 @@ import java.util.Set;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

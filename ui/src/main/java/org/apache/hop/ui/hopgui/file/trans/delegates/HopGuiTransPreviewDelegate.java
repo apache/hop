@@ -76,7 +76,7 @@ import static java.util.stream.Collectors.toList;
   description = "The transformation preview tab in the execution pane"
 )
 public class HopGuiTransPreviewDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransPreviewDelegate-ToolBar";
 

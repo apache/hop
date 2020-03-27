@@ -50,7 +50,7 @@ import java.util.TimerTask;
 
 public class HopGuiJobGridDelegate {
 
-  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator!!
 
   private HopGui hopUi;
 

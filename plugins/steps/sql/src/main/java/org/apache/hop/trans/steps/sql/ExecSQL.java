@@ -50,7 +50,7 @@ import java.util.ArrayList;
  * @since 10-sep-2005
  */
 public class ExecSQL extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExecSQLMeta meta;
 

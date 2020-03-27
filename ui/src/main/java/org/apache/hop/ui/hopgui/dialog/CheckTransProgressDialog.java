@@ -45,7 +45,7 @@ import java.util.List;
  * @since 16-mrt-2005
  */
 public class CheckTransProgressDialog {
-  private static Class<?> PKG = CheckTransProgressDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CheckTransProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private TransMeta transMeta;

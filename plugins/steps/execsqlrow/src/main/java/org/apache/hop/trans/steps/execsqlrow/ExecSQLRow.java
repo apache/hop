@@ -48,7 +48,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * @since 10-sep-2005
  */
 public class ExecSQLRow extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExecSQLRowMeta meta;
   private ExecSQLRowData data;

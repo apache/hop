@@ -62,7 +62,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
       )
 public class RowGeneratorMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean neverEnding;
 

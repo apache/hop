@@ -832,8 +832,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
             "Job.Log.UnexpectedErrorWhileWaitingForJobEntry", nextEntry.getName() ), e ) );
         }
       }
-      // if(log.isBasic()) log.logBasic(BaseMessages.getString(PKG,
-      // "Job.Log.FinishedJobEntry",startpoint.getName(),res.getResult()+""));
     }
 
     // Perhaps we don't have next steps??

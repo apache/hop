@@ -49,7 +49,7 @@ import java.util.List;
  * @since 13-jan-2006
  */
 public class TransPreviewProgressDialog {
-  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private TransMeta transMeta;

@@ -49,21 +49,44 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dialog class for table output step.
@@ -71,7 +94,7 @@ import java.util.*;
  * @author Matt Casters
  */
 public class TableOutputDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;
@@ -1452,17 +1475,17 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
                 .getSQL() );
             sqledit.open();
           } else {
-            String message = getBaseMessage( "TableOutputDialog.NoSQL.DialogMessage" );
-            String text = getBaseMessage( "TableOutputDialog.NoSQL.DialogTitle" );
+            String message = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogMessage" );
+            String text = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogTitle" );
             showMessage( shell, SWT.OK | SWT.ICON_INFORMATION, message, text );
           }
         } else {
-          String text = getBaseMessage( "System.Dialog.Error.Title" );
+          String text = BaseMessages.getString( PKG, "System.Dialog.Error.Title" );
           showMessage( shell, SWT.OK | SWT.ICON_ERROR, sql.getError(), text );
         }
       } else {
-        String message = getBaseMessage( "TableOutputDialog.NoSQL.EmptyCSVFields" );
-        String text = getBaseMessage( "TableOutputDialog.NoSQL.DialogTitle" );
+        String message = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.EmptyCSVFields" );
+        String text = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogTitle" );
         showMessage( shell, SWT.OK | SWT.ICON_ERROR, message, text );
       }
     } catch ( HopException ke ) {
@@ -1487,9 +1510,5 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
       }
     }
     return true;
-  }
-
-  private static String getBaseMessage( String str ) {
-    return BaseMessages.getString( PKG, str );
   }
 }

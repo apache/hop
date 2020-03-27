@@ -80,7 +80,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   private static final String XUL_FILE_TRANS_GRID_TOOLBAR = "ui/trans-history-toolbar.xul";
 

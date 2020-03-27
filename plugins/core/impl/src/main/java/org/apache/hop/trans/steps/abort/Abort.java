@@ -83,15 +83,13 @@ public class Abort extends BaseStep implements StepInterface {
         //
         // Here we abort!!
         //
-        String abortOptionMessageProperty = "AbortDialog.Options.Abort.Label";
+        String abortOptionMessage = BaseMessages.getString( PKG, "AbortDialog.Options.Abort.Label");
         if ( meta.isAbortWithError() ) {
-          abortOptionMessageProperty = "AbortDialog.Options.AbortWithError.Label";
+          abortOptionMessage = BaseMessages.getString( PKG, "AbortDialog.Options.AbortWithError.Label" );
         } else if ( meta.isSafeStop() ) {
-          abortOptionMessageProperty = "AbortDialog.Options.SafeStop.Label";
+          abortOptionMessage = BaseMessages.getString( PKG, "AbortDialog.Options.SafeStop.Label");
         }
-        logError( BaseMessages.getString(
-          PKG, "Abort.Log.Wrote.AbortRow", Long.toString( nrInputRows ),
-          BaseMessages.getString( PKG, abortOptionMessageProperty ), getInputRowMeta().getString( r ) ) );
+        logError( BaseMessages.getString( PKG, "Abort.Log.Wrote.AbortRow", Long.toString( nrInputRows ), abortOptionMessage, getInputRowMeta().getString( r ) ) );
 
         String message = environmentSubstitute( meta.getMessage() );
         if ( message == null || message.length() == 0 ) {

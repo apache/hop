@@ -26,27 +26,16 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,12 +51,17 @@ import java.util.regex.Pattern;
  */
 public class MessagesSourceCrawler {
 
-  private String[] scanPhrases;
+  private List<String> scanPhrases;
 
   /**
    * The source directories to crawl through
    */
   private List<String> sourceDirectories;
+
+  /**
+   * The bundle store
+   */
+  private BundlesStore bundlesStore;
 
   /**
    * Source folder - package name - all the key occurrences in there
@@ -81,56 +75,40 @@ public class MessagesSourceCrawler {
 
   private Pattern packagePattern;
   private Pattern importPattern;
-  private Pattern importMessagesPattern;
   private Pattern stringPkgPattern;
   private Pattern classPkgPattern;
 
   private LogChannelInterface log;
 
-  /**
-   * @param sourceDirectories  The source directories to crawl through
-   */
-  public MessagesSourceCrawler( LogChannelInterface log, List<String> sourceDirectories ) {
-    super();
-    this.log = log;
-    this.sourceDirectories = sourceDirectories;
+  public MessagesSourceCrawler() {
+    this.scanPhrases = new ArrayList<>();
+    this.sourceDirectories = new ArrayList<>();
     this.filesToAvoid = new ArrayList<>();
-
-    this.sourcePackageOccurrences = new HashMap<String, Map<String, List<KeyOccurrence>>>();
+    this.sourcePackageOccurrences = new HashMap<>();
 
     packagePattern = Pattern.compile( "^\\s*package .*;[ \t]*$" );
     importPattern = Pattern.compile( "^\\s*import [a-z\\._0-9]*\\.[A-Z].*;[ \t]*$" );
-    importMessagesPattern = Pattern.compile( "^\\s*import [a-z\\._0-9]*\\.Messages;[ \t]*$" );
     stringPkgPattern = Pattern.compile( "^.*private static String PKG.*=.*$" );
     classPkgPattern = Pattern.compile( "^.*private static Class.*\\sPKG\\s*=.*$" );
   }
 
-  /**
-   * @return The source directories to crawl through
-   */
-  public List<String> getSourceDirectories() {
-    return sourceDirectories;
-  }
+  public MessagesSourceCrawler( LogChannelInterface log, String rootFolder, BundlesStore bundlesStore ) throws HopException {
+    this();
+    this.log = log;
+    this.bundlesStore = bundlesStore;
+    this.filesToAvoid = new ArrayList<>();
 
-  /**
-   * @param sourceDirectories The source directories to crawl through
-   */
-  public void setSourceDirectories( List<String> sourceDirectories ) {
-    this.sourceDirectories = sourceDirectories;
-  }
-
-  /**
-   * @return the files to avoid
-   */
-  public List<String> getFilesToAvoid() {
-    return filesToAvoid;
-  }
-
-  /**
-   * @param filesToAvoid the files to avoid
-   */
-  public void setFilesToAvoid( List<String> filesToAvoid ) {
-    this.filesToAvoid = filesToAvoid;
+    // Let's look for all the src/main/java folders in the root folder.
+    //
+    try {
+      Files
+        .walk( Paths.get( rootFolder ) )
+        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/java" ) && !path.toString().contains( "archive" ) )
+        .forEach( path -> sourceDirectories.add( path.toAbsolutePath().toFile().getPath() ) );
+      ;
+    } catch ( IOException e ) {
+      throw new HopException( "Error scanning root folder '" + rootFolder + "' for Java source files (*.java)", e );
+    }
   }
 
   /**
@@ -181,12 +159,12 @@ public class MessagesSourceCrawler {
       FileObject folder = HopVFS.getFileObject( sourceDirectory );
       FileObject[] javaFiles = folder.findFiles( new FileSelector() {
         @Override
-        public boolean traverseDescendents( FileSelectInfo info ) throws Exception {
+        public boolean traverseDescendents( FileSelectInfo info ) {
           return true;
         }
 
         @Override
-        public boolean includeFile( FileSelectInfo info ) throws Exception {
+        public boolean includeFile( FileSelectInfo info ) {
           return info.getFile().getName().getExtension().equals( "java" );
         }
       } );
@@ -194,7 +172,7 @@ public class MessagesSourceCrawler {
       for ( FileObject javaFile : javaFiles ) {
 
         /**
-         * We don't want the Messages.java files, there is nothing in there for us.
+         * We don't want certain files, there is nothing in there for us.
          */
         boolean skip = false;
         for ( String filename : filesToAvoid ) {
@@ -213,55 +191,6 @@ public class MessagesSourceCrawler {
     }
   }
 
-  private void addLabelOccurrences( String sourceFolder, FileObject fileObject, NodeList nodeList,
-                                    String keyPrefix, String tag, String attribute, String defaultPackage,
-                                    List<SourceCrawlerPackageException> packageExcpeptions ) throws Exception {
-    if ( nodeList == null ) {
-      return;
-    }
-
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    Transformer transformer = transformerFactory.newTransformer();
-    transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes" );
-    transformer.setOutputProperty( OutputKeys.INDENT, "yes" );
-
-    for ( int i = 0; i < nodeList.getLength(); i++ ) {
-      Node node = nodeList.item( i );
-      String labelString = null;
-
-      if ( !Utils.isEmpty( attribute ) ) {
-        labelString = XMLHandler.getTagAttribute( node, attribute );
-      } else if ( !Utils.isEmpty( tag ) ) {
-        labelString = XMLHandler.getTagValue( node, tag );
-      }
-
-      // TODO : Set the prefix in the right place
-      keyPrefix = "$";
-
-      if ( labelString != null && labelString.startsWith( keyPrefix ) ) {
-        String key = labelString.substring( 1 );
-        // TODO : maybe not the right place ...
-        // just removed ${} around the key
-        key = labelString.substring( 2, labelString.length() - 1 ).trim();
-
-        String messagesPackage = defaultPackage;
-        for ( SourceCrawlerPackageException packageException : packageExcpeptions ) {
-          if ( key.startsWith( packageException.getStartsWith() ) ) {
-            messagesPackage = packageException.getPackageName();
-          }
-        }
-
-        StringWriter bodyXML = new StringWriter();
-        transformer.transform( new DOMSource( node ), new StreamResult( bodyXML ) );
-        String xml = bodyXML.getBuffer().toString();
-
-        KeyOccurrence keyOccurrence =
-          new KeyOccurrence( fileObject, sourceFolder, messagesPackage, -1, -1, key, "?", xml );
-        addKeyOccurrence( keyOccurrence );
-      }
-    }
-  }
-
   /**
    * Look for additional occurrences of keys in the specified file.
    *
@@ -270,7 +199,6 @@ public class MessagesSourceCrawler {
    * @throws IOException In case there is a problem accessing the specified source file.
    */
   public void lookForOccurrencesInFile( String sourceFolder, FileObject javaFile ) throws IOException {
-
     BufferedReader reader = new BufferedReader( new InputStreamReader( HopVFS.getInputStream( javaFile ) ) );
 
     String messagesPackage = null;
@@ -305,7 +233,7 @@ public class MessagesSourceCrawler {
       // "package org.apache.hop.trans.steps.sortedmerge;"
       //
       if ( packagePattern.matcher( line ).matches() ) {
-        int beginIndex = line.indexOf( "org.pentaho." );
+        int beginIndex = line.indexOf( "org.apache.hop." );
         int endIndex = line.indexOf( ';' );
         if ( beginIndex >= 0 && endIndex >= 0 ) {
           messagesPackage = line.substring( beginIndex, endIndex ); // this is the default
@@ -332,19 +260,10 @@ public class MessagesSourceCrawler {
         }
       }
 
-      // This is the alternative location of the messages package:
-      //
-      // "import org.apache.hop.trans.steps.sortedmerge.Messages;"
-      //
-      if ( importMessagesPattern.matcher( line ).matches() ) {
-        int beginIndex = line.indexOf( "org.pentaho." );
-        int endIndex = line.indexOf( ".Messages;" );
-        messagesPackage = line.substring( beginIndex, endIndex ); // if there is any specified, we take this one.
-      }
 
       // Look for the value of the PKG value...
       //
-      // private static String PKG = "org.pentaho.foo.bar.somepkg";
+      // private static String PKG = "org.apache.hop.foo.bar.somepkg";
       //
       if ( stringPkgPattern.matcher( line ).matches() ) {
         int beginIndex = line.indexOf( '"' ) + 1;
@@ -468,8 +387,7 @@ public class MessagesSourceCrawler {
     //
     if ( key.startsWith( "System." ) ) {
       String i18nPackage = BaseMessages.class.getPackage().getName();
-      KeyOccurrence keyOccurrence =
-        new KeyOccurrence( fileObject, sourceFolder, i18nPackage, row, column, key, arguments, line );
+      KeyOccurrence keyOccurrence = new KeyOccurrence( fileObject, sourceFolder, i18nPackage, row, column, key, arguments, line );
 
       // If we just add this key, we'll get doubles in the i18n package
       //
@@ -483,8 +401,7 @@ public class MessagesSourceCrawler {
         lookup.incrementOccurrences();
       }
     } else {
-      KeyOccurrence keyOccurrence =
-        new KeyOccurrence( fileObject, sourceFolder, messagesPackage, row, column, key, arguments, line );
+      KeyOccurrence keyOccurrence = new KeyOccurrence( fileObject, sourceFolder, messagesPackage, row, column, key, arguments, line );
       addKeyOccurrence( keyOccurrence );
     }
   }
@@ -537,28 +454,6 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * @return the scanPhrases
-   */
-  public String[] getScanPhrases() {
-    return scanPhrases;
-  }
-
-  /**
-   * @param scanPhrases the scanPhrases to set
-   */
-  public void setScanPhrases( String[] scanPhrases ) {
-    this.scanPhrases = scanPhrases;
-  }
-
-  public Map<String, Map<String, List<KeyOccurrence>>> getSourcePackageOccurrences() {
-    return sourcePackageOccurrences;
-  }
-
-  public void setSourcePackageOccurrences( Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
-    this.sourcePackageOccurrences = sourcePackageOccurrences;
-  }
-
-  /**
    * Get the unique package-key
    *
    * @param sourceFolder
@@ -576,5 +471,166 @@ public class MessagesSourceCrawler {
     }
 
     return new ArrayList<KeyOccurrence>( map.values() );
+  }
+
+
+  /**
+   * Gets scanPhrases
+   *
+   * @return value of scanPhrases
+   */
+  public List<String> getScanPhrases() {
+    return scanPhrases;
+  }
+
+  /**
+   * @param scanPhrases The scanPhrases to set
+   */
+  public void setScanPhrases( List<String> scanPhrases ) {
+    this.scanPhrases = scanPhrases;
+  }
+
+  /**
+   * Gets sourceDirectories
+   *
+   * @return value of sourceDirectories
+   */
+  public List<String> getSourceDirectories() {
+    return sourceDirectories;
+  }
+
+  /**
+   * @param sourceDirectories The sourceDirectories to set
+   */
+  public void setSourceDirectories( List<String> sourceDirectories ) {
+    this.sourceDirectories = sourceDirectories;
+  }
+
+  /**
+   * Gets bundlesStore
+   *
+   * @return value of bundlesStore
+   */
+  public BundlesStore getBundlesStore() {
+    return bundlesStore;
+  }
+
+  /**
+   * @param bundlesStore The bundlesStore to set
+   */
+  public void setBundlesStore( BundlesStore bundlesStore ) {
+    this.bundlesStore = bundlesStore;
+  }
+
+  /**
+   * Gets sourcePackageOccurrences
+   *
+   * @return value of sourcePackageOccurrences
+   */
+  public Map<String, Map<String, List<KeyOccurrence>>> getSourcePackageOccurrences() {
+    return sourcePackageOccurrences;
+  }
+
+  /**
+   * @param sourcePackageOccurrences The sourcePackageOccurrences to set
+   */
+  public void setSourcePackageOccurrences( Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+    this.sourcePackageOccurrences = sourcePackageOccurrences;
+  }
+
+  /**
+   * Gets filesToAvoid
+   *
+   * @return value of filesToAvoid
+   */
+  public List<String> getFilesToAvoid() {
+    return filesToAvoid;
+  }
+
+  /**
+   * @param filesToAvoid The filesToAvoid to set
+   */
+  public void setFilesToAvoid( List<String> filesToAvoid ) {
+    this.filesToAvoid = filesToAvoid;
+  }
+
+  /**
+   * Gets packagePattern
+   *
+   * @return value of packagePattern
+   */
+  public Pattern getPackagePattern() {
+    return packagePattern;
+  }
+
+  /**
+   * @param packagePattern The packagePattern to set
+   */
+  public void setPackagePattern( Pattern packagePattern ) {
+    this.packagePattern = packagePattern;
+  }
+
+  /**
+   * Gets importPattern
+   *
+   * @return value of importPattern
+   */
+  public Pattern getImportPattern() {
+    return importPattern;
+  }
+
+  /**
+   * @param importPattern The importPattern to set
+   */
+  public void setImportPattern( Pattern importPattern ) {
+    this.importPattern = importPattern;
+  }
+
+  /**
+   * Gets stringPkgPattern
+   *
+   * @return value of stringPkgPattern
+   */
+  public Pattern getStringPkgPattern() {
+    return stringPkgPattern;
+  }
+
+  /**
+   * @param stringPkgPattern The stringPkgPattern to set
+   */
+  public void setStringPkgPattern( Pattern stringPkgPattern ) {
+    this.stringPkgPattern = stringPkgPattern;
+  }
+
+  /**
+   * Gets classPkgPattern
+   *
+   * @return value of classPkgPattern
+   */
+  public Pattern getClassPkgPattern() {
+    return classPkgPattern;
+  }
+
+  /**
+   * @param classPkgPattern The classPkgPattern to set
+   */
+  public void setClassPkgPattern( Pattern classPkgPattern ) {
+    this.classPkgPattern = classPkgPattern;
+  }
+
+  /**
+   * Gets log
+   *
+   * @return value of log
+   */
+  public LogChannelInterface getLog() {
+    return log;
+  }
+
+  /**
+   * @param log The log to set
+   */
+  public void setLog( LogChannelInterface log ) {
+    this.log = log;
   }
 }

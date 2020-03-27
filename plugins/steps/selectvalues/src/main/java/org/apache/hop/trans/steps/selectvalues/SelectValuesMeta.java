@@ -70,7 +70,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int UNDEFINED = -2;
 

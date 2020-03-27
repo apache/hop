@@ -38,7 +38,7 @@ import org.apache.xul.swt.tab.TabSet;
 import org.eclipse.swt.SWT;
 
 public class HopUiSlaveDelegate {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
   private final HopUi hopUi;
 
   public HopUiSlaveDelegate( HopUi hopUi ) {

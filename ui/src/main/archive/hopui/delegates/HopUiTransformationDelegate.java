@@ -66,7 +66,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HopUiTransformationDelegate extends HopUiDelegate {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This contains a map between the name of a transformation and the TransMeta object. If the transformation has no

@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * An interface providing functionality for any step dialog that has the "get fields" capability.
  */
 public interface GetFieldsCapableStepDialog<StepMetaType extends BaseStepMeta> {
-  Class<?> PKG = GetFieldsCapableStepDialog.class; // for i18n purposes, needed by Translator2!!
+  Class<?> PKG = GetFieldsCapableStepDialog.class; // for i18n purposes, needed by Translator!!
 
   LogChannel logger = new LogChannel( GetFieldsCapableStepDialog.class );
 

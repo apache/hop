@@ -75,7 +75,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

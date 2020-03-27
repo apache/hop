@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.Arrays;
 
 public class VariableButtonListenerFactory {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,

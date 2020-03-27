@@ -80,7 +80,7 @@ import java.util.Map;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Scripting"
 )
 public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryShell.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryShell.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

@@ -108,7 +108,7 @@ import java.util.Vector;
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
  */
 public class TextFileInputDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
     BaseMessages.getString( PKG, "System.Combo.Yes" ) };

@@ -80,7 +80,7 @@ import java.net.InetAddress;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntrySFTP.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntrySFTP.class; // for i18n purposes, needed by Translator!!
   private static final String[] FILETYPES =
     new String[] {
       BaseMessages.getString( PKG, "JobSFTP.Filetype.Pem" ),

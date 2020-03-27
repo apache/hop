@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.List;
 
 public class FilterRowsDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTrueTo;
   private CCombo wTrueTo;

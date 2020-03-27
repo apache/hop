@@ -86,7 +86,7 @@ import java.util.Random;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] IMAGES_FILE_TYPES =
     new String[] {

@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
  */
 
 public class MailConnection {
-  private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Target mail server.

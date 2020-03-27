@@ -41,7 +41,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ConstantDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;
   private TableView wFields;

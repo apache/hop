@@ -69,7 +69,7 @@ import java.util.Map;
  * @since version 3.0 RC1
  */
 public class TransDebugDialog extends Dialog {
-  private static Class<?> PKG = TransDebugDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransDebugDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final int DEBUG_CANCEL = 0;
   public static final int DEBUG_LAUNCH = 1;

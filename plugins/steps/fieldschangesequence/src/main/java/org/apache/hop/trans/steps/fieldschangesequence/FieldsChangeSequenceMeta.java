@@ -56,7 +56,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * by which fields to display?

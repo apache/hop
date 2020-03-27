@@ -63,7 +63,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
 )
 public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * database connection

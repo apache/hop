@@ -52,7 +52,7 @@ import java.util.Properties;
 
 public class FTPSConnection implements FTPListener {
 
-  private static Class<?> PKG = JobEntryFTPSGet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPSGet.class; // for i18n purposes, needed by Translator!!
   private LogChannelInterface logger;
 
   public static final String HOME_FOLDER = "/";

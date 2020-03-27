@@ -74,7 +74,7 @@ import java.util.List;
 public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface,
   ProvidesDatabaseConnectionInformation {
 
-  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * what's the schema for the target?

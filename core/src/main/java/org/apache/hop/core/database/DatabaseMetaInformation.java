@@ -257,8 +257,6 @@ public class DatabaseMetaInformation {
           } catch ( Exception e ) {
             // Obviously, we're not allowed to snoop around in this catalog.
             // Just ignore it!
-            // LogWriter.getInstance().logError(getClass().getName(),BaseMessages.getString(PKG,
-            // "DatabaseMeta.Error.UnexpectedCatalogError"), e);
           }
 
           // Save the list of tables in the catalog (can be empty)
@@ -339,8 +337,8 @@ public class DatabaseMetaInformation {
             schema.setItems( schemaTables.toArray( new String[ schemaTables.size() ] ) );
           }
         } catch ( Exception e ) {
-          // LogWriter.getInstance().logError(getClass().getName(), BaseMessages.getString(PKG,
-          // "DatabaseMeta.Error.UnexpectedError"), e);
+          // Typically an unsupported feature, security issue etc.
+          // Ignore it to avoid excessive spamming
         }
 
         // Save for later...

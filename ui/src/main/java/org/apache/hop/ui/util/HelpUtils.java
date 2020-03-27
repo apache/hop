@@ -79,14 +79,14 @@ public class HelpUtils {
     if ( plugin == null ) {
       return "";
     }
-    String msgKey = "";
+    String msg = "";
     // TODO currently support only Step and JobEntry - extend if required.
     if ( plugin.getPluginType().equals( StepPluginType.class ) ) {
-      msgKey = "System.ShowHelpDialog.StepPluginType.Title";
+      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.StepPluginType.Title", plugin.getName() );
     } else {
-      msgKey = "System.ShowHelpDialog.JobEntryPluginType.Title";
+      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.JobEntryPluginType.Title", plugin.getName() );
     }
-    return BaseMessages.getString( PKG, msgKey, plugin.getName() );
+    return msg;
   }
 
   public static boolean isPluginDocumented( PluginInterface plugin ) {
@@ -105,14 +105,14 @@ public class HelpUtils {
         plugin.getName() );
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      String msgKey = "";
+      String msg = "";
       // TODO currently support only Step and JobEntry - extend if required.
       if ( plugin.getPluginType().equals( StepPluginType.class ) ) {
-        msgKey = "System.ShowHelpDialog.Step.HelpIsNotAvailable";
+        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Step.HelpIsNotAvailable", plugin.getName());
       } else {
-        msgKey = "System.ShowHelpDialog.JobEntry.HelpIsNotAvailable";
+        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.JobEntry.HelpIsNotAvailable", plugin.getName());
       }
-      mb.setMessage( BaseMessages.getString( PKG, msgKey, plugin.getName() ) );
+      mb.setMessage(msg );
       mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
       mb.open();
     }

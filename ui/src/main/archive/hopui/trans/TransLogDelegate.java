@@ -59,7 +59,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_TRANS_LOG_TOOLBAR = "ui/trans-log-toolbar.xul";
 

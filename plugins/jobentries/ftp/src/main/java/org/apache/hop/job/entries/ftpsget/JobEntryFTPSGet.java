@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileTransfer"
 )
 public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFTPSGet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPSGet.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
   private String userName;

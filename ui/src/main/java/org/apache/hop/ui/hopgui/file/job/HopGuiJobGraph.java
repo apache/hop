@@ -176,7 +176,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   HopFileTypeHandlerInterface,
   IGuiRefresher {
 
-  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator!!
 
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiJobGraph-Toolbar";
@@ -3513,14 +3513,6 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   @Override public void setFilename( String filename ) {
     jobMeta.setFilename( filename );
-  }
-
-  private String getString( String key ) {
-    return BaseMessages.getString( PKG, key );
-  }
-
-  private String getString( String key, String... params ) {
-    return BaseMessages.getString( PKG, key, params );
   }
 
   /**

@@ -33,7 +33,7 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 
 public class HopGuiJobUndoDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGuiJobGraph jobGraph;
   private HopGui hopUi;

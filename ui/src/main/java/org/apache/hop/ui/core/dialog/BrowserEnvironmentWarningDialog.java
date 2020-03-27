@@ -54,7 +54,7 @@ import java.net.URI;
  */
 public class BrowserEnvironmentWarningDialog extends Dialog {
 
-  private static Class<?> PKG = BrowserEnvironmentWarningDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = BrowserEnvironmentWarningDialog.class; // for i18n purposes, needed by Translator!!
   private Shell shell;
   private PropsUI props;
   private Label warningIcon;

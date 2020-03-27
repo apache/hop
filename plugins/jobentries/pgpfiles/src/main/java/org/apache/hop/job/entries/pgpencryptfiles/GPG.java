@@ -48,7 +48,7 @@ import java.io.OutputStreamWriter;
 
 public class GPG {
 
-  private static Class<?> PKG = JobEntryPGPEncryptFiles.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!
 
   private LogChannelInterface log;
 

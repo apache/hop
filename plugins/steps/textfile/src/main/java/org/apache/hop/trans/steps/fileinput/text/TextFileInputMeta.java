@@ -81,7 +81,7 @@ import java.util.Map;
 @InjectionSupported( localizationPrefix = "TextFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
 public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField>
   implements StepMetaInterface, ResolvableResource, CsvInputAwareMeta {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!! TODO: check i18n
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!! TODO: check i18n
   // for base
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";

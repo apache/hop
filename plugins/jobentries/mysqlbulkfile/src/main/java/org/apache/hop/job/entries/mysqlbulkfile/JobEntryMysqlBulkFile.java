@@ -70,7 +70,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.BulkLoading"
 )
 public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryMysqlBulkFile.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryMysqlBulkFile.class; // for i18n purposes, needed by Translator!!
 
   private String tablename;
   private String schemaname;

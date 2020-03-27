@@ -60,7 +60,7 @@ import java.util.List;
  */
 
 public class CheckResultDialog extends Dialog {
-  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final String STRING_HIDE_SUCESSFUL = BaseMessages.getString(
     PKG, "CheckResultDialog.HideSuccessful.Label" );

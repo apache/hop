@@ -53,7 +53,7 @@ import java.util.List;
  * @since 4-apr-2003
  */
 public class Constant extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private ConstantMeta meta;
   private ConstantData data;

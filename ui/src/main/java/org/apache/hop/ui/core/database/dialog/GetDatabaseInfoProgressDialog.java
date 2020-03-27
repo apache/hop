@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 07-apr-2005
  */
 public class GetDatabaseInfoProgressDialog {
-  private static Class<?> PKG = GetDatabaseInfoProgressDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetDatabaseInfoProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private DatabaseMeta dbInfo;

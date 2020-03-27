@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class FieldsChangeSequenceDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private FieldsChangeSequenceMeta input;
 

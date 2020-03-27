@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntrySpecial.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntrySpecial.class; // for i18n purposes, needed by Translator!!
 
   private static final String NOSCHEDULING = BaseMessages.getString( PKG, "JobSpecial.Type.NoScheduling" );
 

@@ -79,7 +79,7 @@ import java.net.InetAddress;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryFTPPutDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryFTPPut.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPPut.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
 

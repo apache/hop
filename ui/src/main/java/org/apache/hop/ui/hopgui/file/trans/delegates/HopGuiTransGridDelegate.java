@@ -65,7 +65,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @GuiPlugin
 public class HopGuiTransGridDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiJobGridDelegate-ToolBar";
   public static final String TOOLBAR_ICON_SHOW_HIDE_INACTIVE = "ToolbarIcon-10000-ShowHideInactive";

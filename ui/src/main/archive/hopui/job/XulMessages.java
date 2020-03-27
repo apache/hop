@@ -25,7 +25,7 @@ package org.apache.hop.ui.hopui.job;
 import org.apache.hop.i18n.BaseMessages;
 
 public class XulMessages implements org.apache.xul.Messages {
-  private static Class<?> PKG = XulMessages.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = XulMessages.class; // for i18n purposes, needed by Translator!!
 
   public String getString( String key, String... parameters ) {
     return BaseMessages.getString( PKG, key, parameters );

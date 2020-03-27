@@ -65,7 +65,7 @@ public class PDIFTPClient extends FTPClient {
    */
   private boolean sizeSupported = true;
 
-  private static Class<?> PKG = PDIFTPClient.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PDIFTPClient.class; // for i18n purposes, needed by Translator!!
   private LogChannelInterface log;
 
   public PDIFTPClient( LogChannelInterface log ) {

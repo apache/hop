@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryFolderIsEmptyDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryFolderIsEmpty.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFolderIsEmpty.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
   private Text wName;

@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import java.util.List;
 
 public class HopUiDBDelegate extends HopUiDelegate {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
   private DatabaseDialog databaseDialog;
 
   public HopUiDBDelegate( HopUi hopUi ) {

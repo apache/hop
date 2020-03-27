@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.Arrays;
 
 public class ModPartitionerDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator!!
 
   private StepPartitioningMeta partitioningMeta;
   private ModPartitioner partitioner;

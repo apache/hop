@@ -478,56 +478,6 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
           PKG, "MappingMeta.CheckResult.NoInputReceived" ), stepMeta );
       remarks.add( cr );
     }
-
-    /*
-     * TODO re-enable validation code for mappings...
-     *
-     * // Change the names of the fields if this is required by the mapping. for (int i=0;i<inputField.length;i++) { if
-     * (inputField[i]!=null && inputField[i].length()>0) { if (inputMapping[i]!=null && inputMapping[i].length()>0) { if
-     * (!inputField[i].equals(inputMapping[i])) // rename these! { int idx = prev.indexOfValue(inputField[i]); if
-     * (idx<0) { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.MappingTargetFieldNotPresent",inputField[i]), stepinfo); remarks.add(cr); } } } else {
-     * cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.MappingTargetFieldNotSepecified" ,i+"",inputField[i]), stepinfo);
-     * remarks.add(cr); } } else { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR,
-     * BaseMessages.getString(PKG, "MappingMeta.CheckResult.InputFieldNotSpecified",i+""), stepinfo); remarks.add(cr); }
-     * }
-     *
-     * // Then check the fields that get added to the row. //
-     *
-     * TransMeta mappingTransMeta = null; try {
-     * mappingTransMeta = loadMappingMeta(fileName); } catch(HopException e) {
-     * cr = new CheckResult(CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.UnableToLoadMappingTransformation" )+":"+Const.getStackTracker(e), stepinfo);
-     * remarks.add(cr); }
-     *
-     * if (mappingTransMeta!=null) { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_OK,
-     * BaseMessages.getString(PKG, "MappingMeta.CheckResult.MappingTransformationSpecified"), stepinfo);
-     * remarks.add(cr);
-     *
-     * StepMeta stepMeta = mappingTransMeta.getMappingOutputStep();
-     *
-     * if (stepMeta!=null) { // See which fields are coming out of the mapping output step of the sub-transformation //
-     * For these fields we check the existance // RowMetaInterface fields = null; try { fields =
-     * mappingTransMeta.getStepFields(stepMeta);
-     *
-     * boolean allOK = true;
-     *
-     * // Check the fields... for (int i=0;i<outputMapping.length;i++) { ValueMetaInterface v =
-     * fields.searchValueMeta(outputMapping[i]); if (v==null) // Not found! { cr = new
-     * CheckResult(CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.MappingOutFieldSpecifiedCouldNotFound" )+outputMapping[i], stepinfo); remarks.add(cr);
-     * allOK=false; } }
-     *
-     * if (allOK) { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.AllOutputMappingFieldCouldBeFound"), stepinfo); remarks.add(cr); } }
-     * catch(HopStepException e) { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR,
-     * BaseMessages.getString(PKG, "MappingMeta.CheckResult.UnableToGetStepOutputFields" )+stepMeta.getName()+"]",
-     * stepinfo); remarks.add(cr); } } else { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR,
-     * BaseMessages.getString(PKG, "MappingMeta.CheckResult.NoMappingOutputStepSpecified"), stepinfo); remarks.add(cr);
-     * } } else { cr = new CheckResult(CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(PKG,
-     * "MappingMeta.CheckResult.NoMappingSpecified"), stepinfo); remarks.add(cr); }
-     */
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,

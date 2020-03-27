@@ -62,7 +62,7 @@ import java.util.List;
  * @since 31-10-2006
  */
 public class StepErrorMetaDialog extends Dialog {
-  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator!!
 
   private StepErrorMeta stepErrorMeta;
   private List<StepMeta> targetSteps;

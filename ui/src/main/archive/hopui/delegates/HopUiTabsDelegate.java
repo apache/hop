@@ -65,7 +65,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class HopUiTabsDelegate extends HopUiDelegate {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This contains a list of the tab map entries

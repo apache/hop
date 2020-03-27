@@ -63,7 +63,7 @@ import java.util.List;
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
  */
 public class TextFileCSVImportProgressDialog implements CsvInputAwareImportProgressDialog {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
 

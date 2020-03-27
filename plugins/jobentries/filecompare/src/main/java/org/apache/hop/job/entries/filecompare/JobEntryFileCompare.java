@@ -70,7 +70,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryFileCompare extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFileCompare.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFileCompare.class; // for i18n purposes, needed by Translator!!
 
   private String filename1;
   private String filename2;

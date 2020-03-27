@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

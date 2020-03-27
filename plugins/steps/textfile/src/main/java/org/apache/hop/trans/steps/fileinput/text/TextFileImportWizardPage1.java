@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Vector;
 
 public class TextFileImportWizardPage1 extends WizardPage { // implements Listener
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableDraw wTable;
   private FormData fdTable;

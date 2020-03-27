@@ -81,7 +81,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class TextFileOutputDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

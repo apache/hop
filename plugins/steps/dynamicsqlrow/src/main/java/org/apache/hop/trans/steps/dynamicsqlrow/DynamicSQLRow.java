@@ -47,7 +47,7 @@ import java.sql.ResultSet;
  * @since 13-10-2008
  */
 public class DynamicSQLRow extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private DynamicSQLRowMeta meta;
   private DynamicSQLRowData data;

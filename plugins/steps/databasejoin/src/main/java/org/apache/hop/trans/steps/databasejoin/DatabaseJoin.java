@@ -46,7 +46,7 @@ import java.sql.ResultSet;
  * @since 26-apr-2003
  */
 public class DatabaseJoin extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseJoinMeta meta;
   private DatabaseJoinData data;

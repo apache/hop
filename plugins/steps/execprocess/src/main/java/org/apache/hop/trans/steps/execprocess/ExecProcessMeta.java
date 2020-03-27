@@ -58,7 +58,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Utility"
 )
 public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * dynamic process field name

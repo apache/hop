@@ -71,7 +71,7 @@ import java.util.Map;
 )
 @InjectionSupported( localizationPrefix = "TextFileOutput.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaInterface, ResolvableResource {
-  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   protected static final int FILE_COMPRESSION_TYPE_NONE = 0;
 

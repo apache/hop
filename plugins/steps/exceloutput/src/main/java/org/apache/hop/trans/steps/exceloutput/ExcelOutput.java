@@ -72,7 +72,7 @@ import java.util.Locale;
  */
 public class ExcelOutput extends BaseStep implements StepInterface {
 
-  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExcelOutputMeta meta;
   private ExcelOutputData data;

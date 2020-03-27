@@ -71,7 +71,7 @@ import java.util.*;
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
 public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterface, ProvidesModelerMeta {
-  private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;
   public static final int TYPE_UPDATE_DIM_UPDATE = 1;

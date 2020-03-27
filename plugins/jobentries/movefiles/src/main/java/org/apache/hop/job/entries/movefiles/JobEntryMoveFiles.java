@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryMoveFiles.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryMoveFiles.class; // for i18n purposes, needed by Translator!!
 
   public boolean move_empty_folders;
   public boolean arg_from_previous;

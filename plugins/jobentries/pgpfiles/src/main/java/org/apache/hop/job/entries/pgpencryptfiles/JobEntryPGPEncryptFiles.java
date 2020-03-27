@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileEncryption"
 )
 public class JobEntryPGPEncryptFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryPGPEncryptFiles.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] actionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Encrypt.Label" ),

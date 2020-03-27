@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryEvalFilesMetrics.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryEvalFilesMetrics.class; // for i18n purposes, needed by Translator!!
 
   
   public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;

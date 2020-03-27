@@ -64,7 +64,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntryPing extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryPing.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryPing.class; // for i18n purposes, needed by Translator!!
 
   private String hostname;
   private String timeout;

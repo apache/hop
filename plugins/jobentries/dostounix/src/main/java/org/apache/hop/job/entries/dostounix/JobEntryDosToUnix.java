@@ -74,7 +74,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
 
-  private static final Class<?> PKG = JobEntryDosToUnix.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDosToUnix.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] ConversionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobEntryDosToUnix.ConversionType.Guess.Label" ),

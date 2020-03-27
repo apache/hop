@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryDeleteFoldersDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static final Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator!!
 
   private Text wName;
   private FormData fdlName, fdName;

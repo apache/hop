@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryAddResultFilenames.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryAddResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   public boolean argFromPrevious;
 

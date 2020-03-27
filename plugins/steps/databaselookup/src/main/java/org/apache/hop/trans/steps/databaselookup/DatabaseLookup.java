@@ -56,7 +56,7 @@ import java.util.List;
  * @since 26-apr-2003
  */
 public class DatabaseLookup extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseLookupMeta meta;
   private DatabaseLookupData data;

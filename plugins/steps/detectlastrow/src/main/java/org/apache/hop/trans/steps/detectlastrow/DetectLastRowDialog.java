@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DetectLastRowDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlResult;
   private TextVar wResult;

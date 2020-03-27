@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.*;
  */
 
 public class DetectEmptyStreamDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   private DetectEmptyStreamMeta input;
 

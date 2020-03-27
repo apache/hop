@@ -66,7 +66,7 @@ import java.util.List;
  */
 public class TextFileOutput extends BaseStep implements StepInterface {
 
-  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
     TextFileOutputMeta.fileCompressionTypeCodes[ TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE ];

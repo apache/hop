@@ -56,7 +56,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
 )
 public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * database connection

@@ -89,7 +89,7 @@ import java.util.Calendar;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
 

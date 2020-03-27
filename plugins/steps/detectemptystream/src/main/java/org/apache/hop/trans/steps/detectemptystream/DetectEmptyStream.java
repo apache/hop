@@ -41,7 +41,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * @since 30-08-2008
  */
 public class DetectEmptyStream extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   private DetectEmptyStreamData data;
 

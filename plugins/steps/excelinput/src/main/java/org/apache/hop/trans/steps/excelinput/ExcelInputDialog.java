@@ -72,7 +72,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Marker put on tab to indicate attention required

@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

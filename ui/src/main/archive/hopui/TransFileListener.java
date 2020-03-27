@@ -42,7 +42,7 @@ import java.util.Locale;
 
 public class TransFileListener implements FileListener {
 
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   public boolean open( Node transNode, String fname, boolean importfile ) throws HopMissingPluginsException {
     final HopUi hopUi = HopUi.getInstance();

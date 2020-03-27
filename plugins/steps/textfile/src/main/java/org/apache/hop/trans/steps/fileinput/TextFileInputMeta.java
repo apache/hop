@@ -74,7 +74,7 @@ import java.util.Map;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

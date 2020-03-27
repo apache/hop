@@ -44,7 +44,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ExecSQLRowDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean gotPreviousFields = false;
   private MetaSelectionLine<DatabaseMeta> wConnection;

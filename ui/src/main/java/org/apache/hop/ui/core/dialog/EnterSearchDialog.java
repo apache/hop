@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class EnterSearchDialog {
-  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final PropsUI props = PropsUI.getInstance();
   private Shell parentShell;

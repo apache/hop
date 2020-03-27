@@ -70,7 +70,7 @@ import java.util.Set;
  * @author Matt
  */
 public class HopPropertiesFileDialog extends Dialog {
-  private static Class<?> PKG = HopPropertiesFileDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopPropertiesFileDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;
   private TableView wFields;

@@ -72,7 +72,7 @@ import java.util.List;
  */
 
 public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
-  private static Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator!!
 
   private final IMetaStore metaStore;
   private PartitionSchema partitionSchema;

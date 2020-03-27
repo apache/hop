@@ -60,7 +60,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Scripting"
 )
 public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryEval.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryEval.class; // for i18n purposes, needed by Translator!!
 
   private String script;
 

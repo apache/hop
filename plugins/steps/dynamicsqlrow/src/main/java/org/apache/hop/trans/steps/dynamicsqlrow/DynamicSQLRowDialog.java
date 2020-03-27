@@ -47,7 +47,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DynamicSQLRowDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean gotPreviousFields = false;
 

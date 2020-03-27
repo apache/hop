@@ -66,7 +66,7 @@ import java.util.List;
 		  categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryEvalTableContent.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryEvalTableContent.class; // for i18n purposes, needed by Translator!!
 
   private boolean addRowsResult;
   private boolean clearResultList;

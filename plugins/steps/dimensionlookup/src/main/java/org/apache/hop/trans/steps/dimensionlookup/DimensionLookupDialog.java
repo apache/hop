@@ -72,7 +72,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
   // purposes,
   // needed
   // by
-  // Translator2!!
+  // Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 public class TransHopDialog extends Dialog {
-  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFrom;
   private CCombo wFrom;

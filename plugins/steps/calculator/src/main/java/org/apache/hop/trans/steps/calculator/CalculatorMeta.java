@@ -62,7 +62,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The calculations to be performed

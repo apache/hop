@@ -70,7 +70,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static final Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDeleteFolders.class; // for i18n purposes, needed by Translator!!
 
   public boolean argFromPrevious;
 

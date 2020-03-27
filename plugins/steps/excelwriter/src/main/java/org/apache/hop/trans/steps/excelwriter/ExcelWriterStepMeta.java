@@ -59,7 +59,7 @@ import java.util.Map;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";

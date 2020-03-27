@@ -50,7 +50,7 @@ import java.util.TimerTask;
 
 public class JobGridDelegate extends HopUiDelegate {
 
-  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator!!
 
   public static final long REFRESH_TIME = 100L;
   public static final long UPDATE_TIME_VIEW = 1000L;

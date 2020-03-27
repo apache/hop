@@ -44,7 +44,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 12-may-2005
  */
 public class GetTableSizeProgressDialog {
-  private static Class<?> PKG = GetTableSizeProgressDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetTableSizeProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private DatabaseMeta dbMeta;

@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryFolderIsEmpty extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFolderIsEmpty.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFolderIsEmpty.class; // for i18n purposes, needed by Translator!!
 
   private String foldername;
   private int filescount;

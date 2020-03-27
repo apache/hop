@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntrySimpleEval.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntrySimpleEval.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] valueTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobSimpleEval.EvalPreviousField.Label" ),

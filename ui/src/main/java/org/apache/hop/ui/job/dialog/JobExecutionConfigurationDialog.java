@@ -52,7 +52,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class JobExecutionConfigurationDialog extends ConfigurationDialog {
-  private static Class<?> PKG = JobExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   private Button wExpandRemote;
   private CCombo wStartCopy;

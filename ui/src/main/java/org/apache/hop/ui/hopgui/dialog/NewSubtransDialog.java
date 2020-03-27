@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Aliaksandr Kastenka
  */
 public class NewSubtransDialog extends Dialog {
-  private static Class<?> PKG = NewSubtransDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = NewSubtransDialog.class; // for i18n purposes, needed by Translator!!
 
   private Button wShow;
 

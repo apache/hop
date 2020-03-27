@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class TeraFast extends AbstractStep implements StepInterface {
 
-  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
   private TeraFastMeta meta;
 

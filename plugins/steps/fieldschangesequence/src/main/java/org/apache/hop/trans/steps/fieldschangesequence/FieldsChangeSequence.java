@@ -43,7 +43,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  */
 
 public class FieldsChangeSequence extends BaseStep implements StepInterface {
-  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private FieldsChangeSequenceMeta meta;
   private FieldsChangeSequenceData data;

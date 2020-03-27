@@ -55,7 +55,7 @@ import java.util.Map;
 
 @GuiPlugin
 public class HopGuiTransLogDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";

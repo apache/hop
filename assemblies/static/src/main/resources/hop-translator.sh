@@ -24,7 +24,7 @@ case $( uname -s ) in
 esac
 
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.i18n.editor.Translator2 $@
+java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.i18n.editor.Translator $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}

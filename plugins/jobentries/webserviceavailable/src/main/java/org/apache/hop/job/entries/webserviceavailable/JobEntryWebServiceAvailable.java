@@ -54,7 +54,7 @@ import java.net.URLConnection;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
 public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryWebServiceAvailable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryWebServiceAvailable.class; // for i18n purposes, needed by Translator!!
 
   private String url;
   private String connectTimeOut;

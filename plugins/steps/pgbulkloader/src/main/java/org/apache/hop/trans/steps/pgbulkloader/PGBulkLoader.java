@@ -66,7 +66,7 @@ import java.sql.Statement;
  * @since 28-mar-2008
  */
 public class PGBulkLoader extends BaseStep implements StepInterface {
-  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private Charset clientEncoding = Charset.defaultCharset();
   private PGBulkLoaderMeta meta;

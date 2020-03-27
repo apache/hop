@@ -50,7 +50,7 @@ import java.util.List;
  */
 
 public class ExecProcess extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExecProcessMeta meta;
   private ExecProcessData data;

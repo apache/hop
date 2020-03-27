@@ -48,7 +48,7 @@ import java.sql.SQLException;
  * @since 28-March-2006
  */
 public class Delete extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   private DeleteMeta meta;
   private DeleteData data;

@@ -206,7 +206,7 @@ import java.util.concurrent.Callable;
  */
 public class TransGraph extends AbstractGraph implements XulEventHandler, Redrawable, TabItemInterface,
   LogParentProvidedInterface, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   private LogChannelInterface log;
 

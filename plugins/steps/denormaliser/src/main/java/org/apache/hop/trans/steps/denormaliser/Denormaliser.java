@@ -59,7 +59,7 @@ import java.util.Set;
  * @since 17-jan-2006
  */
 public class Denormaliser extends BaseStep implements StepInterface {
-  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private DenormaliserMeta meta;
   private DenormaliserData data;

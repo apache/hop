@@ -67,7 +67,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryWaitForSQL.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryWaitForSQL.class; // for i18n purposes, needed by Translator!!
 
   public boolean isClearResultList;
 

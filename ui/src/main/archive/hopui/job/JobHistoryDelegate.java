@@ -81,7 +81,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_TRANS_GRID_TOOLBAR = "ui/job-history-toolbar.xul";
 

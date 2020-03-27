@@ -51,7 +51,7 @@ import java.util.Comparator;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
-  private static Class<?> PKG = ControlSpaceKeyAdapter.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ControlSpaceKeyAdapter.class; // for i18n purposes, needed by Translator!!
 
   private static final PropsUI props = PropsUI.getInstance();
 

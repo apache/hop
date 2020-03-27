@@ -70,7 +70,7 @@ import java.util.Optional;
         documentationUrl = ""
 )
 public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This is the main condition for the complete filter.

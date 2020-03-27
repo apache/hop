@@ -88,7 +88,7 @@ import java.util.zip.ZipOutputStream;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Mail"
 )
 public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator!!
 
   private String server;
 

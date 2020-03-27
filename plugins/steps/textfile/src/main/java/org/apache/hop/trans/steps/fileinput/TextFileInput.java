@@ -79,7 +79,7 @@ import java.util.Map;
  */
 @Deprecated
 public class TextFileInput extends BaseStep implements StepInterface {
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 

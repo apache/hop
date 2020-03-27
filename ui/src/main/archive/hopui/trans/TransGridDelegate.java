@@ -67,7 +67,7 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TransGridDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_TRANS_GRID_TOOLBAR = "ui/trans-grid-toolbar.xul";
 

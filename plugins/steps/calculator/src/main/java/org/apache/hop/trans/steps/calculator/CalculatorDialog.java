@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class CalculatorDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlStepname;
   private Text wStepname;

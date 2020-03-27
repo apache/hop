@@ -50,7 +50,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TransExecutionConfigurationDialog extends ConfigurationDialog {
-  private static Class<?> PKG = TransExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   public TransExecutionConfigurationDialog( Shell parent, TransExecutionConfiguration configuration,
                                             TransMeta transMeta ) {

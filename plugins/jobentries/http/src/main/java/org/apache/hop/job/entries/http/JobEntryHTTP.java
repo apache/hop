@@ -79,7 +79,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
 public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryHTTP.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryHTTP.class; // for i18n purposes, needed by Translator!!
 
   private static final String URL_FIELDNAME = "URL";
   private static final String UPLOADFILE_FIELDNAME = "UPLOAD";

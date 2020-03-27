@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HopGuiTransRunDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGuiTransGraph transGraph;
   private HopGui hopUi;

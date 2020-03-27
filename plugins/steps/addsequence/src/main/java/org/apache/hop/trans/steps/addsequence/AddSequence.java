@@ -46,7 +46,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * @since 13-may-2003
  */
 public class AddSequence extends BaseStep implements StepInterface {
-  private static Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator!!
 
   private AddSequenceMeta meta;
 

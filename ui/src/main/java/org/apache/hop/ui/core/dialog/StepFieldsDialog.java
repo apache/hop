@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 19-06-2003
  */
 public class StepFieldsDialog extends Dialog {
-  private static Class<?> PKG = StepFieldsDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StepFieldsDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlStepname;
 

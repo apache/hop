@@ -55,7 +55,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class DataGridDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private CTabItem wMetaTab, wDataTab;

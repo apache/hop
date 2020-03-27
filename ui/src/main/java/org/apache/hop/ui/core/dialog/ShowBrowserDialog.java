@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 22-12-2005
  */
 public class ShowBrowserDialog extends Dialog {
-  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
   private String dialogTitle;
   private String content;

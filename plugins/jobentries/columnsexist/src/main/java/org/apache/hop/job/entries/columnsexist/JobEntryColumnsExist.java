@@ -64,7 +64,7 @@ import java.util.List;
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions" 
 )
 public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static final Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator!!
   private String schemaname;
   private String tablename;
   private DatabaseMeta connection;

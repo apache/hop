@@ -66,7 +66,7 @@ import java.util.TimeZone;
  * @since 19-NOV-2003
  */
 public class ExcelInput extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExcelInputMeta meta;
 

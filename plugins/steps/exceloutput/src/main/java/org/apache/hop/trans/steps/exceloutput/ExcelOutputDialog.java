@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.*;
 
 public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

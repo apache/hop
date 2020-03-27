@@ -49,7 +49,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ExecProcessDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private CTabItem wGeneralTab, wOutputTab;

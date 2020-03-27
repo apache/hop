@@ -57,7 +57,7 @@ import java.util.List;
  * @since 4-apr-2003
  */
 public class RowGenerator extends BaseStep implements StepInterface {
-  private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private RowGeneratorMeta meta;
 

@@ -78,7 +78,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryTrans.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryTrans.class; // for i18n purposes, needed by Translator!!
 
   protected JobEntryTrans jobEntry;
 

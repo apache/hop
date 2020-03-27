@@ -82,7 +82,7 @@ import java.util.stream.Collectors;
 
 public class CsvInputDialog extends BaseStepDialog implements StepDialogInterface,
   GetFieldsCapableStepDialog<CsvInputMeta>, CsvInputAwareStepDialog {
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private CsvInputMeta inputMeta;
 

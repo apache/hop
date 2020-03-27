@@ -101,7 +101,7 @@ public class TransDialog extends Dialog {
   public static final int LOG_INDEX_CHANNEL = 3;
   public static final int LOG_INDEX_METRICS = 4;
 
-  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator!!
 
   public enum Tabs {
     TRANS_TAB, PARAM_TAB, LOG_TAB, DATE_TAB, DEP_TAB, MISC_TAB, MONITOR_TAB, EXTRA_TAB,

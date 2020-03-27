@@ -59,7 +59,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
 public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private IMetaStore metaStore;
 

@@ -83,7 +83,6 @@ import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransPainter;
-import org.apache.hop.trans.debug.BreakPointListener;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.engine.IEngine;
@@ -222,7 +221,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   HopFileTypeHandlerInterface,
   IGuiRefresher {
 
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiTransGraph-ToolBar-10010-Run";
@@ -649,8 +648,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               stepMeta = transMeta.findStep( container.getData() );
               if ( stepMeta != null ) {
                 if ( transMeta.isStepUsedInTransHops( stepMeta ) ) {
-                  modalMessageDialog( getString( "TransGraph.Dialog.StepIsAlreadyOnCanvas.Title" ),
-                    getString( "TransGraph.Dialog.StepIsAlreadyOnCanvas.Message" ), SWT.OK );
+                  modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.StepIsAlreadyOnCanvas.Title" ),
+                    BaseMessages.getString( PKG, "TransGraph.Dialog.StepIsAlreadyOnCanvas.Message" ), SWT.OK );
                   return;
                 }
                 // This step gets the drawn attribute and position set below.
@@ -699,8 +698,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
             default:
               // Nothing we can use: give an error!
-              modalMessageDialog( getString( "TransGraph.Dialog.ItemCanNotBePlacedOnCanvas.Title" ),
-                getString( "TransGraph.Dialog.ItemCanNotBePlacedOnCanvas.Message" ), SWT.OK );
+              modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.ItemCanNotBePlacedOnCanvas.Title" ),
+                BaseMessages.getString( PKG, "TransGraph.Dialog.ItemCanNotBePlacedOnCanvas.Message" ), SWT.OK );
               return;
           }
 
@@ -885,8 +884,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             break;
 
           case STEP_INJECT_ICON:
-            modalMessageDialog( getString( "TransGraph.StepInjectionSupported.Title" ),
-              getString( "TransGraph.StepInjectionSupported.Tooltip" ), SWT.OK | SWT.ICON_INFORMATION );
+            modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.StepInjectionSupported.Title" ),
+              BaseMessages.getString( PKG, "TransGraph.StepInjectionSupported.Tooltip" ), SWT.OK | SWT.ICON_INFORMATION );
             break;
 
           case STEP_MENU_ICON:
@@ -966,8 +965,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           setHopEnabled( hop, !hop.isEnabled() );
           if ( hop.isEnabled() && transMeta.hasLoop( hop.getToStep() ) ) {
             setHopEnabled( hop, false );
-            modalMessageDialog( getString( "TransGraph.Dialog.HopCausesLoop.Title" ),
-              getString( "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
+            modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Title" ),
+              BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
           }
           TransHopMeta after = (TransHopMeta) hop.clone();
           hopUi.undoDelegate.addUndoChange( transMeta, new TransHopMeta[] { before }, new TransHopMeta[] { after }, new int[] { transMeta.indexOfTransHop( hop ) } );
@@ -1785,8 +1784,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         zoomLabel.setText( zoomLabel.getText().concat( "%" ) );
       }
     } catch ( Exception e ) {
-      modalMessageDialog( getString( "TransGraph.Dialog.InvalidZoomMeasurement.Title" ),
-        getString( "TransGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel.getText() ),
+      modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.InvalidZoomMeasurement.Title" ),
+        BaseMessages.getString( PKG, "TransGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel.getText() ),
         SWT.YES | SWT.ICON_ERROR );
     }
     redraw();
@@ -1926,8 +1925,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
     if ( nr > 2 ) {
       stepname = newname;
-      modalMessageDialog( getString( "HopGui.Dialog.StepnameExists.Title" ),
-        getString( "HopGui.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
+      modalMessageDialog( BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
     }
     stepMeta.setName( stepname );
     stepMeta.setChanged();
@@ -2060,7 +2059,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Specify how rows of data need to be grouped into partitions allowing parallel execution where similar rows need to end up on the same step copy",
     image = "ui/images/partition_schema.svg"
   )
-  public void partitioning(HopGuiTransStepContext context) {
+  public void partitioning( HopGuiTransStepContext context ) {
     transStepDelegate.editStepPartitioning( transMeta, context.getStepMeta() );
   }
 
@@ -2072,7 +2071,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Specify how error handling is behaving for this step",
     image = "ui/images/step_error.svg"
   )
-  public void errorHandling(HopGuiTransStepContext context) {
+  public void errorHandling( HopGuiTransStepContext context ) {
     transStepDelegate.editStepErrorHandling( transMeta, context.getStepMeta() );
   }
 
@@ -2192,8 +2191,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( copies > 1 && !multipleOK ) {
         cop = "1";
 
-        modalMessageDialog( getString( "TransGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title" ),
-          getString( "TransGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message" ), SWT.YES | SWT.ICON_WARNING );
+        modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title" ),
+          BaseMessages.getString( PKG, "TransGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message" ), SWT.YES | SWT.ICON_WARNING );
       }
       String cps = stepMeta.getCopiesString();
       if ( ( cps != null && !cps.equals( cop ) ) || ( cps == null && cop != null ) ) {
@@ -2263,8 +2262,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     hi.flip();
     if ( transMeta.hasLoop( hi.getToStep() ) ) {
       redraw();
-      modalMessageDialog( getString( "TransGraph.Dialog.LoopsAreNotAllowed.Title" ),
-        getString( "TransGraph.Dialog.LoopsAreNotAllowed.Message" ), SWT.OK | SWT.ICON_ERROR );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.LoopsAreNotAllowed.Title" ),
+        BaseMessages.getString( PKG, "TransGraph.Dialog.LoopsAreNotAllowed.Message" ), SWT.OK | SWT.ICON_ERROR );
       hi.flip();
       redraw();
     } else {
@@ -2281,8 +2280,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     setHopEnabled( hi, !hi.isEnabled() );
     if ( hi.isEnabled() && transMeta.hasLoop( hi.getToStep() ) ) {
       setHopEnabled( hi, false );
-      modalMessageDialog( getString( "TransGraph.Dialog.LoopAfterHopEnabled.Title" ),
-        getString( "TransGraph.Dialog.LoopAfterHopEnabled.Message" ), SWT.OK | SWT.ICON_ERROR );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.LoopAfterHopEnabled.Title" ),
+        BaseMessages.getString( PKG, "TransGraph.Dialog.LoopAfterHopEnabled.Message" ), SWT.OK | SWT.ICON_ERROR );
     } else {
       TransHopMeta after = (TransHopMeta) hi.clone();
       hopUi.undoDelegate.addUndoChange( transMeta, new TransHopMeta[] { before }, new TransHopMeta[] { after }, new int[] { transMeta.indexOfTransHop( hi ) } );
@@ -2339,8 +2338,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
 
     if ( enabled && hasLoop ) {
-      modalMessageDialog( getString( "TransGraph.Dialog.HopCausesLoop.Title" ),
-        getString( "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Title" ),
+        BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
     }
 
     updateGui();
@@ -2367,8 +2366,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     Set<StepMeta> checkedEntries = enableDisableNextHops( currentHop.getToStep(), enabled, new HashSet<>() );
 
     if ( checkedEntries.stream().anyMatch( entry -> transMeta.hasLoop( entry ) ) ) {
-      modalMessageDialog( getString( "TransGraph.Dialog.HopCausesLoop.Title" ),
-        getString( "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Title" ),
+        BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
     }
 
     updateGui();
@@ -2836,8 +2835,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       }
     } else {
       if ( !alreadyThrownError ) {
-        modalMessageDialog( getString( "TransGraph.Dialog.CouldntFindFields.Title" ),
-          getString( "TransGraph.Dialog.CouldntFindFields.Message" ), SWT.OK | SWT.ICON_INFORMATION );
+        modalMessageDialog( BaseMessages.getString( PKG, "TransGraph.Dialog.CouldntFindFields.Title" ),
+          BaseMessages.getString( PKG, "TransGraph.Dialog.CouldntFindFields.Message" ), SWT.OK | SWT.ICON_INFORMATION );
       }
     }
 
@@ -3656,8 +3655,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           updateGui();
         }
       } else {
-        modalMessageDialog( getString( "TransLog.Dialog.DoNoStartTransformationTwice.Title" ),
-          getString( "TransLog.Dialog.DoNoStartTransformationTwice.Message" ), SWT.OK | SWT.ICON_WARNING );
+        modalMessageDialog( BaseMessages.getString( PKG, "TransLog.Dialog.DoNoStartTransformationTwice.Title" ),
+          BaseMessages.getString( PKG, "TransLog.Dialog.DoNoStartTransformationTwice.Message" ), SWT.OK | SWT.ICON_WARNING );
       }
     } else {
       if ( transMeta.hasChanged() ) {
@@ -3667,8 +3666,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   public void showSaveFileMessage() {
-    modalMessageDialog( getString( "TransLog.Dialog.SaveTransformationBeforeRunning.Title" ),
-      getString( "TransLog.Dialog.SaveTransformationBeforeRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
+    modalMessageDialog( BaseMessages.getString( PKG, "TransLog.Dialog.SaveTransformationBeforeRunning.Title" ),
+      BaseMessages.getString( PKG, "TransLog.Dialog.SaveTransformationBeforeRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
   }
 
   public void addAllTabs() {
@@ -3759,13 +3758,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
         // What method should we call back when a break-point is hit?
 
-        transDebugMeta.addBreakPointListers( new BreakPointListener() {
-          @Override
-          public void breakPointHit( TransDebugMeta transDebugMeta, StepDebugMeta stepDebugMeta,
-                                     RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
-            showPreview( transDebugMeta, stepDebugMeta, rowBufferMeta, rowBuffer );
-          }
-        } );
+        transDebugMeta.addBreakPointListers( ( transDebugMeta1, stepDebugMeta, rowBufferMeta, rowBuffer )
+          -> showPreview( transDebugMeta1, stepDebugMeta, rowBufferMeta, rowBuffer ) );
 
         // Do we capture data?
         //
@@ -3792,8 +3786,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           BaseMessages.getString( PKG, "TransLog.Dialog.UnexpectedErrorDuringPreview.Message" ), e );
       }
     } else {
-      modalMessageDialog( getString( "TransLog.Dialog.DoNoPreviewWhileRunning.Title" ),
-        getString( "TransLog.Dialog.DoNoPreviewWhileRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransLog.Dialog.DoNoPreviewWhileRunning.Title" ),
+        BaseMessages.getString( PKG, "TransLog.Dialog.DoNoPreviewWhileRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
     }
     checkErrorVisuals();
   }
@@ -3869,8 +3863,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void stop() {
     if ( safeStopping ) {
-      modalMessageDialog( getString( "TransLog.Log.SafeStopAlreadyStarted.Title" ),
-        getString( "TransLog.Log.SafeStopAlreadyStarted" ), SWT.ICON_ERROR | SWT.OK );
+      modalMessageDialog( BaseMessages.getString( PKG, "TransLog.Log.SafeStopAlreadyStarted.Title" ),
+        BaseMessages.getString( PKG, "TransLog.Log.SafeStopAlreadyStarted" ), SWT.ICON_ERROR | SWT.OK );
       return;
     }
     if ( ( running && !halting ) ) {
@@ -4488,14 +4482,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     messageBox.setMessage( message );
     messageBox.setText( title );
     messageBox.open();
-  }
-
-  private String getString( String key ) {
-    return BaseMessages.getString( PKG, key );
-  }
-
-  private String getString( String key, String... params ) {
-    return BaseMessages.getString( PKG, key, params );
   }
 
   /**

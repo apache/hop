@@ -70,7 +70,7 @@ import org.eclipse.swt.widgets.Text;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryFileExistsDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryFileExists.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFileExists.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] EXTENSIONS = new String[] { "*.txt", "*.csv", "*" };
 

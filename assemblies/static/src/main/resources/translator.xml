@@ -17,13 +17,16 @@
 
   <scan-phrases>
     <scan-phrase>BaseMessages.getString(PKG,</scan-phrase>
+    <scan-phrase>BaseMessages.getString( PKG,</scan-phrase>
   </scan-phrases>
 
   <root-folder>../../../</root-folder>
   <folders-to-avoid>.*archive.*</folders-to-avoid>
 
   <files-to-avoid>
-    <!-- <filename></filename> -->
+    <filename>MessagesSourceCrawler.java</filename>
+    <filename>BaseStepMeta.java</filename>
+    <filename>BasePluginType.java</filename>
   </files-to-avoid>
 
 </translator-config>

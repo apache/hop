@@ -85,7 +85,7 @@ import java.net.InetAddress;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
 

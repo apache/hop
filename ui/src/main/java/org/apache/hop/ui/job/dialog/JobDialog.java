@@ -96,7 +96,7 @@ import java.util.ArrayList;
  * @since 02-jul-2003
  */
 public class JobDialog extends Dialog {
-  private static Class<?> PKG = JobDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobDialog.class; // for i18n purposes, needed by Translator!!
   private static Class<?> PKGBASE = JobMeta.class;
 
   private CTabFolder wTabFolder;

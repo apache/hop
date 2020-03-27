@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.MessageBox;
 
 public class HopGuiJobHopDelegate {
 
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
   private HopGui hopUi;

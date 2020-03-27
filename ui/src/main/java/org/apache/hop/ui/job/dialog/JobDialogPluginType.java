@@ -39,7 +39,7 @@ import java.util.Map;
 @PluginMainClassType( JobDialogPluginInterface.class )
 @PluginAnnotationType( JobDialogPlugin.class )
 public class JobDialogPluginType extends BasePluginType implements PluginTypeInterface {
-  // private static Class<?> PKG = JobDialogPluginType.class; // for i18n purposes, needed by Translator2!!
+  // private static Class<?> PKG = JobDialogPluginType.class; // for i18n purposes, needed by Translator!!
 
   private static JobDialogPluginType pluginType;
 

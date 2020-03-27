@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class ExcelWriterMetaInjection implements StepMetaInjectionInterface {
 
-  private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExcelWriterStepMeta meta;
 

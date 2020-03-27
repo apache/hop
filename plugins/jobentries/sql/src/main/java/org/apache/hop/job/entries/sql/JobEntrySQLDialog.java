@@ -79,7 +79,7 @@ import org.eclipse.swt.widgets.Text;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntrySQL.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntrySQL.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobSQL.Filetype.Sql" ), BaseMessages.getString( PKG, "JobSQL.Filetype.Text" ),

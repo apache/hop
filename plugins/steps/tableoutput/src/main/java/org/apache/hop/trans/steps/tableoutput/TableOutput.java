@@ -57,7 +57,7 @@ import java.util.List;
  * @since 6-apr-2003
  */
 public class TableOutput extends BaseStep implements StepInterface {
-  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableOutputMeta meta;
   private TableOutputData data;

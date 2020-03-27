@@ -79,7 +79,7 @@ import java.util.regex.Pattern;
 )
 
 public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
 

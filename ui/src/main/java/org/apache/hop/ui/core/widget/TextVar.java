@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 17-may-2006
  */
 public class TextVar extends Composite {
-  protected static Class<?> PKG = TextVar.class; // for i18n purposes, needed by Translator2!!
+  protected static Class<?> PKG = TextVar.class; // for i18n purposes, needed by Translator!!
 
   protected String toolTipText;
 

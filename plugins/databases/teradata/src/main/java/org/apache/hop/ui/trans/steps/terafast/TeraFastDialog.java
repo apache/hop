@@ -61,7 +61,7 @@ import java.util.*;
  */
 public class TeraFastDialog extends BaseStepDialog implements StepDialogInterface {
 
-  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 

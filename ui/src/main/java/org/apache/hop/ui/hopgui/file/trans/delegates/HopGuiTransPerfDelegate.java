@@ -73,7 +73,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class HopGuiTransPerfDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   // private static final LogWriter log = LogWriter.getInstance();
 

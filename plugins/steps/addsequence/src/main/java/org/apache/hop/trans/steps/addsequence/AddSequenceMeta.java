@@ -62,7 +62,7 @@ import java.util.List;
         documentationUrl = ""
 )
 public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private String valuename;
 

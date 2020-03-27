@@ -65,7 +65,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, ProvidesModelerMeta {
-  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
   private String schemaName;

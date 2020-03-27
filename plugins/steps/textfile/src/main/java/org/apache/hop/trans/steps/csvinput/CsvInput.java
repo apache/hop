@@ -60,7 +60,7 @@ import java.util.List;
  * @since 2007-07-05
  */
 public class CsvInput extends BaseStep implements StepInterface {
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private CsvInputMeta meta;
   private CsvInputData data;

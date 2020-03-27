@@ -66,7 +66,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator!!
 
   private boolean argFromPrevious;
 

@@ -59,7 +59,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class JobLogDelegate extends HopUiDelegate implements XulEventHandler {
-  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator!!
 
   private static final String XUL_FILE_TRANS_LOG_TOOLBAR = "ui/job-log-toolbar.xul";
 

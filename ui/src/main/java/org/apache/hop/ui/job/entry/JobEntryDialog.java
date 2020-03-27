@@ -58,7 +58,7 @@ public class JobEntryDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The loggingObject for the dialog

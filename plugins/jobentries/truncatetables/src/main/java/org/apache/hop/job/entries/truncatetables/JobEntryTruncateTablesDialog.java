@@ -76,7 +76,7 @@ import java.util.Arrays;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator!!
 
   private Button wbTable;
 

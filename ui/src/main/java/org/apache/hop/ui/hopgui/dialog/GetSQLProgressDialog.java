@@ -43,7 +43,7 @@ import java.util.List;
  * @since 15-mrt-2005
  */
 public class GetSQLProgressDialog {
-  private static Class<?> PKG = GetSQLProgressDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetSQLProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private TransMeta transMeta;
