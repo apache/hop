@@ -171,7 +171,6 @@
     <!-- Documentation properties -->
     <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
 
-    <doc.base.url>https://help.pentaho.com/Documentation/${project.version}</doc.base.url>
     <junit.version>4.11</junit.version>
 
     <!-- http://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html -->

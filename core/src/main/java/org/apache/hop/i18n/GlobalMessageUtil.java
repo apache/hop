@@ -26,8 +26,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +44,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public class GlobalMessageUtil {
-
-  private static final Logger log = LoggerFactory.getLogger( GlobalMessageUtil.class );
 
   /**
    * Used when the preferred locale (as defined by the user) is not available.
@@ -240,7 +236,7 @@ public class GlobalMessageUtil {
       final StringBuilder msg = new StringBuilder();
       msg.append( "Message not found in the preferred and failover locale: key=[" ).append( key ).append(
         "], package=" ).append( Arrays.asList( pkgNames ) );
-      log.error( Const.getStackTracker( new HopException( msg.toString() ) ) );
+      System.err.println( Const.getStackTracker( new HopException( msg.toString() ) ) );
     }
     return decorateMissingKey( key );
   }
@@ -276,8 +272,8 @@ public class GlobalMessageUtil {
       final StringBuilder msg = new StringBuilder();
       msg.append( "Format problem with key=[" ).append( key ).append( "], locale=[" ).append( locale ).append(
         "], package=" ).append( packageName ).append( " : " ).append( e.toString() );
-      log.error( msg.toString() );
-      log.error( Const.getStackTracker( e ) );
+      System.err.println( msg.toString() );
+      System.err.println( Const.getStackTracker( e ) );
       throw new MissingResourceException( msg.toString(), packageName, key );
     }
   }
@@ -301,7 +297,7 @@ public class GlobalMessageUtil {
         msg.append( "Unable to find properties file for package '" ).append( packagePath ).append( "' and class '" )
           .append( resourceClass.getName() ).append( "' in the available locales: " ).append( locale );
         // nothing to do, an exception will be thrown if no bundle is found
-        log.warn( msg.toString() );
+        System.out.println( "Warning: " + msg.toString() );
       }
     }
     final StringBuilder msg = new StringBuilder();
