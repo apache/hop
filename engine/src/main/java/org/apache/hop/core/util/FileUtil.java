@@ -57,14 +57,13 @@ public class FileUtil {
         }
       } else {
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "JobTrans.Log.ParentLogFolderExists", parentfolder
-            .getName().toString() ) );
+          log.logDebug( BaseMessages.getString( PKG, "JobTrans.Log.ParentLogFolderExists", parentfolder.getName().toString() ) );
         }
       }
     } catch ( Exception e ) {
       resultat = false;
-      log.logError( BaseMessages.getString( PKG, "JobTrans.Error.ChekingParentLogFolderTitle" ), BaseMessages
-        .getString( PKG, "JobTrans.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
+      log.logError( BaseMessages.getString( PKG, "JobTrans.Error.ChekingParentLogFolderTitle" ),
+        BaseMessages.getString( PKG, "JobTrans.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
     } finally {
       if ( parentfolder != null ) {
         try {

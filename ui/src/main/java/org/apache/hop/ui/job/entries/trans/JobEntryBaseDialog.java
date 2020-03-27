@@ -77,7 +77,8 @@ import java.util.concurrent.ExecutorService;
  */
 public abstract class JobEntryBaseDialog extends JobEntryDialog {
 
-  public static Class<?> PKG = JobEntryTrans.class;
+  public static Class<?> PKG = JobEntryBaseDialog.class;
+
   public static final int IS_PENTAHO = 1;
 
   protected Label wlPath;

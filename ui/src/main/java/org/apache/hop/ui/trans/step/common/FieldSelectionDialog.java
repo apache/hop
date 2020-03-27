@@ -46,7 +46,7 @@ public class FieldSelectionDialog extends BaseDialog {
   private static final int WIDTH = 360;
 
   public FieldSelectionDialog( final Shell shell, final int numNewFields ) {
-    super( shell, BaseMessages.getString( PKG, "System.GetFields.NewFieldsFound.Title" ), WIDTH );
+    super( shell, BaseMessages.getString( PKG, "FieldSelectionDialog.NewFieldsFound.Title" ), WIDTH );
     this.numFields = numNewFields;
 
     // Define buttons
@@ -62,19 +62,19 @@ public class FieldSelectionDialog extends BaseDialog {
   protected Control buildBody() {
 
     final Label message = new Label( shell, SWT.WRAP | SWT.LEFT );
-    message.setText( BaseMessages.getString( PKG, "System.GetFields.NewFieldsFound.Message", numFields ) );
+    message.setText( BaseMessages.getString( PKG, "FieldSelectionDialog.NewFieldsFound.Message", numFields ) );
     props.setLook( message );
     message.setLayoutData( new FormDataBuilder().top().left().right( 100, 0 ).result() );
 
     final Button newFieldsOnly = new Button( shell, SWT.RADIO );
     newFieldsOnly.setSelection( true );
     props.setLook( newFieldsOnly );
-    newFieldsOnly.setText( BaseMessages.getString( PKG, "System.GetFields.AddNewOnly.Label" ) );
+    newFieldsOnly.setText( BaseMessages.getString( PKG, "FieldSelectionDialog.AddNewOnly.Label" ) );
     newFieldsOnly.setLayoutData( new FormDataBuilder().top( message, MARGIN_SIZE ).left().result() );
 
     final Button clearAndAddAll = new Button( shell, SWT.RADIO );
     props.setLook( clearAndAddAll );
-    clearAndAddAll.setText( BaseMessages.getString( PKG, "System.GetFields.ClearAndAddAll.Label" ) );
+    clearAndAddAll.setText( BaseMessages.getString( PKG, "FieldSelectionDialog.ClearAndAddAll.Label" ) );
     clearAndAddAll.setLayoutData( new FormDataBuilder().top( newFieldsOnly, ELEMENT_SPACING ).left().result() );
 
     newFieldsOnly.addSelectionListener( new SelectionAdapter() {

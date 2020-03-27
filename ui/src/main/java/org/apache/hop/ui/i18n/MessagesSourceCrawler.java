@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -76,7 +77,7 @@ public class MessagesSourceCrawler {
   private Pattern packagePattern;
   private Pattern importPattern;
   private Pattern stringPkgPattern;
-  private Pattern classPkgPattern;
+  private List<Pattern> classPkgPatterns;
 
   private LogChannelInterface log;
 
@@ -89,7 +90,12 @@ public class MessagesSourceCrawler {
     packagePattern = Pattern.compile( "^\\s*package .*;[ \t]*$" );
     importPattern = Pattern.compile( "^\\s*import [a-z\\._0-9]*\\.[A-Z].*;[ \t]*$" );
     stringPkgPattern = Pattern.compile( "^.*private static String PKG.*=.*$" );
-    classPkgPattern = Pattern.compile( "^.*private static Class.*\\sPKG\\s*=.*$" );
+    classPkgPatterns = Arrays.asList(
+      Pattern.compile( "^.*private static Class.*\\sPKG\\s*=.*$" ),
+      Pattern.compile( "^.*private static final Class.*\\sPKG\\s*=.*$" ),
+      Pattern.compile( "^.*public static Class.*\\sPKG\\s*=.*$" ),
+      Pattern.compile( "^.*public static final Class.*\\sPKG\\s*=.*$" )
+    );
   }
 
   public MessagesSourceCrawler( LogChannelInterface log, String rootFolder, BundlesStore bundlesStore ) throws HopException {
@@ -103,7 +109,13 @@ public class MessagesSourceCrawler {
     try {
       Files
         .walk( Paths.get( rootFolder ) )
-        .filter( path -> Files.isDirectory( path ) && path.endsWith( "src/main/java" ) && !path.toString().contains( "archive" ) )
+        .filter( path ->
+          Files.isDirectory( path ) &&
+            path.endsWith( "src/main/java" ) &&
+            !path.toString().contains( "archive" ) &&
+            !path.toString().contains( "/impl/" )
+
+        )
         .forEach( path -> sourceDirectories.add( path.toAbsolutePath().toFile().getPath() ) );
       ;
     } catch ( IOException e ) {
@@ -199,6 +211,11 @@ public class MessagesSourceCrawler {
    * @throws IOException In case there is a problem accessing the specified source file.
    */
   public void lookForOccurrencesInFile( String sourceFolder, FileObject javaFile ) throws IOException {
+
+    if (javaFile.toString().contains( "HopGuiJobClipboardDelegate" )) {
+      System.out.println();
+    }
+
     BufferedReader reader = new BufferedReader( new InputStreamReader( HopVFS.getInputStream( javaFile ) ) );
 
     String messagesPackage = null;
@@ -275,24 +292,27 @@ public class MessagesSourceCrawler {
       //
       // private static Class<?> PKG = Abort.class;
       //
-      if ( classPackage != null && classPkgPattern.matcher( line ).matches() ) {
+      if ( classPackage != null ) {
+        for (Pattern classPkgPattern : classPkgPatterns) {
+          if (classPkgPattern.matcher( line ).matches()) {
+            int fromIndex = line.indexOf( '=' ) + 1;
+            int toIndex = line.indexOf( ".class", fromIndex );
+            String expression = Const.trim( line.substring( fromIndex, toIndex ) );
 
-        int fromIndex = line.indexOf( '=' ) + 1;
-        int toIndex = line.indexOf( ".class", fromIndex );
-        String expression = Const.trim( line.substring( fromIndex, toIndex ) );
-
-        // If the expression doesn't contain any package, we'll look up the package in the imports. If not found there,
-        // it's a local package.
-        //
-        if ( expression.contains( "." ) ) {
-          int lastDotIndex = expression.lastIndexOf( '.' );
-          messagesPackage = expression.substring( 0, lastDotIndex );
-        } else {
-          String packageName = importedClasses.get( expression );
-          if ( packageName == null ) {
-            messagesPackage = classPackage; // Local package
-          } else {
-            messagesPackage = packageName; // imported
+            // If the expression doesn't contain any package, we'll look up the package in the imports. If not found there,
+            // it's a local package.
+            //
+            if ( expression.contains( "." ) ) {
+              int lastDotIndex = expression.lastIndexOf( '.' );
+              messagesPackage = expression.substring( 0, lastDotIndex );
+            } else {
+              String packageName = importedClasses.get( expression );
+              if ( packageName == null ) {
+                messagesPackage = classPackage; // Local package
+              } else {
+                messagesPackage = packageName; // imported
+              }
+            }
           }
         }
 
@@ -603,19 +623,19 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * Gets classPkgPattern
+   * Gets classPkgPatterns
    *
-   * @return value of classPkgPattern
+   * @return value of classPkgPatterns
    */
-  public Pattern getClassPkgPattern() {
-    return classPkgPattern;
+  public List<Pattern> getClassPkgPatterns() {
+    return classPkgPatterns;
   }
 
   /**
-   * @param classPkgPattern The classPkgPattern to set
+   * @param classPkgPatterns The classPkgPatterns to set
    */
-  public void setClassPkgPattern( Pattern classPkgPattern ) {
-    this.classPkgPattern = classPkgPattern;
+  public void setClassPkgPatterns( List<Pattern> classPkgPatterns ) {
+    this.classPkgPatterns = classPkgPatterns;
   }
 
   /**

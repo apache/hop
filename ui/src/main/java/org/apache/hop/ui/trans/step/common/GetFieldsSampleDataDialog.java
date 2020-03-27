@@ -50,9 +50,9 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
   public GetFieldsSampleDataDialog( final Shell parentShell, final GetFieldsCapableStepDialog parentDialog,
                                     final boolean reloadAllFields ) {
     super( parentShell, SAMPLE_SIZE,
-      BaseMessages.getString( PKG, "System.GetFields.SampleSize.Dialog.Title" ),
-      BaseMessages.getString( PKG, "System.GetFields.SampleSize.Dialog.Message" ),
-      BaseMessages.getString( PKG, "System.GetFields.SampleSize.Dialog.ShowSample.Message" ), SHELL_WIDTH );
+      BaseMessages.getString( PKG, "GetFieldsSampleSizeDialog.Title" ),
+      BaseMessages.getString( PKG, "GetFieldsSampleSizeDialog.Message" ),
+      BaseMessages.getString( PKG, "GetFieldsSampleSizeDialog.ShowSample.Message" ), SHELL_WIDTH );
     this.parentDialog = parentDialog;
     this.reloadAllFields = reloadAllFields;
   }
@@ -79,15 +79,15 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
         if ( StringUtils.isNotBlank( message ) ) {
           final EnterTextDialog etd =
             new EnterTextDialog( parentDialog.getShell(),
-              BaseMessages.getString( PKG, "System.GetFields.ScanResults.DialogTitle" ),
-              BaseMessages.getString( PKG, "System.GetFields.ScanResults.DialogMessage" ), message, true );
+              BaseMessages.getString( PKG, "GetFieldsSampleDataDialog.ScanResults.DialogTitle" ),
+              BaseMessages.getString( PKG, "GetFieldsSampleDataDialog.ScanResults.DialogMessage" ), message, true );
           etd.setReadOnly();
           etd.setModal();
           etd.open();
         } else {
           final Dialog errorDlg = new SimpleMessageDialog( parentDialog.getShell(),
             BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
-            BaseMessages.getString( PKG, "System.GetFields.ScanResults.Error.Message" ), MessageDialog.ERROR );
+            BaseMessages.getString( PKG, "GetFieldsSampleDataDialog.ScanResults.Error.Message" ), MessageDialog.ERROR );
           errorDlg.open();
         }
       }

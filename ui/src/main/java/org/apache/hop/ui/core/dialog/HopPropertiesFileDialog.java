@@ -91,7 +91,6 @@ public class HopPropertiesFileDialog extends Dialog {
    *
    * @param parent  The parent shell to link to
    * @param style   The style in which we want to draw this shell.
-   * @param strings The list of rows to change.
    */
   public HopPropertiesFileDialog( Shell parent, int style ) {
     super( parent, style );
@@ -139,11 +138,7 @@ public class HopPropertiesFileDialog extends Dialog {
         new ColumnInfo(
           BaseMessages.getString( PKG, "HopPropertiesFileDialog.Description.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-    colinf[ 2 ].setDisabledListener( new FieldDisabledListener() {
-      public boolean isFieldDisabled( int rowNr ) {
-        return false;
-      }
-    } );
+    colinf[ 2 ].setDisabledListener( rowNr -> false );
 
     wFields =
       new TableView(

@@ -27,6 +27,8 @@
     <filename>MessagesSourceCrawler.java</filename>
     <filename>BaseStepMeta.java</filename>
     <filename>BasePluginType.java</filename>
+    <filename>ConfigurationDialog.java</filename>
+    <filename>Const.java</filename>
   </files-to-avoid>
 
 </translator-config>

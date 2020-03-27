@@ -1145,6 +1145,8 @@ public class Translator {
             } else {
               refreshGrid();
             }
+          } else {
+            showKeySelection( wTodo.getSelection()[ 0 ] );
           }
         }
       }

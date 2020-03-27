@@ -135,8 +135,8 @@ public interface GetFieldsCapableStepDialog<StepMetaType extends BaseStepMeta> {
     } else {
       // we have no new fields
       final BaseDialog errorDlg = new BaseMessageDialog( getShell(),
-        BaseMessages.getString( PKG, "System.GetFields.NoNewFields.Title" ),
-        BaseMessages.getString( PKG, "System.GetFields.NoNewFields.Message" ) );
+        BaseMessages.getString( PKG, "GetFieldsCapableStepDialog.NoNewFields.Title" ),
+        BaseMessages.getString( PKG, "GetFieldsCapableStepDialog.NoNewFields.Message" ) );
       // if there are no incoming fields at all, we leave the OK button handler as-is and simply dispose the dialog;
       // if there are some incoming fields, we overwrite the OK button handler to show the GetFieldsSampleDataDialog
       if ( incomingFieldNames != null && incomingFieldNames.length > 0 ) {

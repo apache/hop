@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiJobClipboardDelegate {
-  private static final Class<?> PKG = HopGui.class; // i18n messages bundle location
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG_JOB_JOB_ENTRIES = "job-jobentries";
 
@@ -44,8 +44,8 @@ public class HopGuiJobClipboardDelegate {
     try {
       GUIResource.getInstance().toClipboard( clipText );
     } catch ( Throwable e ) {
-      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
-        .getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
+      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
     }
   }
 
@@ -54,8 +54,8 @@ public class HopGuiJobClipboardDelegate {
       return GUIResource.getInstance().fromClipboard();
     } catch ( Throwable e ) {
       new ErrorDialog(
-        hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
-        .getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+        hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message" ), e );
       return null;
     }
   }

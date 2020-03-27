@@ -113,8 +113,7 @@ public class HopLifecycleSupport {
       try {
         listener.onEnvironmentInit();
       } catch ( LifecycleException ex ) {
-        String message =
-          BaseMessages.getString( PKG, "LifecycleSupport.ErrorInvokingHopLifecycleListener", listener );
+        String message = BaseMessages.getString( PKG, "LifecycleSupport.ErrorInvokingHopLifecycleListener", listener );
         if ( ex.isSevere() ) {
           throw new HopException( message, ex );
         }
@@ -122,8 +121,7 @@ public class HopLifecycleSupport {
         LogChannel.GENERAL.logError( message, ex );
       } catch ( Throwable t ) {
         Throwables.propagateIfPossible( t, HopException.class );
-        String message = BaseMessages.getString(
-          PKG, "LifecycleSupport.ErrorInvokingHopLifecycleListener", listener );
+        String message = BaseMessages.getString( PKG, "LifecycleSupport.ErrorInvokingHopLifecycleListener", listener );
         throw new HopException( message, t );
       }
     }

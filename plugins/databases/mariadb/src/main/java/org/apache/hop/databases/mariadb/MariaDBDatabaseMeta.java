@@ -76,17 +76,17 @@ public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
    */
   @Override public String getLegacyColumnName( DatabaseMetaData dbMetaData, ResultSetMetaData rsMetaData, int index ) throws HopDatabaseException {
     if ( dbMetaData == null ) {
-      throw new HopDatabaseException( BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameNoDBMetaDataException" ) );
+      throw new HopDatabaseException( BaseMessages.getString( PKG, "MariaDBDatabaseMeta.Exception.LegacyColumnNameNoDBMetaDataException" ) );
     }
 
     if ( rsMetaData == null ) {
-      throw new HopDatabaseException( BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameNoRSMetaDataException" ) );
+      throw new HopDatabaseException( BaseMessages.getString( PKG, "MariaDBDatabaseMeta.Exception.LegacyColumnNameNoRSMetaDataException" ) );
     }
 
     try {
       return rsMetaData.getColumnLabel( index );
     } catch ( Exception e ) {
-      throw new HopDatabaseException( String.format( "%s: %s", BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameException" ), e.getMessage() ), e );
+      throw new HopDatabaseException( String.format( "%s: %s", BaseMessages.getString( PKG, "MariaDBDatabaseMeta.Exception.LegacyColumnNameException" ), e.getMessage() ), e );
     }
   }
 }
