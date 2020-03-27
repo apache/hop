@@ -20,11 +20,12 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.databases.teradata;
+package org.apache.hop.trans.steps.terafast;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -44,6 +45,15 @@ import java.util.List;
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  */
+@Step(
+		  id = "TeraFast",
+		  i18nPackageName = "org.apache.hop.trans.steps.terafast",
+		  description = "TeraFast.Description",
+		  name = "TeraFast.Name",
+		  categoryDescription = "BaseStep.Category.Bulk",
+		  image = "TeraFast.svg",
+		  documentationUrl = "http://wiki.pentaho.com/display/EAI/Teradata+Fastload+Bulk+Loader"
+)
 public class TeraFastMeta extends AbstractStepMeta {
 
   public static final PluginMessages MESSAGES = PluginMessages.getMessages( TeraFastMeta.class );
