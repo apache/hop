@@ -70,6 +70,7 @@
         <module>selectvalues</module>
         <module>sql</module>
         <module>tableoutput</module>
+        <module>terafast</module>
         <module>pgbulkloader</module>
       </modules>
     </profile>

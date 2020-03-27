@@ -1032,6 +1032,19 @@
          </exclusions>
      </dependency>
 
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-terafast</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
      <!-- Database plugins -->
 
       <dependency>
