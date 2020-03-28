@@ -16,30 +16,41 @@
     <description></description>
 
     <modules>
-        <module>textfile</module>
-
         <module>addsequence</module>
+        <module>blockuntilstepsfinish</module>
         <module>calculator</module>
         <module>constant</module>
+        <module>creditcardvalidator</module>
+        <module>cubeinput</module>
+        <module>cubeoutput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
+        <module>dbproc</module>
+        <module>delay</module>
         <module>delete</module>
         <module>denormaliser</module>
         <module>detectemptystream</module>
         <module>detectlastrow</module>
+        <module>dimensionlookup</module>
+        <module>dynamicsqlrow</module>
+        <module>edi2xml</module>
         <module>excelinput</module>
         <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
         <module>fieldschangesequence</module>
+        <module>fieldsplitter</module>
+        <module>fileexists</module>
+        <module>filelocked</module>
         <module>filterrows</module>
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
         <module>terafast</module>
+        <module>textfile</module>
     </modules>
 
 </project>
