@@ -748,7 +748,7 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-addsequence</artifactId>
+         <artifactId>hop-assemblies-plugins-steps-abort</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>
          <exclusions>
@@ -759,6 +759,58 @@
          </exclusions>
      </dependency>
 
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-addsequence</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-analyticquery</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-append</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-blockingstep</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-blockuntilstepsfinish</artifactId>
@@ -785,6 +837,97 @@
          </exclusions>
      </dependency>
 
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-changefileencoding</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-checksum</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-clonerow</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-closure</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+      
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-columnexists</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>     
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-combinationlookup</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>     
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-concatfields</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>     
+     
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-constant</artifactId>

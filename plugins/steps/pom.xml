@@ -46,7 +46,11 @@
         </property>
       </activation>
       <modules>
+		<module>abort</module>
         <module>addsequence</module>
+        <module>analyticquery</module>
+        <module>append</module>
+        <module>blockingstep</module>
         <module>blockuntilstepsfinish</module>
         <module>calculator</module>
         <module>constant</module>
