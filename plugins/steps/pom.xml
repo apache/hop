@@ -46,13 +46,20 @@
         </property>
       </activation>
       <modules>
-		<module>abort</module>
+		    <module>abort</module>
         <module>addsequence</module>
         <module>analyticquery</module>
         <module>append</module>
         <module>blockingstep</module>
         <module>blockuntilstepsfinish</module>
         <module>calculator</module>
+        <module>changefileencoding</module>
+        <module>checksum</module>
+        <module>clonerow</module>
+        <module>closure</module>
+        <module>columnexists</module>
+        <module>combinationlookup</module>        
+        <module>concatfields</module>        
         <module>constant</module>
         <module>creditcardvalidator</module>
         <module>cubeinput</module>
