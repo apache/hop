@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-vectorwise</artifactId>
+    <artifactId>hop-databases-vectorwise</artifactId>
 
     <packaging>jar</packaging>
 
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-ingres</artifactId>
+            <artifactId>hop-databases-ingres</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -27,7 +27,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.hop</groupId>
-                <artifactId>hop-plugins-databases-ingres</artifactId>
+                <artifactId>hop-databases-ingres</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>

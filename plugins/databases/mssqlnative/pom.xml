@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-mssqlnative</artifactId>
+    <artifactId>hop-databases-mssqlnative</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases MS SQL Server (native)</name>
@@ -17,13 +17,13 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mssql</artifactId>
+            <artifactId>hop-databases-mssql</artifactId>
             <scope>compile</scope>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mssql</artifactId>
+            <artifactId>hop-databases-mssql</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
             <version>${project.version}</version>

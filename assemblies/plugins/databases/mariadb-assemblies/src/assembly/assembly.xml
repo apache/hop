@@ -35,7 +35,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-mariadb:jar</include>
+                <include>org.hop:hop-databases-mariadb:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

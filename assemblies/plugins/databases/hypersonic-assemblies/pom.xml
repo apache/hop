@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-hypersonic</artifactId>
+            <artifactId>hop-databases-hypersonic</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

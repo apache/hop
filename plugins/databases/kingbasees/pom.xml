@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-kingbasees</artifactId>
+    <artifactId>hop-databases-kingbasees</artifactId>
 
     <packaging>jar</packaging>
 

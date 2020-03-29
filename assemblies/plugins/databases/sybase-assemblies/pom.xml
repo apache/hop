@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-sybase</artifactId>
+            <artifactId>hop-databases-sybase</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

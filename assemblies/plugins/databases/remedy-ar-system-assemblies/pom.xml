@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-remedy-ar-system</artifactId>
+            <artifactId>hop-databases-remedy-ar-system</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

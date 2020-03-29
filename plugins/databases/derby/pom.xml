@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-derby</artifactId>
+    <artifactId>hop-databases-derby</artifactId>
 
     <packaging>jar</packaging>
 

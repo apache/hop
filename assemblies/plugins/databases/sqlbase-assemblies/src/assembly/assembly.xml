@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-sqlbase:jar</include>
+                <include>org.hop:hop-databases-sqlbase:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-exasol4</artifactId>
+            <artifactId>hop-databases-exasol4</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

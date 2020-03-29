@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-cache:jar</include>
+                <include>org.hop:hop-databases-cache:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-hypersonic</artifactId>
+    <artifactId>hop-databases-hypersonic</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases Hypersonic</name>

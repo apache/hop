@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-redshift:jar</include>
+                <include>org.hop:hop-databases-redshift:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

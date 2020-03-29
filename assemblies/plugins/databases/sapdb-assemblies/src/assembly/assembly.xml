@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-sapdb:jar</include>
+                <include>org.hop:hop-databases-sapdb:jar</include>
             </includes>
         </dependencySet>
 <!--         <dependencySet> -->

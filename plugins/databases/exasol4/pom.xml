@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-exasol4</artifactId>
+    <artifactId>hop-databases-exasol4</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases Exasol</name>

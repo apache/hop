@@ -19,7 +19,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.hop</groupId>
-			<artifactId>hop-plugins-databases-snowflake</artifactId>
+			<artifactId>hop-databases-snowflake</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

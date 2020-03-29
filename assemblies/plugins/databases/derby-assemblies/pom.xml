@@ -26,7 +26,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-derby</artifactId>
+            <artifactId>hop-databases-derby</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

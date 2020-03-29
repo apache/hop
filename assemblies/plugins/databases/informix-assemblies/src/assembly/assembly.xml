@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-informix:jar</include>
+                <include>org.hop:hop-databases-informix:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

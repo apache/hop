@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-as400</artifactId>
+            <artifactId>hop-databases-as400</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

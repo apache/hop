@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-infinidb</artifactId>
+            <artifactId>hop-databases-infinidb</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

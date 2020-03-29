@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-mysql:jar</include>
+                <include>org.hop:hop-databases-mysql:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

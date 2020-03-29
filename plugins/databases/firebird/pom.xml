@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-firebird</artifactId>
+    <artifactId>hop-databases-firebird</artifactId>
 
     <packaging>jar</packaging>
 

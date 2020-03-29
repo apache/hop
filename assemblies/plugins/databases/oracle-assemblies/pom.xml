@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-oracle</artifactId>
+            <artifactId>hop-databases-oracle</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-teradata</artifactId>
+            <artifactId>hop-databases-teradata</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
