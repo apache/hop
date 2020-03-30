@@ -187,7 +187,7 @@ public class BundlesStore {
       // We need to come up with /path/plugins/databases/firebird/src/main/resources
       // So : replace "java" with "resources"
       //
-      String bundleFileName = sourceFolder.replaceAll( "\\/java\\/", "/resources/" );
+      String bundleFileName = sourceFolder.replaceAll( "\\/java", "/resources/" );
       bundleFileName += packageName.replaceAll( "\\.", "/" );
       bundleFileName += "/messages/messages_" + locale + ".properties";
 
