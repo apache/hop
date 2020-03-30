@@ -54,7 +54,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class BlockingStep extends BaseStep implements StepInterface {
 
-  private static Class<?> PKG = BlockingStepMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BlockingStepMeta.class; // for i18n purposes, needed by Translator2!!
 
   private BlockingStepMeta meta;
   private BlockingStepData data;

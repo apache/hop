@@ -34,26 +34,25 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public class BlockingStepData extends BaseStepData implements StepDataInterface {
-  public List<FileObject> files;
-  public List<Object[]> buffer;
-  public List<InputStream> fis;
-  public List<GZIPInputStream> gzis;
-  public List<DataInputStream> dis;
-  public List<Object[]> rowbuffer;
-
-  public RowMetaInterface outputRowMeta;
-
-  public int[] fieldnrs; // the corresponding field numbers;
-  public FileObject fil;
+  protected List<FileObject> files;
+  protected List<Object[]> buffer;
+  protected List<InputStream> fis;
+  protected List<GZIPInputStream> gzis;
+  protected List<DataInputStream> dis;
+  protected List<Object[]> rowbuffer;
+  protected RowMetaInterface outputRowMeta;
+  // the corresponding field numbers;
+  protected int[] fieldnrs;
+  protected FileObject fil;
 
   public BlockingStepData() {
     super();
 
-    buffer = new ArrayList<Object[]>( BlockingStepMeta.CACHE_SIZE );
-    files = new ArrayList<FileObject>();
-    fis = new ArrayList<InputStream>();
-    dis = new ArrayList<DataInputStream>();
-    gzis = new ArrayList<GZIPInputStream>();
-    rowbuffer = new ArrayList<Object[]>();
+    buffer = new ArrayList<>( BlockingStepMeta.CACHE_SIZE );
+    files = new ArrayList<>();
+    fis = new ArrayList<>();
+    dis = new ArrayList<>();
+    gzis = new ArrayList<>();
+    rowbuffer = new ArrayList<>();
   }
 }

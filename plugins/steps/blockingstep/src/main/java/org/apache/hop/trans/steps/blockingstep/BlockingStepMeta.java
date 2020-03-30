@@ -51,7 +51,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow" )
 public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface {
 
-  private static Class<?> PKG = BlockingStepMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BlockingStepMeta.class; // for i18n purposes, needed by Translator2!!
 
   /**
    * Directory to store the temp files

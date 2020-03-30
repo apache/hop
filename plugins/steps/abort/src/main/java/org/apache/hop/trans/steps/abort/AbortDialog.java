@@ -58,21 +58,15 @@ import org.eclipse.swt.widgets.Text;
 public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
   private static final Class<?> PKG = AbortDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private Label wlRowThreshold;
   private TextVar wRowThreshold;
-  private FormData fdlRowThreshold, fdRowThreshold;
-
-  private Label wlMessage;
   private TextVar wMessage;
-  private FormData fdlMessage, fdMessage;
 
   private Button wAlwaysLogRows;
-  private FormData fdAlwaysLogRows;
 
   private AbortMeta input;
   private ModifyListener lsMod;
   private SelectionAdapter lsSelMod;
-  private Group wLoggingGroup;
+
   private Button wAbortButton;
   private Button wAbortWithErrorButton;
   private Button wSafeStopButton;
@@ -262,10 +256,10 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
     wSafeStopButton.setLayoutData( fdSafeStop );
     props.setLook( wSafeStopButton );
 
-    wlRowThreshold = new Label( wOptionsGroup, SWT.RIGHT );
+    Label wlRowThreshold = new Label( wOptionsGroup, SWT.RIGHT );
     wlRowThreshold.setText( BaseMessages.getString( PKG, "AbortDialog.Options.RowThreshold.Label" ) );
     props.setLook( wlRowThreshold );
-    fdlRowThreshold = new FormData();
+    FormData fdlRowThreshold = new FormData();
     fdlRowThreshold.left = new FormAttachment( 0, 0 );
     fdlRowThreshold.top = new FormAttachment( wSafeStopButton, 10 );
     wlRowThreshold.setLayoutData( fdlRowThreshold );
@@ -275,7 +269,7 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
     props.setLook( wRowThreshold );
     wRowThreshold.addModifyListener( lsMod );
     wRowThreshold.setToolTipText( BaseMessages.getString( PKG, "AbortDialog.Options.RowThreshold.Tooltip" ) );
-    fdRowThreshold = new FormData();
+    FormData fdRowThreshold = new FormData();
     fdRowThreshold.left = new FormAttachment( 0, 0 );
     fdRowThreshold.top = new FormAttachment( wlRowThreshold, 5 );
     fdRowThreshold.width = 174;
@@ -283,7 +277,7 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
   }
 
   private void buildLogging( Composite widgetAbove ) {
-    wLoggingGroup = new Group( shell, SWT.SHADOW_ETCHED_IN );
+    Group wLoggingGroup = new Group( shell, SWT.SHADOW_ETCHED_IN );
     props.setLook( wLoggingGroup );
     wLoggingGroup.setText( BaseMessages.getString( PKG, "AbortDialog.Logging.Group" ) );
     FormLayout flLoggingGroup = new FormLayout();
@@ -298,10 +292,10 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
     fdLoggingGroup.bottom = new FormAttachment( hSpacer, -15 );
     wLoggingGroup.setLayoutData( fdLoggingGroup );
 
-    wlMessage = new Label( wLoggingGroup, SWT.RIGHT );
+    Label wlMessage = new Label( wLoggingGroup, SWT.RIGHT );
     wlMessage.setText( BaseMessages.getString( PKG, "AbortDialog.Logging.AbortMessage.Label" ) );
     props.setLook( wlMessage );
-    fdlMessage = new FormData();
+    FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment( 0, 0 );
     fdlMessage.top = new FormAttachment( 0, 0 );
     wlMessage.setLayoutData( fdlMessage );
@@ -311,7 +305,7 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
     wMessage.setToolTipText( BaseMessages.getString( PKG, "AbortDialog.Logging.AbortMessage.Tooltip" ) );
-    fdMessage = new FormData();
+    FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment( 0, 0 );
     fdMessage.top = new FormAttachment( wlMessage, 5 );
     fdMessage.right = new FormAttachment( 100, 0 );
@@ -321,7 +315,7 @@ public class AbortDialog extends BaseStepDialog implements StepDialogInterface {
     wAlwaysLogRows.setText( BaseMessages.getString( PKG, "AbortDialog.Logging.AlwaysLogRows.Label" ) );
     props.setLook( wAlwaysLogRows );
     wAlwaysLogRows.setToolTipText( BaseMessages.getString( PKG, "AbortDialog.Logging.AlwaysLogRows.Tooltip" ) );
-    fdAlwaysLogRows = new FormData();
+    FormData fdAlwaysLogRows = new FormData();
     fdAlwaysLogRows.left = new FormAttachment( 0, 0 );
     fdAlwaysLogRows.top = new FormAttachment( wMessage, 10 );
     wAlwaysLogRows.setLayoutData( fdAlwaysLogRows );
