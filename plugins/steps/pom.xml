@@ -46,7 +46,7 @@
         </property>
       </activation>
       <modules>
-		    <module>abort</module>
+        <module>abort</module>
         <module>addsequence</module>
         <module>analyticquery</module>
         <module>append</module>
@@ -88,6 +88,17 @@
         <module>filesfromresult</module>
         <module>filestoresult</module>
         <module>filterrows</module>
+        <module>flattener</module>
+        <module>fuzzymatch</module>
+        <module>getfilenames</module>
+        <module>getfilesrowcount</module>
+        <module>getslavesequence</module>
+        <module>getsubfolders</module>
+        <module>gettablenames</module>
+        <module>getvariable</module>
+        <module>http</module>
+        <module>httppost</module>
+        <module>loadfileinput</module>
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>

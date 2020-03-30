@@ -1268,6 +1268,149 @@
 
      <dependency>
          <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-flattener</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-fuzzymatch</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-getfilenames</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-getfilesrowscount</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-getslavesequence</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-getsubfolders</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-gettablenames</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-getvariable</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-http</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-httppost</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-loadfileinput</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-pgbulkloader</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>

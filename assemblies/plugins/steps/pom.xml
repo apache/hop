@@ -21,6 +21,7 @@
         <module>analyticquery</module>
         <module>append</module>
         <module>blockingstep</module>
+        <module>blockuntilstepsfinish</module>
         <module>calculator</module>
         <module>changefileencoding</module>
         <module>checksum</module>
@@ -55,10 +56,22 @@
         <module>fileexists</module>
         <module>filelocked</module>
         <module>filterrows</module>
+        <module>flattener</module>
+        <module>fuzzymatch</module>
+        <module>getfilenames</module>
+        <module>getfilesrowcount</module>
+        <module>getslavesequence</module>
+        <module>getsubfolders</module>
+        <module>gettablenames</module>
+        <module>getvariable</module>
+        <module>http</module>
+        <module>httppost</module>
+        <module>loadfileinput</module>
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
+        <module>terafast</module>
         <module>textfile</module>
     </modules>
 
