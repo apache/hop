@@ -48,7 +48,7 @@ import java.util.zip.CRC32;
  */
 public class CheckSum extends BaseStep implements StepInterface {
 
-  private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator2!!
 
   private CheckSumMeta meta;
 
@@ -171,15 +171,15 @@ public class CheckSum extends BaseStep implements StepInterface {
 
   private byte[] createCheckSum( Object[] r ) throws Exception {
     if ( meta.isOldChecksumBehaviour() ) {
-      StringBuilder Buff = new StringBuilder();
+      StringBuilder buffer = new StringBuilder();
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
+        buffer.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
       }
 
       // Updates the digest using the specified array of bytes
-      data.digest.update( Buff.toString().getBytes() );
+      data.digest.update( buffer.toString().getBytes() );
     } else {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -238,13 +238,13 @@ public class CheckSum extends BaseStep implements StepInterface {
     Long retval;
     byte[] byteArray;
     if ( meta.isOldChecksumBehaviour() ) {
-      StringBuilder Buff = new StringBuilder();
+      StringBuilder buffer = new StringBuilder();
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
+        buffer.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
       }
-      byteArray = Buff.toString().getBytes();
+      byteArray = buffer.toString().getBytes();
     } else {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -263,11 +263,11 @@ public class CheckSum extends BaseStep implements StepInterface {
     if ( meta.getCheckSumType().equals( CheckSumMeta.TYPE_CRC32 ) ) {
       CRC32 crc32 = new CRC32();
       crc32.update( byteArray );
-      retval = new Long( crc32.getValue() );
+      retval = crc32.getValue();
     } else {
       Adler32 adler32 = new Adler32();
       adler32.update( byteArray );
-      retval = new Long( adler32.getValue() );
+      retval = adler32.getValue();
     }
 
     return retval;
@@ -284,7 +284,7 @@ public class CheckSum extends BaseStep implements StepInterface {
         logError( BaseMessages.getString( PKG, "CheckSum.Error.ResultFieldMissing" ) );
         return false;
       }
-      if ( meta.isCompatibilityMode() && meta.getCheckSumType() == CheckSumMeta.TYPE_SHA256 ) {
+      if ( meta.isCompatibilityMode() && CheckSumMeta.TYPE_SHA256.equals(meta.getCheckSumType()) ) {
         logError( BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.CompatibilityModeSHA256Error" ) );
         return false;
       }

@@ -40,7 +40,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
  */
 public class Abort extends BaseStep implements StepInterface {
 
-  private static Class<?> PKG = Abort.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = Abort.class; // for i18n purposes, needed by Translator2!!
 
   private AbortMeta meta;
   private int nrInputRows;

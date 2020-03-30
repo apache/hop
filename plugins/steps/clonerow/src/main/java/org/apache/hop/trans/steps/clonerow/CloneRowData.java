@@ -32,11 +32,11 @@ import org.apache.hop.trans.step.StepDataInterface;
  */
 public class CloneRowData extends BaseStepData implements StepDataInterface {
 
-  public long nrclones;
-  public RowMetaInterface outputRowMeta;
-  public int indexOfNrCloneField;
-  public boolean addInfosToRow;
-  public int NrPrevFields;
+  protected long nrclones;
+  protected RowMetaInterface outputRowMeta;
+  protected int indexOfNrCloneField;
+  protected boolean addInfosToRow;
+  protected int NrPrevFields;
 
   public CloneRowData() {
     super();

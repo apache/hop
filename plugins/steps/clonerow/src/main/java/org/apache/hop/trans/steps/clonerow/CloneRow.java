@@ -131,7 +131,8 @@ public class CloneRow extends BaseStep implements StepInterface {
       }
     }
 
-    putRow( data.outputRowMeta, outputRowData ); // copy row to output rowset(s);
+    // copy row to output rowset(s);
+    putRow( data.outputRowMeta, outputRowData );
 
     if ( meta.isNrCloneInField() ) {
       Long nrCloneFieldValue = getInputRowMeta().getInteger( r, data.indexOfNrCloneField );
@@ -159,7 +160,7 @@ public class CloneRow extends BaseStep implements StepInterface {
         if ( meta.isAddCloneNum() ) {
           // Let's add to clone number
           // Clone starts at number 1 (0 is for the original row)
-          Long clonenum = new Long( i + 1 );
+          Long clonenum = new Long( i + 1L );
           outputRowData[ rowIndex ] = clonenum;
         }
       }
@@ -177,12 +178,8 @@ public class CloneRow extends BaseStep implements StepInterface {
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (CloneRowMeta) smi;
     data = (CloneRowData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
+    
+    return  super.init( smi, sdi );
   }
 
 }

@@ -224,44 +224,44 @@ public class CloneRowMeta extends BaseStepMeta implements StepMetaInterface {
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
                      IMetaStore metaStore ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( nrclones ) ) {
-      error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesdMissing" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
+      errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesdMissing" );
+      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, errorMessage, stepMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesOK" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
+      errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesOK" );
+      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, errorMessage, stepMeta );
     }
     remarks.add( cr );
 
     if ( addcloneflag ) {
       if ( Utils.isEmpty( cloneflagfield ) ) {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldMissing" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldMissing" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, errorMessage, stepMeta );
       } else {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldOk" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldOk" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, errorMessage, stepMeta );
       }
       remarks.add( cr );
     }
     if ( addclonenum ) {
       if ( Utils.isEmpty( clonenumfield ) ) {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldMissing" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldMissing" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, errorMessage, stepMeta );
       } else {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldOk" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldOk" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, errorMessage, stepMeta );
       }
       remarks.add( cr );
     }
     if ( nrcloneinfield ) {
       if ( Utils.isEmpty( nrclonefield ) ) {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrCloneFieldMissing" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrCloneFieldMissing" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, errorMessage, stepMeta );
       } else {
-        error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrCloneFieldOk" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, stepMeta );
+        errorMessage = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrCloneFieldOk" );
+        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, errorMessage, stepMeta );
       }
       remarks.add( cr );
     }

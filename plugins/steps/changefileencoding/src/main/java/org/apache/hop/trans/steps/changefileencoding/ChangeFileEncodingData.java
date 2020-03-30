@@ -32,14 +32,12 @@ import org.apache.hop.trans.step.StepDataInterface;
  * @since 03-Juin-2008
  */
 public class ChangeFileEncodingData extends BaseStepData implements StepDataInterface {
-  public int indexOfFileename;
-  public int indexOfTargetFileename;
-  public FileObject sourceFile;
-
-  public String sourceEncoding;
-  public String targetEncoding;
-
-  public RowMetaInterface inputRowMeta;
+  protected int indexOfFileename;
+  protected int indexOfTargetFileename;
+  protected FileObject sourceFile;
+  protected String sourceEncoding;
+  protected String targetEncoding;
+  protected RowMetaInterface inputRowMeta;
 
   public ChangeFileEncodingData() {
     super();

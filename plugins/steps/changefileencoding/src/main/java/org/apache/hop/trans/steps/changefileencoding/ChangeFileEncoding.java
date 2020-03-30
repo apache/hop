@@ -51,7 +51,7 @@ import java.io.OutputStreamWriter;
  */
 
 public class ChangeFileEncoding extends BaseStep implements StepInterface {
-  private static Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator2!!
 
   private ChangeFileEncodingMeta meta;
   private ChangeFileEncodingData data;
