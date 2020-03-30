@@ -16,9 +16,19 @@
     <description></description>
 
     <modules>
+        <module>abort</module>
         <module>addsequence</module>
-        <module>blockuntilstepsfinish</module>
+        <module>analyticquery</module>
+        <module>append</module>
+        <module>blockingstep</module>
         <module>calculator</module>
+        <module>changefileencoding</module>
+        <module>checksum</module>
+        <module>clonerow</module>
+        <module>closure</module>
+        <module>columnexists</module>
+        <module>combinationlookup</module>        
+        <module>concatfields</module>
         <module>constant</module>
         <module>creditcardvalidator</module>
         <module>cubeinput</module>
@@ -49,7 +59,6 @@
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
-        <module>terafast</module>
         <module>textfile</module>
     </modules>
 
