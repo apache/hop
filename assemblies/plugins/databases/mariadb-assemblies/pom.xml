@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mariadb</artifactId>
+            <artifactId>hop-databases-mariadb</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

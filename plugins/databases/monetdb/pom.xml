@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-monetdb</artifactId>
+    <artifactId>hop-databases-monetdb</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases Monet DB</name>

@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-postgresql</artifactId>
+            <artifactId>hop-databases-postgresql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

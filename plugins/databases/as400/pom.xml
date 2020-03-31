@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-as400</artifactId>
+    <artifactId>hop-databases-as400</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases AS400</name>

@@ -4,19 +4,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.hop</groupId>
-  <artifactId>hop-plugins-databases-greenplum</artifactId>
+  <artifactId>hop-databases-greenplum</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-plugins-databases-postgresql</artifactId>
+      <artifactId>hop-databases-postgresql</artifactId>
       <scope>compile</scope>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-plugins-databases-postgresql</artifactId>
+      <artifactId>hop-databases-postgresql</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -50,13 +50,13 @@
       <!-- test dependencies -->
       <dependency>
         <groupId>org.hop</groupId>
-        <artifactId>hop-plugins-databases-postgresql</artifactId>
+        <artifactId>hop-databases-postgresql</artifactId>
         <scope>test</scope>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.hop</groupId>
-        <artifactId>hop-plugins-databases-postgresql</artifactId>
+        <artifactId>hop-databases-postgresql</artifactId>
         <type>test-jar</type>
         <scope>test</scope>
         <version>${project.version}</version>

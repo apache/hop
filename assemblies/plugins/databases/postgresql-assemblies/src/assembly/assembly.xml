@@ -17,7 +17,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-postgresql:jar</include>
+                <include>org.hop:hop-databases-postgresql:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

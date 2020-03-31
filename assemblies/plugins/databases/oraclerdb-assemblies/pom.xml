@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-oraclerdb</artifactId>
+            <artifactId>hop-databases-oraclerdb</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

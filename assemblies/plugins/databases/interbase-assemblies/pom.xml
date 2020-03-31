@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-interbase</artifactId>
+            <artifactId>hop-databases-interbase</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.hop</groupId>
-    <artifactId>hop-plugins-databases-vertica</artifactId>
+    <artifactId>hop-databases-vertica</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
     <name>Hop Plugins Databases Vertica</name>

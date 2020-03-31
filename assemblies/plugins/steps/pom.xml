@@ -16,30 +16,63 @@
     <description></description>
 
     <modules>
-        <module>textfile</module>
-
+        <module>abort</module>
         <module>addsequence</module>
+        <module>analyticquery</module>
+        <module>append</module>
+        <module>blockingstep</module>
+        <module>blockuntilstepsfinish</module>
         <module>calculator</module>
+        <module>changefileencoding</module>
+        <module>checksum</module>
+        <module>clonerow</module>
+        <module>closure</module>
+        <module>columnexists</module>
+        <module>combinationlookup</module>        
+        <module>concatfields</module>
         <module>constant</module>
+        <module>creditcardvalidator</module>
+        <module>cubeinput</module>
+        <module>cubeoutput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
+        <module>dbproc</module>
+        <module>delay</module>
         <module>delete</module>
         <module>denormaliser</module>
         <module>detectemptystream</module>
         <module>detectlastrow</module>
+        <module>dimensionlookup</module>
+        <module>dynamicsqlrow</module>
+        <module>edi2xml</module>
         <module>excelinput</module>
         <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
         <module>fieldschangesequence</module>
+        <module>fieldsplitter</module>
+        <module>fileexists</module>
+        <module>filelocked</module>
         <module>filterrows</module>
+        <module>flattener</module>
+        <module>fuzzymatch</module>
+        <module>getfilenames</module>
+        <module>getfilesrowcount</module>
+        <module>getslavesequence</module>
+        <module>getsubfolders</module>
+        <module>gettablenames</module>
+        <module>getvariable</module>
+        <module>http</module>
+        <module>httppost</module>
+        <module>loadfileinput</module>
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
         <module>terafast</module>
+        <module>textfile</module>
     </modules>
 
 </project>

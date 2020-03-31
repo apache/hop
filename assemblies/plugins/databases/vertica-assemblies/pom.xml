@@ -26,7 +26,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-vertica</artifactId>
+            <artifactId>hop-databases-vertica</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

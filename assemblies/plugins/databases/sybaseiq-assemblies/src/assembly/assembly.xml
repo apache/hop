@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-sybaseiq:jar</include>
+                <include>org.hop:hop-databases-sybaseiq:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

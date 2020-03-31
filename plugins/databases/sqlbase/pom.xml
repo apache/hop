@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-sqlbase</artifactId>
+    <artifactId>hop-databases-sqlbase</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases Gupta SQLBase</name>

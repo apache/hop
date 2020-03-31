@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-monetdb</artifactId>
+            <artifactId>hop-databases-monetdb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

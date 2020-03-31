@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-googlebigquery</artifactId>
+    <artifactId>hop-databases-googlebigquery</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Databases Google BigQuery</name>

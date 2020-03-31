@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-db2</artifactId>
+    <artifactId>hop-databases-db2</artifactId>
 
     <packaging>jar</packaging>
 

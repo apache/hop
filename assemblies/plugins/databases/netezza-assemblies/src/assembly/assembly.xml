@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-netezza:jar</include>
+                <include>org.hop:hop-databases-netezza:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

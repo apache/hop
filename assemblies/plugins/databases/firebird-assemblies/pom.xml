@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-firebird</artifactId>
+            <artifactId>hop-databases-firebird</artifactId>
             <version>${project.version}</version>
         </dependency>       
     </dependencies>

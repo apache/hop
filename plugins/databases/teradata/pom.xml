@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-teradata</artifactId>
+    <artifactId>hop-databases-teradata</artifactId>
 
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Teradata</name>

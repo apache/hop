@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-informix</artifactId>
+    <artifactId>hop-databases-informix</artifactId>
 
     <packaging>jar</packaging>
 

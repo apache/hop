@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mysql</artifactId>
+            <artifactId>hop-databases-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

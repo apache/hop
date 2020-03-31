@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mssql</artifactId>
+            <artifactId>hop-databases-mssql</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

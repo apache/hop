@@ -132,7 +132,7 @@ public class GuiMenuWidgets {
   }
 
   public static void appendShortCut( MenuItem menuItem, KeyboardShortcut shortcut ) {
-    menuItem.setText( menuItem.getText() + "    (" + getShortcutString( shortcut ) + ")" );
+    menuItem.setText( menuItem.getText() + "\t" + getShortcutString( shortcut ) );
   }
 
   public static int getAccelerator( KeyboardShortcut shortcut ) {

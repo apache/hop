@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-mariadb</artifactId>
+    <artifactId>hop-databases-mariadb</artifactId>
 
     <packaging>jar</packaging>
 
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
         		<groupId>org.hop</groupId>
-        		<artifactId>hop-plugins-databases-mysql</artifactId>
+        		<artifactId>hop-databases-mysql</artifactId>
         		<version>${project.version}</version>        	
         		<scope>compile</scope>
         </dependency>
@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-mysql</artifactId>
+            <artifactId>hop-databases-mysql</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -65,7 +65,7 @@
             </dependency>
         		<dependency>
         			<groupId>org.hop</groupId>
-        			<artifactId>hop-plugins-databases-mysql</artifactId>
+        			<artifactId>hop-databases-mysql</artifactId>
         			<version>${project.version}</version>
         			<type>test-jar</type>
         			<scope>test</scope>        			

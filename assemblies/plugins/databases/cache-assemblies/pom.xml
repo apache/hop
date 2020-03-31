@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-databases-cache</artifactId>
+            <artifactId>hop-databases-cache</artifactId>
             <version>${project.version}</version>
         </dependency>		
 		<dependency>

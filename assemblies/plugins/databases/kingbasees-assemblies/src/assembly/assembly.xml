@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-plugins-databases-kingbasees:jar</include>
+                <include>org.hop:hop-databases-kingbasees:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
