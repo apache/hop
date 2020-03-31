@@ -209,7 +209,7 @@ public class MappingInput extends BaseStep implements StepInterface {
         // OK, before we leave, make sure there is a rowset that covers the path to this target step.
         // We need to create a new RowSet and add it to the Input RowSets of the target step
         //
-        BlockingRowSet rowSet = new BlockingRowSet( getTransMeta().getSizeRowset() );
+        BlockingRowSet rowSet = new BlockingRowSet( getTrans().getRowSetSize() );
 
         // This is always a single copy, both for source and target...
         //

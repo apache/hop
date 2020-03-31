@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.file.trans;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.trans.performance.PerformanceSnapShot;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -92,7 +92,7 @@ public class StepPerformanceSnapShotDialog extends Dialog {
     BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.OutputBufferSize" ), };
 
   private Shell parent, shell;
-  private Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots;
+  private Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots;
   private Display display;
   private String[] steps;
   private PropsUI props;
@@ -104,7 +104,7 @@ public class StepPerformanceSnapShotDialog extends Dialog {
   private org.eclipse.swt.widgets.List dataList;
 
   public StepPerformanceSnapShotDialog( Shell parent, String title,
-                                        Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots, long timeDifference ) {
+                                        Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots, long timeDifference ) {
     super( parent );
     this.parent = parent;
     this.display = parent.getDisplay();
@@ -280,14 +280,14 @@ public class StepPerformanceSnapShotDialog extends Dialog {
 
       String stepNameCopy = selectedSteps[ t ];
 
-      List<StepPerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
+      List<PerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
       if ( snapShotList != null && snapShotList.size() > 1 ) {
         totalTimeInSeconds =
           (int) Math
             .round( ( (double) ( snapShotList.get( snapShotList.size() - 1 ).getDate().getTime() - snapShotList
               .get( 0 ).getDate().getTime() ) ) / 1000 );
         for ( int i = 0; i < snapShotList.size(); i++ ) {
-          StepPerformanceSnapShot snapShot = snapShotList.get( i );
+          PerformanceSnapShot snapShot = snapShotList.get( i );
           if ( snapShot.getTimeDifference() != 0 ) {
 
             double factor = (double) 1000 / (double) snapShot.getTimeDifference();
@@ -422,14 +422,14 @@ public class StepPerformanceSnapShotDialog extends Dialog {
   /**
    * @return the stepPerformanceSnapShots
    */
-  public Map<String, List<StepPerformanceSnapShot>> getStepPerformanceSnapShots() {
+  public Map<String, List<PerformanceSnapShot>> getStepPerformanceSnapShots() {
     return stepPerformanceSnapShots;
   }
 
   /**
    * @param stepPerformanceSnapShots the stepPerformanceSnapShots to set
    */
-  public void setStepPerformanceSnapShots( Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots ) {
+  public void setStepPerformanceSnapShots( Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots ) {
     this.stepPerformanceSnapShots = stepPerformanceSnapShots;
   }
 

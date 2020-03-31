@@ -24,14 +24,14 @@ package org.apache.hop.trans.performance;
 
 import java.util.Date;
 
-public class StepPerformanceSnapShot {
+public class PerformanceSnapShot {
 
   private long batchId;
   private int seqNr;
   private Date date;
-  private String transName;
-  private String stepName;
-  private int stepCopy;
+  private String parentName;
+  private String componentName;
+  private int copyNr;
   private long totalLinesRead;
   private long totalLinesWritten;
   private long totalLinesInput;
@@ -54,8 +54,8 @@ public class StepPerformanceSnapShot {
 
   /**
    * @param date
-   * @param stepName
-   * @param stepCopy
+   * @param componentName
+   * @param copyNr
    * @param totalLinesRead
    * @param totalLinesWritten
    * @param totalLinesInput
@@ -64,15 +64,15 @@ public class StepPerformanceSnapShot {
    * @param totalLinesRejected
    * @param totalErrors
    */
-  public StepPerformanceSnapShot( int seqNr, long batchId, Date date, String transName, String stepName,
-                                  int stepCopy, long totalLinesRead, long totalLinesWritten, long totalLinesInput, long totalLinesOutput,
-                                  long totalLinesUpdated, long totalLinesRejected, long totalErrors ) {
+  public PerformanceSnapShot( int seqNr, long batchId, Date date, String parentName, String componentName,
+                              int copyNr, long totalLinesRead, long totalLinesWritten, long totalLinesInput, long totalLinesOutput,
+                              long totalLinesUpdated, long totalLinesRejected, long totalErrors ) {
     this.seqNr = seqNr;
     this.batchId = batchId;
     this.date = date;
-    this.transName = transName;
-    this.stepName = stepName;
-    this.stepCopy = stepCopy;
+    this.parentName = parentName;
+    this.componentName = componentName;
+    this.copyNr = copyNr;
     this.totalLinesRead = totalLinesRead;
     this.totalLinesWritten = totalLinesWritten;
     this.totalLinesInput = totalLinesInput;
@@ -82,7 +82,7 @@ public class StepPerformanceSnapShot {
     this.totalErrors = totalErrors;
   }
 
-  public void diff( StepPerformanceSnapShot previous, long inputBufferSize, long outputBufferSize ) {
+  public void diff( PerformanceSnapShot previous, long inputBufferSize, long outputBufferSize ) {
     this.inputBufferSize = inputBufferSize;
     this.outputBufferSize = outputBufferSize;
 
@@ -124,29 +124,29 @@ public class StepPerformanceSnapShot {
   /**
    * @return the stepName
    */
-  public String getStepName() {
-    return stepName;
+  public String getComponentName() {
+    return componentName;
   }
 
   /**
-   * @param stepName the stepName to set
+   * @param componentName the stepName to set
    */
-  public void setStepName( String stepName ) {
-    this.stepName = stepName;
+  public void setComponentName( String componentName ) {
+    this.componentName = componentName;
   }
 
   /**
    * @return the stepCopy
    */
-  public int getStepCopy() {
-    return stepCopy;
+  public int getCopyNr() {
+    return copyNr;
   }
 
   /**
-   * @param stepCopy the stepCopy to set
+   * @param copyNr the stepCopy to set
    */
-  public void setStepCopy( int stepCopy ) {
-    this.stepCopy = stepCopy;
+  public void setCopyNr( int copyNr ) {
+    this.copyNr = copyNr;
   }
 
   /**
@@ -418,15 +418,15 @@ public class StepPerformanceSnapShot {
   /**
    * @return the transName
    */
-  public String getTransName() {
-    return transName;
+  public String getParentName() {
+    return parentName;
   }
 
   /**
-   * @param transName the transName to set
+   * @param parentName the transName to set
    */
-  public void setTransName( String transName ) {
-    this.transName = transName;
+  public void setParentName( String parentName ) {
+    this.parentName = parentName;
   }
 
 }

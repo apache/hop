@@ -183,7 +183,7 @@ public class HopGuiTransLogDelegate {
     if ( transLogText != null && !transLogText.isDisposed() ) {
       transLogText.setText( "" );
     }
-    Map<StepMeta, String> stepLogMap = transGraph.getStepLogMap();
+    Map<String, String> stepLogMap = transGraph.getStepLogMap();
     if ( stepLogMap != null ) {
       stepLogMap.clear();
       transGraph.getDisplay().asyncExec( new Runnable() {

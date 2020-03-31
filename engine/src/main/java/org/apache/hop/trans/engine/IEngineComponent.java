@@ -1,7 +1,7 @@
 package org.apache.hop.trans.engine;
 
 /**
- * An identifiable component of an execution engine {@link IEngine}
+ * An identifiable component of an execution engine {@link IPipelineEngine}
  * In a transformation engine this would be a step
  */
 public interface IEngineComponent {
@@ -38,4 +38,9 @@ public interface IEngineComponent {
    * @return true if the component is selected in the user interface
    */
   boolean isSelected();
+
+  /**
+   * @return The number of errors in this component
+   */
+  long getErrors();
 }

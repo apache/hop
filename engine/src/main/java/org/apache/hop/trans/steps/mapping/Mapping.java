@@ -82,7 +82,6 @@ public class Mapping extends BaseStep implements StepInterface {
       getData().wasStarted = true;
       switch ( getData().mappingTransMeta.getTransformationType() ) {
         case Normal:
-        case SerialSingleThreaded:
 
           // Before we start, let's see if there are loose ends to tie up...
           //
@@ -237,7 +236,6 @@ public class Mapping extends BaseStep implements StepInterface {
     //
     switch ( mappingData.mappingTransMeta.getTransformationType() ) {
       case Normal:
-      case SerialSingleThreaded:
         break;
 
       case SingleThreaded:

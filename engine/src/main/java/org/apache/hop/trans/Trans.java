@@ -39,7 +39,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.annotations.EnginePlugin;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -48,6 +47,7 @@ import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopTransException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -77,6 +77,7 @@ import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
@@ -92,14 +93,19 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
+import org.apache.hop.trans.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.trans.engine.EngineMetric;
 import org.apache.hop.trans.engine.EngineMetrics;
-import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.engine.IEngineMetric;
-import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.trans.engine.IFinishedListener;
+import org.apache.hop.trans.engine.IPipelineComponentRowsReceived;
+import org.apache.hop.trans.engine.IPipelineEngine;
+import org.apache.hop.trans.engines.EmptyPipelineRunConfiguration;
+import org.apache.hop.trans.performance.PerformanceSnapShot;
 import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
+import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.RunThread;
 import org.apache.hop.trans.step.StepAdapter;
 import org.apache.hop.trans.step.StepDataInterface;
@@ -127,7 +133,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -165,13 +170,14 @@ import static org.apache.hop.trans.Trans.BitMaskStatus.STOPPED;
   description = "The classic transformation execution engine"
 )
 public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface, LoggingObjectInterface,
-  ExecutorInterface, ExtensionDataInterface, IEngine<TransMeta> {
+  ExecutorInterface, ExtensionDataInterface, IPipelineEngine<TransMeta> {
 
   public static final String METRIC_NAME_INPUT = "input";
   public static final String METRIC_NAME_OUTPUT = "output";
   public static final String METRIC_NAME_ERROR = "error";
   public static final String METRIC_NAME_READ = "read";
   public static final String METRIC_NAME_WRITTEN = "written";
+  public static final String METRIC_NAME_UPDATED = "updated";
   public static final String METRIC_NAME_REJECTED = "rejected";
   public static final String METRIC_NAME_BUFFER_IN = "buffer_in";
   public static final String METRIC_NAME_BUFFER_OUT = "buffer_out";
@@ -180,6 +186,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * The package name, used for internationalization of messages.
    */
   private static Class<?> PKG = Trans.class; // for i18n purposes, needed by Translator2!!
+
+  protected String pluginId;
+  protected IPipelineEngineRunConfiguration pipelineEngineRunConfiguration;
 
   /**
    * The log channel interface.
@@ -233,9 +242,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   private String mappingStepName;
 
   /**
-   * Indicates that we want to monitor the running transformation in a GUI.
+   * Indicates that we want to do a topological sort of the steps in a GUI.
    */
-  private boolean monitored;
+  private boolean sortingStepsTopologically;
 
   /**
    * Indicates that we are running in preview mode...
@@ -369,12 +378,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   private boolean safeModeEnabled;
 
   /**
-   * The thread name.
-   */
-  @Deprecated
-  private String threadName;
-
-  /**
    * The transaction ID
    */
   private String transactionId;
@@ -419,7 +422,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   /**
    * Step performance snapshots.
    */
-  private Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots;
+  private Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots;
 
   /**
    * The step performance snapshot timer.
@@ -538,6 +541,18 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   private Map<String, Object> extensionDataMap;
 
+  protected int rowSetSize;
+
+  /**
+   * Whether the feedback is shown.
+   */
+  protected boolean feedbackShown;
+
+  /**
+   * The feedback size.
+   */
+  protected int feedbackSize;
+
   /**
    * Instantiates a new transformation.
    */
@@ -550,7 +565,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     // Get a valid transactionId in case we run database transactional.
     transactionId = calculateTransactionId();
-    threadName = transactionId; // / backward compatibility but deprecated!
 
     errors = new AtomicInteger( 0 );
 
@@ -565,6 +579,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     counters = new Hashtable<>();
 
     extensionDataMap = new HashMap<>();
+
+    rowSetSize = Const.ROWS_IN_ROWSET;
   }
 
   /**
@@ -585,6 +601,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    */
   public Trans( TransMeta transMeta, LoggingObjectInterface parent ) {
     this();
+
     this.transMeta = transMeta;
     this.containerObjectId = transMeta.getContainerObjectId();
 
@@ -596,11 +613,14 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     // Get a valid transactionId in case we run database transactional.
     transactionId = calculateTransactionId();
-    threadName = transactionId; // / backward compatibility but deprecated!
   }
 
   @Override public TransMeta getSubject() {
     return transMeta;
+  }
+
+  @Override public void setSubject( TransMeta transMeta ) {
+    this.transMeta = transMeta;
   }
 
   /**
@@ -695,7 +715,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     try {
       transMeta = new TransMeta( filename, metaStore, false, this );
 
-      this.log = LogChannel.GENERAL;
+      this.log = new LogChannel( transMeta );
 
       transMeta.initializeVariablesFrom( parent );
       initializeVariablesFrom( parent );
@@ -708,7 +728,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
       // Get a valid transactionId in case we run database transactional.
       transactionId = calculateTransactionId();
-      threadName = transactionId; // / backward compatibility but deprecated!
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG, "Trans.Exception.UnableToOpenTransformation", name ), e );
     }
@@ -781,7 +800,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     // Keep track of all the row sets and allocated steps
     //
-    steps = new ArrayList<>();
+    steps = Collections.synchronizedList( new ArrayList<>() );
     rowsets = new ArrayList<>();
 
     List<StepMeta> hopsteps = transMeta.getTransHopSteps( false );
@@ -875,14 +894,10 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
                 Boolean batchingRowSet =
                   ValueMetaString.convertStringToBoolean( System.getProperty( Const.HOP_BATCHING_ROWSET ) );
                 if ( batchingRowSet != null && batchingRowSet.booleanValue() ) {
-                  rowSet = new BlockingBatchingRowSet( transMeta.getSizeRowset() );
+                  rowSet = new BlockingBatchingRowSet( rowSetSize );
                 } else {
-                  rowSet = new BlockingRowSet( transMeta.getSizeRowset() );
+                  rowSet = new BlockingRowSet( rowSetSize );
                 }
-                break;
-
-              case SerialSingleThreaded:
-                rowSet = new SingleRowRowSet();
                 break;
 
               case SingleThreaded:
@@ -923,7 +938,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
           // distribution...
           for ( int s = 0; s < thisCopies; s++ ) {
             for ( int t = 0; t < nextCopies; t++ ) {
-              BlockingRowSet rowSet = new BlockingRowSet( transMeta.getSizeRowset() );
+              BlockingRowSet rowSet = new BlockingRowSet( rowSetSize );
               rowSet.setThreadNameFromToCopy( thisStep.getName(), s, nextStep.getName(), t );
               rowsets.add( rowSet );
               if ( log.isDetailed() ) {
@@ -1119,7 +1134,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     // Do a topology sort... Over 150 step (copies) things might be slowing down too much.
     //
-    if ( isMonitored() && steps.size() < 150 ) {
+    if ( isSortingStepsTopologically() && steps.size() < 150 ) {
       doTopologySortOfSteps();
     }
 
@@ -1350,7 +1365,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     ExecutionListener executionListener = new ExecutionAdapter<TransMeta>() {
       @Override
-      public void finished( IEngine<TransMeta> trans ) {
+      public void finished( IPipelineEngine<TransMeta> trans ) {
 
         try {
           ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationFinish.id, trans );
@@ -1429,68 +1444,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
           thread.start();
         }
-        break;
-
-      case SerialSingleThreaded:
-        new Thread( new Runnable() {
-          @Override
-          public void run() {
-            try {
-              // Always disable thread priority management, it will always slow us
-              // down...
-              //
-              for ( StepMetaDataCombi combi : steps ) {
-                combi.step.setUsingThreadPriorityManagment( false );
-              }
-
-              //
-              // This is a single threaded version...
-              //
-
-              // Sort the steps from start to finish...
-              //
-              Collections.sort( steps, new Comparator<StepMetaDataCombi>() {
-                @Override
-                public int compare( StepMetaDataCombi c1, StepMetaDataCombi c2 ) {
-
-                  boolean c1BeforeC2 = transMeta.findPrevious( c2.stepMeta, c1.stepMeta );
-                  if ( c1BeforeC2 ) {
-                    return -1;
-                  } else {
-                    return 1;
-                  }
-                }
-              } );
-
-              boolean[] stepDone = new boolean[ steps.size() ];
-              int nrDone = 0;
-              while ( nrDone < steps.size() && !isStopped() ) {
-                for ( int i = 0; i < steps.size() && !isStopped(); i++ ) {
-                  StepMetaDataCombi combi = steps.get( i );
-                  if ( !stepDone[ i ] ) {
-                    // if (combi.step.canProcessOneRow() ||
-                    // !combi.step.isRunning()) {
-                    boolean cont = combi.step.processRow( combi.meta, combi.data );
-                    if ( !cont ) {
-                      stepDone[ i ] = true;
-                      nrDone++;
-                    }
-                    // }
-                  }
-                }
-              }
-            } catch ( Exception e ) {
-              errors.addAndGet( 1 );
-              log.logError( "Error executing single threaded", e );
-            } finally {
-              for ( int i = 0; i < steps.size(); i++ ) {
-                StepMetaDataCombi combi = steps.get( i );
-                combi.step.dispose( combi.meta, combi.data );
-                combi.step.markStop();
-              }
-            }
-          }
-        } ).start();
         break;
 
       case SingleThreaded:
@@ -1580,14 +1533,14 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         StepMeta stepMeta = steps.get( i ).stepMeta;
         StepInterface step = steps.get( i ).step;
 
-        StepPerformanceSnapShot snapShot =
-          new StepPerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), stepMeta.getName(), step.getCopy(),
+        PerformanceSnapShot snapShot =
+          new PerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), stepMeta.getName(), step.getCopy(),
             step.getLinesRead(), step.getLinesWritten(), step.getLinesInput(), step.getLinesOutput(), step
             .getLinesUpdated(), step.getLinesRejected(), step.getErrors() );
 
         synchronized ( stepPerformanceSnapShots ) {
-          List<StepPerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( step.toString() );
-          StepPerformanceSnapShot previous;
+          List<PerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( step.toString() );
+          PerformanceSnapShot previous;
           if ( snapShotList == null ) {
             snapShotList = new ArrayList<>();
             stepPerformanceSnapShots.put( step.toString(), snapShotList );
@@ -2197,7 +2150,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
             addTransListener( new ExecutionAdapter<TransMeta>() {
               @Override
-              public void finished( IEngine<TransMeta> trans ) {
+              public void finished( IPipelineEngine<TransMeta> trans ) {
                 timer.cancel();
               }
             } );
@@ -2207,7 +2160,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
           //
           addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void finished( IEngine<TransMeta> trans ) throws HopException {
+            public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
               try {
                 endProcessing();
 
@@ -2229,7 +2182,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         if ( stepLogTable.isDefined() ) {
           addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void finished( IEngine<TransMeta> trans ) throws HopException {
+            public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
               try {
                 writeStepLogInformation();
               } catch ( HopException e ) {
@@ -2246,7 +2199,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         if ( channelLogTable.isDefined() ) {
           addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void finished( IEngine<TransMeta> trans ) throws HopException {
+            public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
               try {
                 writeLogChannelInformation();
               } catch ( HopException e ) {
@@ -2283,7 +2236,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
           addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void finished( IEngine<TransMeta> trans ) {
+            public void finished( IPipelineEngine<TransMeta> trans ) {
               timer.cancel();
             }
           } );
@@ -2634,13 +2587,13 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
       ldb.prepareInsert( rowMeta, performanceLogTable.getActualSchemaName(), performanceLogTable.getActualTableName() );
 
       synchronized ( stepPerformanceSnapShots ) {
-        Iterator<List<StepPerformanceSnapShot>> iterator = stepPerformanceSnapShots.values().iterator();
+        Iterator<List<PerformanceSnapShot>> iterator = stepPerformanceSnapShots.values().iterator();
         while ( iterator.hasNext() ) {
-          List<StepPerformanceSnapShot> snapshots = iterator.next();
+          List<PerformanceSnapShot> snapshots = iterator.next();
           synchronized ( snapshots ) {
-            Iterator<StepPerformanceSnapShot> snapshotsIterator = snapshots.iterator();
+            Iterator<PerformanceSnapShot> snapshotsIterator = snapshots.iterator();
             while ( snapshotsIterator.hasNext() ) {
-              StepPerformanceSnapShot snapshot = snapshotsIterator.next();
+              PerformanceSnapShot snapshot = snapshotsIterator.next();
               if ( snapshot.getSeqNr() >= startSequenceNr && snapshot
                 .getSeqNr() <= lastStepPerformanceSnapshotSeqNrAdded ) {
 
@@ -2904,21 +2857,19 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Checks whether the running transformation is being monitored.
+   * Gets sortingStepsTopologically
    *
-   * @return true the running transformation is being monitored, false otherwise
+   * @return value of sortingStepsTopologically
    */
-  public boolean isMonitored() {
-    return monitored;
+  public boolean isSortingStepsTopologically() {
+    return sortingStepsTopologically;
   }
 
   /**
-   * Sets whether the running transformation should be monitored.
-   *
-   * @param monitored true if the running transformation should be monitored, false otherwise
+   * @param sortingStepsTopologically The sortingStepsTopologically to set
    */
-  public void setMonitored( boolean monitored ) {
-    this.monitored = monitored;
+  public void setSortingStepsTopologically( boolean sortingStepsTopologically ) {
+    this.sortingStepsTopologically = sortingStepsTopologically;
   }
 
   /**
@@ -3129,10 +3080,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     RowSet rowSet;
     switch ( transMeta.getTransformationType() ) {
       case Normal:
-        rowSet = new BlockingRowSet( transMeta.getSizeRowset() );
-        break;
-      case SerialSingleThreaded:
-        rowSet = new SingleRowRowSet();
+        rowSet = new BlockingRowSet( rowSetSize );
         break;
       case SingleThreaded:
         rowSet = new QueueRowSet();
@@ -3191,11 +3139,12 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Checks whether the transformation has any steps that are halted.
+   * Checks whether the pipeline has any components that are halted.
    *
-   * @return true if one or more steps are halted, false otherwise
+   * @return true if one or more components are halted, false otherwise
    */
-  public boolean hasHaltedSteps() {
+  @Override
+  public boolean hasHaltedComponents() {
     // not yet 100% sure of this, if there are no steps... or none halted?
     if ( steps == null ) {
       return false;
@@ -3281,28 +3230,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    */
   public void setBatchId( long batchId ) {
     this.batchId = batchId;
-  }
-
-  /**
-   * Gets the name of the thread that contains the transformation.
-   *
-   * @return the thread name
-   * @deprecated use {@link #getTransactionId()}
-   */
-  @Deprecated
-  public String getThreadName() {
-    return threadName;
-  }
-
-  /**
-   * Sets the thread name for the transformation.
-   *
-   * @param threadName the thread name
-   * @deprecated use {@link #setTransactionId(String)}
-   */
-  @Deprecated
-  public void setThreadName( String threadName ) {
-    this.threadName = threadName;
   }
 
   /**
@@ -3782,7 +3709,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    *
    * @return a named list (map) of step performance snapshots
    */
-  public Map<String, List<StepPerformanceSnapShot>> getStepPerformanceSnapShots() {
+  public Map<String, List<PerformanceSnapShot>> getStepPerformanceSnapShots() {
     return stepPerformanceSnapShots;
   }
 
@@ -3791,7 +3718,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    *
    * @param stepPerformanceSnapShots a named list (map) of step performance snapshots to set
    */
-  public void setStepPerformanceSnapShots( Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots ) {
+  public void setStepPerformanceSnapShots( Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots ) {
     this.stepPerformanceSnapShots = stepPerformanceSnapShots;
   }
 
@@ -4646,43 +4573,93 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   public static final IEngineMetric METRIC_OUTPUT = new EngineMetric( METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true );
   public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other steps", "030", true );
   public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other steps", "040", true );
-  public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "050", true );
-  public static final IEngineMetric METRIC_ERROR = new EngineMetric( METRIC_NAME_ERROR, "Errors", "The number of errors", "060", true );
-  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "070", true );
-  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "080", true );
+  public static final IEngineMetric METRIC_UPDATED = new EngineMetric( METRIC_NAME_UPDATED, "Updated", "The number of rows updated", "050", true );
+  public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "060", true );
+  public static final IEngineMetric METRIC_ERROR = new EngineMetric( METRIC_NAME_ERROR, "Errors", "The number of errors", "070", true );
+  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "080", true );
+  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "090", true );
 
   public EngineMetrics getEngineMetrics() {
+    return getEngineMetrics( null, -1 );
+  }
+
+  public synchronized EngineMetrics getEngineMetrics(String componentName, int copyNr) {
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate( getStartDate() );
     metrics.setEndDate( getEndDate() );
     if ( steps != null ) {
-      for ( StepMetaDataCombi combi : steps ) {
-        metrics.addComponent( combi.step );
+      synchronized ( steps ) {
+        for ( StepMetaDataCombi combi : steps ) {
 
-        metrics.setComponentMetric( combi.step, METRIC_INPUT, combi.step.getLinesInput() );
-        metrics.setComponentMetric( combi.step, METRIC_OUTPUT, combi.step.getLinesOutput() );
-        metrics.setComponentMetric( combi.step, METRIC_READ, combi.step.getLinesRead() );
-        metrics.setComponentMetric( combi.step, METRIC_WRITTEN, combi.step.getLinesWritten() );
-        metrics.setComponentMetric( combi.step, METRIC_REJECTED, combi.step.getLinesRejected() );
-        metrics.setComponentMetric( combi.step, METRIC_ERROR, combi.step.getErrors() );
+          boolean collect = true;
+          if ( copyNr >= 0 ) {
+            collect = collect && copyNr == combi.copy;
+          }
+          if ( componentName != null ) {
+            collect = collect && componentName.equalsIgnoreCase( combi.stepname );
+          }
 
-        long inputBufferSize = 0;
-        for ( RowSet rowSet : combi.step.getInputRowSets() ) {
-          inputBufferSize += rowSet.size();
+          if ( collect ) {
+
+            metrics.addComponent( combi.step );
+
+            metrics.setComponentMetric( combi.step, METRIC_INPUT, combi.step.getLinesInput() );
+            metrics.setComponentMetric( combi.step, METRIC_OUTPUT, combi.step.getLinesOutput() );
+            metrics.setComponentMetric( combi.step, METRIC_READ, combi.step.getLinesRead() );
+            metrics.setComponentMetric( combi.step, METRIC_WRITTEN, combi.step.getLinesWritten() );
+            metrics.setComponentMetric( combi.step, METRIC_UPDATED, combi.step.getLinesUpdated() );
+            metrics.setComponentMetric( combi.step, METRIC_REJECTED, combi.step.getLinesRejected() );
+            metrics.setComponentMetric( combi.step, METRIC_ERROR, combi.step.getErrors() );
+
+            long inputBufferSize = 0;
+            for ( RowSet rowSet : combi.step.getInputRowSets() ) {
+              inputBufferSize += rowSet.size();
+            }
+            metrics.setComponentMetric( combi.step, METRIC_BUFFER_IN, inputBufferSize );
+            long outputBufferSize = 0;
+            for ( RowSet rowSet : combi.step.getOutputRowSets() ) {
+              outputBufferSize += rowSet.size();
+            }
+            metrics.setComponentMetric( combi.step, METRIC_BUFFER_OUT, outputBufferSize );
+
+            StepStatus stepStatus = new StepStatus( combi.step );
+            metrics.setComponentSpeed( combi.step, stepStatus.getSpeed() );
+            metrics.setComponentStatus( combi.step, combi.step.getStatus().getDescription() );
+            metrics.setComponentRunning( combi.step, combi.step.isRunning() );
+          }
         }
-        metrics.setComponentMetric( combi.step, METRIC_BUFFER_IN, inputBufferSize );
-        long outputBufferSize = 0;
-        for ( RowSet rowSet : combi.step.getOutputRowSets() ) {
-          outputBufferSize += rowSet.size();
-        }
-        metrics.setComponentMetric( combi.step, METRIC_BUFFER_OUT, outputBufferSize );
-
-        StepStatus stepStatus = new StepStatus( combi.step );
-        metrics.setComponentSpeed( combi.step, stepStatus.getSpeed() );
-        metrics.setComponentStatus( combi.step, combi.step.getStatus().getDescription() );
-        metrics.setComponentRunning( combi.step, combi.step.isRunning() );
       }
     }
+
+    // Also pass on the performance snapshot data...
+    //
+    if (stepPerformanceSnapShots!=null) {
+      for (String componentString : stepPerformanceSnapShots.keySet()) {
+        String snapshotName = componentString;
+        int snapshotCopyNr = 0;
+        int lastDot = componentString.lastIndexOf( '.' );
+        if (lastDot>0) {
+          componentString.substring( 0, lastDot );
+          snapshotCopyNr = Const.toInt(componentString.substring( lastDot+1 ), 0);
+        }
+        boolean collect = true;
+        if (componentName!=null) {
+          collect=collect && componentName.equalsIgnoreCase( componentString );
+        }
+        if (copyNr>=0) {
+          collect = collect && snapshotCopyNr==copyNr;
+        }
+
+        if (collect) {
+          IEngineComponent component = findComponent( snapshotName, snapshotCopyNr );
+          if (component!=null) {
+            List<PerformanceSnapShot> snapShots = stepPerformanceSnapShots.get( componentString );
+            metrics.getComponentPerformanceSnapshots().put( component, snapShots );
+          }
+        }
+      }
+    }
+
     return metrics;
   }
 
@@ -4709,5 +4686,131 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   @Override public IEngineComponent findComponent( String name, int copyNr ) {
     return findStepInterface( name, copyNr );
+  }
+
+  @Override public List<IEngineComponent> getComponentCopies( String name ) {
+    List<IEngineComponent> list = new ArrayList<>();
+    if (steps!=null) {
+      for ( StepMetaDataCombi step : steps ) {
+        if ( step.stepname.equalsIgnoreCase( name ) ) {
+          list.add( step.step );
+        }
+      }
+    }
+    return list;
+  }
+
+  /**
+   * Gets pluginId
+   *
+   * @return value of pluginId
+   */
+  @Override public String getPluginId() {
+    return pluginId;
+  }
+
+  /**
+   * @param pluginId The pluginId to set
+   */
+  @Override public void setPluginId( String pluginId ) {
+    this.pluginId = pluginId;
+  }
+
+  @Override public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
+    return new EmptyPipelineRunConfiguration();
+  }
+
+  /**
+   * Gets pipelineEngineRunConfiguration
+   *
+   * @return value of pipelineEngineRunConfiguration
+   */
+  public IPipelineEngineRunConfiguration getPipelineEngineRunConfiguration() {
+    return pipelineEngineRunConfiguration;
+  }
+
+  /**
+   * @param pipelineEngineRunConfiguration The pipelineEngineRunConfiguration to set
+   */
+  public void setPipelineEngineRunConfiguration( IPipelineEngineRunConfiguration pipelineEngineRunConfiguration ) {
+    this.pipelineEngineRunConfiguration = pipelineEngineRunConfiguration;
+  }
+
+  public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
+    StepInterface stepInterface = findStepInterface( componentName, copyNr );
+    if (stepInterface==null) {
+      throw new HopException( "Unable to find step '"+componentName+"', copy "+copyNr+" to retrieve output rows from" );
+    }
+    RowBuffer rowBuffer = new RowBuffer( transMeta.getStepFields( componentName ) );
+    stepInterface.addRowListener( new RowAdapter() {
+      @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
+        if (rowBuffer.getBuffer().size()<nrRows) {
+          rowBuffer.getBuffer().add( row );
+          if ( rowBuffer.getBuffer().size() >= nrRows ) {
+            try {
+              rowsReceived.rowsReceived( Trans.this, rowBuffer );
+            } catch ( HopException e ) {
+              throw new HopStepException( "Error recieving rows from '" + componentName + " copy " + copyNr, e );
+            }
+          }
+        }
+      }
+    } );
+  }
+
+  @Override public void addFinishedListener( IFinishedListener listener ) throws HopException {
+    addTransListener( new ExecutionAdapter() {
+      @Override public void finished( IPipelineEngine engine ) throws HopException {
+        listener.finished( engine );
+      }
+    } );
+  }
+
+  /**
+   * Gets rowSetSize
+   *
+   * @return value of rowSetSize
+   */
+  public int getRowSetSize() {
+    return rowSetSize;
+  }
+
+  /**
+   * @param rowSetSize The rowSetSize to set
+   */
+  public void setRowSetSize( int rowSetSize ) {
+    this.rowSetSize = rowSetSize;
+  }
+
+  /**
+   * Gets feedbackShown
+   *
+   * @return value of feedbackShown
+   */
+  public boolean isFeedbackShown() {
+    return feedbackShown;
+  }
+
+  /**
+   * @param feedbackShown The feedbackShown to set
+   */
+  public void setFeedbackShown( boolean feedbackShown ) {
+    this.feedbackShown = feedbackShown;
+  }
+
+  /**
+   * Gets feedbackSize
+   *
+   * @return value of feedbackSize
+   */
+  public int getFeedbackSize() {
+    return feedbackSize;
+  }
+
+  /**
+   * @param feedbackSize The feedbackSize to set
+   */
+  public void setFeedbackSize( int feedbackSize ) {
+    this.feedbackSize = feedbackSize;
   }
 }

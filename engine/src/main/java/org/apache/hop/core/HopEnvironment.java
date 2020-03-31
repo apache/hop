@@ -41,6 +41,7 @@ import org.apache.hop.core.plugins.PluginTypeInterface;
 import org.apache.hop.core.plugins.StepDialogFragmentType;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.engine.PipelineEnginePluginType;
 import org.apache.hop.trans.step.RowDistributionPluginType;
 
 import java.util.Arrays;
@@ -92,7 +93,8 @@ public class HopEnvironment {
       HopServerPluginType.getInstance(),
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
-      AuthenticationConsumerPluginType.getInstance()
+      AuthenticationConsumerPluginType.getInstance(),
+      PipelineEnginePluginType.getInstance()
     );
   }
 

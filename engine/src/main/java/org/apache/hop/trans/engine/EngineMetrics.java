@@ -1,5 +1,7 @@
 package org.apache.hop.trans.engine;
 
+import org.apache.hop.trans.performance.PerformanceSnapShot;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,12 +24,16 @@ public class EngineMetrics {
   private Map<IEngineComponent, String> componentSpeedMap;
   private Map<IEngineComponent, Boolean> componentRunningMap;
 
+  private Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots;
+
+
   public EngineMetrics() {
     components = new ArrayList<>();
     componentMetricsMap = new HashMap<>();
     componentStatusMap = new HashMap<>();
     componentSpeedMap = new HashMap<>();
     componentRunningMap = new HashMap<>();
+    componentPerformanceSnapshots = new HashMap<>();
   }
 
   /**
@@ -131,6 +137,18 @@ public class EngineMetrics {
       return null;
     }
     return metricsMap.remove( metric );
+  }
+
+  public void addCompomentPerformanceSnapShot(IEngineComponent component, PerformanceSnapShot snapShot) {
+    if ( component == null || snapShot == null ) {
+      throw new RuntimeException( "Please provide a component and a snapshot to add" );
+    }
+    List<PerformanceSnapShot> snapShots = componentPerformanceSnapshots.get( component );
+    if (snapShots==null) {
+      snapShots = new ArrayList<>(  );
+      componentPerformanceSnapshots.put(component, snapShots);
+    }
+    snapShots.add(snapShot);
   }
 
   /**
@@ -243,5 +261,22 @@ public class EngineMetrics {
    */
   public void setComponents( List<IEngineComponent> components ) {
     this.components = components;
+  }
+
+  /**
+   * Gets componentPerformanceSnapshots
+   *
+   * @return value of componentPerformanceSnapshots
+   */
+  public Map<IEngineComponent, List<PerformanceSnapShot>> getComponentPerformanceSnapshots() {
+    return componentPerformanceSnapshots;
+  }
+
+  /**
+   * @param componentPerformanceSnapshots The componentPerformanceSnapshots to set
+   */
+  public void setComponentPerformanceSnapshots(
+    Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots ) {
+    this.componentPerformanceSnapshots = componentPerformanceSnapshots;
   }
 }

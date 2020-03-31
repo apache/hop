@@ -23,7 +23,8 @@
 package org.apache.hop.ui.hopgui.file.trans.delegates;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.trans.engine.IEngineComponent;
+import org.apache.hop.trans.performance.PerformanceSnapShot;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -101,8 +102,8 @@ public class HopGuiTransPerfDelegate {
 
   private CTabItem transPerfTab;
 
-  private Map<String, List<StepPerformanceSnapShot>> stepPerformanceSnapShots;
-  private String[] steps;
+  private Map<IEngineComponent, List<PerformanceSnapShot>> stepPerformanceSnapShots;
+  private IEngineComponent[] steps;
   private org.eclipse.swt.widgets.List stepsList;
   private Canvas canvas;
   private Image image;
@@ -176,7 +177,7 @@ public class HopGuiTransPerfDelegate {
     // is called when the transgraph is not running, so we check
     // early to make sure it won't happen (see PDI-5009)
     if ( !transGraph.isRunning()
-      || transGraph.trans == null || !transGraph.trans.getTransMeta().isCapturingStepPerformanceSnapShots() ) {
+      || transGraph.trans == null || !transGraph.trans.getSubject().isCapturingStepPerformanceSnapShots() ) {
       showEmptyGraph();
       return; // TODO: display help text and rerty button
     }
@@ -195,25 +196,33 @@ public class HopGuiTransPerfDelegate {
 
     emptyGraph = false;
 
-    this.title = transGraph.trans.getTransMeta().getName();
-    this.timeDifference = transGraph.trans.getTransMeta().getStepPerformanceCapturingDelay();
-    this.stepPerformanceSnapShots = transGraph.trans.getStepPerformanceSnapShots();
+    this.title = transGraph.trans.getSubject().getName();
+    this.timeDifference = transGraph.trans.getSubject().getStepPerformanceCapturingDelay();
+    this.stepPerformanceSnapShots = transGraph.trans.getEngineMetrics().getComponentPerformanceSnapshots();
 
     // Wait a second for the first data to pour in...
     // TODO: make this wait more elegant...
     //
     while ( this.stepPerformanceSnapShots == null || stepPerformanceSnapShots.isEmpty() ) {
-      this.stepPerformanceSnapShots = transGraph.trans.getStepPerformanceSnapShots();
+
+      this.stepPerformanceSnapShots = transGraph.trans.getEngineMetrics().getComponentPerformanceSnapshots();
       try {
-        Thread.sleep( 100L );
+        // Getting engine metrics is fairly expensive so wait long enough
+        //
+        Thread.sleep( 1000L );
       } catch ( InterruptedException e ) {
         // Ignore errors
       }
     }
 
-    Set<String> stepsSet = stepPerformanceSnapShots.keySet();
-    steps = stepsSet.toArray( new String[ stepsSet.size() ] );
+    Set<IEngineComponent> stepsSet = stepPerformanceSnapShots.keySet();
+    steps = stepsSet.toArray( new IEngineComponent[ stepsSet.size() ] );
     Arrays.sort( steps );
+
+    String[] stepNames = new String[steps.length];
+    for (int i=0;i<steps.length;i++) {
+      stepNames[i] = steps.toString();
+    }
 
     // Display 2 lists with the data types and the steps on the left side.
     // Then put a canvas with the graph on the right side
@@ -228,8 +237,7 @@ public class HopGuiTransPerfDelegate {
     fdDataListLabel.top = new FormAttachment( 0, props.getMargin() + 5 );
     dataListLabel.setLayoutData( fdDataListLabel );
 
-    dataList =
-      new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
+    dataList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
         | SWT.H_SCROLL | SWT.V_SCROLL | SWT.LEFT | SWT.BORDER );
     hopUi.getProps().setLook( dataList );
     dataList.setItems( dataChoices );
@@ -266,11 +274,10 @@ public class HopGuiTransPerfDelegate {
     fdStepsListLabel.top = new FormAttachment( dataList, props.getMargin() );
     stepsListLabel.setLayoutData( fdStepsListLabel );
 
-    stepsList =
-      new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
+    stepsList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
         | SWT.H_SCROLL | SWT.V_SCROLL | SWT.LEFT | SWT.BORDER );
     hopUi.getProps().setLook( stepsList );
-    stepsList.setItems( steps );
+    stepsList.setItems( stepNames );
     stepsList.addSelectionListener( new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent event ) {
@@ -423,7 +430,7 @@ public class HopGuiTransPerfDelegate {
 
     String[] selectedSteps = stepsList.getSelection();
     if ( selectedSteps == null || selectedSteps.length == 0 ) {
-      selectedSteps = new String[] { steps[ 0 ], }; // first step
+      selectedSteps = new String[] { steps[ 0 ].toString(), }; // first step
       stepsList.select( 0 );
     }
     int[] dataIndices = dataList.getSelectionIndices();
@@ -444,14 +451,14 @@ public class HopGuiTransPerfDelegate {
 
       String stepNameCopy = selectedSteps[ t ];
 
-      List<StepPerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
+      List<PerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
       if ( snapShotList != null && snapShotList.size() > 1 ) {
         totalTimeInSeconds =
           (int) Math
             .round( ( (double) ( snapShotList.get( snapShotList.size() - 1 ).getDate().getTime() - snapShotList
               .get( 0 ).getDate().getTime() ) ) / 1000 );
         for ( int i = 0; i < snapShotList.size(); i++ ) {
-          StepPerformanceSnapShot snapShot = snapShotList.get( i );
+          PerformanceSnapShot snapShot = snapShotList.get( i );
           if ( snapShot.getTimeDifference() != 0 ) {
 
             double factor = (double) 1000 / (double) snapShot.getTimeDifference();

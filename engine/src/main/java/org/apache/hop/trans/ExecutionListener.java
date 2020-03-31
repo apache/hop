@@ -23,7 +23,7 @@
 package org.apache.hop.trans;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IPipelineEngine;
 
 /**
  * A listener for execution engines
@@ -38,7 +38,7 @@ public interface ExecutionListener<T> {
    * @param engine
    * @throws HopException
    */
-  void started( IEngine<T> engine ) throws HopException;
+  void started( IPipelineEngine<T> engine ) throws HopException;
 
   /**
    * This transformation went from an in-active to an active state.
@@ -46,7 +46,7 @@ public interface ExecutionListener<T> {
    * @param engine
    * @throws HopException
    */
-  public void becameActive( IEngine<T> engine );
+  public void becameActive( IPipelineEngine<T> engine );
 
   /**
    * The transformation has finished.
@@ -54,5 +54,5 @@ public interface ExecutionListener<T> {
    * @param engine
    * @throws HopException
    */
-  public void finished( IEngine<T> engine ) throws HopException;
+  public void finished( IPipelineEngine<T> engine ) throws HopException;
 }

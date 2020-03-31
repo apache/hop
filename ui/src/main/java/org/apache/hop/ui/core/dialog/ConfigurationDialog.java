@@ -29,11 +29,14 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -85,8 +88,7 @@ public abstract class ConfigurationDialog extends Dialog {
   protected int margin;
   protected Group gLocal;
   protected Composite composite;
-  protected Composite cRunConfiguration;
-  protected CCombo wRunConfiguration;
+  protected MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
   private TableView wParams;
   private Display display;
@@ -98,11 +100,15 @@ public abstract class ConfigurationDialog extends Dialog {
   private CTabFolder tabFolder;
   private Button alwaysShowOption;
 
+  protected HopGui hopGui;
+
   public ConfigurationDialog( Shell parent, ExecutionConfiguration configuration, AbstractMeta meta ) {
     super( parent );
     this.parent = parent;
     this.configuration = configuration;
     this.abstractMeta = meta;
+
+    this.hopGui = HopGui.getInstance();
 
     // Fill the parameters, maybe do this in another place?
     Map<String, String> params = configuration.getParams();
@@ -216,13 +222,13 @@ public abstract class ConfigurationDialog extends Dialog {
     this.configuration = configuration;
   }
 
-  protected void mainLayout( Class<?> PKG, String prefix, Image img ) {
+  protected void mainLayout( String shellTitle, Image img ) {
     display = parent.getDisplay();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
     shell.setImage( img );
     shell.setLayout( new FormLayout() );
-    shell.setText( BaseMessages.getString( PKG, prefix + ".Shell.Title" ) );
+    shell.setText( shellTitle );
   }
 
   protected void optionsSectionLayout( Class<?> PKG, String prefix ) {
@@ -233,7 +239,7 @@ public abstract class ConfigurationDialog extends Dialog {
     // The layout
     gDetails.setLayout( new FormLayout() );
     fdDetails = new FormData();
-    fdDetails.top = new FormAttachment( cRunConfiguration, 15 );
+    fdDetails.top = new FormAttachment( wRunConfiguration, 15 );
     fdDetails.right = new FormAttachment( 100, -15 );
     fdDetails.left = new FormAttachment( 0, 15 );
     gDetails.setBackground( shell.getBackground() ); // the default looks ugly
@@ -317,7 +323,7 @@ public abstract class ConfigurationDialog extends Dialog {
     wVariables.setLayoutData( fdVariables );
   }
 
-  protected void buttonsSectionLayout( Class<?> PKG, String prefix, final String docTitle, final String docUrl,
+  protected void buttonsSectionLayout( String alwaysShowOptionLabel, String alwaysShowOptionTooltip, final String docTitle, final String docUrl,
                                        final String docHeader ) {
 
     // Bottom buttons and separator
@@ -326,7 +332,7 @@ public abstract class ConfigurationDialog extends Dialog {
     FormData fd_wCancel = new FormData();
     fd_wCancel.bottom = new FormAttachment( 100, -15 );
     wCancel.setLayoutData( fd_wCancel );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.setText( BaseMessages.getString( "System.Button.Cancel" ) );
     wCancel.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         cancel();
@@ -338,7 +344,7 @@ public abstract class ConfigurationDialog extends Dialog {
     fd_wOK.right = new FormAttachment( wCancel, -5 );
     fd_wOK.bottom = new FormAttachment( 100, -15 );
     wOK.setLayoutData( fd_wOK );
-    wOK.setText( BaseMessages.getString( PKG, prefix + ".Button.Launch" ) );
+    wOK.setText( BaseMessages.getString( "System.Button.Launch" ) );
     wOK.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ok();
@@ -347,8 +353,8 @@ public abstract class ConfigurationDialog extends Dialog {
 
     Button btnHelp = new Button( shell, SWT.NONE );
     btnHelp.setImage( GUIResource.getInstance().getImageHelpWeb() );
-    btnHelp.setText( BaseMessages.getString( PKG, "System.Button.Help" ) );
-    btnHelp.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.Help" ) );
+    btnHelp.setText( BaseMessages.getString( "System.Button.Help" ) );
+    btnHelp.setToolTipText( BaseMessages.getString( "System.Tooltip.Help" ) );
     FormData fd_btnHelp = new FormData();
     fd_btnHelp.bottom = new FormAttachment( 100, -15 );
     fd_btnHelp.left = new FormAttachment( 0, 15 );
@@ -372,13 +378,13 @@ public abstract class ConfigurationDialog extends Dialog {
     props.setLook( alwaysShowOption );
     alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
 
-    alwaysShowOption.setToolTipText( BaseMessages.getString( PKG, prefix + ".alwaysShowOption" ) );
+    alwaysShowOption.setToolTipText( alwaysShowOptionTooltip );
 
     FormData fd_alwaysShowOption = new FormData();
     fd_alwaysShowOption.left = new FormAttachment( 0, 15 );
     fd_alwaysShowOption.bottom = new FormAttachment( separator, -15 );
     alwaysShowOption.setLayoutData( fd_alwaysShowOption );
-    alwaysShowOption.setText( BaseMessages.getString( PKG, prefix + ".AlwaysOption.Value" ) );
+    alwaysShowOption.setText( alwaysShowOptionLabel );
   }
 
   protected void openDialog() {
@@ -394,35 +400,6 @@ public abstract class ConfigurationDialog extends Dialog {
         display.sleep();
       }
     }
-  }
-
-  protected void runConfigurationSectionLayout( Class<?> PKG, String prefix ) {
-    cRunConfiguration = new Composite( shell, SWT.NONE );
-    cRunConfiguration.setLayout( new FormLayout() );
-    props.setLook( cRunConfiguration );
-    FormData fdLocal = new FormData();
-    fdLocal.top = new FormAttachment( 0, 15 );
-    fdLocal.right = new FormAttachment( 100, -15 );
-    fdLocal.left = new FormAttachment( 0, 15 );
-
-    cRunConfiguration.setBackground( shell.getBackground() ); // the default looks ugly
-    cRunConfiguration.setLayoutData( fdLocal );
-
-    Label wlRunConfiguration = new Label( cRunConfiguration, SWT.LEFT );
-    props.setLook( wlRunConfiguration );
-    wlRunConfiguration.setText( "Run configuration:" );
-    FormData fdlRunConfiguration = new FormData();
-    fdlRunConfiguration.top = new FormAttachment( 0 );
-    fdlRunConfiguration.left = new FormAttachment( 0 );
-    wlRunConfiguration.setLayoutData( fdlRunConfiguration );
-
-    wRunConfiguration = new CCombo( cRunConfiguration, SWT.BORDER );
-    props.setLook( wRunConfiguration );
-    FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.width = 200;
-    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, 5 );
-    fdRunConfiguration.left = new FormAttachment( 0 );
-    wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
   protected abstract void optionsSectionControls();

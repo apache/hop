@@ -262,16 +262,6 @@ public class TransMeta extends AbstractMeta
   protected boolean usingUniqueConnections;
 
   /**
-   * Whether the feedback is shown.
-   */
-  protected boolean feedbackShown;
-
-  /**
-   * The feedback size.
-   */
-  protected int feedbackSize;
-
-  /**
    * Flag to indicate thread management usage. Set to default to false from version 2.5.0 on. Before that it was enabled
    * by default.
    */
@@ -331,12 +321,6 @@ public class TransMeta extends AbstractMeta
      * A normal transformation.
      */
     Normal( "Normal", BaseMessages.getString( PKG, "TransMeta.TransformationType.Normal" ) ),
-
-    /**
-     * A serial single-threaded transformation.
-     */
-    SerialSingleThreaded( "SerialSingleThreaded", BaseMessages.getString(
-      PKG, "TransMeta.TransformationType.SerialSingleThreaded" ) ),
 
     /**
      * A single-threaded transformation.
@@ -460,16 +444,6 @@ public class TransMeta extends AbstractMeta
    * A constant specifying the tag value for the XML node of the transformation's partition schemas.
    */
   public static final String XML_TAG_PARTITIONSCHEMAS = "partitionschemas";
-
-  /**
-   * A constant specifying the tag value for the XML node of the slave servers.
-   */
-  public static final String XML_TAG_SLAVESERVERS = "slaveservers";
-
-  /**
-   * A constant specifying the tag value for the XML node of the cluster schemas.
-   */
-  public static final String XML_TAG_CLUSTERSCHEMAS = "clusterschemas";
 
   /**
    * A constant specifying the tag value for the XML node of the steps' error-handling information.
@@ -670,9 +644,6 @@ public class TransMeta extends AbstractMeta
 
     // LOAD THE DATABASE CACHE!
     dbCache = DBCache.getInstance();
-
-    feedbackShown = true;
-    feedbackSize = Const.ROWS_UPDATE;
 
     // Thread priority:
     // - set to false in version 2.5.0
@@ -2182,8 +2153,6 @@ public class TransMeta extends AbstractMeta
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "unique_connections", usingUniqueConnections ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "feedback_shown", feedbackShown ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "feedback_size", feedbackSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
 
     // Performance monitoring
@@ -2643,10 +2612,7 @@ public class TransMeta extends AbstractMeta
         sleepTimeFull = Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
         usingUniqueConnections = "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "unique_connections" ) );
 
-        feedbackShown = !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "feedback_shown" ) );
-        feedbackSize = Const.toInt( XMLHandler.getTagValue( infonode, "feedback_size" ), Const.ROWS_UPDATE );
-        usingThreadPriorityManagment =
-          !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
+        usingThreadPriorityManagment = !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
         // Performance monitoring for steps...
         //
@@ -4014,31 +3980,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Gets the size of the rowsets.
-   *
-   * @return Returns the size of the rowsets.
-   */
-  public int getSizeRowset() {
-    String rowSetSize = getVariable( Const.HOP_TRANS_ROWSET_SIZE );
-    int altSize = Const.toInt( rowSetSize, 0 );
-    if ( altSize > 0 ) {
-      return altSize;
-    } else {
-      return sizeRowset;
-    }
-  }
-
-  /**
-   * Sets the size of the rowsets. This method allows you to change the size of the buffers between the connected steps
-   * in a transformation. <b>NOTE:</b> Do not change this parameter unless you are running low on memory, for example.
-   *
-   * @param sizeRowset The sizeRowset to set.
-   */
-  public void setSizeRowset( int sizeRowset ) {
-    this.sizeRowset = sizeRowset;
-  }
-
-  /**
    * Gets the database cache object.
    *
    * @return the database cache object.
@@ -4286,63 +4227,6 @@ public class TransMeta extends AbstractMeta
     return partitionSchemas;
   }
 
-  /**
-   * Sets the list of partition schemas for this transformation.
-   *
-   * @param partitionSchemas the list of PartitionSchemas to set
-   */
-  public void setPartitionSchemas( List<PartitionSchema> partitionSchemas ) {
-    this.partitionSchemas = partitionSchemas;
-  }
-
-  /**
-   * Gets the partition schemas' names.
-   *
-   * @return a String array containing the available partition schema names.
-   */
-  public String[] getPartitionSchemasNames() {
-    String[] names = new String[ partitionSchemas.size() ];
-    for ( int i = 0; i < names.length; i++ ) {
-      names[ i ] = partitionSchemas.get( i ).getName();
-    }
-    return names;
-  }
-
-  /**
-   * Checks if is feedback shown.
-   *
-   * @return true if feedback is shown, false otherwise
-   */
-  public boolean isFeedbackShown() {
-    return feedbackShown;
-  }
-
-  /**
-   * Sets whether the feedback should be shown.
-   *
-   * @param feedbackShown true if feedback should be shown, false otherwise
-   */
-  public void setFeedbackShown( boolean feedbackShown ) {
-    this.feedbackShown = feedbackShown;
-  }
-
-  /**
-   * Gets the feedback size.
-   *
-   * @return the feedback size
-   */
-  public int getFeedbackSize() {
-    return feedbackSize;
-  }
-
-  /**
-   * Sets the feedback size.
-   *
-   * @param feedbackSize the feedback size to set
-   */
-  public void setFeedbackSize( int feedbackSize ) {
-    this.feedbackSize = feedbackSize;
-  }
 
   /**
    * Checks if the transformation is using unique database connections.
@@ -5036,12 +4920,9 @@ public class TransMeta extends AbstractMeta
       // info
       .append( this.getName() )
       .append( this.getTransformationType() )
-      .append( this.getSizeRowset() )
       .append( this.getSleepTimeEmpty() )
       .append( this.getSleepTimeFull() )
       .append( this.isUsingUniqueConnections() )
-      .append( this.isFeedbackShown() )
-      .append( this.getFeedbackSize() )
       .append( this.isUsingThreadPriorityManagment() )
       .append( this.isCapturingStepPerformanceSnapShots() )
       .append( this.getStepPerformanceCapturingDelay() )

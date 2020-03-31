@@ -42,6 +42,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -210,6 +211,10 @@ public class TextVar extends Composite {
 
   public Text getTextWidget() {
     return wText;
+  }
+
+  @Override public void addListener( int eventType, Listener listener ) {
+    wText.addListener( eventType, listener );
   }
 
   /**

@@ -30,7 +30,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.trans.performance.PerformanceSnapShot;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
 
@@ -192,8 +192,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
    * @param parent
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
-    if ( subject == null || subject instanceof StepPerformanceSnapShot ) {
-      StepPerformanceSnapShot snapShot = (StepPerformanceSnapShot) subject;
+    if ( subject == null || subject instanceof PerformanceSnapShot ) {
+      PerformanceSnapShot snapShot = (PerformanceSnapShot) subject;
 
       RowMetaAndData row = new RowMetaAndData();
 
@@ -213,13 +213,13 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
                 value = snapShot.getDate();
                 break;
               case TRANSNAME:
-                value = snapShot.getTransName();
+                value = snapShot.getParentName();
                 break;
               case STEPNAME:
-                value = snapShot.getStepName();
+                value = snapShot.getComponentName();
                 break;
               case STEP_COPY:
-                value = new Long( snapShot.getStepCopy() );
+                value = new Long( snapShot.getCopyNr() );
                 break;
               case LINES_READ:
                 value = new Long( snapShot.getLinesRead() );

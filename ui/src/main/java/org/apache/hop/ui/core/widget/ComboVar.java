@@ -41,6 +41,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * A Widget that combines a Text widget with a Variable button that will insert an Environment variable. The tool tip of
@@ -192,6 +193,10 @@ public class ComboVar extends Composite {
 
   public CCombo getCComboWidget() {
     return wCombo;
+  }
+
+  @Override public void addListener( int eventType, Listener listener ) {
+    wCombo.addListener( eventType, listener );
   }
 
   /**

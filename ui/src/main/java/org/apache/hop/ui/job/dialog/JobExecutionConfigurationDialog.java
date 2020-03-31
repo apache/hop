@@ -33,9 +33,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.trans.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -152,20 +154,38 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
   public boolean open() {
 
-    mainLayout( PKG, "JobExecutionConfigurationDialog", GUIResource.getInstance().getImageJobGraph() );
-    runConfigurationSectionLayout( PKG, "TransExecutionConfigurationDialog" );
+    String shellTitle = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.Shell.Title" );
+    mainLayout( shellTitle, GUIResource.getInstance().getImageJobGraph() );
+
+    addRunConfigurationSectionLayout();
+
     optionsSectionLayout( PKG, "JobExecutionConfigurationDialog" );
     parametersSectionLayout( PKG, "JobExecutionConfigurationDialog" );
 
-    String docUrl =
-      Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.JobExecutionConfigurationDialog.Help" ) );
+    String alwaysShowOptionLabel = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.AlwaysOption.Value" );
+    String alwaysShowOptionTooltip = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.alwaysShowOption" );
+    String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.JobExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docHeader" );
-    buttonsSectionLayout( PKG, "JobExecutionConfigurationDialog", docTitle, docUrl, docHeader );
+    buttonsSectionLayout(alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader );
 
     getData();
     openDialog();
     return retval;
+  }
+
+  private void addRunConfigurationSectionLayout() {
+    String runConfigLabel = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Label" );
+    String runConfigTooltip = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Tooltip" );
+
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariableSpace(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip);
+    props.setLook( wRunConfiguration );
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.right = new FormAttachment( 100, 0 );
+    fdRunConfiguration.top = new FormAttachment( 0, props.getMargin() );
+    fdRunConfiguration.left = new FormAttachment( 0, 0 );
+    wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
   private String getJobEntryCopyName( JobEntryCopy copy ) {

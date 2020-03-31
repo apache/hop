@@ -3,7 +3,10 @@ package org.apache.hop.trans.engine;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.config.IPipelineEngineRunConfiguration;
 
 import java.util.List;
 
@@ -12,9 +15,25 @@ import java.util.List;
  *
  * @param <T> The subject class to execute
  */
-public interface IEngine<T> {
+public interface IPipelineEngine<T> {
 
   T getSubject();
+
+  void setSubject(T t);
+
+  String getPluginId();
+  void setPluginId(String pluginId);
+
+  /**
+   * Ask the engine to generate a default pipeline engine configuration for this engine
+   * @return a new pipeline engine run configuration
+   */
+  IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
+
+
+  void setPipelineEngineRunConfiguration( IPipelineEngineRunConfiguration pipelineRunConfiguration);
+
+  IPipelineEngineRunConfiguration getPipelineEngineRunConfiguration();
 
   /**
    * Executes the object/subject: calls prepareExecution and startThreads in sequence.
@@ -38,6 +57,12 @@ public interface IEngine<T> {
   boolean isPreparing();
 
   /**
+   * Check to see if the pipeline engine is ready to start threads.
+   * @return True if the pipeline engine was prepared and is ready to start.
+   */
+  boolean isReadyToStart();
+
+  /**
    * Starts the engine itself after prepareExecution.
    *
    * @throws HopException If there is an engine error during execution.
@@ -49,7 +74,15 @@ public interface IEngine<T> {
    *
    * @return The engine metrics
    */
-  public EngineMetrics getEngineMetrics();
+  EngineMetrics getEngineMetrics();
+
+  /**
+   * Get the engine metrics for a specific component name and/or copy nr
+   * @param componentName the name of the component or null for all components
+   * @param copyNr The copy nr to select or a negative number for all components
+   * @return The engine metrics for the given
+   */
+  EngineMetrics getEngineMetrics(String componentName, int copyNr);
 
   /**
    * This method performs any cleanup operations on the various sub-components of the engine after execution.
@@ -65,6 +98,18 @@ public interface IEngine<T> {
    * Stops all parts of the execution from running and alerts any registered listeners.
    */
   void stopAll();
+
+  /**
+   * See if there are any halted components in the engine: actions, auditing, ...
+   * @return True if there are halted components
+   */
+  public boolean hasHaltedComponents();
+
+  /**
+   * Indicates whether or not the engine is running
+   * @return True is the engine is running
+   */
+  boolean isRunning();
 
   /**
    * Pauses the execution (all components).
@@ -87,6 +132,14 @@ public interface IEngine<T> {
    * @return True if the execution has finished
    */
   boolean isFinished();
+
+  /**
+   * Call the given listener lambda when this pipeline engine has completed execution.
+   *
+   * @param listener
+   * @throws HopException
+   */
+  void addFinishedListener( IFinishedListener listener ) throws HopException;
 
   /**
    * Close unique database connections. If there are errors in the Result, perform a rollback
@@ -112,6 +165,14 @@ public interface IEngine<T> {
   List<IEngineComponent> getComponents();
 
   /**
+   * Find all component copies by name
+   *
+   * @param name   The name of the component to look for (step)
+   * @return The list of components found
+   */
+  List<IEngineComponent> getComponentCopies( String name );
+
+  /**
    * Find a component by name and copy nr
    *
    * @param name   The name of the component to look for (step)
@@ -121,12 +182,17 @@ public interface IEngine<T> {
   IEngineComponent findComponent( String name, int copyNr );
 
   /**
-   * Gets the log channel interface for the transformation.
+   * Gets the log channel interface for the pipeline.
    *
    * @return the log channel
-   * @see org.apache.hop.core.logging.HasLogChannelInterface#getLogChannel()
    */
   LogChannelInterface getLogChannel();
+
+  /**
+   * The log channel ID if there is any
+   * @return
+   */
+  String getLogChannelId();
 
   /**
    * Sets the parent logging object.
@@ -142,5 +208,39 @@ public interface IEngine<T> {
    */
   Result getResult();
 
+
+  void setMetaStore( IMetaStore metaStore );
+
+  IMetaStore getMetaStore();
+
+  void setLogLevel( LogLevel logLevel );
+
+  LogLevel getLogLevel();
+
+
+  /**
+   * Temporary until we find a better way to preview/debug
+   * @param preview
+   */
+  @Deprecated
+  void setPreview( boolean preview );
+
+  /**
+   * Temporary until we find a better way to preview/debug
+   * @return
+   */
+  @Deprecated
+  boolean isPreview();
+
+  /**
+   * Retrieve output rows from a component copy.  Pass the rows to the rows received lambda.
+   *
+   * @param componentName
+   * @param copyNr
+   * @param nrRows
+   * @param rowsReceived
+   * @throws HopException
+   */
+  void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException;
 
 }

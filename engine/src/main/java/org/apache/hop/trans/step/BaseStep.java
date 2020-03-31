@@ -512,8 +512,8 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
     dispatch();
 
-    upperBufferBoundary = (int) ( transMeta.getSizeRowset() * 0.99 );
-    lowerBufferBoundary = (int) ( transMeta.getSizeRowset() * 0.01 );
+    upperBufferBoundary = (int) ( trans.getRowSetSize() * 0.99 );
+    lowerBufferBoundary = (int) ( trans.getRowSetSize() * 0.01 );
   }
 
   /*
@@ -1943,7 +1943,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     RowSet inputFull = null;
     RowSet inputEmpty = null;
     for ( RowSet rowSet : getInputRowSets() ) {
-      if ( rowSet.size() == transMeta.getSizeRowset() ) {
+      if ( rowSet.size() == trans.getRowSetSize() ) {
         inputFull = rowSet;
       } else if ( rowSet.size() == 0 ) {
         inputEmpty = rowSet;
@@ -1957,7 +1957,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
       for ( StepMetaDataCombi combi : trans.getSteps() ) {
         int inputSize = 0;
         List<RowSet> combiInputRowSets = combi.step.getInputRowSets();
-        int totalSize = combiInputRowSets.size() * transMeta.getSizeRowset();
+        int totalSize = combiInputRowSets.size() * trans.getRowSetSize();
         for ( RowSet rowSet : combiInputRowSets ) {
           inputSize += rowSet.size();
         }
@@ -1967,7 +1967,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
           RowSet outputFull = null;
           RowSet outputEmpty = null;
           for ( RowSet rowSet : combiOutputRowSets ) {
-            if ( rowSet.size() == transMeta.getSizeRowset() ) {
+            if ( rowSet.size() == trans.getRowSetSize() ) {
               outputFull = rowSet;
             } else if ( rowSet.size() == 0 ) {
               outputEmpty = rowSet;
@@ -3329,9 +3329,9 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    * @return true, if successful
    */
   protected boolean checkFeedback( long lines ) {
-    return getTransMeta().isFeedbackShown()
-      && ( lines > 0 ) && ( getTransMeta().getFeedbackSize() > 0 )
-      && ( lines % getTransMeta().getFeedbackSize() ) == 0;
+    return getTrans().isFeedbackShown()
+      && ( lines > 0 ) && ( getTrans().getFeedbackSize() > 0 )
+      && ( lines % getTrans().getFeedbackSize() ) == 0;
   }
 
   /**

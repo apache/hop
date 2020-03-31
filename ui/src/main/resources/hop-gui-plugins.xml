@@ -64,6 +64,19 @@
     <classname>org.apache.hop.partition.PartitionSchema</classname>
     <description>Partition schema metadata</description>
   </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.trans.config.PipelineRunConfiguration</classname>
+    <description>Pipeline Run Configuration</description>
+  </gui-plugin>
 
+  <!-- Engine Run Configuration GUI Plugins -->
+  <gui-plugin>
+    <classname>org.apache.hop.trans.engines.local.LocalPipelineRunConfiguration</classname>
+    <description>Local pipeline run configuration widgets</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.trans.engines.localsingle.LocalSinglePipelineRunConfiguration</classname>
+    <description>Local single threaded pipeline run configuration widgets</description>
+  </gui-plugin>
 
 </gui-plugins>

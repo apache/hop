@@ -33,21 +33,21 @@ import org.apache.hop.core.plugins.PluginTypeInterface;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-@PluginMainClassType( IEngine.class )
-@PluginAnnotationType( EnginePlugin.class )
-public class EnginePluginType extends BasePluginType implements PluginTypeInterface {
+@PluginMainClassType( IPipelineEngine.class )
+@PluginAnnotationType( PipelineEnginePlugin.class )
+public class PipelineEnginePluginType extends BasePluginType implements PluginTypeInterface {
 
-  private EnginePluginType() {
-    super( EnginePlugin.class, "HOP_ENGINES", "Hop Engines" );
+  private PipelineEnginePluginType() {
+    super( PipelineEnginePlugin.class, "HOP_PIPELINE_ENGINES", "Hop Pipeline Engines" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
 
-  private static EnginePluginType pluginType;
+  private static PipelineEnginePluginType pluginType;
 
-  public static EnginePluginType getInstance() {
+  public static PipelineEnginePluginType getInstance() {
     if ( pluginType == null ) {
-      pluginType = new EnginePluginType();
+      pluginType = new PipelineEnginePluginType();
     }
     return pluginType;
   }
@@ -59,7 +59,7 @@ public class EnginePluginType extends BasePluginType implements PluginTypeInterf
 
   @Override
   protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_ENGINE_PLUGINS;
+    return Const.XML_FILE_HOP_PIPELINE_ENGINES;
   }
 
   @Override
@@ -84,17 +84,17 @@ public class EnginePluginType extends BasePluginType implements PluginTypeInterf
 
   @Override
   protected String extractDesc( Annotation annotation ) {
-    return ( (EnginePlugin) annotation ).description();
+    return ( (PipelineEnginePlugin) annotation ).description();
   }
 
   @Override
   protected String extractID( Annotation annotation ) {
-    return ( (EnginePlugin) annotation ).id();
+    return ( (PipelineEnginePlugin) annotation ).id();
   }
 
   @Override
   protected String extractName( Annotation annotation ) {
-    return ( (EnginePlugin) annotation ).name();
+    return ( (PipelineEnginePlugin) annotation ).name();
   }
 
   @Override

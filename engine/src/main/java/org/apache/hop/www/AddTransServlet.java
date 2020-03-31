@@ -35,7 +35,7 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IPipelineEngine;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -229,7 +229,7 @@ public class AddTransServlet extends BaseHttpServlet implements HopServerPluginI
 
           trans.addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void finished( IEngine<TransMeta> trans ) throws HopException {
+            public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
               if ( logChannelFileWriter != null ) {
                 logChannelFileWriter.stopLogging();
               }

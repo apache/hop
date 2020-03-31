@@ -42,12 +42,14 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.trans.engine.EngineMetrics;
+import org.apache.hop.trans.engine.IEngineComponent;
+import org.apache.hop.trans.engine.IPipelineEngine;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
-import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
 
@@ -67,7 +69,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
   private TransMeta transMeta;
 
-  private Map<StepMeta, String> stepLogMap;
+  private Map<String, String> stepLogMap;
   private StepMeta startHopStep;
   private Point endHopLocation;
   private StepMeta endHopStep;
@@ -75,16 +77,19 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   private StreamType candidateHopType;
   private boolean startErrorHopStep;
   private StepMeta showTargetStreamsStep;
-  private Trans trans;
+  private IPipelineEngine<TransMeta> trans;
   private boolean slowStepIndicatorEnabled;
+
+  private EngineMetrics engineMetrics;
 
   public static final String[] magnificationDescriptions =
     new String[] { "  400% ", "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
 
+
   public TransPainter( GCInterface gc, TransMeta transMeta, Point area, ScrollBarInterface hori,
                        ScrollBarInterface vert, TransHopMeta candidate, Point drop_candidate, Rectangle selrect,
                        List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                       int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, Trans trans,
+                       int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, IPipelineEngine<TransMeta> trans,
                        boolean slowStepIndicatorEnabled, double zoomFactor ) {
     super(
       gc, transMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
@@ -129,6 +134,12 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   }
 
   public void buildTransformationImage() {
+    if (trans==null) {
+      engineMetrics = new EngineMetrics();
+    } else {
+      engineMetrics = trans.getEngineMetrics();
+    }
+
     Point max = transMeta.getMaximum();
     Point thumb = getThumb( area, max );
     offset = getOffset( thumb, area );
@@ -328,39 +339,39 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       int x = screen.x;
       int y = screen.y;
 
-      List<StepInterface> steps = trans.findBaseSteps( stepMeta.getName() );
-      for ( StepInterface step : steps ) {
-        if ( step.isRunning() ) {
+      List<IEngineComponent> components = engineMetrics.getComponents();
+      for ( IEngineComponent component : components ) {
+        if ( component.getName().equals( stepMeta.getName() ) ) {
+          if ( component.isRunning() ) {
+            long inputRows = engineMetrics.getComponentMetric( component, Trans.METRIC_BUFFER_IN );
+            long outputRows = engineMetrics.getComponentMetric( component, Trans.METRIC_BUFFER_OUT );
 
-          int inputRows = step.rowsetInputSize();
-          int outputRows = step.rowsetOutputSize();
+            // if the step can't keep up with its input, mark it by drawing an animation
+            boolean isSlow = inputRows * 0.85 > outputRows;
+            if ( isSlow ) {
+              gc.setLineWidth( linewidth + 1 );
+              if ( System.currentTimeMillis() % 2000 > 1000 ) {
+                gc.setForeground( EColor.BACKGROUND );
+                gc.setLineStyle( ELineStyle.SOLID );
+                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
 
-          // if the step can't keep up with its input, mark it by drawing an animation
-          boolean isSlow = inputRows * 0.85 > outputRows;
-          if ( isSlow ) {
-            gc.setLineWidth( linewidth + 1 );
-            if ( System.currentTimeMillis() % 2000 > 1000 ) {
-              gc.setForeground( EColor.BACKGROUND );
-              gc.setLineStyle( ELineStyle.SOLID );
-              gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.setForeground( EColor.DARKGRAY );
+                gc.setLineStyle( ELineStyle.DOT );
+                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+              } else {
+                gc.setForeground( EColor.DARKGRAY );
+                gc.setLineStyle( ELineStyle.SOLID );
+                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
 
-              gc.setForeground( EColor.DARKGRAY );
-              gc.setLineStyle( ELineStyle.DOT );
-              gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
-            } else {
-              gc.setForeground( EColor.DARKGRAY );
-              gc.setLineStyle( ELineStyle.SOLID );
-              gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.setForeground( EColor.BACKGROUND );
+                gc.setLineStyle( ELineStyle.DOT );
+                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+              }
 
-              gc.setForeground( EColor.BACKGROUND );
-              gc.setLineStyle( ELineStyle.DOT );
-              gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
             }
-
           }
-
+          gc.setLineStyle( ELineStyle.SOLID );
         }
-        gc.setLineStyle( ELineStyle.SOLID );
       }
     }
   }
@@ -383,7 +394,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       int x = screen.x;
       int y = screen.y;
 
-      List<StepInterface> steps = trans.findBaseSteps( stepMeta.getName() );
+      List<IEngineComponent> steps = trans.getComponentCopies( stepMeta.getName() );
 
       // draw mouse over performance indicator
       if ( trans.isRunning() ) {
@@ -466,13 +477,12 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
           gc.setBackground( EColor.LIGHTGRAY );
           rowX += titleWidth;
 
-          for ( StepInterface step : steps ) {
+          for ( IEngineComponent step : steps ) {
 
             rowX += colWidth;
             rowY = popupY + MINI_ICON_MARGIN;
 
-            StepStatus stepStatus = new StepStatus( step );
-            String[] fields = stepStatus.getPeekFields();
+            String[] fields = getPeekFields( engineMetrics, step );
 
             for ( int i = 0; i < fields.length; i++ ) {
               if ( i % 2 == 1 ) {
@@ -490,6 +500,22 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       }
 
     }
+  }
+
+  public String[] getPeekFields( EngineMetrics engineMetrics, IEngineComponent step ) {
+    String[] fields =
+      new String[] {
+        Integer.toString( step.getCopyNr() ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_READ ) ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_WRITTEN ) ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_INPUT ) ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_OUTPUT ) ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_REJECTED ) ),
+        Long.toString( engineMetrics.getComponentMetric( step, Trans.METRIC_ERROR ) ),
+        engineMetrics.getComponentStatusMap().get( step ),
+      };
+    return fields;
+
   }
 
   private void drawStepStatusIndicator( StepMeta stepMeta ) {
@@ -510,14 +536,16 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       int x = screen.x;
       int y = screen.y;
 
-      List<StepInterface> steps = trans.findBaseSteps( stepMeta.getName() );
+      if (trans!=null) {
+        List<IEngineComponent> steps = trans.getComponentCopies( stepMeta.getName() );
 
-      for ( StepInterface step : steps ) {
-        if ( step.getStatus().equals( StepExecutionStatus.STATUS_FINISHED ) ) {
-          gc.drawImage( EImage.TRUE, ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
+        for ( IEngineComponent step : steps ) {
+          String stepStatus = engineMetrics.getComponentStatusMap().get( step );
+          if ( stepStatus != null && stepStatus.equals( StepExecutionStatus.STATUS_FINISHED ) ) {
+            gc.drawImage( EImage.TRUE, ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
+          }
         }
       }
-
     }
   }
 
@@ -560,7 +588,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
     boolean stepError = false;
     if ( stepLogMap != null && !stepLogMap.isEmpty() ) {
-      String log = stepLogMap.get( stepMeta );
+      String log = stepLogMap.get( stepMeta.getName() );
       if ( !Utils.isEmpty( log ) ) {
         stepError = true;
       }
@@ -680,7 +708,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
     // If there was an error during the run, the map "stepLogMap" is not empty and not null.
     //
     if ( stepError ) {
-      String log = stepLogMap.get( stepMeta );
+      String log = stepLogMap.get( stepMeta.getName() );
 
       // Show an error lines icon in the upper right corner of the step...
       //
@@ -953,14 +981,14 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   /**
    * @return the stepLogMap
    */
-  public Map<StepMeta, String> getStepLogMap() {
+  public Map<String, String> getStepLogMap() {
     return stepLogMap;
   }
 
   /**
    * @param stepLogMap the stepLogMap to set
    */
-  public void setStepLogMap( Map<StepMeta, String> stepLogMap ) {
+  public void setStepLogMap( Map<String, String> stepLogMap ) {
     this.stepLogMap = stepLogMap;
   }
 
@@ -1022,7 +1050,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
     this.transMeta = transMeta;
   }
 
-  public Trans getTrans() {
+  public IPipelineEngine<TransMeta> getTrans() {
     return trans;
   }
 

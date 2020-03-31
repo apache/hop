@@ -23,7 +23,7 @@
 package org.apache.hop.trans;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IPipelineEngine;
 
 /**
  * Utility class to allow only certain methods of ExecutionListener to be overridden.
@@ -32,15 +32,15 @@ import org.apache.hop.trans.engine.IEngine;
  */
 public class ExecutionAdapter<T> implements ExecutionListener<T> {
 
-  @Override public void started( IEngine<T> engine ) throws HopException {
+  @Override public void started( IPipelineEngine<T> engine ) throws HopException {
 
   }
 
-  @Override public void becameActive( IEngine<T> engine ) {
+  @Override public void becameActive( IPipelineEngine<T> engine ) {
 
   }
 
-  @Override public void finished( IEngine<T> engine ) throws HopException {
+  @Override public void finished( IPipelineEngine<T> engine ) throws HopException {
 
   }
 }

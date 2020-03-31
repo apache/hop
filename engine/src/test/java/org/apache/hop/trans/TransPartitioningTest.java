@@ -117,7 +117,6 @@ public class TransPartitioningTest {
     TransMeta meta = Mockito.mock( TransMeta.class );
     Mockito.when( meta.getName() ).thenReturn( "junit meta" );
     Mockito.when( meta.getTransformationType() ).thenReturn( TransformationType.Normal );
-    Mockito.when( meta.getSizeRowset() ).thenReturn( 13 );
 
     Mockito.when( meta.getTransHopSteps( Mockito.anyBoolean() ) ).thenAnswer( new Answer<List<StepMeta>>() {
       @Override

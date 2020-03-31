@@ -37,7 +37,7 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IPipelineEngine;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -437,15 +437,15 @@ public class TransTest {
 
   private final ExecutionListener<TransMeta> listener = new ExecutionListener<TransMeta>() {
     @Override
-    public void started( IEngine<TransMeta> trans ) throws HopException {
+    public void started( IPipelineEngine<TransMeta> trans ) throws HopException {
     }
 
     @Override
-    public void becameActive( IEngine<TransMeta> trans ) {
+    public void becameActive( IPipelineEngine<TransMeta> trans ) {
     }
 
     @Override
-    public void finished( IEngine<TransMeta> trans ) throws HopException {
+    public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
     }
   };
 

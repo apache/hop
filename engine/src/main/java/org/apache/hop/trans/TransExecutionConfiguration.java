@@ -35,7 +35,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.trans.debug.TransDebugMeta;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -64,8 +63,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   private LogLevel logLevel;
   private boolean clearingLog;
 
-  private TransDebugMeta transDebugMeta;
-
   private Result previousResult;
 
   private boolean gatheringMetrics;
@@ -86,8 +83,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     params = new HashMap<>();
     variables = new HashMap<>();
-
-    transDebugMeta = null;
 
     logLevel = LogLevel.BASIC;
 
@@ -417,21 +412,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
         throw new HopException( "Unable to hydrate previous result", e );
       }
     }
-  }
-
-
-  /**
-   * @return the transDebugMeta
-   */
-  public TransDebugMeta getTransDebugMeta() {
-    return transDebugMeta;
-  }
-
-  /**
-   * @param transDebugMeta the transDebugMeta to set
-   */
-  public void setTransDebugMeta( TransDebugMeta transDebugMeta ) {
-    this.transDebugMeta = transDebugMeta;
   }
 
   /**

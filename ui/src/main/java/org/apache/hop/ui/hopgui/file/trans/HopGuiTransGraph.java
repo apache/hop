@@ -36,8 +36,6 @@ import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.dnd.DragAndDropContainer;
 import org.apache.hop.core.dnd.XMLTransfer;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -57,11 +55,9 @@ import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LogParentProvidedInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -74,8 +70,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
 import org.apache.hop.lineage.TransDataLineage;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.Trans;
@@ -83,17 +80,17 @@ import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransPainter;
+import org.apache.hop.trans.config.PipelineRunConfiguration;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
-import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IEngineComponent;
+import org.apache.hop.trans.engine.IPipelineEngine;
+import org.apache.hop.trans.engine.PipelineEngineFactory;
 import org.apache.hop.trans.step.RowDistributionInterface;
 import org.apache.hop.trans.step.RowDistributionPluginType;
-import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepIOMetaInterface;
-import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
@@ -102,7 +99,6 @@ import org.apache.hop.trans.steps.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.DialogClosedListener;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -122,7 +118,6 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
-import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransContext;
 import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransNoteContext;
@@ -267,7 +262,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private static final int TOOLTIP_HIDE_DELAY_LONG = 10000;
 
   private TransMeta transMeta;
-  public Trans trans;
+  public IPipelineEngine<TransMeta> trans;
 
   private final HopDataOrchestrationPerspective perspective;
 
@@ -362,7 +357,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   public HopGuiTransLogDelegate transLogDelegate;
   public HopGuiTransGridDelegate transGridDelegate;
-  public HopGuiTransPerfDelegate transPerfDelegate;
   public HopGuiTransMetricsDelegate transMetricsDelegate;
   public HopGuiTransPreviewDelegate transPreviewDelegate;
   public HopGuiTransRunDelegate transRunDelegate;
@@ -370,6 +364,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public HopGuiTransClipboardDelegate transClipboardDelegate;
   public HopGuiTransHopDelegate transHopDelegate;
   public HopGuiTransUndoDelegate undoTransDelegate;
+  public HopGuiTransPerfDelegate transPerfDelegate;
 
   public HopGuiSlaveDelegate slaveDelegate;
   public HopGuiNotePadDelegate notePadDelegate;
@@ -380,7 +375,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   /**
    * A map that keeps track of which log line was written by which step
    */
-  private Map<StepMeta, String> stepLogMap;
+  private Map<String, String> stepLogMap;
 
   private StepMeta startHopStep;
   private Point endHopLocation;
@@ -458,6 +453,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transHopDelegate = new HopGuiTransHopDelegate( hopUi, this );
     undoTransDelegate = new HopGuiTransUndoDelegate( hopUi, this );
     transRunDelegate = new HopGuiTransRunDelegate( hopUi, this );
+    transPerfDelegate = new HopGuiTransPerfDelegate( hopUi, this );
 
     slaveDelegate = new HopGuiSlaveDelegate( hopUi, this );
     notePadDelegate = new HopGuiNotePadDelegate( hopUi, this );
@@ -3613,8 +3609,19 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           // memory
           // To be able to completely test this, we need to run it as we would normally do in pan
           //
-          trans = new Trans( transMeta );
+          String pipelineRunConfigurationName = executionConfiguration.getRunConfiguration();
+          if ( StringUtils.isEmpty( pipelineRunConfigurationName ) ) {
+            throw new HopException( "Please specify a run configuration to use when executing a pipeline" );
+          }
+          MetaStoreFactory<PipelineRunConfiguration> configFactory = PipelineRunConfiguration.createFactory( hopUi.getMetaStore() );
+          PipelineRunConfiguration configuration;
+          try {
+            configuration = configFactory.loadElement( pipelineRunConfigurationName );
+          } catch ( MetaStoreException e ) {
+            throw new HopException( "Unable to load pipeline run configuration named '" + pipelineRunConfigurationName + "'", e );
+          }
 
+          trans = PipelineEngineFactory.createPipelineEngine( configuration, transMeta );
           trans.setMetaStore( hopUi.getMetaStore() );
 
           String spoonLogObjectId = UUID.randomUUID().toString();
@@ -3624,7 +3631,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           trans.setParent( spoonLoggingObject );
 
           trans.setLogLevel( executionConfiguration.getLogLevel() );
-          trans.setMonitored( true );
           log.logBasic( BaseMessages.getString( PKG, "TransLog.Log.TransformationOpened" ) );
         } catch ( HopException e ) {
           trans = null;
@@ -3632,10 +3638,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Message" ), e );
         }
         if ( trans != null ) {
-          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" ) + trans.getTransMeta().getName() + "]..." );
-
-          trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
-          trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
+          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" ) + trans.getSubject().getName() + "]..." );
 
           // Launch the step preparation in a different thread.
           // That way HopGui doesn't block anymore and that way we can follow the progress of the initialization
@@ -3679,9 +3682,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     transLogDelegate.addTransLog();
     transGridDelegate.addTransGrid();
-    transPerfDelegate.addTransPerf();
     transMetricsDelegate.addTransMetrics();
     transPreviewDelegate.addTransPreview();
+    transPerfDelegate.addTransPerf();
 
     /*
     List<HopUiExtenderPluginInterface> relevantExtenders = HopUiExtenderPluginType.getInstance().getRelevantExtenders( HopGuiTransGraph.class, LOAD_TAB );
@@ -3737,20 +3740,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         // Create a new transformation to execution
         //
         trans = new Trans( transMeta );
-        trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
         trans.setPreview( true );
-        trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
         trans.setMetaStore( hopUi.getMetaStore() );
         trans.prepareExecution();
-
-        /* TODO: figure out what this does.  WTF!?
-        List<HopUiExtenderPluginInterface> relevantExtenders =
-          HopUiExtenderPluginType.getInstance().getRelevantExtenders( TransDebugMetaWrapper.class, PREVIEW_TRANS );
-        TransDebugMetaWrapper transDebugMetaWrapper = new TransDebugMetaWrapper( trans, transDebugMeta );
-        for ( HopUiExtenderPluginInterface relevantExtender : relevantExtenders ) {
-          relevantExtender.uiEvent( transDebugMetaWrapper, PREVIEW_TRANS );
-        }
-         */
 
         // Add the row listeners to the allocated threads
         //
@@ -3761,11 +3753,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         transDebugMeta.addBreakPointListers( ( transDebugMeta1, stepDebugMeta, rowBufferMeta, rowBuffer )
           -> showPreview( transDebugMeta1, stepDebugMeta, rowBufferMeta, rowBuffer ) );
 
-        // Do we capture data?
+        // Capture data?
         //
-        if ( transPreviewDelegate.isActive() ) {
-          transPreviewDelegate.capturePreviewData( trans, transMeta.getSteps() );
-        }
+        transPreviewDelegate.capturePreviewData( trans, transMeta.getSteps() );
 
         // Start the threads for the steps...
         //
@@ -3883,22 +3873,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void safeStop() {
-    if ( running && !halting ) {
-      halting = true;
-      safeStopping = true;
-      trans.safeStop();
-      log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.TransformationSafeStopped" ) );
-
-      initialized = false;
-      halted = false;
-
-      updateGui();
-
-      transMeta.setInternalHopVariables(); // set the original vars back as they may be changed by a mapping
-    }
-  }
-
   public synchronized void pauseResume() {
     if ( running ) {
       // Get the pause toolbar item
@@ -3922,18 +3896,16 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         try {
           trans.prepareExecution();
 
-          // Do we capture data?
+          // Capture data?
           //
-          if ( transPreviewDelegate.isActive() ) {
-            transPreviewDelegate.capturePreviewData( trans, transMeta.getSteps() );
-          }
+          transPreviewDelegate.capturePreviewData( trans, transMeta.getSteps() );
 
           initialized = true;
         } catch ( HopException e ) {
-          log.logError( trans.getName() + ": preparing transformation execution failed", e );
+          log.logError( trans.getSubject().getName() + ": preparing pipeline execution failed", e );
           checkErrorVisuals();
         }
-        halted = trans.hasHaltedSteps();
+        halted = trans.hasHaltedComponents();
         if ( trans.isReadyToStart() ) {
           checkStartThreads(); // After init, launch the threads.
         } else {
@@ -3959,10 +3931,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       // Add a listener to the transformation.
       // If the transformation is done, we want to do the end processing, etc.
       //
-      trans.addTransListener( new ExecutionAdapter<TransMeta>() {
-
-        @Override
-        public void finished( IEngine<TransMeta> trans ) {
+      trans.addFinishedListener( ( trans ) -> {
           checkTransEnded();
           checkErrorVisuals();
           stopRedrawTimer();
@@ -3970,7 +3939,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           transMetricsDelegate.resetLastRefreshTime();
           transMetricsDelegate.updateGraph();
         }
-      } );
+      );
 
       trans.startThreads();
       startRedrawTimer();
@@ -4074,23 +4043,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
         @Override
         public void run() {
-
-          for ( StepMetaDataCombi combi : trans.getSteps() ) {
-            if ( combi.step.getErrors() > 0 ) {
-              String channelId = combi.step.getLogChannel().getLogChannelId();
-              List<HopLoggingEvent> eventList =
-                HopLogStore.getLogBufferFromTo( channelId, false, 0, HopLogStore.getLastBufferLineNr() );
-              StringBuilder logText = new StringBuilder();
-              for ( HopLoggingEvent event : eventList ) {
-                Object message = event.getMessage();
-                if ( message instanceof LogMessage ) {
-                  LogMessage logMessage = (LogMessage) message;
-                  if ( logMessage.isError() ) {
-                    logText.append( logMessage.getMessage() ).append( Const.CR );
-                  }
-                }
-              }
-              stepLogMap.put( combi.stepMeta, logText.toString() );
+          for ( IEngineComponent component : trans.getComponents() ) {
+            if ( component.getErrors() > 0 ) {
+              String logText = component.getLogText();
+              stepLogMap.put( component.getName(), logText );
             }
           }
         }
@@ -4128,60 +4084,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       rowBuffers.add( stepDebugMeta.getRowBuffer() );
     }
 
-    hopDisplay().asyncExec( new Runnable() {
-      @Override
-      public void run() {
-        EnterPreviewRowsDialog dialog = new EnterPreviewRowsDialog( hopShell(), SWT.NONE, stepnames, rowMetas, rowBuffers );
-        dialog.open();
-      }
+    hopDisplay().asyncExec( () -> {
+      EnterPreviewRowsDialog dialog = new EnterPreviewRowsDialog( hopShell(), SWT.NONE, stepnames, rowMetas, rowBuffers );
+      dialog.open();
     } );
-  }
-
-  /**
-   * Finds the last active transformation in the running job to the opened transMeta
-   *
-   * @param transGraph
-   * @param stepMeta
-   */
-  private void attachActiveTrans( HopGuiTransGraph transGraph, StepMeta stepMeta ) {
-    if ( trans != null && transGraph != null ) {
-      Trans subTransformation = trans.getActiveSubTransformation( stepMeta.getName() );
-      transGraph.setTrans( subTransformation );
-      if ( !transGraph.isExecutionResultsPaneVisible() ) {
-        transGraph.showExecutionResults();
-      }
-      transGraph.updateGui();
-    }
-  }
-
-  /**
-   * Finds the last active transformation in the running job to the opened transMeta
-   *
-   * @param transGraph
-   * @param stepMeta
-   */
-  private Trans getActiveSubtransformation( HopGuiTransGraph transGraph, StepMeta stepMeta ) {
-    if ( trans != null && transGraph != null ) {
-      return trans.getActiveSubTransformation( stepMeta.getName() );
-    }
-    return null;
-  }
-
-  /**
-   * Finds the last active job in the running transformation to the opened jobMeta
-   *
-   * @param jobGraph
-   * @param stepMeta
-   */
-  private void attachActiveJob( HopGuiJobGraph jobGraph, StepMeta stepMeta ) {
-    if ( trans != null && jobGraph != null ) {
-      Job subJob = trans.getActiveSubjobs().get( stepMeta.getName() );
-      jobGraph.setJob( subJob );
-      if ( !jobGraph.isExecutionResultsPaneVisible() ) {
-        jobGraph.showExecutionResults();
-      }
-      jobGraph.updateGui();
-    }
   }
 
   /**
@@ -4222,14 +4128,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   /**
    * @return the stepLogMap
    */
-  public Map<StepMeta, String> getStepLogMap() {
+  public Map<String, String> getStepLogMap() {
     return stepLogMap;
   }
 
   /**
    * @param stepLogMap the stepLogMap to set
    */
-  public void setStepLogMap( Map<StepMeta, String> stepLogMap ) {
+  public void setStepLogMap( Map<String, String> stepLogMap ) {
     this.stepLogMap = stepLogMap;
   }
 
@@ -4255,7 +4161,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         trans.addTransListener( new ExecutionAdapter<TransMeta>() {
 
           @Override
-          public void finished( IEngine<TransMeta> trans ) {
+          public void finished( IPipelineEngine<TransMeta> trans ) {
             checkTransEnded();
             checkErrorVisuals();
           }
@@ -4264,89 +4170,26 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void sniffInput() {
-    sniff( true, false, false );
-  }
+  @GuiContextAction(
+    id = "transgraph-step-12000-sniff-output",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Info,
+    name = "Sniff output",
+    tooltip = "Take a look at 50 rows coming out of the selected step",
+    image = "ui/images/preview.svg"
+  )
+  public void sniff( HopGuiTransStepContext context ) {
+    StepMeta stepMeta = context.getStepMeta();
 
-  public void sniffOutput() {
-    sniff( false, true, false );
-  }
-
-  public void sniffError() {
-    sniff( false, false, true );
-  }
-
-  public void sniff( final boolean input, final boolean output, final boolean error ) {
-    StepMeta stepMeta = getCurrentStep();
-    if ( stepMeta == null || trans == null ) {
-      return;
-    }
-    final StepInterface runThread = trans.findRunThread( stepMeta.getName() );
-    if ( runThread != null ) {
-
-      List<Object[]> rows = new ArrayList<>();
-
-      final PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), trans, SWT.NONE, stepMeta.getName(), null, rows );
-      dialog.setDynamic( true );
-
-      // Add a row listener that sends the rows over to the dialog...
-      //
-      final RowListener rowListener = new RowListener() {
-
-        @Override
-        public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          if ( input ) {
-            try {
-              dialog.addDataRow( rowMeta, rowMeta.cloneRow( row ) );
-            } catch ( HopValueException e ) {
-              throw new HopStepException( e );
-            }
-          }
-        }
-
-        @Override
-        public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          if ( output ) {
-            try {
-              dialog.addDataRow( rowMeta, rowMeta.cloneRow( row ) );
-            } catch ( HopValueException e ) {
-              throw new HopStepException( e );
-            }
-          }
-        }
-
-        @Override
-        public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          if ( error ) {
-            try {
-              dialog.addDataRow( rowMeta, rowMeta.cloneRow( row ) );
-            } catch ( HopValueException e ) {
-              throw new HopStepException( e );
-            }
-          }
-        }
-      };
-
-      // When the dialog is closed, make sure to remove the listener!
-      //
-      dialog.addDialogClosedListener( new DialogClosedListener() {
-        @Override
-        public void dialogClosed() {
-          runThread.removeRowListener( rowListener );
-        }
-      } );
-
-      // Open the dialog in a separate thread to make sure it doesn't block
-      //
-      getDisplay().asyncExec( new Runnable() {
-
-        @Override
-        public void run() {
+    try {
+      trans.retrieveComponentOutput( stepMeta.getName(), 0, 50, ( ( pipelineEngine, rowBuffer ) -> {
+        hopDisplay().asyncExec( () -> {
+          PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), hopUi.getVariableSpace(), SWT.NONE, stepMeta.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
           dialog.open();
-        }
-      } );
-
-      runThread.addRowListener( rowListener );
+        } );
+      } ) );
+    } catch ( HopException e ) {
+      new ErrorDialog( hopShell(), "Error", "Error sniffing rows", e );
     }
   }
 
@@ -4468,7 +4311,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return transMeta;
   }
 
-  public Trans getTrans() {
+  public IPipelineEngine<TransMeta> getTrans() {
     return trans;
   }
 

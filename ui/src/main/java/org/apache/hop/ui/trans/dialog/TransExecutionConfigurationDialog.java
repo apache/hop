@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.trans.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -30,11 +31,14 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -112,14 +116,18 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
   }
 
   public boolean open() {
-    mainLayout( PKG, "TransExecutionConfigurationDialog", GUIResource.getInstance().getImageTransGraph() );
+    String shellTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.Shell.Title" );
+    mainLayout( shellTitle, GUIResource.getInstance().getImageTransGraph() );
 
+    String alwaysShowOptionLabel = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.AlwaysOption.Value" );
+    String alwaysShowOptionTooltip = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.alwaysShowOption" );
     String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.TransExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
-    buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
+    buttonsSectionLayout( alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader );
 
-    runConfigurationSectionLayout( PKG, "TransExecutionConfigurationDialog" );
+    addRunConfigurationSectionLayout();
+
     optionsSectionLayout( PKG, "TransExecutionConfigurationDialog" );
     parametersSectionLayout( PKG, "TransExecutionConfigurationDialog" );
 
@@ -127,6 +135,20 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     getData();
     openDialog();
     return retval;
+  }
+
+  private void addRunConfigurationSectionLayout() {
+    String runConfigLabel = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.PipelineRunConfiguration.Label" );
+    String runConfigTooltip = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.PipelineRunConfiguration.Tooltip" );
+
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariableSpace(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip);
+    props.setLook( wRunConfiguration );
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.right = new FormAttachment( 100, -15 );
+    fdRunConfiguration.top = new FormAttachment( 0, 15 );
+    fdRunConfiguration.left = new FormAttachment( 15, 0 );
+    wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
   private void getVariablesData() {
@@ -155,22 +177,25 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     wClearLog.setSelection( configuration.isClearingLog() );
     wGatherMetrics.setSelection( configuration.isGatheringMetrics() );
 
-    List<String> runConfigurations = new ArrayList<>();
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id,
-        new Object[] { runConfigurations, TransMeta.XML_TAG } );
-    } catch ( HopException e ) {
-      // Ignore errors
+      wRunConfiguration.fillItems();
+    } catch(Exception e) {
+      hopGui.getLog().logError( "Unable to get list of pipeline run configurations from the metastore", e );
     }
 
-    wRunConfiguration.setItems( runConfigurations.toArray( new String[ 0 ] ) );
-    if ( !runConfigurations.contains( getConfiguration().getRunConfiguration() ) ) {
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
+    } catch ( HopException e ) {
+      hopGui.getLog().logError( "Error calling extension point with ID '"+HopExtensionPoint.HopUiRunConfiguration.id+"'", e );
+    }
+
+    if (Const.indexOfString( configuration.getRunConfiguration(), wRunConfiguration.getItems())<0) {
       getConfiguration().setRunConfiguration( null );
     }
-    if ( Utils.isEmpty( getConfiguration().getRunConfiguration() ) ) {
-      wRunConfiguration.select( 0 );
-    } else {
+    if ( StringUtils.isNotEmpty( getConfiguration().getRunConfiguration() ) ) {
       wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
+    } else if (wRunConfiguration.getItemCount()==1) {
+      wRunConfiguration.select( 0 );
     }
 
     wLogLevel.select( configuration.getLogLevel().getLevel() );

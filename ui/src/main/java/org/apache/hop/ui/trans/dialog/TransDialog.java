@@ -160,7 +160,6 @@ public class TransDialog extends Dialog {
 
   private TableView wParamFields;
 
-  private Text wSizeRowset;
   private Button wUniqueConnections;
 
   private Button wOK, wGet, wSQL, wCancel;
@@ -178,10 +177,6 @@ public class TransDialog extends Dialog {
   private int middle;
 
   private int margin;
-
-  private Button wShowFeedback;
-
-  private Text wFeedbackSize;
 
   private Button wManageThreads;
 
@@ -351,9 +346,7 @@ public class TransDialog extends Dialog {
     wMaxdatefield.addSelectionListener( lsDef );
     wMaxdateoffset.addSelectionListener( lsDef );
     wMaxdatediff.addSelectionListener( lsDef );
-    wSizeRowset.addSelectionListener( lsDef );
     wUniqueConnections.addSelectionListener( lsDef );
-    wFeedbackSize.addSelectionListener( lsDef );
     wStepPerfInterval.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
@@ -1731,62 +1724,6 @@ public class TransDialog extends Dialog {
     perfLayout.marginHeight = Const.FORM_MARGIN;
     wMiscComp.setLayout( perfLayout );
 
-    // Rows in Rowset:
-    Label wlSizeRowset = new Label( wMiscComp, SWT.RIGHT );
-    wlSizeRowset.setText( BaseMessages.getString( PKG, "TransDialog.SizeRowset.Label" ) );
-    wlSizeRowset.setToolTipText( BaseMessages.getString( PKG, "TransDialog.SizeRowset.Tooltip" ) );
-    props.setLook( wlSizeRowset );
-    FormData fdlSizeRowset = new FormData();
-    fdlSizeRowset.left = new FormAttachment( 0, 0 );
-    fdlSizeRowset.right = new FormAttachment( middle, -margin );
-    fdlSizeRowset.top = new FormAttachment( 0, margin );
-    wlSizeRowset.setLayoutData( fdlSizeRowset );
-    wSizeRowset = new Text( wMiscComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wSizeRowset.setToolTipText( BaseMessages.getString( PKG, "TransDialog.SizeRowset.Tooltip" ) );
-    props.setLook( wSizeRowset );
-    wSizeRowset.addModifyListener( lsMod );
-    FormData fdSizeRowset = new FormData();
-    fdSizeRowset.left = new FormAttachment( middle, 0 );
-    fdSizeRowset.top = new FormAttachment( 0, margin );
-    fdSizeRowset.right = new FormAttachment( 100, 0 );
-    wSizeRowset.setLayoutData( fdSizeRowset );
-
-    // Show feedback in transformations steps?
-    Label wlShowFeedback = new Label( wMiscComp, SWT.RIGHT );
-    wlShowFeedback.setText( BaseMessages.getString( PKG, "TransDialog.ShowFeedbackRow.Label" ) );
-    props.setLook( wlShowFeedback );
-    FormData fdlShowFeedback = new FormData();
-    fdlShowFeedback.left = new FormAttachment( 0, 0 );
-    fdlShowFeedback.top = new FormAttachment( wSizeRowset, margin );
-    fdlShowFeedback.right = new FormAttachment( middle, -margin );
-    wlShowFeedback.setLayoutData( fdlShowFeedback );
-    wShowFeedback = new Button( wMiscComp, SWT.CHECK );
-    props.setLook( wShowFeedback );
-    wShowFeedback.addSelectionListener( lsModSel );
-    FormData fdShowFeedback = new FormData();
-    fdShowFeedback.left = new FormAttachment( middle, 0 );
-    fdShowFeedback.top = new FormAttachment( wSizeRowset, margin );
-    fdShowFeedback.right = new FormAttachment( 100, 0 );
-    wShowFeedback.setLayoutData( fdShowFeedback );
-
-    // Feedback size
-    Label wlFeedbackSize = new Label( wMiscComp, SWT.RIGHT );
-    wlFeedbackSize.setText( BaseMessages.getString( PKG, "TransDialog.FeedbackSize.Label" ) );
-    props.setLook( wlFeedbackSize );
-    FormData fdlFeedbackSize = new FormData();
-    fdlFeedbackSize.left = new FormAttachment( 0, 0 );
-    fdlFeedbackSize.right = new FormAttachment( middle, -margin );
-    fdlFeedbackSize.top = new FormAttachment( wShowFeedback, margin );
-    wlFeedbackSize.setLayoutData( fdlFeedbackSize );
-    wFeedbackSize = new Text( wMiscComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFeedbackSize );
-    wFeedbackSize.addModifyListener( lsMod );
-    FormData fdFeedbackSize = new FormData();
-    fdFeedbackSize.left = new FormAttachment( middle, 0 );
-    fdFeedbackSize.right = new FormAttachment( 100, -margin );
-    fdFeedbackSize.top = new FormAttachment( wShowFeedback, margin );
-    wFeedbackSize.setLayoutData( fdFeedbackSize );
-
     // Unique connections
     Label wlUniqueConnections = new Label( wMiscComp, SWT.RIGHT );
     wlUniqueConnections.setText( BaseMessages.getString( PKG, "TransDialog.UniqueConnections.Label" ) );
@@ -1794,14 +1731,14 @@ public class TransDialog extends Dialog {
     FormData fdlUniqueConnections = new FormData();
     fdlUniqueConnections.left = new FormAttachment( 0, 0 );
     fdlUniqueConnections.right = new FormAttachment( middle, -margin );
-    fdlUniqueConnections.top = new FormAttachment( wFeedbackSize, margin );
+    fdlUniqueConnections.top = new FormAttachment( 0, 0 );
     wlUniqueConnections.setLayoutData( fdlUniqueConnections );
     wUniqueConnections = new Button( wMiscComp, SWT.CHECK );
     props.setLook( wUniqueConnections );
     wUniqueConnections.addSelectionListener( lsModSel );
     FormData fdUniqueConnections = new FormData();
     fdUniqueConnections.left = new FormAttachment( middle, 0 );
-    fdUniqueConnections.top = new FormAttachment( wFeedbackSize, margin );
+    fdUniqueConnections.top = new FormAttachment( 0, 0 );
     fdUniqueConnections.right = new FormAttachment( 100, 0 );
     wUniqueConnections.setLayoutData( fdUniqueConnections );
 
@@ -2038,10 +1975,7 @@ public class TransDialog extends Dialog {
       item.setText( 3, Const.NVL( description, "" ) );
     }
 
-    wSizeRowset.setText( Integer.toString( transMeta.getSizeRowset() ) );
     wUniqueConnections.setSelection( transMeta.isUsingUniqueConnections() );
-    wShowFeedback.setSelection( transMeta.isFeedbackShown() );
-    wFeedbackSize.setText( Integer.toString( transMeta.getFeedbackSize() ) );
     wManageThreads.setSelection( transMeta.isUsingThreadPriorityManagment() );
     wTransformationType.setText( transMeta.getTransformationType().getDescription() );
 
@@ -2153,11 +2087,8 @@ public class TransDialog extends Dialog {
     }
     transMeta.activateParameters();
 
-    transMeta.setSizeRowset( Const.toInt( wSizeRowset.getText(), Const.ROWS_IN_ROWSET ) );
     transMeta.setUsingUniqueConnections( wUniqueConnections.getSelection() );
 
-    transMeta.setFeedbackShown( wShowFeedback.getSelection() );
-    transMeta.setFeedbackSize( Const.toInt( wFeedbackSize.getText(), Const.ROWS_UPDATE ) );
     transMeta.setUsingThreadPriorityManagment( wManageThreads.getSelection() );
     transMeta.setTransformationType( TransformationType.values()[ Const.indexOfString( wTransformationType
       .getText(), TransformationType.getTransformationTypesDescriptions() ) ] );
