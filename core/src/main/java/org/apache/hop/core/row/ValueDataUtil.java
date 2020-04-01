@@ -375,7 +375,7 @@ public class ValueDataUtil {
    * @param metaA        The ValueMetaInterface
    * @param dataA        Filename
    * @param type         Algorithm to be used when computing the checksum (MD5 or SHA-1)
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's checksum
    * @throws HopFileNotFoundException
    */
@@ -436,7 +436,7 @@ public class ValueDataUtil {
   /**
    * @param metaA        The ValueMetaInterface
    * @param dataA        Filename
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's CRC32 checksum
    * @throws HopFileNotFoundException
    */
@@ -496,7 +496,7 @@ public class ValueDataUtil {
   /**
    * @param metaA        The ValueMetaInterface
    * @param dataA        Filename
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's Adler32 checksum
    * @throws HopFileNotFoundException
    */
@@ -655,7 +655,7 @@ public class ValueDataUtil {
   /**
    * @param metaA        The ValueMetaInterface
    * @param dataA        Filename
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's content in binary
    * @throws HopValueException
    * @throws HopFileNotFoundException
@@ -1600,7 +1600,7 @@ public class ValueDataUtil {
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of odd length a leading zero will be used.
    * <p>
-   * Note that only the low byte of a character will be processed, this is for binary transformations.
+   * Note that only the low byte of a character will be processed, this is for binary pipelines.
    *
    * @return Value itself
    * @throws HopValueException
@@ -1654,7 +1654,7 @@ public class ValueDataUtil {
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "0061".
    * <p>
-   * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
+   * Note that pipelines happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
    * @return
@@ -1687,7 +1687,7 @@ public class ValueDataUtil {
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "0061".
    * <p>
-   * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
+   * Note that pipelines happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
    * @return A string with Hex code
@@ -1719,7 +1719,7 @@ public class ValueDataUtil {
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of a wrong length leading zeroes will be used.
    * <p>
-   * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
+   * Note that pipelines happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
    * @return A hex-to-char decoded String
@@ -1913,7 +1913,7 @@ public class ValueDataUtil {
    *
    * @param metaA        The ValueMetaInterface
    * @param dataA        The value (filename)
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return true if the file is well formed.
    * @throws HopFileNotFoundException
    */
@@ -1985,7 +1985,7 @@ public class ValueDataUtil {
    *
    * @param metaA        The ValueMetaInterface
    * @param dataA        The value (filename)
-   * @param failIfNoFile Indicates if the transformation should fail if no file is found
+   * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return file encoding.
    * @throws HopFileNotFoundException
    * @throws HopValueException

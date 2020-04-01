@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.BaseStepMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -42,7 +42,7 @@ import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 public class TopicSelection extends Composite {
 
   private final PropsUI props;
-  private final TransMeta transMeta;
+  private final PipelineMeta pipelineMeta;
   private final BaseStepMeta stepMeta;
   private final ModifyListener lsMod;
   private final boolean topicInField;
@@ -62,7 +62,7 @@ public class TopicSelection extends Composite {
   private TopicSelection( final Builder builder ) {
     super( builder.composite, builder.style );
     this.props = builder.props;
-    this.transMeta = builder.transMeta;
+    this.pipelineMeta = builder.pipelineMeta;
     this.stepMeta = builder.stepMeta;
     this.lsMod = builder.lsMod;
     this.topicInField = builder.topicInField;
@@ -151,7 +151,7 @@ public class TopicSelection extends Composite {
     formData.left = new FormAttachment( separator, 15 );
     formData.right = new FormAttachment( 100, 0 );
 
-    wTopicText = new TextVar( transMeta, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTopicText = new TextVar( pipelineMeta, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTopicField = createFieldDropDown( wTopicGroup, props, stepMeta, formData );
     wTopicText.setLayoutData( formData );
     wTopicField.setLayoutData( formData );
@@ -222,7 +222,7 @@ public class TopicSelection extends Composite {
     private Composite composite;
     private int style;
     private PropsUI props;
-    private TransMeta transMeta;
+    private PipelineMeta pipelineMeta;
     private BaseStepMeta stepMeta;
     private ModifyListener lsMod;
     private boolean topicInField;
@@ -247,8 +247,8 @@ public class TopicSelection extends Composite {
       return this;
     }
 
-    public Builder setTransMeta( TransMeta transMeta ) {
-      this.transMeta = transMeta;
+    public Builder setPipelineMeta( PipelineMeta pipelineMeta ) {
+      this.pipelineMeta = pipelineMeta;
       return this;
     }
 

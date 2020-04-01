@@ -31,7 +31,7 @@ import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

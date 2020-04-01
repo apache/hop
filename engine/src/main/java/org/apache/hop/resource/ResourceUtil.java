@@ -29,7 +29,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -39,10 +39,10 @@ import java.util.zip.ZipOutputStream;
 
 public class ResourceUtil {
 
-  private static Class<?> PKG = ResourceUtil.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = ResourceUtil.class; // for i18n purposes, needed by Translator!!
 
   /**
-   * Serializes the referenced resource export interface (Job, Transformation, Mapping, Step, Job Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Step, Job Entry, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in
@@ -60,7 +60,7 @@ public class ResourceUtil {
   }
 
   /**
-   * Serializes the referenced resource export interface (Job, Transformation, Mapping, Step, Job Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Step, Job Entry, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in
@@ -142,13 +142,13 @@ public class ResourceUtil {
 
     String commandString = "";
     if ( Const.isWindows() ) {
-      if ( resourceExportInterface instanceof TransMeta ) {
+      if ( resourceExportInterface instanceof PipelineMeta ) {
         commandString += "Pan.bat /file:\"";
       } else {
         commandString += "Kitchen.bat /file:\"";
       }
     } else {
-      if ( resourceExportInterface instanceof TransMeta ) {
+      if ( resourceExportInterface instanceof PipelineMeta ) {
         commandString += "sh pan.sh -file='";
       } else {
         commandString += "sh kitchen.sh -file='";

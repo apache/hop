@@ -25,7 +25,6 @@
         </property>
       </activation>
       <modules>
-        <module>dummy</module>
         <module>databases</module>
         <module>steps</module>
         <module>jobentries</module>
@@ -41,7 +40,6 @@
         </property>
       </activation>
       <modules>
-        <module>dummy</module>
       </modules>
     </profile>
 

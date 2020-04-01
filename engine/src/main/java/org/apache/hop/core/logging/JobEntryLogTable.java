@@ -39,7 +39,7 @@ import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import java.util.List;
  */
 public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
-  private static Class<?> PKG = JobEntryLogTable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryLogTable.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "jobentry-log-table";
 
@@ -142,7 +142,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LogDate" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.JOBNAME.id, true, false, "TRANSNAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobName" ),
+    table.fields.add( new LogTableField( ID.JOBNAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobName" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.JOBENTRYNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobEntryName" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobEntryName" ), ValueMetaInterface.TYPE_STRING, 255 ) );

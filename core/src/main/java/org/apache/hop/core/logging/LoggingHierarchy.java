@@ -23,7 +23,7 @@
 package org.apache.hop.core.logging;
 
 /**
- * The logging hierarchy of a transformation or job
+ * The logging hierarchy of a pipeline or job
  *
  * @author matt
  */

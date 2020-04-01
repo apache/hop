@@ -8,7 +8,6 @@ import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
-import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
 
 import java.util.ArrayList;
 import java.util.List;

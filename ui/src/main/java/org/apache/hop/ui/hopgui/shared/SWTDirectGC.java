@@ -26,7 +26,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;

@@ -70,7 +70,7 @@ import java.util.TimerTask;
 public class WebServer {
 
   private static final int DEFAULT_DETECTION_TIMER = 20000;
-  private static Class<?> PKG = WebServer.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = WebServer.class; // for i18n purposes, needed by Translator!!
 
   private LogChannelInterface log;
 
@@ -78,7 +78,7 @@ public class WebServer {
 
   private Server server;
 
-  private TransformationMap transformationMap;
+  private PipelineMap pipelineMap;
   private JobMap jobMap;
   private List<SlaveServerDetection> detections;
   private SocketRepository socketRepository;
@@ -94,17 +94,17 @@ public class WebServer {
 
   private SslConfiguration sslConfig;
 
-  public WebServer( LogChannelInterface log, TransformationMap transformationMap, JobMap jobMap,
+  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile ) throws Exception {
-    this( log, transformationMap, jobMap, socketRepository, detections, hostname, port, join, passwordFile, null );
+    this( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, join, passwordFile, null );
   }
 
-  public WebServer( LogChannelInterface log, TransformationMap transformationMap, JobMap jobMap,
+  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile, SslConfiguration sslConfig ) throws Exception {
     this.log = log;
-    this.transformationMap = transformationMap;
+    this.pipelineMap = pipelineMap;
     this.jobMap = jobMap;
     this.socketRepository = socketRepository;
     this.detections = detections;
@@ -123,7 +123,7 @@ public class WebServer {
     Runtime.getRuntime().addShutdownHook( webServerShutdownHook );
 
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteStartup.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopServerStartup.id, this );
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer continues to run properly
       //
@@ -135,16 +135,16 @@ public class WebServer {
     }
   }
 
-  public WebServer( LogChannelInterface log, TransformationMap transformationMap, JobMap jobMap,
+  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> slaveServers, String hostname, int port )
     throws Exception {
-    this( log, transformationMap, jobMap, socketRepository, slaveServers, hostname, port, true );
+    this( log, pipelineMap, jobMap, socketRepository, slaveServers, hostname, port, true );
   }
 
-  public WebServer( LogChannelInterface log, TransformationMap transformationMap, JobMap jobMap,
+  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port,
                     boolean join ) throws Exception {
-    this( log, transformationMap, jobMap, socketRepository, detections, hostname, port, join, null, null );
+    this( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, join, null, null );
   }
 
   public Server getServer() {
@@ -169,7 +169,7 @@ public class WebServer {
     } else {
       roles.add( "default" );
       HashLoginService hashLoginService;
-      SlaveServer slaveServer = transformationMap.getSlaveServerConfig().getSlaveServer();
+      SlaveServer slaveServer = pipelineMap.getSlaveServerConfig().getSlaveServer();
       if ( !Utils.isEmpty( slaveServer.getPassword() ) ) {
         hashLoginService = new HashLoginService( "Hop" );
         UserStore userStore = new UserStore();
@@ -222,7 +222,7 @@ public class WebServer {
     for ( PluginInterface plugin : plugins ) {
 
       HopServerPluginInterface servlet = pluginRegistry.loadClass( plugin, HopServerPluginInterface.class );
-      servlet.setup( transformationMap, jobMap, socketRepository, detections );
+      servlet.setup( pipelineMap, jobMap, socketRepository, detections );
       servlet.setJettyMode( true );
 
       ServletContextHandler servletContext =
@@ -246,7 +246,7 @@ public class WebServer {
     // Context mobileContext = new Context(contexts, "/mobile", Context.SESSIONS);
     // mobileContext.setHandler(mobileResourceHandler);
 
-    // Allow png files to be shown for transformations and jobs...
+    // Allow png files to be shown for pipelines and jobs...
     //
     ResourceHandler resourceHandler = new ResourceHandler();
     resourceHandler.setResourceBase( "temp" );
@@ -289,7 +289,7 @@ public class WebServer {
     webServerShutdownHook.setShuttingDown( true );
 
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteShutdown.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopServerShutdown.id, this );
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer can be shut down properly.
       //
@@ -484,12 +484,12 @@ public class WebServer {
     this.log = log;
   }
 
-  public TransformationMap getTransformationMap() {
-    return transformationMap;
+  public PipelineMap getPipelineMap() {
+    return pipelineMap;
   }
 
-  public void setTransformationMap( TransformationMap transformationMap ) {
-    this.transformationMap = transformationMap;
+  public void setPipelineMap( PipelineMap pipelineMap ) {
+    this.pipelineMap = pipelineMap;
   }
 
   public JobMap getJobMap() {

@@ -162,7 +162,7 @@ public class JobResource {
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( jobExecutionConfiguration.getLogLevel() );
 
-      // Create the transformation and store in the list...
+      // Create the pipeline and store in the list...
       //
       final Job job = new Job( jobMeta, servletLoggingObject );
 

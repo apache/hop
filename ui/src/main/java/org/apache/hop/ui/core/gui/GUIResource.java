@@ -227,13 +227,13 @@ public class GUIResource {
 
   private SwtUniversalImage imageVariable;
 
-  private SwtUniversalImage imageTransGraph;
+  private SwtUniversalImage imagePipelineGraph;
 
   private SwtUniversalImage imagePartitionSchema;
 
   private SwtUniversalImage imageJobGraph;
 
-  private SwtUniversalImage imageTransTree;
+  private SwtUniversalImage imagePipelineTree;
 
   private SwtUniversalImage imageJobTree;
 
@@ -380,7 +380,7 @@ public class GUIResource {
 
   private Image imageDropHere;
 
-  private Image imageTransCanvas;
+  private Image imagePipelineCanvas;
 
   private Image imageJobCanvas;
 
@@ -420,7 +420,7 @@ public class GUIResource {
   private Image imageToolbarRun;
   private Image imageToolbarRunOption;
   private Image imageToolbarStop;
-  private Image imageToolbarTrans;
+  private Image imageToolbarPipeline;
   private Image imageToolbarView;
   private Image imageToolbarViewAsXml;
 
@@ -616,10 +616,10 @@ public class GUIResource {
       imageHopUi.dispose();
       imageJob.dispose();
       imageVariable.dispose();
-      imageTransGraph.dispose();
+      imagePipelineGraph.dispose();
       imagePartitionSchema.dispose();
       imageJobGraph.dispose();
-      imageTransTree.dispose();
+      imagePipelineTree.dispose();
       imageJobTree.dispose();
       imageUser.dispose();
       imageProfil.dispose();
@@ -670,7 +670,7 @@ public class GUIResource {
       imageHelpWeb.dispose();
       imageHadoop.dispose();
       imageDropHere.dispose();
-      imageTransCanvas.dispose();
+      imagePipelineCanvas.dispose();
       imageJobCanvas.dispose();
       imageAddAll.dispose();
       imageAddSingle.dispose();
@@ -730,7 +730,7 @@ public class GUIResource {
       imageToolbarRun.dispose();
       imageToolbarRunOption.dispose();
       imageToolbarStop.dispose();
-      imageToolbarTrans.dispose();
+      imageToolbarPipeline.dispose();
       imageToolbarView.dispose();
       imageToolbarViewAsXml.dispose();
 
@@ -1138,8 +1138,8 @@ public class GUIResource {
     // "ui/images/drop_here.png
     imageDropHere = loadAsResource( display, BasePropertyHandler.getProperty( "DropHere_image" ), 0 );
 
-    // "ui/images/trans_canvas.svg
-    imageTransCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "TransCanvas_image" ), 800, 250 );
+    // "ui/images/pipeline_canvas.svg
+    imagePipelineCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "PipelineCanvas_image" ), 800, 250 );
 
     // "ui/images/job_canvas.svg
     imageJobCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "JobCanvas_image" ), 800, 250 );
@@ -1188,13 +1188,13 @@ public class GUIResource {
 
     imageEmpty16x16 = new Image( display, 16, 16 );
 
-    imageTransGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "TransGraph_image" ) );
+    imagePipelineGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "PipelineGraph_image" ) );
 
     imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
     imageJobGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ChefIcon_image" ) );
 
-    imageTransTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Trans_tree_image" ) );
+    imagePipelineTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Pipeline_tree_image" ) );
     imageJobTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Job_tree_image" ) );
 
     // "ui/images/hop-logo.png"
@@ -1246,7 +1246,7 @@ public class GUIResource {
     imageToolbarRun = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRun_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarRunOption = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarStop = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarTrans = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarTrans_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarPipeline = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPipeline_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarView = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarViewAsXml = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarViewAsXml_image" ), ConstUI.SMALL_ICON_SIZE );
   }
@@ -1801,12 +1801,12 @@ public class GUIResource {
     return imageVariable.getAsBitmapForSize( display, 13, 13 );
   }
 
-  public Image getImageTransGraph() {
-    return imageTransGraph.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
+  public Image getImagePipelineGraph() {
+    return imagePipelineGraph.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
-  public Image getImageTransTree() {
-    return imageTransTree.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
+  public Image getImagePipelineTree() {
+    return imagePipelineTree.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
   }
 
   public Image getImageUser() {
@@ -1818,11 +1818,11 @@ public class GUIResource {
   }
 
   public Image getImageFolderConnections() {
-    return imageTransGraph.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
+    return imagePipelineGraph.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
   public Image getImageFolderConnectionsMedium() {
-    return imageTransGraph.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
+    return imagePipelineGraph.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
   }
 
   public Image getImagePartitionSchema() {
@@ -2515,12 +2515,12 @@ public class GUIResource {
     return imageDropHere;
   }
 
-  public Image getImageTransCanvas() {
-    return imageTransCanvas;
+  public Image getImagePipelineCanvas() {
+    return imagePipelineCanvas;
   }
 
-  public void setImageTransCanvas( Image imageTransCanvas ) {
-    this.imageTransCanvas = imageTransCanvas;
+  public void setImagePipelineCanvas( Image imagePipelineCanvas ) {
+    this.imagePipelineCanvas = imagePipelineCanvas;
   }
 
   public Image getImageJobCanvas() {
@@ -2706,12 +2706,12 @@ public class GUIResource {
   }
 
   /**
-   * Gets imageToolbarTrans
+   * Gets imageToolbarPipeline
    *
-   * @return value of imageToolbarTrans
+   * @return value of imageToolbarPipeline
    */
-  public Image getImageToolbarTrans() {
-    return imageToolbarTrans;
+  public Image getImageToolbarPipeline() {
+    return imageToolbarPipeline;
   }
 
   /**

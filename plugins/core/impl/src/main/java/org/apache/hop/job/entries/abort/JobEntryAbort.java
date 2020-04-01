@@ -50,7 +50,7 @@ import java.util.List;
   description = "JobEntryAbort.Description",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility" )
 public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator!!
 
   private String messageAbort;
 

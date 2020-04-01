@@ -60,7 +60,7 @@ public class LogMessageTest {
     assertTrue( LOG_MESSAGE.equals( logMessage.getMessage() ) );
     assertTrue( LOG_LEVEL.equals( logMessage.getLevel() ) );
     assertTrue( treeLogChannelId.equals( logMessage.getLogChannelId() ) );
-    assertTrue( "[TRANS_SUBJECT].[STEP_SUBJECT].TRANS_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
+    assertTrue( "[PIPELINE_SUBJECT].[STEP_SUBJECT].PIPELINE_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
   }
 
   @Test
@@ -71,7 +71,7 @@ public class LogMessageTest {
     assertTrue( LOG_MESSAGE.equals( logMessage.getMessage() ) );
     assertTrue( LOG_LEVEL.equals( logMessage.getLevel() ) );
     assertTrue( treeLogChannelId.equals( logMessage.getLogChannelId() ) );
-    assertTrue( "TRANS_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
+    assertTrue( "PIPELINE_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
   }
 
   @Test
@@ -84,7 +84,7 @@ public class LogMessageTest {
     assertTrue( LOG_MESSAGE.equals( logMessage.getMessage() ) );
     assertTrue( LOG_LEVEL.equals( logMessage.getLevel() ) );
     assertTrue( simpleLogChannelId.equals( logMessage.getLogChannelId() ) );
-    assertTrue( "TRANS_SUBJECT".equals( logMessage.getSubject() ) );
+    assertTrue( "PIPELINE_SUBJECT".equals( logMessage.getSubject() ) );
 
     LoggingRegistry.getInstance().removeIncludingChildren( simpleLogChannelId );
   }
@@ -99,7 +99,7 @@ public class LogMessageTest {
       simpleLogChannelId,
       LogLevel.DEBUG );
 
-    assertEquals( "TRANS_SUBJECT - Log message", msg.toString() );
+    assertEquals( "PIPELINE_SUBJECT - Log message", msg.toString() );
   }
 
   @Test
@@ -113,7 +113,7 @@ public class LogMessageTest {
       new String[] { "Test" },
       LogLevel.DEBUG );
 
-    assertEquals( "TRANS_SUBJECT - Log message for Test", msg.toString() );
+    assertEquals( "PIPELINE_SUBJECT - Log message for Test", msg.toString() );
   }
 
   @Test
@@ -133,19 +133,19 @@ public class LogMessageTest {
 
   private static LoggingObjectInterface getTreeLoggingObject() {
     LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
-    LoggingObjectInterface transLogObject =
-      new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
+    LoggingObjectInterface pipelineLogObject =
+      new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
     LoggingObjectInterface stepLogObject =
-      new SimpleLoggingObject( "STEP_SUBJECT", LoggingObjectType.STEP, transLogObject );
-    LoggingObjectInterface transChildLogObject =
-      new SimpleLoggingObject( "TRANS_CHILD_SUBJECT", LoggingObjectType.TRANS, stepLogObject );
-    return transChildLogObject;
+      new SimpleLoggingObject( "STEP_SUBJECT", LoggingObjectType.STEP, pipelineLogObject );
+    LoggingObjectInterface pipelineChildLogObject =
+      new SimpleLoggingObject( "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, stepLogObject );
+    return pipelineChildLogObject;
   }
 
   private static LoggingObjectInterface getLoggingObjectWithOneParent() {
     LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
-    LoggingObjectInterface transLogObject =
-      new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
-    return transLogObject;
+    LoggingObjectInterface pipelineLogObject =
+      new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
+    return pipelineLogObject;
   }
 }

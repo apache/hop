@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
  * @since 07-05-2003
  */
 public class Const {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Version number
@@ -146,7 +146,7 @@ public class Const {
   public static final int SORT_SIZE = 5000;
 
   /**
-   * job/trans heartbeat scheduled executor periodic interval ( in seconds )
+   * job/pipeline heartbeat scheduled executor periodic interval ( in seconds )
    */
   public static final int HEARTBEAT_PERIODIC_INTERVAL_IN_SECS = 10;
 
@@ -370,47 +370,6 @@ public class Const {
   public static final String XML_ENCODING = "UTF-8";
 
   /**
-   * The possible extensions a transformation XML file can have.
-   */
-  public static final String[] STRING_TRANS_AND_JOB_FILTER_EXT = new String[] {
-    "*.ktr;*.kjb;*.xml", "*.ktr;*.xml", "*.kjb;*.xml", "*.xml", "*.*" };
-
-  /**
-   * The descriptions of the possible extensions a transformation XML file can have.
-   */
-  private static String[] STRING_TRANS_AND_JOB_FILTER_NAMES;
-
-  /**
-   * The extension of a Hop transformation XML file
-   */
-  public static final String STRING_TRANS_DEFAULT_EXT = "ktr";
-
-  /**
-   * The possible extensions a transformation XML file can have.
-   */
-  public static final String[] STRING_TRANS_FILTER_EXT = new String[] { "*.ktr;*.xml", "*.xml", "*.*" };
-
-  /**
-   * The descriptions of the possible extensions a transformation XML file can have.
-   */
-  private static String[] STRING_TRANS_FILTER_NAMES;
-
-  /**
-   * The extension of a Hop job XML file
-   */
-  public static final String STRING_JOB_DEFAULT_EXT = "kjb";
-
-  /**
-   * The possible extensions a job XML file can have.
-   */
-  public static final String[] STRING_JOB_FILTER_EXT = new String[] { "*.kjb;*.xml", "*.xml", "*.*" };
-
-  /**
-   * The descriptions of the possible extensions a job XML file can have.
-   */
-  private static String[] STRING_JOB_FILTER_NAMES;
-
-  /**
    * Name of the kettle parameters file
    */
   public static final String HOP_PROPERTIES = "hop.properties";
@@ -463,7 +422,7 @@ public class Const {
   public static final String INTERNAL_VARIABLE_JOB_RUN_ATTEMPTNR = INTERNAL_VARIABLE_PREFIX + ".Job.Run.AttemptNr";
 
   /**
-   * job/trans heartbeat scheduled executor periodic interval ( in seconds )
+   * job/pipeline heartbeat scheduled executor periodic interval ( in seconds )
    */
   public static final String VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS = "heartbeat.periodic.interval.seconds";
 
@@ -473,18 +432,18 @@ public class Const {
   public static final String VARIABLE_MONITORING_SNMP_TRAPS_ENABLED = "monitoring.snmp.traps.enabled";
 
   /**
-   * The current transformation directory
+   * The current pipeline directory
    */
   public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY = INTERNAL_VARIABLE_PREFIX
     + ".Entry.Current.Directory";
 
   /**
-   * All the internal transformation variables
+   * All the internal pipeline variables
    */
-  public static final String[] INTERNAL_TRANS_VARIABLES = new String[] {
+  public static final String[] INTERNAL_PIPELINE_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY,
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME,
+    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
+    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, Const.INTERNAL_VARIABLE_PIPELINE_NAME,
   };
 
   /**
@@ -502,27 +461,27 @@ public class Const {
    * at the bottom of the variables dropdown when pressing ctrl+space
    * */
   public static final String[] DEPRECATED_VARIABLES = new String[] {
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY,
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME,
+    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
+    Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, Const.INTERNAL_VARIABLE_PIPELINE_NAME,
   };
 
   /**
-   * The transformation filename directory
+   * The pipeline filename directory
    */
-  public static final String INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Transformation.Filename.Directory";
+  public static final String INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
+    + ".Pipeline.Filename.Directory";
 
   /**
-   * The transformation filename name
+   * The pipeline filename name
    */
-  public static final String INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX
-    + ".Transformation.Filename.Name";
+  public static final String INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX
+    + ".Pipeline.Filename.Name";
 
   /**
-   * The transformation name
+   * The pipeline name
    */
-  public static final String INTERNAL_VARIABLE_TRANSFORMATION_NAME = INTERNAL_VARIABLE_PREFIX
-    + ".Transformation.Name";
+  public static final String INTERNAL_VARIABLE_PIPELINE_NAME = INTERNAL_VARIABLE_PREFIX
+    + ".Pipeline.Name";
 
   /**
    * The step partition ID
@@ -605,25 +564,25 @@ public class Const {
   public static final String HOP_VARIABLES_FILE = "hop-variables.xml";
 
   /**
-   * If you set this environment variable you can limit the log size of all transformations and jobs that don't have the
+   * If you set this environment variable you can limit the log size of all pipelines and jobs that don't have the
    * "log size limit" property set in their respective properties.
    */
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
 
   /**
-   * The name of the variable that defines the log database connection by default for all transformations
+   * The name of the variable that defines the log database connection by default for all pipelines
    */
-  public static final String HOP_TRANS_LOG_DB = "HOP_TRANS_LOG_DB";
+  public static final String HOP_PIPELINE_LOG_DB = "HOP_PIPELINE_LOG_DB";
 
   /**
-   * The name of the variable that defines the logging schema for all transformations
+   * The name of the variable that defines the logging schema for all pipelines
    */
-  public static final String HOP_TRANS_LOG_SCHEMA = "HOP_TRANS_LOG_SCHEMA";
+  public static final String HOP_PIPELINE_LOG_SCHEMA = "HOP_PIPELINE_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the logging table for all transformations
+   * The name of the variable that defines the logging table for all pipelines
    */
-  public static final String HOP_TRANS_LOG_TABLE = "HOP_TRANS_LOG_TABLE";
+  public static final String HOP_PIPELINE_LOG_TABLE = "HOP_PIPELINE_LOG_TABLE";
 
   /**
    * The name of the variable that defines the log database connection by default for all jobs
@@ -646,20 +605,20 @@ public class Const {
   public static final String HOP_JOB_LOG_TABLE = "HOP_JOB_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the transformation performance log schema by default for all transformations
+   * The name of the variable that defines the pipeline performance log schema by default for all pipelines
    */
-  public static final String HOP_TRANS_PERFORMANCE_LOG_DB = "HOP_TRANS_PERFORMANCE_LOG_DB";
+  public static final String HOP_PIPELINE_PERFORMANCE_LOG_DB = "HOP_PIPELINE_PERFORMANCE_LOG_DB";
 
   /**
-   * The name of the variable that defines the transformation performance log database connection by default for all
-   * transformations
+   * The name of the variable that defines the pipeline performance log database connection by default for all
+   * pipelines
    */
-  public static final String HOP_TRANS_PERFORMANCE_LOG_SCHEMA = "HOP_TRANS_PERFORMANCE_LOG_SCHEMA";
+  public static final String HOP_PIPELINE_PERFORMANCE_LOG_SCHEMA = "HOP_PIPELINE_PERFORMANCE_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the transformation performance log table by default for all transformations
+   * The name of the variable that defines the pipeline performance log table by default for all pipelines
    */
-  public static final String HOP_TRANS_PERFORMANCE_LOG_TABLE = "HOP_TRANS_PERFORMANCE_LOG_TABLE";
+  public static final String HOP_PIPELINE_PERFORMANCE_LOG_TABLE = "HOP_PIPELINE_PERFORMANCE_LOG_TABLE";
 
   /**
    * The name of the variable that defines the job entry log database by default for all jobs
@@ -677,47 +636,47 @@ public class Const {
   public static final String HOP_JOBENTRY_LOG_TABLE = "HOP_JOBENTRY_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the steps log database by default for all transformations
+   * The name of the variable that defines the steps log database by default for all pipelines
    */
   public static final String HOP_STEP_LOG_DB = "HOP_STEP_LOG_DB";
 
   /**
-   * The name of the variable that defines the steps log schema by default for all transformations
+   * The name of the variable that defines the steps log schema by default for all pipelines
    */
   public static final String HOP_STEP_LOG_SCHEMA = "HOP_STEP_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the steps log table by default for all transformations
+   * The name of the variable that defines the steps log table by default for all pipelines
    */
   public static final String HOP_STEP_LOG_TABLE = "HOP_STEP_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the log channel log database by default for all transformations and jobs
+   * The name of the variable that defines the log channel log database by default for all pipelines and jobs
    */
   public static final String HOP_CHANNEL_LOG_DB = "HOP_CHANNEL_LOG_DB";
 
   /**
-   * The name of the variable that defines the log channel log schema by default for all transformations and jobs
+   * The name of the variable that defines the log channel log schema by default for all pipelines and jobs
    */
   public static final String HOP_CHANNEL_LOG_SCHEMA = "HOP_CHANNEL_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the log channel log table by default for all transformations and jobs
+   * The name of the variable that defines the log channel log table by default for all pipelines and jobs
    */
   public static final String HOP_CHANNEL_LOG_TABLE = "HOP_CHANNEL_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the metrics log database by default for all transformations and jobs
+   * The name of the variable that defines the metrics log database by default for all pipelines and jobs
    */
   public static final String HOP_METRICS_LOG_DB = "HOP_METRICS_LOG_DB";
 
   /**
-   * The name of the variable that defines the metrics log schema by default for all transformations and jobs
+   * The name of the variable that defines the metrics log schema by default for all pipelines and jobs
    */
   public static final String HOP_METRICS_LOG_SCHEMA = "HOP_METRICS_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the metrics log table by default for all transformations and jobs
+   * The name of the variable that defines the metrics log table by default for all pipelines and jobs
    */
   public static final String HOP_METRICS_LOG_TABLE = "HOP_METRICS_LOG_TABLE";
 
@@ -737,7 +696,7 @@ public class Const {
   public static final String HOP_CHECKPOINT_LOG_TABLE = "HOP_CHECKPOINT_LOG_TABLE";
 
   /**
-   * Name of the environment variable to set the location of the shared object file (xml) for transformations and jobs
+   * Name of the environment variable to set the location of the shared object file (xml) for pipelines and jobs
    */
   public static final String HOP_SHARED_OBJECTS = "HOP_SHARED_OBJECTS";
 
@@ -796,7 +755,7 @@ public class Const {
 
   /**
    * You can use this variable to speed up hostname lookup.
-   * Hostname lookup is performed by Hop so that it is capable of logging the server on which a job or transformation is executed.
+   * Hostname lookup is performed by Hop so that it is capable of logging the server on which a job or pipeline is executed.
    */
   public static final String HOP_SYSTEM_HOSTNAME = "HOP_SYSTEM_HOSTNAME";
 
@@ -825,7 +784,7 @@ public class Const {
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
   /**
-   * This environment variable will set a time-out after which waiting, completed or stopped transformations and jobs
+   * This environment variable will set a time-out after which waiting, completed or stopped pipelines and jobs
    * will be automatically cleaned up. The default value is 1440 (one day).
    */
   public static final String HOP_CARTE_OBJECT_TIMEOUT_MINUTES = "HOP_CARTE_OBJECT_TIMEOUT_MINUTES";
@@ -871,7 +830,7 @@ public class Const {
    * The default SAP ERP connection factory
    */
   public static final String HOP_SAP_CONNECTION_FACTORY_DEFAULT_NAME =
-    "org.apache.hop.trans.steps.sapinput.sap.SAPConnectionFactory";
+    "org.apache.hop.pipeline.steps.sapinput.sap.SAPConnectionFactory";
 
   /**
    * Name of the environment variable to specify additional classes to scan for plugin annotations
@@ -884,10 +843,10 @@ public class Const {
   public static final String HOP_PLUGIN_PACKAGES = "HOP_PLUGIN_PACKAGES";
 
   /**
-   * Name of the environment variable that contains the size of the transformation rowset size. This overwrites values
-   * that you set transformation settings.
+   * Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values
+   * that you set pipeline settings.
    */
-  public static final String HOP_TRANS_ROWSET_SIZE = "HOP_TRANS_ROWSET_SIZE";
+  public static final String HOP_PIPELINE_ROWSET_SIZE = "HOP_PIPELINE_ROWSET_SIZE";
 
   /**
    * A general initial version comment
@@ -974,13 +933,13 @@ public class Const {
 
   /**
    * The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a
-   * difference for extremely short lived transformations.
+   * difference for extremely short lived pipelines.
    */
   public static final String HOP_ROWSET_GET_TIMEOUT = "HOP_ROWSET_GET_TIMEOUT";
 
   /**
    * The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a
-   * difference for extremely short lived transformations.
+   * difference for extremely short lived pipelines.
    */
   public static final String HOP_ROWSET_PUT_TIMEOUT = "HOP_ROWSET_PUT_TIMEOUT";
 
@@ -1062,7 +1021,7 @@ public class Const {
   /**
    * the value the Pan JVM should return on exit.
    */
-  public static final String HOP_TRANS_PAN_JVM_EXIT_CODE = "HOP_TRANS_PAN_JVM_EXIT_CODE";
+  public static final String HOP_PIPELINE_PAN_JVM_EXIT_CODE = "HOP_PIPELINE_PAN_JVM_EXIT_CODE";
 
   /**
    * The name of the variable containing an alternative default number format
@@ -1104,8 +1063,8 @@ public class Const {
   public static final String HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES = "HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES";
 
   /**
-   * Set this variable to false to preserve global log variables defined in transformation / job Properties -> Log panel.
-   * Changing it to true will clear all global log variables when export transformation / job
+   * Set this variable to false to preserve global log variables defined in pipeline / job Properties -> Log panel.
+   * Changing it to true will clear all global log variables when export pipeline / job
    */
   public static final String HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT = "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT";
 
@@ -1136,10 +1095,6 @@ public class Const {
   // See PDI-17980 for details
   public static final String HOP_COMPATIBILITY_USE_JDBC_METADATA = "HOP_COMPATIBILITY_USE_JDBC_METADATA";
 
-  /**
-   * The XML file that contains the list of native import rules
-   */
-  public static final String XML_FILE_HOP_IMPORT_RULES = "hop-import-rules.xml";
 
   private static String[] emptyPaddedSpacesStrings;
 
@@ -1180,7 +1135,7 @@ public class Const {
   public static final String HOP_CARTE_JETTY_RES_MAX_IDLE_TIME = "HOP_CARTE_JETTY_RES_MAX_IDLE_TIME";
 
   /**
-   * A variable to configure refresh for carte job/trans status page
+   * A variable to configure refresh for carte job/pipeline status page
    */
   public static final String HOP_CARTE_REFRESH_STATUS = "HOP_CARTE_REFRESH_STATUS";
 
@@ -1291,7 +1246,7 @@ public class Const {
 
   /**
    * <p>A variable to configure if the S3 input / output steps should use the Amazon Default Credentials Provider Chain
-   * even if access credentials are specified within the transformation.</p>
+   * even if access credentials are specified within the pipeline.</p>
    */
   public static final String HOP_USE_AWS_DEFAULT_CREDENTIALS = "HOP_USE_AWS_DEFAULT_CREDENTIALS";
 
@@ -2869,7 +2824,7 @@ public class Const {
     }
 
     String pureFilename = filenameOnly( filename );
-    if ( pureFilename.endsWith( ".ktr" ) || pureFilename.endsWith( ".kjb" ) || pureFilename.endsWith( ".xml" ) ) {
+    if ( pureFilename.endsWith( ".hpl" ) || pureFilename.endsWith( ".kjb" ) || pureFilename.endsWith( ".xml" ) ) {
       pureFilename = pureFilename.substring( 0, pureFilename.length() - 4 );
     }
     StringBuilder sb = new StringBuilder();
@@ -2971,41 +2926,6 @@ public class Const {
     }
 
     return formats;
-  }
-
-  public static String[] getTransformationAndJobFilterNames() {
-    if ( STRING_TRANS_AND_JOB_FILTER_NAMES == null ) {
-      STRING_TRANS_AND_JOB_FILTER_NAMES =
-        new String[] {
-          BaseMessages.getString( PKG, "Const.FileFilter.TransformationJob" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.Transformations" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.Jobs" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.XML" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.All" ) };
-    }
-    return STRING_TRANS_AND_JOB_FILTER_NAMES;
-  }
-
-  public static String[] getTransformationFilterNames() {
-    if ( STRING_TRANS_FILTER_NAMES == null ) {
-      STRING_TRANS_FILTER_NAMES =
-        new String[] {
-          BaseMessages.getString( PKG, "Const.FileFilter.Transformations" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.XML" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.All" ) };
-    }
-    return STRING_TRANS_FILTER_NAMES;
-  }
-
-  public static String[] getJobFilterNames() {
-    if ( STRING_JOB_FILTER_NAMES == null ) {
-      STRING_JOB_FILTER_NAMES =
-        new String[] {
-          BaseMessages.getString( PKG, "Const.FileFilter.Jobs" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.XML" ),
-          BaseMessages.getString( PKG, "Const.FileFilter.All" ) };
-    }
-    return STRING_JOB_FILTER_NAMES;
   }
 
   /**

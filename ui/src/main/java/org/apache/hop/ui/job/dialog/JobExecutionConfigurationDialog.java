@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -103,26 +103,6 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     fdClearLog.top = new FormAttachment( wExpandRemote, 10 );
     fdClearLog.left = new FormAttachment( 0, 10 );
     wClearLog.setLayoutData( fdClearLog );
-
-    wSafeMode = new Button( gDetails, SWT.CHECK );
-    wSafeMode.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.SafeMode.Label" ) );
-    wSafeMode.setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.SafeMode.Tooltip" ) );
-    props.setLook( wSafeMode );
-    FormData fdSafeMode = new FormData();
-    fdSafeMode.top = new FormAttachment( wClearLog, 7 );
-    fdSafeMode.left = new FormAttachment( 0, 10 );
-    wSafeMode.setLayoutData( fdSafeMode );
-
-    wGatherMetrics = new Button( gDetails, SWT.CHECK );
-    wGatherMetrics.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.GatherMetrics.Label" ) );
-    wGatherMetrics.setToolTipText( BaseMessages
-      .getString( PKG, "JobExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
-    props.setLook( wGatherMetrics );
-    FormData fdGatherMetrics = new FormData();
-    fdGatherMetrics.top = new FormAttachment( wSafeMode, 7 );
-    fdGatherMetrics.left = new FormAttachment( 0, 10 );
-    fdGatherMetrics.bottom = new FormAttachment( 100, -10 );
-    wGatherMetrics.setLayoutData( fdGatherMetrics );
 
     Label lblStartJob = new Label( gDetails, SWT.RIGHT );
     lblStartJob.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.StartCopy.Label" ) );
@@ -218,11 +198,9 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
   }
 
   public void getData() {
-    wSafeMode.setSelection( configuration.isSafeModeEnabled() );
     wClearLog.setSelection( configuration.isClearingLog() );
     wExpandRemote.setSelection( getConfiguration().isExpandingRemoteJob() );
     wLogLevel.select( DefaultLogLevel.getLogLevel().getLevel() );
-    wGatherMetrics.setSelection( configuration.isGatheringMetrics() );
 
     List<String> runConfigurations = new ArrayList<>();
     try {
@@ -266,7 +244,6 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
       // various settings
       //
-      configuration.setSafeModeEnabled( wSafeMode.getSelection() );
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 
@@ -286,8 +263,6 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
       getInfoParameters();
       getInfoVariables();
 
-      // Metrics
-      configuration.setGatheringMetrics( wGatherMetrics.getSelection() );
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error in settings", "There is an error in the dialog settings", e );
     }

@@ -30,7 +30,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.Props;
@@ -104,7 +103,7 @@ import java.util.Map;
 public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMeta>,
   XMLInterface, ResourceExportInterface, LoggingObjectInterface, IHasFilename {
 
-  private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "job";
 
@@ -455,46 +454,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     }
 
     return false;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.EngineMetaInterface#getFileType()
-   */
-  public String getFileType() {
-    return LastUsedFile.FILE_TYPE_JOB;
-  }
-
-  /**
-   * Gets the job filter names.
-   *
-   * @return the filter names
-   * @see org.apache.hop.core.EngineMetaInterface#getFilterNames()
-   */
-  public String[] getFilterNames() {
-    return Const.getJobFilterNames();
-  }
-
-  /**
-   * Gets the job filter extensions. For JobMeta, this method returns the value of Const.STRING_JOB_FILTER_EXT
-   *
-   * @return the filter extensions
-   * @see org.apache.hop.core.EngineMetaInterface#getFilterExtensions()
-   */
-  public String[] getFilterExtensions() {
-    return Const.STRING_JOB_FILTER_EXT;
-  }
-
-  /**
-   * Gets the default extension for a job. For JobMeta, this method returns the value of
-   * {@link Const#STRING_JOB_DEFAULT_EXT}
-   *
-   * @return the default extension
-   * @see org.apache.hop.core.EngineMetaInterface#getDefaultExtension()
-   */
-  public String getDefaultExtension() {
-    return Const.STRING_JOB_DEFAULT_EXT;
   }
 
   /*
@@ -967,8 +926,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   }
 
   /**
-   * Removes a hop from the transformation. Also marks that the
-   * transformation's hops have changed.
+   * Removes a hop from the pipeline. Also marks that the
+   * pipeline's hops have changed.
    *
    * @param hop The hop to remove from the list of hops
    */
@@ -1690,7 +1649,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   }
 
   /**
-   * Builds a list of all the SQL statements that this transformation needs in order to work properly.
+   * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
    *
    * @return An ArrayList of SQLStatement objects.
    */
@@ -1779,7 +1738,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
 
     if ( searchSteps ) {
-      // Loop over all steps in the transformation and see what the used
+      // Loop over all steps in the pipeline and see what the used
       // vars are...
       for ( int i = 0; i < nrJobEntries(); i++ ) {
         JobEntryCopy entryMeta = getJobEntry( i );
@@ -1794,7 +1753,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       }
     }
 
-    // Loop over all steps in the transformation and see what the used vars
+    // Loop over all steps in the pipeline and see what the used vars
     // are...
     if ( searchDatabases ) {
       for ( DatabaseMeta meta : getDatabases() ) {
@@ -1834,7 +1793,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       }
     }
 
-    // Loop over all steps in the transformation and see what the used vars
+    // Loop over all steps in the pipeline and see what the used vars
     // are...
     if ( searchNotes ) {
       for ( int i = 0; i < nrNotes(); i++ ) {
@@ -1944,7 +1903,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   }
 
   /**
-   * This method sets various internal kettle variables that can be used by the transformation.
+   * This method sets various internal kettle variables that can be used by the pipeline.
    */
   @Override
   public void setInternalHopVariables( VariableSpace var ) {
@@ -2106,9 +2065,9 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
           //
           JobMeta jobMeta = (JobMeta) this.realClone( false );
 
-          // Add used resources, modify transMeta accordingly
+          // Add used resources, modify pipelineMeta accordingly
           // Go through the list of steps, etc.
-          // These critters change the steps in the cloned TransMeta
+          // These critters change the steps in the cloned PipelineMeta
           // At the end we make a new XML version of it in "exported"
           // format...
 
@@ -2250,7 +2209,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
    */
   public LoggingObjectType getObjectType() {
-    return LoggingObjectType.JOBMETA;
+    return LoggingObjectType.JOB_META;
   }
 
   /**

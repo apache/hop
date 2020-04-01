@@ -33,7 +33,7 @@ import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.util.SwingSvgImageUtil;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.jfree.text.TextUtilities;
 
 import javax.imageio.ImageIO;

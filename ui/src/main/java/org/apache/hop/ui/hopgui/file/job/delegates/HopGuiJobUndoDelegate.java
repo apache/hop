@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.file.job.delegates;
 
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
@@ -47,22 +47,22 @@ public class HopGuiJobUndoDelegate {
   }
 
   public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta ) {
-    TransAction transAction = jobMeta.previousUndo();
-    if ( transAction == null ) {
+    ChangeAction changeAction = jobMeta.previousUndo();
+    if ( changeAction == null ) {
       return;
     }
-    undoJobAction( handler, jobMeta, transAction );
+    undoJobAction( handler, jobMeta, changeAction );
     handler.updateGui();
   }
 
 
-  public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, TransAction transAction ) {
-    switch ( transAction.getType() ) {
+  public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
+    switch ( changeAction.getType() ) {
       // We created a new step : undo this...
       case NewJobEntry:
         // Delete the step at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobEntry( idx );
         }
         break;
@@ -70,8 +70,8 @@ public class HopGuiJobUndoDelegate {
       // We created a new note : undo this...
       case NewNote:
         // Delete the note at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeNote( idx );
         }
         break;
@@ -79,8 +79,8 @@ public class HopGuiJobUndoDelegate {
       // We created a new hop : undo this...
       case NewHop:
         // Delete the hop at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobHop( idx );
         }
         break;
@@ -92,9 +92,9 @@ public class HopGuiJobUndoDelegate {
       // We delete a step : undo this...
       case DeleteJobEntry:
         // un-Delete the step at correct location: re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobEntryCopy entry = (JobEntryCopy) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobEntryCopy entry = (JobEntryCopy) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.addJobEntry( idx, entry );
         }
         break;
@@ -102,9 +102,9 @@ public class HopGuiJobUndoDelegate {
       // We delete new note : undo this...
       case DeleteNote:
         // re-insert the note at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          NotePadMeta ni = (NotePadMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.addNote( idx, ni );
         }
         break;
@@ -112,9 +112,9 @@ public class HopGuiJobUndoDelegate {
       // We deleted a hop : undo this...
       case DeleteHop:
         // re-insert the hop at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobHopMeta hopMeta = (JobHopMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobHopMeta hopMeta = (JobHopMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           // Build a new hop:
           JobEntryCopy from = jobMeta.findJobEntry( hopMeta.getFromEntry().getName() );
           JobEntryCopy to = jobMeta.findJobEntry( hopMeta.getToEntry().getName() );
@@ -130,9 +130,9 @@ public class HopGuiJobUndoDelegate {
       // We changed a step : undo this...
       case ChangeJobEntry:
         // Delete the current step, insert previous version.
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobEntryCopy prev = ( (JobEntryCopy) transAction.getPrevious()[ i ] ).clone();
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobEntryCopy prev = ( (JobEntryCopy) changeAction.getPrevious()[ i ] ).clone();
+          int idx = changeAction.getCurrentIndex()[ i ];
 
           jobMeta.getJobEntry( idx ).replaceMeta( prev );
         }
@@ -141,10 +141,10 @@ public class HopGuiJobUndoDelegate {
       // We changed a note : undo this...
       case ChangeNote:
         // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeNote( idx );
-          NotePadMeta prev = (NotePadMeta) transAction.getPrevious()[ i ];
+          NotePadMeta prev = (NotePadMeta) changeAction.getPrevious()[ i ];
           jobMeta.addNote( idx, (NotePadMeta) prev.clone() );
         }
         break;
@@ -152,9 +152,9 @@ public class HopGuiJobUndoDelegate {
       // We changed a hop : undo this...
       case ChangeHop:
         // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobHopMeta prev = (JobHopMeta) transAction.getPrevious()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobHopMeta prev = (JobHopMeta) changeAction.getPrevious()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
 
           jobMeta.removeJobHop( idx );
           jobMeta.addJobHop( idx, (JobHopMeta) prev.clone() );
@@ -168,18 +168,18 @@ public class HopGuiJobUndoDelegate {
       // The position of a step has changed: undo this...
       case PositionJobEntry:
         // Find the location of the step:
-        for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          JobEntryCopy jobEntry = jobMeta.getJobEntry( transAction.getCurrentIndex()[ i ] );
-          jobEntry.setLocation( transAction.getPreviousLocation()[ i ] );
+        for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
+          JobEntryCopy jobEntry = jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] );
+          jobEntry.setLocation( changeAction.getPreviousLocation()[ i ] );
         }
         break;
 
       // The position of a note has changed: undo this...
       case PositionNote:
-        for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           NotePadMeta npi = jobMeta.getNote( idx );
-          Point prev = transAction.getPreviousLocation()[ i ];
+          Point prev = changeAction.getPreviousLocation()[ i ];
           npi.setLocation( prev );
         }
         break;
@@ -196,39 +196,39 @@ public class HopGuiJobUndoDelegate {
   }
 
   public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta ) {
-    TransAction transAction = jobMeta.nextUndo();
-    if ( transAction == null ) {
+    ChangeAction changeAction = jobMeta.nextUndo();
+    if ( changeAction == null ) {
       return;
     }
-    redoJobAction( handler, jobMeta, transAction );
+    redoJobAction( handler, jobMeta, changeAction );
     handler.updateGui();
   }
 
-  public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, TransAction transAction ) {
-    switch ( transAction.getType() ) {
+  public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
+    switch ( changeAction.getType() ) {
       case NewJobEntry:
         // re-delete the step at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobEntryCopy entryCopy = (JobEntryCopy) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobEntryCopy entryCopy = (JobEntryCopy) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.addJobEntry( idx, entryCopy );
         }
         break;
 
       case NewNote:
         // re-insert the note at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          NotePadMeta ni = (NotePadMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.addNote( idx, ni );
         }
         break;
 
       case NewHop:
         // re-insert the hop at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobHopMeta hopMeta = (JobHopMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobHopMeta hopMeta = (JobHopMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.addJobHop( idx, hopMeta );
         }
         break;
@@ -238,24 +238,24 @@ public class HopGuiJobUndoDelegate {
       //
       case DeleteJobEntry:
         // re-remove the step at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobEntry( idx );
         }
         break;
 
       case DeleteNote:
         // re-remove the note at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeNote( idx );
         }
         break;
 
       case DeleteHop:
         // re-remove the hop at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobHop( idx );
         }
         break;
@@ -267,18 +267,18 @@ public class HopGuiJobUndoDelegate {
       // We changed a step : undo this...
       case ChangeStep:
         // Delete the current step, insert previous version.
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobEntryCopy clonedEntry = ( (JobEntryCopy) transAction.getCurrent()[ i ] ).clone();
-          jobMeta.getJobEntry( transAction.getCurrentIndex()[ i ] ).replaceMeta( clonedEntry );
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobEntryCopy clonedEntry = ( (JobEntryCopy) changeAction.getCurrent()[ i ] ).clone();
+          jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] ).replaceMeta( clonedEntry );
         }
         break;
 
       // We changed a note : undo this...
       case ChangeNote:
         // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          NotePadMeta ni = (NotePadMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
 
           jobMeta.removeNote( idx );
           jobMeta.addNote( idx, ni.clone() );
@@ -288,9 +288,9 @@ public class HopGuiJobUndoDelegate {
       // We changed a hop : undo this...
       case ChangeHop:
         // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobHopMeta hi = (JobHopMeta) transAction.getCurrent()[ i ];
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
+          JobHopMeta hi = (JobHopMeta) changeAction.getCurrent()[ i ];
+          int idx = changeAction.getCurrentIndex()[ i ];
 
           jobMeta.removeJobHop( idx );
           jobMeta.addJobHop( idx, (JobHopMeta) hi.clone() );
@@ -301,17 +301,17 @@ public class HopGuiJobUndoDelegate {
       // CHANGE POSITION
       //
       case PositionStep:
-        for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
+        for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
           // Find & change the location of the step:
-          JobEntryCopy jobEntry = jobMeta.getJobEntry( transAction.getCurrentIndex()[ i ] );
-          jobEntry.setLocation( transAction.getCurrentLocation()[ i ] );
+          JobEntryCopy jobEntry = jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] );
+          jobEntry.setLocation( changeAction.getCurrentLocation()[ i ] );
         }
         break;
       case PositionNote:
-        for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[ i ];
+        for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
+          int idx = changeAction.getCurrentIndex()[ i ];
           NotePadMeta npi = jobMeta.getNote( idx );
-          Point curr = transAction.getCurrentLocation()[ i ];
+          Point curr = changeAction.getCurrentLocation()[ i ];
           npi.setLocation( curr );
         }
         break;

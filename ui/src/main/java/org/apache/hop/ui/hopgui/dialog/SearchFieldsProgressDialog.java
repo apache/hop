@@ -26,8 +26,8 @@ import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
@@ -42,18 +42,18 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
 
   private StepMeta stepInfo;
   private boolean before;
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
   private RowMetaInterface fields;
 
-  public SearchFieldsProgressDialog( TransMeta transMeta, StepMeta stepMeta, boolean before ) {
-    this.transMeta = transMeta;
+  public SearchFieldsProgressDialog( PipelineMeta pipelineMeta, StepMeta stepMeta, boolean before ) {
+    this.pipelineMeta = pipelineMeta;
     this.stepInfo = stepMeta;
     this.before = before;
     this.fields = null;
   }
 
   public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-    int size = transMeta.findNrPrevSteps( stepInfo );
+    int size = pipelineMeta.findNrPrevSteps( stepInfo );
 
     try {
       if ( before ) {
@@ -62,14 +62,14 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
         // for
         // input
         // fields...
-        fields = transMeta.getPrevStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getPrevStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
       } else {
         monitor.beginTask( BaseMessages.getString(
           PKG, "SearchFieldsProgressDialog.Dialog.SearchOutputFields.Message" ), size ); // Searching
         // for
         // output
         // fields...
-        fields = transMeta.getStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
       }
     } catch ( HopStepException kse ) {
       throw new InvocationTargetException( kse, BaseMessages.getString(
@@ -122,16 +122,16 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @return Returns the transMeta.
+   * @return Returns the pipelineMeta.
    */
-  public TransMeta getTransMeta() {
-    return transMeta;
+  public PipelineMeta getPipelineMeta() {
+    return pipelineMeta;
   }
 
   /**
-   * @param transMeta The transMeta to set.
+   * @param pipelineMeta The pipelineMeta to set.
    */
-  public void setTransMeta( TransMeta transMeta ) {
-    this.transMeta = transMeta;
+  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+    this.pipelineMeta = pipelineMeta;
   }
 }

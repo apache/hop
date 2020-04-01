@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.step.BaseStep;
+import org.apache.hop.pipeline.step.StepDataInterface;
+import org.apache.hop.pipeline.step.StepMeta;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
@@ -46,12 +46,12 @@ public abstract class AbstractStep extends BaseStep {
    * @param stepMeta          the stepMeta.
    * @param stepDataInterface the stepDataInterface.
    * @param copyNr            the copyNr.
-   * @param transMeta         the transMeta.
-   * @param trans             the transaction.
+   * @param pipelineMeta         the pipelineMeta.
+   * @param pipeline             the transaction.
    */
   public AbstractStep( final StepMeta stepMeta, final StepDataInterface stepDataInterface, final int copyNr,
-                       final TransMeta transMeta, final Trans trans ) {
-    super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+                       final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
+    super( stepMeta, stepDataInterface, copyNr, pipelineMeta, pipeline );
   }
 
   /**

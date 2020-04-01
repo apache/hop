@@ -37,7 +37,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopServerSingleton {
 
-  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
 
   private static SlaveServerConfig slaveServerConfig;
   private static HopServerSingleton hopServerSingleton;
@@ -56,7 +56,7 @@ public class HopServerSingleton {
 
   private LogChannelInterface log;
 
-  private TransformationMap transformationMap;
+  private PipelineMap pipelineMap;
   private JobMap jobMap;
   private List<SlaveServerDetection> detections;
   private SocketRepository socketRepository;
@@ -66,14 +66,14 @@ public class HopServerSingleton {
     HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
 
     this.log = new LogChannel( "HopServer" );
-    transformationMap = new TransformationMap();
-    transformationMap.setSlaveServerConfig( config );
+    pipelineMap = new PipelineMap();
+    pipelineMap.setSlaveServerConfig( config );
     jobMap = new JobMap();
     jobMap.setSlaveServerConfig( config );
     detections = new ArrayList<SlaveServerDetection>();
     socketRepository = new SocketRepository( log );
 
-    installPurgeTimer( config, log, transformationMap, jobMap );
+    installPurgeTimer( config, log, pipelineMap, jobMap );
 
     SlaveServer slaveServer = config.getSlaveServer();
     if ( slaveServer != null ) {
@@ -119,7 +119,7 @@ public class HopServerSingleton {
   }
 
   public static void installPurgeTimer( final SlaveServerConfig config, final LogChannelInterface log,
-                                        final TransformationMap transformationMap, final JobMap jobMap ) {
+                                        final PipelineMap pipelineMap, final JobMap jobMap ) {
 
     final int objectTimeout;
     String systemTimeout = EnvUtil.getSystemProperty( Const.HOP_CARTE_OBJECT_TIMEOUT_MINUTES, null );
@@ -150,32 +150,32 @@ public class HopServerSingleton {
             busy.set( true );
 
             try {
-              // Check all transformations...
+              // Check all pipelines...
               //
-              for ( HopServerObjectEntry entry : transformationMap.getTransformationObjects() ) {
-                Trans trans = transformationMap.getTransformation( entry );
+              for ( HopServerObjectEntry entry : pipelineMap.getPipelineObjects() ) {
+                Pipeline pipeline = pipelineMap.getPipeline( entry );
 
-                // See if the transformation is finished or stopped.
+                // See if the pipeline is finished or stopped.
                 //
-                if ( trans != null && ( trans.isFinished() || trans.isStopped() ) && trans.getLogDate() != null ) {
+                if ( pipeline != null && ( pipeline.isFinished() || pipeline.isStopped() ) && pipeline.getLogDate() != null ) {
                   // check the last log time
                   //
                   int diffInMinutes =
-                    (int) Math.floor( ( System.currentTimeMillis() - trans.getLogDate().getTime() ) / 60000 );
+                    (int) Math.floor( ( System.currentTimeMillis() - pipeline.getLogDate().getTime() ) / 60000 );
                   if ( diffInMinutes >= objectTimeout ) {
-                    // Let's remove this from the transformation map...
+                    // Let's remove this from the pipeline map...
                     //
-                    transformationMap.removeTransformation( entry );
+                    pipelineMap.removePipeline( entry );
 
                     // Remove the logging information from the log registry & central log store
                     //
-                    LoggingRegistry.getInstance().removeIncludingChildren( trans.getLogChannelId() );
-                    HopLogStore.discardLines( trans.getLogChannelId(), false );
+                    LoggingRegistry.getInstance().removeIncludingChildren( pipeline.getLogChannelId() );
+                    HopLogStore.discardLines( pipeline.getLogChannelId(), false );
 
-                    // transformationMap.deallocateServerSocketPorts(entry);
+                    // pipelineMap.deallocateServerSocketPorts(entry);
 
-                    log.logMinimal( "Cleaned up transformation "
-                      + entry.getName() + " with id " + entry.getId() + " from " + trans.getLogDate()
+                    log.logMinimal( "Cleaned up pipeline "
+                      + entry.getName() + " with id " + entry.getId() + " from " + pipeline.getLogDate()
                       + ", diff=" + diffInMinutes );
                   }
                 }
@@ -246,12 +246,12 @@ public class HopServerSingleton {
     }
   }
 
-  public TransformationMap getTransformationMap() {
-    return transformationMap;
+  public PipelineMap getPipelineMap() {
+    return pipelineMap;
   }
 
-  public void setTransformationMap( TransformationMap transformationMap ) {
-    this.transformationMap = transformationMap;
+  public void setPipelineMap( PipelineMap pipelineMap ) {
+    this.pipelineMap = pipelineMap;
   }
 
   public JobMap getJobMap() {

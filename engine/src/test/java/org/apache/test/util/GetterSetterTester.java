@@ -22,7 +22,7 @@
 
 package org.apache.test.util;
 
-import org.apache.hop.trans.steps.loadsave.setter.Setter;
+import org.apache.hop.pipeline.steps.loadsave.setter.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

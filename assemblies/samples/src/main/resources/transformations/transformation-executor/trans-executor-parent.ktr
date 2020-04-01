@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>trans-executor-parent</name>
+    <name>pipeline-executor-parent</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -10,7 +10,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -123,7 +123,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>
@@ -453,7 +453,7 @@
     </hop>
     <hop>
       <from>Transformation Executor</from>
-      <to>Results &#x28;an output of child trans&#x29;</to>
+      <to>Results &#x28;an output of child pipeline&#x29;</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -664,7 +664,7 @@
     </step>
 
   <step>
-    <name>Results &#x28;an output of child trans&#x29;</name>
+    <name>Results &#x28;an output of child pipeline&#x29;</name>
     <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -793,7 +793,7 @@
     <specification_method>filename</specification_method>
     <trans_object_id/>
     <trans_name/>
-    <filename>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;trans-executor-child.ktr</filename>
+    <filename>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;pipeline-executor-child.ktr</filename>
     <directory_path/>
     <group_size>2</group_size>
     <group_field/>
@@ -815,7 +815,7 @@
     <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
     <execution_log_text_field>ExecutionLogText</execution_log_text_field>
     <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
-    <result_rows_target_step>Results &#x28;an output of child trans&#x29;</result_rows_target_step>
+    <result_rows_target_step>Results &#x28;an output of child pipeline&#x29;</result_rows_target_step>
       <result_rows_field><name>test_string</name><type>String</type><length>50</length><precision>-1</precision></result_rows_field>
       <result_rows_field><name>test_id</name><type>Integer</type><length>-1</length><precision>0</precision></result_rows_field>
       <result_rows_field><name>test_id_calc</name><type>Integer</type><length>-1</length><precision>0</precision></result_rows_field>

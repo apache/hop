@@ -27,9 +27,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.step.StepPartitioningMeta;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 
 import java.util.Collections;
@@ -41,14 +41,14 @@ import java.util.List;
 public class PartitionSettings {
 
   private final StepMeta stepMeta;
-  private final TransMeta transMeta;
+  private final PipelineMeta pipelineMeta;
   private final MetaStoreManager<PartitionSchema> schemaManager;
   private final String[] options;
   private final String[] codes;
   private final StepMeta before;
 
-  public PartitionSettings( int exactSize, TransMeta transMeta, StepMeta stepMeta, MetaStoreManager<PartitionSchema> schemaManager ) {
-    this.transMeta = transMeta;
+  public PartitionSettings( int exactSize, PipelineMeta pipelineMeta, StepMeta stepMeta, MetaStoreManager<PartitionSchema> schemaManager ) {
+    this.pipelineMeta = pipelineMeta;
     this.stepMeta = stepMeta;
     this.schemaManager = schemaManager;
     this.options = new String[ exactSize ];
@@ -166,7 +166,7 @@ public class PartitionSettings {
     return (StepMeta) stepMeta.clone();
   }
 
-  public TransMeta getTransMeta() {
-    return transMeta;
+  public PipelineMeta getPipelineMeta() {
+    return pipelineMeta;
   }
 }

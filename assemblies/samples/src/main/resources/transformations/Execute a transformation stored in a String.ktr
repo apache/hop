@@ -11,7 +11,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -124,7 +124,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>
@@ -536,7 +536,7 @@
 
         <class_source><![CDATA[import java.util.*;
 import org.pentaho.di.core.xml.*;
-import org.pentaho.di.trans.*;
+import org.pentaho.di.pipeline.*;
 import org.w3c.dom.*;
 
 private int yearIndex;
@@ -555,9 +555,9 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
   Document doc = XMLHandler.loadXMLString( ktr );
   Node transNode = XMLHandler.getSubNode(doc, TransMeta.XML_TAG);
   
-  TransMeta transMeta = new TransMeta(transNode, getTrans().getRepository());
-  Trans trans = new Trans(transMeta, getTrans());
-  trans.execute( null );
+  TransMeta pipelineMeta = new TransMeta(transNode, getTrans().getRepository());
+  Trans pipeline = new Trans(pipelineMeta, getTrans());
+  pipeline.execute( null );
   
   // Just pass the input along
   //

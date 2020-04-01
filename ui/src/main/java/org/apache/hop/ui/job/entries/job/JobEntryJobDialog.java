@@ -43,10 +43,11 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.job.entries.pipeline.JobEntryBaseDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -266,9 +267,12 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
   }
 
   protected void pickFileVFS() {
+
+    HopJobFileType<JobMeta> jobFileType = HopDataOrchestrationPerspective.getInstance().getJobFileType();
+
     FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-    dialog.setFilterExtensions( Const.STRING_JOB_FILTER_EXT );
-    dialog.setFilterNames( Const.getJobFilterNames() );
+    dialog.setFilterExtensions( jobFileType.getFilterExtensions() );
+    dialog.setFilterNames( jobFileType.getFilterNames() );
     String prevName = jobMeta.environmentSubstitute( getPath() );
     String parentFolder = null;
     try {
@@ -485,14 +489,14 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     executionConfiguration.setRunConfiguration( jej.getRunConfiguration() );
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.HopUiTransBeforeStart.id,
+      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.HopUiPipelineBeforeStart.id,
         new Object[] { executionConfiguration, jobMeta, jobMeta, null } );
     } catch ( HopException e ) {
       // Ignore errors
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.JobEntryTransSave.id,
+      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.JobEntryPipelineSave.id,
         new Object[] { jobMeta, jej.getRunConfiguration() } );
     } catch ( HopException e ) {
       // Ignore errors

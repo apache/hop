@@ -24,19 +24,19 @@ package org.apache.hop.ui.util;
 
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 
 public class EngineMetaUtils {
 
   /**
-   * Validates if {@code engineMetaInterface} is Job or Transformation.
+   * Validates if {@code engineMetaInterface} is Job or Pipeline.
    *
    * @param engineMetaInterface
-   * @return true if engineMetaInterface instance is Job or Transformation, otherwise false.
+   * @return true if engineMetaInterface instance is Job or Pipeline, otherwise false.
    */
-  public static boolean isJobOrTransformation( EngineMetaInterface engineMetaInterface ) {
+  public static boolean isJobOrPipeline( EngineMetaInterface engineMetaInterface ) {
 
-    return ( engineMetaInterface instanceof TransMeta ) || ( engineMetaInterface instanceof JobMeta );
+    return ( engineMetaInterface instanceof PipelineMeta ) || ( engineMetaInterface instanceof JobMeta );
   }
 
 }

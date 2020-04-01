@@ -28,23 +28,23 @@ public interface ResourceHolderInterface {
   /**
    * @return The name of the holder of the resource
    */
-  public String getName();
+  String getName();
 
   /**
    * @return The description of the holder of the resource
    */
-  public String getDescription();
+  String getDescription();
 
   /**
-   * @return The Type ID of the resource holder. The Type ID is the system-defined type identifier (like TRANS or SORT).
+   * @return The Type ID of the resource holder. The Type ID is the system-defined type identifier (like PIPELINE or SORT).
    */
-  public String getPluginId();
+  String getPluginId();
 
   /**
    * Gets the high-level type of resource holder.
    *
    * @return JOBENTRY, STEP, etc.
    */
-  public String getTypeId();
+  String getTypeId();
 
 }

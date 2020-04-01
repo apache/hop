@@ -63,7 +63,7 @@ public class StartJobServletTest {
 
   @Test
   @PrepareForTest( { Encode.class } )
-  public void testStartJobServletEscapesHtmlWhenTransNotFound() throws ServletException, IOException {
+  public void testStartJobServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
 
@@ -84,7 +84,7 @@ public class StartJobServletTest {
 
   @Test
   @PrepareForTest( { Encode.class } )
-  public void testStartJobServletEscapesHtmlWhenTransFound() throws ServletException, IOException {
+  public void testStartJobServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );

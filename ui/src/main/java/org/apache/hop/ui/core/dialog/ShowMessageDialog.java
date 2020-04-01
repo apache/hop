@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;

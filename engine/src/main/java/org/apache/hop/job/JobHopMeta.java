@@ -39,7 +39,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
-  private static Class<?> PKG = JobHopMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobHopMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_FROM_TAG = "from";
   public static final String XML_TO_TAG = "to";

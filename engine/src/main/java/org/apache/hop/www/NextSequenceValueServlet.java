@@ -50,8 +50,8 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements HopServ
   public NextSequenceValueServlet() {
   }
 
-  public NextSequenceValueServlet( TransformationMap transformationMap ) {
-    super( transformationMap );
+  public NextSequenceValueServlet( PipelineMap pipelineMap ) {
+    super( pipelineMap );
   }
 
   /**
@@ -158,9 +158,9 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements HopServ
 
     try {
 
-      SlaveSequence slaveSequence = getTransformationMap().getSlaveSequence( name );
-      if ( slaveSequence == null && getTransformationMap().isAutomaticSlaveSequenceCreationAllowed() ) {
-        slaveSequence = getTransformationMap().createSlaveSequence( name );
+      SlaveSequence slaveSequence = getPipelineMap().getSlaveSequence( name );
+      if ( slaveSequence == null && getPipelineMap().isAutomaticSlaveSequenceCreationAllowed() ) {
+        slaveSequence = getPipelineMap().createSlaveSequence( name );
       }
       if ( slaveSequence == null ) {
         response.sendError( HttpServletResponse.SC_NOT_FOUND );

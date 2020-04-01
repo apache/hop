@@ -77,7 +77,7 @@ public class TranslationsStore {
   }
 
   public void storeValue( String locale, String sourceFolder, String messagesPackage, String key, String value ) {
-    bundleStore.addTranslation(sourceFolder, messagesPackage, locale, key, value);
+    bundleStore.addPipelinelation(sourceFolder, messagesPackage, locale, key, value);
   }
 
   /**

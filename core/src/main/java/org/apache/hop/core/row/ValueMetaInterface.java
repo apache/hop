@@ -1084,7 +1084,7 @@ public interface ValueMetaInterface extends Cloneable {
 
   /**
    * Returns the storage Meta data that is needed for internal conversion from BinaryString or String to the specified
-   * type. This storage Meta data object survives cloning and should travel through the transformation unchanged as long
+   * type. This storage Meta data object survives cloning and should travel through the pipeline unchanged as long
    * as the data type remains the same.
    *
    * @return the storage Meta data that is needed for internal conversion from BinaryString or String to the specified
@@ -1096,7 +1096,7 @@ public interface ValueMetaInterface extends Cloneable {
    * Sets the storage meta data.
    *
    * @param storageMetadata the storage Meta data that is needed for internal conversion from BinaryString or String to the specified
-   *                        type. This storage Meta data object survives cloning and should travel through the transformation
+   *                        type. This storage Meta data object survives cloning and should travel through the pipeline
    *                        unchanged as long as the data type remains the same.
    */
   void setStorageMetadata( ValueMetaInterface storageMetadata );

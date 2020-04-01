@@ -81,11 +81,11 @@ public class LogTableTest {
     assertEquals( jobLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
     assertEquals( jobLogTable.getLogSizeLimit(), expectedAfterNullingGlobalParams );
 
-    TransLogTable transLogTable = getTransLogTableWithAllEqFields( valueForAllFields );
-    transLogTable.setAllGlobalParametersToNull();
-    commonTableFieldsValueChecker( transLogTable, expectedAfterNullingGlobalParams );
-    assertEquals( transLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
-    assertEquals( transLogTable.getLogSizeLimit(), expectedAfterNullingGlobalParams );
+    PipelineLogTable pipelineLogTable = getPipelineLogTableWithAllEqFields( valueForAllFields );
+    pipelineLogTable.setAllGlobalParametersToNull();
+    commonTableFieldsValueChecker( pipelineLogTable, expectedAfterNullingGlobalParams );
+    assertEquals( pipelineLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
+    assertEquals( pipelineLogTable.getLogSizeLimit(), expectedAfterNullingGlobalParams );
   }
 
   private PerformanceLogTable getPerformanceLogTableWithAllEqFields( String fieldsValue ) {
@@ -106,13 +106,13 @@ public class LogTableTest {
     return jobLogTable;
   }
 
-  private TransLogTable getTransLogTableWithAllEqFields( String fieldsValue ) {
-    TransLogTable transLogTable = TransLogTable.getDefault( mockedVariableSpace, mockedMetaStore, null );
-    initCommonTableFields( transLogTable, fieldsValue );
-    transLogTable.setLogInterval( fieldsValue );
-    transLogTable.setLogSizeLimit( fieldsValue );
+  private PipelineLogTable getPipelineLogTableWithAllEqFields( String fieldsValue ) {
+    PipelineLogTable pipelineLogTable = PipelineLogTable.getDefault( mockedVariableSpace, mockedMetaStore, null );
+    initCommonTableFields( pipelineLogTable, fieldsValue );
+    pipelineLogTable.setLogInterval( fieldsValue );
+    pipelineLogTable.setLogSizeLimit( fieldsValue );
 
-    return transLogTable;
+    return pipelineLogTable;
   }
 
   private void initCommonTableFields( BaseLogTable logTable, String value ) {

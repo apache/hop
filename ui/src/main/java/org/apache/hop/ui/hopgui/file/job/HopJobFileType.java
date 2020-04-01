@@ -93,7 +93,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
       HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
       perspective.activate();
 
-      // Create the empty transformation
+      // Create the empty pipeline
       //
       JobMeta jobMeta = new JobMeta();
       jobMeta.setParentVariableSpace( parentVariableSpace );
@@ -129,7 +129,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
     return metaObject instanceof JobMeta;
   }
 
-  public static final String ACTION_ID_NEW_TRANSFORMATION = "NewJob";
+  public static final String ACTION_ID_NEW_PIPELINE = "NewJob";
 
   @Override public List<IGuiContextHandler> getContextHandlers() {
 
@@ -140,7 +140,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
       @Override public List<GuiAction> getSupportedActions() {
         List<GuiAction> actions = new ArrayList<>();
 
-        GuiAction newAction = new GuiAction( ACTION_ID_NEW_TRANSFORMATION, GuiActionType.Create, "New job", "Create a new job", "ui/images/JOB.svg",
+        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New job", "Create a new job", "ui/images/JOB.svg",
           ( shiftClicked, controlClicked, parameters ) -> {
             try {
               HopJobFileType.this.newFile( hopGui, hopGui.getVariableSpace() );

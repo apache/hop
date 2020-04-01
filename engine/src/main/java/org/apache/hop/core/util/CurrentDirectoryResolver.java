@@ -31,13 +31,13 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 
 /**
  * This class resolve and update system variables
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY}
- * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY}
+ * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_NAME}
  */
 public class CurrentDirectoryResolver {
@@ -71,12 +71,12 @@ public class CurrentDirectoryResolver {
 
         FileName fileName = fileObject.getName();
 
-        // The filename of the transformation
+        // The filename of the pipeline
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME, fileName.getBaseName() );
 
-        // The directory of the transformation
+        // The directory of the pipeline
         FileName fileDir = fileName.getParent();
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, fileDir.getURI() );
+        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI() );
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, fileDir.getURI() );
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, fileDir.getURI() );
       } catch ( Exception e ) {
@@ -87,10 +87,10 @@ public class CurrentDirectoryResolver {
   }
 
   public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, StepMeta stepMeta, String filename ) {
-    if ( stepMeta != null && stepMeta.getParentTransMeta() != null ) {
-      filename = stepMeta.getParentTransMeta().getFilename();
-    } else if ( stepMeta != null && stepMeta.getParentTransMeta() != null && filename == null ) {
-      filename = stepMeta.getParentTransMeta().getFilename();
+    if ( stepMeta != null && stepMeta.getParentPipelineMeta() != null ) {
+      filename = stepMeta.getParentPipelineMeta().getFilename();
+    } else if ( stepMeta != null && stepMeta.getParentPipelineMeta() != null && filename == null ) {
+      filename = stepMeta.getParentPipelineMeta().getFilename();
     }
     return resolveCurrentDirectory( parentVariables, filename );
   }

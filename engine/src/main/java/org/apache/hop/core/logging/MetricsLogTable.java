@@ -31,7 +31,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
-  private static Class<?> PKG = MetricsLogTable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = MetricsLogTable.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "metrics-log-table";
 

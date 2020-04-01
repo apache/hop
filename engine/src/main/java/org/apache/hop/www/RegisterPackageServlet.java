@@ -34,10 +34,10 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransConfiguration;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -56,7 +56,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
   public static final String TYPE_JOB = "job";
-  public static final String TYPE_TRANS = "trans";
+  public static final String TYPE_PIPELINE = "pipeline";
 
   private static final String ZIP_CONT = "zip:{0}!{1}";
 
@@ -92,17 +92,17 @@ public class RegisterPackageServlet extends BaseJobServlet {
         resultId = job.getContainerObjectId();
       } else {
         Node node =
-          getConfigNodeFromZIP( archiveUrl, Trans.CONFIGURATION_IN_EXPORT_FILENAME,
-            TransExecutionConfiguration.XML_TAG );
-        TransExecutionConfiguration transExecutionConfiguration = new TransExecutionConfiguration( node );
+          getConfigNodeFromZIP( archiveUrl, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,
+            PipelineExecutionConfiguration.XML_TAG );
+        PipelineExecutionConfiguration pipelineExecutionConfiguration = new PipelineExecutionConfiguration( node );
 
-        IMetaStore metaStore = transformationMap.getSlaveServerConfig().getMetaStore();
-        TransMeta transMeta = new TransMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+        IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
+        PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
 
-        TransConfiguration transConfiguration = new TransConfiguration( transMeta, transExecutionConfiguration );
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration );
 
-        Trans trans = createTrans( transConfiguration );
-        resultId = trans.getContainerObjectId();
+        Pipeline pipeline = createPipeline( pipelineConfiguration );
+        resultId = pipeline.getContainerObjectId();
       }
 
       return new WebResult( WebResult.STRING_OK, fileUrl, resultId );

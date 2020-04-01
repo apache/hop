@@ -26,8 +26,8 @@ import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.trans.steps.loadsave.initializer.JobEntryInitializer;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.initializer.JobEntryInitializer;
+import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

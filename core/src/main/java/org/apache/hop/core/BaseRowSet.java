@@ -292,7 +292,7 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   }
 
   /**
-   * By default we don't report blocking, only for monitored transformations.
+   * By default we don't report blocking, only for monitored pipelines.
    *
    * @return true if this row set is blocking on reading or writing.
    */

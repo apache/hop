@@ -23,7 +23,7 @@
 package org.apache.hop.core;
 
 /**
- * An interface for transformation steps that manage loading data into a database table (or other storage system). For
+ * An interface for pipeline steps that manage loading data into a database table (or other storage system). For
  * example a table output step or a bulk loader. This interface is used by the Agile BI plugin to determine which steps
  * it can manipulate during loading of data.
  *
@@ -56,7 +56,7 @@ public interface TableManager {
 
   /**
    * Sets the row limit. This is used to limit the data loaded during a specific execution. This value might change
-   * every time the transformation is executed.
+   * every time the pipeline is executed.
    *
    * @param rowLimit
    */

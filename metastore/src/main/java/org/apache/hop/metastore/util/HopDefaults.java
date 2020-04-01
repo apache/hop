@@ -22,11 +22,9 @@ public class HopDefaults {
   public static final String NAMESPACE = "hop";
 
   public static final String DATABASE_CONNECTION_ELEMENT_TYPE_NAME = "Database connection";
-  public static final String DATABASE_CONNECTION_ELEMENT_TYPE_DESCRIPTION =
-    "This is the official central database connection metadata";
+  public static final String DATABASE_CONNECTION_ELEMENT_TYPE_DESCRIPTION = "This is the official central database connection metadata";
 
-  public static final String KETTLE_DATA_SERVICE_ELEMENT_TYPE_NAME = "Kettle Data Service";
-  public static final String KETTLE_DATA_SERVICE_ELEMENT_TYPE_DESCRIPTION =
-    "The elements describing data services based upon transformation output";
+  public static final String HOP_DATA_SERVICE_ELEMENT_TYPE_NAME = "Hop Data Service";
+  public static final String HOP_DATA_SERVICE_ELEMENT_TYPE_DESCRIPTION = "The elements describing data services based upon pipeline output";
 
 }

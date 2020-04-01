@@ -47,7 +47,7 @@ import org.apache.hop.ui.i18n.BundlesStore;
 import org.apache.hop.ui.i18n.KeyOccurrence;
 import org.apache.hop.ui.i18n.MessagesSourceCrawler;
 import org.apache.hop.ui.i18n.TranslationsStore;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;

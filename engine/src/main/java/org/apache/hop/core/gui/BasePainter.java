@@ -31,7 +31,7 @@ import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
 import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
 import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.trans.step.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.step.errorhandling.StreamIcon;
 
 import java.util.List;
 
@@ -236,8 +236,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
     return screen;
   }
 
-  protected Point getThumb( Point area, Point transMax ) {
-    Point resizedMax = magnifyPoint( transMax );
+  protected Point getThumb( Point area, Point pipelineMax ) {
+    Point resizedMax = magnifyPoint( pipelineMax );
 
     Point thumb = new Point( 0, 0 );
     if ( resizedMax.x <= area.x ) {

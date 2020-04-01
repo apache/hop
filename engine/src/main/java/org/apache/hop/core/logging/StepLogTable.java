@@ -31,8 +31,8 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaDataCombi;
+import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMetaDataCombi;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -46,13 +46,13 @@ import java.util.List;
  */
 public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
-  private static Class<?> PKG = StepLogTable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StepLogTable.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "step-log-table";
 
   public enum ID {
 
-    ID_BATCH( "ID_BATCH" ), CHANNEL_ID( "CHANNEL_ID" ), LOG_DATE( "LOG_DATE" ), TRANSNAME( "TRANSNAME" ),
+    ID_BATCH( "ID_BATCH" ), CHANNEL_ID( "CHANNEL_ID" ), LOG_DATE( "LOG_DATE" ), PIPELINE_NAME( "PIPELINE_NAME" ),
     STEPNAME( "STEPNAME" ), STEP_COPY( "STEP_COPY" ), LINES_READ( "LINES_READ" ),
     LINES_WRITTEN( "LINES_WRITTEN" ), LINES_UPDATED( "LINES_UPDATED" ), LINES_INPUT( "LINES_INPUT" ),
     LINES_OUTPUT( "LINES_OUTPUT" ), LINES_REJECTED( "LINES_REJECTED" ), ERRORS( "ERRORS" ),
@@ -130,8 +130,8 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
       BaseMessages.getString( PKG, "StepLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogDate" ),
       BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.TRANSNAME.id, true, false, "TRANSNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.TransName" ),
-      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.TransName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.PipelineName" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.STEPNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepName" ),
       BaseMessages.getString( PKG, "StepLogTable.FieldDescription.StepName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.STEP_COPY.id, true, false, "STEP_COPY", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepCopy" ),
@@ -154,7 +154,7 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
     table.fields.add( new LogTableField( ID.LOG_FIELD.id, false, false, "LOG_FIELD", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogField" ),
       BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
 
-    table.findField( ID.TRANSNAME.id ).setNameField( true );
+    table.findField( ID.PIPELINE_NAME.id ).setNameField( true );
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
     table.findField( ID.ID_BATCH.id ).setKey( true );
     table.findField( ID.CHANNEL_ID.id ).setVisible( false );
@@ -185,7 +185,7 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
             switch ( ID.valueOf( field.getId() ) ) {
 
               case ID_BATCH:
-                value = new Long( combi.step.getTrans().getBatchId() );
+                value = new Long( combi.step.getPipeline().getBatchId() );
                 break;
               case CHANNEL_ID:
                 value = combi.step.getLogChannel().getLogChannelId();
@@ -193,8 +193,8 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
               case LOG_DATE:
                 value = new Date();
                 break;
-              case TRANSNAME:
-                value = combi.step.getTrans().getName();
+              case PIPELINE_NAME:
+                value = combi.step.getPipeline().getName();
                 break;
               case STEPNAME:
                 value = combi.stepname;

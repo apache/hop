@@ -34,7 +34,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -880,7 +880,7 @@ public class EnterOptionsDialog extends Dialog {
     wlIndicateSlowSteps.setLayoutData( fdlIndicateSlowSteps );
     wIndicateSlowSteps = new Button( wLookComp, SWT.CHECK );
     props.setLook( wIndicateSlowSteps );
-    wIndicateSlowSteps.setSelection( props.isIndicateSlowTransStepsEnabled() );
+    wIndicateSlowSteps.setSelection( props.isIndicateSlowPipelineStepsEnabled() );
     wIndicateSlowSteps.setToolTipText( BaseMessages.getString(
       PKG, "EnterOptionsDialog.CanvasIndicateSlowSteps.Tooltip" ) );
     FormData fdIndicateSlowSteps = new FormData();
@@ -1592,7 +1592,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setOSLookShown( wOriginalLook.getSelection() );
     props.setBrandingActive( wBranding.getSelection() );
     props.setShowToolTips( tooltipBtn.getSelection() );
-    props.setIndicateSlowTransStepsEnabled( wIndicateSlowSteps.getSelection() );
+    props.setIndicateSlowPipelineStepsEnabled( wIndicateSlowSteps.getSelection() );
     props.setAutoCollapseCoreObjectsTree( autoCollapseBtn.getSelection() );
     props.setShowingHelpToolTips( helptipBtn.getSelection() );
 

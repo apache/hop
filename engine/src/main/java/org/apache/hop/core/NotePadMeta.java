@@ -31,7 +31,7 @@ import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
 /**
- * Describes a note displayed on a Transformation, Job, Schema, or Report.
+ * Describes a note displayed on a Pipeline, Job, Schema, or Report.
  *
  * @author Matt
  * @since 28-11-2003

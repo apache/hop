@@ -91,7 +91,7 @@ public class EnvUtil {
     // Also put some default values for obscure environment variables in there...
     // Place-holders if you will.
     //
-    System.getProperties().put( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME, "slave-trans-name" );
+    System.getProperties().put( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME, "slave-pipeline-name" );
 
     System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_COPYNR, "0" );
     System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_NAME, "step-name" );

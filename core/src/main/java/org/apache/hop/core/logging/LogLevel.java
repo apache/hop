@@ -30,7 +30,7 @@ public enum LogLevel {
     4, "Detailed" ), DEBUG( 5, "Debug" ), ROWLEVEL( 6, "Rowlevel" );
 
   /**
-   * for i18n purposes, needed by Translator2!!
+   * for i18n purposes, needed by Translator!!
    */
   private static Class<?> PKG = LogLevel.class;
 

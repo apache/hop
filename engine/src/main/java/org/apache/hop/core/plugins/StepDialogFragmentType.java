@@ -25,7 +25,7 @@ package org.apache.hop.core.plugins;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.pipeline.step.StepDialogInterface;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;

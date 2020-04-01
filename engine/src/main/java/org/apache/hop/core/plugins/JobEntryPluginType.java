@@ -48,7 +48,7 @@ import java.util.Map;
 @PluginMainClassType( JobEntryInterface.class )
 @PluginAnnotationType( JobEntry.class )
 public class JobEntryPluginType extends BasePluginType implements PluginTypeInterface {
-  private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String GENERAL_CATEGORY = BaseMessages.getString( PKG, "JobCategory.Category.General" );
 

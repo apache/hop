@@ -8,7 +8,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
@@ -20,8 +20,8 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
-import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
-import org.apache.hop.ui.hopgui.file.trans.HopTransFileType;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
@@ -48,10 +48,10 @@ import java.util.Stack;
 @GuiPlugin
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
-  public static final String STRING_NEW_TRANSFORMATION_PREFIX = "Transformation";
+  public static final String STRING_NEW_PIPELINE_PREFIX = "Pipeline";
 
   private static HopDataOrchestrationPerspective perspective;
-  private final HopTransFileType<TransMeta> transFileType;
+  private final HopPipelineFileType<PipelineMeta> pipelineFileType;
   private final HopJobFileType<JobMeta> jobFileType;
 
   private HopGui hopGui;
@@ -81,13 +81,13 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionHistory = new Stack<>();
     tabSelectionIndex = 0;
 
-    transFileType = new HopTransFileType<TransMeta>();
+    pipelineFileType = new HopPipelineFileType<PipelineMeta>();
     jobFileType = new HopJobFileType<JobMeta>();
   }
 
   @GuiToolbarElement(
     id = "20010-perspective-data-orchestration", type = GuiElementType.TOOLBAR_BUTTON,
-    image = "ui/images/transformation.svg", toolTip = "Data Orchestration", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
+    image = "ui/images/pipeline.svg", toolTip = "Data Orchestration", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
     parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
   )
   public void activate() {
@@ -255,7 +255,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public TabItemHandler findTabItemHandler( HopFileTypeHandlerInterface handler ) {
     for ( TabItemHandler item : items ) {
-      // This compares the handler payload, typically TransMeta, JobMeta and so on.
+      // This compares the handler payload, typically PipelineMeta, JobMeta and so on.
       if ( item.getTypeHandler().equals( handler ) ) {
         return item;
       }
@@ -264,24 +264,24 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   /**
-   * Add a new transformation tab to the tab folder...
+   * Add a new pipeline tab to the tab folder...
    *
-   * @param transMeta
+   * @param pipelineMeta
    * @return
    */
-  public HopFileTypeHandlerInterface addTransformation( Composite parent, HopGui hopGui, TransMeta transMeta, HopTransFileType transFile ) throws HopException {
+  public HopFileTypeHandlerInterface addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GUIResource.getInstance().getImageToolbarTrans() );
-    HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, tabItem, this, transMeta, transFile );
-    tabItem.setControl( transGraph );
+    tabItem.setImage( GUIResource.getInstance().getImageToolbarPipeline() );
+    HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
+    tabItem.setControl( pipelineGraph );
 
     // Set the tab name
     //
-    tabItem.setText( Const.NVL( transGraph.buildTabName(), "" ) );
+    tabItem.setText( Const.NVL( pipelineGraph.buildTabName(), "" ) );
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
-    activeItem = new TabItemHandler( tabItem, transGraph );
+    activeItem = new TabItemHandler( tabItem, pipelineGraph );
     items.add( activeItem );
 
     // Remove all the history above the current tabSelectionIndex
@@ -294,14 +294,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewTransformationTab.id, transGraph );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewPipelineTab.id, pipelineGraph );
     } catch ( Exception e ) {
-      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewTransformationTab.id + " trying to handle a new transformation tab", e );
+      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new pipeline tab", e );
     }
 
-    transGraph.setFocus();
+    pipelineGraph.setFocus();
 
-    return transGraph;
+    return pipelineGraph;
   }
 
   /**
@@ -337,7 +337,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     try {
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewJobTab.id, jobGraph );
     } catch ( Exception e ) {
-      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewTransformationTab.id + " trying to handle a new job tab", e );
+      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new job tab", e );
     }
 
     jobGraph.setFocus();
@@ -388,7 +388,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   public List<HopFileTypeInterface> getSupportedHopFileTypes() {
-    return Arrays.asList( transFileType, jobFileType );
+    return Arrays.asList( pipelineFileType, jobFileType );
   }
 
   @Override public void navigateToPreviousFile() {
@@ -550,12 +550,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   /**
-   * Gets transFileType
+   * Gets pipelineFileType
    *
-   * @return value of transFileType
+   * @return value of pipelineFileType
    */
-  public HopTransFileType<TransMeta> getTransFileType() {
-    return transFileType;
+  public HopPipelineFileType<PipelineMeta> getPipelineFileType() {
+    return pipelineFileType;
   }
 
   /**

@@ -37,8 +37,8 @@ import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.steps.mailvalidator.MailValidation;
-import org.apache.hop.trans.steps.mailvalidator.MailValidationResult;
+import org.apache.hop.pipeline.steps.mailvalidator.MailValidation;
+import org.apache.hop.pipeline.steps.mailvalidator.MailValidationResult;
 import org.w3c.dom.Node;
 
 import java.util.List;

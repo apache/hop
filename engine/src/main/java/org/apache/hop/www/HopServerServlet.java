@@ -162,12 +162,12 @@ public class HopServerServlet extends HttpServlet {
   }
 
   private void registerServlet( HopServerPluginInterface servlet ) {
-    TransformationMap transformationMap = HopServerSingleton.getInstance().getTransformationMap();
+    PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
     JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
     SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
     hopServerPluginRegistry.put( getServletKey( servlet ), servlet );
-    servlet.setup( transformationMap, jobMap, socketRepository, detections );
+    servlet.setup( pipelineMap, jobMap, socketRepository, detections );
     servlet.setJettyMode( false );
   }
 }

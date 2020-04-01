@@ -25,9 +25,9 @@ package org.apache.hop.www;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.StepInterface;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,19 +54,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith( PowerMockRunner.class )
 public class SniffStepServletTest {
-  private TransformationMap mockTransformationMap;
+  private PipelineMap mockPipelineMap;
 
   private SniffStepServlet sniffStepServlet;
 
   @Before
   public void setup() {
-    mockTransformationMap = mock( TransformationMap.class );
-    sniffStepServlet = new SniffStepServlet( mockTransformationMap );
+    mockPipelineMap = mock( PipelineMap.class );
+    sniffStepServlet = new SniffStepServlet( mockPipelineMap );
   }
 
   @Test
   @PrepareForTest( { Encode.class } )
-  public void testSniffStepServletEscapesHtmlWhenTransNotFound() throws ServletException, IOException {
+  public void testSniffStepServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
 
@@ -87,12 +87,12 @@ public class SniffStepServletTest {
 
   @Test
   @PrepareForTest( { Encode.class } )
-  public void testSniffStepServletEscapesHtmlWhenTransFound() throws ServletException, IOException {
+  public void testSniffStepServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Trans mockTrans = mock( Trans.class );
-    TransMeta mockTransMeta = mock( TransMeta.class );
+    Pipeline mockPipeline = mock( Pipeline.class );
+    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     StepInterface mockStepInterface = mock( StepInterface.class );
     List<StepInterface> stepInterfaces = new ArrayList<StepInterface>();
     stepInterfaces.add( mockStepInterface );
@@ -104,12 +104,12 @@ public class SniffStepServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( SniffStepServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
-    when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
-    when( mockTrans.getLogChannelId() ).thenReturn( "test" );
-    when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
-    when( mockTransMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
-    when( mockTrans.findBaseSteps( ServletTestUtils.BAD_STRING_TO_TEST ) ).thenReturn( stepInterfaces );
+    when( mockPipelineMap.getPipeline( any( HopServerObjectEntry.class ) ) ).thenReturn( mockPipeline );
+    when( mockPipeline.getLogChannel() ).thenReturn( mockChannelInterface );
+    when( mockPipeline.getLogChannelId() ).thenReturn( "test" );
+    when( mockPipeline.getPipelineMeta() ).thenReturn( mockPipelineMeta );
+    when( mockPipelineMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    when( mockPipeline.findBaseSteps( ServletTestUtils.BAD_STRING_TO_TEST ) ).thenReturn( stepInterfaces );
 
     sniffStepServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
     assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );

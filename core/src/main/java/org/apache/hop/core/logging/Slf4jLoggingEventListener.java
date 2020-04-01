@@ -35,11 +35,11 @@ import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
 import static org.apache.hop.core.logging.LoggingObjectType.JOB;
 import static org.apache.hop.core.logging.LoggingObjectType.JOBENTRY;
 import static org.apache.hop.core.logging.LoggingObjectType.STEP;
-import static org.apache.hop.core.logging.LoggingObjectType.TRANS;
+import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
 
 public class Slf4jLoggingEventListener implements HopLoggingEventListener {
 
-  @VisibleForTesting Logger transLogger = LoggerFactory.getLogger( "org.apache.hop.trans.Trans" );
+  @VisibleForTesting Logger pipelineLogger = LoggerFactory.getLogger( "org.apache.hop.pipeline.Pipeline" );
 
   @VisibleForTesting Logger jobLogger = LoggerFactory.getLogger( "org.apache.hop.job.Job" );
 
@@ -66,8 +66,8 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
         // this can happen if logObject has been discarded while log events are still in flight.
         logToLogger( diLogger, message.getLevel(),
           message.getSubject() + " " + message.getMessage() );
-      } else if ( loggingObject.getObjectType() == TRANS || loggingObject.getObjectType() == STEP || loggingObject.getObjectType() == DATABASE ) {
-        logToLogger( transLogger, message.getLevel(), loggingObject, message );
+      } else if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == STEP || loggingObject.getObjectType() == DATABASE ) {
+        logToLogger( pipelineLogger, message.getLevel(), loggingObject, message );
       } else if ( loggingObject.getObjectType() == JOB || loggingObject.getObjectType() == JOBENTRY ) {
         logToLogger( jobLogger, message.getLevel(), loggingObject, message );
       }
@@ -108,7 +108,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
   private String getDetailedSubject( LoggingObjectInterface loggingObject ) {
     LinkedList<String> subjects = new LinkedList<>();
     while ( loggingObject != null ) {
-      if ( loggingObject.getObjectType() == TRANS || loggingObject.getObjectType() == JOB ) {
+      if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == JOB ) {
         String filename = loggingObject.getFilename();
         if ( filename != null && filename.length() > 0 ) {
           subjects.add( filename );

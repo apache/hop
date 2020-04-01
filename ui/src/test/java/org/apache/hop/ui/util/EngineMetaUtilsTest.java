@@ -23,7 +23,7 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -31,15 +31,15 @@ import static org.junit.Assert.assertTrue;
 public class EngineMetaUtilsTest {
 
   @Test
-  public void isJobOrTransformation_withJob() {
+  public void isJobOrPipeline_withJob() {
     JobMeta jobInstance = new JobMeta();
-    assertTrue( EngineMetaUtils.isJobOrTransformation( jobInstance ) );
+    assertTrue( EngineMetaUtils.isJobOrPipeline( jobInstance ) );
   }
 
   @Test
-  public void isJobOrTransformation_withTransformation() {
-    TransMeta transfromataionInstance = new TransMeta();
-    assertTrue( EngineMetaUtils.isJobOrTransformation( transfromataionInstance ) );
+  public void isJobOrPipeline_withPipeline() {
+    PipelineMeta pipelineInstance = new PipelineMeta();
+    assertTrue( EngineMetaUtils.isJobOrPipeline( pipelineInstance ) );
   }
 
 }

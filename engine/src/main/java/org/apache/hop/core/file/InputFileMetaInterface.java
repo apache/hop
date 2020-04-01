@@ -23,7 +23,7 @@
 package org.apache.hop.core.file;
 
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 
 /**
  * @deprecated replaced by implementation in the ...steps.fileinput.text package

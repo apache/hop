@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.DatabaseImpact;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.DatabaseImpact;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
- * Takes care of displaying a dialog that will handle the wait while where determining the impact of a transformation on
+ * Takes care of displaying a dialog that will handle the wait while where determining the impact of a pipeline on
  * the used databases.
  *
  * @author Matt
@@ -46,17 +46,17 @@ public class AnalyseImpactProgressDialog {
   private static Class<?> PKG = AnalyseImpactProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
   private List<DatabaseImpact> impact;
   private boolean impactHasRun;
 
   /**
-   * Creates a new dialog that will handle the wait while determining the impact of the transformation on the databases
+   * Creates a new dialog that will handle the wait while determining the impact of the pipeline on the databases
    * used...
    */
-  public AnalyseImpactProgressDialog( Shell shell, TransMeta transMeta, List<DatabaseImpact> impact ) {
+  public AnalyseImpactProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<DatabaseImpact> impact ) {
     this.shell = shell;
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
     this.impact = impact;
   }
 
@@ -65,7 +65,7 @@ public class AnalyseImpactProgressDialog {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
           impact.clear(); // Start with a clean slate!!
-          transMeta.analyseImpact( impact, new ProgressMonitorAdapter( monitor ) );
+          pipelineMeta.analyseImpact( impact, new ProgressMonitorAdapter( monitor ) );
           impactHasRun = true;
         } catch ( Exception e ) {
           impact.clear();

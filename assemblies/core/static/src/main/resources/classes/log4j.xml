@@ -121,7 +121,7 @@
     <priority value="INFO"/>
   </category>
 
-  <logger name="org.apache.hop.trans.Trans" additivity="false">
+  <logger name="org.apache.hop.pipeline.Pipeline" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="hop-execution-appender"/>
   </logger>

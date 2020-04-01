@@ -22,8 +22,8 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.pipeline.step.BaseStepData;
+import org.apache.hop.pipeline.step.StepDataInterface;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>

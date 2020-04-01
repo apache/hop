@@ -16,7 +16,7 @@
       </parameter>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -129,7 +129,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>

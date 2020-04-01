@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
  */
 public class HopFileSystemConfigBuilderFactory {
 
-  private static Class<?> PKG = HopVFS.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopVFS.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This factory returns a FileSystemConfigBuilder. Custom FileSystemConfigBuilders can be created by implementing the

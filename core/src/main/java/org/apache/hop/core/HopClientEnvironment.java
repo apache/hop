@@ -59,7 +59,7 @@ import java.util.Set;
  */
 public class HopClientEnvironment {
   /**
-   * For i18n purposes, needed by Translator2!!
+   * For i18n purposes, needed by Translator!!
    */
   private static Class<?> PKG = Const.class;
 

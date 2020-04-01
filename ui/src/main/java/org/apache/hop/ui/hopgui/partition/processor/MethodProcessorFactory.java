@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.partition.processor;
 
-import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.step.StepPartitioningMeta;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com

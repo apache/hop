@@ -41,8 +41,8 @@ import org.apache.hop.core.plugins.PluginTypeInterface;
 import org.apache.hop.core.plugins.StepDialogFragmentType;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.engine.PipelineEnginePluginType;
-import org.apache.hop.trans.step.RowDistributionPluginType;
+import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.pipeline.step.RowDistributionPluginType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class HopEnvironment {
 
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Indicates whether the Hop environment has been initialized.

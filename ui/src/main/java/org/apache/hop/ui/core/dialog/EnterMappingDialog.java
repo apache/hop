@@ -29,7 +29,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -223,7 +223,7 @@ public class EnterMappingDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImageTransGraph() );
+    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
 
     int margin = props.getMargin();
     int buttonSpace = 90;

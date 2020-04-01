@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.file.shared;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.step.errorhandling.StreamInterface;
 
 import java.util.List;
 

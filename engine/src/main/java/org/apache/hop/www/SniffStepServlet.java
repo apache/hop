@@ -29,9 +29,9 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.step.RowListener;
-import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.step.RowListener;
+import org.apache.hop.pipeline.step.StepInterface;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -45,7 +45,7 @@ import java.util.List;
 
 
 public class SniffStepServlet extends BaseHttpServlet implements HopServerPluginInterface {
-  private static Class<?> PKG = GetTransStatusServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/sniffStep";
@@ -63,8 +63,8 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
   public SniffStepServlet() {
   }
 
-  public SniffStepServlet( TransformationMap transformationMap ) {
-    super( transformationMap );
+  public SniffStepServlet( PipelineMap pipelineMap ) {
+    super( pipelineMap );
   }
 
   /**
@@ -72,11 +72,11 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
    * <h1>/hop/sniffStep</h1>
    * <a name="GET"></a>
    * <h2>GET</h2>
-   * <p>Sniff metadata and data from the specified step of the specified transformation.</p>
+   * <p>Sniff metadata and data from the specified step of the specified pipeline.</p>
    *
    * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
-   * GET /hop/sniffStep?trans=dummy-trans&step=tf&xml=Y&lines=10
+   * GET /hop/sniffStep?pipeline=dummy-pipeline&step=tf&xml=Y&lines=10
    * </pre>
    *
    * </p>
@@ -89,13 +89,13 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
    * <th>type</th>
    * </tr>
    * <tr>
-   * <td>trans</td>
-   * <td>Name of the transformation containing required step.</td>
+   * <td>pipeline</td>
+   * <td>Name of the pipeline containing required step.</td>
    * <td>query</td>
    * </tr>
    * <tr>
    * <td>stepName</td>
-   * <td>Name of the transformation step to collect data for.</td>
+   * <td>Name of the pipeline step to collect data for.</td>
    * <td>query</td>
    * </tr>
    * <tr>
@@ -117,7 +117,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
    * </tr>
    * <tr>
    * <td>id</td>
-   * <td>HopServer id of the transformation to be used for step lookup.</td>
+   * <td>HopServer id of the pipeline to be used for step lookup.</td>
    * <td>query, optional</td>
    * </tr>
    * <tr>
@@ -223,10 +223,10 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "TransStatusServlet.Log.SniffStepRequested" ) );
+      logDebug( BaseMessages.getString( PKG, "PipelineStatusServlet.Log.SniffStepRequested" ) );
     }
 
-    String transName = request.getParameter( "trans" );
+    String pipelineName = request.getParameter( "pipeline" );
     String id = request.getParameter( "id" );
     String stepName = request.getParameter( "step" );
     int copyNr = Const.toInt( request.getParameter( "copynr" ), 0 );
@@ -247,31 +247,31 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
 
     // ID is optional...
     //
-    Trans trans;
+    Pipeline pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
-      // get the first transformation that matches...
+      // get the first pipeline that matches...
       //
-      entry = getTransformationMap().getFirstCarteObjectEntry( transName );
+      entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
       if ( entry == null ) {
-        trans = null;
+        pipeline = null;
       } else {
         id = entry.getId();
-        trans = getTransformationMap().getTransformation( entry );
+        pipeline = getPipelineMap().getPipeline( entry );
       }
     } else {
       // Take the ID into account!
       //
-      entry = new HopServerObjectEntry( transName, id );
-      trans = getTransformationMap().getTransformation( entry );
+      entry = new HopServerObjectEntry( pipelineName, id );
+      pipeline = getPipelineMap().getPipeline( entry );
     }
 
-    if ( trans != null ) {
+    if ( pipeline != null ) {
 
       // Find the step to look at...
       //
       StepInterface step = null;
-      List<StepInterface> stepInterfaces = trans.findBaseSteps( stepName );
+      List<StepInterface> stepInterfaces = pipeline.findBaseSteps( stepName );
       for ( int i = 0; i < stepInterfaces.size(); i++ ) {
         StepInterface look = stepInterfaces.get( i );
         if ( look.getCopy() == copyNr ) {
@@ -280,7 +280,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
       }
       if ( step != null ) {
 
-        // Add a listener to the transformation step...
+        // Add a listener to the pipeline step...
         //
         final boolean read = type.equalsIgnoreCase( TYPE_INPUT );
         final boolean written = type.equalsIgnoreCase( TYPE_OUTPUT ) || !read;
@@ -313,7 +313,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
         // Wait until we have enough rows...
         //
         while ( metaData.bufferRowData.size() < nrLines
-          && step.isRunning() && !trans.isFinished() && !trans.isStopped() ) {
+          && step.isRunning() && !pipeline.isFinished() && !pipeline.isStopped() ) {
 
           try {
             Thread.sleep( 100 );
@@ -367,7 +367,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
           out.println( "<HEAD>" );
           out.println( "<TITLE>" + BaseMessages.getString( PKG, "SniffStepServlet.SniffResults" ) + "</TITLE>" );
           out.println( "<META http-equiv=\"Refresh\" content=\"10;url="
-            + convertContextPath( CONTEXT_PATH ) + "?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+            + convertContextPath( CONTEXT_PATH ) + "?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
             + URLEncoder.encode( id, "UTF-8" ) + "\">" );
           out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
           out.println( "</HEAD>" );
@@ -428,26 +428,26 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
             PKG, "SniffStepServlet.Log.CoundNotFindSpecStep", stepName ) ) + "</H1>" );
           out.println( "<a href=\""
             + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
+            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
         }
       }
     } else {
       if ( useXML ) {
         out.println( new WebResult( WebResult.STRING_ERROR, BaseMessages.getString(
-          PKG, "SniffStepServlet.Log.CoundNotFindSpecTrans", transName ) ).getXML() );
+          PKG, "SniffStepServlet.Log.CoundNotFindSpecPipeline", pipelineName ) ).getXML() );
       } else {
         out.println( "<H1>"
           + Encode.forHtml( BaseMessages.getString(
-          PKG, "SniffStepServlet.Log.CoundNotFindTrans", transName ) ) + "</H1>" );
+          PKG, "SniffStepServlet.Log.CoundNotFindPipeline", pipelineName ) ) + "</H1>" );
         out.println( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
+          + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
       }
     }
   }
 
   public String toString() {
-    return "Trans Status Handler";
+    return "Pipeline Status Handler";
   }
 
   public String getService() {

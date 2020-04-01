@@ -53,7 +53,7 @@ public class HopGuiNotePadDelegate {
   }
 
   public void newNote( AbstractMeta meta, int x, int y ) {
-    String title = BaseMessages.getString( PKG, "TransGraph.Dialog.NoteEditor.Title" );
+    String title = BaseMessages.getString( PKG, "PipelineGraph.Dialog.NoteEditor.Title" );
     NotePadDialog dd = new NotePadDialog( meta, hopUi.getShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {

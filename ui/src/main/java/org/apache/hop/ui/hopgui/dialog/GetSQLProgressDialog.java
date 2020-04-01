@@ -26,7 +26,7 @@ import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -37,7 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
- * Takes care of displaying a dialog that will handle the wait while getting the SQL for a transformation...
+ * Takes care of displaying a dialog that will handle the wait while getting the SQL for a pipeline...
  *
  * @author Matt
  * @since 15-mrt-2005
@@ -46,15 +46,15 @@ public class GetSQLProgressDialog {
   private static Class<?> PKG = GetSQLProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
   private List<SQLStatement> stats;
 
   /**
-   * Creates a new dialog that will handle the wait while getting the SQL for a transformation...
+   * Creates a new dialog that will handle the wait while getting the SQL for a pipeline...
    */
-  public GetSQLProgressDialog( Shell shell, TransMeta transMeta ) {
+  public GetSQLProgressDialog( Shell shell, PipelineMeta pipelineMeta ) {
     this.shell = shell;
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
   }
 
   public List<SQLStatement> open() {
@@ -65,7 +65,7 @@ public class GetSQLProgressDialog {
         // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
         try {
-          stats = transMeta.getSQLStatements( new ProgressMonitorAdapter( monitor ) );
+          stats = pipelineMeta.getSQLStatements( new ProgressMonitorAdapter( monitor ) );
         } catch ( HopException e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) );

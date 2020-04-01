@@ -213,7 +213,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
    * For job execution path to files and file masks should be provided.
    * These values can be obtained in two ways:
    * 1. As an argument of a current job entry
-   * 2. As a table, that comes as a result of execution previous job/transformation.
+   * 2. As a table, that comes as a result of execution previous job/pipeline.
    * <p>
    * As the logic of processing this data is the same for both of this cases, we first
    * populate this data (in this method) and then process it.

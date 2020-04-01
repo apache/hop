@@ -334,12 +334,12 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * Checks if this job entry executes a transformation
+   * Checks if this job entry executes a pipeline
    *
-   * @return true if this job entry executes a transformation, false otherwise
+   * @return true if this job entry executes a pipeline, false otherwise
    */
-  public boolean isTransformation() {
-    return "TRANS".equals( configId );
+  public boolean isPipeline() {
+    return "PIPELINE".equals( configId );
   }
 
   /**
@@ -1053,7 +1053,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return null;

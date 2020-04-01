@@ -24,42 +24,42 @@ package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.Job;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 
 public interface SubComponentExecutionListener {
 
   /**
-   * This method is called right before a sub-transformation, mapping, single threader template, ... is to be executed
-   * in a parent job or transformation.
+   * This method is called right before a sub-pipeline, mapping, single threader template, ... is to be executed
+   * in a parent job or pipeline.
    *
-   * @param trans The transformation that is about to be executed.
+   * @param pipeline The pipeline that is about to be executed.
    * @throws HopException In case something goes wrong
    */
-  public void beforeTransformationExecution( Trans trans ) throws HopException;
+  public void beforePipelineExecution( Pipeline pipeline ) throws HopException;
 
   /**
-   * This method is called right after a sub-transformation, mapping, single threader template, ... was executed in a
-   * parent job or transformation.
+   * This method is called right after a sub-pipeline, mapping, single threader template, ... was executed in a
+   * parent job or pipeline.
    *
-   * @param trans The transformation that was just executed.
+   * @param pipeline The pipeline that was just executed.
    * @throws HopException In case something goes wrong
    */
-  public void afterTransformationExecution( Trans trans ) throws HopException;
+  public void afterPipelineExecution( Pipeline pipeline ) throws HopException;
 
   /**
-   * This method is called right before a job is to be executed in a parent job or transformation (Job job-entry, Job
+   * This method is called right before a job is to be executed in a parent job or pipeline (Job job-entry, Job
    * Executor step).
    *
-   * @param trans The job that is about to be executed.
+   * @param pipeline The job that is about to be executed.
    * @throws HopException In case something goes wrong
    */
   public void beforeJobExecution( Job job ) throws HopException;
 
   /**
-   * This method is called right after a job was executed in a parent job or transformation (Job job-entry, Job Executor
+   * This method is called right after a job was executed in a parent job or pipeline (Job job-entry, Job Executor
    * step).
    *
-   * @param trans The job that was executed.
+   * @param pipeline The job that was executed.
    * @throws HopException In case something goes wrong
    */
   public void afterJobExecution( Job job ) throws HopException;

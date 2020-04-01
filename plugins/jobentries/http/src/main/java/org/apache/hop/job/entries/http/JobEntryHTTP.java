@@ -101,7 +101,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   private String uploadFilename;
 
   // The fieldname that contains the URL
-  // Get it from a previous transformation with Result.
+  // Get it from a previous pipeline with Result.
   private String urlFieldname;
   private String uploadFieldname;
   private String destinationFieldname;

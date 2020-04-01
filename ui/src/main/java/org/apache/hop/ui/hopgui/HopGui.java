@@ -23,7 +23,7 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -603,8 +603,8 @@ public class HopGui implements IActionContextHandlersProvider {
       return;
     }
 
-    TransAction prev = null;
-    TransAction next = null;
+    ChangeAction prev = null;
+    ChangeAction next = null;
 
     if ( undoInterface != null ) {
       prev = undoInterface.viewThisUndo();

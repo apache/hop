@@ -98,7 +98,7 @@ public class HopGuiFileDelegate {
       AtomicBoolean doIt = new AtomicBoolean( true );
       try {
         HopGuiFileOpenExtension openExtension = new HopGuiFileOpenExtension( doIt, fileDialog, hopGui );
-        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.TransBeforeOpen.id, openExtension );
+        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineBeforeOpen.id, openExtension );
       } catch ( Exception e ) {
         throw new HopException( "Error calling extension point on the file dialog", e );
       }

@@ -72,8 +72,8 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.JobPainter;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPainter;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
@@ -159,7 +159,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -884,16 +883,16 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                 MessageDialogWithToggle md =
                   new MessageDialogWithToggle(
                     hopShell(),
-                    BaseMessages.getString( PKG, "TransGraph.Dialog.SplitHop.Title" ),
+                    BaseMessages.getString( PKG, "PipelineGraph.Dialog.SplitHop.Title" ),
                     null,
-                    BaseMessages.getString( PKG, "TransGraph.Dialog.SplitHop.Message" )
+                    BaseMessages.getString( PKG, "PipelineGraph.Dialog.SplitHop.Message" )
                       + Const.CR + hi.toString(),
                     MessageDialog.QUESTION,
                     new String[] {
                       BaseMessages.getString( PKG, "System.Button.Yes" ),
                       BaseMessages.getString( PKG, "System.Button.No" ) },
                     0,
-                    BaseMessages.getString( PKG, "TransGraph.Dialog.Option.SplitHop.DoNotAskAgain" ),
+                    BaseMessages.getString( PKG, "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain" ),
                     hopUi.getProps().getAutoSplit() );
                 MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
                 id = md.open();
@@ -1371,7 +1370,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
 
       zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
-      zoomLabel.setItems( TransPainter.magnificationDescriptions );
+      zoomLabel.setItems( PipelinePainter.magnificationDescriptions );
       zoomLabel.addSelectionListener( new SelectionAdapter() {
         @Override
         public void widgetSelected( SelectionEvent arg0 ) {
@@ -1417,7 +1416,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     type = GuiElementType.TOOLBAR_BUTTON,
     id = TOOLBAR_ITEM_START,
     label = "Start",
-    toolTip = "Start the execution of the transformation",
+    toolTip = "Start the execution of the pipeline",
     image = "ui/images/toolbar/run.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
@@ -1496,9 +1495,9 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       }
     } catch ( Exception e ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.YES | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "TransGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel
+      mb.setMessage( BaseMessages.getString( PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel
         .getText() ) );
-      mb.setText( BaseMessages.getString( PKG, "TransGraph.Dialog.InvalidZoomMeasurement.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Title" ) );
       mb.open();
     }
     redraw();
@@ -1662,7 +1661,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
    *
    * @param x
    * @param y
-   * @return the transformation hop on the specified location, otherwise: null
+   * @return the pipeline hop on the specified location, otherwise: null
    */
   private JobHopMeta findJobHop( int x, int y ) {
     return findHop( x, y, null );
@@ -1674,7 +1673,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
    * @param x
    * @param y
    * @param exclude the step to exclude from the hops (from or to location). Specify null if no step is to be excluded.
-   * @return the transformation hop on the specified location, otherwise: null
+   * @return the pipeline hop on the specified location, otherwise: null
    */
   private JobHopMeta findHop( int x, int y, JobEntryCopy exclude ) {
     int i;
@@ -2229,7 +2228,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
           String message = (String) areaOwner.getOwner();
           tip.append( message );
           tipImage = null;
-          GUIResource.getInstance().getImageTransGraph();
+          GUIResource.getInstance().getImagePipelineGraph();
           break;
 
         case JOB_ENTRY_MINI_ICON_INPUT:
@@ -2320,7 +2319,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
         case JOB_ENTRY_RESULT_CHECKPOINT:
           tip.append( "The job started here since this is the furthest checkpoint "
-            + "that was reached last time the transformation was executed." );
+            + "that was reached last time the pipeline was executed." );
           tipImage = GUIResource.getInstance().getImageCheckpoint();
           break;
         case JOB_ENTRY_ICON:
@@ -2355,7 +2354,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         hi.getFromEntry().getName() ).append( Const.CR );
       tip.append( BaseMessages.getString( PKG, "JobGraph.Dialog.HopInfo.TargetEntry" ) ).append( " " ).append(
         hi.getToEntry().getName() ).append( Const.CR );
-      tip.append( BaseMessages.getString( PKG, "TransGraph.Dialog.HopInfo.Status" ) ).append( " " );
+      tip.append( BaseMessages.getString( PKG, "PipelineGraph.Dialog.HopInfo.Status" ) ).append( " " );
       tip.append( ( hi.isEnabled()
         ? BaseMessages.getString( PKG, "JobGraph.Dialog.HopInfo.Enable" ) : BaseMessages.getString(
         PKG, "JobGraph.Dialog.HopInfo.Disable" ) ) );
@@ -2477,8 +2476,8 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       if ( job.getActiveJobEntryJobs().size() > 0 ) {
         activeJobEntries.addAll( job.getActiveJobEntryJobs().keySet() );
       }
-      if ( job.getActiveJobEntryTransformations().size() > 0 ) {
-        activeJobEntries.addAll( job.getActiveJobEntryTransformations().keySet() );
+      if ( job.getActiveJobEntryPipeline().size() > 0 ) {
+        activeJobEntries.addAll( job.getActiveJobEntryPipeline().keySet() );
       }
     }
     jobPainter.setActiveJobEntries( activeJobEntries );
@@ -3238,7 +3237,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   public synchronized void startJob( JobExecutionConfiguration executionConfiguration ) throws HopException {
 
-    // If the job is not running, start the transformation...
+    // If the job is not running, start the pipeline...
     //
     if ( job == null || ( job.isFinished() || job.isStopped() ) && !job.isActive() ) {
       // Auto save feature...
@@ -3311,7 +3310,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
             // Link to the new jobTracker!
             jobGridDelegate.jobTracker = job.getJobTracker();
 
-            // Attach a listener to notify us that the transformation has
+            // Attach a listener to notify us that the pipeline has
             // finished.
             job.addJobListener( new JobAdapter() {
               public void jobFinished( Job job ) {
@@ -3405,7 +3404,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   // Change of step, connection, hop or note...
   public void addUndoPosition( Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso ) {
     // It's better to store the indexes of the objects, not the objects itself!
-    jobMeta.addUndo( obj, null, pos, prev, curr, TransMeta.TYPE_UNDO_POSITION, nextAlso );
+    jobMeta.addUndo( obj, null, pos, prev, curr, PipelineMeta.TYPE_UNDO_POSITION, nextAlso );
     hopUi.setUndoMenu( jobMeta );
   }
 

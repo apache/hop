@@ -23,7 +23,7 @@
 package org.apache.hop.core.gui;
 
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 
 public interface GCInterface extends PrimitiveGCInterface {
 

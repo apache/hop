@@ -583,7 +583,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     List<PluginInterface> stepPlugins = PluginRegistry.getInstance().getPlugins( StepPluginType.class );
     for ( PluginInterface stepPlugin : stepPlugins ) {
       GuiAction createStepAction =
-        new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
+        new GuiAction( "pipeline-graph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
           (shiftClicked, controlClicked, t) -> System.out.println( "Create step action : " + stepPlugin.getName() + ", shift="+shiftClicked+", control="+controlClicked )
         );
       createStepAction.getKeywords().add( stepPlugin.getCategory() );

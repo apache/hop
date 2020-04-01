@@ -29,7 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
 public class StringSearchResult {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   private String string;
   private Object parentObject;
@@ -68,7 +68,7 @@ public class StringSearchResult {
   public static final RowMetaInterface getResultRowMeta() {
     RowMetaInterface rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.TransOrJob" ) ) );
+      BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(
       BaseMessages.getString( PKG, "SearchResult.StepDatabaseNotice" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(

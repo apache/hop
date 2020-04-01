@@ -24,16 +24,16 @@ package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.Job;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 
 public class SubComponentExecutionAdapter implements SubComponentExecutionListener {
 
   @Override
-  public void beforeTransformationExecution( Trans trans ) throws HopException {
+  public void beforePipelineExecution( Pipeline pipeline ) throws HopException {
   }
 
   @Override
-  public void afterTransformationExecution( Trans trans ) throws HopException {
+  public void afterPipelineExecution( Pipeline pipeline ) throws HopException {
   }
 
   @Override

@@ -134,7 +134,7 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements HopServerPl
 
     try {
       // First read the slave server information in memory from the request
-      // Parse the XML, create a transformation configuration
+      // Parse the XML, create a pipeline configuration
       //
       Document document = XMLHandler.loadXMLFile( request.getInputStream() );
       Node node = XMLHandler.getSubNode( document, SlaveServerDetection.XML_TAG );

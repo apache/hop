@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -103,7 +103,7 @@ public class EnterListDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageTransGraph() );
+    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
     shell.setText( BaseMessages.getString( PKG, "EnterListDialog.Title" ) );
 
     shell.setLayout( new FormLayout() );

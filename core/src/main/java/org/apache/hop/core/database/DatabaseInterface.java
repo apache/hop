@@ -978,7 +978,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsErrorHandling();
 
   /**
-   * Convert a value in the SQL equivalent. For example, convert String "Pentaho" into 'Pentaho' or into Oracle date
+   * Convert a value in the SQL equivalent. For example, convert String "Apache" into 'Apache' or into Oracle date
    * format TO_DATE('2012/08/16 15:36:59', 'YYYY/MM/DD HH24:MI:SS')
    *
    * @param valueMeta The description of the value. The date format used is taken from this value unless dateFormat is specified

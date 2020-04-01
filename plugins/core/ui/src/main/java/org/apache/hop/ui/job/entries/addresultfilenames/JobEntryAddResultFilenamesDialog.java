@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog( id = "ADD_RESULT_FILENAMES", image = "AFN.svg", pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Add+filenames+to+result" )
 public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobEntryAddResultFilenames.Filetype.All" ) };

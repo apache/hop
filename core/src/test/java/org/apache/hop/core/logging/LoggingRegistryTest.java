@@ -40,7 +40,7 @@ public class LoggingRegistryTest {
   public void correctLogIdReturned_WhenLogObjectRegisteredAlready() {
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
-    LoggingObject parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.TRANS, null ) );
+    LoggingObject parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.PIPELINE, null ) );
     parent.setLogChannelId( LOG_CHANEL_ID_PARENT );
 
     LoggingObject child = new LoggingObject( new SimpleLoggingObject( "child", LoggingObjectType.STEP, parent ) );

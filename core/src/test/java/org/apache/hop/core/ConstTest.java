@@ -2048,7 +2048,7 @@ public class ConstTest {
   @Test
   public void testCreateName() {
     assertNull( Const.createName( null ) );
-    assertEquals( "test - trans", Const.createName( "transformations" + Const.FILE_SEPARATOR + "test\t~- trans.ktr" ) );
+    assertEquals( "test - pipeline", Const.createName( "pipelines" + Const.FILE_SEPARATOR + "test\t~- pipeline.hpl" ) );
   }
 
   @Test
@@ -2085,33 +2085,6 @@ public class ConstTest {
     assertEquals( dateFormats.size() + numberFormats.size(), conversionFormats.size() );
     assertTrue( conversionFormats.containsAll( dateFormats ) );
     assertTrue( conversionFormats.containsAll( numberFormats ) );
-  }
-
-  @Test
-  public void testGetTransformationAndJobFilterNames() {
-    List<String> filters = Arrays.asList( Const.getTransformationAndJobFilterNames() );
-    assertTrue( filters.size() == 5 );
-    for ( String filter : filters ) {
-      assertFalse( filter.isEmpty() );
-    }
-  }
-
-  @Test
-  public void testGetTransformationFilterNames() {
-    List<String> filters = Arrays.asList( Const.getTransformationFilterNames() );
-    assertTrue( filters.size() == 3 );
-    for ( String filter : filters ) {
-      assertFalse( filter.isEmpty() );
-    }
-  }
-
-  @Test
-  public void testGetJobFilterNames() {
-    List<String> filters = Arrays.asList( Const.getJobFilterNames() );
-    assertTrue( filters.size() == 3 );
-    for ( String filter : filters ) {
-      assertFalse( filter.isEmpty() );
-    }
   }
 
   @Test

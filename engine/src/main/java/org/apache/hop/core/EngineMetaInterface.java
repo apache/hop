@@ -62,7 +62,7 @@ public interface EngineMetaInterface {
   /**
    * Gets the XML representation.
    *
-   * @return the XML representation of this transformation
+   * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
    * @see org.apache.hop.core.xml.XMLInterface#getXML()
    */
@@ -70,40 +70,14 @@ public interface EngineMetaInterface {
   String getXML() throws HopException;
 
   /**
-   * Gets the file type.
+   * Gets the date the pipeline was created.
    *
-   * @return the file type
-   */
-  String getFileType();
-
-  /**
-   * Gets the filter names.
-   */
-  String[] getFilterNames();
-
-  /**
-   * Gets the filter extensions.
-   *
-   * @return the filter extensions
-   */
-  String[] getFilterExtensions();
-
-  /**
-   * Gets the default extension.
-   *
-   * @return default extension
-   */
-  String getDefaultExtension();
-
-  /**
-   * Gets the date the transformation was created.
-   *
-   * @return the date the transformation was created
+   * @return the date the pipeline was created
    */
   Date getCreatedDate();
 
   /**
-   * Sets the date the transformation was created.
+   * Sets the date the pipeline was created.
    *
    * @param date The creation date to set
    */

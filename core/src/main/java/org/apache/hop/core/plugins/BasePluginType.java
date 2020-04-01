@@ -63,7 +63,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class BasePluginType implements PluginTypeInterface {
-  protected static Class<?> PKG = BasePluginType.class; // for i18n purposes, needed by Translator2!!
+  protected static Class<?> PKG = BasePluginType.class; // for i18n purposes, needed by Translator!!
 
   protected String id;
   protected String name;
@@ -748,10 +748,10 @@ public abstract class BasePluginType implements PluginTypeInterface {
    * When set to true the PluginFolder objects created by this type will be instructed to search for additional plugins
    * in the lib directory of plugin folders.
    *
-   * @param transverseLibDirs
+   * @param searchLibDir
    */
-  protected void setTransverseLibDirs( boolean transverseLibDirs ) {
-    this.searchLibDir = transverseLibDirs;
+  protected void setSearchLibDirs( boolean searchLibDir ) {
+    this.searchLibDir = searchLibDir;
   }
 
   protected void registerPluginJars() throws HopPluginException {

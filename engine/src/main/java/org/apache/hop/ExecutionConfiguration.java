@@ -74,17 +74,9 @@ public interface ExecutionConfiguration extends Cloneable {
 
   void setExecutingRemotely( boolean remoteExecution );
 
-  boolean isGatheringMetrics();
-
-  void setGatheringMetrics( boolean gatheringMetrics );
-
   boolean isPassingExport();
 
   void setPassingExport( boolean passingExport );
-
-  boolean isSafeModeEnabled();
-
-  void setSafeModeEnabled( boolean usingSafeMode );
 
   String getRunConfiguration();
 

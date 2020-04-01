@@ -38,11 +38,11 @@ import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -126,7 +126,7 @@ public class AbstractMetaTest {
     assertNull( meta.getFilename() );
     meta.nameFromFilename();
     assertNull( meta.getName() );
-    meta.setFilename( "/path/to/my/file 2.ktr" );
+    meta.setFilename( "/path/to/my/file 2.hpl" );
     meta.nameFromFilename();
     assertEquals( "file 2", meta.getName() );
   }
@@ -237,9 +237,9 @@ public class AbstractMetaTest {
     assertNotNull( meta.viewThisUndo() );
     assertNotNull( meta.viewPreviousUndo() );
     assertNull( meta.viewNextUndo() );
-    TransAction action = meta.previousUndo();
+    ChangeAction action = meta.previousUndo();
     assertNotNull( action );
-    assertEquals( TransAction.ActionType.ChangeStep, action.getType() );
+    assertEquals( ChangeAction.ActionType.ChangeStep, action.getType() );
     assertNotNull( meta.viewThisUndo() );
     assertNotNull( meta.viewPreviousUndo() );
     assertNotNull( meta.viewNextUndo() );
@@ -591,26 +591,6 @@ public class AbstractMetaTest {
 
     @Override
     public String getXML() throws HopException {
-      return null;
-    }
-
-    @Override
-    public String getFileType() {
-      return null;
-    }
-
-    @Override
-    public String[] getFilterNames() {
-      return new String[ 0 ];
-    }
-
-    @Override
-    public String[] getFilterExtensions() {
-      return new String[ 0 ];
-    }
-
-    @Override
-    public String getDefaultExtension() {
       return null;
     }
 

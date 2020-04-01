@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
-
 public interface HopUiInterface {
 
   public boolean messageBox( String message, String text, boolean allowCancel, int type );

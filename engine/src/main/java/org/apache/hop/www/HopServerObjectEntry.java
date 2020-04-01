@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
 
 /**
- * A carte object entry in the transformation or job maps
+ * A carte object entry in the pipeline or job maps
  *
  * @author matt
  */

@@ -6,7 +6,7 @@
       description="Mod"
       tooltip="Remainder of division"
       category="Partitioner"
-      classname="org.apache.hop.trans.ModPartitioner">
+      classname="org.apache.hop.pipeline.ModPartitioner">
 
     <localized_category>
       <category locale="en_US">Partitioner</category>

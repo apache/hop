@@ -54,7 +54,7 @@ import java.util.Comparator;
 public class HopVFS {
   public static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 
-  private static Class<?> PKG = HopVFS.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopVFS.class; // for i18n purposes, needed by Translator!!
 
   private static final HopVFS kettleVFS = new HopVFS();
   private static FileSystemOptions fsOptionsForScheme;

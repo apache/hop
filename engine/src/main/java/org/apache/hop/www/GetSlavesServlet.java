@@ -37,7 +37,7 @@ import java.util.List;
 public class GetSlavesServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetSlavesServlet.class; // for i18n purposes,
   // needed by
-  // Translator2!!
+  // Translator!!
 
   public static final String XML_TAG_SLAVESERVER_DETECTIONS = "SlaveServerDetections";
 

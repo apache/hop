@@ -30,8 +30,8 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.performance.PerformanceSnapShot;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.performance.PerformanceSnapShot;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -44,13 +44,13 @@ import java.util.List;
  */
 public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
-  private static Class<?> PKG = PerformanceLogTable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = PerformanceLogTable.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "perf-log-table";
 
   public enum ID {
 
-    ID_BATCH( "ID_BATCH" ), SEQ_NR( "SEQ_NR" ), LOGDATE( "LOGDATE" ), TRANSNAME( "TRANSNAME" ), STEPNAME(
+    ID_BATCH( "ID_BATCH" ), SEQ_NR( "SEQ_NR" ), LOGDATE( "LOGDATE" ), PIPELINE_NAME( "PIPELINE_NAME" ), STEPNAME(
       "STEPNAME" ), STEP_COPY( "STEP_COPY" ), LINES_READ( "LINES_READ" ), LINES_WRITTEN( "LINES_WRITTEN" ),
     LINES_UPDATED( "LINES_UPDATED" ), LINES_INPUT( "LINES_INPUT" ), LINES_OUTPUT( "LINES_OUTPUT" ),
     LINES_REJECTED( "LINES_REJECTED" ), ERRORS( "ERRORS" ), INPUT_BUFFER_ROWS( "INPUT_BUFFER_ROWS" ),
@@ -132,8 +132,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.SeqNr" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.LOGDATE.id, true, false, "LOGDATE", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LogDate" ),
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.TRANSNAME.id, true, false, "TRANSNAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.TransName" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.PipelineName" ),
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.STEPNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.StepName" ),
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.StepName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.STEP_COPY.id, true, false, "STEP_COPY", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.StepCopy" ),
@@ -159,7 +159,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
 
     table.findField( ID.ID_BATCH.id ).setKey( true );
     table.findField( ID.LOGDATE.id ).setLogDateField( true );
-    table.findField( ID.TRANSNAME.id ).setNameField( true );
+    table.findField( ID.PIPELINE_NAME.id ).setNameField( true );
 
     return table;
   }
@@ -212,7 +212,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
               case LOGDATE:
                 value = snapShot.getDate();
                 break;
-              case TRANSNAME:
+              case PIPELINE_NAME:
                 value = snapShot.getParentName();
                 break;
               case STEPNAME:
@@ -273,15 +273,15 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
   }
 
   public String getConnectionNameVariable() {
-    return Const.HOP_TRANS_PERFORMANCE_LOG_DB;
+    return Const.HOP_PIPELINE_PERFORMANCE_LOG_DB;
   }
 
   public String getSchemaNameVariable() {
-    return Const.HOP_TRANS_PERFORMANCE_LOG_SCHEMA;
+    return Const.HOP_PIPELINE_PERFORMANCE_LOG_SCHEMA;
   }
 
   public String getTableNameVariable() {
-    return Const.HOP_TRANS_PERFORMANCE_LOG_TABLE;
+    return Const.HOP_PIPELINE_PERFORMANCE_LOG_TABLE;
   }
 
   public List<RowMetaInterface> getRecommendedIndexes() {

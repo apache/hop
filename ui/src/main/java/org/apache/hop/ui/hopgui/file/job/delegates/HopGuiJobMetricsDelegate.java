@@ -109,7 +109,7 @@ public class HopGuiJobMetricsDelegate {
       }
     }
 
-    // Add a transMetricsTab : displays the metrics information in a graphical way...
+    // Add a pipelineMetricsTab : displays the metrics information in a graphical way...
     //
     jobMetricsTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
     jobMetricsTab.setImage( GUIResource.getInstance().getImageGantt() );

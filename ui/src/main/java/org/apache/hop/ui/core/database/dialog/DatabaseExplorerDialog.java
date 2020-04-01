@@ -35,9 +35,9 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransProfileFactory;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineProfileFactory;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -48,8 +48,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.StepFieldsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -832,33 +832,33 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   /**
-   * Fire off a transformation that data profiles the specified table...<br>
+   * Fire off a pipeline that data profiles the specified table...<br>
    *
    * @param tableName
    */
   public void profileTable( String tableName ) {
     try {
-      TransProfileFactory profileFactory = new TransProfileFactory( dbMeta, tableName );
-      TransMeta transMeta = profileFactory.generateTransformation( new LoggingObject( tableName ) );
-      TransPreviewProgressDialog progressDialog = new TransPreviewProgressDialog( shell,
-        transMeta,
-        new String[] { TransProfileFactory.RESULT_STEP_NAME, }, new int[] { 25000, } );
+      PipelineProfileFactory profileFactory = new PipelineProfileFactory( dbMeta, tableName );
+      PipelineMeta pipelineMeta = profileFactory.generatePipeline( new LoggingObject( tableName ) );
+      PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell,
+        pipelineMeta,
+        new String[] { PipelineProfileFactory.RESULT_STEP_NAME, }, new int[] { 25000, } );
       progressDialog.open();
 
       if ( !progressDialog.isCancelled() ) {
-        Trans trans = progressDialog.getTrans();
+        Pipeline pipeline = progressDialog.getPipeline();
         String loggingText = progressDialog.getLoggingText();
 
-        if ( trans.getResult() != null && trans.getResult().getNrErrors() > 0 ) {
+        if ( pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0 ) {
           EnterTextDialog etd = new EnterTextDialog( shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ),
             BaseMessages.getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
 
-        PreviewRowsDialog prd = new PreviewRowsDialog( shell, transMeta, SWT.NONE, TransProfileFactory.RESULT_STEP_NAME,
-          progressDialog.getPreviewRowsMeta( TransProfileFactory.RESULT_STEP_NAME ), progressDialog
-          .getPreviewRows( TransProfileFactory.RESULT_STEP_NAME ), loggingText );
+        PreviewRowsDialog prd = new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, PipelineProfileFactory.RESULT_STEP_NAME,
+          progressDialog.getPreviewRowsMeta( PipelineProfileFactory.RESULT_STEP_NAME ), progressDialog
+          .getPreviewRows( PipelineProfileFactory.RESULT_STEP_NAME ), loggingText );
         prd.open();
 
       }

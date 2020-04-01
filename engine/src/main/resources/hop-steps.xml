@@ -1,124 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <steps>
   <step id="Dummy">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Dummy</description>
-    <classname>org.apache.hop.trans.steps.dummytrans.DummyTransMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Dummy</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.Dummy</description>
+    <classname>org.apache.hop.pipeline.steps.dummy.DummyMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.Dummy</tooltip>
     <iconfile>ui/images/DUM.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Dummy+%28do+nothing%29</documentation_url>
     <cases_url/>
     <forum_url/>
   </step>
   <step id="TableInput">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TableInput</description>
-    <classname>org.apache.hop.trans.steps.tableinput.TableInputMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TableInput</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.TableInput</description>
+    <classname>org.apache.hop.pipeline.steps.tableinput.TableInputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Input</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.TableInput</tooltip>
     <iconfile>ui/images/TIP.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Table_Input</documentation_url>
-    <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
-    <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
   </step>
   <step id="SocketReader">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SocketReader</description>
-    <classname>org.apache.hop.trans.steps.socketreader.SocketReaderMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Inline</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.SocketReader</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.SocketReader</description>
+    <classname>org.apache.hop.pipeline.steps.socketreader.SocketReaderMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.SocketReader</tooltip>
     <iconfile>ui/images/SKR.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Socket+reader</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="SocketWriter">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SocketWriter</description>
-    <classname>org.apache.hop.trans.steps.socketwriter.SocketWriterMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Inline</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.SocketWriter</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.SocketWriter</description>
+    <classname>org.apache.hop.pipeline.steps.socketwriter.SocketWriterMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.SocketWriter</tooltip>
     <iconfile>ui/images/SKW.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Socket+writer</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="Injector">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Injector</description>
-    <classname>org.apache.hop.trans.steps.injector.InjectorMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Inline</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Injector</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.Injector</description>
+    <classname>org.apache.hop.pipeline.steps.injector.InjectorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.Injector</tooltip>
     <iconfile>ui/images/INJ.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Injector</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="MappingInput">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.MappingInput</description>
-    <classname>org.apache.hop.trans.steps.mappinginput.MappingInputMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.MappingInputSpecification</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.MappingInput</description>
+    <classname>org.apache.hop.pipeline.steps.mappinginput.MappingInputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.MappingInputSpecification</tooltip>
     <iconfile>ui/images/MPI.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Mapping+Input</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="Mapping">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.MappingSubTransformation</description>
-    <classname>org.apache.hop.trans.steps.mapping.MappingMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.MappingSubTransformation</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.MappingSubPipeline</description>
+    <classname>org.apache.hop.pipeline.steps.mapping.MappingMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.MappingSubPipeline</tooltip>
     <iconfile>ui/images/MAP.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Mapping</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="MappingOutput">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.MappingOutput</description>
-    <classname>org.apache.hop.trans.steps.mappingoutput.MappingOutputMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.MappingOutputSpecification</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.MappingOutput</description>
+    <classname>org.apache.hop.pipeline.steps.mappingoutput.MappingOutputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.MappingOutputSpecification</tooltip>
     <iconfile>ui/images/MPO.svg</iconfile>
-    <documentation_url>http://wiki.pentaho.com/display/EAI/Mapping+Output</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="GroupBy">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GroupBy</description>
-    <classname>org.apache.hop.trans.steps.groupby.GroupByMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Statistics</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Groupby</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.GroupBy</description>
+    <classname>org.apache.hop.pipeline.steps.groupby.GroupByMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Statistics</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.Groupby</tooltip>
     <iconfile>ui/images/GRP.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Group_By</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="SingleThreader">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SingleThreader</description>
-    <classname>org.apache.hop.trans.steps.singlethreader.SingleThreaderMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.SingleThreader</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.SingleThreader</description>
+    <classname>org.apache.hop.pipeline.steps.singlethreader.SingleThreaderMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.SingleThreader</tooltip>
     <iconfile>ui/images/MAP.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Single_Threader</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
   <step id="JobExecutor">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.JobExecutor</description>
-    <classname>org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.JobExecutor</tooltip>
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.JobExecutor</description>
+    <classname>org.apache.hop.pipeline.steps.jobexecutor.JobExecutorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.JobExecutor</tooltip>
     <iconfile>ui/images/JOBEx.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Job_Executor</documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
-  <step id="TransExecutor">
-    <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TransExecutor</description>
-    <classname>org.apache.hop.trans.steps.transexecutor.TransExecutorMeta</classname>
-    <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TransExecutor</tooltip>
+  <step id="PipelineExecutor">
+    <description>i18n:org.apache.hop.pipeline.step:BaseStep.TypeLongDesc.PipelineExecutor</description>
+    <classname>org.apache.hop.pipeline.steps.pipelineexecutor.PipelineExecutorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.step:BaseStep.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.step:BaseStep.TypeTooltipDesc.PipelineExecutor</tooltip>
     <iconfile>ui/images/TRNEx.svg</iconfile>
-    <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Transformation_Executor
-    </documentation_url>
-    <cases_url/>
-    <forum_url/>
   </step>
 </steps>

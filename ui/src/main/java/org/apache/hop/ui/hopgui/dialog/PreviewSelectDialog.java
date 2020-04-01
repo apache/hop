@@ -24,14 +24,14 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -61,17 +61,17 @@ public class PreviewSelectDialog extends Dialog {
   private Listener lsPreview, lsCancel;
 
   private Shell shell;
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
 
   public String[] previewSteps;
   public int[] previewSizes;
 
   private PropsUI props;
 
-  public PreviewSelectDialog( Shell parent, int style, TransMeta transMeta ) {
+  public PreviewSelectDialog( Shell parent, int style, PipelineMeta pipelineMeta ) {
     super( parent, style );
 
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
     this.props = PropsUI.getInstance();
 
     previewSteps = null;
@@ -106,7 +106,7 @@ public class PreviewSelectDialog extends Dialog {
     fdlFields.top = new FormAttachment( 0, margin );
     wlFields.setLayoutData( fdlFields );
 
-    List<StepMeta> usedSteps = transMeta.getUsedSteps();
+    List<StepMeta> usedSteps = pipelineMeta.getUsedSteps();
     final int FieldsRows = usedSteps.size();
 
     ColumnInfo[] colinf =
@@ -120,7 +120,7 @@ public class PreviewSelectDialog extends Dialog {
       };
 
     wFields =
-      new TableView( transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows,
+      new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows,
         true, // read-only
         null, props );
 
@@ -184,8 +184,8 @@ public class PreviewSelectDialog extends Dialog {
     String[] prSteps = props.getLastPreview();
     int[] prSizes = props.getLastPreviewSize();
     String name;
-    List<StepMeta> selectedSteps = transMeta.getSelectedSteps();
-    List<StepMeta> usedSteps = transMeta.getUsedSteps();
+    List<StepMeta> selectedSteps = pipelineMeta.getSelectedSteps();
+    List<StepMeta> usedSteps = pipelineMeta.getUsedSteps();
 
     if ( selectedSteps.size() == 0 ) {
 

@@ -36,7 +36,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
-  private static Class<?> PKG = JobLogTable.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobLogTable.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "job-log-table";
 
@@ -441,10 +441,10 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
       valueMeta.setLength( statusField.getLength() );
       lookupIndex.addValueMeta( valueMeta );
     }
-    LogTableField transNameField = findField( ID.JOBNAME );
-    if ( transNameField != null ) {
-      ValueMetaInterface valueMeta = new ValueMetaBase( transNameField.getFieldName(), transNameField.getDataType() );
-      valueMeta.setLength( transNameField.getLength() );
+    LogTableField pipelineNameField = findField( ID.JOBNAME );
+    if ( pipelineNameField != null ) {
+      ValueMetaInterface valueMeta = new ValueMetaBase( pipelineNameField.getFieldName(), pipelineNameField.getDataType() );
+      valueMeta.setLength( pipelineNameField.getLength() );
       lookupIndex.addValueMeta( valueMeta );
     }
 

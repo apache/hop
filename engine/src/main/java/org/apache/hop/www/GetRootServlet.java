@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class GetRootServlet extends BaseHttpServlet implements HopServerPluginInterface {
-  private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/";

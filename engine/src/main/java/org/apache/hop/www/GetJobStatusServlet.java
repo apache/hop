@@ -47,7 +47,7 @@ import java.nio.charset.Charset;
 
 
 public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
-  private static Class<?> PKG = GetJobStatusServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetJobStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 
@@ -342,9 +342,9 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
           out.print(
             "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-top: none; border-color: #E3E3E3; font-size: 12; text-align: left;\"> <th style=\"font-weight: normal; "
               + "padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "TransStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "TransStatusServlet.TransStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "TransStatusServlet.LastLogDate" ) + "</th> </tr>" );
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.PipelineStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.LastLogDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + job.getStatus() + "</td>" );
@@ -364,7 +364,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
           out.print( "<a target=\"_blank\" href=\""
             + convertContextPath( GetJobStatusServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( jobName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "&xml=y\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.ShowAsXml" ) + "</a>" );
+            + BaseMessages.getString( PKG, "PipelineStatusServlet.ShowAsXml" ) + "</a>" );
           out.print( "</div>" );
           out.print( "</div>" );
           out.print( "</div>" );

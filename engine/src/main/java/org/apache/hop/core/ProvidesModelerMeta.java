@@ -23,7 +23,7 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.pipeline.step.StepDataInterface;
 
 import java.util.List;
 

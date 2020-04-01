@@ -4,7 +4,7 @@ import org.apache.hop.core.AddUndoPositionInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 
 public class HopGuiUndoDelegate implements AddUndoPositionInterface {
@@ -19,7 +19,7 @@ public class HopGuiUndoDelegate implements AddUndoPositionInterface {
   }
 
   public void addUndoNew( UndoInterface undoInterface, Object[] obj, int[] position, boolean nextAlso ) {
-    undoInterface.addUndo( obj, null, position, null, null, TransMeta.TYPE_UNDO_NEW, nextAlso );
+    undoInterface.addUndo( obj, null, position, null, null, PipelineMeta.TYPE_UNDO_NEW, nextAlso );
     hopUi.setUndoMenu( undoInterface );
   }
 
@@ -30,7 +30,7 @@ public class HopGuiUndoDelegate implements AddUndoPositionInterface {
 
   // Undo delete object
   public void addUndoDelete( UndoInterface undoInterface, Object[] obj, int[] position, boolean nextAlso ) {
-    undoInterface.addUndo( obj, null, position, null, null, TransMeta.TYPE_UNDO_DELETE, nextAlso );
+    undoInterface.addUndo( obj, null, position, null, null, PipelineMeta.TYPE_UNDO_DELETE, nextAlso );
     hopUi.setUndoMenu( undoInterface );
   }
 

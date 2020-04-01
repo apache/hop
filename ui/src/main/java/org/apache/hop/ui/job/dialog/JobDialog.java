@@ -56,7 +56,7 @@ import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -123,11 +123,11 @@ public class JobDialog extends Dialog {
 
   private TextVar wLogSchema;
 
-  private Label wlBatchTrans;
+  private Label wlBatchPipeline;
 
-  private Button wBatchTrans;
+  private Button wBatchPipeline;
 
-  private FormData fdlBatchTrans, fdBatchTrans;
+  private FormData fdlBatchPipeline, fdBatchPipeline;
 
   protected Button wOK, wSQL, wCancel;
 
@@ -438,7 +438,7 @@ public class JobDialog extends Dialog {
     fdJobdescription.right = new FormAttachment( 100, 0 );
     wJobdescription.setLayoutData( fdJobdescription );
 
-    // Transformation Extended description
+    // Pipeline Extended description
     wlExtendeddescription = new Label( wJobComp, SWT.RIGHT );
     wlExtendeddescription.setText( BaseMessages.getString( PKG, "JobDialog.Extendeddescription.Label" ) );
     props.setLook( wlExtendeddescription );
@@ -458,7 +458,7 @@ public class JobDialog extends Dialog {
     fdExtendeddescription.bottom = new FormAttachment( 50, -margin );
     wExtendeddescription.setLayoutData( fdExtendeddescription );
 
-    // Trans Status
+    // Pipeline Status
     wlJobstatus = new Label( wJobComp, SWT.RIGHT );
     wlJobstatus.setText( BaseMessages.getString( PKG, "JobDialog.Jobstatus.Label" ) );
     props.setLook( wlJobstatus );
@@ -933,7 +933,7 @@ public class JobDialog extends Dialog {
     // Add the fields grid...
     //
     Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Label" ) );
     props.setLook( wlFields );
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -946,10 +946,10 @@ public class JobDialog extends Dialog {
     ColumnInfo[] colinf =
       new ColumnInfo[] {
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.FieldName" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.FieldName" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Description" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
     wOptionFields =
@@ -970,7 +970,7 @@ public class JobDialog extends Dialog {
     }
 
     wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Enabled" ) );
+      BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Enabled" ) );
 
     FormData fdOptionFields = new FormData();
     fdOptionFields.left = new FormAttachment( 0, 0 );
@@ -1031,7 +1031,7 @@ public class JobDialog extends Dialog {
     // Add the fields grid...
     //
     Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Label" ) );
     props.setLook( wlFields );
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -1044,10 +1044,10 @@ public class JobDialog extends Dialog {
     ColumnInfo[] colinf =
       new ColumnInfo[] {
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.FieldName" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.FieldName" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Description" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
     FieldDisabledListener disabledListener = new FieldDisabledListener() {
@@ -1082,7 +1082,7 @@ public class JobDialog extends Dialog {
     }
 
     wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Enabled" ) );
+      BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Enabled" ) );
 
     FormData fdOptionFields = new FormData();
     fdOptionFields.left = new FormAttachment( 0, 0 );
@@ -1143,7 +1143,7 @@ public class JobDialog extends Dialog {
     // Add the fields grid...
     //
     Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Label" ) );
     props.setLook( wlFields );
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -1156,10 +1156,10 @@ public class JobDialog extends Dialog {
     ColumnInfo[] colinf =
       new ColumnInfo[] {
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.FieldName" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.FieldName" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Description" ),
+          BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
     FieldDisabledListener disabledListener = new FieldDisabledListener() {
@@ -1194,7 +1194,7 @@ public class JobDialog extends Dialog {
     }
 
     wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "JobDialog.TransLogTable.Fields.Enabled" ) );
+      BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Enabled" ) );
 
     FormData fdOptionFields = new FormData();
     fdOptionFields.left = new FormAttachment( 0, 0 );
@@ -1223,22 +1223,22 @@ public class JobDialog extends Dialog {
     props.setLook( wSettingsComp );
     wSettingsComp.setLayout( LogLayout );
 
-    wlBatchTrans = new Label( wSettingsComp, SWT.RIGHT );
-    wlBatchTrans.setText( BaseMessages.getString( PKG, "JobDialog.PassBatchID.Label" ) );
-    props.setLook( wlBatchTrans );
-    fdlBatchTrans = new FormData();
-    fdlBatchTrans.left = new FormAttachment( 0, 0 );
-    fdlBatchTrans.top = new FormAttachment( 0, margin );
-    fdlBatchTrans.right = new FormAttachment( middle, -margin );
-    wlBatchTrans.setLayoutData( fdlBatchTrans );
-    wBatchTrans = new Button( wSettingsComp, SWT.CHECK );
-    props.setLook( wBatchTrans );
-    wBatchTrans.setToolTipText( BaseMessages.getString( PKG, "JobDialog.PassBatchID.Tooltip" ) );
-    fdBatchTrans = new FormData();
-    fdBatchTrans.left = new FormAttachment( middle, 0 );
-    fdBatchTrans.top = new FormAttachment( 0, margin );
-    fdBatchTrans.right = new FormAttachment( 100, 0 );
-    wBatchTrans.setLayoutData( fdBatchTrans );
+    wlBatchPipeline = new Label( wSettingsComp, SWT.RIGHT );
+    wlBatchPipeline.setText( BaseMessages.getString( PKG, "JobDialog.PassBatchID.Label" ) );
+    props.setLook( wlBatchPipeline );
+    fdlBatchPipeline = new FormData();
+    fdlBatchPipeline.left = new FormAttachment( 0, 0 );
+    fdlBatchPipeline.top = new FormAttachment( 0, margin );
+    fdlBatchPipeline.right = new FormAttachment( middle, -margin );
+    wlBatchPipeline.setLayoutData( fdlBatchPipeline );
+    wBatchPipeline = new Button( wSettingsComp, SWT.CHECK );
+    props.setLook( wBatchPipeline );
+    wBatchPipeline.setToolTipText( BaseMessages.getString( PKG, "JobDialog.PassBatchID.Tooltip" ) );
+    fdBatchPipeline = new FormData();
+    fdBatchPipeline.left = new FormAttachment( middle, 0 );
+    fdBatchPipeline.top = new FormAttachment( 0, margin );
+    fdBatchPipeline.right = new FormAttachment( 100, 0 );
+    wBatchPipeline.setLayoutData( fdBatchPipeline );
 
     FormData fdLogComp = new FormData();
     fdLogComp.left = new FormAttachment( 0, 0 );
@@ -1289,7 +1289,7 @@ public class JobDialog extends Dialog {
       wModDate.setText( jobMeta.getModifiedDate().toString() );
     }
 
-    wBatchTrans.setSelection( jobMeta.isBatchIdPassed() );
+    wBatchPipeline.setSelection( jobMeta.isBatchIdPassed() );
 
     // The named parameters
     String[] parameters = jobMeta.listParameters();
@@ -1362,7 +1362,7 @@ public class JobDialog extends Dialog {
     }
     jobMeta.activateParameters();
 
-    jobMeta.setBatchIdPassed( wBatchTrans.getSelection() );
+    jobMeta.setBatchIdPassed( wBatchPipeline.getSelection() );
 
     for ( JobDialogPluginInterface extraTab : extraTabs ) {
       extraTab.ok( jobMeta );

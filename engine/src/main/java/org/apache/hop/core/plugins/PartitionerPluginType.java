@@ -25,7 +25,7 @@ package org.apache.hop.core.plugins;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PartitionerPlugin;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.trans.Partitioner;
+import org.apache.hop.pipeline.Partitioner;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;

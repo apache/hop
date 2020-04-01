@@ -27,11 +27,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.SingleThreadedTransExecutor;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -63,14 +63,14 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends StepMetaInterf
 
     StepMeta stepMeta = new StepMeta( id, "stepMetrics", metaInterface );
 
-    TransMeta transMeta = new TransMeta();
-    transMeta.setName( "failsWhenGivenNonSingleThreadSteps" );
-    transMeta.addStep( stepMeta );
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName( "failsWhenGivenNonSingleThreadSteps" );
+    pipelineMeta.addStep( stepMeta );
 
-    Trans trans = new Trans( transMeta );
-    trans.prepareExecution();
+    Pipeline pipeline = new Pipeline( pipelineMeta );
+    pipeline.prepareExecution();
 
-    SingleThreadedTransExecutor executor = new SingleThreadedTransExecutor( trans );
+    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor( pipeline );
     executor.init();
   }
 }

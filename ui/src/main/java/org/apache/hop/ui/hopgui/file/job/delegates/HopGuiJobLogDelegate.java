@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
-import org.apache.hop.ui.hopgui.file.trans.HopGuiLogBrowser;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
@@ -104,7 +104,7 @@ public class HopGuiJobLogDelegate {
       }
     }
 
-    // Add a transLogTab : display the logging...
+    // Add a pipelineLogTab : display the logging...
     //
     jobLogTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
     jobLogTab.setImage( GUIResource.getInstance().getImageShowLog() );

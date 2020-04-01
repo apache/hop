@@ -34,12 +34,12 @@ import org.w3c.dom.Node;
 import java.util.Date;
 
 /**
- * This is a result file: a file as a result of the execution of a job entry, a transformation step, etc.
+ * This is a result file: a file as a result of the execution of a job entry, a pipeline step, etc.
  *
  * @author matt
  */
 public class ResultFile implements Cloneable {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   public static final int FILE_TYPE_GENERAL = 0;
   public static final int FILE_TYPE_LOG = 1;
@@ -69,7 +69,7 @@ public class ResultFile implements Cloneable {
    *
    * @param type         The type of file : FILE_TYPE_GENERAL, ...
    * @param file         The file to use
-   * @param originParent The transformation or job that has generated this result file
+   * @param originParent The pipeline or job that has generated this result file
    * @param origin       The step or job entry that has generated this result file
    */
   public ResultFile( int type, FileObject file, String originParent, String origin ) {
@@ -136,14 +136,14 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @return Returns the originParent : the transformation or job that generated this result file
+   * @return Returns the originParent : the pipeline or job that generated this result file
    */
   public String getOriginParent() {
     return originParent;
   }
 
   /**
-   * @param originParent The originParent to set : the transformation or job that generated this result file
+   * @param originParent The originParent to set : the pipeline or job that generated this result file
    */
   public void setOriginParent( String originParent ) {
     this.originParent = originParent;

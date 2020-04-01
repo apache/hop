@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>trans-executor-child</name>
+    <name>pipeline-executor-child</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -10,7 +10,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -123,7 +123,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>

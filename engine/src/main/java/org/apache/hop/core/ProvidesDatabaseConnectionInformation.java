@@ -25,7 +25,7 @@ package org.apache.hop.core;
 import org.apache.hop.core.database.DatabaseMeta;
 
 /**
- * An interface for transformation steps that connect to a database table. For example a table output step or a bulk
+ * An interface for pipeline steps that connect to a database table. For example a table output step or a bulk
  * loader. This interface is used by the Agile BI plugin to determine which steps it can model or visualize.
  *
  * @author jamesdixon

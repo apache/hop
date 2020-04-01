@@ -24,7 +24,6 @@ package org.apache.hop.ui.core;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.ObjectUsageCount;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.GUIOption;
@@ -59,7 +58,6 @@ import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -84,9 +82,6 @@ public class PropsUI extends Props {
 
   private static Display display;
   private static double nativeZoomFactor;
-
-  protected List<LastUsedFile> lastUsedFiles;
-  protected List<LastUsedFile> openTabFiles;
 
   private Hashtable<String, WindowProperty> screens;
 
@@ -201,8 +196,6 @@ public class PropsUI extends Props {
     loadPluginHistory();
 
     loadScreens();
-    loadLastUsedFiles();
-    loadOpenTabFiles();
     resetRecentSearches();
 
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -235,8 +228,6 @@ public class PropsUI extends Props {
     FontData fd;
     RGB col;
 
-    lastUsedFiles = new ArrayList<LastUsedFile>();
-    openTabFiles = new ArrayList<LastUsedFile>();
     screens = new Hashtable<String, WindowProperty>();
 
     properties.setProperty( STRING_LOG_LEVEL, getLogLevel() );
@@ -350,133 +341,9 @@ public class PropsUI extends Props {
 
   public void saveProps() {
     storeScreens();
-    setLastFiles();
-    setOpenTabFiles();
-
     super.saveProps();
   }
 
-  public void setLastFiles() {
-    properties.setProperty( "lastfiles", "" + lastUsedFiles.size() );
-    for ( int i = 0; i < lastUsedFiles.size(); i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-
-      properties.setProperty( "filetype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
-        LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
-      properties.setProperty( "lastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
-    }
-  }
-
-  public void setOpenTabFiles() {
-    properties.setProperty( "tabfiles", "" + openTabFiles.size() );
-    for ( int i = 0; i < openTabFiles.size(); i++ ) {
-      LastUsedFile openTabFile = openTabFiles.get( i );
-
-      properties.setProperty( "tabtype" + ( i + 1 ), Const.NVL( openTabFile.getFileType(),
-        LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
-      properties.setProperty( "tabfile" + ( i + 1 ), Const.NVL( openTabFile.getFilename(), "" ) );
-      properties.setProperty( "tabopened" + ( i + 1 ), openTabFile.isOpened() ? YES : NO );
-      properties.setProperty( "tabopentypes" + ( i + 1 ), "" + openTabFile.getOpenItemTypes() );
-    }
-  }
-
-  /**
-   * Add a last opened file to the top of the recently used list.
-   *
-   * @param fileType the type of file to use @see LastUsedFile
-   * @param filename The name of the file or transformation
-   */
-  public void addLastFile( String fileType, String filename ) {
-    addLastFile( fileType, filename, null );
-  }
-
-  /**
-   * Add a last opened file to the top of the recently used list.
-   *
-   * @param fileType the type of file to use @see LastUsedFile
-   * @param filename The name of the file or transformation
-   */
-  public void addLastFile( String fileType, String filename, Date lastOpened ) {
-    LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, false,
-      LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH, lastOpened );
-
-    int idx = lastUsedFiles.indexOf( lastUsedFile );
-    if ( idx >= 0 ) {
-      lastUsedFiles.remove( idx );
-    }
-    // Add it to position 0
-    lastUsedFiles.add( 0, lastUsedFile );
-
-    // If we have more than Const.MAX_FILE_HIST, top it off
-    while ( lastUsedFiles.size() > Const.MAX_FILE_HIST ) {
-      lastUsedFiles.remove( lastUsedFiles.size() - 1 );
-    }
-  }
-
-
-  /**
-   * Add a last opened file to the top of the recently used list.
-   *
-   * @param fileType the type of file to use @see LastUsedFile
-   * @param filename The name of the file or transformation
-   */
-  public void addOpenTabFile( String fileType, String filename, int openTypes ) {
-    LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, true, openTypes, new Date() );
-    openTabFiles.add( lastUsedFile );
-  }
-
-  public void loadLastUsedFiles() {
-    lastUsedFiles = new ArrayList<LastUsedFile>();
-    int nr = Const.toInt( properties.getProperty( "lastfiles" ), 0 );
-    for ( int i = 0; i < nr; i++ ) {
-      String fileType = properties.getProperty( "filetype" + ( i + 1 ), LastUsedFile.FILE_TYPE_TRANSFORMATION );
-      String filename = properties.getProperty( "lastfile" + ( i + 1 ), "" );
-      boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "lastopened" + ( i + 1 ), NO ) );
-      int openItemTypes = Const.toInt( properties.getProperty( "lastopentypes" + ( i + 1 ), "0" ), 0 );
-
-      lastUsedFiles.add(
-        new LastUsedFile( fileType, filename, isOpened, openItemTypes, new Date() ) );
-    }
-  }
-
-  public void loadOpenTabFiles() {
-    openTabFiles = new ArrayList<LastUsedFile>();
-    int nr = Const.toInt( properties.getProperty( "tabfiles" ), 0 );
-    for ( int i = 0; i < nr; i++ ) {
-      String fileType = properties.getProperty( "tabtype" + ( i + 1 ), LastUsedFile.FILE_TYPE_TRANSFORMATION );
-      String filename = properties.getProperty( "tabfile" + ( i + 1 ), "" );
-      boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "tabopened" + ( i + 1 ), NO ) );
-      int openItemTypes = Const.toInt( properties.getProperty( "tabopentypes" + ( i + 1 ), "0" ), 0 );
-
-      openTabFiles.add( new LastUsedFile( fileType, filename, isOpened, openItemTypes, new Date() ) );
-    }
-  }
-
-  public List<LastUsedFile> getLastUsedFiles() {
-    return lastUsedFiles;
-  }
-
-  public void setLastUsedFiles( List<LastUsedFile> lastUsedFiles ) {
-    this.lastUsedFiles = lastUsedFiles;
-  }
-
-  public String[] getLastFileTypes() {
-    String[] retval = new String[ lastUsedFiles.size() ];
-    for ( int i = 0; i < retval.length; i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[ i ] = lastUsedFile.getFileType();
-    }
-    return retval;
-  }
-
-  public String[] getLastFiles() {
-    String[] retval = new String[ lastUsedFiles.size() ];
-    for ( int i = 0; i < retval.length; i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[ i ] = lastUsedFile.getFilename();
-    }
-    return retval;
-  }
 
   public String getFilename() {
     if ( this.filename == null ) {
@@ -686,12 +553,12 @@ public class PropsUI extends Props {
     return Const.toInt( properties.getProperty( STRING_SHADOW_SIZE ), Const.SHADOW_SIZE );
   }
 
-  public void setLastTrans( String trans ) {
-    properties.setProperty( STRING_LAST_PREVIEW_TRANS, trans );
+  public void setLastPipeline( String pipeline ) {
+    properties.setProperty( STRING_LAST_PREVIEW_PIPELINE, pipeline );
   }
 
-  public String getLastTrans() {
-    return properties.getProperty( STRING_LAST_PREVIEW_TRANS, "" );
+  public String getLastPipeline() {
+    return properties.getProperty( STRING_LAST_PREVIEW_PIPELINE, "" );
   }
 
   public void setLastPreview( String[] lastpreview, int[] stepsize ) {
@@ -1085,20 +952,6 @@ public class PropsUI extends Props {
     properties.setProperty( SHOW_HELP_TOOL_TIPS, show ? YES : NO );
   }
 
-  /**
-   * @return the openTabFiles
-   */
-  public List<LastUsedFile> getOpenTabFiles() {
-    return openTabFiles;
-  }
-
-  /**
-   * @param openTabFiles the openTabFiles to set
-   */
-  public void setOpenTabFiles( List<LastUsedFile> openTabFiles ) {
-    this.openTabFiles = openTabFiles;
-  }
-
   public int getCanvasGridSize() {
     return Const.toInt( properties.getProperty( CANVAS_GRID_SIZE, "16" ), 16 );
   }
@@ -1153,13 +1006,13 @@ public class PropsUI extends Props {
     }
   }
 
-  public boolean isIndicateSlowTransStepsEnabled() {
-    String indicate = properties.getProperty( STRING_INDICATE_SLOW_TRANS_STEPS, "Y" );
+  public boolean isIndicateSlowPipelineStepsEnabled() {
+    String indicate = properties.getProperty( STRING_INDICATE_SLOW_PIPELINE_STEPS, "Y" );
     return YES.equalsIgnoreCase( indicate );
   }
 
-  public void setIndicateSlowTransStepsEnabled( boolean indicate ) {
-    properties.setProperty( STRING_INDICATE_SLOW_TRANS_STEPS, indicate ? YES : NO );
+  public void setIndicateSlowPipelineStepsEnabled( boolean indicate ) {
+    properties.setProperty( STRING_INDICATE_SLOW_PIPELINE_STEPS, indicate ? YES : NO );
   }
 
   private void resetRecentSearches() {

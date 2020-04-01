@@ -24,10 +24,10 @@ package org.apache.hop.job.entries.evalfilesmetrics;
 
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 
 import java.util.Arrays;

@@ -23,12 +23,12 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenExtension;
-import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public enum HopGuiExtensionPoint {
 
   HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileOpenExtension.class ),
-  HopGuiNewTransformationTab( "HopGuiTransformationTab", "Determine the tab name of a transformation", HopGuiTransGraph.class ),
+  HopGuiNewPipelineTab( "HopGuiPipelineTab", "Determine the tab name of a pipeline", HopGuiPipelineGraph.class ),
   ;
 
   public String id;

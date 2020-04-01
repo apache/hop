@@ -85,7 +85,7 @@ import java.util.concurrent.Future;
   iconImage = "ui/images/CNC.svg"
 )
 public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
-  private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "connection";
 

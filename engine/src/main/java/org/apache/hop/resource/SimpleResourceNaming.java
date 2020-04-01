@@ -73,30 +73,30 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
       case SHELL_SCRIPT:
         return handleScript( prefix, originalFilePath, extension );
 
-      case TRANSFORMATION:
+      case PIPELINE:
       case JOB:
-        return handleTransformationOrJob( prefix, originalFilePath, extension );
+        return handlePipelineOrJob( prefix, originalFilePath, extension );
 
       default:
         throw new AssertionError( "Unknown file naming type: " + namingType );
     }
   }
 
-  private String handleTransformationOrJob( String prefix, String originalFilePath, String extension ) {
+  private String handlePipelineOrJob( String prefix, String originalFilePath, String extension ) {
     //
     // End result could look like any of the following:
     //
     // Inputs:
-    // Prefix : Marc Sample Transformation
+    // Prefix : Marc Sample Pipeline
     // Original Path: D:\japps\pentaho\kettle\samples
-    // Extension : .ktr
+    // Extension : .hpl
     //
     // Output Example 1 (no file system prefix, no path used)
-    // Marc_Sample_Transformation.ktr
+    // Marc_Sample_Pipeline.hpl
     // Output Example 2 (file system prefix: ${HOP_FILE_BASE}!, no path used)
-    // ${HOP_FILE_BASE}!Marc_Sample_Transformation.ktr
+    // ${HOP_FILE_BASE}!Marc_Sample_Pipeline.hpl
     // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
-    // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/Marc_Sample_Transformation.ktr
+    // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/Marc_Sample_Pipeline.hpl
     //
     //
     assert prefix != null;

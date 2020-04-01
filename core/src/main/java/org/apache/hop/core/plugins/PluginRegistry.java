@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
  */
 public class PluginRegistry {
 
-  private static final Class<?> PKG = PluginRegistry.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = PluginRegistry.class; // for i18n purposes, needed by Translator!!
 
   private static final PluginRegistry pluginRegistry = new PluginRegistry();
 

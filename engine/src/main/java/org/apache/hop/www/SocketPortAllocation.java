@@ -29,7 +29,7 @@ public class SocketPortAllocation {
   private int port;
   private Date lastRequested;
 
-  private String transformationName;
+  private String pipelineName;
   private String clusterRunId;
   private String sourceSlaveName;
   private String sourceStepName;
@@ -38,21 +38,13 @@ public class SocketPortAllocation {
   private String targetStepName;
   private String targetStepCopy;
 
-  /**
-   * @param port
-   * @param lastRequested
-   * @param slaveName
-   * @param transformationName
-   * @param sourceStepName
-   * @param sourceStepCopy
-   */
-  public SocketPortAllocation( int port, Date lastRequested, String clusterRunId, String transformationName,
+  public SocketPortAllocation( int port, Date lastRequested, String clusterRunId, String pipelineName,
                                String sourceSlaveName, String sourceStepName, String sourceStepCopy, String targetSlaveName,
                                String targetStepName, String targetStepCopy ) {
     this.port = port;
     this.lastRequested = lastRequested;
     this.clusterRunId = clusterRunId;
-    this.transformationName = transformationName;
+    this.pipelineName = pipelineName;
     this.sourceSlaveName = sourceSlaveName;
     this.sourceStepName = sourceStepName;
     this.sourceStepCopy = sourceStepCopy;
@@ -109,17 +101,17 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @return the transformationName
+   * @return the pipelineName
    */
-  public String getTransformationName() {
-    return transformationName;
+  public String getPipelineName() {
+    return pipelineName;
   }
 
   /**
-   * @param transformationName the transformationName to set
+   * @param pipelineName the pipelineName to set
    */
-  public void setTransformationName( String transformationName ) {
-    this.transformationName = transformationName;
+  public void setPipelineName( String pipelineName ) {
+    this.pipelineName = pipelineName;
   }
 
   /**

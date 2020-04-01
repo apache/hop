@@ -1,8 +1,8 @@
 <hop-file-types>
 
-  <hop-file-type id="FileType-Transformation">
-    <description>Transformation File Type plugin</description>
-    <classname>org.apache.hop.ui.hopgui.file.trans.HopTransFileType</classname>
+  <hop-file-type id="FileType-Pipeline">
+    <description>Pipeline File Type plugin</description>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType</classname>
   </hop-file-type>
 
   <hop-file-type id="FileType-Job">

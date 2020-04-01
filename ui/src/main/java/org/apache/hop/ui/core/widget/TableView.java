@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
@@ -176,7 +176,7 @@ public class TableView extends Composite {
 
   // private int last_carret_position;
 
-  private ArrayList<TransAction> undo;
+  private ArrayList<ChangeAction> undo;
   private int undoPosition;
   private String[] beforeEdit;
   private MenuItem miEditUndo, miEditRedo;
@@ -1588,7 +1588,7 @@ public class TableView extends Composite {
   private void checkChanged( String[][] before, String[][] after, int[] index ) {
     // Did we change anything: if so, add undo information
     if ( fieldChanged ) {
-      TransAction ta = new TransAction();
+      ChangeAction ta = new ChangeAction();
       ta.setChanged( before, after, index );
       addUndo( ta );
     }
@@ -1635,7 +1635,7 @@ public class TableView extends Composite {
     item.setText( 1, "" );
 
     // Add undo information
-    TransAction ta = new TransAction();
+    ChangeAction ta = new ChangeAction();
     String[] str = getItemText( item );
     ta.setNew( new String[][] { str }, new int[] { ronr } );
     addUndo( ta );
@@ -1713,7 +1713,7 @@ public class TableView extends Composite {
       int row = selectionIndicies[ i ];
       int newRow = row + 1;
       moveRow( row, newRow );
-      TransAction ta = new TransAction();
+      ChangeAction ta = new ChangeAction();
       ta.setItemMove( new int[] { row }, new int[] { newRow } );
       addUndo( ta );
       selectionIndicies[ i ] = newRow;
@@ -1727,7 +1727,7 @@ public class TableView extends Composite {
       int row = selectionIndicies[ i ];
       int newRow = row - 1;
       moveRow( row, newRow );
-      TransAction ta = new TransAction();
+      ChangeAction ta = new ChangeAction();
       ta.setItemMove( new int[] { row }, new int[] { newRow } );
       addUndo( ta );
       selectionIndicies[ i ] = newRow;
@@ -1785,7 +1785,7 @@ public class TableView extends Composite {
     }
 
     // Add the undo information!
-    TransAction ta = new TransAction();
+    ChangeAction ta = new ChangeAction();
     ta.setChanged( before, after, index );
     addUndo( ta );
   }
@@ -1898,7 +1898,7 @@ public class TableView extends Composite {
           addItem( idx[ i - 1 ], grid[ i - 1 ] );
         }
 
-        TransAction ta = new TransAction();
+        ChangeAction ta = new ChangeAction();
         ta.setNew( grid, idx );
         addUndo( ta );
       }
@@ -1949,7 +1949,7 @@ public class TableView extends Composite {
       before[ i ] = getItemText( ti );
     }
 
-    TransAction ta = new TransAction();
+    ChangeAction ta = new ChangeAction();
     ta.setDelete( before, items );
     addUndo( ta );
 
@@ -1966,7 +1966,7 @@ public class TableView extends Composite {
       TableItem item = new TableItem( table, SWT.NONE );
       // Save undo infomation!
       String[] stritem = getItemText( item );
-      ta = new TransAction();
+      ta = new ChangeAction();
       ta.setNew( new String[][] { stritem }, new int[] { 0 } );
       addUndo( ta );
     }
@@ -2023,7 +2023,7 @@ public class TableView extends Composite {
       before[ i ] = getItemText( ti );
     }
 
-    TransAction ta = new TransAction();
+    ChangeAction ta = new ChangeAction();
     ta.setDelete( before, items );
     addUndo( ta );
 
@@ -2034,7 +2034,7 @@ public class TableView extends Composite {
       TableItem item = new TableItem( table, SWT.NONE );
       // Save undo infomation!
       String[] stritem = getItemText( item );
-      ta = new TransAction();
+      ta = new ChangeAction();
       ta.setNew( new String[][] { stritem }, new int[] { 0 } );
       addUndo( ta );
     }
@@ -2708,7 +2708,7 @@ public class TableView extends Composite {
     return table.getVerticalBar();
   }
 
-  private void addUndo( TransAction ta ) {
+  private void addUndo( ChangeAction ta ) {
     while ( undo.size() > undoPosition + 1 && undo.size() > 0 ) {
       int last = undo.size() - 1;
       undo.remove( last );
@@ -2726,7 +2726,7 @@ public class TableView extends Composite {
   }
 
   private void undoAction() {
-    TransAction ta = previousUndo();
+    ChangeAction ta = previousUndo();
     if ( ta == null ) {
       return;
     }
@@ -2818,7 +2818,7 @@ public class TableView extends Composite {
   }
 
   private void redoAction() {
-    TransAction ta = nextUndo();
+    ChangeAction ta = nextUndo();
     if ( ta == null ) {
       return;
     }
@@ -2904,8 +2904,8 @@ public class TableView extends Composite {
   }
 
   private void setUndoMenu() {
-    TransAction prev = viewPreviousUndo();
-    TransAction next = viewNextUndo();
+    ChangeAction prev = viewPreviousUndo();
+    ChangeAction next = viewNextUndo();
 
     if ( miEditUndo.isDisposed() || miEditRedo.isDisposed() ) {
       return;
@@ -2934,12 +2934,12 @@ public class TableView extends Composite {
   }
 
   // get previous undo, change position
-  private TransAction previousUndo() {
+  private ChangeAction previousUndo() {
     if ( undo.isEmpty() || undoPosition < 0 ) {
       return null; // No undo left!
     }
 
-    TransAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get( undoPosition );
 
     undoPosition--;
 
@@ -2947,17 +2947,17 @@ public class TableView extends Composite {
   }
 
   // View previous undo, don't change position
-  private TransAction viewPreviousUndo() {
+  private ChangeAction viewPreviousUndo() {
     if ( undo.isEmpty() || undoPosition < 0 ) {
       return null; // No undo left!
     }
 
-    TransAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get( undoPosition );
 
     return retval;
   }
 
-  private TransAction nextUndo() {
+  private ChangeAction nextUndo() {
     int size = undo.size();
     if ( size == 0 || undoPosition >= size - 1 ) {
       return null; // no redo left...
@@ -2965,24 +2965,24 @@ public class TableView extends Composite {
 
     undoPosition++;
 
-    TransAction retval = undo.get( undoPosition );
+    ChangeAction retval = undo.get( undoPosition );
 
     return retval;
   }
 
-  private TransAction viewNextUndo() {
+  private ChangeAction viewNextUndo() {
     int size = undo.size();
     if ( size == 0 || undoPosition >= size - 1 ) {
       return null; // no redo left...
     }
 
-    TransAction retval = undo.get( undoPosition + 1 );
+    ChangeAction retval = undo.get( undoPosition + 1 );
 
     return retval;
   }
 
   private void clearUndo() {
-    undo = new ArrayList<TransAction>();
+    undo = new ArrayList<ChangeAction>();
     undoPosition = -1;
   }
 

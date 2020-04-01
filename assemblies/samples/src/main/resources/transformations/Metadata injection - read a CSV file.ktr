@@ -11,7 +11,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection>MySQL test</connection>
         <schema/>
         <table>TRANS_LOG_TABLE</table>
@@ -124,7 +124,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection>MySQL test</connection>
         <schema/>

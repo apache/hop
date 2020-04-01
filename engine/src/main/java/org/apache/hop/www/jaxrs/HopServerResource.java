@@ -23,7 +23,7 @@
 package org.apache.hop.www.jaxrs;
 
 import org.apache.hop.job.Job;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 import org.apache.hop.www.SlaveServerConfig;
@@ -41,8 +41,8 @@ public class HopServerResource {
   public HopServerResource() {
   }
 
-  public static Trans getTransformation( String id ) {
-    return HopServerSingleton.getInstance().getTransformationMap().getTransformation( getCarteObjectEntry( id ) );
+  public static Pipeline getPipeline( String id ) {
+    return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getCarteObjectEntry( id ) );
   }
 
   public static Job getJob( String id ) {
@@ -50,9 +50,9 @@ public class HopServerResource {
   }
 
   public static HopServerObjectEntry getCarteObjectEntry( String id ) {
-    List<HopServerObjectEntry> transList =
-      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
-    for ( HopServerObjectEntry entry : transList ) {
+    List<HopServerObjectEntry> pipelineList =
+      HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
+    for ( HopServerObjectEntry entry : pipelineList ) {
       if ( entry.getId().equals( id ) ) {
         return entry;
       }
@@ -79,7 +79,7 @@ public class HopServerResource {
   @Path( "/configDetails" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<NVPair> getConfigDetails() {
-    SlaveServerConfig serverConfig = HopServerSingleton.getInstance().getTransformationMap().getSlaveServerConfig();
+    SlaveServerConfig serverConfig = HopServerSingleton.getInstance().getPipelineMap().getSlaveServerConfig();
     List<NVPair> list = new ArrayList<NVPair>();
     list.add( new NVPair( "maxLogLines", "" + serverConfig.getMaxLogLines() ) );
     list.add( new NVPair( "maxLogLinesAge", "" + serverConfig.getMaxLogTimeoutMinutes() ) );
@@ -89,26 +89,25 @@ public class HopServerResource {
   }
 
   @GET
-  @Path( "/transformations" )
+  @Path( "/pipelines" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<HopServerObjectEntry> getTransformations() {
-    List<HopServerObjectEntry> transEntries =
-      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
-    return transEntries;
+  public List<HopServerObjectEntry> getPipelines() {
+    List<HopServerObjectEntry> pipelineEntries = HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
+    return pipelineEntries;
   }
 
   @GET
-  @Path( "/transformations/detailed" )
+  @Path( "/pipelines/detailed" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<TransformationStatus> getTransformationsDetails() {
-    List<HopServerObjectEntry> transEntries =
-      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
+  public List<PipelineStatus> getPipelineDetails() {
+    List<HopServerObjectEntry> pipelineEntries =
+      HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
 
-    List<TransformationStatus> details = new ArrayList<TransformationStatus>();
+    List<PipelineStatus> details = new ArrayList<PipelineStatus>();
 
-    TransformationResource transRes = new TransformationResource();
-    for ( HopServerObjectEntry entry : transEntries ) {
-      details.add( transRes.getTransformationStatus( entry.getId() ) );
+    PipelineResource pipelineRes = new PipelineResource();
+    for ( HopServerObjectEntry entry : pipelineEntries ) {
+      details.add( pipelineRes.getPipelineStatus( entry.getId() ) );
     }
     return details;
   }

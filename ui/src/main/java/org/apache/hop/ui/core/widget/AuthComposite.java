@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUI;
@@ -43,7 +43,7 @@ public class AuthComposite extends Composite {
 
   private final PropsUI props;
   private final ModifyListener lsMod;
-  private final TransMeta transMeta;
+  private final PipelineMeta pipelineMeta;
 
   private String authGroupLabel;
   private Group wAuthGroup;
@@ -57,16 +57,16 @@ public class AuthComposite extends Composite {
   private TextVar wPassword;
 
 
-  public AuthComposite( Composite composite, int style, PropsUI props, ModifyListener lsMod, TransMeta transMeta,
+  public AuthComposite( Composite composite, int style, PropsUI props, ModifyListener lsMod, PipelineMeta pipelineMeta,
                         String credentialGroupName, String usernameLabel, String passwordLabel ) {
     super( composite, style );
     checkNotNull( props );
     checkNotNull( lsMod );
-    checkNotNull( transMeta );
+    checkNotNull( pipelineMeta );
 
     this.props = props;
     this.lsMod = lsMod;
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
 
     this.authGroupLabel = credentialGroupName;
     this.usernameLabel = usernameLabel;
@@ -96,7 +96,7 @@ public class AuthComposite extends Composite {
     wlUsername.setText( usernameLabel );
     wlUsername.setLayoutData( new FormDataBuilder().left().top().result() );
 
-    wUsername = new TextVar( transMeta, wAuthGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUsername = new TextVar( pipelineMeta, wAuthGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUsername );
     wUsername.addModifyListener( lsMod );
     wUsername.setLayoutData( new FormDataBuilder().top( wlUsername ).left().width( 800 ).result() );
@@ -107,7 +107,7 @@ public class AuthComposite extends Composite {
     wlPassword.setText( passwordLabel );
     wlPassword.setLayoutData( new FormDataBuilder().left().top( wUsername, ConstUI.MEDUIM_MARGIN ).result() );
 
-    wPassword = new PasswordTextVar( transMeta, wAuthGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( pipelineMeta, wAuthGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     wPassword.setLayoutData( new FormDataBuilder().left().top( wlPassword ).width( 800 ).result() );

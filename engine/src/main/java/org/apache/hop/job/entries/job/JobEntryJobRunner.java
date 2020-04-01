@@ -35,7 +35,7 @@ import org.apache.hop.job.Job;
  * @since 6-apr-2005
  */
 public class JobEntryJobRunner implements Runnable {
-  private static Class<?> PKG = Job.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Job.class; // for i18n purposes, needed by Translator!!
 
   private Job job;
   private Result result;

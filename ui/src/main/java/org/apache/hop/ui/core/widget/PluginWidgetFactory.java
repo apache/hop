@@ -70,7 +70,7 @@ public class PluginWidgetFactory {
    */
   public PluginWidgetFactory( final Shell shell, final VariableSpace varSpace ) throws IllegalArgumentException {
     Assert.assertNotNull( shell, "Shell cannot be null" );
-    Assert.assertNotNull( varSpace, "transMeta cannot be null" );
+    Assert.assertNotNull( varSpace, "pipelineMeta cannot be null" );
 
     this.shell = shell;
     this.varSpace = varSpace;

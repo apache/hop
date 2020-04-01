@@ -40,7 +40,7 @@ import java.util.Map;
 public class SocketRepository {
 
   /**
-   * This map contains a link between a (clustered) transformation and their used server sockets
+   * This map contains a link between a (clustered) pipeline and their used server sockets
    */
   private Map<Integer, SocketRepositoryEntry> socketMap;
 

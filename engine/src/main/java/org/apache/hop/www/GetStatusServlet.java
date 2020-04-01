@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +43,7 @@ import java.util.Date;
 import java.util.List;
 
 public class GetStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
-  private static Class<?> PKG = GetStatusServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 
@@ -52,8 +52,8 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
   public GetStatusServlet() {
   }
 
-  public GetStatusServlet( TransformationMap transformationMap, JobMap jobMap ) {
-    super( transformationMap, jobMap );
+  public GetStatusServlet( PipelineMap pipelineMap, JobMap jobMap ) {
+    super( pipelineMap, jobMap );
   }
 
   /**
@@ -62,7 +62,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <a name="GET"></a>
    * <h2>GET</h2>
    * <p>Retrieve server status. The status contains information about the server itself (OS, memory, etc)
-   * and information about jobs and transformations present on the server.</p>
+   * and information about jobs and pipelines present on the server.</p>
    *
    * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
@@ -101,7 +101,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * </tr>
    * </tbody>
    * </table>
-   * <p>Response XML or HTML response containing details about the transformation specified.
+   * <p>Response XML or HTML response containing details about the pipeline specified.
    * If an error occurs during method invocation <code>result</code> field of the response
    * will contain <code>ERROR</code> status.</p>
    *
@@ -120,9 +120,9 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <os_name>Windows 7</os_name>
    * <os_version>6.1</os_version>
    * <os_arch>amd64</os_arch>
-   * <transstatuslist>
-   * <transstatus>
-   * <transname>Row generator test</transname>
+   * <pipeline_status_list>
+   * <pipeline_status>
+   * <pipeline_name>Row generator test</pipeline_name>
    * <id>56c93d4e-96c1-4fae-92d9-d864b0779845</id>
    * <status_desc>Waiting</status_desc>
    * <error_desc/>
@@ -132,9 +132,9 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <first_log_line_nr>0</first_log_line_nr>
    * <last_log_line_nr>0</last_log_line_nr>
    * <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;&#x5d;&#x5d;&#x3e;</logging_string>
-   * </transstatus>
-   * <transstatus>
-   * <transname>dummy-trans</transname>
+   * </pipeline_status>
+   * <pipeline_status>
+   * <pipeline_name>dummy-pipeline</pipeline_name>
    * <id>c56961b2-c848-49b8-abde-76c8015e29b0</id>
    * <status_desc>Stopped</status_desc>
    * <error_desc/>
@@ -144,8 +144,8 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <first_log_line_nr>0</first_log_line_nr>
    * <last_log_line_nr>0</last_log_line_nr>
    * <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;&#x5d;&#x5d;&#x3e;</logging_string>
-   * </transstatus>
-   * </transstatuslist>
+   * </pipeline_status>
+   * </pipeline_status>
    * <jobstatuslist>
    * <jobstatus>
    * <jobname>dummy_job</jobname>
@@ -204,7 +204,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
 
     PrintWriter out = response.getWriter();
 
-    List<HopServerObjectEntry> transEntries = getTransformationMap().getTransformationObjects();
+    List<HopServerObjectEntry> pipelineEntries = getPipelineMap().getPipelineObjects();
     List<HopServerObjectEntry> jobEntries = getJobMap().getJobObjects();
 
     if ( useXML ) {
@@ -214,14 +214,14 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
 
       getSystemInfo( serverStatus );
 
-      for ( HopServerObjectEntry entry : transEntries ) {
-        Trans trans = getTransformationMap().getTransformation( entry );
-        String status = trans.getStatus();
+      for ( HopServerObjectEntry entry : pipelineEntries ) {
+        Pipeline pipeline = getPipelineMap().getPipeline( entry );
+        String status = pipeline.getStatus();
 
-        SlaveServerTransStatus sstatus = new SlaveServerTransStatus( entry.getName(), entry.getId(), status );
-        sstatus.setLogDate( trans.getLogDate() );
-        sstatus.setPaused( trans.isPaused() );
-        serverStatus.getTransStatusList().add( sstatus );
+        SlaveServerPipelineStatus sstatus = new SlaveServerPipelineStatus( entry.getName(), entry.getId(), status );
+        sstatus.setLogDate( pipeline.getLogDate() );
+        sstatus.setPaused( pipeline.isPaused() );
+        serverStatus.getPipelineStatusList().add( sstatus );
       }
 
       for ( HopServerObjectEntry entry : jobEntries ) {
@@ -281,18 +281,18 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       try {
         // Tooltips
         String run = BaseMessages.getString( PKG, "CarteStatusServlet.Run" );
-        String stop = BaseMessages.getString( PKG, "CarteStatusServlet.StopTrans" );
-        String cleanup = BaseMessages.getString( PKG, "CarteStatusServlet.CleanupTrans" );
-        String view = BaseMessages.getString( PKG, "CarteStatusServlet.ViewTransDetails" );
-        String remove = BaseMessages.getString( PKG, "CarteStatusServlet.RemoveTrans" );
+        String stop = BaseMessages.getString( PKG, "CarteStatusServlet.StopPipeline" );
+        String cleanup = BaseMessages.getString( PKG, "CarteStatusServlet.CleanupPipeline" );
+        String view = BaseMessages.getString( PKG, "CarteStatusServlet.ViewPipelineDetails" );
+        String remove = BaseMessages.getString( PKG, "CarteStatusServlet.RemovePipeline" );
         out.println( "<div class=\"row\" style=\"padding: 0px 0px 0px 30px\">" );
         htmlClass = useLightTheme ? "h2" : "div";
         out.println( "<div class=\"row\" style=\"padding: 25px 30px 75px 0px;\">" );
-        out.println( "<" + htmlClass + " class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 0px;\">Transformations</" + htmlClass + ">" );
-        out.println( "<table id=\"trans-table\" cellspacing=\"0\" cellpadding=\"0\"><tbody><tr><td align=\"left\" width=\"100%\" style=\"vertical-align:middle;\">" );
+        out.println( "<" + htmlClass + " class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 0px;\">Pipelines</" + htmlClass + ">" );
+        out.println( "<table id=\"pipeline-table\" cellspacing=\"0\" cellpadding=\"0\"><tbody><tr><td align=\"left\" width=\"100%\" style=\"vertical-align:middle;\">" );
         out.println( "<table cellspacing=\"0\" cellpadding=\"0\" class=\"toolbar\" style=\"width: 100%; height: 26px; margin-bottom: 2px; border: 0;\">" );
         out.println( "<tbody><tr>" );
-        out.println( "<td align=\"left\" style=\"vertical-align: middle; width: 100%\" id=\"trans-align\"></td>" );
+        out.println( "<td align=\"left\" style=\"vertical-align: middle; width: 100%\" id=\"pipeline-align\"></td>" );
         out.println( "<td " + setupIconEnterLeaveJavascript( "pause" )
           + " align=\"left\" style=\"vertical-align: middle;\"><div style=\"padding: 2px;\" onClick=\"resumeFunction( this )\" class=\"toolbar-button toolbar-button-disabled\" id=\"pause\"><img "
           + "style=\"width: 22px; height: 22px\" src=\""
@@ -317,32 +317,32 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
         out.println(
           "<div id=\"runActions\" class=\"custom-dropdown-popup\" style=\"visibility: hidden; overflow: visible; position: fixed;\" onLoad=\"repositionActions( this, document.getElementById( "
             + "'pause' ) )\" onMouseLeave=\"this.style='visibility: hidden; overflow: visible; position: fixed;'\"><div class=\"popupContent\"><div style=\"padding: 0;\" class=\"gwt-MenuBar "
-            + "gwt-MenuBar-vertical\"><table><tbody><tr><td class=\"gwt-MenuItem\" onClick=\"runTransSelector( this )\" onMouseEnter=\"this.className='gwt-MenuItem gwt-MenuItem-selected'\" "
-            + "onMouseLeave=\"this.className='gwt-MenuItem'\">Prepare the execution</td></tr><tr><td class=\"gwt-MenuItem\" onClick=\"runTransSelector( this )\" onMouseEnter=\"this"
+            + "gwt-MenuBar-vertical\"><table><tbody><tr><td class=\"gwt-MenuItem\" onClick=\"runPipelineSelector( this )\" onMouseEnter=\"this.className='gwt-MenuItem gwt-MenuItem-selected'\" "
+            + "onMouseLeave=\"this.className='gwt-MenuItem'\">Prepare the execution</td></tr><tr><td class=\"gwt-MenuItem\" onClick=\"runPipelineSelector( this )\" onMouseEnter=\"this"
             + ".className='gwt-MenuItem gwt-MenuItem-selected'\" onMouseLeave=\"this.className='gwt-MenuItem'\">Run</td></tr></tbody></table></div></div></div>" );
         out.println(
           "<div id=\"stopActions\" class=\"custom-dropdown-popup\" style=\"visibility: hidden; overflow: visible; position: fixed;\" onLoad=\"repositionActions( this, document.getElementById( "
             + "'stop' ) )\" onMouseLeave=\"this.style='visibility: hidden; overflow: visible; position: fixed;'\"><div class=\"popupContent\"><div style=\"padding: 0;\" class=\"gwt-MenuBar "
-            + "gwt-MenuBar-vertical\"><table><tbody><tr><td class=\"gwt-MenuItem\" onClick=\"stopTransSelector( this )\" onMouseEnter=\"this.className='gwt-MenuItem gwt-MenuItem-selected'\" "
-            + "onMouseLeave=\"this.className='gwt-MenuItem'\">Stop transformation</td></tr><tr><td class=\"gwt-MenuItem\" onClick=\"stopTransSelector( this )\" onMouseEnter=\"this"
+            + "gwt-MenuBar-vertical\"><table><tbody><tr><td class=\"gwt-MenuItem\" onClick=\"stopPipelineSelector( this )\" onMouseEnter=\"this.className='gwt-MenuItem gwt-MenuItem-selected'\" "
+            + "onMouseLeave=\"this.className='gwt-MenuItem'\">Stop pipeline</td></tr><tr><td class=\"gwt-MenuItem\" onClick=\"stopPipelineSelector( this )\" onMouseEnter=\"this"
             + ".className='gwt-MenuItem gwt-MenuItem-selected'\" onMouseLeave=\"this.className='gwt-MenuItem'\">Stop input processing</td></tr></tbody></table></div></div></div>" );
         out.println( messageDialog() );
         out.println( "<table class=\"pentaho-table\" border=\"" + tableBorder + "\">" );
         out.print( "<tr> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.TransName" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.PipelineName" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.CarteId" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.Status" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
-        Comparator<HopServerObjectEntry> transComparator = new Comparator<HopServerObjectEntry>() {
+        Comparator<HopServerObjectEntry> pipelineComparator = new Comparator<HopServerObjectEntry>() {
           @Override
           public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-            Trans t1 = getTransformationMap().getTransformation( o1 );
-            Trans t2 = getTransformationMap().getTransformation( o2 );
+            Pipeline t1 = getPipelineMap().getPipeline( o1 );
+            Pipeline t2 = getPipelineMap().getPipeline( o2 );
             Date d1 = t1.getLogDate();
             Date d2 = t2.getLogDate();
-            // if both transformations have last log date, desc sort by log date
+            // if both pipelines have last log date, desc sort by log date
             if ( d1 != null && d2 != null ) {
               int logDateCompare = d2.compareTo( d1 );
               if ( logDateCompare != 0 ) {
@@ -353,19 +353,19 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
           }
         };
 
-        Collections.sort( transEntries, transComparator );
+        Collections.sort( pipelineEntries, pipelineComparator );
 
         boolean evenRow = true;
-        for ( int i = 0; i < transEntries.size(); i++ ) {
-          String name = transEntries.get( i ).getName();
-          String id = transEntries.get( i ).getId();
-          Trans trans = getTransformationMap().getTransformation( transEntries.get( i ) );
-          String status = trans.getStatus();
+        for ( int i = 0; i < pipelineEntries.size(); i++ ) {
+          String name = pipelineEntries.get( i ).getName();
+          String id = pipelineEntries.get( i ).getId();
+          Pipeline pipeline = getPipelineMap().getPipeline( pipelineEntries.get( i ) );
+          String status = pipeline.getStatus();
           String trClass = evenRow ? "cellTableEvenRow" : "cellTableOddRow"; // alternating row color
           String tdClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
           evenRow = !evenRow; // flip
           String firstColumn = i == 0 ? "cellTableFirstColumn" : "";
-          String lastColumn = i == transEntries.size() - 1 ? "cellTableLastColumn" : "";
+          String lastColumn = i == pipelineEntries.size() - 1 ? "cellTableLastColumn" : "";
           out.print( "<tr onMouseEnter=\"mouseEnterFunction( this, '" + trClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + trClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + trClass + "' )\" "
@@ -382,12 +382,12 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"cellTableCellStatus_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XMLHandler.date2string( trans.getLogDate() );
+          String dateStr = XMLHandler.date2string( pipeline.getLogDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">"
-            + ( trans.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
+            + ( pipeline.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
@@ -511,7 +511,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
 
       // The max number of log lines in the back-end
       //
-      SlaveServerConfig serverConfig = getTransformationMap().getSlaveServerConfig();
+      SlaveServerConfig serverConfig = getPipelineMap().getSlaveServerConfig();
       if ( serverConfig != null ) {
         String maxLines = "";
         if ( serverConfig.getMaxLogLines() == 0 ) {
@@ -579,16 +579,16 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "    return this.indexOf(searchString, position) === position;" );
       out.println( "  };" );
       out.println( "}" );
-      out.println( "var selectedTransRowIndex = -1;" ); // currently selected table item
+      out.println( "var selectedPipelineRowIndex = -1;" ); // currently selected table item
       out.println( "var selectedJobRowIndex = -1;" ); // currently selected table item
       out.println( "var removeElement = null;" ); // element of remove button clicked
-      out.println( "var selectedTransName = \"\";" );
+      out.println( "var selectedPipelineName = \"\";" );
       out.println( "var selectedJobName = \"\";" );
 
       // Click function for stop button
       out.println( "function repositionActions( element, elementFrom ) {" );
       out.println( "element.style.left = ( 10 + elementFrom.getBoundingClientRect().left ) + 'px';" );
-      //out.println( "element.style.top = document.getElementById( 'trans-table' ).offsetTop + 'px';" );
+      //out.println( "element.style.top = document.getElementById( 'pipeline-table' ).offsetTop + 'px';" );
       out.println( "}" );
 
       // Click function for resume button
@@ -599,21 +599,21 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
         BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Title" ),
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Success.Body" ) + "'",
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Failure.Body" ) + "'" ) );
-      out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedTransRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedTransRowIndex ).innerHTML == 'Running') {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( PauseTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.PauseTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PauseTrans.Success.Body" )
+      out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Running') {" );
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( PausePipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.PausePipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PausePipeline.Success.Body" )
           + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PauseTrans.Failure.Body" )
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PausePipeline.Failure.Body" )
           + "'" ) );
-      out.println( "} else if( !element.id.startsWith( 'j-' ) && selectedTransRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedTransRowIndex ).innerHTML == 'Paused') {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( PauseTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.ResumeTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.ResumeTrans.Success.Body" )
+      out.println( "} else if( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Paused') {" );
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( PausePipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.ResumePipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.ResumePipeline.Success.Body" )
           + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.ResumeTrans.Failure.Body" )
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.ResumePipeline.Failure.Body" )
           + "'" ) );
-      out.println( "} else if( !element.id.startsWith( 'j-' ) && selectedTransRowIndex != -1 ){" );
+      out.println( "} else if( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 ){" );
       out.println( "repositionActions( document.getElementById( 'runActions' ), element );" );
       out.println( "document.getElementById( 'runActions' ).style.visibility = 'visible';" );
       out.println( "}" );
@@ -629,46 +629,46 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' "
           + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body2" ) + "'",
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Failure.Body" ) + "'" ) );
-      out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedTransRowIndex != -1 ) {" );
+      out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 ) {" );
       out.println( "repositionActions( document.getElementById( 'stopActions' ), element );" );
       out.println( "document.getElementById( 'stopActions' ).style.visibility = 'visible';" );
       out.println( "}" );
       out.println( "}" );
       out.println( "}" );
 
-      out.println( "function runTransSelector( element ) {" );
+      out.println( "function runPipelineSelector( element ) {" );
       out.println( "if( element.innerHTML == 'Prepare the execution' ){" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( PrepareExecutionTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.PrepareTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PrepareTrans.Success.Body" )
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( PrepareExecutionPipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.PreparePipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PreparePipeline.Success.Body" )
           + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PrepareTrans.Failure.Body" )
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PreparePipeline.Failure.Body" )
           + "'" ) );
       out.println( "} else {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( StartTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.StartTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartTrans.Success.Body" )
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( StartPipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.StartPipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartPipeline.Success.Body" )
           + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartTrans.Failure.Body" )
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartPipeline.Failure.Body" )
           + "'" ) );
       out.println( "}" );
       out.println( "}" );
 
       // Click function for stop button
-      out.println( "function stopTransSelector( element ) {" );
-      out.println( "if( element.innerHTML == 'Stop transformation' ) {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( StopTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.StopTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopTrans.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" )
-          + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopTrans.Success.Body2" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopTrans.Failure.Body" )
+      out.println( "function stopPipelineSelector( element ) {" );
+      out.println( "if( element.innerHTML == 'Stop pipeline' ) {" );
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( StopPipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.StopPipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.PipelineStop.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
+          + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.PipelineStop.Success.Body2" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopPipeline.Failure.Body" )
           + "'" ) );
       out.println( "} else if( element.innerHTML == 'Stop input processing' ) {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( StopTransServlet.CONTEXT_PATH ) ) + " + '&inputOnly=Y'",
-        BaseMessages.getString( PKG, "GetStatusServlet.StopInputTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopInputTrans.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" )
-          + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopInputTrans.Success.Body2" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopInputTrans.Failure.Body" )
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( StopPipelineServlet.CONTEXT_PATH ) ) + " + '&inputOnly=Y'",
+        BaseMessages.getString( PKG, "GetStatusServlet.StopInputPipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopInputPipeline.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
+          + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopInputPipeline.Success.Body2" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopInputPipeline.Failure.Body" )
           + "'" ) );
       out.println( "}" );
       out.println( "document.getElementById( 'stopActions' ).style.visibility = 'hidden';" );
@@ -677,13 +677,13 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       // Click function for stop button
       out.println( "function cleanupFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
-      out.println( "if( selectedTransRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( CleanupTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.CleanupTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupTrans.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" )
-          + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.CleanupTrans.Success.Body2" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupTrans.Failure.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" )
-          + " ' + selectedTransName + '" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupTrans.Failure.Body2" ) + "'" ) );
+      out.println( "if( selectedPipelineRowIndex != -1 ) {" );
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( CleanupPipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
+          + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Success.Body2" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Failure.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
+          + " ' + selectedPipelineName + '" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Failure.Body2" ) + "'" ) );
       out.println( "}" );
       out.println( "}" );
       out.println( "}" );
@@ -696,11 +696,11 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
         + convertContextPath( GetJobStatusServlet.CONTEXT_PATH ) + "'"
         + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedJobRowIndex ).innerHTML"
         + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedJobRowIndex ).innerHTML );" );
-      out.println( "} else if ( selectedTransRowIndex != -1 ) {" );
+      out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
       out.println( "window.location.replace( '"
-        + convertContextPath( GetTransStatusServlet.CONTEXT_PATH ) + "'"
-        + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedTransRowIndex ).innerHTML"
-        + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedTransRowIndex ).innerHTML );" );
+        + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "'"
+        + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedPipelineRowIndex ).innerHTML"
+        + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedPipelineRowIndex ).innerHTML );" );
       out.println( "}" );
       out.println( "}" );
       out.println( "}" );
@@ -713,10 +713,10 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Title" ) + "',"
         + "'" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Confirm.Body" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + '?" + "'"
         + ", false );" );
-      out.println( "} else if ( selectedTransRowIndex != -1 ) {" );
-      out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveTrans.Title" ) + "',"
-        + "'" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveTrans.Confirm.Body" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" )
-        + " ' + selectedTransName + '?" + "'" + ", false );" );
+      out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
+      out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Title" ) + "',"
+        + "'" + BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Confirm.Body" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
+        + " ' + selectedPipelineName + '?" + "'" + ", false );" );
       out.println( "}" );
       out.println( "}" );
       out.println( "}" );
@@ -749,32 +749,32 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "document.getElementById( \"cleanup\" ).classList.remove( \"toolbar-button-disabled\" )" );
       out.println( "document.getElementById( \"view\" ).classList.remove( \"toolbar-button-disabled\" )" );
       out.println( "document.getElementById( \"close\" ).classList.remove( \"toolbar-button-disabled\" )" );
-      out.println( "if( selectedTransRowIndex != -1 && rowNum != selectedTransRowIndex ) {" );
-      out.println( "document.getElementById( prefix + 'cellTableRow_' + selectedTransRowIndex ).className='cellTableRow ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableFirstCell_' + selectedTransRowIndex ).className='cellTableCell cellTableFirstColumn ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableCell_' + selectedTransRowIndex ).className='cellTableCell ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableLastCell_' + selectedTransRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;" );
+      out.println( "if( selectedPipelineRowIndex != -1 && rowNum != selectedPipelineRowIndex ) {" );
+      out.println( "document.getElementById( prefix + 'cellTableRow_' + selectedPipelineRowIndex ).className='cellTableRow ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableFirstCell_' + selectedPipelineRowIndex ).className='cellTableCell cellTableFirstColumn ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableCell_' + selectedPipelineRowIndex ).className='cellTableCell ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableLastCell_' + selectedPipelineRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;" );
       out.println( "}" );
-      out.println( "selectedTransRowIndex = rowNum;" );
-      out.println( "if( document.getElementById( 'cellTableCellStatus_' + selectedTransRowIndex ).innerHTML == 'Running' ) {" );
-      out.println( "document.getElementById( 'pause' ).innerHTML = '<img style=\"width: 22px; height: 22px\" src=\"" + prefix + "/images/pause.svg\"/ title=\"Pause transformation\">';" );
-      out.println( "} else if( document.getElementById( 'cellTableCellStatus_' + selectedTransRowIndex ).innerHTML == 'Paused' ) {" );
-      out.println( "document.getElementById( 'pause' ).innerHTML = '<img style=\"width: 22px; height: 22px\" src=\"" + prefix + "/images/pause.svg\" title=\"Resume transformation\"/>';" );
+      out.println( "selectedPipelineRowIndex = rowNum;" );
+      out.println( "if( document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Running' ) {" );
+      out.println( "document.getElementById( 'pause' ).innerHTML = '<img style=\"width: 22px; height: 22px\" src=\"" + prefix + "/images/pause.svg\"/ title=\"Pause pipeline\">';" );
+      out.println( "} else if( document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Paused' ) {" );
+      out.println( "document.getElementById( 'pause' ).innerHTML = '<img style=\"width: 22px; height: 22px\" src=\"" + prefix + "/images/pause.svg\" title=\"Resume pipeline\"/>';" );
       out.println( "}" );
       out.println( "}" );
       out.println( "setSelectedNames();" );
       out.println( "}" );
 
-      // Function to set the trans or job name of the selected trans or job
+      // Function to set the pipeline or job name of the selected pipeline or job
       out.println( "function setSelectedNames() {" );
-      out.println( "  selectedJobName = selectedTransName = \"\";" );
+      out.println( "  selectedJobName = selectedPipelineName = \"\";" );
       out.println( "  var selectedElementNames = document.getElementsByClassName( \"cellTableFirstColumn cellTableSelectedRowCell\" );" );
       out.println( "  if( selectedElementNames ) {" );
       out.println( "    for(var i = 0; i < selectedElementNames.length; i++) {" );
       out.println( "      if(selectedElementNames[i].id.startsWith(\"j-\")) {" );
       out.println( "        selectedJobName = selectedElementNames[i].innerHTML;" );
       out.println( "      } else {" );
-      out.println( "        selectedTransName = selectedElementNames[i].innerHTML;" );
+      out.println( "        selectedPipelineName = selectedElementNames[i].innerHTML;" );
       out.println( "      }" );
       out.println( "    }" );
       out.println( "  }" );
@@ -784,7 +784,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "function mouseEnterFunction( element, tableClass ) {" );
       out.println( "var prefix = '';" );
       out.println( "var rowNum = getRowNum( element.id );" );
-      out.println( "var selectedIndex = selectedTransRowIndex;" );
+      out.println( "var selectedIndex = selectedPipelineRowIndex;" );
       out.println( "if( element.id.startsWith( 'j-' ) ) {" );
       out.println( "prefix = 'j-';" );
       out.println( "selectedIndex = selectedJobRowIndex;" );
@@ -808,7 +808,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "function mouseLeaveFunction( element, tableClass ) {" );
       out.println( "var prefix = '';" );
       out.println( "var rowNum = getRowNum( element.id );" );
-      out.println( "var selectedIndex = selectedTransRowIndex;" );
+      out.println( "var selectedIndex = selectedPipelineRowIndex;" );
       out.println( "if( element.id.startsWith( 'j-' ) ) {" );
       out.println( "prefix = 'j-';" );
       out.println( "selectedIndex = selectedJobRowIndex;" );
@@ -848,7 +848,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
       out.println( "  }" );
       out.println( "}" );
 
-      // Function to remove selected trans/job after user confirms
+      // Function to remove selected pipeline/job after user confirms
       out.println( "function removeSelection() {" );
       out.println( "  if( removeElement !== null ) {" );
       out.println( "    if( removeElement.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
@@ -856,12 +856,12 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
         BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Title" ),
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Success.Body" ) + "'",
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Failure.Body" ) + "'" ) );
-      out.println( "} else if ( selectedTransRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupTransURI( convertContextPath( RemoveTransServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.RemoveTrans.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveTrans.Success.Body" )
+      out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
+      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( RemovePipelineServlet.CONTEXT_PATH ) ),
+        BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Success.Body" )
           + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheTransformation.Label" ) + " ' + selectedTransName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveTrans.Failure.Body" )
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" ) + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Failure.Body" )
           + "'" ) );
       out.println( "    }" );
       out.println( "  }" );
@@ -972,10 +972,10 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
     return retVal;
   }
 
-  private String setupTransURI( String context ) {
+  private String setupPipelineURI( String context ) {
     return "'" + context + "'"
-      + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedTransRowIndex ).innerHTML"
-      + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedTransRowIndex ).innerHTML";
+      + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedPipelineRowIndex ).innerHTML"
+      + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedPipelineRowIndex ).innerHTML";
   }
 
   private String setupJobURI( String context ) {

@@ -10,7 +10,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -123,7 +123,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>
@@ -1035,6 +1035,6 @@
 <value>&#x7b;&#x22;namespace&#x22;&#x3a;&#x22;pentaho&#x22;,&#x22;id&#x22;&#x3a;&#x22;Kettle Data Service&#x22;,&#x22;name&#x22;&#x3a;&#x22;Kettle Data Service&#x22;,&#x22;description&#x22;&#x3a;&#x22;The elements describing data services based upon transformation output&#x22;,&#x22;metaStoreName&#x22;&#x3a;null&#x7d;</value>
 </attribute></group><group><name>&#x7b;&#x22;_&#x22;&#x3a;&#x22;Embedded MetaStore Elements&#x22;,&#x22;namespace&#x22;&#x3a;&#x22;pentaho&#x22;,&#x22;type&#x22;&#x3a;&#x22;Kettle Data Service&#x22;&#x7d;</name>
 <attribute><key>DistinctCount-Generate Row v1b-1831745341</key>
-<value>&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Generate Row v1b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Generate Row v1b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;name&#x22;,&#x22;value&#x22;&#x3a;&#x22;8ef083e9-531f-4443-87c0-d130c0f3052b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;template_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;default&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;time_to_live&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;_POJO_&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.trans.dataservice.optimization.cache.ServiceCache&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;type&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;enabled&#x22;,&#x22;value&#x22;&#x3a;&#x22;Y&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;0&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;push_down_opt_meta&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.trans.dataservice.optimization.PushDownOptimizationMeta&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;is_user_defined&#x22;,&#x22;value&#x22;&#x3a;&#x22;N&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;DistinctCount-Generate Row v1b-1831745341&#x22;,&#x22;value&#x22;&#x3a;null,&#x22;name&#x22;&#x3a;&#x22;DistinctCount-Generate Row v1b-1831745341&#x22;,&#x22;owner&#x22;&#x3a;null,&#x22;ownerPermissionsList&#x22;&#x3a;&#x5b;&#x5d;&#x7d;</value>
+<value>&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Generate Row v1b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Generate Row v1b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;name&#x22;,&#x22;value&#x22;&#x3a;&#x22;8ef083e9-531f-4443-87c0-d130c0f3052b&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;template_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;default&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;time_to_live&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;_POJO_&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.cache.ServiceCache&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;type&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;enabled&#x22;,&#x22;value&#x22;&#x3a;&#x22;Y&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;0&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;push_down_opt_meta&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.PushDownOptimizationMeta&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;is_user_defined&#x22;,&#x22;value&#x22;&#x3a;&#x22;N&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;DistinctCount-Generate Row v1b-1831745341&#x22;,&#x22;value&#x22;&#x3a;null,&#x22;name&#x22;&#x3a;&#x22;DistinctCount-Generate Row v1b-1831745341&#x22;,&#x22;owner&#x22;&#x3a;null,&#x22;ownerPermissionsList&#x22;&#x3a;&#x5b;&#x5d;&#x7d;</value>
 </attribute></group></attributes>
 </transformation>

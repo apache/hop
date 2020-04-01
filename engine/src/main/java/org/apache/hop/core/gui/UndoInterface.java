@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 
 public interface UndoInterface {
   /**
@@ -33,7 +33,7 @@ public interface UndoInterface {
    * @param pos            An array of object locations
    * @param prev           An array of points representing the old positions
    * @param curr           An array of points representing the new positions
-   * @param type_of_change The type of change that's being done to the transformation.
+   * @param type_of_change The type of change that's being done to the pipeline.
    * @param nextAlso       indicates that the next undo operation needs to follow this one.
    */
   public void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int type_of_change,
@@ -58,34 +58,34 @@ public interface UndoInterface {
    *
    * @return The undo transaction to be performed.
    */
-  public TransAction previousUndo();
+  public ChangeAction previousUndo();
 
   /**
    * View current undo, don't change undo position
    *
    * @return The current undo transaction
    */
-  public TransAction viewThisUndo();
+  public ChangeAction viewThisUndo();
 
   /**
    * View previous undo, don't change undo position
    *
    * @return The previous undo transaction
    */
-  public TransAction viewPreviousUndo();
+  public ChangeAction viewPreviousUndo();
 
   /**
    * Get the next undo transaction on the list. Change the undo pointer.
    *
    * @return The next undo transaction (for redo)
    */
-  public TransAction nextUndo();
+  public ChangeAction nextUndo();
 
   /**
    * Get the next undo transaction on the list.
    *
    * @return The next undo transaction (for redo)
    */
-  public TransAction viewNextUndo();
+  public ChangeAction viewNextUndo();
 
 }

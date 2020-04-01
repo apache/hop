@@ -71,13 +71,13 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.job.JobEntryJob;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entries.pipeline.JobEntryPipeline;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.trans.Trans;
 import org.apache.hop.www.RegisterJobServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.SocketRepository;
@@ -115,7 +115,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Job extends Thread implements VariableSpace, NamedParams, HasLogChannelInterface, LoggingObjectInterface,
   ExecutorInterface, ExtensionDataInterface {
-  private static Class<?> PKG = Job.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Job.class; // for i18n purposes, needed by Translator!!
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__job_execution_configuration__.xml";
 
@@ -140,9 +140,9 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   protected Job parentJob;
 
   /**
-   * The parent transformation
+   * The parent pipeline
    */
-  protected Trans parentTrans;
+  protected Pipeline parentPipeline;
 
   /**
    * The parent logging interface to reference
@@ -164,13 +164,13 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   private long batchId;
 
   /**
-   * This is the batch ID that is passed from job to job to transformation, if nothing is passed, it's the job's batch
+   * This is the batch ID that is passed from job to job to pipeline, if nothing is passed, it's the job's batch
    * id
    */
   private long passedBatchId;
 
   /**
-   * The rows that were passed onto this job by a previous transformation. These rows are passed onto the first job
+   * The rows that were passed onto this job by a previous pipeline. These rows are passed onto the first job
    * entry in this job (on the result object)
    */
   private List<RowMetaAndData> sourceRows;
@@ -188,7 +188,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
   private List<DelegationListener> delegationListeners;
 
-  private Map<JobEntryCopy, JobEntryTrans> activeJobEntryTransformations;
+  private Map<JobEntryCopy, JobEntryPipeline> activeJobEntryPipeline;
 
   private Map<JobEntryCopy, JobEntryJob> activeJobEntryJobs;
 
@@ -255,7 +255,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     delegationListeners = new ArrayList<DelegationListener>();
 
     // these 2 maps are being modified concurrently and must be thread-safe
-    activeJobEntryTransformations = new ConcurrentHashMap<JobEntryCopy, JobEntryTrans>();
+    activeJobEntryPipeline = new ConcurrentHashMap<JobEntryCopy, JobEntryPipeline>();
     activeJobEntryJobs = new ConcurrentHashMap<JobEntryCopy, JobEntryJob>();
 
     extensionDataMap = new HashMap<String, Object>();
@@ -652,8 +652,8 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
         jobEntryListener.beforeExecution( this, jobEntryCopy, cloneJei );
       }
       if ( interactive ) {
-        if ( jobEntryCopy.isTransformation() ) {
-          getActiveJobEntryTransformations().put( jobEntryCopy, (JobEntryTrans) cloneJei );
+        if ( jobEntryCopy.isPipeline() ) {
+          getActiveJobEntryPipeline().put( jobEntryCopy, (JobEntryPipeline) cloneJei );
         }
         if ( jobEntryCopy.isJob() ) {
           getActiveJobEntryJobs().put( jobEntryCopy, (JobEntryJob) cloneJei );
@@ -665,15 +665,15 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
       final long end = System.currentTimeMillis();
       if ( interactive ) {
-        if ( jobEntryCopy.isTransformation() ) {
-          getActiveJobEntryTransformations().remove( jobEntryCopy );
+        if ( jobEntryCopy.isPipeline() ) {
+          getActiveJobEntryPipeline().remove( jobEntryCopy );
         }
         if ( jobEntryCopy.isJob() ) {
           getActiveJobEntryJobs().remove( jobEntryCopy );
         }
       }
 
-      if ( cloneJei instanceof JobEntryTrans ) {
+      if ( cloneJei instanceof JobEntryPipeline ) {
         String throughput = newResult.getReadWriteThroughput( (int) ( ( end - start ) / 1000 ) );
         if ( throughput != null ) {
           log.logMinimal( throughput );
@@ -1065,7 +1065,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
           try {
             writeLogChannelInformation();
           } catch ( HopException e ) {
-            throw new HopException( BaseMessages.getString( PKG, "Job.Exception.UnableToPerformLoggingAtTransEnd" ),
+            throw new HopException( BaseMessages.getString( PKG, "Job.Exception.UnableToPerformLoggingAtPipelineEnd" ),
               e );
           }
         }
@@ -1188,7 +1188,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG,
-        "Trans.Exception.UnableToWriteLogChannelInformationToLogTable" ), e );
+        "Pipeline.Exception.UnableToWriteLogChannelInformationToLogTable" ), e );
     } finally {
       if ( !db.isAutoCommit() ) {
         db.commit( true );
@@ -1392,10 +1392,10 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
         FileObject fileObject = HopVFS.getFileObject( jobMeta.getFilename(), this );
         FileName fileName = fileObject.getName();
 
-        // The filename of the transformation
+        // The filename of the pipeline
         variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME, fileName.getBaseName() );
 
-        // The directory of the transformation
+        // The directory of the pipeline
         FileName fileDir = fileName.getParent();
         variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, fileDir.getURI() );
       } catch ( Exception e ) {
@@ -1554,22 +1554,22 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
     if ( isActive() ) {
       if ( isStopped() ) {
-        message = Trans.STRING_HALTING;
+        message = Pipeline.STRING_HALTING;
       } else {
-        message = Trans.STRING_RUNNING;
+        message = Pipeline.STRING_RUNNING;
       }
     } else if ( isFinished() ) {
-      message = Trans.STRING_FINISHED;
+      message = Pipeline.STRING_FINISHED;
       if ( getResult().getNrErrors() > 0 ) {
         message += " (with errors)";
       }
     } else if ( isStopped() ) {
-      message = Trans.STRING_STOPPED;
+      message = Pipeline.STRING_STOPPED;
       if ( getResult().getNrErrors() > 0 ) {
         message += " (with errors)";
       }
     } else {
-      message = Trans.STRING_WAITING;
+      message = Pipeline.STRING_WAITING;
     }
 
     return message;
@@ -1601,7 +1601,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     try {
       // Inject certain internal variables to make it more intuitive.
       //
-      for ( String var : Const.INTERNAL_TRANS_VARIABLES ) {
+      for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
         executionConfiguration.getVariables().put( var, jobMeta.getVariable( var ) );
       }
       for ( String var : Const.INTERNAL_JOB_VARIABLES ) {
@@ -1951,12 +1951,12 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   }
 
   /**
-   * Gets the activeJobEntryTransformations.
+   * Gets the activeJobEntryPipelines.
    *
-   * @return the activeJobEntryTransformations
+   * @return the activeJobEntryPipelines
    */
-  public Map<JobEntryCopy, JobEntryTrans> getActiveJobEntryTransformations() {
-    return activeJobEntryTransformations;
+  public Map<JobEntryCopy, JobEntryPipeline> getActiveJobEntryPipeline() {
+    return activeJobEntryPipeline;
   }
 
   /**
@@ -2126,12 +2126,12 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     delegationListeners.add( delegationListener );
   }
 
-  public Trans getParentTrans() {
-    return parentTrans;
+  public Pipeline getParentPipeline() {
+    return parentPipeline;
   }
 
-  public void setParentTrans( Trans parentTrans ) {
-    this.parentTrans = parentTrans;
+  public void setParentPipeline( Pipeline parentPipeline ) {
+    this.parentPipeline = parentPipeline;
   }
 
   public Map<String, Object> getExtensionDataMap() {

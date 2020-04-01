@@ -135,7 +135,7 @@ public class HopGuiJobRunDelegate {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobExecutionConfiguration.id, executionConfiguration );
 
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] { executionConfiguration, jobMeta, jobMeta } );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] { executionConfiguration, jobMeta, jobMeta } );
       } catch ( HopException e ) {
         log.logError( e.getMessage(), jobMeta.getFilename() );
         return;

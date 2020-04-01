@@ -30,7 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.pipeline.step.StepInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;

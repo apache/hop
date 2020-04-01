@@ -76,7 +76,7 @@ public class WebServerTest {
 
   private WebServer webServer;
   private WebServer webServerNg;
-  private TransformationMap trMapMock = mock( TransformationMap.class );
+  private PipelineMap trMapMock = mock( PipelineMap.class );
   private SlaveServerConfig sServerConfMock = mock( SlaveServerConfig.class );
   private SlaveServer sServer = mock( SlaveServer.class );
   private JobMap jbMapMock = mock( JobMap.class );

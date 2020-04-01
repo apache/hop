@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import com.google.common.collect.Lists;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -52,7 +52,7 @@ public class CheckBoxTableCombo {
 
   private final PropsUI props;
   private final ModifyListener lsMod;
-  private final TransMeta transMeta;
+  private final PipelineMeta pipelineMeta;
   private final Composite parentComposite;
   private Map<String, String> dataMap;
   private final String columnOneName;
@@ -64,18 +64,18 @@ public class CheckBoxTableCombo {
   private Button wCheckBox;
   private boolean isEnabled;
 
-  public CheckBoxTableCombo( Composite parentComposite, PropsUI props, ModifyListener lsMod, TransMeta transMeta,
+  public CheckBoxTableCombo( Composite parentComposite, PropsUI props, ModifyListener lsMod, PipelineMeta pipelineMeta,
                              Map<String, String> dataMap, String buttonName, String tableName,
                              String columnOneName, String columnTwoName, boolean isEnabled ) {
     checkNotNull( props );
     checkNotNull( parentComposite );
     checkNotNull( lsMod );
-    checkNotNull( transMeta );
+    checkNotNull( pipelineMeta );
 
     this.parentComposite = parentComposite;
     this.props = props;
     this.lsMod = lsMod;
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
     this.dataMap = dataMap;
     this.buttonName = buttonName;
     this.tableName = tableName;
@@ -150,7 +150,7 @@ public class CheckBoxTableCombo {
     ColumnInfo[] columns = getSSLColumns();
 
     propertiesTable = new TableView(
-      transMeta,
+      pipelineMeta,
       parentWidget,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       columns,

@@ -116,7 +116,7 @@ import java.util.Set;
  */
 public class Database implements VariableSpace, LoggingObjectInterface {
   /**
-   * for i18n purposes, needed by Translator2!!
+   * for i18n purposes, needed by Translator!!
    */
   private static final Class<?> PKG = Database.class;
 
@@ -345,7 +345,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
       // Before anything else, let's see if we already have a connection defined
       // for this group/partition!
-      // The group is called after the thread-name of the transformation or job
+      // The group is called after the thread-name of the pipeline or job
       // that is running
       // The name of that thread name is expected to be unique (it is in Hop)
       // So the deal is that if there is another thread using that, we go for
@@ -727,11 +727,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   public void commit( boolean force ) throws HopDatabaseException {
     try {
-      // Don't do the commit, wait until the end of the transformation.
+      // Don't do the commit, wait until the end of the pipeline.
       // When the last database copy (opened counter) is about to be closed, we
       // do a commit
       // There is one catch, we need to catch the rollback
-      // The transformation will stop everything and then we'll do the rollback.
+      // The pipeline will stop everything and then we'll do the rollback.
       // The flag is in "performRollback", private only
       //
       if ( !Utils.isEmpty( connectionGroup ) && !force ) {
@@ -815,7 +815,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   public void rollback( boolean force ) throws HopDatabaseException {
     try {
       if ( !Utils.isEmpty( connectionGroup ) && !force ) {
-        return; // Will be handled by Trans --> endProcessing()
+        return; // Will be handled by Pipeline --> endProcessing()
       }
       if ( getDatabaseMetaData().supportsTransactions() ) {
         if ( connection != null ) {
@@ -3582,7 +3582,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     throws HopDatabaseException {
     Object[] row = null;
 
-    String jobtrans = job ? databaseMeta.quoteField( "JOBNAME" ) : databaseMeta.quoteField( "TRANSNAME" );
+    String jobPipeline = job ? databaseMeta.quoteField( "JOBNAME" ) : databaseMeta.quoteField( "PIPELINE_NAME" );
 
     String sql = "";
     sql +=
@@ -3592,7 +3592,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     sql += " FROM " + logtable;
     sql += " WHERE  " + databaseMeta.quoteField( "ERRORS" ) + "    = 0";
     sql += " AND    " + databaseMeta.quoteField( "STATUS" ) + "    = 'end'";
-    sql += " AND    " + jobtrans + " = ?";
+    sql += " AND    " + jobPipeline + " = ?";
     sql +=
       " ORDER BY "
         + databaseMeta.quoteField( "LOGDATE" ) + " DESC, " + databaseMeta.quoteField( "ENDDATE" ) + " DESC";
@@ -3601,7 +3601,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       pstmt = connection.prepareStatement( databaseMeta.stripCR( sql ) );
 
       RowMetaInterface r = new RowMeta();
-      r.addValueMeta( new ValueMetaString( "TRANSNAME", 255, -1 ) );
+      r.addValueMeta( new ValueMetaString( "PIPELINE_NAME", 255, -1 ) );
       setValues( r, new Object[] { name } );
 
       ResultSet res = pstmt.executeQuery();

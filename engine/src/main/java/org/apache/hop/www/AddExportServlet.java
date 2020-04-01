@@ -35,10 +35,10 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransConfiguration;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.w3c.dom.Document;
 
 import javax.servlet.ServletException;
@@ -59,14 +59,12 @@ import java.util.UUID;
  *
  * @author matt
  */
-// has been replaced by RegisterPackageServlet
-@Deprecated
 public class AddExportServlet extends BaseHttpServlet implements HopServerPluginInterface {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
 
   public static final String TYPE_JOB = "job";
-  public static final String TYPE_TRANS = "trans";
+  public static final String TYPE_PIPELINE = "pipeline";
 
   private static final long serialVersionUID = -6850701762586992604L;
   public static final String CONTEXT_PATH = "/hop/addExport";
@@ -74,7 +72,7 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
   public AddExportServlet() {
   }
 
-  public AddExportServlet( JobMap jobMap, TransformationMap transformationMap ) {
+  public AddExportServlet( JobMap jobMap, PipelineMap transformationMap ) {
     super( transformationMap, jobMap );
   }
 
@@ -109,7 +107,7 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
    * </tr>
    * <tr>
    * <td>type</td>
-   * <td>The type of the entity to be executed either <code>job</code> or <code>trans</code>.</td>
+   * <td>The type of the entity to be executed either <code>job</code> or <code>pipeline</code>.</td>
    * <td>query</td>
    * </tr>
    * <tr>
@@ -244,10 +242,10 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
           Job job = new Job( jobMeta, servletLoggingObject );
 
           // Do we need to expand the job when it's running?
-          // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
+          // Note: the plugin (Job and Pipeline) job entries need to call the delegation listeners in the parent job.
           //
           if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-            job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
+            job.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getJobMap() ) );
           }
 
           // store it all in the map...
@@ -271,27 +269,26 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
         } else {
           // Open the transformation from inside the ZIP archive
           //
-          IMetaStore metaStore = transformationMap.getSlaveServerConfig().getMetaStore();
-          TransMeta transMeta = new TransMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+          IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
+          PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
 
           // Also read the execution configuration information
           //
-          String configUrl = "zip:" + archiveUrl + "!" + Trans.CONFIGURATION_IN_EXPORT_FILENAME;
+          String configUrl = "zip:" + archiveUrl + "!" + Pipeline.CONFIGURATION_IN_EXPORT_FILENAME;
           Document configDoc = XMLHandler.loadXMLFile( configUrl );
-          TransExecutionConfiguration executionConfiguration =
-            new TransExecutionConfiguration( XMLHandler.getSubNode(
-              configDoc, TransExecutionConfiguration.XML_TAG ) );
+          PipelineExecutionConfiguration executionConfiguration =
+            new PipelineExecutionConfiguration( XMLHandler.getSubNode(
+              configDoc, PipelineExecutionConfiguration.XML_TAG ) );
 
           carteObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId( carteObjectId );
           servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
-          Trans trans = new Trans( transMeta, servletLoggingObject );
+          Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
 
           // store it all in the map...
           //
-          getTransformationMap().addTransformation(
-            trans.getName(), carteObjectId, trans, new TransConfiguration( transMeta, executionConfiguration ) );
+          getPipelineMap().addPipeline( pipeline.getName(), carteObjectId, pipeline, new PipelineConfiguration( pipelineMeta, executionConfiguration ) );
         }
       } else {
         fileUrl = archiveUrl;

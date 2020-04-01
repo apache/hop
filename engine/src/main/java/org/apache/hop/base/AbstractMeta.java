@@ -50,13 +50,13 @@ import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.trans.HasSlaveServersInterface;
+import org.apache.hop.pipeline.HasSlaveServersInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,7 +116,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected boolean changedNotes;
 
-  protected List<TransAction> undo;
+  protected List<ChangeAction> undo;
 
   protected Map<String, Map<String, String>> attributesMap;
 
@@ -181,9 +181,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Get the name of the transformation.
+   * Get the name of the pipeline.
    *
-   * @return The name of the transformation
+   * @return The name of the pipeline
    */
   @Override
   public String getName() {
@@ -537,7 +537,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
       undo.remove( last );
     }
 
-    TransAction ta = new TransAction();
+    ChangeAction ta = new ChangeAction();
     switch ( type_of_change ) {
       case TYPE_UNDO_CHANGE:
         ta.setChanged( from, to, pos );
@@ -567,7 +567,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * Clear undo.
    */
   public void clearUndo() {
-    undo = new ArrayList<TransAction>();
+    undo = new ArrayList<ChangeAction>();
     undo_position = -1;
   }
 
@@ -577,7 +577,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @see org.apache.hop.core.gui.UndoInterface#nextUndo()
    */
   @Override
-  public TransAction nextUndo() {
+  public ChangeAction nextUndo() {
     int size = undo.size();
     if ( size == 0 || undo_position >= size - 1 ) {
       return null; // no redo left...
@@ -585,7 +585,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
     undo_position++;
 
-    TransAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undo_position );
 
     return retval;
   }
@@ -596,13 +596,13 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @see org.apache.hop.core.gui.UndoInterface#viewNextUndo()
    */
   @Override
-  public TransAction viewNextUndo() {
+  public ChangeAction viewNextUndo() {
     int size = undo.size();
     if ( size == 0 || undo_position >= size - 1 ) {
       return null; // no redo left...
     }
 
-    TransAction retval = undo.get( undo_position + 1 );
+    ChangeAction retval = undo.get( undo_position + 1 );
 
     return retval;
   }
@@ -614,12 +614,12 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @see org.apache.hop.core.gui.UndoInterface#previousUndo()
    */
   @Override
-  public TransAction previousUndo() {
+  public ChangeAction previousUndo() {
     if ( undo.isEmpty() || undo_position < 0 ) {
       return null; // No undo left!
     }
 
-    TransAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undo_position );
 
     undo_position--;
 
@@ -632,12 +632,12 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return The current undo transaction
    */
   @Override
-  public TransAction viewThisUndo() {
+  public ChangeAction viewThisUndo() {
     if ( undo.isEmpty() || undo_position < 0 ) {
       return null; // No undo left!
     }
 
-    TransAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undo_position );
 
     return retval;
   }
@@ -649,12 +649,12 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @see org.apache.hop.core.gui.UndoInterface#viewPreviousUndo()
    */
   @Override
-  public TransAction viewPreviousUndo() {
+  public ChangeAction viewPreviousUndo() {
     if ( undo.isEmpty() || undo_position < 0 ) {
       return null; // No undo left!
     }
 
-    TransAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undo_position );
 
     return retval;
   }
@@ -1267,9 +1267,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   protected abstract void setInternalNameHopVariable( VariableSpace var );
 
   /**
-   * Gets the date the transformation was created.
+   * Gets the date the pipeline was created.
    *
-   * @return the date the transformation was created.
+   * @return the date the pipeline was created.
    */
   @Override
   public Date getCreatedDate() {
@@ -1277,7 +1277,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Sets the date the transformation was created.
+   * Sets the date the pipeline was created.
    *
    * @param createdDate The creation date to set.
    */
@@ -1287,7 +1287,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Sets the user by whom the transformation was created.
+   * Sets the user by whom the pipeline was created.
    *
    * @param createdUser The user to set.
    */
@@ -1297,9 +1297,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Gets the user by whom the transformation was created.
+   * Gets the user by whom the pipeline was created.
    *
-   * @return the user by whom the transformation was created.
+   * @return the user by whom the pipeline was created.
    */
   @Override
   public String getCreatedUser() {
@@ -1307,7 +1307,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Sets the date the transformation was modified.
+   * Sets the date the pipeline was modified.
    *
    * @param modifiedDate The modified date to set.
    */
@@ -1317,9 +1317,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Gets the date the transformation was modified.
+   * Gets the date the pipeline was modified.
    *
-   * @return the date the transformation was modified.
+   * @return the date the pipeline was modified.
    */
   @Override
   public Date getModifiedDate() {
@@ -1327,7 +1327,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Sets the user who last modified the transformation.
+   * Sets the user who last modified the pipeline.
    *
    * @param modifiedUser The user name to set.
    */
@@ -1337,9 +1337,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Gets the user who last modified the transformation.
+   * Gets the user who last modified the pipeline.
    *
-   * @return the user who last modified the transformation.
+   * @return the user who last modified the pipeline.
    */
   @Override
   public String getModifiedUser() {
@@ -1432,7 +1432,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Gets the registration date for the transformation. For AbstractMeta, this method always returns null.
+   * Gets the registration date for the pipeline. For AbstractMeta, this method always returns null.
    *
    * @return null
    */

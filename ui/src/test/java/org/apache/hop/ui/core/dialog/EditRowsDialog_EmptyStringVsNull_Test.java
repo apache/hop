@@ -28,7 +28,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.TransTestingUtil;
+import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.eclipse.swt.widgets.TableItem;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -90,6 +90,6 @@ public class EditRowsDialog_EmptyStringVsNull_Test {
     when( item.getText( 3 ) ).thenReturn( null );
 
     Object[] data = dialog.getRowForData( item, 0 );
-    TransTestingUtil.assertResult( expected, data );
+    PipelineTestingUtil.assertResult( expected, data );
   }
 }

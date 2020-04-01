@@ -25,13 +25,13 @@ package org.apache.hop.core;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * This class is used to store results of transformation and step verifications.
+ * This class is used to store results of pipeline and step verifications.
  *
  * @author Matt
  * @since 11-01-04
  */
 public class CheckResult implements CheckResultInterface {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] typeDesc = {
     "", BaseMessages.getString( PKG, "CheckResult.OK" ), BaseMessages.getString( PKG, "CheckResult.Remark" ),

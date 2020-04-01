@@ -24,8 +24,8 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Step;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.step.StepInterface;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;

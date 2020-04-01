@@ -29,10 +29,10 @@ import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogTableInterface;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
+import org.apache.hop.core.logging.PipelineLogTable;
 import org.apache.hop.core.logging.StepLogTable;
-import org.apache.hop.core.logging.TransLogTable;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,42 +49,42 @@ public class XmlExportHelper {
    * Method makes clone for each table and deletes all global parameters.
    * We have to make clones of each table, because we don't want to change real tables content.
    *
-   * @param transMeta meta, that contains log tables to be refactored before export
+   * @param pipelineMeta meta, that contains log tables to be refactored before export
    */
-  public static void swapTables( TransMeta transMeta ) {
-    TransLogTable transLogTable = transMeta.getTransLogTable();
-    if ( transLogTable != null ) {
-      TransLogTable cloneTransLogTable = (TransLogTable) transLogTable.clone();
-      cloneTransLogTable.setAllGlobalParametersToNull();
-      transMeta.setTransLogTable( cloneTransLogTable );
+  public static void swapTables( PipelineMeta pipelineMeta ) {
+    PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
+    if ( pipelineLogTable != null ) {
+      PipelineLogTable clonePipelineLogTable = (PipelineLogTable) pipelineLogTable.clone();
+      clonePipelineLogTable.setAllGlobalParametersToNull();
+      pipelineMeta.setPipelineLogTable( clonePipelineLogTable );
     }
 
-    StepLogTable stepLogTable = transMeta.getStepLogTable();
+    StepLogTable stepLogTable = pipelineMeta.getStepLogTable();
     if ( stepLogTable != null ) {
       StepLogTable cloneStepLogTable = (StepLogTable) stepLogTable.clone();
       cloneStepLogTable.setAllGlobalParametersToNull();
-      transMeta.setStepLogTable( cloneStepLogTable );
+      pipelineMeta.setStepLogTable( cloneStepLogTable );
     }
 
-    PerformanceLogTable performanceLogTable = transMeta.getPerformanceLogTable();
+    PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();
     if ( performanceLogTable != null ) {
       PerformanceLogTable clonePerformanceLogTable = (PerformanceLogTable) performanceLogTable.clone();
       clonePerformanceLogTable.setAllGlobalParametersToNull();
-      transMeta.setPerformanceLogTable( clonePerformanceLogTable );
+      pipelineMeta.setPerformanceLogTable( clonePerformanceLogTable );
     }
 
-    ChannelLogTable channelLogTable = transMeta.getChannelLogTable();
+    ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
     if ( channelLogTable != null ) {
       ChannelLogTable cloneChannelLogTable = (ChannelLogTable) channelLogTable.clone();
       cloneChannelLogTable.setAllGlobalParametersToNull();
-      transMeta.setChannelLogTable( cloneChannelLogTable );
+      pipelineMeta.setChannelLogTable( cloneChannelLogTable );
     }
 
-    MetricsLogTable metricsLogTable = transMeta.getMetricsLogTable();
+    MetricsLogTable metricsLogTable = pipelineMeta.getMetricsLogTable();
     if ( metricsLogTable != null ) {
       MetricsLogTable cloneMetricsLogTable = (MetricsLogTable) metricsLogTable.clone();
       cloneMetricsLogTable.setAllGlobalParametersToNull();
-      transMeta.setMetricsLogTable( cloneMetricsLogTable );
+      pipelineMeta.setMetricsLogTable( cloneMetricsLogTable );
     }
   }
 

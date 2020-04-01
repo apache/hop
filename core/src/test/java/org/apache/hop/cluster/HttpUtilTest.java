@@ -57,7 +57,7 @@ public class HttpUtilTest {
     // decode string
     String decoded = HttpUtil.decodeBase64ZippedString( enc64 );
 
-    Assert.assertEquals( "Strings are the same after transformation", STANDART, decoded );
+    Assert.assertEquals( "Strings are the same after pipeline", STANDART, decoded );
   }
 
   @Test
@@ -85,7 +85,7 @@ public class HttpUtilTest {
     String enc64 = HttpUtil.encodeBase64ZippedString( STANDART );
     String decoded = HttpUtil.decodeBase64ZippedString( enc64 );
 
-    Assert.assertEquals( "Strings are the same after transformation", STANDART, decoded );
+    Assert.assertEquals( "Strings are the same after pipeline", STANDART, decoded );
   }
 
   /**

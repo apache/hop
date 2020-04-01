@@ -37,12 +37,12 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.ExecutionAdapter;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransConfiguration;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.engine.IPipelineEngine;
+import org.apache.hop.pipeline.ExecutionAdapter;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.util.Map;
 import java.util.UUID;
@@ -63,7 +63,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     SimpleLoggingObject servletLoggingObject =
       getServletLogging( carteObjectId, jobExecutionConfiguration.getLogLevel() );
 
-    // Create the transformation and store in the list...
+    // Create the pipeline and store in the list...
     final Job job = new Job( jobMeta, servletLoggingObject );
     // Setting variables
     job.initializeVariablesFrom( null );
@@ -83,9 +83,9 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     }
 
     // Do we need to expand the job when it's running?
-    // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
+    // Note: the plugin (Job and Pipeline) job entries need to call the delegation listeners in the parent job.
     if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-      job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
+      job.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getJobMap() ) );
     }
 
     getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
@@ -98,36 +98,36 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     return job;
   }
 
-  protected Trans createTrans( TransConfiguration transConfiguration ) throws UnknownParamException {
-    TransMeta transMeta = transConfiguration.getTransMeta();
-    TransExecutionConfiguration transExecutionConfiguration = transConfiguration.getTransExecutionConfiguration();
-    transMeta.setLogLevel( transExecutionConfiguration.getLogLevel() );
-    transMeta.injectVariables( transExecutionConfiguration.getVariables() );
+  protected Pipeline createPipeline( PipelineConfiguration pipelineConfiguration ) throws UnknownParamException {
+    PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
+    PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
+    pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
+    pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariables() );
 
     // Also copy the parameters over...
-    copyParameters( transMeta, transExecutionConfiguration.getParams() );
+    copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParams() );
 
     String carteObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =
-      getServletLogging( carteObjectId, transExecutionConfiguration.getLogLevel() );
+      getServletLogging( carteObjectId, pipelineExecutionConfiguration.getLogLevel() );
 
-    // Create the transformation and store in the list...
-    final Trans trans = new Trans( transMeta, servletLoggingObject );
-    trans.setMetaStore( transformationMap.getSlaveServerConfig().getMetaStore() );
+    // Create the pipeline and store in the list...
+    final Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
+    pipeline.setMetaStore( pipelineMap.getSlaveServerConfig().getMetaStore() );
 
-    if ( transExecutionConfiguration.isSetLogfile() ) {
-      String realLogFilename = transExecutionConfiguration.getLogFileName();
+    if ( pipelineExecutionConfiguration.isSetLogfile() ) {
+      String realLogFilename = pipelineExecutionConfiguration.getLogFileName();
       try {
-        FileUtil.createParentFolder( AddTransServlet.class, realLogFilename, transExecutionConfiguration
-          .isCreateParentFolder(), trans.getLogChannel(), trans );
+        FileUtil.createParentFolder( AddPipelineServlet.class, realLogFilename, pipelineExecutionConfiguration
+          .isCreateParentFolder(), pipeline.getLogChannel(), pipeline );
         final LogChannelFileWriter logChannelFileWriter =
           new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
-            HopVFS.getFileObject( realLogFilename ), transExecutionConfiguration.isSetAppendLogfile() );
+            HopVFS.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
-        trans.addTransListener( new ExecutionAdapter<TransMeta>() {
+        pipeline.addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
           @Override
-          public void finished( IPipelineEngine<TransMeta> trans ) throws HopException {
+          public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
             if ( logChannelFileWriter != null ) {
               logChannelFileWriter.stopLogging();
             }
@@ -139,17 +139,17 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
 
     }
 
-    trans.setSocketRepository( getSocketRepository() );
+    pipeline.setSocketRepository( getSocketRepository() );
 
-    trans.setContainerObjectId( carteObjectId );
-    getTransformationMap().addTransformation( transMeta.getName(), carteObjectId, trans, transConfiguration );
+    pipeline.setContainerObjectId( carteObjectId );
+    getPipelineMap().addPipeline( pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
 
-    final Long passedBatchId = transExecutionConfiguration.getPassedBatchId();
+    final Long passedBatchId = pipelineExecutionConfiguration.getPassedBatchId();
     if ( passedBatchId != null ) {
-      trans.setPassedBatchId( passedBatchId );
+      pipeline.setPassedBatchId( passedBatchId );
     }
 
-    return trans;
+    return pipeline;
   }
 
   private void copyParameters( final AbstractMeta meta, final Map<String, String> params ) throws UnknownParamException {

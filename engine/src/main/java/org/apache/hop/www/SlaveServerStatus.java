@@ -38,7 +38,7 @@ public class SlaveServerStatus {
   private String statusDescription;
   private String errorDescription;
 
-  private List<SlaveServerTransStatus> transStatusList;
+  private List<SlaveServerPipelineStatus> pipelineStatusList;
   private List<SlaveServerJobStatus> jobStatusList;
 
   private long memoryFree;
@@ -60,7 +60,7 @@ public class SlaveServerStatus {
   private String osArchitecture;
 
   public SlaveServerStatus() {
-    transStatusList = new ArrayList<SlaveServerTransStatus>();
+    pipelineStatusList = new ArrayList<SlaveServerPipelineStatus>();
     jobStatusList = new ArrayList<SlaveServerJobStatus>();
   }
 
@@ -71,13 +71,13 @@ public class SlaveServerStatus {
 
   /**
    * @param statusDescription
-   * @param transStatusList
+   * @param pipelineStatusList
    * @param jobStatusList
    */
-  public SlaveServerStatus( String statusDescription, List<SlaveServerTransStatus> transStatusList,
+  public SlaveServerStatus( String statusDescription, List<SlaveServerPipelineStatus> pipelineStatusList,
                             List<SlaveServerJobStatus> jobStatusList ) {
     this.statusDescription = statusDescription;
-    this.transStatusList = transStatusList;
+    this.pipelineStatusList = pipelineStatusList;
     this.jobStatusList = jobStatusList;
   }
 
@@ -102,19 +102,19 @@ public class SlaveServerStatus {
     xml.append( XMLHandler.addTagValue( "os_version", osVersion ) );
     xml.append( XMLHandler.addTagValue( "os_arch", osArchitecture ) );
 
-    xml.append( "  <transstatuslist>" ).append( Const.CR );
-    for ( int i = 0; i < transStatusList.size(); i++ ) {
-      SlaveServerTransStatus transStatus = transStatusList.get( i );
-      xml.append( "    " ).append( transStatus.getXML() ).append( Const.CR );
+    xml.append( "  <pipeline_status_list>" ).append( Const.CR );
+    for ( int i = 0; i < pipelineStatusList.size(); i++ ) {
+      SlaveServerPipelineStatus pipelineStatus = pipelineStatusList.get( i );
+      xml.append( "    " ).append( pipelineStatus.getXML() ).append( Const.CR );
     }
-    xml.append( "  </transstatuslist>" ).append( Const.CR );
+    xml.append( "  </pipeline_status_list>" ).append( Const.CR );
 
-    xml.append( "  <jobstatuslist>" ).append( Const.CR );
+    xml.append( "  <job_status_list>" ).append( Const.CR );
     for ( int i = 0; i < jobStatusList.size(); i++ ) {
       SlaveServerJobStatus jobStatus = jobStatusList.get( i );
       xml.append( "    " ).append( jobStatus.getXML() ).append( Const.CR );
     }
-    xml.append( "  </jobstatuslist>" ).append( Const.CR );
+    xml.append( "  </job_status_list>" ).append( Const.CR );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
@@ -141,15 +141,15 @@ public class SlaveServerStatus {
     osVersion = XMLHandler.getTagValue( statusNode, "os_version" );
     osArchitecture = XMLHandler.getTagValue( statusNode, "os_arch" );
 
-    Node listTransNode = XMLHandler.getSubNode( statusNode, "transstatuslist" );
-    Node listJobsNode = XMLHandler.getSubNode( statusNode, "jobstatuslist" );
+    Node listPipelineNode = XMLHandler.getSubNode( statusNode, "pipeline_status_list" );
+    Node listJobsNode = XMLHandler.getSubNode( statusNode, "job_status_list" );
 
-    int nrTrans = XMLHandler.countNodes( listTransNode, SlaveServerTransStatus.XML_TAG );
+    int nrPipelines = XMLHandler.countNodes( listPipelineNode, SlaveServerPipelineStatus.XML_TAG );
     int nrJobs = XMLHandler.countNodes( listJobsNode, SlaveServerJobStatus.XML_TAG );
 
-    for ( int i = 0; i < nrTrans; i++ ) {
-      Node transStatusNode = XMLHandler.getSubNodeByNr( listTransNode, SlaveServerTransStatus.XML_TAG, i );
-      transStatusList.add( new SlaveServerTransStatus( transStatusNode ) );
+    for ( int i = 0; i < nrPipelines; i++ ) {
+      Node pipelineStatusNode = XMLHandler.getSubNodeByNr( listPipelineNode, SlaveServerPipelineStatus.XML_TAG, i );
+      pipelineStatusList.add( new SlaveServerPipelineStatus( pipelineStatusNode ) );
     }
 
     for ( int i = 0; i < nrJobs; i++ ) {
@@ -178,17 +178,17 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @return the transStatusList
+   * @return the pipelineStatusList
    */
-  public List<SlaveServerTransStatus> getTransStatusList() {
-    return transStatusList;
+  public List<SlaveServerPipelineStatus> getPipelineStatusList() {
+    return pipelineStatusList;
   }
 
   /**
-   * @param transStatusList the transStatusList to set
+   * @param pipelineStatusList the pipelineStatusList to set
    */
-  public void setTransStatusList( List<SlaveServerTransStatus> transStatusList ) {
-    this.transStatusList = transStatusList;
+  public void setPipelineStatusList( List<SlaveServerPipelineStatus> pipelineStatusList ) {
+    this.pipelineStatusList = pipelineStatusList;
   }
 
   /**
@@ -205,12 +205,12 @@ public class SlaveServerStatus {
     this.errorDescription = errorDescription;
   }
 
-  public SlaveServerTransStatus findTransStatus( String transName, String id ) {
-    for ( int i = 0; i < transStatusList.size(); i++ ) {
-      SlaveServerTransStatus transStatus = transStatusList.get( i );
-      if ( transStatus.getTransName().equalsIgnoreCase( transName )
-        && ( Utils.isEmpty( id ) || transStatus.getId().equals( id ) ) ) {
-        return transStatus;
+  public SlaveServerPipelineStatus findPipelineStatus( String pipelineName, String id ) {
+    for ( int i = 0; i < pipelineStatusList.size(); i++ ) {
+      SlaveServerPipelineStatus pipelineStatus = pipelineStatusList.get( i );
+      if ( pipelineStatus.getPipelineName().equalsIgnoreCase( pipelineName )
+        && ( Utils.isEmpty( id ) || pipelineStatus.getId().equals( id ) ) ) {
+        return pipelineStatus;
       }
     }
     return null;

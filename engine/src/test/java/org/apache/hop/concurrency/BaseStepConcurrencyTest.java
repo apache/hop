@@ -24,12 +24,12 @@ package org.apache.hop.concurrency;
 
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.RowListener;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.step.BaseStep;
+import org.apache.hop.pipeline.step.RowListener;
+import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.step.StepPartitioningMeta;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -56,12 +56,12 @@ public class BaseStepConcurrencyTest {
     int traversersAmount = 100;
 
     StepMeta stepMeta = mock( StepMeta.class );
-    TransMeta transMeta = mock( TransMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     when( stepMeta.getName() ).thenReturn( STEP_META );
-    when( transMeta.findStep( STEP_META ) ).thenReturn( stepMeta );
+    when( pipelineMeta.findStep( STEP_META ) ).thenReturn( stepMeta );
     when( stepMeta.getTargetStepPartitioningMeta() ).thenReturn( mock( StepPartitioningMeta.class ) );
 
-    baseStep = new BaseStep( stepMeta, null, 0, transMeta, mock( Trans.class ) );
+    baseStep = new BaseStep( stepMeta, null, 0, pipelineMeta, mock( Pipeline.class ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 
@@ -93,12 +93,12 @@ public class BaseStepConcurrencyTest {
     int traversersAmount = 100;
 
     StepMeta stepMeta = mock( StepMeta.class );
-    TransMeta transMeta = mock( TransMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     when( stepMeta.getName() ).thenReturn( STEP_META );
-    when( transMeta.findStep( STEP_META ) ).thenReturn( stepMeta );
+    when( pipelineMeta.findStep( STEP_META ) ).thenReturn( stepMeta );
     when( stepMeta.getTargetStepPartitioningMeta() ).thenReturn( mock( StepPartitioningMeta.class ) );
 
-    baseStep = new BaseStep( stepMeta, null, 0, transMeta, mock( Trans.class ) );
+    baseStep = new BaseStep( stepMeta, null, 0, pipelineMeta, mock( Pipeline.class ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 

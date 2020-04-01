@@ -43,8 +43,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-//has been replaced by RegisterJobServlet
-@Deprecated
 public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = -6850701762586992604L;
 
@@ -233,10 +231,10 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       job.setSocketRepository( getSocketRepository() );
 
       // Do we need to expand the job when it's running?
-      // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
+      // Note: the plugin (Job and Pipeline) job entries need to call the delegation listeners in the parent job.
       //
       if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-        job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
+        job.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getJobMap() ) );
       }
 
       getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );

@@ -27,15 +27,15 @@ import org.apache.hop.metastore.api.IMetaStore;
 
 public interface LogTablePluginInterface extends LogTableInterface {
 
-  public enum TableType {
-    JOB, TRANS;
+  enum TableType {
+    JOB, PIPELINE;
   }
 
-  public TableType getType();
+  TableType getType();
 
-  public String getLogTablePluginUIClassname();
+  String getLogTablePluginUIClassname();
 
-  public void setContext( VariableSpace space, IMetaStore metaStore );
+  void setContext( VariableSpace space, IMetaStore metaStore );
 
   // Otherwise identical to the log table interface.
 

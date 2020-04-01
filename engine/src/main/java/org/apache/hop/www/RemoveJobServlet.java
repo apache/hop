@@ -41,7 +41,7 @@ import java.io.PrintWriter;
 
 public class RemoveJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
-  private static Class<?> PKG = RemoveJobServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = RemoveJobServlet.class; // for i18n purposes, needed by Translator!!
   private static final long serialVersionUID = -2051906998698124039L;
 
   public static final String CONTEXT_PATH = "/hop/removeJob";
@@ -171,7 +171,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements HopServerPlugin
     Job job;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
-      // get the first transformation that matches...
+      // get the first pipeline that matches...
       //
       entry = getJobMap().getFirstCarteObjectEntry( jobName );
       if ( entry == null ) {
@@ -212,7 +212,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements HopServerPlugin
           .getString( PKG, "RemoveJobServlet.TheJobWasRemoved", jobName, id ) ) + "</H3>" );
         out.print( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><br>" );
+          + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><br>" );
         out.println( "<p>" );
         out.println( "</BODY>" );
         out.println( "</HTML>" );
@@ -227,7 +227,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements HopServerPlugin
           PKG, "RemoveJobServlet.JobRemoved.Log.CoundNotFindJob", jobName, id ) ) + "</H1>" );
         out.println( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
+          + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
         response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
       }
     }

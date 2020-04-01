@@ -23,8 +23,8 @@
 package org.apache.hop.lineage;
 
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author matt
  */
 public class ValueLineage {
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
   private ValueMetaInterface valueMeta;
 
   private List<StepMeta> sourceSteps;
@@ -46,24 +46,24 @@ public class ValueLineage {
    *
    * @param valueMeta
    */
-  public ValueLineage( TransMeta transMeta, ValueMetaInterface valueMeta ) {
-    this.transMeta = transMeta;
+  public ValueLineage( PipelineMeta pipelineMeta, ValueMetaInterface valueMeta ) {
+    this.pipelineMeta = pipelineMeta;
     this.valueMeta = valueMeta;
     this.sourceSteps = new ArrayList<StepMeta>();
   }
 
   /**
-   * @return the transMeta
+   * @return the pipelineMeta
    */
-  public TransMeta getTransMeta() {
-    return transMeta;
+  public PipelineMeta getPipelineMeta() {
+    return pipelineMeta;
   }
 
   /**
-   * @param transMeta the transMeta to set
+   * @param pipelineMeta the pipelineMeta to set
    */
-  public void setTransMeta( TransMeta transMeta ) {
-    this.transMeta = transMeta;
+  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+    this.pipelineMeta = pipelineMeta;
   }
 
   /**

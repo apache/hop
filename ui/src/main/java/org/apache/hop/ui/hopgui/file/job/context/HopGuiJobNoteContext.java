@@ -87,16 +87,16 @@ public class HopGuiJobNoteContext extends BaseGuiContextHandler implements IGuiC
   }
 
   /**
-   * Gets transGraph
+   * Gets pipelineGraph
    *
-   * @return value of transGraph
+   * @return value of pipelineGraph
    */
   public HopGuiJobGraph getJobGraph() {
     return jobGraph;
   }
 
   /**
-   * @param jobGraph The transGraph to set
+   * @param jobGraph The pipelineGraph to set
    */
   public void setJobGraph( HopGuiJobGraph jobGraph ) {
     this.jobGraph = jobGraph;

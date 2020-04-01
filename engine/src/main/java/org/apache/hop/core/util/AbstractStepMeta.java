@@ -30,9 +30,9 @@ import org.apache.hop.core.util.PluginPropertyHandler.LoadXml;
 import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.step.BaseStepMeta;
+import org.apache.hop.pipeline.step.StepDataInterface;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -100,7 +100,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.trans.step.StepMetaInterface#loadXML(org.w3c.dom.Node, java.util.List, java.util.Map)
+   * @see org.apache.hop.pipeline.step.StepMetaInterface#loadXML(org.w3c.dom.Node, java.util.List, java.util.Map)
    */
   public void loadXML( final Node node, final List<DatabaseMeta> databaseMeta, final IMetaStore metaStore ) throws HopXMLException {
     this.getProperties().walk( new LoadXml( node ) );
@@ -108,7 +108,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   }
 
   /**
-   * @param databaseList A list of available DatabaseMeta in this transformation.
+   * @param databaseList A list of available DatabaseMeta in this pipeline.
    */
   private void initDbMeta( final List<DatabaseMeta> databaseList ) {
     if ( !StringUtils.isEmpty( this.connectionName.getValue() ) ) {
@@ -119,7 +119,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.trans.step.BaseStepMeta#getXML()
+   * @see org.apache.hop.pipeline.step.BaseStepMeta#getXML()
    */
   @Override
   public String getXML() throws HopException {
@@ -129,7 +129,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.trans.step.StepMetaInterface#getStepData()
+   * @see org.apache.hop.pipeline.step.StepMetaInterface#getStepData()
    */
   public StepDataInterface getStepData() {
     // you may be override this.

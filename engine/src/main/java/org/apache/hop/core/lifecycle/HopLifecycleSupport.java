@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A single point of contact for Hop Lifecycle Plugin instances for invoking lifecycle methods.
  */
 public class HopLifecycleSupport {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
   @VisibleForTesting protected static PluginRegistry registry = PluginRegistry.getInstance();
 
   private ConcurrentMap<HopLifecycleListener, Boolean> kettleLifecycleListeners;

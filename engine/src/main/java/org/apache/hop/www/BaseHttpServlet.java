@@ -36,7 +36,7 @@ public class BaseHttpServlet extends HttpServlet {
 
   protected static final long serialVersionUID = -1348342810327662788L;
 
-  protected TransformationMap transformationMap;
+  protected PipelineMap pipelineMap;
   protected JobMap jobMap;
   protected SocketRepository socketRepository;
   protected List<SlaveServerDetection> detections;
@@ -55,8 +55,8 @@ public class BaseHttpServlet extends HttpServlet {
   public BaseHttpServlet() {
   }
 
-  public BaseHttpServlet( TransformationMap transformationMap ) {
-    this.transformationMap = transformationMap;
+  public BaseHttpServlet( PipelineMap pipelineMap ) {
+    this.pipelineMap = pipelineMap;
     this.jettyMode = true;
   }
 
@@ -65,14 +65,14 @@ public class BaseHttpServlet extends HttpServlet {
     this.jettyMode = true;
   }
 
-  public BaseHttpServlet( TransformationMap transformationMap, JobMap jobMap ) {
-    this.transformationMap = transformationMap;
+  public BaseHttpServlet( PipelineMap pipelineMap, JobMap jobMap ) {
+    this.pipelineMap = pipelineMap;
     this.jobMap = jobMap;
     this.jettyMode = true;
   }
 
-  public BaseHttpServlet( TransformationMap transformationMap, SocketRepository socketRepository ) {
-    this.transformationMap = transformationMap;
+  public BaseHttpServlet( PipelineMap pipelineMap, SocketRepository socketRepository ) {
+    this.pipelineMap = pipelineMap;
     this.socketRepository = socketRepository;
     this.jettyMode = true;
   }
@@ -106,11 +106,11 @@ public class BaseHttpServlet extends HttpServlet {
     doGet( req, resp );
   }
 
-  public TransformationMap getTransformationMap() {
-    if ( transformationMap == null ) {
-      return HopServerSingleton.getInstance().getTransformationMap();
+  public PipelineMap getPipelineMap() {
+    if ( pipelineMap == null ) {
+      return HopServerSingleton.getInstance().getPipelineMap();
     }
-    return transformationMap;
+    return pipelineMap;
   }
 
   public JobMap getJobMap() {
@@ -179,9 +179,9 @@ public class BaseHttpServlet extends HttpServlet {
     log.logRowlevel( s );
   }
 
-  public void setup( TransformationMap transformationMap, JobMap jobMap, SocketRepository socketRepository,
+  public void setup( PipelineMap pipelineMap, JobMap jobMap, SocketRepository socketRepository,
                      List<SlaveServerDetection> detections ) {
-    this.transformationMap = transformationMap;
+    this.pipelineMap = pipelineMap;
     this.jobMap = jobMap;
     this.socketRepository = socketRepository;
     this.detections = detections;

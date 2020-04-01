@@ -42,10 +42,10 @@ public class HopVFSTest {
    */
   @Test
   public void testStartsWithScheme() {
-    String fileName = "zip:file:///SavedLinkedres.zip!Calculate median and percentiles using the group by steps.ktr";
+    String fileName = "zip:file:///SavedLinkedres.zip!Calculate median and percentiles using the group by steps.hpl";
     assertTrue( HopVFS.startsWithScheme( fileName ) );
 
-    fileName = "SavedLinkedres.zip!Calculate median and percentiles using the group by steps.ktr";
+    fileName = "SavedLinkedres.zip!Calculate median and percentiles using the group by steps.hpl";
     assertFalse( HopVFS.startsWithScheme( fileName ) );
   }
 

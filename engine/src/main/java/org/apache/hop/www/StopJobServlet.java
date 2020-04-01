@@ -38,7 +38,7 @@ import java.net.URLEncoder;
 
 
 public class StopJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
-  private static Class<?> PKG = StopJobServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = StopJobServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopJob";
@@ -210,7 +210,7 @@ public class StopJobServlet extends BaseHttpServlet implements HopServerPluginIn
           out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
           out.println( "<a href=\""
             + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + ">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
+            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
           response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
         }
       }

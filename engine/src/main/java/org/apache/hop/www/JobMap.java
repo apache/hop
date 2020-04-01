@@ -71,7 +71,7 @@ public class JobMap {
    * Find the first job in the list that comes to mind!
    *
    * @param jobName
-   * @return the first transformation with the specified name
+   * @return the first pipeline with the specified name
    */
   public synchronized Job getJob( String jobName ) {
     for ( HopServerObjectEntry entry : jobMap.keySet() ) {

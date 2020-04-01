@@ -26,24 +26,24 @@ import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransConfiguration;
-import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 
 /**
- * A handler for registering sub-jobs and sub-transformations on the carte maps. The trick here is that listeners are
+ * A handler for registering sub-jobs and sub-pipelines on the carte maps. The trick here is that listeners are
  * added recursively down as long as the listener methods are called.
  *
  * @author matt
  */
 public class HopServerDelegationHandler implements DelegationListener {
 
-  protected TransformationMap transformationMap;
+  protected PipelineMap pipelineMap;
   protected JobMap jobMap;
 
-  public HopServerDelegationHandler( TransformationMap transformationMap, JobMap jobMap ) {
+  public HopServerDelegationHandler( PipelineMap pipelineMap, JobMap jobMap ) {
     super();
-    this.transformationMap = transformationMap;
+    this.pipelineMap = pipelineMap;
     this.jobMap = jobMap;
   }
 
@@ -58,11 +58,11 @@ public class HopServerDelegationHandler implements DelegationListener {
   }
 
   @Override
-  public synchronized void transformationDelegationStarted( Trans delegatedTrans,
-                                                            TransExecutionConfiguration transExecutionConfiguration ) {
-    TransConfiguration tc = new TransConfiguration( delegatedTrans.getTransMeta(), transExecutionConfiguration );
-    transformationMap.registerTransformation( delegatedTrans, tc );
-    delegatedTrans.addDelegationListener( this );
+  public synchronized void pipelineDelegationStarted( Pipeline delegatedPipeline,
+                                                            PipelineExecutionConfiguration pipelineExecutionConfiguration ) {
+    PipelineConfiguration tc = new PipelineConfiguration( delegatedPipeline.getPipelineMeta(), pipelineExecutionConfiguration );
+    pipelineMap.registerPipeline( delegatedPipeline, tc );
+    delegatedPipeline.addDelegationListener( this );
 
   }
 

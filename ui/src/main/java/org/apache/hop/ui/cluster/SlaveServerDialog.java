@@ -36,8 +36,8 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.www.RegisterTransServlet;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.www.RegisterPipelineServlet;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -582,11 +582,11 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
 
       String xml = "<sample/>";
 
-      String reply = slaveServer.sendXML( xml, RegisterTransServlet.CONTEXT_PATH );
+      String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH );
 
       String message =
         BaseMessages.getString( PKG, "SlaveServer.Replay.Info1" )
-          + slaveServer.constructUrl( RegisterTransServlet.CONTEXT_PATH ) + Const.CR
+          + slaveServer.constructUrl( RegisterPipelineServlet.CONTEXT_PATH ) + Const.CR
           + BaseMessages.getString( PKG, "SlaveServer.Replay.Info2" ) + Const.CR + Const.CR;
       message += xml;
       message += Const.CR + Const.CR;

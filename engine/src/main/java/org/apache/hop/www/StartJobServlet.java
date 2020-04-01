@@ -48,7 +48,7 @@ import java.util.UUID;
 public class StartJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = StartJobServlet.class; // for i18n purposes,
   // needed by
-  // Translator2!!
+  // Translator!!
 
   private static final long serialVersionUID = -8487225953910464032L;
 
@@ -259,7 +259,7 @@ public class StartJobServlet extends BaseHttpServlet implements HopServerPluginI
           out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
           out.println( "<a href=\""
             + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
+            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
           response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
         }
       }

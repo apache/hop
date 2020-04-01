@@ -318,8 +318,8 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     return entry instanceof MissingEntry;
   }
 
-  public boolean isTransformation() {
-    return entry.isTransformation();
+  public boolean isPipeline() {
+    return entry.isPipeline();
   }
 
   public boolean isJob() {

@@ -26,8 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.step.BaseStepMeta;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -63,8 +63,8 @@ public abstract class WidgetUtils {
    */
   public static ComboVar createFieldDropDown(
     Composite parentComposite, PropsUI props, BaseStepMeta stepMeta, FormData formData ) {
-    TransMeta transMeta = stepMeta.getParentStepMeta().getParentTransMeta();
-    ComboVar fieldDropDownCombo = new ComboVar( transMeta, parentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    PipelineMeta pipelineMeta = stepMeta.getParentStepMeta().getParentPipelineMeta();
+    ComboVar fieldDropDownCombo = new ComboVar( pipelineMeta, parentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( fieldDropDownCombo );
     fieldDropDownCombo.addModifyListener( e -> stepMeta.setChanged() );
 
@@ -75,7 +75,7 @@ public abstract class WidgetUtils {
       fieldDropDownCombo.setText( current );
 
       try {
-        RowMetaInterface rmi = transMeta.getPrevStepFields( stepMeta.getParentStepMeta().getName() );
+        RowMetaInterface rmi = pipelineMeta.getPrevStepFields( stepMeta.getParentStepMeta().getName() );
         List ls = rmi.getValueMetaList();
         for ( Object l : ls ) {
           ValueMetaBase vmb = (ValueMetaBase) l;

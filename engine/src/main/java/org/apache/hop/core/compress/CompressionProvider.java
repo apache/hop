@@ -65,7 +65,7 @@ public interface CompressionProvider {
   boolean supportsOutput();
 
   /**
-   * Gets the name of this provider. Used for display and as a reference in saved artifacts (transformations, e.g.)
+   * Gets the name of this provider. Used for display and as a reference in saved artifacts (pipelines, e.g.)
    *
    * @return A String containing the name of this provider
    */

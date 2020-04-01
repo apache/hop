@@ -27,11 +27,11 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.www.SlaveServerJobStatus;
-import org.apache.hop.www.SlaveServerTransStatus;
+import org.apache.hop.www.SlaveServerPipelineStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
@@ -47,7 +47,7 @@ public class HopRun implements Runnable {
   public static final String XP_CREATE_ENVIRONMENT = "CreateEnvironment";
   public static final String XP_IMPORT_ENVIRONMENT = "ImportEnvironment";
 
-  @Option( names = { "-f", "-z", "--file" }, description = "The filename of the job or transformation to run" )
+  @Option( names = { "-f", "-z", "--file" }, description = "The filename of the job or pipeline to run" )
   private String filename;
 
   @Option( names = { "-l", "--level" }, description = "The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL" )
@@ -62,17 +62,11 @@ public class HopRun implements Runnable {
   @Option( names = { "-r", "--runconfig" }, description = "The name of the Run Configuration to use" )
   private String runConfigurationName = null;
 
-  @Option( names = { "-t", "--transformation" }, description = "Force execution of a transformation" )
-  private boolean runTransformation = false;
+  @Option( names = { "-t", "--pipeline" }, description = "Force execution of a pipeline" )
+  private boolean runPipeline = false;
 
   @Option( names = { "-j", "--job" }, description = "Force execution of a job" )
   private boolean runJob = false;
-
-  @Option( names = { "-a", "--safemode" }, description = "Run in safe mode" )
-  private boolean safeMode = false;
-
-  @Option( names = { "-m", "--metrics" }, description = "Gather metrics" )
-  private boolean gatherMetrics = false;
 
   @Option( names = { "-s", "--slave" }, description = "The slave server to run on" )
   private String slaveServerName;
@@ -83,7 +77,7 @@ public class HopRun implements Runnable {
   @Option( names = { "-q", "--querydelay" }, description = "Delay between querying of remote servers" )
   private String queryDelay;
 
-  @Option( names = { "-d", "--dontwait" }, description = "Do not wait until the remote job or transformation is done" )
+  @Option( names = { "-d", "--dontwait" }, description = "Do not wait until the remote job or pipeline is done" )
   private boolean dontWait = false;
 
   @Option( names = { "-g", "--remotelog" }, description = "Write out the remote log of remote executions" )
@@ -139,8 +133,8 @@ public class HopRun implements Runnable {
         importEnvironment();
       }
 
-      if ( isTransformation() ) {
-        runTransformation( cmd, log );
+      if ( isPipeline() ) {
+        runPipeline( cmd, log );
       }
       if ( isJob() ) {
         runJob( cmd, log );
@@ -169,18 +163,18 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runTransformation( CommandLine cmd, LogChannelInterface log ) {
+  private void runPipeline( CommandLine cmd, LogChannelInterface log ) {
 
     try {
       calculateRealFilename();
 
-      // Run the transformation with the given filename
+      // Run the pipeline with the given filename
       //
-      TransMeta transMeta = new TransMeta( realFilename, metaStore, true, space );
+      PipelineMeta pipelineMeta = new PipelineMeta( realFilename, metaStore, true, space );
 
       // Configure the basic execution settings
       //
-      TransExecutionConfiguration configuration = new TransExecutionConfiguration();
+      PipelineExecutionConfiguration configuration = new PipelineExecutionConfiguration();
 
       // Copy run config details from the metastore over to the run configuration
       // TODO
@@ -188,16 +182,16 @@ public class HopRun implements Runnable {
 
       // Overwrite if the user decided this
       //
-      parseOptions( cmd, configuration, transMeta );
+      parseOptions( cmd, configuration, pipelineMeta );
 
       // configure the variables and parameters
       //
-      configureParametersAndVariables( cmd, configuration, transMeta, transMeta );
+      configureParametersAndVariables( cmd, configuration, pipelineMeta, pipelineMeta );
 
       // Certain Pentaho plugins rely on this.  Meh.
       //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
-        configuration, null, transMeta, null } );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
+        configuration, null, pipelineMeta, null } );
 
       // Before running, do we print the options?
       //
@@ -205,16 +199,16 @@ public class HopRun implements Runnable {
         printOptions( configuration );
       }
 
-      // Now run the transformation
+      // Now run the pipeline
       //
       if ( configuration.isExecutingLocally() ) {
-        runTransLocal( cmd, log, configuration, transMeta );
+        runPipelineLocal( cmd, log, configuration, pipelineMeta );
       } else if ( configuration.isExecutingRemotely() ) {
-        runTransRemote( cmd, log, transMeta, configuration );
+        runPipelineRemote( cmd, log, pipelineMeta, configuration );
       }
 
     } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "There was an error during execution of transformation '" + filename + "'", e );
+      throw new ExecutionException( cmd, "There was an error during execution of pipeline '" + filename + "'", e );
     }
   }
 
@@ -241,62 +235,62 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runTransLocal( CommandLine cmd, LogChannelInterface log, TransExecutionConfiguration configuration, TransMeta transMeta ) {
+  private void runPipelineLocal( CommandLine cmd, LogChannelInterface log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
     try {
-      Trans trans = new Trans( transMeta );
-      trans.initializeVariablesFrom( null );
-      trans.getTransMeta().setInternalHopVariables( trans );
-      trans.injectVariables( configuration.getVariables() );
+      Pipeline pipeline = new Pipeline( pipelineMeta );
+      pipeline.initializeVariablesFrom( null );
+      pipeline.getPipelineMeta().setInternalHopVariables( pipeline );
+      pipeline.injectVariables( configuration.getVariables() );
 
-      trans.setLogLevel( configuration.getLogLevel() );
-      trans.setMetaStore( metaStore );
+      pipeline.setLogLevel( configuration.getLogLevel() );
+      pipeline.setMetaStore( metaStore );
 
       // Also copy the parameters over...
       //
-      trans.copyParametersFrom( transMeta );
-      transMeta.activateParameters();
-      trans.activateParameters();
+      pipeline.copyParametersFrom( pipelineMeta );
+      pipelineMeta.activateParameters();
+      pipeline.activateParameters();
 
       // Run it!
       //
-      trans.prepareExecution();
-      trans.startThreads();
-      trans.waitUntilFinished();
+      pipeline.prepareExecution();
+      pipeline.startThreads();
+      pipeline.waitUntilFinished();
     } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "Error running transformation locally", e );
+      throw new ExecutionException( cmd, "Error running pipeline locally", e );
     }
   }
 
-  private void runTransRemote( CommandLine cmd, LogChannelInterface log, TransMeta transMeta, TransExecutionConfiguration configuration ) {
+  private void runPipelineRemote( CommandLine cmd, LogChannelInterface log, PipelineMeta pipelineMeta, PipelineExecutionConfiguration configuration ) {
     SlaveServer slaveServer = configuration.getRemoteServer();
-    slaveServer.shareVariablesWith( transMeta );
+    slaveServer.shareVariablesWith( pipelineMeta );
     try {
-      runTransformationOnSlaveServer( log, transMeta, slaveServer, configuration, metaStore, dontWait, getQueryDelay() );
+      runPipelineOnSlaveServer( log, pipelineMeta, slaveServer, configuration, metaStore, dontWait, getQueryDelay() );
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, e.getMessage(), e );
     }
   }
 
-  public static Result runTransformationOnSlaveServer( LogChannelInterface log, TransMeta transMeta, SlaveServer slaveServer, TransExecutionConfiguration configuration, IMetaStore metaStore,
-                                                       boolean dontWait, int queryDelay ) throws Exception {
+  public static Result runPipelineOnSlaveServer( LogChannelInterface log, PipelineMeta pipelineMeta, SlaveServer slaveServer, PipelineExecutionConfiguration configuration, IMetaStore metaStore,
+                                                 boolean dontWait, int queryDelay ) throws Exception {
     try {
-      String carteObjectId = Trans.sendToSlaveServer( transMeta, configuration, metaStore );
+      String carteObjectId = Pipeline.sendToSlaveServer( pipelineMeta, configuration, metaStore );
       if ( !dontWait ) {
-        slaveServer.monitorRemoteTransformation( log, carteObjectId, transMeta.getName(), queryDelay );
-        SlaveServerTransStatus transStatus = slaveServer.getTransStatus( transMeta.getName(), carteObjectId, 0 );
+        slaveServer.monitorRemotePipeline( log, carteObjectId, pipelineMeta.getName(), queryDelay );
+        SlaveServerPipelineStatus pipelineStatus = slaveServer.getPipelineStatus( pipelineMeta.getName(), carteObjectId, 0 );
         if ( configuration.isLogRemoteExecutionLocally() ) {
-          log.logBasic( transStatus.getLoggingString() );
+          log.logBasic( pipelineStatus.getLoggingString() );
         }
-        if ( transStatus.getNrStepErrors() > 0 ) {
+        if ( pipelineStatus.getNrStepErrors() > 0 ) {
           // Error
-          throw new Exception( "Remote transformation ended with an error" );
+          throw new Exception( "Remote pipeline ended with an error" );
         }
 
-        return transStatus.getResult();
+        return pipelineStatus.getResult();
       }
       return null; // No status, we don't wait for it.
     } catch ( Exception e ) {
-      throw new Exception( "Error executing transformation remotely on server '" + slaveServer.getName() + "'", e );
+      throw new Exception( "Error executing pipeline remotely on server '" + slaveServer.getName() + "'", e );
     }
   }
 
@@ -447,9 +441,6 @@ public class HopRun implements Runnable {
 
   private void parseOptions( CommandLine cmd, ExecutionConfiguration configuration, NamedParams namedParams ) throws MetaStoreException {
 
-    configuration.setSafeModeEnabled( safeMode );
-    configuration.setGatheringMetrics( gatherMetrics );
-
     if ( StringUtils.isNotEmpty( slaveServerName ) ) {
       realSlaveServerName = space.environmentSubstitute( slaveServerName );
       configureSlaveServer( configuration, realSlaveServerName );
@@ -475,14 +466,14 @@ public class HopRun implements Runnable {
     configuration.setRemoteServer( slaveServer );
   }
 
-  private boolean isTransformation() {
-    if ( runTransformation ) {
+  private boolean isPipeline() {
+    if ( runPipeline ) {
       return true;
     }
     if ( StringUtils.isEmpty( filename ) ) {
       return false;
     }
-    return filename.toLowerCase().endsWith( ".ktr" );
+    return filename.toLowerCase().endsWith( ".hpl" );
   }
 
   private boolean isJob() {
@@ -528,7 +519,7 @@ public class HopRun implements Runnable {
         }
       }
     } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "There was an error during execution of transformation '" + filename + "'", e );
+      throw new ExecutionException( cmd, "There was an error during execution of pipeline '" + filename + "'", e );
     }
   }
 
@@ -549,7 +540,7 @@ public class HopRun implements Runnable {
    */
   private void configureParametersAndVariables( CommandLine cmd, ExecutionConfiguration configuration, VariableSpace space, NamedParams namedParams ) {
 
-    // Copy variables over to the transformation or job metadata
+    // Copy variables over to the pipeline or job metadata
     //
     space.injectVariables( configuration.getVariables() );
 
@@ -607,7 +598,7 @@ public class HopRun implements Runnable {
     }
 
     if ( StringUtils.isEmpty( filename ) ) {
-      throw new ParameterException( new CommandLine( this ), "A filename is needed to run a job or transformation" );
+      throw new ParameterException( new CommandLine( this ), "A filename is needed to run a job or pipeline" );
     }
   }
 
@@ -646,15 +637,12 @@ public class HopRun implements Runnable {
         log.logMinimal( "OPTION:   " + parameter + " : '" + configuration.getParams().get( parameter ) );
       }
     }
-    if ( configuration.isSafeModeEnabled() ) {
-      log.logMinimal( "OPTION: Safe mode enabled" );
-    }
 
     if ( StringUtils.isNotEmpty( queryDelay ) ) {
       log.logMinimal( "OPTION: Remote server query delay : " + getQueryDelay() );
     }
     if ( dontWait ) {
-      log.logMinimal( "OPTION: Do not wait for remote job or transformation to finish" );
+      log.logMinimal( "OPTION: Do not wait for remote job or pipeline to finish" );
     }
     if ( remoteLogging ) {
       log.logMinimal( "OPTION: Printing remote execution log" );
@@ -776,19 +764,19 @@ public class HopRun implements Runnable {
   }
 
   /**
-   * Gets runTransformation
+   * Gets runPipeline
    *
-   * @return value of runTransformation
+   * @return value of runPipeline
    */
-  public boolean isRunTransformation() {
-    return runTransformation;
+  public boolean isRunPipeline() {
+    return runPipeline;
   }
 
   /**
-   * @param runTransformation The runTransformation to set
+   * @param runPipeline The runPipeline to set
    */
-  public void setRunTransformation( boolean runTransformation ) {
-    this.runTransformation = runTransformation;
+  public void setRunPipeline( boolean runPipeline ) {
+    this.runPipeline = runPipeline;
   }
 
   /**
@@ -805,38 +793,6 @@ public class HopRun implements Runnable {
    */
   public void setRunJob( boolean runJob ) {
     this.runJob = runJob;
-  }
-
-  /**
-   * Gets safeMode
-   *
-   * @return value of safeMode
-   */
-  public boolean isSafeMode() {
-    return safeMode;
-  }
-
-  /**
-   * @param safeMode The safeMode to set
-   */
-  public void setSafeMode( boolean safeMode ) {
-    this.safeMode = safeMode;
-  }
-
-  /**
-   * Gets gatherMetrics
-   *
-   * @return value of gatherMetrics
-   */
-  public boolean isGatherMetrics() {
-    return gatherMetrics;
-  }
-
-  /**
-   * @param gatherMetrics The gatherMetrics to set
-   */
-  public void setGatherMetrics( boolean gatherMetrics ) {
-    this.gatherMetrics = gatherMetrics;
   }
 
   /**

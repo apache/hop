@@ -10,7 +10,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -163,7 +163,7 @@ public class HopGuiJobClipboardDelegate {
 
     } catch ( HopException e ) {
       // "Error pasting steps...",
-      // "I was unable to paste steps to this transformation"
+      // "I was unable to paste steps to this pipeline"
       new ErrorDialog( hopGui.getShell(),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Title" ),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Message" ), e );
@@ -187,7 +187,7 @@ public class HopGuiJobClipboardDelegate {
       xml.append( XMLHandler.closeTag( XML_TAG_ENTRIES ) ).append( Const.CR );
 
       // Also check for the hops in between the selected steps...
-      xml.append( XMLHandler.openTag( TransMeta.XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
       for ( JobEntryCopy step1 : entries ) {
         for ( JobEntryCopy step2 : entries ) {
           if ( !step1.equals( step2 ) ) {
@@ -199,15 +199,15 @@ public class HopGuiJobClipboardDelegate {
           }
         }
       }
-      xml.append( XMLHandler.closeTag( TransMeta.XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( TransMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( NotePadMeta note : notes ) {
           xml.append( note.getXML() );
         }
       }
-      xml.append( XMLHandler.closeTag( TransMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
 
       xml.append( XMLHandler.closeTag( XML_TAG_JOB_JOB_ENTRIES ) ).append( Const.CR );
 

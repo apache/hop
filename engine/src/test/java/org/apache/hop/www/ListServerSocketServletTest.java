@@ -47,14 +47,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith( PowerMockRunner.class )
 public class ListServerSocketServletTest {
-  private TransformationMap mockTransformationMap;
+  private PipelineMap mockPipelineMap;
 
   private ListServerSocketServlet listServerSocketServlet;
 
   @Before
   public void setup() {
-    mockTransformationMap = mock( TransformationMap.class );
-    listServerSocketServlet = new ListServerSocketServlet( mockTransformationMap );
+    mockPipelineMap = mock( PipelineMap.class );
+    listServerSocketServlet = new ListServerSocketServlet( mockPipelineMap );
   }
 
   @Test
@@ -87,7 +87,7 @@ public class ListServerSocketServletTest {
     when( mockRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockResponse.getOutputStream() ).thenReturn( servletOutputStream );
     when(
-      mockTransformationMap.allocateServerSocketPort(
+      mockPipelineMap.allocateServerSocketPort(
         anyInt(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
         anyString(), anyString() ) ).thenReturn( mockSocketPortAllocation );
 

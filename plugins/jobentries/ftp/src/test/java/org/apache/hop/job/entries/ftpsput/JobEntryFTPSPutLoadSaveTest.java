@@ -25,7 +25,7 @@ package org.apache.hop.job.entries.ftpsput;
 import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.junit.ClassRule;
 
 import java.util.Arrays;

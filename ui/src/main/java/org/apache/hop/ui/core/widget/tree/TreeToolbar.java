@@ -72,7 +72,7 @@ public class TreeToolbar extends Composite {
     ToolBar treeTb = new ToolBar( this, SWT.HORIZONTAL | SWT.FLAT );
     props.setLook( treeTb, Props.WIDGET_STYLE_TOOLBAR );
     /*
-    This contains a map with all the unnamed transformation (just a filename)
+    This contains a map with all the unnamed pipeline (just a filename)
    */
     expandAll = new ToolItem( treeTb, SWT.PUSH );
     expandAll.setImage( GUIResource.getInstance().getImageExpandAll() );

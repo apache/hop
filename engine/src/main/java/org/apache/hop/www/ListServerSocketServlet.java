@@ -44,8 +44,8 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
   public ListServerSocketServlet() {
   }
 
-  public ListServerSocketServlet( TransformationMap transformationMap ) {
-    super( transformationMap );
+  public ListServerSocketServlet( PipelineMap pipelineMap ) {
+    super( pipelineMap );
   }
 
   /**
@@ -55,7 +55,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
    * <h2>GET</h2>
    * <p>Gets list of ports for specified host.
    * Method is used for listing all or just open ports for specified host. Response contains port number,
-   * which transformation it is (was) used for, current status of the port and last date time used.</p>
+   * which pipeline it is (was) used for, current status of the port and last date time used.</p>
    *
    * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
@@ -108,27 +108,27 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
    * <BODY>
    * <H1>Ports for host '127.0.0.1'</H1>
    * Found 5 ports for host '127.0.0.1'<p>
-   * 8088 : Transformation=dummy-trans, crt/Dummy (do nothing) 2.0
+   * 8088 : Pipeline=dummy-pipeline, crt/Dummy (do nothing) 2.0
    * --> sll/Dummy (do nothing).0
    * id=b20bcd03-9682-4327-8c42-b129faabbfe1, allocated=false
    * time=Mon Nov 17 09:31:15 BRT 2014
    * <br>
-   * 8089 : Transformation=dummy-trans, crt/Dummy (do nothing) 2.0
+   * 8089 : Pipeline=dummy-pipeline, crt/Dummy (do nothing) 2.0
    * --> sll/Dummy (do nothing).1
    * id=b20bcd03-9682-4327-8c42-b129faabbfe1, allocated=false
    * time=Mon Nov 17 09:31:15 BRT 2014
    * <br>
-   * 8090 : Transformation=dummy-trans, crt/Dummy (do nothing) 2.0
+   * 8090 : Pipeline=dummy-pipeline, crt/Dummy (do nothing) 2.0
    * --> sll/Dummy (do nothing).2
    * id=b20bcd03-9682-4327-8c42-b129faabbfe1, allocated=false
    * time=Mon Nov 17 09:31:15 BRT 2014
    * <br>
-   * 8091 : Transformation=dummy-trans, crt/Dummy (do nothing) 2.0
+   * 8091 : Pipeline=dummy-pipeline, crt/Dummy (do nothing) 2.0
    * --> sll/Dummy (do nothing).3
    * id=b20bcd03-9682-4327-8c42-b129faabbfe1, allocated=false
    * time=Mon Nov 17 09:31:15 BRT 2014
    * <br>
-   * 8092 : Transformation=dummy-trans, crt/Dummy (do nothing) 2.0
+   * 8092 : Pipeline=dummy-pipeline, crt/Dummy (do nothing) 2.0
    * --> sll/Dummy (do nothing).4
    * id=b20bcd03-9682-4327-8c42-b129faabbfe1, allocated=false
    * time=Mon Nov 17 09:31:15 BRT 2014
@@ -180,7 +180,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
     out.println( "<BODY>" );
     out.println( "<H1>Ports for host " + Encode.forHtml( "\'" + hostname + "\'" ) + "</H1>" );
 
-    List<SocketPortAllocation> allocations = getTransformationMap().getHostServerSocketPorts( hostname );
+    List<SocketPortAllocation> allocations = getPipelineMap().getHostServerSocketPorts( hostname );
 
     if ( allocations == null ) {
       out.println( "No port allocations found for host " + Encode.forHtml( "\'" + hostname + "\'" ) );
@@ -196,7 +196,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
       if ( !onlyOpen || ( onlyOpen && allocation.isAllocated() ) ) {
 
         out.println( allocation.getPort()
-          + " : Transformation=" + allocation.getTransformationName() + ", " + allocation.getSourceSlaveName()
+          + " : Pipeline=" + allocation.getPipelineName() + ", " + allocation.getSourceSlaveName()
           + "/" + allocation.getSourceStepName() + "." + allocation.getSourceStepCopy() );
         out.println( " --> "
           + allocation.getTargetSlaveName() + "/" + allocation.getTargetStepName() + "."

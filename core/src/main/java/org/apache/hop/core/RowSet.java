@@ -110,7 +110,7 @@ public interface RowSet {
   public abstract int size();
 
   /**
-   * This method is used only in Trans.java when created RowSet at line 333. Don't need any synchronization on this
+   * This method is used only in Pipeline.java when created RowSet at line 333. Don't need any synchronization on this
    * method
    */
   public abstract void setThreadNameFromToCopy( String from, int from_copy, String to, int to_copy );

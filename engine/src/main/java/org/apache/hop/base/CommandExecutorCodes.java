@@ -34,12 +34,12 @@ public class CommandExecutorCodes {
    */
   public enum Pan {
 
-    SUCCESS( 0, "The transformation ran without a problem" ),
+    SUCCESS( 0, "The pipeline ran without a problem" ),
     ERRORS_DURING_PROCESSING( 1, "Errors occurred during processing" ),
-    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading / running of the transformation" ),
-    UNABLE_TO_PREP_INIT_TRANS( 3, "Unable to prepare and initialize this transformation" ),
+    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading / running of the pipeline" ),
+    UNABLE_TO_PREP_INIT_PIPELINE( 3, "Unable to prepare and initialize this pipeline" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_TRANS( 7, "The transformation couldn't be de-serialized" ),
+    COULD_NOT_LOAD_PIPELINE( 7, "The pipeline couldn't be de-serialized" ),
     ERROR_LOADING_STEPS_PLUGINS( 8, "Error loading steps or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 
@@ -75,8 +75,8 @@ public class CommandExecutorCodes {
 
     public static boolean isFailedExecution( final int code ) {
       return Pan.UNEXPECTED_ERROR.getCode() == code
-        || Pan.UNABLE_TO_PREP_INIT_TRANS.getCode() == code
-        || Pan.COULD_NOT_LOAD_TRANS.getCode() == code
+        || Pan.UNABLE_TO_PREP_INIT_PIPELINE.getCode() == code
+        || Pan.COULD_NOT_LOAD_PIPELINE.getCode() == code
         || Pan.ERROR_LOADING_STEPS_PLUGINS.getCode() == code;
     }
   }

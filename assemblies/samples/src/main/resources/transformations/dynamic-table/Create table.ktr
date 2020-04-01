@@ -10,7 +10,7 @@
     <parameters>
     </parameters>
     <log>
-      <trans-log-table>
+      <pipeline-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -123,7 +123,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </trans-log-table>
+      </pipeline-log-table>
       <perf-log-table>
         <connection/>
         <schema/>
@@ -540,7 +540,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#xa;var transMeta &#x3d; meta&#x3b;&#xa;var dbName &#x3d; null&#x3b;&#xa;var sql &#x3d; null&#x3b;&#xa;&#xa;var sqlList &#x3d; transMeta.getSQLStatements&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Alert&#x28;&#x22;sqlList.size&#x28;&#x29; &#x3d; &#x22;&#x2b;sqlList.size&#x28;&#x29;&#x29;&#x3b;&#xa;&#xa;for &#x28;var i&#x3d;0&#x3b;i&#x3c;sqlList.size&#x28;&#x29;&#x3b;i&#x2b;&#x2b;&#x29; &#x7b;&#xa;  var sqlStatement &#x3d; sqlList.get&#x28;i&#x29;&#x3b;&#xa;&#xa;  &#x2f;&#x2f; Alert&#x28;&#x22;DB&#x3a; &#x22;&#x2b;dbMeta.getName&#x28;&#x29;&#x2b;&#x22;  SQL&#x3a; &#x22;&#x2b;sql&#x29;&#x3b;&#xa;&#xa;  var newRow &#x3d; createRowCopy&#x28;getOutputRowMeta&#x28;&#x29;.size&#x28;&#x29;&#x29;&#x3b;&#xa;  var rowIndex &#x3d; getInputRowMeta&#x28;&#x29;.size&#x28;&#x29;&#x3b;&#xa;&#xa;  newRow&#x5b;rowIndex&#x2b;&#x2b;&#x5d; &#x3d; sqlStatement.getDatabase&#x28;&#x29;.getName&#x28;&#x29;&#x3b;&#xa;  newRow&#x5b;rowIndex&#x2b;&#x2b;&#x5d; &#x3d; sqlStatement.getSQL&#x28;&#x29;&#x3b;&#xa;&#xa;  putRow&#x28;newRow&#x29;&#x3b;&#xa;&#x7d;</jsScript_script>
+        <jsScript_script>&#xa;var pipelineMeta &#x3d; meta&#x3b;&#xa;var dbName &#x3d; null&#x3b;&#xa;var sql &#x3d; null&#x3b;&#xa;&#xa;var sqlList &#x3d; pipelineMeta.getSQLStatements&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Alert&#x28;&#x22;sqlList.size&#x28;&#x29; &#x3d; &#x22;&#x2b;sqlList.size&#x28;&#x29;&#x29;&#x3b;&#xa;&#xa;for &#x28;var i&#x3d;0&#x3b;i&#x3c;sqlList.size&#x28;&#x29;&#x3b;i&#x2b;&#x2b;&#x29; &#x7b;&#xa;  var sqlStatement &#x3d; sqlList.get&#x28;i&#x29;&#x3b;&#xa;&#xa;  &#x2f;&#x2f; Alert&#x28;&#x22;DB&#x3a; &#x22;&#x2b;dbMeta.getName&#x28;&#x29;&#x2b;&#x22;  SQL&#x3a; &#x22;&#x2b;sql&#x29;&#x3b;&#xa;&#xa;  var newRow &#x3d; createRowCopy&#x28;getOutputRowMeta&#x28;&#x29;.size&#x28;&#x29;&#x29;&#x3b;&#xa;  var rowIndex &#x3d; getInputRowMeta&#x28;&#x29;.size&#x28;&#x29;&#x3b;&#xa;&#xa;  newRow&#x5b;rowIndex&#x2b;&#x2b;&#x5d; &#x3d; sqlStatement.getDatabase&#x28;&#x29;.getName&#x28;&#x29;&#x3b;&#xa;  newRow&#x5b;rowIndex&#x2b;&#x2b;&#x5d; &#x3d; sqlStatement.getSQL&#x28;&#x29;&#x3b;&#xa;&#xa;  putRow&#x28;newRow&#x29;&#x3b;&#xa;&#x7d;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>dbName</name>
         <rename>dbName</rename>
         <type>String</type>

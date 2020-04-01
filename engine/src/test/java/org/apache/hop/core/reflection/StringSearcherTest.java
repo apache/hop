@@ -26,7 +26,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-//import org.apache.hop.trans.steps.filterrows.FilterRowsMeta;
+//import org.apache.hop.pipeline.steps.filterrows.FilterRowsMeta;
 
 public class StringSearcherTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,7 +40,7 @@ public class StringSearcherTest {
  /* @Test
   public void testSearchConditionCase() {
     String dummyStepname = "Output";
-    DummyTransMeta dummyMeta = new DummyTransMeta();
+    DummyMeta dummyMeta = new DummyMeta();
     String dummyStepPid = PluginRegistry.getInstance().getPluginId( StepPluginType.class, dummyMeta );
     StepMeta dummyStep = new StepMeta( dummyStepPid, dummyStepname, dummyMeta );
 

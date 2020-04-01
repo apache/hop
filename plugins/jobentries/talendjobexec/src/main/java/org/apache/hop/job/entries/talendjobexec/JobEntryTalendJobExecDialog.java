@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;

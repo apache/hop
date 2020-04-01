@@ -31,7 +31,7 @@ import java.util.Map;
  * <p>
  * For example :
  * <p>
- * Load orders.ktr Load orders 2.ktr Load orders 3.ktr etc.
+ * Load orders.hpl Load orders 2.hpl Load orders 3.hpl etc.
  *
  * @author matt
  */
@@ -47,16 +47,16 @@ public class SequenceResourceNaming extends SimpleResourceNaming {
   // End result could look like any of the following:
   //
   // Inputs:
-  // Prefix : Marc Sample Transformation
+  // Prefix : Marc Sample Pipeline
   // Original Path: D:\japps\pentaho\kettle\samples
-  // Extension : .ktr
+  // Extension : .hpl
   //
   // Output Example 1 (no file system prefix, no path used)
-  // Marc_Sample_Transformation_001.ktr
+  // Marc_Sample_Pipeline_001.hpl
   // Output Example 2 (file system prefix: ${HOP_FILE_BASE}!, no path used)
-  // ${HOP_FILE_BASE}!Marc_Sample_Transformation_003.ktr
+  // ${HOP_FILE_BASE}!Marc_Sample_Pipeline_003.hpl
   // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
-  // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/Marc_Sample_Transformation_014.ktr
+  // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/Marc_Sample_Pipeline_014.hpl
 
   protected String getFileNameUniqueIdentifier( String filename, String extension ) {
 

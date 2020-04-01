@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -68,7 +68,7 @@ import java.util.List;
 @PluginDialog( id = "CHECK_DB_CONNECTIONS", image = "CDBC.svg", pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Check+Db+connections" )
 public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
 

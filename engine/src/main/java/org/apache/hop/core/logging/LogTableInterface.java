@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.pipeline.step.StepMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;

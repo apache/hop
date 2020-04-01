@@ -31,7 +31,7 @@ import java.util.Map;
 public interface ResourceNamingInterface {
 
   public static enum FileNamingType {
-    TRANSFORMATION, JOB, DATA_FILE, SHELL_SCRIPT,
+    PIPELINE, JOB, DATA_FILE, SHELL_SCRIPT,
   }
 
   /**
@@ -53,7 +53,7 @@ public interface ResourceNamingInterface {
    * Create a (file) name based on the passed FileObject
    *
    * @param FileObject    fileObject The file in which the name ....
-   * @param VariableSpace variable(space) of the transformation or job.
+   * @param VariableSpace variable(space) of the pipeline or job.
    * @param pathOnly      Set to true to just return the path, false to return file name and path
    * @return String The file name with the path set as a variable. If pathOnly is set to true then the file name will be
    * left out.

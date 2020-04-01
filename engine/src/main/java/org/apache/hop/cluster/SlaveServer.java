@@ -49,28 +49,27 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.www.AllocateServerSocketServlet;
-import org.apache.hop.www.CleanupTransServlet;
+import org.apache.hop.www.CleanupPipelineServlet;
 import org.apache.hop.www.GetJobStatusServlet;
 import org.apache.hop.www.GetPropertiesServlet;
 import org.apache.hop.www.GetSlavesServlet;
 import org.apache.hop.www.GetStatusServlet;
-import org.apache.hop.www.GetTransStatusServlet;
+import org.apache.hop.www.GetPipelineStatusServlet;
 import org.apache.hop.www.NextSequenceValueServlet;
-import org.apache.hop.www.PauseTransServlet;
+import org.apache.hop.www.PausePipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RemoveJobServlet;
-import org.apache.hop.www.RemoveTransServlet;
+import org.apache.hop.www.RemovePipelineServlet;
 import org.apache.hop.www.SlaveServerDetection;
 import org.apache.hop.www.SlaveServerJobStatus;
 import org.apache.hop.www.SlaveServerStatus;
-import org.apache.hop.www.SlaveServerTransStatus;
+import org.apache.hop.www.SlaveServerPipelineStatus;
 import org.apache.hop.www.SniffStepServlet;
 import org.apache.hop.www.SslConfiguration;
 import org.apache.hop.www.StartJobServlet;
-import org.apache.hop.www.StartTransServlet;
+import org.apache.hop.www.StartPipelineServlet;
 import org.apache.hop.www.StopJobServlet;
-import org.apache.hop.www.StopTransServlet;
+import org.apache.hop.www.StopPipelineServlet;
 import org.apache.hop.www.WebResult;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -103,7 +102,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -125,7 +123,7 @@ import java.util.Random;
   iconImage = "ui/images/slave.svg"
 )
 public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<SlaveServer> {
-  private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SLAVESERVER = "Slave Server";
 
@@ -576,7 +574,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    *
    * @param filename The archive to send
    * @param type     The type of file to add to the slave server (AddExportServlet.TYPE_*)
-   * @param load     The filename to load in the archive (the .kjb or .ktr)
+   * @param load     The filename to load in the archive (the .kjb or .hpl)
    * @return the XML of the web result
    * @throws Exception in case something goes awry
    */
@@ -833,21 +831,21 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return detections;
   }
 
-  public SlaveServerTransStatus getTransStatus( String transName, String carteObjectId, int startLogLineNr )
+  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String carteObjectId, int startLogLineNr )
     throws Exception {
-    return getTransStatus( transName, carteObjectId, startLogLineNr, false );
+    return getPipelineStatus( pipelineName, carteObjectId, startLogLineNr, false );
   }
 
-  public SlaveServerTransStatus getTransStatus( String transName, String carteObjectId, int startLogLineNr,
-                                                boolean sendResultXmlWithStatus )
+  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String carteObjectId, int startLogLineNr,
+                                                      boolean sendResultXmlWithStatus )
     throws Exception {
-    String query = GetTransStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+    String query = GetPipelineStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
       + Const.NVL( carteObjectId, "" ) + "&xml=Y&from=" + startLogLineNr;
     if ( sendResultXmlWithStatus ) {
-      query = query + "&" + GetTransStatusServlet.SEND_RESULT + "=Y";
+      query = query + "&" + GetPipelineStatusServlet.SEND_RESULT + "=Y";
     }
     String xml = execService( query, true );
-    return SlaveServerTransStatus.fromXML( xml );
+    return SlaveServerPipelineStatus.fromXML( xml );
   }
 
   public SlaveServerJobStatus getJobStatus( String jobName, String carteObjectId, int startLogLineNr )
@@ -858,23 +856,23 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return SlaveServerJobStatus.fromXML( xml );
   }
 
-  public WebResult stopTransformation( String transName, String carteObjectId ) throws Exception {
+  public WebResult stopPipeline( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( StopTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( StopPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult pauseResumeTransformation( String transName, String carteObjectId ) throws Exception {
+  public WebResult pauseResumePipeline( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( PauseTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( PausePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult removeTransformation( String transName, String carteObjectId ) throws Exception {
+  public WebResult removePipeline( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( RemoveTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( RemovePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
@@ -886,16 +884,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult stopJob( String transName, String carteObjectId ) throws Exception {
+  public WebResult stopJob( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( StopJobServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&xml=Y&id="
+      execService( StopJobServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( carteObjectId, "" ) );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult startTransformation( String transName, String carteObjectId ) throws Exception {
+  public WebResult startPipeline( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( StartTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( StartPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
@@ -907,16 +905,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult cleanupTransformation( String transName, String carteObjectId ) throws Exception {
+  public WebResult cleanupPipeline( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( CleanupTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult deAllocateServerSockets( String transName, String clusteredRunId ) throws Exception {
+  public WebResult deAllocateServerSockets( String pipelineName, String clusteredRunId ) throws Exception {
     String xml =
-      execService( CleanupTransServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( transName, "UTF-8" ) + "&id="
+      execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( clusteredRunId, "" ) + "&xml=Y&sockets=Y" );
     return WebResult.fromXMLString( xml );
   }
@@ -945,49 +943,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return names.toArray( new String[ 0 ] );
   }
 
-  public int allocateServerSocket( String runId, int portRangeStart, String hostname,
-                                   String transformationName, String sourceSlaveName,
-                                   String sourceStepName, String sourceStepCopy,
-                                   String targetSlaveName, String targetStepName, String targetStepCopy )
-    throws Exception {
-
-    // Look up the IP address of the given hostname
-    // Only this way we'll be to allocate on the correct host.
-    //
-    InetAddress inetAddress = InetAddress.getByName( hostname );
-    String address = inetAddress.getHostAddress();
-
-    String service = AllocateServerSocketServlet.CONTEXT_PATH + "/?";
-    service += AllocateServerSocketServlet.PARAM_RANGE_START + "=" + Integer.toString( portRangeStart );
-    service += "&" + AllocateServerSocketServlet.PARAM_ID + "=" + URLEncoder.encode( runId, "UTF-8" );
-    service += "&" + AllocateServerSocketServlet.PARAM_HOSTNAME + "=" + address;
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_TRANSFORMATION_NAME + "="
-        + URLEncoder.encode( transformationName, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_SOURCE_SLAVE + "=" + URLEncoder.encode( sourceSlaveName, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_SOURCE_STEPNAME + "=" + URLEncoder.encode( sourceStepName, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_SOURCE_STEPCOPY + "=" + URLEncoder.encode( sourceStepCopy, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_TARGET_SLAVE + "=" + URLEncoder.encode( targetSlaveName, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_TARGET_STEPNAME + "=" + URLEncoder.encode( targetStepName, "UTF-8" );
-    service +=
-      "&" + AllocateServerSocketServlet.PARAM_TARGET_STEPCOPY + "=" + URLEncoder.encode( targetStepCopy, "UTF-8" );
-    service += "&xml=Y";
-    String xml = execService( service );
-    Document doc = XMLHandler.loadXMLString( xml );
-    String portString = XMLHandler.getTagValue( doc, AllocateServerSocketServlet.XML_TAG_PORT );
-
-    int port = Const.toInt( portString, -1 );
-    if ( port < 0 ) {
-      throw new Exception( "Unable to retrieve port from service : " + service + ", received : \n" + xml );
-    }
-
-    return port;
-  }
 
   public String getName() {
     return name;
@@ -1093,7 +1048,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
   /**
    * Sniff rows on a the slave server, return xml containing the row metadata and data.
    *
-   * @param transName transformation name
+   * @param pipelineName pipeline name
    * @param stepName  step name
    * @param copyNr    step copy number
    * @param lines     lines number
@@ -1101,8 +1056,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * @return xml with row metadata and data
    * @throws Exception
    */
-  public String sniffStep( String transName, String stepName, String copyNr, int lines, String type ) throws Exception {
-    return execService( SniffStepServlet.CONTEXT_PATH + "/?trans=" + URLEncoder.encode( transName, "UTF-8" ) + "&step="
+  public String sniffStep( String pipelineName, String stepName, String copyNr, int lines, String type ) throws Exception {
+    return execService( SniffStepServlet.CONTEXT_PATH + "/?pipeline=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&step="
       + URLEncoder.encode( stepName, "UTF-8" ) + "&copynr=" + copyNr + "&type=" + type + "&lines=" + lines + "&xml=Y" );
   }
 
@@ -1148,25 +1103,25 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
   }
 
   /**
-   * Monitors a remote transformation every 5 seconds.
+   * Monitors a remote pipeline every 5 seconds.
    *
    * @param log           the log channel interface
    * @param carteObjectId the HopServer object ID
-   * @param transName     the transformation name
+   * @param pipelineName     the pipeline name
    */
-  public void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName ) {
-    monitorRemoteTransformation( log, carteObjectId, transName, 5 );
+  public void monitorRemotePipeline( LogChannelInterface log, String carteObjectId, String pipelineName ) {
+    monitorRemotePipeline( log, carteObjectId, pipelineName, 5 );
   }
 
   /**
-   * Monitors a remote transformation at the specified interval.
+   * Monitors a remote pipeline at the specified interval.
    *
    * @param log              the log channel interface
    * @param carteObjectId    the HopServer object ID
-   * @param transName        the transformation name
+   * @param pipelineName        the pipeline name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName, int sleepTimeSeconds ) {
+  public void monitorRemotePipeline( LogChannelInterface log, String carteObjectId, String pipelineName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {
@@ -1176,33 +1131,33 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
       // Check the remote server
       if ( allFinished && errors == 0 ) {
         try {
-          SlaveServerTransStatus transStatus = getTransStatus( transName, carteObjectId, 0 );
-          if ( transStatus.isRunning() ) {
+          SlaveServerPipelineStatus pipelineStatus = getPipelineStatus( pipelineName, carteObjectId, 0 );
+          if ( pipelineStatus.isRunning() ) {
             if ( log.isDetailed() ) {
-              log.logDetailed( transName, "Remote transformation is still running." );
+              log.logDetailed( pipelineName, "Remote pipeline is still running." );
             }
             allFinished = false;
           } else {
             if ( log.isDetailed() ) {
-              log.logDetailed( transName, "Remote transformation has finished." );
+              log.logDetailed( pipelineName, "Remote pipeline has finished." );
             }
           }
-          Result result = transStatus.getResult();
+          Result result = pipelineStatus.getResult();
           errors += result.getNrErrors();
         } catch ( Exception e ) {
           errors += 1;
-          log.logError( transName, "Unable to contact remote slave server '" + this.getName() + "' to check transformation status : " + e.toString() );
+          log.logError( pipelineName, "Unable to contact remote slave server '" + this.getName() + "' to check pipeline status : " + e.toString() );
         }
       }
 
       //
-      // Keep waiting until all transformations have finished
+      // Keep waiting until all pipelines have finished
       // If needed, we stop them again and again until they yield.
       //
       if ( !allFinished ) {
         // Not finished or error: wait a bit longer
         if ( log.isDetailed() ) {
-          log.logDetailed( transName, "The remote transformation is still running, waiting a few seconds..." );
+          log.logDetailed( pipelineName, "The remote pipeline is still running, waiting a few seconds..." );
         }
         try {
           Thread.sleep( sleepTimeSeconds * 1000 );
@@ -1212,20 +1167,20 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
       }
     }
 
-    log.logMinimal( transName, "The remote transformation has finished." );
+    log.logMinimal( pipelineName, "The remote pipeline has finished." );
 
-    // Clean up the remote transformation
+    // Clean up the remote pipeline
     //
     try {
-      WebResult webResult = cleanupTransformation( transName, carteObjectId );
+      WebResult webResult = cleanupPipeline( pipelineName, carteObjectId );
       if ( !WebResult.STRING_OK.equals( webResult.getResult() ) ) {
-        log.logError( transName, "Unable to run clean-up on remote transformation '" + transName + "' : " + webResult
+        log.logError( pipelineName, "Unable to run clean-up on remote pipeline '" + pipelineName + "' : " + webResult
           .getMessage() );
         errors += 1;
       }
     } catch ( Exception e ) {
       errors += 1;
-      log.logError( transName, "Unable to contact slave server '" + this.getName() + "' to clean up transformation : " + e.toString() );
+      log.logError( pipelineName, "Unable to contact slave server '" + this.getName() + "' to clean up pipeline : " + e.toString() );
     }
   }
 
@@ -1279,7 +1234,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
       }
 
       //
-      // Keep waiting until all transformations have finished
+      // Keep waiting until all pipelines have finished
       // If needed, we stop them again and again until they yield.
       //
       if ( !allFinished ) {

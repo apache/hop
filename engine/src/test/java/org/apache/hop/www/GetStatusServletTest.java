@@ -25,8 +25,8 @@ package org.apache.hop.www;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,19 +44,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GetStatusServletTest {
-  private TransformationMap mockTransformationMap;
+  private PipelineMap mockPipelineMap;
   private JobMap mockJobMap;
   private GetStatusServlet getStatusServlet;
 
   @Before
   public void setup() {
-    mockTransformationMap = mock( TransformationMap.class );
+    mockPipelineMap = mock( PipelineMap.class );
     mockJobMap = mock( JobMap.class );
-    getStatusServlet = new GetStatusServlet( mockTransformationMap, mockJobMap );
+    getStatusServlet = new GetStatusServlet( mockPipelineMap, mockJobMap );
   }
 
   @Test
-  public void testGetStatusServletEscapesHtmlWhenTransNotFound() throws ServletException, IOException {
+  public void testGetStatusServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
 
@@ -72,12 +72,12 @@ public class GetStatusServletTest {
   }
 
   @Test
-  public void testGetStatusServletEscapesHtmlWhenTransFound() throws ServletException, IOException {
+  public void testGetStatusServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Trans mockTrans = mock( Trans.class );
-    TransMeta mockTransMeta = mock( TransMeta.class );
+    Pipeline mockPipeline = mock( Pipeline.class );
+    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     LogChannelInterface mockChannelInterface = mock( LogChannelInterface.class );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
@@ -85,10 +85,10 @@ public class GetStatusServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( GetStatusServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
-    when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
-    when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
-    when( mockTransMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    when( mockPipelineMap.getPipeline( any( HopServerObjectEntry.class ) ) ).thenReturn( mockPipeline );
+    when( mockPipeline.getLogChannel() ).thenReturn( mockChannelInterface );
+    when( mockPipeline.getPipelineMeta() ).thenReturn( mockPipelineMeta );
+    when( mockPipelineMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
 
     getStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
     assertFalse( out.toString().contains( ServletTestUtils.BAD_STRING_TO_TEST ) );

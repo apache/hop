@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class SlaveServerJobStatusTest {
   public void testNoDate() throws HopException {
     String jobName = "testNullDate";
     String id = UUID.randomUUID().toString();
-    String status = Trans.STRING_FINISHED;
+    String status = Pipeline.STRING_FINISHED;
     SlaveServerJobStatus js = new SlaveServerJobStatus( jobName, id, status );
     String resultXML = js.getXML();
     Node newJobStatus = XMLHandler.getSubNode( XMLHandler.loadXMLString( resultXML ), SlaveServerJobStatus.XML_TAG );
@@ -80,7 +80,7 @@ public class SlaveServerJobStatusTest {
   public void testWithDate() throws HopException {
     String jobName = "testWithDate";
     String id = UUID.randomUUID().toString();
-    String status = Trans.STRING_FINISHED;
+    String status = Pipeline.STRING_FINISHED;
     Date logDate = new Date();
     SlaveServerJobStatus js = new SlaveServerJobStatus( jobName, id, status );
     js.setLogDate( logDate );

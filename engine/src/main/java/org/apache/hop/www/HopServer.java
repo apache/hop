@@ -60,7 +60,7 @@ import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HopServer {
-  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
 
   private WebServer webServer;
   private SlaveServerConfig config;
@@ -79,8 +79,8 @@ public class HopServer {
     HopServerSingleton.setSlaveServerConfig( config );
     LogChannelInterface log = HopServerSingleton.getInstance().getLog();
 
-    final TransformationMap transformationMap = HopServerSingleton.getInstance().getTransformationMap();
-    transformationMap.setSlaveServerConfig( config );
+    final PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
+    pipelineMap.setSlaveServerConfig( config );
     final JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
     jobMap.setSlaveServerConfig( config );
     List<SlaveServerDetection> detections = new CopyOnWriteArrayList<SlaveServerDetection>();
@@ -144,7 +144,7 @@ public class HopServer {
 
     // If we need to time out finished or idle objects, we should create a timer in the background to clean
     // this is done automatically now
-    // HopServerSingleton.installPurgeTimer(config, log, transformationMap, jobMap);
+    // HopServerSingleton.installPurgeTimer(config, log, pipelineMap, jobMap);
 
     if ( allOK ) {
       boolean shouldJoin = config.isJoining();
@@ -153,7 +153,7 @@ public class HopServer {
       }
 
       this.webServer =
-        new WebServer( log, transformationMap, jobMap, socketRepository, detections, hostname, port, shouldJoin,
+        new WebServer( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, shouldJoin,
           config.getPasswordFile(), slaveServer.getSslConfig() );
     }
   }

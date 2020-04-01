@@ -25,11 +25,11 @@ package org.apache.hop.core.logging;
 public enum LoggingObjectType {
   // Runtime...
   //
-  TRANS, STEP, JOB, JOBENTRY, DATABASE,
+  PIPELINE, STEP, JOB, JOBENTRY, DATABASE,
 
   // Metadata...
   //
-  TRANSMETA, STEPMETA, JOBMETA,
+  PIPELINE_META, STEP_META, JOB_META,
 
   // User Interface...
   //

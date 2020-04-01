@@ -83,7 +83,7 @@ import java.util.UUID;
  * @since 01-10-2003, Rewritten on 18-06-2004
  */
 public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInterface, JobEntryRunConfigurableInterface {
-  private static Class<?> PKG = JobEntryJob.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = JobEntryJob.class; // for i18n purposes, needed by Translator!!
   public static final int IS_PENTAHO = 1;
 
   private String filename;
@@ -561,7 +561,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           log.logBasic( BaseMessages.getString( PKG, "JobJob.RunConfig.Message" ), runConfiguration );
           executionConfiguration.setRunConfiguration( runConfiguration );
           try {
-            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
+            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
               executionConfiguration, parentJob.getJobMeta(), jobMeta
             } );
             List<Object> items = Arrays.asList( runConfiguration, false );
@@ -599,7 +599,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
             remoteSlaveServer = parentJob.getJobMeta().findSlaveServer( realRemoteSlaveServerName );
             if ( remoteSlaveServer == null ) {
               throw new HopException( BaseMessages.getString(
-                PKG, "JobTrans.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
+                PKG, "JobPipeline.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
             }
           }
         }
@@ -683,7 +683,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           // PDI-6518
           // added UUID to thread name, otherwise threads do share names if jobs entries are executed in parallel in a
           // parent job
-          // if that happens, contained transformations start closing each other's connections
+          // if that happens, contained pipelines start closing each other's connections
           jobRunnerThread.setName( Const.NVL( job.getJobMeta().getName(), job.getJobMeta().getFilename() )
             + " UUID: " + UUID.randomUUID().toString() );
           jobRunnerThread.start();
@@ -1058,7 +1058,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
                                  ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
-    // Try to load the transformation from file.
+    // Try to load the pipeline from file.
     // Modify this recursively too...
     //
     // AGAIN: there is no need to clone this job entry because the caller is
@@ -1191,7 +1191,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   @Override
   public String[] getReferencedObjectDescriptions() {

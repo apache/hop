@@ -22,12 +22,12 @@
 
 package org.apache.hop.job;
 
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 
 public interface DelegationListener {
   public void jobDelegationStarted( Job delegatedJob, JobExecutionConfiguration jobExecutionConfiguration );
 
-  public void transformationDelegationStarted( Trans delegatedTrans,
-                                               TransExecutionConfiguration transExecutionConfiguration );
+  public void pipelineDelegationStarted( Pipeline delegatedPipeline,
+                                               PipelineExecutionConfiguration pipelineExecutionConfiguration );
 }

@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.JobPainter;
-import org.apache.hop.job.entry.JobEntryCopy;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -41,13 +40,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class GetJobImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = -4365372274638005929L;
 
-  private static Class<?> PKG = GetTransStatusServlet.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   public static final String CONTEXT_PATH = "/hop/jobImage";
 
@@ -141,7 +139,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements HopServerPlug
     Job job;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
-      // get the first transformation that matches...
+      // get the first pipeline that matches...
       //
       entry = getJobMap().getFirstCarteObjectEntry( jobName );
       if ( entry == null ) {

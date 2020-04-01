@@ -88,7 +88,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       vert.setThumb( thumb.y );
     }
 
-    // If there is a shadow, we draw the transformation first with an alpha
+    // If there is a shadow, we draw the pipeline first with an alpha
     // setting
     //
     if ( shadowSize > 0 ) {
@@ -98,7 +98,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       drawJobElements();
     }
 
-    // Draw the transformation onto the image
+    // Draw the pipeline onto the image
     //
     gc.setAlpha( 255 );
     gc.setTransform( translationX, translationY, 0, magnification );

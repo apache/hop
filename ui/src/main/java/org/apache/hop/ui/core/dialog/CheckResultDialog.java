@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -90,14 +90,14 @@ public class CheckResultDialog extends Dialog {
 
   private String stepname;
 
-  private TransMeta transMeta;
+  private PipelineMeta pipelineMeta;
 
-  public CheckResultDialog( TransMeta transMeta, Shell parent, int style, List<CheckResultInterface> rem ) {
+  public CheckResultDialog( PipelineMeta pipelineMeta, Shell parent, int style, List<CheckResultInterface> rem ) {
     super( parent, style );
     remarks = rem;
     props = PropsUI.getInstance();
     stepname = null;
-    this.transMeta = transMeta;
+    this.pipelineMeta = pipelineMeta;
   }
 
   public String open() {
@@ -110,7 +110,7 @@ public class CheckResultDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageTransGraph() );
+    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -149,7 +149,7 @@ public class CheckResultDialog extends Dialog {
         true );
 
     wFields =
-      new TableView( transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, true,
+      new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, true,
         null, props );
 
     fdFields = new FormData();

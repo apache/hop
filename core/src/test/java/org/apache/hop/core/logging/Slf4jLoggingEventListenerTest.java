@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class Slf4jLoggingEventListenerTest {
 
-  @Mock private Logger transLogger, jobLogger, diLogger;
+  @Mock private Logger pipelineLogger, jobLogger, diLogger;
   @Mock private HopLoggingEvent logEvent;
   @Mock private LoggingObjectInterface loggingObject;
   @Mock private LogMessage message;
@@ -57,7 +57,7 @@ public class Slf4jLoggingEventListenerTest {
 
   @Before
   public void before() {
-    listener.transLogger = transLogger;
+    listener.pipelineLogger = pipelineLogger;
     listener.jobLogger = jobLogger;
     listener.diLogger = diLogger;
     listener.logObjProvider = logObjProvider;
@@ -76,24 +76,24 @@ public class Slf4jLoggingEventListenerTest {
     when( message.getLevel() ).thenReturn( ERROR );
     listener.eventAdded( logEvent );
     verify( diLogger ).error( messageSub + " " + msgText );
-    verifyZeroInteractions( transLogger );
+    verifyZeroInteractions( pipelineLogger );
     verifyZeroInteractions( jobLogger );
   }
 
   @Test
-  public void testAddLogEventTrans() {
+  public void testAddLogEventPipeline() {
     when( logObjProvider.apply( logChannelId ) ).thenReturn( loggingObject );
     when( loggingObject.getLogChannelId() ).thenReturn( logChannelId );
-    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.TRANS );
+    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.PIPELINE );
     when( loggingObject.getFilename() ).thenReturn( "filename" );
     when( message.getLevel() ).thenReturn( LogLevel.BASIC );
     listener.eventAdded( logEvent );
 
 
-    verify( transLogger ).info( "[filename]  " + msgText );
+    verify( pipelineLogger ).info( "[filename]  " + msgText );
     when( message.getLevel() ).thenReturn( LogLevel.ERROR );
     listener.eventAdded( logEvent );
-    verify( transLogger ).error( "[filename]  " + msgText );
+    verify( pipelineLogger ).error( "[filename]  " + msgText );
     verifyZeroInteractions( diLogger );
     verifyZeroInteractions( jobLogger );
   }
@@ -114,7 +114,7 @@ public class Slf4jLoggingEventListenerTest {
     listener.eventAdded( logEvent );
     verify( jobLogger ).error( "[filename]  " + msgText );
     verifyZeroInteractions( diLogger );
-    verifyZeroInteractions( transLogger );
+    verifyZeroInteractions( pipelineLogger );
   }
 
 }

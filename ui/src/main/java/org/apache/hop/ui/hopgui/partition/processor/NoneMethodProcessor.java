@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.partition.processor;
 
-import org.apache.hop.ui.hopgui.file.trans.IPartitionSchemaSelection;
+import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 

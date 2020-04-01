@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.trans.Trans;
+import org.apache.hop.pipeline.Pipeline;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -54,12 +54,12 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param transName
+   * @param pipelineName
    * @param statusDescription
    */
-  public SlaveServerJobStatus( String transName, String id, String statusDescription ) {
+  public SlaveServerJobStatus( String pipelineName, String id, String statusDescription ) {
     this();
-    this.jobName = transName;
+    this.jobName = pipelineName;
     this.id = id;
     this.statusDescription = statusDescription;
   }
@@ -192,22 +192,22 @@ public class SlaveServerJobStatus {
   }
 
   public boolean isRunning() {
-    return getStatusDescription().equalsIgnoreCase( Trans.STRING_RUNNING )
-      || getStatusDescription().equalsIgnoreCase( Trans.STRING_INITIALIZING );
+    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING );
   }
 
   public boolean isWaiting() {
-    return getStatusDescription().equalsIgnoreCase( Trans.STRING_WAITING );
+    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_WAITING );
   }
 
   public boolean isFinished() {
-    return getStatusDescription().equalsIgnoreCase( Trans.STRING_FINISHED )
-      || getStatusDescription().equalsIgnoreCase( Trans.STRING_FINISHED_WITH_ERRORS );
+    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS );
   }
 
   public boolean isStopped() {
-    return getStatusDescription().equalsIgnoreCase( Trans.STRING_STOPPED )
-      || getStatusDescription().equalsIgnoreCase( Trans.STRING_STOPPED_WITH_ERRORS );
+    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED_WITH_ERRORS );
   }
 
   /**

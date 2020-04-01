@@ -22,8 +22,8 @@
 
 package org.apache.hop.job;
 
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 
 public class DelegationAdapter implements DelegationListener {
 
@@ -32,8 +32,8 @@ public class DelegationAdapter implements DelegationListener {
   }
 
   @Override
-  public void transformationDelegationStarted( Trans delegatedTrans,
-                                               TransExecutionConfiguration transExecutionConfiguration ) {
+  public void pipelineDelegationStarted( Pipeline delegatedPipeline,
+                                               PipelineExecutionConfiguration pipelineExecutionConfiguration ) {
   }
 
 }

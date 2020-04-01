@@ -28,7 +28,7 @@ package org.apache.hop.core.exception;
  * @author Matt
  * @since 9-12-2004
  */
-public class HopStepException extends HopTransException {
+public class HopStepException extends HopPipelineException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C15L;
 
   /**

@@ -171,7 +171,7 @@ public class BundlesStore {
     }
   }
 
-  public void addTranslation( String sourceFolder, String packageName, String locale, String key, String value ) {
+  public void addPipelinelation( String sourceFolder, String packageName, String locale, String key, String value ) {
     Map<String, BundleFile> languageBundleFileMap = packageLanguageBundleMap.get( packageName );
     if ( languageBundleFileMap == null ) {
       languageBundleFileMap = new HashMap<>();

@@ -25,8 +25,8 @@ package org.apache.hop.core.util.serialization;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.pipeline.step.BaseStepMeta;
+import org.apache.hop.pipeline.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
 import static org.apache.hop.core.util.serialization.MetaXmlSerializer.deserialize;

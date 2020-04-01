@@ -114,7 +114,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   // endregion
 
   // region ValueMetaBase Attributes
-  public static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2
+  public static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator
 
   public static final String XML_META_TAG = "value-meta";
   public static final String XML_DATA_TAG = "value-data";

@@ -46,7 +46,7 @@ import java.util.Properties;
  * @since 15-12-2003
  */
 public class Props implements Cloneable {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
@@ -92,9 +92,9 @@ public class Props implements Cloneable {
   public static final String STRING_LOG_LEVEL = "LogLevel";
   public static final String STRING_LOG_FILTER = "LogFilter";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
-  public static final String STRING_INDICATE_SLOW_TRANS_STEPS = "IndicateSlowTransSteps";
+  public static final String STRING_INDICATE_SLOW_PIPELINE_STEPS = "IndicateSlowPipelineSteps";
 
-  public static final String STRING_LAST_PREVIEW_TRANS = "LastPreviewTrans";
+  public static final String STRING_LAST_PREVIEW_PIPELINE = "LastPreviewPipeline";
   public static final String STRING_LAST_PREVIEW_STEP = "LastPreviewStep";
   public static final String STRING_LAST_PREVIEW_SIZE = "LastPreviewSize";
 
@@ -143,7 +143,6 @@ public class Props implements Cloneable {
   public static final String STRING_DISABLE_INITIAL_EXECUTION_HISTORY = "DisableInitialExecutionHistory";
   private static final String STRING_MAX_LOG_LINE_TIMEOUT_MINUTES = "MaxLogLineTimeOutMinutes";
   public static final String STRING_RECENT_SEARCHES = "RecentSearches";
-  public static final String STRING_SHOW_NEW_SUBTRANS_POPUP = "ShowNewSubtransPopup";
 
   protected LogChannelInterface log;
   protected Properties properties;
@@ -500,15 +499,6 @@ public class Props implements Cloneable {
 
   public void setReplaceDatabaseConnections( boolean replace ) {
     properties.setProperty( STRING_REPLACE_DATABASES, replace ? "Y" : "N" );
-  }
-
-  public boolean showNewSubtransPopup() {
-    String show = properties.getProperty( STRING_SHOW_NEW_SUBTRANS_POPUP, "Y" );
-    return "Y".equalsIgnoreCase( show );
-  }
-
-  public void setShowNewSubtransPopup( boolean show ) {
-    properties.setProperty( STRING_SHOW_NEW_SUBTRANS_POPUP, show ? "Y" : "N" );
   }
 
   public int getMaxNrLinesInLog() {

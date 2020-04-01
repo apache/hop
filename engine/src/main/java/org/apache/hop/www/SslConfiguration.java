@@ -34,7 +34,7 @@ import org.w3c.dom.Node;
  * @author Tatsiana_Kasiankova
  */
 public class SslConfiguration {
-  private static Class<?> PKG = SslConfiguration.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SslConfiguration.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "sslConfig";
 

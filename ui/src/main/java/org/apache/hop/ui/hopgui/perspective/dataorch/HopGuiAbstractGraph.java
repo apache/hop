@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The beginnings of a common graph object, used by JobGraph and HopGuiTransGraph to share common behaviors.
+ * The beginnings of a common graph object, used by JobGraph and HopGuiPipelineGraph to share common behaviors.
  */
 public abstract class HopGuiAbstractGraph extends Composite {
 
@@ -107,8 +107,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return new Point( Math.round( p.x * cm ), Math.round( p.y * cm ) );
   }
 
-  protected Point getThumb( Point area, Point transMax ) {
-    Point resizedMax = magnifyPoint( transMax );
+  protected Point getThumb( Point area, Point pipelineMax ) {
+    Point resizedMax = magnifyPoint( pipelineMax );
 
     Point thumb = new Point( 0, 0 );
     if ( resizedMax.x <= area.x ) {

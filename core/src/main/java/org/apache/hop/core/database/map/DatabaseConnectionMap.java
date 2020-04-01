@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * This class contains a map between on the one hand
  * <p/>
- * the transformation name/thread the partition ID the connection group
+ * the pipeline name/thread the partition ID the connection group
  * <p/>
  * And on the other hand
  * <p/>
@@ -119,7 +119,7 @@ public class DatabaseConnectionMap {
     return Integer.toString( transactionId.incrementAndGet() );
   }
 
-  public void addTransactionListener( String transactionId, DatabaseTransactionListener listener ) {
+  public void addPipelineactionListener( String transactionId, DatabaseTransactionListener listener ) {
     List<DatabaseTransactionListener> transactionListeners = getTransactionListeners( transactionId );
     transactionListeners.add( listener );
   }

@@ -129,7 +129,7 @@ public interface JobEntryInterface {
 
   /**
    * Execute the job entry. The previous result and number of rows are provided to the method for the purpose of
-   * chaining job entries, transformations, etc.
+   * chaining job entries, pipelines, etc.
    *
    * @param prev_result the previous result
    * @param nr          the number of rows
@@ -307,11 +307,11 @@ public interface JobEntryInterface {
   boolean isEvaluation();
 
   /**
-   * Checks if this job entry executes a transformation
+   * Checks if this job entry executes a pipeline
    *
-   * @return true if this job entry executes a transformation, false otherwise
+   * @return true if this job entry executes a pipeline, false otherwise
    */
-  boolean isTransformation();
+  boolean isPipeline();
 
   /**
    * Checks if the job entry executes a job
@@ -361,7 +361,7 @@ public interface JobEntryInterface {
   String getDialogClassName();
 
   /**
-   * Gets the filename of the job entry. This method is used by job entries and transformations that call or refer to
+   * Gets the filename of the job entry. This method is used by job entries and pipelines that call or refer to
    * other job entries.
    *
    * @return the filename
@@ -408,7 +408,7 @@ public interface JobEntryInterface {
                           ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 
   /**
-   * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   String[] getReferencedObjectDescriptions();
 

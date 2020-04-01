@@ -21,23 +21,23 @@
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph</classname>
-    <description>Transformation Graph tab</description>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph</classname>
+    <description>Pipeline Graph tab</description>
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransPreviewDelegate</classname>
-    <description>Transformation Graph Preview Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDelegate</classname>
+    <description>Pipeline Graph Preview Delegate</description>
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransGridDelegate</classname>
-    <description>Transformation Graph Grid Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate</classname>
+    <description>Pipeline Graph Grid Delegate</description>
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransLogDelegate</classname>
-    <description>Transformation Graph Log Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate</classname>
+    <description>Pipeline Graph Log Delegate</description>
   </gui-plugin>
 
 
@@ -65,17 +65,17 @@
     <description>Partition schema metadata</description>
   </gui-plugin>
   <gui-plugin>
-    <classname>org.apache.hop.trans.config.PipelineRunConfiguration</classname>
+    <classname>org.apache.hop.pipeline.config.PipelineRunConfiguration</classname>
     <description>Pipeline Run Configuration</description>
   </gui-plugin>
 
   <!-- Engine Run Configuration GUI Plugins -->
   <gui-plugin>
-    <classname>org.apache.hop.trans.engines.local.LocalPipelineRunConfiguration</classname>
+    <classname>org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration</classname>
     <description>Local pipeline run configuration widgets</description>
   </gui-plugin>
   <gui-plugin>
-    <classname>org.apache.hop.trans.engines.localsingle.LocalSinglePipelineRunConfiguration</classname>
+    <classname>org.apache.hop.pipeline.engines.localsingle.LocalSinglePipelineRunConfiguration</classname>
     <description>Local single threaded pipeline run configuration widgets</description>
   </gui-plugin>
 

@@ -38,7 +38,7 @@ import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
