@@ -402,7 +402,7 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE_AS, type = GuiElementType.MENU_ITEM, label = "Save As...", image = "ui/images/saveas.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE_AS, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/saveas.svg", toolTip = "Save as...", parentId = ID_MAIN_TOOLBAR )
   public void menuFileSaveAs() {
-    System.out.println( "fileSaveAs" );
+    fileDelegate.fileSaveAs();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_METASTORE, type = GuiElementType.MENU_ITEM, label = "Explore MetaStore", parentId = ID_MAIN_MENU_FILE, separator = true )
