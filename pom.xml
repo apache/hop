@@ -80,7 +80,7 @@
     <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
     <org.eclipse.jface.version>3.18.0</org.eclipse.jface.version>
     <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
-    <js.version>1.7R3</js.version>
+    <rhino.version>1.7.12</rhino.version>
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
     <commons-codec.version>1.10</commons-codec.version>
@@ -199,9 +199,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>rhino</groupId>
-        <artifactId>js</artifactId>
-        <version>${js.version}</version>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
+        <version>${rhino.version}</version>         
         <exclusions>
           <exclusion>
             <groupId>*</groupId>
