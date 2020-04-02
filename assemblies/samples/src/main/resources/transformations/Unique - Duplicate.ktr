@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Case insensitive Unique</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -457,7 +457,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Duplicate row</name>
     <type>Dummy</type>
     <description/>
@@ -469,20 +469,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>468</xloc>
       <yloc>372</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -513,20 +513,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>312</xloc>
       <yloc>141</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows 2</name>
     <type>RowGenerator</type>
     <description/>
@@ -557,20 +557,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>309</xloc>
       <yloc>245</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique row</name>
     <type>Dummy</type>
     <description/>
@@ -582,20 +582,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>658</xloc>
       <yloc>245</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique rows</name>
     <type>Unique</type>
     <description/>
@@ -613,23 +613,23 @@
     <fields>      <field>        <name>A</name>
         <case_insensitive>Y</case_insensitive>
         </field>      </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>467</xloc>
       <yloc>245</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
+  <transform_error_handling>
       <error>
-        <source_step>Unique rows</source_step>
-        <target_step>Duplicate row</target_step>
+        <source_transform>Unique rows</source_transform>
+        <target_transform>Duplicate row</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorNo</nr_valuename>
         <descriptions_valuename>ErrorDesc</descriptions_valuename>
@@ -639,8 +639,8 @@
         <max_pct_errors>-1</max_pct_errors>
         <min_pct_rows>-1</min_pct_rows>
       </error>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

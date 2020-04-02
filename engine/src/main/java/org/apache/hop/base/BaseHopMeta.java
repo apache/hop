@@ -25,7 +25,7 @@ import org.apache.hop.core.xml.XMLInterface;
 
 
 /**
- * This class defines a base hop from one job entry copy to another, or from one step to another.
+ * This class defines a base hop from one job entry copy to another, or from one transform to another.
  *
  * @author Alexander Buloichik
  */

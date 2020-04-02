@@ -8,7 +8,7 @@ import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -40,7 +40,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
 
   /**
    * Create a list of supported actions on a pipeline.
-   * We'll add the creation of every possible step as well as the modification of the pipeline itself.
+   * We'll add the creation of every possible transform as well as the modification of the pipeline itself.
    *
    * @return The list of supported actions
    */
@@ -56,24 +56,24 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
       }
     }
 
-    // Also add all the step creation actions...
+    // Also add all the transform creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> stepPlugins = registry.getPlugins( StepPluginType.class );
-    for ( PluginInterface stepPlugin : stepPlugins ) {
-      GuiAction createStepAction =
-        new GuiAction( "pipeline-graph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
+    List<PluginInterface> transformPlugins = registry.getPlugins( TransformPluginType.class );
+    for ( PluginInterface transformPlugin : transformPlugins ) {
+      GuiAction createTransformAction =
+        new GuiAction( "pipeline-graph-create-transform-" + transformPlugin.getIds()[ 0 ], GuiActionType.Create, transformPlugin.getName(), transformPlugin.getDescription(), transformPlugin.getImageFile(),
           (shiftClicked, controlClicked, t) -> {
-            pipelineGraph.pipelineStepDelegate.newStep( pipelineMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), controlClicked, true, click );
+            pipelineGraph.pipelineTransformDelegate.newTransform( pipelineMeta, transformPlugin.getIds()[ 0 ], transformPlugin.getName(), transformPlugin.getDescription(), controlClicked, true, click );
           }
         );
       try {
-        createStepAction.setClassLoader( registry.getClassLoader( stepPlugin ) );
+        createTransformAction.setClassLoader( registry.getClassLoader( transformPlugin ) );
       } catch ( HopPluginException e ) {
-        LogChannel.UI.logError( "Unable to get classloader for step plugin " + stepPlugin.getIds()[ 0 ], e );
+        LogChannel.UI.logError( "Unable to get classloader for transform plugin " + transformPlugin.getIds()[ 0 ], e );
       }
-      createStepAction.getKeywords().add( stepPlugin.getCategory() );
-      actions.add( createStepAction );
+      createTransformAction.getKeywords().add( transformPlugin.getCategory() );
+      actions.add( createTransformAction );
     }
 
     return actions;

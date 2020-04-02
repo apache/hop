@@ -31,7 +31,7 @@ import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -183,9 +183,9 @@ public class HopGuiPipelineLogDelegate {
     if ( pipelineLogText != null && !pipelineLogText.isDisposed() ) {
       pipelineLogText.setText( "" );
     }
-    Map<String, String> stepLogMap = pipelineGraph.getStepLogMap();
-    if ( stepLogMap != null ) {
-      stepLogMap.clear();
+    Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
+    if ( transformLogMap != null ) {
+      transformLogMap.clear();
       pipelineGraph.getDisplay().asyncExec( new Runnable() {
         public void run() {
           pipelineGraph.redraw();
@@ -230,8 +230,8 @@ public class HopGuiPipelineLogDelegate {
         String uLine = line.toUpperCase();
         if ( uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.ERROR" ) ) >= 0
           || uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.EXCEPTION" ) ) >= 0
-          || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated steps a.s.o.
-          uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated steps a.s.o.
+          || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated transforms a.s.o.
+          uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated transforms a.s.o.
         ) {
           err.add( line );
         }
@@ -245,8 +245,8 @@ public class HopGuiPipelineLogDelegate {
     String uLine = line.toUpperCase();
     if ( uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.ERROR2" ) ) >= 0
       || uLine.indexOf( BaseMessages.getString( PKG, "PipelineLog.System.EXCEPTION2" ) ) >= 0
-      || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated steps a.s.o.
-      uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated steps a.s.o.
+      || uLine.indexOf( "ERROR" ) >= 0 || // i18n for compatibilty to non translated transforms a.s.o.
+      uLine.indexOf( "EXCEPTION" ) >= 0 // i18n for compatibilty to non translated transforms a.s.o.
     ) {
       err.add( line );
     }
@@ -263,10 +263,10 @@ public class HopGuiPipelineLogDelegate {
       line = esd.open();
       if ( line != null ) {
         PipelineMeta pipelineMeta = pipelineGraph.getManagedObject();
-        for ( i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-          StepMeta stepMeta = pipelineMeta.getStep( i );
-          if ( line.indexOf( stepMeta.getName() ) >= 0 ) {
-            pipelineGraph.editStep( pipelineMeta, stepMeta );
+        for ( i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+          TransformMeta transformMeta = pipelineMeta.getTransform( i );
+          if ( line.indexOf( transformMeta.getName() ) >= 0 ) {
+            pipelineGraph.editTransform( pipelineMeta, transformMeta );
           }
         }
       }

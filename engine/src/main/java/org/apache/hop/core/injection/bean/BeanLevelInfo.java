@@ -25,6 +25,7 @@ package org.apache.hop.core.injection.bean;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionTypeConverter;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -40,9 +41,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Storage for one step on the bean deep level.
+ * Storage for one transform on the bean deep level.
  */
-class BeanLevelInfo {
+class BeanLevelInfo<Meta extends TransformMetaInterface> {
   enum DIMENSION {
     NONE, ARRAY, LIST
   }
@@ -50,15 +51,15 @@ class BeanLevelInfo {
   ;
 
   /**
-   * Parent step or null for root.
+   * Parent transform or null for root.
    */
   public BeanLevelInfo parent;
   /**
-   * Class for step from field or methods.
+   * Class for transform from field or methods.
    */
-  public Class<?> leafClass;
+  public Class<Meta> leafClass;
   /**
-   * Field of step, or null if bean has getter/setter.
+   * Field of transform, or null if bean has getter/setter.
    */
   public Field field;
   /**
@@ -86,6 +87,10 @@ class BeanLevelInfo {
     introspect( info, leafClass, new TreeMap<>() );
   }
 
+  public void init( BeanInjectionInfo info, Map<String, Type> ownerGenericsInfo  ) {
+    introspect( info, leafClass, ownerGenericsInfo );
+  }
+
   /**
    * Introspect class and all interfaces and ancestors recursively.
    */
@@ -93,14 +98,14 @@ class BeanLevelInfo {
     Map<String, Type> genericsInfo = new TreeMap<>( ownerGenericsInfo );
 
     while ( type != null ) {
-      Class<?> clazz;
+      Class<Meta> clazz;
       ParameterizedType pt;
       if ( type instanceof ParameterizedType ) {
         pt = (ParameterizedType) type;
-        clazz = (Class<?>) pt.getRawType();
+        clazz = (Class<Meta>) pt.getRawType();
       } else {
         pt = null;
-        clazz = (Class<?>) type;
+        clazz = (Class<Meta>) type;
       }
       // introspect generics
       TypeVariable<?>[] tps = clazz.getTypeParameters();

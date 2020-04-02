@@ -40,7 +40,7 @@ public class CommandExecutorCodes {
     UNABLE_TO_PREP_INIT_PIPELINE( 3, "Unable to prepare and initialize this pipeline" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
     COULD_NOT_LOAD_PIPELINE( 7, "The pipeline couldn't be de-serialized" ),
-    ERROR_LOADING_STEPS_PLUGINS( 8, "Error loading steps or plugins (error in loading one of the plugins mostly)" ),
+    ERROR_LOADING_TRANSFORMS_PLUGINS( 8, "Error loading transforms or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 
     private int code;
@@ -77,7 +77,7 @@ public class CommandExecutorCodes {
       return Pan.UNEXPECTED_ERROR.getCode() == code
         || Pan.UNABLE_TO_PREP_INIT_PIPELINE.getCode() == code
         || Pan.COULD_NOT_LOAD_PIPELINE.getCode() == code
-        || Pan.ERROR_LOADING_STEPS_PLUGINS.getCode() == code;
+        || Pan.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
     }
   }
 
@@ -91,7 +91,7 @@ public class CommandExecutorCodes {
     UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading or running of the job" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
     COULD_NOT_LOAD_JOB( 7, "The job couldn't be de-serialized" ),
-    ERROR_LOADING_STEPS_PLUGINS( 8, "Error loading steps or plugins (error in loading one of the plugins mostly)" ),
+    ERROR_LOADING_TRANSFORMS_PLUGINS( 8, "Error loading transforms or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 
     private int code;
@@ -127,7 +127,7 @@ public class CommandExecutorCodes {
     public static boolean isFailedExecution( final int code ) {
       return Kitchen.UNEXPECTED_ERROR.getCode() == code
         || Kitchen.COULD_NOT_LOAD_JOB.getCode() == code
-        || Kitchen.ERROR_LOADING_STEPS_PLUGINS.getCode() == code;
+        || Kitchen.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
     }
   }
 }

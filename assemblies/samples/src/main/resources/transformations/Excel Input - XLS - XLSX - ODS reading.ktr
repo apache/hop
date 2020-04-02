@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Excel Input - XLS - XLSX - ODS reading</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -446,7 +446,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>The result should be 3 unique rows since the XLS, XLSX and ODS files have identical content.&#xa;Preview any step to see the result.&#xa;&#xa;Note that the only difference in the 3 reader steps are the filename and spreadsheet type.</note>
+      <note>The result should be 3 unique rows since the XLS, XLSX and ODS files have identical content.&#xa;Preview any transform to see the result.&#xa;&#xa;Note that the only difference in the 3 reader transforms are the filename and spreadsheet type.</note>
       <xloc>424</xloc>
       <yloc>301</yloc>
       <width>550</width>
@@ -567,7 +567,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Abort</name>
     <type>Abort</type>
     <description/>
@@ -582,20 +582,20 @@
       <message>More than 3 different rows received, something wrong with one of the readers&#x21;</message>
       <always_log_rows>Y</always_log_rows>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>954</xloc>
       <yloc>190</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Collect</name>
     <type>Dummy</type>
     <description/>
@@ -607,20 +607,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>459</xloc>
       <yloc>190</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>ODS Input</name>
     <type>ExcelInput</type>
     <description/>
@@ -645,7 +645,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;sample-file.ods</name>
       <filemask/>
@@ -741,20 +741,20 @@
     <sizeFieldName/>
     <spreadsheet_type>ODS</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>294</xloc>
       <yloc>286</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows</name>
     <type>SortRows</type>
     <description/>
@@ -815,20 +815,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>624</xloc>
       <yloc>190</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique rows</name>
     <type>Unique</type>
     <description/>
@@ -844,20 +844,20 @@
       <reject_duplicate_row>N</reject_duplicate_row>
       <error_description/>
     <fields>      </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>789</xloc>
       <yloc>190</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>XLS Input</name>
     <type>ExcelInput</type>
     <description/>
@@ -882,7 +882,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;sample-file.xls</name>
       <filemask/>
@@ -978,20 +978,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>289</xloc>
       <yloc>94</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>XLS Input POI</name>
     <type>ExcelInput</type>
     <description/>
@@ -1016,7 +1016,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;sample-file.xls</name>
       <filemask/>
@@ -1112,20 +1112,20 @@
     <sizeFieldName/>
     <spreadsheet_type>POI</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>234</xloc>
       <yloc>220</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>XLSX Input</name>
     <type>ExcelInput</type>
     <description/>
@@ -1150,7 +1150,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;sample-file.xlsx</name>
       <filemask/>
@@ -1246,22 +1246,22 @@
     <sizeFieldName/>
     <spreadsheet_type>POI</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>285</xloc>
       <yloc>172</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

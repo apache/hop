@@ -35,7 +35,7 @@ public class MetaStoreKeyMap {
   static {
     keyMap.put( "host_name", new String[] { "hostname" } );
     keyMap.put( "server_name", new String[] { "servername" } );
-    keyMap.put( "step_name", new String[] { "stepname", "stepName" } );
+    keyMap.put( "transform_name", new String[] { "transformName", "transformName" } );
     keyMap.put( "field_mappings", new String[] { "fieldMappings" } );
     keyMap.put( "parameter_name", new String[] { "parameterName" } );
     keyMap.put( "source_field_name", new String[] { "sourceFieldName" } );

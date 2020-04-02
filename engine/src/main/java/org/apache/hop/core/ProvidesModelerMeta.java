@@ -23,12 +23,12 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.pipeline.step.StepDataInterface;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
 
 import java.util.List;
 
 public interface ProvidesModelerMeta extends ProvidesDatabaseConnectionInformation {
-  RowMeta getRowMeta( StepDataInterface stepData );
+  RowMeta getRowMeta( TransformDataInterface transformData );
 
   List<String> getDatabaseFields();
 

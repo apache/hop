@@ -28,14 +28,14 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.BaseStepMeta;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.steps.loadsave.getter.Getter;
-import org.apache.hop.pipeline.steps.loadsave.initializer.InitializerInterface;
-import org.apache.hop.pipeline.steps.loadsave.setter.Setter;
-import org.apache.hop.pipeline.steps.loadsave.validator.DefaultFieldLoadSaveValidatorFactory;
-import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transforms.loadsave.validator.DefaultFieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidatorFactory;
 import org.apache.test.util.JavaBeanManipulator;
 
 import java.lang.reflect.Method;
@@ -99,11 +99,11 @@ public abstract class LoadSaveBase<T> {
   public T createMeta() {
     try {
       T meta = clazz.newInstance();
-      if ( meta instanceof BaseStepMeta ) {
-        StepMeta mockParentStepMeta = mock( StepMeta.class );
-        ( (BaseStepMeta) meta ).setParentStepMeta( mockParentStepMeta );
+      if ( meta instanceof BaseTransformMeta ) {
+        TransformMeta mockParentTransformMeta = mock( TransformMeta.class );
+        ( (BaseTransformMeta) meta ).setParentTransformMeta( mockParentTransformMeta );
         PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-        when( mockParentStepMeta.getParentPipelineMeta() ).thenReturn( mockPipelineMeta );
+        when( mockParentTransformMeta.getParentPipelineMeta() ).thenReturn( mockPipelineMeta );
       }
       return meta;
     } catch ( Exception e ) {

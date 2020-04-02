@@ -31,7 +31,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * This class resolve and update system variables
@@ -86,11 +86,11 @@ public class CurrentDirectoryResolver {
     return tmpSpace;
   }
 
-  public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, StepMeta stepMeta, String filename ) {
-    if ( stepMeta != null && stepMeta.getParentPipelineMeta() != null ) {
-      filename = stepMeta.getParentPipelineMeta().getFilename();
-    } else if ( stepMeta != null && stepMeta.getParentPipelineMeta() != null && filename == null ) {
-      filename = stepMeta.getParentPipelineMeta().getFilename();
+  public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, TransformMeta transformMeta, String filename ) {
+    if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null ) {
+      filename = transformMeta.getParentPipelineMeta().getFilename();
+    } else if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null && filename == null ) {
+      filename = transformMeta.getParentPipelineMeta().getFilename();
     }
     return resolveCurrentDirectory( parentVariables, filename );
   }

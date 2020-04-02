@@ -25,7 +25,7 @@ package org.apache.hop.job.entry.loadSave;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

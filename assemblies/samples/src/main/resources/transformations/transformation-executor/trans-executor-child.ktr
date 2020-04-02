@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>pipeline-executor-child</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -452,7 +452,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Calculator test_id_calc</name>
     <type>Calculator</type>
     <description/>
@@ -479,20 +479,20 @@
       <currency_symbol/>
     </calculation>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>275</xloc>
       <yloc>119</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Copy rows to result</name>
     <type>RowsToResult</type>
     <description/>
@@ -504,20 +504,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>552</xloc>
       <yloc>119</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Get rows from result</name>
     <type>RowsFromResult</type>
     <description/>
@@ -537,20 +537,20 @@
         <length>-1</length>
         <precision>-1</precision>
         </field>      </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>129</xloc>
       <yloc>119</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Write to file</name>
     <type>TextFileOutput</type>
     <description/>
@@ -595,22 +595,22 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>413</xloc>
       <yloc>119</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

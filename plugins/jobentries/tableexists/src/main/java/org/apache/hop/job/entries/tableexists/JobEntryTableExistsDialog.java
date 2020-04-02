@@ -40,7 +40,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -261,7 +261,7 @@ public class JobEntryTableExistsDialog extends JobEntryDialog implements JobEntr
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTablename );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTablename );
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -280,7 +280,7 @@ public class JobEntryTableExistsDialog extends JobEntryDialog implements JobEntr
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     props.setDialogSize( shell, "JobTableExistsDialogSize" );
@@ -322,7 +322,7 @@ public class JobEntryTableExistsDialog extends JobEntryDialog implements JobEntr
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

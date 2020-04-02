@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Define TABLE variable</name>
     <directory>&#47;</directory>
@@ -45,7 +45,7 @@
   <order>
   <hop> <from>get one tablename</from><to>set ${TABLENAME}</to><enabled>Y</enabled> </hop>  </order>
 
-  <step>
+  <transform>
     <name>get one tablename</name>
     <type>RowsFromResult</type>
     <description/>
@@ -66,9 +66,9 @@
       <yloc>71</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>set ${TABLENAME}</name>
     <type>SetVariable</type>
     <description/>
@@ -92,6 +92,6 @@
       <yloc>70</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-</transformation>
+</pipeline>

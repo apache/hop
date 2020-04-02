@@ -756,7 +756,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       //
       if ( hi.isUnconditional() || ( jobEntryCopy.evaluates() && ( !( hi.getEvaluation() ^ newResult
         .getResult() ) ) ) ) {
-        // Start this next step!
+        // Start this next transform!
         if ( log.isBasic() ) {
           log.logBasic( BaseMessages.getString( PKG, "Job.Log.StartingEntry", nextEntry.getName() ) );
         }
@@ -834,7 +834,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       }
     }
 
-    // Perhaps we don't have next steps??
+    // Perhaps we don't have next transforms??
     // In this case, return the previous result.
     if ( res == null ) {
       res = prevResult;

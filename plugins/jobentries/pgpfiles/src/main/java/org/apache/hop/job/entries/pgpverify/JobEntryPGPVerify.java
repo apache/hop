@@ -239,7 +239,7 @@ public class JobEntryPGPVerify extends JobEntryBase implements Cloneable, JobEnt
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the gpglocation from relative to absolute by grabbing the file object...
-      // In case the name of the file comes from previous steps, forget about this!
+      // In case the name of the file comes from previous transforms, forget about this!
       //
       if ( !Utils.isEmpty( gpglocation ) ) {
         // From : ${FOLDER}/../foo/bar.csv

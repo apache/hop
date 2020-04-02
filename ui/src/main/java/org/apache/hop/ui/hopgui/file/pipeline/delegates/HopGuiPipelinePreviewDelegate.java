@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.IEngineComponent;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -86,8 +86,8 @@ public class HopGuiPipelinePreviewDelegate {
   private Text logText;
   private TableView tableView;
 
-  private StepMeta selectedStep;
-  protected StepMeta lastSelectedStep;
+  private TransformMeta selectedTransform;
+  protected TransformMeta lastSelectedTransform;
 
   /**
    * @param hopUi
@@ -113,7 +113,7 @@ public class HopGuiPipelinePreviewDelegate {
   }
 
   /**
-   * Add a grid with the execution metrics per step in a table view
+   * Add a grid with the execution metrics per transform in a table view
    */
   public void addPipelinePreview() {
 
@@ -197,50 +197,50 @@ public class HopGuiPipelinePreviewDelegate {
       return;
     }
 
-    // Which step do we preview...
+    // Which transform do we preview...
     //
-    StepMeta stepMeta = selectedStep; // copy to prevent race conditions and so on.
-    if ( stepMeta == null ) {
+    TransformMeta transformMeta = selectedTransform; // copy to prevent race conditions and so on.
+    if ( transformMeta == null ) {
       hidePreviewGrid();
       return;
     } else {
-      lastSelectedStep = selectedStep;
+      lastSelectedTransform = selectedTransform;
     }
 
-    // Do we have a log for this selected step?
+    // Do we have a log for this selected transform?
     // This means the preview work is still running or it error-ed out.
     //
-    boolean errorStep = false;
+    boolean errorTransform = false;
     if ( pipelineGraph.pipeline != null ) {
 
-      // Get the engine metrics for the step but only copy 0
+      // Get the engine metrics for the transform but only copy 0
       //
       IPipelineEngine<PipelineMeta> engine = pipelineGraph.pipeline;
-      EngineMetrics engineMetrics = engine.getEngineMetrics( stepMeta.getName(), 0 );
-      IEngineComponent component = engine.findComponent( stepMeta.getName(), 0 );
+      EngineMetrics engineMetrics = engine.getEngineMetrics( transformMeta.getName(), 0 );
+      IEngineComponent component = engine.findComponent( transformMeta.getName(), 0 );
       Long errors = engineMetrics.getComponentMetric( component, Pipeline.METRIC_ERROR );
 
       if ( errors != null && errors > 0 ) {
-        errorStep = true;
+        errorTransform = true;
       }
     }
 
-    String logText = previewLogMap.get( stepMeta.getName() );
-    if ( errorStep && logText != null && logText.length() > 0 ) {
-      showLogText( stepMeta, logText.toString() );
+    String logText = previewLogMap.get( transformMeta.getName() );
+    if ( errorTransform && logText != null && logText.length() > 0 ) {
+      showLogText( transformMeta, logText.toString() );
       return;
     }
 
-    // If the preview work is done we have row meta-data and data for each step.
+    // If the preview work is done we have row meta-data and data for each transform.
     //
-    RowBuffer rowBuffer = previewDataMap.get( stepMeta.getName() );
+    RowBuffer rowBuffer = previewDataMap.get( transformMeta.getName() );
     if ( rowBuffer != null ) {
       try {
-        showPreviewGrid( pipelineGraph.getManagedObject(), stepMeta, rowBuffer );
+        showPreviewGrid( pipelineGraph.getManagedObject(), transformMeta, rowBuffer );
       } catch ( Exception e ) {
         e.printStackTrace();
         logText += Const.getStackTracker( e );
-        showLogText( stepMeta, logText.toString() );
+        showLogText( transformMeta, logText.toString() );
       }
     }
   }
@@ -251,7 +251,7 @@ public class HopGuiPipelinePreviewDelegate {
     }
   }
 
-  protected void showPreviewGrid( PipelineMeta pipelineMeta, StepMeta stepMeta, RowBuffer rowBuffer) throws HopException {
+  protected void showPreviewGrid( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowBuffer rowBuffer) throws HopException {
     clearPreviewComposite();
 
     RowMetaInterface rowMeta = rowBuffer.getRowMeta();
@@ -308,7 +308,7 @@ public class HopGuiPipelinePreviewDelegate {
     previewComposite.layout( true, true );
   }
 
-  protected void showLogText( StepMeta stepMeta, String loggingText ) {
+  protected void showLogText( TransformMeta transformMeta, String loggingText ) {
     clearPreviewComposite();
 
     logText = new Text( previewComposite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
@@ -330,7 +330,7 @@ public class HopGuiPipelinePreviewDelegate {
     return pipelinePreviewTab;
   }
 
-  public void capturePreviewData( final IPipelineEngine<PipelineMeta> pipelineEngine, List<StepMeta> stepMetas ) {
+  public void capturePreviewData( final IPipelineEngine<PipelineMeta> pipelineEngine, List<TransformMeta> transformMetas ) {
 
     // First clean out previous preview data. Otherwise this method leaks memory like crazy.
     //
@@ -338,9 +338,9 @@ public class HopGuiPipelinePreviewDelegate {
     previewDataMap.clear();
 
     try {
-      for ( final StepMeta stepMeta : stepMetas ) {
-        pipelineEngine.retrieveComponentOutput( stepMeta.getName(), 0, PropsUI.getInstance().getDefaultPreviewSize(),
-          (pipeline, rowBuffer)-> previewDataMap.put(stepMeta.getName(), rowBuffer)
+      for ( final TransformMeta transformMeta : transformMetas ) {
+        pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUI.getInstance().getDefaultPreviewSize(),
+          (pipeline, rowBuffer)-> previewDataMap.put( transformMeta.getName(), rowBuffer)
         );
       }
     } catch ( Exception e ) {
@@ -369,23 +369,23 @@ public class HopGuiPipelinePreviewDelegate {
     }
   }
 
-  public void addPreviewData( StepMeta stepMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
+  public void addPreviewData( TransformMeta transformMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
                               StringBuffer buffer ) {
-    previewLogMap.put( stepMeta.getName(), buffer.toString() );
-    previewDataMap.put( stepMeta.getName(), new RowBuffer(rowMeta, rowsData) );
+    previewLogMap.put( transformMeta.getName(), buffer.toString() );
+    previewDataMap.put( transformMeta.getName(), new RowBuffer(rowMeta, rowsData) );
   }
 
   /**
-   * @return the selectedStep
+   * @return the selectedTransform
    */
-  public StepMeta getSelectedStep() {
-    return selectedStep;
+  public TransformMeta getSelectedTransform() {
+    return selectedTransform;
   }
 
   /**
-   * @param selectedStep the selectedStep to set
+   * @param selectedTransform the selectedTransform to set
    */
-  public void setSelectedStep( StepMeta selectedStep ) {
-    this.selectedStep = selectedStep;
+  public void setSelectedTransform( TransformMeta selectedTransform ) {
+    this.selectedTransform = selectedTransform;
   }
 }

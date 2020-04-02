@@ -44,7 +44,7 @@ public class SerializationHelper {
 
   /**
    * This method will perform the work that used to be done by hand in each kettle input meta for: readData(Node
-   * stepnode). We handle all primitive types, complex user types, arrays, lists and any number of nested object levels,
+   * transformNode). We handle all primitive types, complex user types, arrays, lists and any number of nested object levels,
    * via recursion of this method.
    *
    * @param object The object to be persisted

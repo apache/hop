@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection />
         <schema />
         <table />
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection />
         <schema />
@@ -447,7 +447,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Get rows from result</name>
     <type>RowsFromResult</type>
     <description />
@@ -484,8 +484,8 @@
       <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step>
+  </transform>
+  <transform>
     <name>Group by</name>
     <type>GroupBy</type>
     <description />
@@ -529,8 +529,8 @@
       <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step>
+  </transform>
+  <transform>
     <name>Write to log</name>
     <type>WriteToLog</type>
     <description />
@@ -566,10 +566,10 @@
       <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
+  </transform>
   <step_error_handling>
   </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_pipeline>N</slave_pipelineformation>
 </pipeline>

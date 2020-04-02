@@ -38,7 +38,7 @@ public class DatabaseImpactTest {
   @Test
   public void testGetRow() throws HopValueException {
     DatabaseImpact testObject =
-      new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, "myPipeline", "aStep", "ProdDB", "DimCustomer",
+      new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, "myPipeline", "aTransform", "ProdDB", "DimCustomer",
         "Customer_Key", "MyValue", "Calculator 2", "SELECT * FROM dimCustomer", "Some remarks" );
     RowMetaAndData rmd = testObject.getRow();
 
@@ -52,8 +52,8 @@ public class DatabaseImpactTest {
       .getName() );
     assertEquals( "myPipeline", rmd.getString( 1, "default" ) );
     assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getValueMeta( 2 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Step" ), rmd.getValueMeta( 2 ).getName() );
-    assertEquals( "aStep", rmd.getString( 2, "default" ) );
+    assertEquals( BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Transform" ), rmd.getValueMeta( 2 ).getName() );
+    assertEquals( "aTransform", rmd.getString( 2, "default" ) );
     assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getValueMeta( 3 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Database" ), rmd.getValueMeta( 3 )
       .getName() );

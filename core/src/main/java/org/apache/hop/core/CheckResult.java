@@ -25,7 +25,7 @@ package org.apache.hop.core;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * This class is used to store results of pipeline and step verifications.
+ * This class is used to store results of pipeline and transform verifications.
  *
  * @author Matt
  * @since 11-01-04
@@ -41,7 +41,7 @@ public class CheckResult implements CheckResultInterface {
 
   private String text;
 
-  // MB - Support both JobEntry and Step Checking
+  // MB - Support both JobEntry and Transform Checking
   // 6/26/07
   private CheckResultSourceInterface sourceMeta;
 

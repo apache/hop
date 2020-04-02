@@ -113,7 +113,7 @@ public class NettezaValueMetaBaseTest {
   }
 
   /**
-   * PDI-10877 Table input step returns no data when pulling a timestamp column from IBM Netezza
+   * PDI-10877 Table input transform returns no data when pulling a timestamp column from IBM Netezza
    *
    * @throws Exception
    */

@@ -46,7 +46,7 @@ import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopPipelineException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -68,7 +68,7 @@ import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.MetricsRegistry;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
-import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsSnapshotInterface;
 import org.apache.hop.core.metrics.MetricsUtil;
@@ -90,6 +90,15 @@ import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformListener;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -102,21 +111,14 @@ import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-import org.apache.hop.pipeline.step.BaseStep;
-import org.apache.hop.pipeline.step.BaseStepData.StepExecutionStatus;
-import org.apache.hop.pipeline.step.RowAdapter;
-import org.apache.hop.pipeline.step.RunThread;
-import org.apache.hop.pipeline.step.StepAdapter;
-import org.apache.hop.pipeline.step.StepDataInterface;
-import org.apache.hop.pipeline.step.StepInitThread;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepListener;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaDataCombi;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
-import org.apache.hop.pipeline.step.StepStatus;
-import org.apache.hop.pipeline.steps.mappinginput.MappingInput;
-import org.apache.hop.pipeline.steps.mappingoutput.MappingOutput;
+import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.RunThread;
+import org.apache.hop.pipeline.transform.TransformAdapter;
+import org.apache.hop.pipeline.transform.TransformInitThread;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
+import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterPipelineServlet;
@@ -232,14 +234,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   private LoggingObjectInterface parent;
 
   /**
-   * The name of the mapping step that executes this pipeline in case this is a mapping.
+   * The name of the mapping transform that executes this pipeline in case this is a mapping.
    */
-  private String mappingStepName;
+  private String mappingTransformName;
 
   /**
-   * Indicates that we want to do a topological sort of the steps in a GUI.
+   * Indicates that we want to do a topological sort of the transforms in a GUI.
    */
-  private boolean sortingStepsTopologically;
+  private boolean sortingTransformsTopologically;
 
   /**
    * Indicates that we are running in preview mode...
@@ -278,9 +280,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   public List<RowSet> rowsets;
 
   /**
-   * A list of all the steps.
+   * A list of all the transforms.
    */
-  private List<StepMetaDataCombi> steps;
+  private List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms;
 
   /**
    * The class number.
@@ -415,14 +417,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   private boolean readyToStart;
 
   /**
-   * Step performance snapshots.
+   * Transform performance snapshots.
    */
-  private Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots;
+  private Map<String, List<PerformanceSnapShot>> transformPerformanceSnapShots;
 
   /**
-   * The step performance snapshot timer.
+   * The transform performance snapshot timer.
    */
-  private Timer stepPerformanceSnapShotTimer;
+  private Timer transformPerformanceSnapShotTimer;
 
   /**
    * A list of listeners attached to the pipeline.
@@ -440,14 +442,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   private List<DelegationListener> delegationListeners;
 
   /**
-   * The number of finished steps.
+   * The number of finished transforms.
    */
-  private int nrOfFinishedSteps;
+  private int nrOfFinishedTransforms;
 
   /**
-   * The number of active steps.
+   * The number of active transforms.
    */
-  private int nrOfActiveSteps;
+  private int nrOfActiveTransforms;
 
   /**
    * The named parameters.
@@ -465,19 +467,19 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   private Database pipelineLogTableDatabaseConnection;
 
   /**
-   * The step performance snapshot sequence number.
+   * The transform performance snapshot sequence number.
    */
-  private AtomicInteger stepPerformanceSnapshotSeqNr;
+  private AtomicInteger transformPerformanceSnapshotSeqNr;
 
   /**
-   * The last written step performance sequence number.
+   * The last written transform performance sequence number.
    */
-  private int lastWrittenStepPerformanceSequenceNr;
+  private int lastWrittenTransformPerformanceSequenceNr;
 
   /**
-   * The last step performance snapshot sequence number added.
+   * The last transform performance snapshot sequence number added.
    */
-  private int lastStepPerformanceSnapshotSeqNrAdded;
+  private int lastTransformPerformanceSnapshotSeqNrAdded;
 
   /**
    * The active sub-pipelines.
@@ -490,9 +492,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   private Map<String, Job> activeSubjobs;
 
   /**
-   * The step performance snapshot size limit.
+   * The transform performance snapshot size limit.
    */
-  private int stepPerformanceSnapshotSizeLimit;
+  private int transformPerformanceSnapshotSizeLimit;
 
   /**
    * The servlet print writer.
@@ -563,8 +565,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     errors = new AtomicInteger( 0 );
 
-    stepPerformanceSnapshotSeqNr = new AtomicInteger( 0 );
-    lastWrittenStepPerformanceSequenceNr = 0;
+    transformPerformanceSnapshotSeqNr = new AtomicInteger( 0 );
+    lastWrittenTransformPerformanceSequenceNr = 0;
 
     activeSubPipelines = new ConcurrentHashMap<>();
     activeSubjobs = new HashMap<>();
@@ -637,7 +639,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsPreloaded" ) );
     }
     if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfStepsToRun", String.valueOf( pipelineMeta.nrSteps() ),
+      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfTransformsToRun", String.valueOf( pipelineMeta.nrTransforms() ),
         String.valueOf( pipelineMeta.nrPipelineHops() ) ) );
     }
 
@@ -730,7 +732,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
   /**
    * Executes the pipeline. This method will prepare the pipeline for execution and then start all the
-   * threads associated with the pipeline and its steps.
+   * threads associated with the pipeline and its transforms.
    *
    * @throws HopException if the pipeline could not be prepared (initialized)
    */
@@ -741,7 +743,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
   /**
    * Prepares the pipeline for execution. This includes setting the arguments and parameters as well as preparing
-   * and tracking the steps and hops in the pipeline.
+   * and tracking the transforms and hops in the pipeline.
    *
    * @throws HopException in case the pipeline could not be prepared (initialized)
    */
@@ -793,61 +795,61 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       }
     }
 
-    // Keep track of all the row sets and allocated steps
+    // Keep track of all the row sets and allocated transforms
     //
-    steps = Collections.synchronizedList( new ArrayList<>() );
+    transforms = Collections.synchronizedList( new ArrayList<>() );
     rowsets = new ArrayList<>();
 
-    List<StepMeta> hopsteps = pipelineMeta.getPipelineHopSteps( false );
+    List<TransformMeta> hopTransforms = pipelineMeta.getPipelineHopTransforms( false );
 
     if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.FoundDefferentSteps", String.valueOf( hopsteps
+      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.FoundDefferentTransforms", String.valueOf( hopTransforms
         .size() ) ) );
       log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocatingRowsets" ) );
     }
     // First allocate all the rowsets required!
     // Note that a mapping doesn't receive ANY input or output rowsets...
     //
-    for ( int i = 0; i < hopsteps.size(); i++ ) {
-      StepMeta thisStep = hopsteps.get( i );
-      if ( thisStep.isMapping() ) {
-        continue; // handled and allocated by the mapping step itself.
+    for ( int i = 0; i < hopTransforms.size(); i++ ) {
+      TransformMeta thisTransform = hopTransforms.get( i );
+      if ( thisTransform.isMapping() ) {
+        continue; // handled and allocated by the mapping transform itself.
       }
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocateingRowsetsForStep", String.valueOf( i ),
-          thisStep.getName() ) );
+        log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocateingRowsetsForTransform", String.valueOf( i ),
+          thisTransform.getName() ) );
       }
 
-      List<StepMeta> nextSteps = pipelineMeta.findNextSteps( thisStep );
-      int nrTargets = nextSteps.size();
+      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( thisTransform );
+      int nrTargets = nextTransforms.size();
 
       for ( int n = 0; n < nrTargets; n++ ) {
-        // What's the next step?
-        StepMeta nextStep = nextSteps.get( n );
-        if ( nextStep.isMapping() ) {
-          continue; // handled and allocated by the mapping step itself.
+        // What's the next transform?
+        TransformMeta nextTransform = nextTransforms.get( n );
+        if ( nextTransform.isMapping() ) {
+          continue; // handled and allocated by the mapping transform itself.
         }
 
-        // How many times do we start the source step?
-        int thisCopies = thisStep.getCopies();
+        // How many times do we start the source transform?
+        int thisCopies = thisTransform.getCopies();
 
         if ( thisCopies < 0 ) {
           // This can only happen if a variable is used that didn't resolve to a positive integer value
           //
-          throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.StepCopiesNotCorrectlyDefined", thisStep
+          throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.TransformCopiesNotCorrectlyDefined", thisTransform
             .getName() ) );
         }
 
-        // How many times do we start the target step?
-        int nextCopies = nextStep.getCopies();
+        // How many times do we start the target transform?
+        int nextCopies = nextTransform.getCopies();
 
         // Are we re-partitioning?
         boolean repartitioning;
-        if ( thisStep.isPartitioned() ) {
-          repartitioning = !thisStep.getStepPartitioningMeta().equals( nextStep.getStepPartitioningMeta() );
+        if ( thisTransform.isPartitioned() ) {
+          repartitioning = !thisTransform.getTransformPartitioningMeta().equals( nextTransform.getTransformPartitioningMeta() );
         } else {
-          repartitioning = nextStep.isPartitioned();
+          repartitioning = nextTransform.isPartitioned();
         }
 
         int nrCopies;
@@ -872,7 +874,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
           // > 1!
           dispatchType = TYPE_DISP_N_M;
           nrCopies = nextCopies;
-        } // Allocate a rowset for each destination step
+        } // Allocate a rowset for each destination transform
 
         // Allocate the rowsets
         //
@@ -905,16 +907,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
             switch ( dispatchType ) {
               case TYPE_DISP_1_1:
-                rowSet.setThreadNameFromToCopy( thisStep.getName(), 0, nextStep.getName(), 0 );
+                rowSet.setThreadNameFromToCopy( thisTransform.getName(), 0, nextTransform.getName(), 0 );
                 break;
               case TYPE_DISP_1_N:
-                rowSet.setThreadNameFromToCopy( thisStep.getName(), 0, nextStep.getName(), c );
+                rowSet.setThreadNameFromToCopy( thisTransform.getName(), 0, nextTransform.getName(), c );
                 break;
               case TYPE_DISP_N_1:
-                rowSet.setThreadNameFromToCopy( thisStep.getName(), c, nextStep.getName(), 0 );
+                rowSet.setThreadNameFromToCopy( thisTransform.getName(), c, nextTransform.getName(), 0 );
                 break;
               case TYPE_DISP_N_N:
-                rowSet.setThreadNameFromToCopy( thisStep.getName(), c, nextStep.getName(), c );
+                rowSet.setThreadNameFromToCopy( thisTransform.getName(), c, nextTransform.getName(), c );
                 break;
               default:
                 break;
@@ -926,15 +928,15 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
             }
           }
         } else {
-          // For each N source steps we have M target steps
+          // For each N source transforms we have M target transforms
           //
-          // From each input step we go to all output steps.
+          // From each input transform we go to all output transforms.
           // This allows maximum flexibility for re-partitioning,
           // distribution...
           for ( int s = 0; s < thisCopies; s++ ) {
             for ( int t = 0; t < nextCopies; t++ ) {
               BlockingRowSet rowSet = new BlockingRowSet( rowSetSize );
-              rowSet.setThreadNameFromToCopy( thisStep.getName(), s, nextStep.getName(), t );
+              rowSet.setThreadNameFromToCopy( thisTransform.getName(), s, nextTransform.getName(), t );
               rowsets.add( rowSet );
               if ( log.isDetailed() ) {
                 log.logDetailed( BaseMessages.getString( PKG, "Pipeline.PipelineAllocatedNewRowset", rowSet
@@ -945,87 +947,87 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         }
       }
       log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocatedRowsets", String.valueOf( rowsets.size() ),
-        String.valueOf( i ), thisStep.getName() ) + " " );
+        String.valueOf( i ), thisTransform.getName() ) + " " );
     }
 
     if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocatingStepsAndStepData" ) );
+      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.AllocatingTransformsAndTransformData" ) );
     }
 
-    // Allocate the steps & the data...
+    // Allocate the transforms & the data...
     //
-    for ( int i = 0; i < hopsteps.size(); i++ ) {
-      StepMeta stepMeta = hopsteps.get( i );
-      String stepid = stepMeta.getStepID();
+    for ( int i = 0; i < hopTransforms.size(); i++ ) {
+      TransformMeta transformMeta = hopTransforms.get( i );
+      String transformid = transformMeta.getTransformPluginId();
 
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsToAllocateStep", stepMeta.getName(),
-          stepid ) );
+        log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsToAllocateTransform", transformMeta.getName(),
+          transformid ) );
       }
 
-      // How many copies are launched of this step?
-      int nrCopies = stepMeta.getCopies();
+      // How many copies are launched of this transform?
+      int nrCopies = transformMeta.getCopies();
 
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.StepHasNumberRowCopies", String.valueOf( nrCopies ) ) );
+        log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.TransformHasNumberRowCopies", String.valueOf( nrCopies ) ) );
       }
 
       // At least run once...
       for ( int c = 0; c < nrCopies; c++ ) {
         // Make sure we haven't started it yet!
-        if ( !hasStepStarted( stepMeta.getName(), c ) ) {
-          StepMetaDataCombi combi = new StepMetaDataCombi();
+        if ( !hasTransformStarted( transformMeta.getName(), c ) ) {
+          TransformMetaDataCombi combi = new TransformMetaDataCombi();
 
-          combi.stepname = stepMeta.getName();
+          combi.transformName = transformMeta.getName();
           combi.copy = c;
 
           // The meta-data
-          combi.stepMeta = stepMeta;
-          combi.meta = stepMeta.getStepMetaInterface();
+          combi.transformMeta = transformMeta;
+          combi.meta = transformMeta.getTransformMetaInterface();
 
-          // Allocate the step data
-          StepDataInterface data = combi.meta.getStepData();
+          // Allocate the transform data
+          TransformDataInterface data = combi.meta.getTransformData();
           combi.data = data;
 
-          // Allocate the step
-          StepInterface step = combi.meta.getStep( stepMeta, data, c, pipelineMeta, this );
+          // Allocate the transform
+          TransformInterface transform = combi.meta.createTransform( transformMeta, data, c, pipelineMeta, this );
 
-          // Copy the variables of the pipeline to the step...
-          // don't share. Each copy of the step has its own variables.
+          // Copy the variables of the pipeline to the transform...
+          // don't share. Each copy of the transform has its own variables.
           //
-          step.initializeVariablesFrom( this );
-          step.setUsingThreadPriorityManagment( pipelineMeta.isUsingThreadPriorityManagment() );
+          transform.initializeVariablesFrom( this );
+          transform.setUsingThreadPriorityManagment( pipelineMeta.isUsingThreadPriorityManagment() );
 
-          // Pass the metaStore to the steps runtime
+          // Pass the metaStore to the transforms runtime
           //
-          step.setMetaStore( metaStore );
+          transform.setMetaStore( metaStore );
 
-          // If the step is partitioned, set the partitioning ID and some other
+          // If the transform is partitioned, set the partitioning ID and some other
           // things as well...
-          if ( stepMeta.isPartitioned() ) {
-            List<String> partitionIDs = stepMeta.getStepPartitioningMeta().getPartitionSchema().calculatePartitionIDs();
+          if ( transformMeta.isPartitioned() ) {
+            List<String> partitionIDs = transformMeta.getTransformPartitioningMeta().getPartitionSchema().calculatePartitionIds();
             if ( partitionIDs != null && partitionIDs.size() > 0 ) {
-              step.setPartitionID( partitionIDs.get( c ) ); // Pass the partition ID
-              // to the step
+              transform.setPartitionId( partitionIDs.get( c ) ); // Pass the partition ID
+              // to the transform
             }
           }
 
-          // Save the step too
-          combi.step = step;
+          // Save the transform too
+          combi.transform = transform;
 
-          // Pass logging level and metrics gathering down to the step level.
+          // Pass logging level and metrics gathering down to the transform level.
           // /
-          if ( combi.step instanceof LoggingObjectInterface ) {
-            LogChannelInterface logChannel = combi.step.getLogChannel();
+          if ( combi.transform instanceof LoggingObjectInterface ) {
+            LogChannelInterface logChannel = combi.transform.getLogChannel();
             logChannel.setLogLevel( logLevel );
             logChannel.setGatheringMetrics( log.isGatheringMetrics() );
           }
 
           // Add to the bunch...
-          steps.add( combi );
+          transforms.add( combi );
 
           if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineHasAllocatedANewStep", stepMeta
+            log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineHasAllocatedANewTransform", transformMeta
               .getName(), String.valueOf( c ) ) );
           }
         }
@@ -1034,17 +1036,17 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     // Now we need to verify if certain rowsets are not meant to be for error
     // handling...
-    // Loop over the steps and for every step verify the output rowsets
-    // If a rowset is going to a target step in the steps error handling
+    // Loop over the transforms and for every transform verify the output rowsets
+    // If a rowset is going to a target transform in the transforms error handling
     // metadata, set it to the errorRowSet.
-    // The input rowsets are already in place, so the next step just accepts the
+    // The input rowsets are already in place, so the next transform just accepts the
     // rows.
     // Metadata wise we need to do the same trick in PipelineMeta
     //
-    for ( int s = 0; s < steps.size(); s++ ) {
-      StepMetaDataCombi combi = steps.get( s );
-      if ( combi.stepMeta.isDoingErrorHandling() ) {
-        combi.step.identifyErrorOutput();
+    for ( int s = 0; s < transforms.size(); s++ ) {
+      TransformMetaDataCombi combi = transforms.get( s );
+      if ( combi.transformMeta.isDoingErrorHandling() ) {
+        combi.transform.identifyErrorOutput();
 
       }
     }
@@ -1066,97 +1068,97 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     // Set the partition-to-rowset mapping
     //
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
 
-      StepMeta stepMeta = sid.stepMeta;
-      StepInterface baseStep = sid.step;
+      TransformMeta transformMeta = sid.transformMeta;
+      TransformInterface baseTransform = sid.transform;
 
-      baseStep.setPartitioned( stepMeta.isPartitioned() );
+      baseTransform.setPartitioned( transformMeta.isPartitioned() );
 
       // Now let's take a look at the source and target relation
       //
-      // If this source step is not partitioned, and the target step is: it
+      // If this source transform is not partitioned, and the target transform is: it
       // means we need to re-partition the incoming data.
-      // If both steps are partitioned on the same method and schema, we don't
+      // If both transforms are partitioned on the same method and schema, we don't
       // need to re-partition
-      // If both steps are partitioned on a different method or schema, we need
+      // If both transforms are partitioned on a different method or schema, we need
       // to re-partition as well.
-      // If both steps are not partitioned, we don't need to re-partition
+      // If both transforms are not partitioned, we don't need to re-partition
       //
-      boolean isThisPartitioned = stepMeta.isPartitioned();
+      boolean isThisPartitioned = transformMeta.isPartitioned();
       PartitionSchema thisPartitionSchema = null;
       if ( isThisPartitioned ) {
-        thisPartitionSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
+        thisPartitionSchema = transformMeta.getTransformPartitioningMeta().getPartitionSchema();
       }
 
       boolean isNextPartitioned = false;
-      StepPartitioningMeta nextStepPartitioningMeta = null;
+      TransformPartitioningMeta nextTransformPartitioningMeta = null;
       PartitionSchema nextPartitionSchema = null;
 
-      List<StepMeta> nextSteps = pipelineMeta.findNextSteps( stepMeta );
-      int nrNext = nextSteps.size();
+      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transformMeta );
+      int nrNext = nextTransforms.size();
       for ( int p = 0; p < nrNext; p++ ) {
-        StepMeta nextStep = nextSteps.get( p );
-        if ( nextStep.isPartitioned() ) {
+        TransformMeta nextTransform = nextTransforms.get( p );
+        if ( nextTransform.isPartitioned() ) {
           isNextPartitioned = true;
-          nextStepPartitioningMeta = nextStep.getStepPartitioningMeta();
-          nextPartitionSchema = nextStepPartitioningMeta.getPartitionSchema();
+          nextTransformPartitioningMeta = nextTransform.getTransformPartitioningMeta();
+          nextPartitionSchema = nextTransformPartitioningMeta.getPartitionSchema();
         }
       }
 
-      baseStep.setRepartitioning( StepPartitioningMeta.PARTITIONING_METHOD_NONE );
+      baseTransform.setRepartitioning( TransformPartitioningMeta.PARTITIONING_METHOD_NONE );
 
-      // If the next step is partitioned differently, set re-partitioning, when
+      // If the next transform is partitioned differently, set re-partitioning, when
       // running locally.
       //
       if ( ( !isThisPartitioned && isNextPartitioned ) || ( isThisPartitioned && isNextPartitioned
         && !thisPartitionSchema.equals( nextPartitionSchema ) ) ) {
-        baseStep.setRepartitioning( nextStepPartitioningMeta.getMethodType() );
+        baseTransform.setRepartitioning( nextTransformPartitioningMeta.getMethodType() );
       }
 
-      // For partitioning to a set of remove steps (repartitioning from a master
-      // to a set or remote output steps)
+      // For partitioning to a set of remove transforms (repartitioning from a master
+      // to a set or remote output transforms)
       //
-      StepPartitioningMeta targetStepPartitioningMeta = baseStep.getStepMeta().getTargetStepPartitioningMeta();
-      if ( targetStepPartitioningMeta != null ) {
-        baseStep.setRepartitioning( targetStepPartitioningMeta.getMethodType() );
+      TransformPartitioningMeta targetTransformPartitioningMeta = baseTransform.getTransformMeta().getTargetTransformPartitioningMeta();
+      if ( targetTransformPartitioningMeta != null ) {
+        baseTransform.setRepartitioning( targetTransformPartitioningMeta.getMethodType() );
       }
     }
 
     setPreparing( false );
     setInitializing( true );
 
-    // Do a topology sort... Over 150 step (copies) things might be slowing down too much.
+    // Do a topology sort... Over 150 transform (copies) things might be slowing down too much.
     //
-    if ( isSortingStepsTopologically() && steps.size() < 150 ) {
-      doTopologySortOfSteps();
+    if ( isSortingTransformsTopologically() && transforms.size() < 150 ) {
+      doTopologySortOfTransforms();
     }
 
     if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.InitialisingSteps", String.valueOf( steps.size() ) ) );
+      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.InitialisingTransforms", String.valueOf( transforms.size() ) ) );
     }
 
-    StepInitThread[] initThreads = new StepInitThread[ steps.size() ];
-    Thread[] threads = new Thread[ steps.size() ];
+    TransformInitThread[] initThreads = new TransformInitThread[ transforms.size() ];
+    Thread[] threads = new Thread[ transforms.size() ];
 
     // Initialize all the threads...
     //
-    for ( int i = 0; i < steps.size(); i++ ) {
-      final StepMetaDataCombi sid = steps.get( i );
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      final TransformMetaDataCombi sid = transforms.get( i );
 
       // Do the init code in the background!
-      // Init all steps at once, but ALL steps need to finish before we can
+      // Init all transforms at once, but ALL transforms need to finish before we can
       // continue properly!
       //
-      initThreads[ i ] = new StepInitThread( sid, log );
+      initThreads[ i ] = new TransformInitThread( sid, log );
 
       // Put it in a separate thread!
       //
       threads[ i ] = new Thread( initThreads[ i ] );
-      threads[ i ].setName( "init of " + sid.stepname + "." + sid.copy + " (" + threads[ i ].getName() + ")" );
+      threads[ i ].setName( "init of " + sid.transformName + "." + sid.copy + " (" + threads[ i ].getName() + ")" );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.StepBeforeInitialize.id, initThreads[ i ] );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformBeforeInitialize.id, initThreads[ i ] );
 
       threads[ i ].start();
     }
@@ -1164,7 +1166,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     for ( int i = 0; i < threads.length; i++ ) {
       try {
         threads[ i ].join();
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.StepAfterInitialize.id, initThreads[ i ] );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformAfterInitialize.id, initThreads[ i ] );
       } catch ( Exception ex ) {
         log.logError( "Error with init thread: " + ex.getMessage(), ex.getMessage() );
         log.logError( Const.getStackTracker( ex ) );
@@ -1174,19 +1176,19 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     setInitializing( false );
     boolean ok = true;
 
-    // All step are initialized now: see if there was one that didn't do it
+    // All transform are initialized now: see if there was one that didn't do it
     // correctly!
     //
     for ( int i = 0; i < initThreads.length; i++ ) {
-      StepMetaDataCombi combi = initThreads[ i ].getCombi();
+      TransformMetaDataCombi combi = initThreads[ i ].getCombi();
       if ( !initThreads[ i ].isOk() ) {
-        log.logError( BaseMessages.getString( PKG, "Pipeline.Log.StepFailedToInit", combi.stepname + "." + combi.copy ) );
-        combi.data.setStatus( StepExecutionStatus.STATUS_STOPPED );
+        log.logError( BaseMessages.getString( PKG, "Pipeline.Log.TransformFailedToInit", combi.transformName + "." + combi.copy ) );
+        combi.data.setStatus( TransformExecutionStatus.STATUS_STOPPED );
         ok = false;
       } else {
-        combi.data.setStatus( StepExecutionStatus.STATUS_IDLE );
+        combi.data.setStatus( TransformExecutionStatus.STATUS_IDLE );
         if ( log.isDetailed() ) {
-          log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.StepInitialized", combi.stepname + "."
+          log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.TransformInitialized", combi.transformName + "."
             + combi.copy ) );
         }
       }
@@ -1199,16 +1201,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       // init();
       //
       for ( int i = 0; i < initThreads.length; i++ ) {
-        StepMetaDataCombi combi = initThreads[ i ].getCombi();
+        TransformMetaDataCombi combi = initThreads[ i ].getCombi();
 
         // Dispose will overwrite the status, but we set it back right after
         // this.
-        combi.step.dispose( combi.meta, combi.data );
+        combi.transform.dispose( combi.meta, combi.data );
 
         if ( initThreads[ i ].isOk() ) {
-          combi.data.setStatus( StepExecutionStatus.STATUS_HALTED );
+          combi.data.setStatus( BaseTransformData.TransformExecutionStatus.STATUS_HALTED );
         } else {
-          combi.data.setStatus( StepExecutionStatus.STATUS_STOPPED );
+          combi.data.setStatus( TransformExecutionStatus.STATUS_STOPPED );
         }
       }
 
@@ -1229,10 +1231,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       //
       if ( preview ) {
         String logText = HopLogStore.getAppender().getBuffer( getLogChannelId(), true ).toString();
-        throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.FailToInitializeAtLeastOneStep" ) + Const.CR
+        throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.FailToInitializeAtLeastOneTransform" ) + Const.CR
           + logText );
       } else {
-        throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.FailToInitializeAtLeastOneStep" )
+        throw new HopException( BaseMessages.getString( PKG, "Pipeline.Log.FailToInitializeAtLeastOneTransform" )
           + Const.CR );
       }
     }
@@ -1250,25 +1252,25 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   public void startThreads() throws HopException {
     // Now prepare to start all the threads...
     //
-    nrOfFinishedSteps = 0;
-    nrOfActiveSteps = 0;
+    nrOfFinishedTransforms = 0;
+    nrOfActiveTransforms = 0;
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStartThreads.id, this );
 
     firePipelineStartedListeners();
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      final StepMetaDataCombi sid = steps.get( i );
-      sid.step.markStart();
-      sid.step.initBeforeStart();
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      final TransformMetaDataCombi sid = transforms.get( i );
+      sid.transform.markStart();
+      sid.transform.initBeforeStart();
 
-      // also attach a Step Listener to detect when we're done...
+      // also attach a Transform Listener to detect when we're done...
       //
-      StepListener stepListener = new StepListener() {
+      TransformListener transformListener = new TransformListener() {
         @Override
-        public void stepActive( Pipeline pipeline, StepMeta stepMeta, StepInterface step ) {
-          nrOfActiveSteps++;
-          if ( nrOfActiveSteps == 1 ) {
+        public void transformActive( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+          nrOfActiveTransforms++;
+          if ( nrOfActiveTransforms == 1 ) {
             // Pipeline goes from in-active to active...
             // PDI-5229 sync added
             synchronized ( executionListeners ) {
@@ -1280,35 +1282,35 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         }
 
         @Override
-        public void stepFinished( Pipeline pipeline, StepMeta stepMeta, StepInterface step ) {
+        public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
           synchronized ( Pipeline.this ) {
-            nrOfFinishedSteps++;
+            nrOfFinishedTransforms++;
 
-            if ( nrOfFinishedSteps >= steps.size() ) {
+            if ( nrOfFinishedTransforms >= transforms.size() ) {
               // Set the finished flag
               //
               setFinished( true );
 
               // Grab the performance statistics one last time (if enabled)
               //
-              addStepPerformanceSnapShot();
+              addTransformPerformanceSnapShot();
 
               try {
                 firePipelineFinishedListeners();
               } catch ( Exception e ) {
-                step.setErrors( step.getErrors() + 1L );
+                transform.setErrors( transform.getErrors() + 1L );
                 log.logError( getName() + " : " + BaseMessages.getString( PKG,
                   "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
               }
             }
 
-            // If a step fails with an error, we want to kill/stop the others
+            // If a transform fails with an error, we want to kill/stop the others
             // too...
             //
-            if ( step.getErrors() > 0 ) {
+            if ( transform.getErrors() > 0 ) {
 
               log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineDetectedErrors" ) );
-              log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsKillingTheOtherSteps" ) );
+              log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsKillingTheOtherTransforms" ) );
 
               killAllNoWait();
             }
@@ -1317,37 +1319,37 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       };
       // Make sure this is called first!
       //
-      if ( sid.step instanceof BaseStep ) {
-        ( (BaseStep) sid.step ).getStepListeners().add( 0, stepListener );
+      if ( sid.transform instanceof BaseTransform ) {
+        ( (BaseTransform) sid.transform ).getTransformListeners().add( 0, transformListener );
       } else {
-        sid.step.addStepListener( stepListener );
+        sid.transform.addTransformListener( transformListener );
       }
     }
 
-    if ( pipelineMeta.isCapturingStepPerformanceSnapShots() ) {
-      stepPerformanceSnapshotSeqNr = new AtomicInteger( 0 );
-      stepPerformanceSnapShots = new ConcurrentHashMap<>();
+    if ( pipelineMeta.isCapturingTransformPerformanceSnapShots() ) {
+      transformPerformanceSnapshotSeqNr = new AtomicInteger( 0 );
+      transformPerformanceSnapShots = new ConcurrentHashMap<>();
 
       // Calculate the maximum number of snapshots to be kept in memory
       //
-      String limitString = environmentSubstitute( pipelineMeta.getStepPerformanceCapturingSizeLimit() );
+      String limitString = environmentSubstitute( pipelineMeta.getTransformPerformanceCapturingSizeLimit() );
       if ( Utils.isEmpty( limitString ) ) {
-        limitString = EnvUtil.getSystemProperty( Const.HOP_STEP_PERFORMANCE_SNAPSHOT_LIMIT );
+        limitString = EnvUtil.getSystemProperty( Const.HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT );
       }
-      stepPerformanceSnapshotSizeLimit = Const.toInt( limitString, 0 );
+      transformPerformanceSnapshotSizeLimit = Const.toInt( limitString, 0 );
 
       // Set a timer to collect the performance data from the running threads...
       //
-      stepPerformanceSnapShotTimer = new Timer( "stepPerformanceSnapShot Timer: " + pipelineMeta.getName() );
+      transformPerformanceSnapShotTimer = new Timer( "transformPerformanceSnapShot Timer: " + pipelineMeta.getName() );
       TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
           if ( !isFinished() ) {
-            addStepPerformanceSnapShot();
+            addTransformPerformanceSnapShot();
           }
         }
       };
-      stepPerformanceSnapShotTimer.schedule( timerTask, 100, pipelineMeta.getStepPerformanceCapturingDelay() );
+      transformPerformanceSnapShotTimer.schedule( timerTask, 100, pipelineMeta.getTransformPerformanceCapturingDelay() );
     }
 
     // Now start a thread to monitor the running pipeline...
@@ -1371,8 +1373,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         // First of all, stop the performance snapshot timer if there is is
         // one...
         //
-        if ( pipelineMeta.isCapturingStepPerformanceSnapShots() && stepPerformanceSnapShotTimer != null ) {
-          stepPerformanceSnapShotTimer.cancel();
+        if ( pipelineMeta.isCapturingTransformPerformanceSnapShots() && transformPerformanceSnapShotTimer != null ) {
+          transformPerformanceSnapShotTimer.cancel();
         }
 
         setFinished( true );
@@ -1416,22 +1418,22 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
         // Now start all the threads...
         //
-        for ( int i = 0; i < steps.size(); i++ ) {
-          final StepMetaDataCombi combi = steps.get( i );
+        for ( int i = 0; i < transforms.size(); i++ ) {
+          final TransformMetaDataCombi combi = transforms.get( i );
           RunThread runThread = new RunThread( combi );
           Thread thread = new Thread( runThread );
-          thread.setName( getName() + " - " + combi.stepname );
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.StepBeforeStart.id, combi );
-          // Call an extension point at the end of the step
+          thread.setName( getName() + " - " + combi.transformName );
+          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformBeforeStart.id, combi );
+          // Call an extension point at the end of the transform
           //
-          combi.step.addStepListener( new StepAdapter() {
+          combi.transform.addTransformListener( new TransformAdapter() {
 
             @Override
-            public void stepFinished( Pipeline pipeline, StepMeta stepMeta, StepInterface step ) {
+            public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
               try {
-                ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.StepFinished.id, combi );
+                ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformFinished.id, combi );
               } catch ( HopException e ) {
-                throw new RuntimeException( "Unexpected error in calling extension point upon step finish", e );
+                throw new RuntimeException( "Unexpected error in calling extension point upon transform finish", e );
               }
             }
 
@@ -1453,12 +1455,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStart.id, this );
 
-    if ( steps.isEmpty() ) {
+    if ( transforms.isEmpty() ) {
       firePipelineFinishedListeners();
     }
 
     if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineHasAllocated", String.valueOf( steps
+      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineHasAllocated", String.valueOf( transforms
         .size() ), String.valueOf( rowsets.size() ) ) );
     }
   }
@@ -1509,52 +1511,52 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Adds a step performance snapshot.
+   * Adds a transform performance snapshot.
    */
-  protected void addStepPerformanceSnapShot() {
+  protected void addTransformPerformanceSnapShot() {
 
-    if ( stepPerformanceSnapShots == null ) {
+    if ( transformPerformanceSnapShots == null ) {
       return; // Race condition somewhere?
     }
 
-    boolean pausedAndNotEmpty = isPaused() && !stepPerformanceSnapShots.isEmpty();
-    boolean stoppedAndNotEmpty = isStopped() && !stepPerformanceSnapShots.isEmpty();
+    boolean pausedAndNotEmpty = isPaused() && !transformPerformanceSnapShots.isEmpty();
+    boolean stoppedAndNotEmpty = isStopped() && !transformPerformanceSnapShots.isEmpty();
 
-    if ( pipelineMeta.isCapturingStepPerformanceSnapShots() && !pausedAndNotEmpty && !stoppedAndNotEmpty ) {
-      // get the statistics from the steps and keep them...
+    if ( pipelineMeta.isCapturingTransformPerformanceSnapShots() && !pausedAndNotEmpty && !stoppedAndNotEmpty ) {
+      // get the statistics from the transforms and keep them...
       //
-      int seqNr = stepPerformanceSnapshotSeqNr.incrementAndGet();
-      for ( int i = 0; i < steps.size(); i++ ) {
-        StepMeta stepMeta = steps.get( i ).stepMeta;
-        StepInterface step = steps.get( i ).step;
+      int seqNr = transformPerformanceSnapshotSeqNr.incrementAndGet();
+      for ( int i = 0; i < transforms.size(); i++ ) {
+        TransformMeta transformMeta = transforms.get( i ).transformMeta;
+        TransformInterface transform = transforms.get( i ).transform;
 
         PerformanceSnapShot snapShot =
-          new PerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), stepMeta.getName(), step.getCopy(),
-            step.getLinesRead(), step.getLinesWritten(), step.getLinesInput(), step.getLinesOutput(), step
-            .getLinesUpdated(), step.getLinesRejected(), step.getErrors() );
+          new PerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), transformMeta.getName(), transform.getCopy(),
+            transform.getLinesRead(), transform.getLinesWritten(), transform.getLinesInput(), transform.getLinesOutput(), transform
+            .getLinesUpdated(), transform.getLinesRejected(), transform.getErrors() );
 
-        synchronized ( stepPerformanceSnapShots ) {
-          List<PerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( step.toString() );
+        synchronized ( transformPerformanceSnapShots ) {
+          List<PerformanceSnapShot> snapShotList = transformPerformanceSnapShots.get( transform.toString() );
           PerformanceSnapShot previous;
           if ( snapShotList == null ) {
             snapShotList = new ArrayList<>();
-            stepPerformanceSnapShots.put( step.toString(), snapShotList );
+            transformPerformanceSnapShots.put( transform.toString(), snapShotList );
             previous = null;
           } else {
             previous = snapShotList.get( snapShotList.size() - 1 ); // the last one...
           }
           // Make the difference...
           //
-          snapShot.diff( previous, step.rowsetInputSize(), step.rowsetOutputSize() );
+          snapShot.diff( previous, transform.rowsetInputSize(), transform.rowsetOutputSize() );
           snapShotList.add( snapShot );
 
-          if ( stepPerformanceSnapshotSizeLimit > 0 && snapShotList.size() > stepPerformanceSnapshotSizeLimit ) {
+          if ( transformPerformanceSnapshotSizeLimit > 0 && snapShotList.size() > transformPerformanceSnapshotSizeLimit ) {
             snapShotList.remove( 0 );
           }
         }
       }
 
-      lastStepPerformanceSnapshotSeqNrAdded = stepPerformanceSnapshotSeqNr.get();
+      lastTransformPerformanceSnapshotSeqNrAdded = transformPerformanceSnapshotSeqNr.get();
     }
   }
 
@@ -1565,12 +1567,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     // Close all open server sockets.
     // We can only close these after all processing has been confirmed to be finished.
     //
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return;
     }
 
-    for ( StepMetaDataCombi combi : steps ) {
-      combi.step.cleanup();
+    for ( TransformMetaDataCombi combi : transforms ) {
+      combi.transform.cleanup();
     }
   }
 
@@ -1604,14 +1606,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   public int getErrors() {
     int nrErrors = errors.get();
 
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return nrErrors;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      if ( sid.step.getErrors() != 0L ) {
-        nrErrors += sid.step.getErrors();
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      if ( sid.transform.getErrors() != 0L ) {
+        nrErrors += sid.transform.getErrors();
       }
     }
     if ( nrErrors > 0 ) {
@@ -1641,22 +1643,22 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Asks all steps to stop but doesn't wait around for it to happen. This is a special method for use with mappings.
+   * Asks all transforms to stop but doesn't wait around for it to happen. This is a special method for use with mappings.
    */
   private void killAllNoWait() {
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface step = sid.step;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transform = sid.transform;
 
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.LookingAtStep" ) + step.getStepname() );
+        log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.LookingAtTransform" ) + transform.getTransformName() );
       }
 
-      step.stopAll();
+      transform.stopAll();
       try {
         Thread.sleep( 20 );
       } catch ( Exception e ) {
@@ -1667,20 +1669,20 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Finds the RowSet between two steps (or copies of steps).
+   * Finds the RowSet between two transforms (or copies of transforms).
    *
-   * @param from     the name of the "from" step
-   * @param fromcopy the copy number of the "from" step
-   * @param to       the name of the "to" step
-   * @param tocopy   the copy number of the "to" step
+   * @param from     the name of the "from" transform
+   * @param fromcopy the copy number of the "from" transform
+   * @param to       the name of the "to" transform
+   * @param tocopy   the copy number of the "to" transform
    * @return the row set, or null if none found
    */
   public RowSet findRowSet( String from, int fromcopy, String to, int tocopy ) {
     // Start with the pipeline.
     for ( int i = 0; i < rowsets.size(); i++ ) {
       RowSet rs = rowsets.get( i );
-      if ( rs.getOriginStepName().equalsIgnoreCase( from ) && rs.getDestinationStepName().equalsIgnoreCase( to ) && rs
-        .getOriginStepCopy() == fromcopy && rs.getDestinationStepCopy() == tocopy ) {
+      if ( rs.getOriginTransformName().equalsIgnoreCase( from ) && rs.getDestinationTransformName().equalsIgnoreCase( to ) && rs
+        .getOriginTransformCopy() == fromcopy && rs.getDestinationTransformCopy() == tocopy ) {
         return rs;
       }
     }
@@ -1689,18 +1691,18 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Checks whether the specified step (or step copy) has started.
+   * Checks whether the specified transform (or transform copy) has started.
    *
-   * @param sname the step name
+   * @param sname the transform name
    * @param copy  the copy number
-   * @return true the specified step (or step copy) has started, false otherwise
+   * @return true the specified transform (or transform copy) has started, false otherwise
    */
-  public boolean hasStepStarted( String sname, int copy ) {
+  public boolean hasTransformStarted( String sname, int copy ) {
     // log.logDetailed("DIS: Checking wether of not ["+sname+"]."+cnr+" has started!");
-    // log.logDetailed("DIS: hasStepStarted() looking in "+threads.size()+" threads");
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      boolean started = ( sid.stepname != null && sid.stepname.equalsIgnoreCase( sname ) ) && sid.copy == copy;
+    // log.logDetailed("DIS: hasTransformStarted() looking in "+threads.size()+" threads");
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      boolean started = ( sid.transformName != null && sid.transformName.equalsIgnoreCase( sname ) ) && sid.copy == copy;
       if ( started ) {
         return true;
       }
@@ -1709,32 +1711,32 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Stops only input steps so that all downstream steps can finish processing rows that have already been input
+   * Stops only input transforms so that all downstream transforms can finish processing rows that have already been input
    */
   public void safeStop() {
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return;
     }
-    steps.stream()
-      .filter( this::isInputStep )
-      .forEach( combi -> stopStep( combi, true ) );
+    transforms.stream()
+      .filter( this::isInputTransform )
+      .forEach( combi -> stopTransform( combi, true ) );
 
     notifyStoppedListeners();
   }
 
-  private boolean isInputStep( StepMetaDataCombi combi ) {
+  private boolean isInputTransform( TransformMetaDataCombi combi ) {
     checkNotNull( combi );
-    return pipelineMeta.findPreviousSteps( combi.stepMeta, true ).size() == 0;
+    return pipelineMeta.findPreviousTransforms( combi.transformMeta, true ).size() == 0;
   }
 
   /**
-   * Stops all steps from running, and alerts any registered listeners.
+   * Stops all transforms from running, and alerts any registered listeners.
    */
   public void stopAll() {
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return;
     }
-    steps.forEach( combi -> stopStep( combi, false ) );
+    transforms.forEach( combi -> stopTransform( combi, false ) );
 
     // if it is stopped it is not paused
     setPaused( false );
@@ -1743,8 +1745,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     notifyStoppedListeners();
   }
 
-  public void stopStep( StepMetaDataCombi combi, boolean safeStop ) {
-    StepInterface rt = combi.step;
+  public void stopTransform( TransformMetaDataCombi combi, boolean safeStop ) {
+    TransformInterface rt = combi.transform;
     rt.setStopped( true );
     rt.setSafeStopped( safeStop );
     rt.resumeRunning();
@@ -1754,7 +1756,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     } catch ( Exception e ) {
       log.logError( "Something went wrong while trying to safe stop the pipeline: ", e );
     }
-    combi.data.setStatus( StepExecutionStatus.STATUS_STOPPED );
+    combi.data.setStatus( BaseTransformData.TransformExecutionStatus.STATUS_STOPPED );
     if ( safeStop ) {
       rt.setOutputDone();
     }
@@ -1771,35 +1773,35 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets the number of steps in this pipeline.
+   * Gets the number of transforms in this pipeline.
    *
-   * @return the number of steps
+   * @return the number of transforms
    */
-  public int nrSteps() {
-    if ( steps == null ) {
+  public int nrTransforms() {
+    if ( transforms == null ) {
       return 0;
     }
-    return steps.size();
+    return transforms.size();
   }
 
   /**
-   * Gets the number of active (i.e. not finished) steps in this pipeline
+   * Gets the number of active (i.e. not finished) transforms in this pipeline
    *
-   * @return the number of active steps
+   * @return the number of active transforms
    */
-  public int nrActiveSteps() {
-    if ( steps == null ) {
+  public int nrActiveTransforms() {
+    if ( transforms == null ) {
       return 0;
     }
 
     int nr = 0;
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      // without also considering a step status of not finished,
-      // the step execution results grid shows empty while
-      // the pipeline has steps still running.
-      // if ( sid.step.isRunning() ) nr++;
-      if ( sid.step.isRunning() || sid.step.getStatus() != StepExecutionStatus.STATUS_FINISHED ) {
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      // without also considering a transform status of not finished,
+      // the transform execution results grid shows empty while
+      // the pipeline has transforms still running.
+      // if ( sid.transform.isRunning() ) nr++;
+      if ( sid.transform.isRunning() || sid.transform.getStatus() != BaseTransformData.TransformExecutionStatus.STATUS_FINISHED ) {
         nr++;
       }
     }
@@ -1807,74 +1809,74 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Checks whether the pipeline steps are running lookup.
+   * Checks whether the pipeline transforms are running lookup.
    *
-   * @return a boolean array associated with the step list, indicating whether that step is running a lookup.
+   * @return a boolean array associated with the transform list, indicating whether that transform is running a lookup.
    */
-  public boolean[] getPipelineStepIsRunningLookup() {
-    if ( steps == null ) {
+  public boolean[] getPipelineTransformIsRunningLookup() {
+    if ( transforms == null ) {
       return null;
     }
 
-    boolean[] tResult = new boolean[ steps.size() ];
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      tResult[ i ] = ( sid.step.isRunning() || sid.step.getStatus() != StepExecutionStatus.STATUS_FINISHED );
+    boolean[] tResult = new boolean[ transforms.size() ];
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      tResult[ i ] = ( sid.transform.isRunning() || sid.transform.getStatus() != TransformExecutionStatus.STATUS_FINISHED );
     }
     return tResult;
   }
 
   /**
-   * Checks the execution status of each step in the pipelines.
+   * Checks the execution status of each transform in the pipelines.
    *
-   * @return an array associated with the step list, indicating the status of that step.
+   * @return an array associated with the transform list, indicating the status of that transform.
    */
-  public StepExecutionStatus[] getPipelineStepExecutionStatusLookup() {
-    if ( steps == null ) {
+  public TransformExecutionStatus[] getPipelineTransformExecutionStatusLookup() {
+    if ( transforms == null ) {
       return null;
     }
 
     // we need this snapshot for the PipelineGridDelegate refresh method to handle the
-    // difference between a timed refresh and continual step status updates
-    int totalSteps = steps.size();
-    StepExecutionStatus[] tList = new StepExecutionStatus[ totalSteps ];
-    for ( int i = 0; i < totalSteps; i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      tList[ i ] = sid.step.getStatus();
+    // difference between a timed refresh and continual transform status updates
+    int totalTransforms = transforms.size();
+    TransformExecutionStatus[] tList = new TransformExecutionStatus[ totalTransforms ];
+    for ( int i = 0; i < totalTransforms; i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      tList[ i ] = sid.transform.getStatus();
     }
     return tList;
   }
 
   /**
-   * Gets the run thread for the step at the specified index.
+   * Gets the run thread for the transform at the specified index.
    *
-   * @param i the index of the desired step
-   * @return a StepInterface object corresponding to the run thread for the specified step
+   * @param i the index of the desired transform
+   * @return a TransformInterface object corresponding to the run thread for the specified transform
    */
-  public StepInterface getRunThread( int i ) {
-    if ( steps == null ) {
+  public TransformInterface getRunThread( int i ) {
+    if ( transforms == null ) {
       return null;
     }
-    return steps.get( i ).step;
+    return transforms.get( i ).transform;
   }
 
   /**
-   * Gets the run thread for the step with the specified name and copy number.
+   * Gets the run thread for the transform with the specified name and copy number.
    *
-   * @param name the step name
+   * @param name the transform name
    * @param copy the copy number
-   * @return a StepInterface object corresponding to the run thread for the specified step
+   * @return a TransformInterface object corresponding to the run thread for the specified transform
    */
-  public StepInterface getRunThread( String name, int copy ) {
-    if ( steps == null ) {
+  public TransformInterface getRunThread( String name, int copy ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface step = sid.step;
-      if ( step.getStepname().equalsIgnoreCase( name ) && step.getCopy() == copy ) {
-        return step;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transform = sid.transform;
+      if ( transform.getTransformName().equalsIgnoreCase( name ) && transform.getCopy() == copy ) {
+        return transform;
       }
     }
 
@@ -2159,8 +2161,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
               try {
                 endProcessing();
 
-                lastWrittenStepPerformanceSequenceNr =
-                  writeStepPerformanceLogRecords( lastWrittenStepPerformanceSequenceNr, LogStatus.END );
+                lastWrittenTransformPerformanceSequenceNr =
+                  writeTransformPerformanceLogRecords( lastWrittenTransformPerformanceSequenceNr, LogStatus.END );
 
               } catch ( HopException e ) {
                 throw new HopException( BaseMessages.getString( PKG,
@@ -2171,15 +2173,15 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
         }
 
-        // If we need to write out the step logging information, do so at the end of the pipeline too...
+        // If we need to write out the transform logging information, do so at the end of the pipeline too...
         //
-        StepLogTable stepLogTable = pipelineMeta.getStepLogTable();
-        if ( stepLogTable.isDefined() ) {
+        TransformLogTable transformLogTable = pipelineMeta.getTransformLogTable();
+        if ( transformLogTable.isDefined() ) {
           addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
               try {
-                writeStepLogInformation();
+                writeTransformLogInformation();
               } catch ( HopException e ) {
                 throw new HopException( BaseMessages.getString( PKG,
                   "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
@@ -2205,18 +2207,18 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
           } );
         }
 
-        // See if we need to write the step performance records at intervals too...
+        // See if we need to write the transform performance records at intervals too...
         //
         PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();
         int perfLogInterval = Const.toInt( environmentSubstitute( performanceLogTable.getLogInterval() ), -1 );
         if ( performanceLogTable.isDefined() && perfLogInterval > 0 ) {
-          final Timer timer = new Timer( getName() + " - step performance log interval timer" );
+          final Timer timer = new Timer( getName() + " - transform performance log interval timer" );
           TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
               try {
-                lastWrittenStepPerformanceSequenceNr =
-                  writeStepPerformanceLogRecords( lastWrittenStepPerformanceSequenceNr, LogStatus.RUNNING );
+                lastWrittenTransformPerformanceSequenceNr =
+                  writeTransformPerformanceLogRecords( lastWrittenTransformPerformanceSequenceNr, LogStatus.RUNNING );
               } catch ( Exception e ) {
                 log.logError( BaseMessages.getString( PKG,
                   "Pipeline.Exception.UnableToPerformIntervalPerformanceLogging" ), e );
@@ -2302,27 +2304,27 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Writes step information to a step logging table (if one has been configured).
+   * Writes transform information to a transform logging table (if one has been configured).
    *
    * @throws HopException if any errors occur during logging
    */
-  protected void writeStepLogInformation() throws HopException {
+  protected void writeTransformLogInformation() throws HopException {
     Database db = null;
-    StepLogTable stepLogTable = getPipelineMeta().getStepLogTable();
+    TransformLogTable transformLogTable = getPipelineMeta().getTransformLogTable();
     try {
-      db = createDataBase( stepLogTable.getDatabaseMeta() );
+      db = createDataBase( transformLogTable.getDatabaseMeta() );
       db.shareVariablesWith( this );
       db.connect();
       db.setCommit( logCommitSize );
 
-      for ( StepMetaDataCombi combi : getSteps() ) {
-        db.writeLogRecord( stepLogTable, LogStatus.START, combi, null );
+      for ( TransformMetaDataCombi combi : getTransforms() ) {
+        db.writeLogRecord( transformLogTable, LogStatus.START, combi, null );
       }
 
-      db.cleanupLogRecords( stepLogTable );
+      db.cleanupLogRecords( transformLogTable );
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToWriteStepInformationToLogTable" ), e );
+        "Pipeline.Exception.UnableToWriteTransformMetaToLogTable" ), e );
     } finally {
       disconnectDb( db );
     }
@@ -2418,7 +2420,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @return the Result object containing resulting measures from execution of the pipeline
    */
   public Result getResult() {
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return null;
     }
 
@@ -2427,34 +2429,34 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     result.setResult( errors.longValue() == 0 );
     PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface step = sid.step;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transform = sid.transform;
 
-      result.setNrErrors( result.getNrErrors() + sid.step.getErrors() );
-      result.getResultFiles().putAll( step.getResultFiles() );
+      result.setNrErrors( result.getNrErrors() + sid.transform.getErrors() );
+      result.getResultFiles().putAll( transform.getResultFiles() );
 
-      if ( step.isSafeStopped() ) {
-        result.setSafeStop( step.isSafeStopped() );
+      if ( transform.isSafeStopped() ) {
+        result.setSafeStop( transform.isSafeStopped() );
       }
 
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_READ ) ) ) {
-        result.setNrLinesRead( result.getNrLinesRead() + step.getLinesRead() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_READ ) ) ) {
+        result.setNrLinesRead( result.getNrLinesRead() + transform.getLinesRead() );
       }
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_INPUT ) ) ) {
-        result.setNrLinesInput( result.getNrLinesInput() + step.getLinesInput() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_INPUT ) ) ) {
+        result.setNrLinesInput( result.getNrLinesInput() + transform.getLinesInput() );
       }
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_WRITTEN ) ) ) {
-        result.setNrLinesWritten( result.getNrLinesWritten() + step.getLinesWritten() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_WRITTEN ) ) ) {
+        result.setNrLinesWritten( result.getNrLinesWritten() + transform.getLinesWritten() );
       }
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_OUTPUT ) ) ) {
-        result.setNrLinesOutput( result.getNrLinesOutput() + step.getLinesOutput() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_OUTPUT ) ) ) {
+        result.setNrLinesOutput( result.getNrLinesOutput() + transform.getLinesOutput() );
       }
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_UPDATED ) ) ) {
-        result.setNrLinesUpdated( result.getNrLinesUpdated() + step.getLinesUpdated() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_UPDATED ) ) ) {
+        result.setNrLinesUpdated( result.getNrLinesUpdated() + transform.getLinesUpdated() );
       }
-      if ( step.getStepname().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_REJECTED ) ) ) {
-        result.setNrLinesRejected( result.getNrLinesRejected() + step.getLinesRejected() );
+      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_REJECTED ) ) ) {
+        result.setNrLinesRejected( result.getNrLinesRejected() + transform.getLinesRejected() );
       }
     }
 
@@ -2553,20 +2555,20 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Write step performance log records.
+   * Write transform performance log records.
    *
    * @param startSequenceNr the start sequence numberr
    * @param status          the logging status. If this is End, perform cleanup
    * @return the new sequence number
    * @throws HopException if any errors occur during logging
    */
-  private int writeStepPerformanceLogRecords( int startSequenceNr, LogStatus status ) throws HopException {
+  private int writeTransformPerformanceLogRecords( int startSequenceNr, LogStatus status ) throws HopException {
     int lastSeqNr = 0;
     Database ldb = null;
     PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();
 
-    if ( !performanceLogTable.isDefined() || !pipelineMeta.isCapturingStepPerformanceSnapShots()
-      || stepPerformanceSnapShots == null || stepPerformanceSnapShots.isEmpty() ) {
+    if ( !performanceLogTable.isDefined() || !pipelineMeta.isCapturingTransformPerformanceSnapShots()
+      || transformPerformanceSnapShots == null || transformPerformanceSnapShots.isEmpty() ) {
       return 0; // nothing to do here!
     }
 
@@ -2576,13 +2578,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       ldb.connect();
       ldb.setCommit( logCommitSize );
 
-      // Write to the step performance log table...
+      // Write to the transform performance log table...
       //
       RowMetaInterface rowMeta = performanceLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
       ldb.prepareInsert( rowMeta, performanceLogTable.getActualSchemaName(), performanceLogTable.getActualTableName() );
 
-      synchronized ( stepPerformanceSnapShots ) {
-        Iterator<List<PerformanceSnapShot>> iterator = stepPerformanceSnapShots.values().iterator();
+      synchronized ( transformPerformanceSnapShots ) {
+        Iterator<List<PerformanceSnapShot>> iterator = transformPerformanceSnapShots.values().iterator();
         while ( iterator.hasNext() ) {
           List<PerformanceSnapShot> snapshots = iterator.next();
           synchronized ( snapshots ) {
@@ -2590,7 +2592,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
             while ( snapshotsIterator.hasNext() ) {
               PerformanceSnapShot snapshot = snapshotsIterator.next();
               if ( snapshot.getSeqNr() >= startSequenceNr && snapshot
-                .getSeqNr() <= lastStepPerformanceSnapshotSeqNrAdded ) {
+                .getSeqNr() <= lastTransformPerformanceSnapshotSeqNrAdded ) {
 
                 RowMetaAndData row = performanceLogTable.getLogRecord( LogStatus.START, snapshot, null );
 
@@ -2613,7 +2615,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.ErrorWritingStepPerformanceLogRecordToTable" ), e );
+        "Pipeline.Exception.ErrorWritingTransformPerformanceLogRecordToTable" ), e );
     } finally {
       if ( ldb != null ) {
         ldb.disconnect();
@@ -2724,109 +2726,109 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Find the run thread for the step with the specified name.
+   * Find the run thread for the transform with the specified name.
    *
-   * @param stepname the step name
-   * @return a StepInterface object corresponding to the run thread for the specified step
+   * @param transformName the transform name
+   * @return a TransformInterface object corresponding to the run thread for the specified transform
    */
-  public StepInterface findRunThread( String stepname ) {
-    if ( steps == null ) {
+  public TransformInterface findRunThread( String transformName ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface step = sid.step;
-      if ( step.getStepname().equalsIgnoreCase( stepname ) ) {
-        return step;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transform = sid.transform;
+      if ( transform.getTransformName().equalsIgnoreCase( transformName ) ) {
+        return transform;
       }
     }
     return null;
   }
 
   /**
-   * Find the base steps for the step with the specified name.
+   * Find the base transforms for the transform with the specified name.
    *
-   * @param stepname the step name
-   * @return the list of base steps for the specified step
+   * @param transformName the transform name
+   * @return the list of base transforms for the specified transform
    */
-  public List<StepInterface> findBaseSteps( String stepname ) {
-    List<StepInterface> baseSteps = new ArrayList<>();
+  public List<TransformInterface> findBaseTransforms( String transformName ) {
+    List<TransformInterface> baseTransforms = new ArrayList<>();
 
-    if ( steps == null ) {
-      return baseSteps;
+    if ( transforms == null ) {
+      return baseTransforms;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface stepInterface = sid.step;
-      if ( stepInterface.getStepname().equalsIgnoreCase( stepname ) ) {
-        baseSteps.add( stepInterface );
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transformInterface = sid.transform;
+      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) ) {
+        baseTransforms.add( transformInterface );
       }
     }
-    return baseSteps;
+    return baseTransforms;
   }
 
   /**
-   * Find the executing step copy for the step with the specified name and copy number
+   * Find the executing transform copy for the transform with the specified name and copy number
    *
-   * @param stepname the step name
+   * @param transformName the transform name
    * @param copyNr
-   * @return the executing step found or null if no copy could be found.
+   * @return the executing transform found or null if no copy could be found.
    */
-  public StepInterface findStepInterface( String stepname, int copyNr ) {
-    if ( steps == null ) {
+  public TransformInterface findTransformInterface( String transformName, int copyNr ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface stepInterface = sid.step;
-      if ( stepInterface.getStepname().equalsIgnoreCase( stepname ) && sid.copy == copyNr ) {
-        return stepInterface;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transformInterface = sid.transform;
+      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) && sid.copy == copyNr ) {
+        return transformInterface;
       }
     }
     return null;
   }
 
   /**
-   * Find the available executing step copies for the step with the specified name
+   * Find the available executing transform copies for the transform with the specified name
    *
-   * @param stepname the step name
-   * @return the list of executing step copies found or null if no steps are available yet (incorrect usage)
+   * @param transformName the transform name
+   * @return the list of executing transform copies found or null if no transforms are available yet (incorrect usage)
    */
-  public List<StepInterface> findStepInterfaces( String stepname ) {
-    if ( steps == null ) {
+  public List<TransformInterface> findTransformInterfaces( String transformName ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    List<StepInterface> list = new ArrayList<>();
+    List<TransformInterface> list = new ArrayList<>();
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface stepInterface = sid.step;
-      if ( stepInterface.getStepname().equalsIgnoreCase( stepname ) ) {
-        list.add( stepInterface );
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface transformInterface = sid.transform;
+      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) ) {
+        list.add( transformInterface );
       }
     }
     return list;
   }
 
   /**
-   * Find the data interface for the step with the specified name.
+   * Find the data interface for the transform with the specified name.
    *
-   * @param name the step name
-   * @return the step data interface
+   * @param name the transform name
+   * @return the transform data interface
    */
-  public StepDataInterface findDataInterface( String name ) {
-    if ( steps == null ) {
+  public TransformDataInterface findDataInterface( String name ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface rt = sid.step;
-      if ( rt.getStepname().equalsIgnoreCase( name ) ) {
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      TransformInterface rt = sid.transform;
+      if ( rt.getTransformName().equalsIgnoreCase( name ) ) {
         return sid.data;
       }
     }
@@ -2852,19 +2854,19 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets sortingStepsTopologically
+   * Gets sortingTransformsTopologically
    *
-   * @return value of sortingStepsTopologically
+   * @return value of sortingTransformsTopologically
    */
-  public boolean isSortingStepsTopologically() {
-    return sortingStepsTopologically;
+  public boolean isSortingTransformsTopologically() {
+    return sortingTransformsTopologically;
   }
 
   /**
-   * @param sortingStepsTopologically The sortingStepsTopologically to set
+   * @param sortingTransformsTopologically The sortingTransformsTopologically to set
    */
-  public void setSortingStepsTopologically( boolean sortingStepsTopologically ) {
-    this.sortingStepsTopologically = sortingStepsTopologically;
+  public void setSortingTransformsTopologically( boolean sortingTransformsTopologically ) {
+    this.sortingTransformsTopologically = sortingTransformsTopologically;
   }
 
   /**
@@ -2924,16 +2926,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets a list of steps in the pipeline.
+   * Gets a list of transforms in the pipeline.
    *
-   * @return a list of the steps in the pipeline
+   * @return a list of the transforms in the pipeline
    */
-  public List<StepMetaDataCombi> getSteps() {
-    return steps;
+  public List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> getTransforms() {
+    return transforms;
   }
 
-  protected void setSteps( List<StepMetaDataCombi> steps ) {
-    this.steps = steps;
+  protected void setTransforms( List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms ) {
+    this.transforms = transforms;
   }
 
   /**
@@ -2958,10 +2960,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       string.append( '[' ).append( getParentPipeline().toString() ).append( ']' ).append( '.' );
     }
 
-    // When we run a mapping we also set a mapping step name in there...
+    // When we run a mapping we also set a mapping transform name in there...
     //
-    if ( !Utils.isEmpty( mappingStepName ) ) {
-      string.append( '[' ).append( mappingStepName ).append( ']' ).append( '.' );
+    if ( !Utils.isEmpty( mappingTransformName ) ) {
+      string.append( '[' ).append( mappingTransformName ).append( ']' ).append( '.' );
     }
 
     string.append( pipelineMeta.getName() );
@@ -2970,43 +2972,43 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets the mapping inputs for each step in the pipeline.
+   * Gets the mapping inputs for each transform in the pipeline.
    *
    * @return an array of MappingInputs
    */
   public MappingInput[] findMappingInput() {
-    if ( steps == null ) {
+    if ( transforms == null ) {
       return null;
     }
 
     List<MappingInput> list = new ArrayList<>();
 
-    // Look in threads and find the MappingInput step thread...
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi smdc = steps.get( i );
-      StepInterface step = smdc.step;
-      if ( step.getStepID().equalsIgnoreCase( "MappingInput" ) ) {
-        list.add( (MappingInput) step );
+    // Look in threads and find the MappingInput transform thread...
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi smdc = transforms.get( i );
+      TransformInterface transform = smdc.transform;
+      if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingInput" ) ) {
+        list.add( (MappingInput) transform );
       }
     }
     return list.toArray( new MappingInput[ list.size() ] );
   }
 
   /**
-   * Gets the mapping outputs for each step in the pipeline.
+   * Gets the mapping outputs for each transform in the pipeline.
    *
    * @return an array of MappingOutputs
    */
   public MappingOutput[] findMappingOutput() {
     List<MappingOutput> list = new ArrayList<>();
 
-    if ( steps != null ) {
-      // Look in threads and find the MappingInput step thread...
-      for ( int i = 0; i < steps.size(); i++ ) {
-        StepMetaDataCombi smdc = steps.get( i );
-        StepInterface step = smdc.step;
-        if ( step.getStepID().equalsIgnoreCase( "MappingOutput" ) ) {
-          list.add( (MappingOutput) step );
+    if ( transforms != null ) {
+      // Look in threads and find the MappingInput transform thread...
+      for ( int i = 0; i < transforms.size(); i++ ) {
+        TransformMetaDataCombi smdc = transforms.get( i );
+        TransformInterface transform = smdc.transform;
+        if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingOutput" ) ) {
+          list.add( (MappingOutput) transform );
         }
       }
     }
@@ -3014,22 +3016,22 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Find the StepInterface (thread) by looking it up using the name.
+   * Find the TransformInterface (thread) by looking it up using the name.
    *
-   * @param stepname The name of the step to look for
-   * @param copy     the copy number of the step to look for
-   * @return the StepInterface or null if nothing was found.
+   * @param transformName The name of the transform to look for
+   * @param copy     the copy number of the transform to look for
+   * @return the TransformInterface or null if nothing was found.
    */
-  public StepInterface getStepInterface( String stepname, int copy ) {
-    if ( steps == null ) {
+  public TransformInterface getTransformInterface( String transformName, int copy ) {
+    if ( transforms == null ) {
       return null;
     }
 
     // Now start all the threads...
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      if ( sid.stepname.equalsIgnoreCase( stepname ) && sid.copy == copy ) {
-        return sid.step;
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      if ( sid.transformName.equalsIgnoreCase( transformName ) && sid.copy == copy ) {
+        return sid.transform;
       }
     }
 
@@ -3058,20 +3060,20 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * This adds a row producer to the pipeline that just got set up. It is preferable to run this BEFORE execute()
    * but after prepareExecution()
    *
-   * @param stepname The step to produce rows for
-   * @param copynr   The copynr of the step to produce row for (normally 0 unless you have multiple copies running)
+   * @param transformName The transform to produce rows for
+   * @param copynr   The copynr of the transform to produce row for (normally 0 unless you have multiple copies running)
    * @return the row producer
-   * @throws HopException in case the thread/step to produce rows for could not be found.
+   * @throws HopException in case the thread/transform to produce rows for could not be found.
    * @see Pipeline#execute()
    * @see Pipeline#prepareExecution()
    */
-  public RowProducer addRowProducer( String stepname, int copynr ) throws HopException {
-    StepInterface stepInterface = getStepInterface( stepname, copynr );
-    if ( stepInterface == null ) {
-      throw new HopException( "Unable to find thread with name " + stepname + " and copy number " + copynr );
+  public RowProducer addRowProducer( String transformName, int copynr ) throws HopException {
+    TransformInterface transformInterface = getTransformInterface( transformName, copynr );
+    if ( transformInterface == null ) {
+      throw new HopException( "Unable to find thread with name " + transformName + " and copy number " + copynr );
     }
 
-    // We are going to add an extra RowSet to this stepInterface.
+    // We are going to add an extra RowSet to this transformInterface.
     RowSet rowSet;
     switch ( pipelineMeta.getPipelineType() ) {
       case Normal:
@@ -3084,10 +3086,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         throw new HopException( "Unhandled pipeline type: " + pipelineMeta.getPipelineType() );
     }
 
-    // Add this rowset to the list of active rowsets for the selected step
-    stepInterface.addRowSetToInputRowSets( rowSet );
+    // Add this rowset to the list of active rowsets for the selected transform
+    transformInterface.addRowSetToInputRowSets( rowSet );
 
-    return new RowProducer( stepInterface, rowSet );
+    return new RowProducer( transformInterface, rowSet );
   }
 
   /**
@@ -3113,20 +3115,20 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Finds the StepDataInterface (currently) associated with the specified step.
+   * Finds the TransformDataInterface (currently) associated with the specified transform.
    *
-   * @param stepname The name of the step to look for
-   * @param stepcopy The copy number (0 based) of the step
-   * @return The StepDataInterface or null if non found.
+   * @param transformName The name of the transform to look for
+   * @param transformcopy The copy number (0 based) of the transform
+   * @return The TransformDataInterface or null if non found.
    */
-  public StepDataInterface getStepDataInterface( String stepname, int stepcopy ) {
-    if ( steps == null ) {
+  public TransformDataInterface getTransformDataInterface( String transformName, int transformcopy ) {
+    if ( transforms == null ) {
       return null;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      if ( sid.stepname.equals( stepname ) && sid.copy == stepcopy ) {
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      if ( sid.transformName.equals( transformName ) && sid.copy == transformcopy ) {
         return sid.data;
       }
     }
@@ -3140,14 +3142,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    */
   @Override
   public boolean hasHaltedComponents() {
-    // not yet 100% sure of this, if there are no steps... or none halted?
-    if ( steps == null ) {
+    // not yet 100% sure of this, if there are no transforms... or none halted?
+    if ( transforms == null ) {
       return false;
     }
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      if ( sid.data.getStatus() == StepExecutionStatus.STATUS_HALTED ) {
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      TransformMetaDataCombi sid = transforms.get( i );
+      if ( sid.data.getStatus() == TransformExecutionStatus.STATUS_HALTED ) {
         return true;
       }
     }
@@ -3662,21 +3664,21 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Pauses the pipeline (pause all steps).
+   * Pauses the pipeline (pause all transforms).
    */
   public void pauseRunning() {
     setPaused( true );
-    for ( StepMetaDataCombi combi : steps ) {
-      combi.step.pauseRunning();
+    for ( TransformMetaDataCombi combi : transforms ) {
+      combi.transform.pauseRunning();
     }
   }
 
   /**
-   * Resumes running the pipeline after a pause (resume all steps).
+   * Resumes running the pipeline after a pause (resume all transforms).
    */
   public void resumeRunning() {
-    for ( StepMetaDataCombi combi : steps ) {
-      combi.step.resumeRunning();
+    for ( TransformMetaDataCombi combi : transforms ) {
+      combi.transform.resumeRunning();
     }
     setPaused( false );
   }
@@ -3700,21 +3702,21 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets a named list (map) of step performance snapshots.
+   * Gets a named list (map) of transform performance snapshots.
    *
-   * @return a named list (map) of step performance snapshots
+   * @return a named list (map) of transform performance snapshots
    */
-  public Map<String, List<PerformanceSnapShot>> getStepPerformanceSnapShots() {
-    return stepPerformanceSnapShots;
+  public Map<String, List<PerformanceSnapShot>> getTransformPerformanceSnapShots() {
+    return transformPerformanceSnapShots;
   }
 
   /**
-   * Sets the named list (map) of step performance snapshots.
+   * Sets the named list (map) of transform performance snapshots.
    *
-   * @param stepPerformanceSnapShots a named list (map) of step performance snapshots to set
+   * @param transformPerformanceSnapShots a named list (map) of transform performance snapshots to set
    */
-  public void setStepPerformanceSnapShots( Map<String, List<PerformanceSnapShot>> stepPerformanceSnapShots ) {
-    this.stepPerformanceSnapShots = stepPerformanceSnapShots;
+  public void setTransformPerformanceSnapShots( Map<String, List<PerformanceSnapShot>> transformPerformanceSnapShots ) {
+    this.transformPerformanceSnapShots = transformPerformanceSnapShots;
   }
 
   /**
@@ -3981,21 +3983,21 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Gets the mapping step name.
+   * Gets the mapping transform name.
    *
-   * @return the name of the mapping step that created this pipeline
+   * @return the name of the mapping transform that created this pipeline
    */
-  public String getMappingStepName() {
-    return mappingStepName;
+  public String getMappingTransformName() {
+    return mappingTransformName;
   }
 
   /**
-   * Sets the mapping step name.
+   * Sets the mapping transform name.
    *
-   * @param mappingStepName the name of the mapping step that created this pipeline
+   * @param mappingTransformName the name of the mapping transform that created this pipeline
    */
-  public void setMappingStepName( String mappingStepName ) {
-    this.mappingStepName = mappingStepName;
+  public void setMappingTransformName( String mappingTransformName ) {
+    this.mappingTransformName = mappingTransformName;
   }
 
   /**
@@ -4313,12 +4315,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     setStopped( false );
     errors.set( 0 );
     setFinished( false );
-    for ( StepMetaDataCombi combi : steps ) {
-      StepInterface step = combi.step;
-      for ( RowSet rowSet : step.getInputRowSets() ) {
+    for ( TransformMetaDataCombi combi : transforms ) {
+      TransformInterface<TransformMetaInterface, TransformDataInterface> transform = combi.transform;
+      for ( RowSet rowSet : transform.getInputRowSets() ) {
         rowSet.clear();
       }
-      step.setStopped( false );
+      transform.setStopped( false );
     }
   }
 
@@ -4418,11 +4420,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     delegationListeners.add( delegationListener );
   }
 
-  public synchronized void doTopologySortOfSteps() {
+  public synchronized void doTopologySortOfTransforms() {
     // The bubble sort algorithm in contrast to the QuickSort or MergeSort
     // algorithms
     // does indeed cover all possibilities.
-    // Sorting larger pipelines with hundreds of steps might be too slow
+    // Sorting larger pipelines with hundreds of transforms might be too slow
     // though.
     // We should consider caching PipelineMeta.findPrevious() results in that case.
     //
@@ -4431,11 +4433,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     //
     // Cocktail sort (bi-directional bubble sort)
     //
-    // Original sort was taking 3ms for 30 steps
+    // Original sort was taking 3ms for 30 transforms
     // cocktail sort takes about 8ms for the same 30, but it works :)
     //
-    int stepsMinSize = 0;
-    int stepsSize = steps.size();
+    int transformsMinSize = 0;
+    int transformsSize = transforms.size();
 
     // Noticed a problem with an immediate shrinking iteration window
     // trapping rows that need to be sorted.
@@ -4449,12 +4451,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     // After this many iterations enable trimming inner iteration
     // window on no change being detected.
     //
-    int windowShrinkThreshold = (int) Math.round( stepsSize * 0.75 );
+    int windowShrinkThreshold = (int) Math.round( transformsSize * 0.75 );
 
     // give ourselves some room to sort big lists. the window threshold should
     // stop us before reaching this anyway.
     //
-    int totalIterations = stepsSize * 2;
+    int totalIterations = transformsSize * 2;
 
     boolean isBefore = false;
     boolean forwardChange = false;
@@ -4463,29 +4465,29 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     boolean lastForwardChange = true;
     boolean keepSortingForward = true;
 
-    StepMetaDataCombi one = null;
-    StepMetaDataCombi two = null;
+    TransformMetaDataCombi one = null;
+    TransformMetaDataCombi two = null;
 
     for ( int x = 0; x < totalIterations; x++ ) {
 
       // Go forward through the list
       //
       if ( keepSortingForward ) {
-        for ( int y = stepsMinSize; y < stepsSize - 1; y++ ) {
-          one = steps.get( y );
-          two = steps.get( y + 1 );
+        for ( int y = transformsMinSize; y < transformsSize - 1; y++ ) {
+          one = transforms.get( y );
+          two = transforms.get( y + 1 );
 
-          if ( one.stepMeta.equals( two.stepMeta ) ) {
+          if ( one.transformMeta.equals( two.transformMeta ) ) {
             isBefore = one.copy > two.copy;
           } else {
-            isBefore = pipelineMeta.findPrevious( one.stepMeta, two.stepMeta );
+            isBefore = pipelineMeta.findPrevious( one.transformMeta, two.transformMeta );
           }
           if ( isBefore ) {
             // two was found to be positioned BEFORE one so we need to
             // switch them...
             //
-            steps.set( y, two );
-            steps.set( y + 1, one );
+            transforms.set( y, two );
+            transforms.set( y + 1, one );
             forwardChange = true;
 
           }
@@ -4494,45 +4496,45 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
       // Go backward through the list
       //
-      for ( int z = stepsSize - 1; z > stepsMinSize; z-- ) {
-        one = steps.get( z );
-        two = steps.get( z - 1 );
+      for ( int z = transformsSize - 1; z > transformsMinSize; z-- ) {
+        one = transforms.get( z );
+        two = transforms.get( z - 1 );
 
-        if ( one.stepMeta.equals( two.stepMeta ) ) {
+        if ( one.transformMeta.equals( two.transformMeta ) ) {
           isBefore = one.copy > two.copy;
         } else {
-          isBefore = pipelineMeta.findPrevious( one.stepMeta, two.stepMeta );
+          isBefore = pipelineMeta.findPrevious( one.transformMeta, two.transformMeta );
         }
         if ( !isBefore ) {
           // two was found NOT to be positioned BEFORE one so we need to
           // switch them...
           //
-          steps.set( z, two );
-          steps.set( z - 1, one );
+          transforms.set( z, two );
+          transforms.set( z - 1, one );
           backwardChange = true;
         }
       }
 
-      // Shrink stepsSize(max) if there was no forward change
+      // Shrink transformsSize(max) if there was no forward change
       //
       if ( x > windowShrinkThreshold && !forwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsSize--;
-        if ( stepsSize <= stepsMinSize ) {
+        transformsSize--;
+        if ( transformsSize <= transformsMinSize ) {
           break;
         }
       }
 
-      // shrink stepsMinSize(min) if there was no backward change
+      // shrink transformsMinSize(min) if there was no backward change
       //
       if ( x > windowShrinkThreshold && !backwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsMinSize++;
-        if ( stepsMinSize >= stepsSize ) {
+        transformsMinSize++;
+        if ( transformsMinSize >= transformsSize ) {
           break;
         }
       }
@@ -4566,13 +4568,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   // TODO: i18n
   public static final IEngineMetric METRIC_INPUT = new EngineMetric( METRIC_NAME_INPUT, "Input", "The number of rows read from physical I/O", "010", true );
   public static final IEngineMetric METRIC_OUTPUT = new EngineMetric( METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true );
-  public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other steps", "030", true );
-  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other steps", "040", true );
+  public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other transforms", "030", true );
+  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other transforms", "040", true );
   public static final IEngineMetric METRIC_UPDATED = new EngineMetric( METRIC_NAME_UPDATED, "Updated", "The number of rows updated", "050", true );
-  public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "060", true );
+  public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a transform", "060", true );
   public static final IEngineMetric METRIC_ERROR = new EngineMetric( METRIC_NAME_ERROR, "Errors", "The number of errors", "070", true );
-  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "080", true );
-  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "090", true );
+  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the transforms input buffers", "080", true );
+  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the transforms output buffers", "090", true );
 
   public EngineMetrics getEngineMetrics() {
     return getEngineMetrics( null, -1 );
@@ -4582,45 +4584,46 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate( getStartDate() );
     metrics.setEndDate( getEndDate() );
-    if ( steps != null ) {
-      synchronized ( steps ) {
-        for ( StepMetaDataCombi combi : steps ) {
+    if ( transforms != null ) {
+      synchronized ( transforms ) {
+        for ( TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface> combi : transforms ) {
+          TransformInterface<TransformMetaInterface, TransformDataInterface> transform = combi.transform;
 
           boolean collect = true;
           if ( copyNr >= 0 ) {
             collect = collect && copyNr == combi.copy;
           }
           if ( componentName != null ) {
-            collect = collect && componentName.equalsIgnoreCase( combi.stepname );
+            collect = collect && componentName.equalsIgnoreCase( combi.transformName );
           }
 
           if ( collect ) {
 
-            metrics.addComponent( combi.step );
+            metrics.addComponent( combi.transform );
 
-            metrics.setComponentMetric( combi.step, METRIC_INPUT, combi.step.getLinesInput() );
-            metrics.setComponentMetric( combi.step, METRIC_OUTPUT, combi.step.getLinesOutput() );
-            metrics.setComponentMetric( combi.step, METRIC_READ, combi.step.getLinesRead() );
-            metrics.setComponentMetric( combi.step, METRIC_WRITTEN, combi.step.getLinesWritten() );
-            metrics.setComponentMetric( combi.step, METRIC_UPDATED, combi.step.getLinesUpdated() );
-            metrics.setComponentMetric( combi.step, METRIC_REJECTED, combi.step.getLinesRejected() );
-            metrics.setComponentMetric( combi.step, METRIC_ERROR, combi.step.getErrors() );
+            metrics.setComponentMetric( combi.transform, METRIC_INPUT, combi.transform.getLinesInput() );
+            metrics.setComponentMetric( combi.transform, METRIC_OUTPUT, combi.transform.getLinesOutput() );
+            metrics.setComponentMetric( combi.transform, METRIC_READ, combi.transform.getLinesRead() );
+            metrics.setComponentMetric( combi.transform, METRIC_WRITTEN, combi.transform.getLinesWritten() );
+            metrics.setComponentMetric( combi.transform, METRIC_UPDATED, combi.transform.getLinesUpdated() );
+            metrics.setComponentMetric( combi.transform, METRIC_REJECTED, combi.transform.getLinesRejected() );
+            metrics.setComponentMetric( combi.transform, METRIC_ERROR, combi.transform.getErrors() );
 
             long inputBufferSize = 0;
-            for ( RowSet rowSet : combi.step.getInputRowSets() ) {
+            for ( RowSet rowSet : transform.getInputRowSets() ) {
               inputBufferSize += rowSet.size();
             }
-            metrics.setComponentMetric( combi.step, METRIC_BUFFER_IN, inputBufferSize );
+            metrics.setComponentMetric( combi.transform, METRIC_BUFFER_IN, inputBufferSize );
             long outputBufferSize = 0;
-            for ( RowSet rowSet : combi.step.getOutputRowSets() ) {
+            for ( RowSet rowSet : transform.getOutputRowSets() ) {
               outputBufferSize += rowSet.size();
             }
-            metrics.setComponentMetric( combi.step, METRIC_BUFFER_OUT, outputBufferSize );
+            metrics.setComponentMetric( combi.transform, METRIC_BUFFER_OUT, outputBufferSize );
 
-            StepStatus stepStatus = new StepStatus( combi.step );
-            metrics.setComponentSpeed( combi.step, stepStatus.getSpeed() );
-            metrics.setComponentStatus( combi.step, combi.step.getStatus().getDescription() );
-            metrics.setComponentRunning( combi.step, combi.step.isRunning() );
+            TransformStatus transformStatus = new TransformStatus( combi.transform );
+            metrics.setComponentSpeed( combi.transform, transformStatus.getSpeed() );
+            metrics.setComponentStatus( combi.transform, combi.transform.getStatus().getDescription() );
+            metrics.setComponentRunning( combi.transform, combi.transform.isRunning() );
           }
         }
       }
@@ -4628,8 +4631,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     // Also pass on the performance snapshot data...
     //
-    if (stepPerformanceSnapShots!=null) {
-      for (String componentString : stepPerformanceSnapShots.keySet()) {
+    if (transformPerformanceSnapShots!=null) {
+      for (String componentString : transformPerformanceSnapShots.keySet()) {
         String snapshotName = componentString;
         int snapshotCopyNr = 0;
         int lastDot = componentString.lastIndexOf( '.' );
@@ -4648,7 +4651,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         if (collect) {
           IEngineComponent component = findComponent( snapshotName, snapshotCopyNr );
           if (component!=null) {
-            List<PerformanceSnapShot> snapShots = stepPerformanceSnapShots.get( componentString );
+            List<PerformanceSnapShot> snapShots = transformPerformanceSnapShots.get( componentString );
             metrics.getComponentPerformanceSnapshots().put( component, snapShots );
           }
         }
@@ -4660,11 +4663,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
   @Override
   public String getComponentLogText( String componentName, int copyNr ) {
-    StepInterface step = findStepInterface( componentName, copyNr );
-    if ( step == null ) {
+    TransformInterface transform = findTransformInterface( componentName, copyNr );
+    if ( transform == null ) {
       return null;
     }
-    StringBuffer logBuffer = HopLogStore.getAppender().getBuffer( step.getLogChannel().getLogChannelId(), false );
+    StringBuffer logBuffer = HopLogStore.getAppender().getBuffer( transform.getLogChannel().getLogChannelId(), false );
     if ( logBuffer == null ) {
       return null;
     }
@@ -4673,22 +4676,22 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
   @Override public List<IEngineComponent> getComponents() {
     List<IEngineComponent> list = new ArrayList<>();
-    for ( StepMetaDataCombi step : steps ) {
-      list.add( step.step );
+    for ( TransformMetaDataCombi transform : transforms ) {
+      list.add( transform.transform );
     }
     return list;
   }
 
   @Override public IEngineComponent findComponent( String name, int copyNr ) {
-    return findStepInterface( name, copyNr );
+    return findTransformInterface( name, copyNr );
   }
 
   @Override public List<IEngineComponent> getComponentCopies( String name ) {
     List<IEngineComponent> list = new ArrayList<>();
-    if (steps!=null) {
-      for ( StepMetaDataCombi step : steps ) {
-        if ( step.stepname.equalsIgnoreCase( name ) ) {
-          list.add( step.step );
+    if (transforms!=null) {
+      for ( TransformMetaDataCombi transform : transforms ) {
+        if ( transform.transformName.equalsIgnoreCase( name ) ) {
+          list.add( transform.transform );
         }
       }
     }
@@ -4732,20 +4735,20 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
-    StepInterface stepInterface = findStepInterface( componentName, copyNr );
-    if (stepInterface==null) {
-      throw new HopException( "Unable to find step '"+componentName+"', copy "+copyNr+" to retrieve output rows from" );
+    TransformInterface transformInterface = findTransformInterface( componentName, copyNr );
+    if ( transformInterface ==null) {
+      throw new HopException( "Unable to find transform '"+componentName+"', copy "+copyNr+" to retrieve output rows from" );
     }
-    RowBuffer rowBuffer = new RowBuffer( pipelineMeta.getStepFields( componentName ) );
-    stepInterface.addRowListener( new RowAdapter() {
-      @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
+    RowBuffer rowBuffer = new RowBuffer( pipelineMeta.getTransformFields( componentName ) );
+    transformInterface.addRowListener( new RowAdapter() {
+      @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
         if (rowBuffer.getBuffer().size()<nrRows) {
           rowBuffer.getBuffer().add( row );
           if ( rowBuffer.getBuffer().size() >= nrRows ) {
             try {
               rowsReceived.rowsReceived( Pipeline.this, rowBuffer );
             } catch ( HopException e ) {
-              throw new HopStepException( "Error recieving rows from '" + componentName + " copy " + copyNr, e );
+              throw new HopTransformException( "Error recieving rows from '" + componentName + " copy " + copyNr, e );
             }
           }
         }

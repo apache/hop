@@ -76,7 +76,7 @@ public class HopGuiJobContext extends BaseGuiContextHandler implements IGuiConte
       try {
         createEntryAction.setClassLoader( registry.getClassLoader( entryPlugin ) );
       } catch ( HopPluginException e ) {
-        LogChannel.UI.logError( "Unable to get classloader for step plugin " + entryPlugin.getIds()[ 0 ], e );
+        LogChannel.UI.logError( "Unable to get classloader for transform plugin " + entryPlugin.getIds()[ 0 ], e );
       }
       createEntryAction.getKeywords().add( entryPlugin.getCategory() );
       actions.add( createEntryAction );

@@ -29,11 +29,13 @@ import org.apache.hop.core.exception.HopPipelineException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaDataCombi;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
-import org.apache.hop.pipeline.steps.dummy.DummyMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,26 +56,26 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * <p>This test verify pipeline step initializations and row sets distributions based
- * on different steps execution. In this tests uses one step as a producer and one step as a consumer.
- * Examines different situations when step runs in multiple copies or partitioned. One of
+ * <p>This test verify pipeline transform initializations and row sets distributions based
+ * on different transforms execution. In this tests uses one transform as a producer and one transform as a consumer.
+ * Examines different situations when transform runs in multiple copies or partitioned. One of
  * the possible issues of incorrect rowsets initialization described in PDI-12140.</p>
  * So next combinations is examined:
  * <ol>
- * <li>1 - 2x - when one step copy is hoped to step running in 2 copies
- * <li>2x - 2x - when step running in 2 copies hops to step running in 2 copies
- * <li>2x - 1 - when step running in 2 copies hops to step running in 1 copy
- * <li>1 - cl1 - when step running in one copy hops to step running partitioned
- * <li>cl1-cl1 - when step running partitioned hops to step running partitioned (swim lanes case)
- * <li>cl1-cl2 - when step running partitioned by one partitioner hops to step partitioned by another partitioner
- * <li>x2-cl1 - when step running in 2 copies hops to partitioned step
+ * <li>1 - 2x - when one transform copy is hoped to transform running in 2 copies
+ * <li>2x - 2x - when transform running in 2 copies hops to transform running in 2 copies
+ * <li>2x - 1 - when transform running in 2 copies hops to transform running in 1 copy
+ * <li>1 - cl1 - when transform running in one copy hops to transform running partitioned
+ * <li>cl1-cl1 - when transform running partitioned hops to transform running partitioned (swim lanes case)
+ * <li>cl1-cl2 - when transform running partitioned by one partitioner hops to transform partitioned by another partitioner
+ * <li>x2-cl1 - when transform running in 2 copies hops to partitioned transform
  */
 public class PipelinePartitioningTest {
 
   /**
-   * This is convenient names for testing steps in pipeline.
+   * This is convenient names for testing transforms in pipeline.
    * <p>
-   * The trick is if we use numeric names for steps we can use NavigableSet to find next or previous when mocking
+   * The trick is if we use numeric names for transforms we can use NavigableSet to find next or previous when mocking
    * appropriate PipelineMeta methods (comparable strings).
    */
   private final String ONE = "1";
@@ -95,9 +97,9 @@ public class PipelinePartitioningTest {
   Pipeline pipeline;
 
   /**
-   * Step meta is sorted according StepMeta name so using numbers of step names we can easy build step chain mock.
+   * Transform meta is sorted according TransformMeta name so using numbers of transform names we can easy build transform chain mock.
    */
-  private final NavigableSet<StepMeta> chain = new TreeSet<StepMeta>();
+  private final NavigableSet<TransformMeta> chain = new TreeSet<TransformMeta>();
 
   @Before
   public void setUp() throws Exception {
@@ -118,45 +120,45 @@ public class PipelinePartitioningTest {
     Mockito.when( meta.getName() ).thenReturn( "junit meta" );
     Mockito.when( meta.getPipelineType() ).thenReturn( PipelineType.Normal );
 
-    Mockito.when( meta.getPipelineHopSteps( Mockito.anyBoolean() ) ).thenAnswer( new Answer<List<StepMeta>>() {
+    Mockito.when( meta.getPipelineHopTransforms( Mockito.anyBoolean() ) ).thenAnswer( new Answer<List<TransformMeta>>() {
       @Override
-      public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
-        return ( new ArrayList<StepMeta>( chain ) );
+      public List<TransformMeta> answer( InvocationOnMock invocation ) throws Throwable {
+        return ( new ArrayList<TransformMeta>( chain ) );
       }
     } );
-    Mockito.when( meta.findNextSteps( Mockito.any( StepMeta.class ) ) ).then( new Answer<List<StepMeta>>() {
+    Mockito.when( meta.findNextTransforms( Mockito.any( TransformMeta.class ) ) ).then( new Answer<List<TransformMeta>>() {
       @Override
-      public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
+      public List<TransformMeta> answer( InvocationOnMock invocation ) throws Throwable {
         Object obj = invocation.getArguments()[ 0 ];
-        StepMeta findFor = StepMeta.class.cast( obj );
-        List<StepMeta> ret = new ArrayList<StepMeta>();
-        StepMeta nextStep = chain.higher( findFor );
-        if ( nextStep != null ) {
-          ret.add( nextStep );
+        TransformMeta findFor = TransformMeta.class.cast( obj );
+        List<TransformMeta> ret = new ArrayList<TransformMeta>();
+        TransformMeta nextTransform = chain.higher( findFor );
+        if ( nextTransform != null ) {
+          ret.add( nextTransform );
         }
         return ret;
       }
     } );
-    Mockito.when( meta.findPreviousSteps( Mockito.any( StepMeta.class ), Mockito.anyBoolean() ) ).thenAnswer(
-      new Answer<List<StepMeta>>() {
+    Mockito.when( meta.findPreviousTransforms( Mockito.any( TransformMeta.class ), Mockito.anyBoolean() ) ).thenAnswer(
+      new Answer<List<TransformMeta>>() {
         @Override
-        public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
+        public List<TransformMeta> answer( InvocationOnMock invocation ) throws Throwable {
           Object obj = invocation.getArguments()[ 0 ];
-          StepMeta findFor = StepMeta.class.cast( obj );
-          List<StepMeta> ret = new ArrayList<StepMeta>();
-          StepMeta prevStep = chain.lower( findFor );
-          if ( prevStep != null ) {
-            ret.add( prevStep );
+          TransformMeta findFor = TransformMeta.class.cast( obj );
+          List<TransformMeta> ret = new ArrayList<TransformMeta>();
+          TransformMeta prevTransform = chain.lower( findFor );
+          if ( prevTransform != null ) {
+            ret.add( prevTransform );
           }
           return ret;
         }
       } );
-    Mockito.when( meta.findStep( Mockito.anyString() ) ).thenAnswer( new Answer<StepMeta>() {
+    Mockito.when( meta.findTransform( Mockito.anyString() ) ).thenAnswer( new Answer<TransformMeta>() {
       @Override
-      public StepMeta answer( InvocationOnMock invocation ) throws Throwable {
+      public TransformMeta answer( InvocationOnMock invocation ) throws Throwable {
         Object obj = invocation.getArguments()[ 0 ];
         String findFor = String.class.cast( obj );
-        for ( StepMeta item : chain ) {
+        for ( TransformMeta item : chain ) {
           if ( item.getName().equals( findFor ) ) {
             return item;
           }
@@ -176,26 +178,26 @@ public class PipelinePartitioningTest {
    */
   @Test
   public void testOneToManyCopies() throws HopException {
-    prepareStepMetas_1_x2();
+    prepareTransformMetas_1_x2();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
-    assertEquals( "We have 3 steps: one producer and 2 copies of consumer", 3, pipeline.getSteps().size() );
+    assertEquals( "We have 3 transforms: one producer and 2 copies of consumer", 3, pipeline.getTransforms().size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne = getStepByName( S10 );
-    assertTrue( "1 step have no input row sets", stepOne.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 2 output rowsets", 2, stepOne.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne = getTransformByName( S10 );
+    assertTrue( "1 transform have no input row sets", transformOne.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 2 output rowsets", 2, transformOne.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( S20 );
-    Assert.assertEquals( "2.0 step have 12 input row sets", 1, stepTwo0.getInputRowSets().size() );
-    Assert.assertTrue( "2.0 step have no output row sets", stepTwo0.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo0 = getTransformByName( S20 );
+    Assert.assertEquals( "2.0 transform have 12 input row sets", 1, transformTwo0.getInputRowSets().size() );
+    Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    StepInterface stepTwo1 = getStepByName( S21 );
-    Assert.assertEquals( "2.1 step have 1 input row sets", 1, stepTwo1.getInputRowSets().size() );
-    Assert.assertTrue( "2.1 step have no output row sets", stepTwo1.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo1 = getTransformByName( S21 );
+    Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
+    Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
 
   /**
@@ -205,89 +207,89 @@ public class PipelinePartitioningTest {
    */
   @Test
   public void testManyToManyCopies() throws HopException {
-    prepareStepMetas_x2_x2();
+    prepareTransformMetas_x2_x2();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
-    assertEquals( "We have 4 steps: 2 copies of producer and 2 copies of consumer", 4, pipeline.getSteps().size() );
+    assertEquals( "We have 4 transforms: 2 copies of producer and 2 copies of consumer", 4, pipeline.getTransforms().size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( S10 );
-    assertTrue( "1 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 1 output rowsets", 1, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( S10 );
+    assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepOne1 = getStepByName( S11 );
-    assertTrue( "1 step have no input row sets", stepOne1.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 1 output rowsets", 1, stepOne1.getOutputRowSets().size() );
+    TransformInterface transformOne1 = getTransformByName( S11 );
+    assertTrue( "1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( S20 );
-    Assert.assertEquals( "2.0 step have 1 input row sets", 1, stepTwo0.getInputRowSets().size() );
-    Assert.assertTrue( "2.0 step have no output row sets", stepTwo0.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo0 = getTransformByName( S20 );
+    Assert.assertEquals( "2.0 transform have 1 input row sets", 1, transformTwo0.getInputRowSets().size() );
+    Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    StepInterface stepTwo1 = getStepByName( S21 );
-    Assert.assertEquals( "2.1 step have 1 input row sets", 1, stepTwo1.getInputRowSets().size() );
-    Assert.assertTrue( "2.1 step have no output row sets", stepTwo1.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo1 = getTransformByName( S21 );
+    Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
+    Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
 
   /**
-   * This checks pipeline initialization when using many copies to one next step
+   * This checks pipeline initialization when using many copies to one next transform
    *
    * @throws HopException
    */
   @Test
   public void testManyToOneCopies() throws HopException {
-    prepareStepMetas_x2_1();
+    prepareTransformMetas_x2_1();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
-    assertEquals( "We have 4 steps: 2 copies of producer and 2 copies of consumer", 3, pipeline.getSteps().size() );
+    assertEquals( "We have 4 transforms: 2 copies of producer and 2 copies of consumer", 3, pipeline.getTransforms().size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( S10 );
-    assertTrue( "1 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 1 output rowsets", 1, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( S10 );
+    assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepOne1 = getStepByName( S11 );
-    assertTrue( "1 step have no input row sets", stepOne1.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 1 output rowsets", 1, stepOne1.getOutputRowSets().size() );
+    TransformInterface transformOne1 = getTransformByName( S11 );
+    assertTrue( "1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( S20 );
-    Assert.assertEquals( "2.0 step have 2 input row sets", 2, stepTwo0.getInputRowSets().size() );
-    Assert.assertTrue( "2.0 step have no output row sets", stepTwo0.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo0 = getTransformByName( S20 );
+    Assert.assertEquals( "2.0 transform have 2 input row sets", 2, transformTwo0.getInputRowSets().size() );
+    Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
   }
 
   /**
-   * Test one to one partitioning step pipeline organization.
+   * Test one to one partitioning transform pipeline organization.
    *
    * @throws HopException
    */
   @Test
   public void testOneToPartitioningSchema() throws HopException {
-    prepareStepMetas_1_cl1();
+    prepareTransformMetas_1_cl1();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
-    assertEquals( "We have 3 steps: 1 producer and 2 copies of consumer since it is partitioned", 3, pipeline.getSteps()
+    assertEquals( "We have 3 transforms: 1 producer and 2 copies of consumer since it is partitioned", 3, pipeline.getTransforms()
       .size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( S10 );
-    assertTrue( "1 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1 step have 2 output rowsets", 2, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( S10 );
+    assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( SP20 );
-    assertEquals( "2.0 step have one input row sets", 1, stepTwo0.getInputRowSets().size() );
-    assertTrue( "2.0 step have no output rowsets", stepTwo0.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    assertEquals( "2.0 transform have one input row sets", 1, transformTwo0.getInputRowSets().size() );
+    assertTrue( "2.0 transform have no output rowsets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    StepInterface stepTwo1 = getStepByName( SP21 );
-    Assert.assertEquals( "2.1 step have 1 input row sets", 1, stepTwo1.getInputRowSets().size() );
-    Assert.assertTrue( "2.1 step have no output row sets", stepTwo1.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo1 = getTransformByName( SP21 );
+    Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
+    Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
 
   /**
@@ -297,254 +299,254 @@ public class PipelinePartitioningTest {
    */
   @Test
   public void testSwimLanesPartitioning() throws HopException {
-    prepareStepMetas_cl1_cl1();
+    prepareTransformMetas_cl1_cl1();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
-    assertEquals( "We have 3 steps: 1 producer and 2 copies of consumer since it is partitioned", 4, pipeline.getSteps()
+    assertEquals( "We have 3 transforms: 1 producer and 2 copies of consumer since it is partitioned", 4, pipeline.getTransforms()
       .size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( SP10 );
-    assertTrue( "1.0 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1.0 step have 1 output rowsets", 1, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( SP10 );
+    assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1.0 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepOne1 = getStepByName( SP11 );
-    assertTrue( "1.1 step have no input row sets", stepOne1.getInputRowSets().isEmpty() );
-    assertEquals( "1.1 step have 1 output rowsets", 1, stepOne1.getOutputRowSets().size() );
+    TransformInterface transformOne1 = getTransformByName( SP11 );
+    assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
+    assertEquals( "1.1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( SP20 );
-    assertEquals( "2.0 step have 2 input row sets", 1, stepTwo0.getInputRowSets().size() );
-    assertTrue( "2.0 step have no output rowsets", stepTwo0.getOutputRowSets().isEmpty() );
+    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    assertEquals( "2.0 transform have 2 input row sets", 1, transformTwo0.getInputRowSets().size() );
+    assertTrue( "2.0 transform have no output rowsets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    StepInterface stepTwo2 = getStepByName( SP21 );
-    assertTrue( "2.2 step have no output row sets", stepTwo2.getOutputRowSets().isEmpty() );
-    assertEquals( "2.2 step have 2 output rowsets", 1, stepTwo2.getInputRowSets().size() );
+    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    assertTrue( "2.2 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
+    assertEquals( "2.2 transform have 2 output rowsets", 1, transformTwo2.getInputRowSets().size() );
   }
 
   /**
-   * This is PDI-12140 case. 2 steps with same partitions ID's count but different partitioner. This is not a swim lines
+   * This is PDI-12140 case. 2 transforms with same partitions ID's count but different partitioner. This is not a swim lines
    * cases and we need repartitioning here.
    *
    * @throws HopException
    */
   @Test
   public void testDifferentPartitioningFlow() throws HopException {
-    prepareStepMetas_cl1_cl2();
+    prepareTransformMetas_cl1_cl2();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
-    assertEquals( "We have 4 steps: 2 producer copies and 2 copies of consumer since they both partitioned", 4, pipeline
-      .getSteps().size() );
+    assertEquals( "We have 4 transforms: 2 producer copies and 2 copies of consumer since they both partitioned", 4, pipeline
+      .getTransforms().size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( SP10 );
-    assertTrue( "1.0 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1.0 step have 2 output rowsets", 2, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( SP10 );
+    assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1.0 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepOne1 = getStepByName( SP11 );
-    assertTrue( "1.1 step have no input row sets", stepOne1.getInputRowSets().isEmpty() );
-    assertEquals( "1.1 step have 2 output rowsets", 2, stepOne1.getOutputRowSets().size() );
+    TransformInterface transformOne1 = getTransformByName( SP11 );
+    assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
+    assertEquals( "1.1 transform have 2 output rowsets", 2, transformOne1.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( SP20 );
-    assertTrue( "2.0 step have no output row sets", stepTwo0.getOutputRowSets().isEmpty() );
-    assertEquals( "2.0 step have 1 input rowsets", 2, stepTwo0.getInputRowSets().size() );
+    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
+    assertEquals( "2.0 transform have 1 input rowsets", 2, transformTwo0.getInputRowSets().size() );
 
-    StepInterface stepTwo2 = getStepByName( SP21 );
-    assertTrue( "2.1 step have no output row sets", stepTwo2.getOutputRowSets().isEmpty() );
-    assertEquals( "2.2 step have 2 input rowsets", 2, stepTwo2.getInputRowSets().size() );
+    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    assertTrue( "2.1 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
+    assertEquals( "2.2 transform have 2 input rowsets", 2, transformTwo2.getInputRowSets().size() );
   }
 
   /**
-   * This is a case when step running in many copies meets partitioning one.
+   * This is a case when transform running in many copies meets partitioning one.
    *
    * @throws HopException
    */
   @Test
   public void testManyCopiesToPartitioningFlow() throws HopException {
-    prepareStepMetas_x2_cl1();
+    prepareTransformMetas_x2_cl1();
 
     pipeline.prepareExecution();
     List<RowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
-    assertEquals( "We have 4 steps: 2 producer copies and 2 copies of consumer since consumer is partitioned", 4, pipeline
-      .getSteps().size() );
+    assertEquals( "We have 4 transforms: 2 producer copies and 2 copies of consumer since consumer is partitioned", 4, pipeline
+      .getTransforms().size() );
 
-    // Ok, examine initialized steps now.
-    StepInterface stepOne0 = getStepByName( S10 );
-    assertTrue( "1.0 step have no input row sets", stepOne0.getInputRowSets().isEmpty() );
-    assertEquals( "1.0 step have 2 output rowsets", 2, stepOne0.getOutputRowSets().size() );
+    // Ok, examine initialized transforms now.
+    TransformInterface transformOne0 = getTransformByName( S10 );
+    assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
+    assertEquals( "1.0 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    StepInterface stepOne1 = getStepByName( S11 );
-    assertTrue( "1.1 step have no input row sets", stepOne1.getInputRowSets().isEmpty() );
-    assertEquals( "1.1 step have 2 output rowsets", 2, stepOne1.getOutputRowSets().size() );
+    TransformInterface transformOne1 = getTransformByName( S11 );
+    assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
+    assertEquals( "1.1 transform have 2 output rowsets", 2, transformOne1.getOutputRowSets().size() );
 
-    StepInterface stepTwo0 = getStepByName( SP20 );
-    assertTrue( "2.0 step have no output row sets", stepTwo0.getOutputRowSets().isEmpty() );
-    assertEquals( "2.0 step have 2 input rowsets", 2, stepTwo0.getInputRowSets().size() );
+    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
+    assertEquals( "2.0 transform have 2 input rowsets", 2, transformTwo0.getInputRowSets().size() );
 
-    StepInterface stepTwo2 = getStepByName( SP21 );
-    assertTrue( "2.1 step have no output row sets", stepTwo2.getOutputRowSets().isEmpty() );
-    assertEquals( "2.2 step have 2 input rowsets", 2, stepTwo2.getInputRowSets().size() );
+    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    assertTrue( "2.1 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
+    assertEquals( "2.2 transform have 2 input rowsets", 2, transformTwo2.getInputRowSets().size() );
   }
 
-  private StepInterface getStepByName( String name ) {
-    List<StepMetaDataCombi> combiList = pipeline.getSteps();
-    for ( StepMetaDataCombi item : combiList ) {
-      if ( item.step.toString().equals( name ) ) {
-        return item.step;
+  private TransformInterface getTransformByName( String name ) {
+    List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> combiList = pipeline.getTransforms();
+    for ( TransformMetaDataCombi item : combiList ) {
+      if ( item.transform.toString().equals( name ) ) {
+        return item.transform;
       }
     }
-    fail( "Test error, can't find step with name: " + name );
+    fail( "Test error, can't find transform with name: " + name );
     // and this will never happens.
     return null;
   }
 
   /**
-   * one 'regular step' to 'step running in 2 copies'
+   * one 'regular transform' to 'transform running in 2 copies'
    */
-  private void prepareStepMetas_1_x2() {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_1_x2() {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
     dummy2.setCopies( 2 );
     chain.add( dummy1 );
     chain.add( dummy2 );
 
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * one 'step running in 2 copies' to 'step running in 2 copies'
+   * one 'transform running in 2 copies' to 'transform running in 2 copies'
    */
-  private void prepareStepMetas_x2_x2() {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_x2_x2() {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
     dummy1.setCopies( 2 );
     dummy2.setCopies( 2 );
     chain.add( dummy1 );
     chain.add( dummy2 );
 
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * many steps copies to one
+   * many transforms copies to one
    */
-  private void prepareStepMetas_x2_1() {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_x2_1() {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
     dummy1.setCopies( 2 );
     chain.add( dummy1 );
     chain.add( dummy2 );
 
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * This is a case when we have 1 step to 1 clustered step distribution.
+   * This is a case when we have 1 transform to 1 clustered transform distribution.
    *
    * @throws HopPluginException
    */
-  private void prepareStepMetas_1_cl1() throws HopPluginException {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_1_cl1() throws HopPluginException {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
 
     PartitionSchema schema = new PartitionSchema( "p1", Arrays.asList( new String[] { PID1, PID2 } ) );
-    StepPartitioningMeta partMeta = new StepPartitioningMeta( "Mirror to all partitions", schema );
-    dummy2.setStepPartitioningMeta( partMeta );
+    TransformPartitioningMeta partMeta = new TransformPartitioningMeta( "Mirror to all partitions", schema );
+    dummy2.setTransformPartitioningMeta( partMeta );
 
     chain.add( dummy1 );
     chain.add( dummy2 );
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * This case simulates when we do have 2 step partitioned with one same partitioner We want to get a 'swim-lanes'
+   * This case simulates when we do have 2 transform partitioned with one same partitioner We want to get a 'swim-lanes'
    * pipeline
    *
    * @throws HopPluginException
    */
-  private void prepareStepMetas_cl1_cl1() throws HopPluginException {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_cl1_cl1() throws HopPluginException {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
 
     PartitionSchema schema = new PartitionSchema( "p1", Arrays.asList( new String[] { PID1, PID2 } ) );
-    // for delayed binding StepPartitioning meta does not achieve
+    // for delayed binding TransformPartitioning meta does not achieve
     // schema name when using in constructor so we have to set it
-    // explicitly. See equals implementation for StepPartitioningMeta.
-    StepPartitioningMeta partMeta = new StepPartitioningMeta( "Mirror to all partitions", schema );
+    // explicitly. See equals implementation for TransformPartitioningMeta.
+    TransformPartitioningMeta partMeta = new TransformPartitioningMeta( "Mirror to all partitions", schema );
     // that is what I am talking about:
     partMeta.setPartitionSchema( schema );
 
-    dummy1.setStepPartitioningMeta( partMeta );
-    dummy2.setStepPartitioningMeta( partMeta );
+    dummy1.setTransformPartitioningMeta( partMeta );
+    dummy2.setTransformPartitioningMeta( partMeta );
 
     chain.add( dummy1 );
     chain.add( dummy2 );
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * This is a case when we have 2 steps, but partitioned differently
+   * This is a case when we have 2 transforms, but partitioned differently
    *
    * @throws HopPluginException
    */
-  private void prepareStepMetas_cl1_cl2() throws HopPluginException {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_cl1_cl2() throws HopPluginException {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
 
     PartitionSchema schema1 = new PartitionSchema( "p1", Arrays.asList( new String[] { PID1, PID2 } ) );
     PartitionSchema schema2 = new PartitionSchema( "p2", Arrays.asList( new String[] { PID1, PID2 } ) );
 
-    StepPartitioningMeta partMeta1 = new StepPartitioningMeta( "Mirror to all partitions", schema1 );
-    StepPartitioningMeta partMeta2 = new StepPartitioningMeta( "Mirror to all partitions", schema2 );
+    TransformPartitioningMeta partMeta1 = new TransformPartitioningMeta( "Mirror to all partitions", schema1 );
+    TransformPartitioningMeta partMeta2 = new TransformPartitioningMeta( "Mirror to all partitions", schema2 );
     partMeta1.setPartitionSchema( schema1 );
     partMeta2.setPartitionSchema( schema2 );
 
-    dummy1.setStepPartitioningMeta( partMeta1 );
-    dummy2.setStepPartitioningMeta( partMeta2 );
+    dummy1.setTransformPartitioningMeta( partMeta1 );
+    dummy2.setTransformPartitioningMeta( partMeta2 );
 
     chain.add( dummy1 );
     chain.add( dummy2 );
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 
   /**
-   * This is a case when first step running 2 copies and next is partitioned one.
+   * This is a case when first transform running 2 copies and next is partitioned one.
    *
    * @throws HopPluginException
    */
-  private void prepareStepMetas_x2_cl1() throws HopPluginException {
-    StepMeta dummy1 = new StepMeta( ONE, null );
-    StepMeta dummy2 = new StepMeta( TWO, null );
+  private void prepareTransformMetas_x2_cl1() throws HopPluginException {
+    TransformMeta dummy1 = new TransformMeta( ONE, null );
+    TransformMeta dummy2 = new TransformMeta( TWO, null );
 
     PartitionSchema schema1 = new PartitionSchema( "p1", Arrays.asList( new String[] { PID1, PID2 } ) );
-    StepPartitioningMeta partMeta1 = new StepPartitioningMeta( "Mirror to all partitions", schema1 );
+    TransformPartitioningMeta partMeta1 = new TransformPartitioningMeta( "Mirror to all partitions", schema1 );
 
-    dummy2.setStepPartitioningMeta( partMeta1 );
+    dummy2.setTransformPartitioningMeta( partMeta1 );
     dummy1.setCopies( 2 );
 
     chain.add( dummy1 );
     chain.add( dummy2 );
-    for ( StepMeta item : chain ) {
-      item.setStepMetaInterface( new DummyMeta() );
+    for ( TransformMeta item : chain ) {
+      item.setTransformMetaInterface( new DummyMeta() );
     }
   }
 }

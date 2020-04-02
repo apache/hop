@@ -26,7 +26,7 @@
       </activation>
       <modules>
         <module>databases</module>
-        <module>steps</module>
+        <module>transforms</module>
         <module>jobentries</module>
         <module>misc</module>
       </modules>

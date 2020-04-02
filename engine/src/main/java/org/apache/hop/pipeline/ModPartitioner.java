@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -64,7 +64,7 @@ public class ModPartitioner extends BasePartitioner {
     if ( partitionColumnIndex < 0 ) {
       partitionColumnIndex = rowMeta.indexOfValue( fieldName );
       if ( partitionColumnIndex < 0 ) {
-        throw new HopStepException( "Unable to find partitioning field name ["
+        throw new HopTransformException( "Unable to find partitioning field name ["
           + fieldName + "] in the output row..." + rowMeta );
       }
     }

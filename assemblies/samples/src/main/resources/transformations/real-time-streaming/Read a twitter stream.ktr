@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Read a twitter stream</name>
     <description/>
@@ -39,11 +39,11 @@
 <table/>
 <timeout_days/>
 <field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>LOGGING_OBJECT_TYPE</id><enabled>Y</enabled><name>LOGGING_OBJECT_TYPE</name></field><field><id>OBJECT_NAME</id><enabled>Y</enabled><name>OBJECT_NAME</name></field><field><id>OBJECT_COPY</id><enabled>Y</enabled><name>OBJECT_COPY</name></field><field><id>REPOSITORY_DIRECTORY</id><enabled>Y</enabled><name>REPOSITORY_DIRECTORY</name></field><field><id>FILENAME</id><enabled>Y</enabled><name>FILENAME</name></field><field><id>OBJECT_ID</id><enabled>Y</enabled><name>OBJECT_ID</name></field><field><id>OBJECT_REVISION</id><enabled>Y</enabled><name>OBJECT_REVISION</name></field><field><id>PARENT_CHANNEL_ID</id><enabled>Y</enabled><name>PARENT_CHANNEL_ID</name></field><field><id>ROOT_CHANNEL_ID</id><enabled>Y</enabled><name>ROOT_CHANNEL_ID</name></field></channel-log-table>
-<step-log-table><connection/>
+<transform-log-table><connection/>
 <schema/>
 <table/>
 <timeout_days/>
-<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></step-log-table>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></transform-log-table>
     </log>
     <maxdate>
       <connection/>
@@ -60,9 +60,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -80,7 +80,7 @@
   </notepads>
   <order>
   <hop> <from>Minute-based aggregation</from><to>Print separator</to><enabled>Y</enabled> </hop>  <hop> <from>Print separator</from><to>Text file output</to><enabled>Y</enabled> </hop>  <hop> <from>Get tweets streaming</from><to>Print header</to><enabled>Y</enabled> </hop>  <hop> <from>Print header</from><to>Minute-based aggregation</to><enabled>Y</enabled> </hop>  </order>
-  <step>
+  <transform>
     <name>Get tweets streaming</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -198,21 +198,21 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
         </field>
     </fields><clear_result_fields>Y</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>USERNAME</parameter_tag>
+<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters><usage_parameter><parameter_tag>USERNAME</parameter_tag>
 <parameter_value>${USERNAME}</parameter_value>
 <parameter_description>The username of your twitter account</parameter_description>
 </usage_parameter><usage_parameter><parameter_tag>PASSWORD</parameter_tag>
 <parameter_value>${PASSWORD}</parameter_value>
 <parameter_description>The password of your twitter account</parameter_description>
 </usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>111</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Minute-based aggregation</name>
     <type>SingleThreader</type>
     <description/>
@@ -229,18 +229,18 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <directory_path/>
     <batch_size/>
     <batch_time>60000</batch_time>
-    <inject_step>Mapping input specification</inject_step>
-    <retrieve_step>Mapping output specification</retrieve_step>
+    <inject_transform>Mapping input specification</inject_transform>
+    <retrieve_transform>Mapping output specification</retrieve_transform>
       <parameters>        <pass_all_parameters>Y</pass_all_parameters>
       </parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>489</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Text file output</name>
     <type>TextFileOutput</type>
     <description/>
@@ -344,14 +344,14 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       </field>
     </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>867</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Print separator</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -366,21 +366,21 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
 if (nr==1) {
-  var out = _step_.getTrans().getServletPrintWriter();
+  var out = _transform_.getTrans().getServletPrintWriter();
   out.println(&quot;=================================================&quot;);
   out.println();
   out.flush();
 }
 </jsScript_script>
       </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>677</xloc>
       <yloc>143</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Print header</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -396,22 +396,22 @@ if (nr==1) {
         <jsScript_script>
 var out;
 if (out==null) {
-  out = _step_.getTrans().getServletPrintWriter();
+  out = _transform_.getTrans().getServletPrintWriter();
   out.println(&quot;&apos;Real-time&apos; twitter hashtag report, minute based&quot;);
   out.flush();
 }
 </jsScript_script>
       </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>300</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-   <slave-step-copy-partition-distribution>
-</slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+   <slave-transform-copy-partition-distribution>
+</slave-transform-copy-partition-distribution>
    <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

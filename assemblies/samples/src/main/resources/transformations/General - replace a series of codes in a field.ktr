@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>General  replace a series of codes in a field</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -503,7 +503,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Add field</name>
     <type>JoinRows</type>
     <description/>
@@ -527,20 +527,20 @@
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>297</xloc>
       <yloc>67</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>CO.</name>
     <type>RowGenerator</type>
     <description/>
@@ -583,20 +583,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>235</xloc>
       <yloc>438</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>CODE-FULL</name>
     <type>Dummy</type>
     <description/>
@@ -608,20 +608,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>267</xloc>
       <yloc>339</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Combine</name>
     <type>Calculator</type>
     <description/>
@@ -678,20 +678,20 @@
       <currency_symbol/>
     </calculation>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>267</xloc>
       <yloc>262</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by</name>
     <type>GroupBy</type>
     <description/>
@@ -721,20 +721,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>268</xloc>
       <yloc>170</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Input</name>
     <type>RowGenerator</type>
     <description/>
@@ -765,20 +765,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>130</xloc>
       <yloc>67</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>LTD.</name>
     <type>RowGenerator</type>
     <description/>
@@ -821,20 +821,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>306</xloc>
       <yloc>437</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Replace codes</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -857,20 +857,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>464</xloc>
       <yloc>67</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Select values</name>
     <type>SelectValues</type>
     <description/>
@@ -900,20 +900,20 @@
         <currency_symbol/>
         <storage_type/>
       </meta>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>631</xloc>
       <yloc>67</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>result</name>
     <type>Dummy</type>
     <description/>
@@ -925,22 +925,22 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>798</xloc>
       <yloc>69</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

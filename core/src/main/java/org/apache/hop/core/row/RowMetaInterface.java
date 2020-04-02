@@ -39,12 +39,12 @@ import java.util.List;
  * This interface provides methods to describe and manipulate a row&#39;s structure. The interface is similar to the
  * JDBC ResultSet interface in that it provides a means of getting data from a row.
  * <p>
- * Inside processRow() a step typically retrieves the structure of incoming rows by calling getInputRowMeta(), which is
- * provided by the BaseStep class. The step would usually clone this object and pass it to getFields() of its meta
- * class, to reflect any changes in row structure caused by the step itself. Now the step has RowMetaInterface objects
+ * Inside processRow() a transform typically retrieves the structure of incoming rows by calling getInputRowMeta(), which is
+ * provided by the BaseTransform class. The transform would usually clone this object and pass it to getFields() of its meta
+ * class, to reflect any changes in row structure caused by the transform itself. Now the transform has RowMetaInterface objects
  * describing both the input and output rows.
  * <p>
- * Usually a step would look for the indexes and types of relevant fields upon first execution of processRow(). The
+ * Usually a transform would look for the indexes and types of relevant fields upon first execution of processRow(). The
  * following methods of RowMetaInterface are particularly useful in that regard:
  * <p>
  * <i><a href="">public int indexOfValue(...)</a></i><br/>
@@ -320,7 +320,7 @@ public interface RowMetaInterface extends Cloneable {
    *
    * @param r The row to be merged with this row
    */
-  public void mergeRowMeta( RowMetaInterface r, String originStepName );
+  public void mergeRowMeta( RowMetaInterface r, String originTransformName );
 
   /**
    * Get an array of the names of all the Values in the Row.

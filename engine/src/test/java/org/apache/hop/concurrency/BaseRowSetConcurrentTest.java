@@ -36,8 +36,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * We have a {@link org.apache.hop.core.BaseRowSet} with a bunch of attributes (originStepName, originStepCopy,
- * destinationStepName,destinationStepCopy and others).
+ * We have a {@link org.apache.hop.core.BaseRowSet} with a bunch of attributes (originTransformName, originTransformCopy,
+ * destinationTransformName,destinationTransformCopy and others).
  * <p>
  * The goal of this test is to verify that attributes from one BaseRowSet doesn't mix with attributes of
  * another BaseRowSet in concurrent environment when executing

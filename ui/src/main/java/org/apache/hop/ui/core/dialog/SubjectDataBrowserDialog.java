@@ -35,7 +35,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -138,7 +138,7 @@ public class SubjectDataBrowserDialog {
 
     // Position the buttons...
     //
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wClose, }, props.getMargin(), null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wClose, }, props.getMargin(), null );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -147,7 +147,7 @@ public class SubjectDataBrowserDialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
 

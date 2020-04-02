@@ -63,9 +63,9 @@ public interface LoggingObjectInterface {
   public LoggingObjectType getObjectType();
 
   /**
-   * Gets a string identifying a copy in a series of steps.
+   * Gets a string identifying a copy in a series of transforms.
    *
-   * @return A string identifying a copy in a series of steps.
+   * @return A string identifying a copy in a series of transforms.
    */
   public String getObjectCopy();
 

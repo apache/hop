@@ -30,7 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.step.StepInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -58,7 +58,7 @@ public class JobEntryDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = TransformInterface.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The loggingObject for the dialog
@@ -131,7 +131,7 @@ public class JobEntryDialog extends Dialog {
       jobMeta,
       metaStore,
       DatabaseMeta.class, parent, SWT.NONE,
-      BaseMessages.getString( PKG, "BaseStepDialog.Connection.Label" ),
+      BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
       "Select the relational database connection to use" // TODO : i18n
     );
     wConnection.addToConnectionLine( parent, previous, selected, lsMod );

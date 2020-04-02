@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>XML Input Stream StAX Test 6 - Namespaces</name>
     <description/>
@@ -273,10 +273,10 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection>dev_daily_tgt</connection>
         <schema>dm</schema>
-        <table>step</table>
+        <table>transform</table>
         <timeout_days/>
         <field>
           <id>ID_BATCH</id>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -641,7 +641,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Alternate group on Level 2</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -715,21 +715,21 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
         </field>
     </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters></usage_parameters>    <cluster_schema/>
-    <remotesteps>
+<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters></usage_parameters>    <cluster_schema/>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>320</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Alternate group on Level 2 - JavaScript sample</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -755,20 +755,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>720</xloc>
       <yloc>320</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filter on NAMESPACE</name>
     <type>FilterRows</type>
     <description/>
@@ -790,20 +790,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
  <value><name>constant</name><type>String</type><text>NAMESPACE</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>220</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>NAMESPACES</name>
     <type>SelectValues</type>
     <description/>
@@ -820,20 +820,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
         <rename>Namespace_URI</rename>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>260</xloc>
       <yloc>220</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>No END_ELEMENT</name>
     <type>FilterRows</type>
     <description/>
@@ -860,20 +860,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>140</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Only CHARACTERS</name>
     <type>FilterRows</type>
     <description/>
@@ -900,20 +900,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>380</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Row denormaliser</name>
     <type>Denormaliser</type>
     <description/>
@@ -1059,20 +1059,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
           </field>
         </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>440</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Select values</name>
     <type>SelectValues</type>
     <description/>
@@ -1089,20 +1089,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       </remove>      <remove>        <name>xml_data_name</name>
       </remove>      <remove>        <name>group</name>
       </remove>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>500</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>XML Input Stream &#x28;StAX&#x29; Test 6 - Namespaces.xml</name>
     <type>XMLInputStream</type>
     <description/>
@@ -1148,22 +1148,22 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <includeXmlDataValueField>Y</includeXmlDataValueField>
     <xmlDataValueField>xml_data_value</xmlDataValueField>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>140</xloc>
       <yloc>80</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

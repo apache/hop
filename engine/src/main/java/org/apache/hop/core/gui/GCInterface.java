@@ -23,7 +23,7 @@
 package org.apache.hop.core.gui;
 
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 public interface GCInterface extends PrimitiveGCInterface {
 
@@ -31,7 +31,7 @@ public interface GCInterface extends PrimitiveGCInterface {
 
   public void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy );
 
-  public void drawStepIcon( int x, int y, StepMeta stepMeta, float magnification );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification );
 
-  public void drawStepIcon( int x, int y, StepMeta stepMeta );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta );
 }

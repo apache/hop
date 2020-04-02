@@ -22,12 +22,12 @@
 
 package org.apache.test.util;
 
-import org.apache.hop.pipeline.steps.loadsave.getter.FieldGetter;
-import org.apache.hop.pipeline.steps.loadsave.getter.Getter;
-import org.apache.hop.pipeline.steps.loadsave.getter.MethodGetter;
-import org.apache.hop.pipeline.steps.loadsave.setter.FieldSetter;
-import org.apache.hop.pipeline.steps.loadsave.setter.MethodSetter;
-import org.apache.hop.pipeline.steps.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.FieldGetter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.MethodGetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.FieldSetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.MethodSetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
 
 import java.util.HashMap;
 import java.util.List;

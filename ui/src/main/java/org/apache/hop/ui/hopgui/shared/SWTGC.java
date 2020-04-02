@@ -26,7 +26,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -92,7 +92,7 @@ public class SWTGC implements GCInterface {
   public SWTGC( Device device, Point area, int iconsize ) {
     this.image = new Image( device, area.x, area.y );
     this.gc = new GC( image );
-    this.images = GUIResource.getInstance().getImagesSteps();
+    this.images = GUIResource.getInstance().getImagesTransforms();
     this.iconsize = iconsize;
     this.area = area;
 
@@ -188,10 +188,10 @@ public class SWTGC implements GCInterface {
     switch ( image ) {
       case LOCK:
         return GUIResource.getInstance().getSwtImageLocked();
-      case STEP_ERROR:
-        return GUIResource.getInstance().getSwtImageStepError();
-      case STEP_ERROR_RED:
-        return GUIResource.getInstance().getSwtImageRedStepError();
+      case TRANSFORM_ERROR:
+        return GUIResource.getInstance().getSwtImageTransformError();
+      case TRANSFORM_ERROR_RED:
+        return GUIResource.getInstance().getSwtImageRedTransformError();
       case EDIT:
         return GUIResource.getInstance().getSwtImageEdit();
       case CONTEXT_MENU:
@@ -410,16 +410,16 @@ public class SWTGC implements GCInterface {
     return new Point( p.x, p.y );
   }
 
-  public void drawStepIcon( int x, int y, StepMeta stepMeta, float magnification ) {
-    String steptype = stepMeta.getStepID();
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
+    String transformtype = transformMeta.getTransformPluginId();
     Image im = null;
-    if ( stepMeta.isMissing() ) {
+    if ( transformMeta.isMissing() ) {
       im = GUIResource.getInstance().getImageMissing();
-    } else if ( stepMeta.isDeprecated() ) {
+    } else if ( transformMeta.isDeprecated() ) {
       im = GUIResource.getInstance().getImageDeprecated();
     } else {
       im =
-        images.get( steptype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
+        images.get( transformtype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
           Math.round( iconsize * magnification ) );
     }
     if ( im != null ) { // Draw the icon!
@@ -470,8 +470,8 @@ public class SWTGC implements GCInterface {
   }
 
   @Override
-  public void drawStepIcon( int x, int y, StepMeta stepMeta ) {
-    drawStepIcon( x, y, stepMeta, currentMagnification );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta ) {
+    drawTransformIcon( x, y, transformMeta, currentMagnification );
   }
 
   public void setAntialias( boolean antiAlias ) {

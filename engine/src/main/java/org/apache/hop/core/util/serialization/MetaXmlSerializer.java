@@ -40,36 +40,36 @@ import java.io.StringWriter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.Charset.defaultCharset;
-import static org.apache.hop.core.util.serialization.StepMetaProps.STEP_TAG;
+import static org.apache.hop.core.util.serialization.TransformMetaProps.TRANSFORM_TAG;
 
 /**
- * Converts StepMetaProps to/from an XML string using JAXB.
+ * Converts TransformMetaProps to/from an XML string using JAXB.
  */
 public class MetaXmlSerializer {
 
-  public static String serialize( StepMetaProps stepMetaProps ) {
+  public static String serialize( TransformMetaProps transformMetaProps ) {
     try ( ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
-      Marshaller marshalObj = JAXBContext.newInstance( StepMetaProps.class ).createMarshaller();
+      Marshaller marshalObj = JAXBContext.newInstance( TransformMetaProps.class ).createMarshaller();
       marshalObj.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, true );
       marshalObj.setProperty( Marshaller.JAXB_FRAGMENT, true );
-      marshalObj.marshal( stepMetaProps, baos );
+      marshalObj.marshal( transformMetaProps, baos );
       return baos.toString( defaultCharset().name() );
     } catch ( JAXBException | IOException e ) {
       throw new RuntimeException( e );
     }
   }
 
-  public static StepMetaProps deserialize( String ser ) {
+  public static TransformMetaProps deserialize( String ser ) {
     try ( ByteArrayInputStream bais = new ByteArrayInputStream( ser.getBytes( defaultCharset() ) ) ) {
-      Unmarshaller unmarshaller = JAXBContext.newInstance( StepMetaProps.class ).createUnmarshaller();
-      return (StepMetaProps) unmarshaller.unmarshal( bais );
+      Unmarshaller unmarshaller = JAXBContext.newInstance( TransformMetaProps.class ).createUnmarshaller();
+      return (TransformMetaProps) unmarshaller.unmarshal( bais );
     } catch ( IOException | JAXBException e ) {
       throw new RuntimeException( e );
     }
   }
 
-  public static StepMetaProps deserialize( Node node ) {
-    return deserialize( nodeToString( XMLHandler.getSubNode( node, STEP_TAG ) ) );
+  public static TransformMetaProps deserialize( Node node ) {
+    return deserialize( nodeToString( XMLHandler.getSubNode( node, TRANSFORM_TAG ) ) );
   }
 
 

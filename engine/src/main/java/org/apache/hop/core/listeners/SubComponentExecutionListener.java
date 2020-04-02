@@ -48,7 +48,7 @@ public interface SubComponentExecutionListener {
 
   /**
    * This method is called right before a job is to be executed in a parent job or pipeline (Job job-entry, Job
-   * Executor step).
+   * Executor transform).
    *
    * @param pipeline The job that is about to be executed.
    * @throws HopException In case something goes wrong
@@ -57,7 +57,7 @@ public interface SubComponentExecutionListener {
 
   /**
    * This method is called right after a job was executed in a parent job or pipeline (Job job-entry, Job Executor
-   * step).
+   * transform).
    *
    * @param pipeline The job that was executed.
    * @throws HopException In case something goes wrong

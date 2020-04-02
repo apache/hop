@@ -41,7 +41,7 @@ import java.util.List;
  * @author Alexander Buloichik
  */
 public class XMLFormatter {
-  private static final String STEP_PREFIX = "  ";
+  private static final String TRANSFORM_PREFIX = "  ";
 
   private static XMLInputFactory INPUT_FACTORY = XMLInputFactory.newInstance();
   private static XMLOutputFactory OUTPUT_FACTORY = XMLOutputFactory.newInstance();
@@ -83,7 +83,7 @@ public class XMLFormatter {
           if ( event == XMLStreamConstants.END_ELEMENT ) {
             startElementBuffer.writeTo( wr, true );
             startElementBuffer = null;
-            prefix.setLength( prefix.length() - STEP_PREFIX.length() );
+            prefix.setLength( prefix.length() - TRANSFORM_PREFIX.length() );
             wasStart = false;
             continue;
           } else {
@@ -100,13 +100,13 @@ public class XMLFormatter {
               wr.writeCharacters( "\n" + prefix );
             }
             str.setLength( 0 );
-            prefix.append( STEP_PREFIX );
+            prefix.append( TRANSFORM_PREFIX );
             startElementBuffer = new StartElementBuffer( rd );
             wasStart = true;
             wasSomething = true;
             break;
           case XMLStreamConstants.END_ELEMENT:
-            prefix.setLength( prefix.length() - STEP_PREFIX.length() );
+            prefix.setLength( prefix.length() - TRANSFORM_PREFIX.length() );
             if ( wasStart ) {
               wr.writeCharacters( str.toString() );
             } else {

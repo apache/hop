@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name/>
     <directory>/</directory>
@@ -32,7 +32,7 @@
   <order>
   <hop> <from>Get rows from result</from><to>Set Variables</to><enabled>Y</enabled> </hop>  </order>
 
-  <step>
+  <transform>
     <name>Get rows from result</name>
     <type>RowsFromResult</type>
     <description/>
@@ -55,9 +55,9 @@
       <yloc>102</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Set Variables</name>
     <type>SetVariable</type>
     <description/>
@@ -75,6 +75,6 @@
       <yloc>103</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-</transformation>
+</pipeline>

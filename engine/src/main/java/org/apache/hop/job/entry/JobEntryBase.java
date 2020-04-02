@@ -102,9 +102,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   protected VariableSpace variables = new Variables();
 
   /**
-   * The map for setVariablesStep bindings for the job entry
+   * The map for transform variable bindings for the job entry
    */
-  protected Map<String, String> entryStepSetVariablesMap = new ConcurrentHashMap<>();
+  protected Map<String, String> entryTransformSetVariablesMap = new ConcurrentHashMap<>();
 
   /**
    * The parent job
@@ -681,7 +681,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * Gets a list of all the resource dependencies that the step is depending on. In JobEntryBase, this method returns an
+   * Gets a list of all the resource dependencies that the transform is depending on. In JobEntryBase, this method returns an
    * empty resource dependency list.
    *
    * @return an empty list of ResourceReferences
@@ -970,9 +970,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * Gets a string identifying a copy in a series of steps
+   * Gets a string identifying a copy in a series of transforms
    *
-   * @return a string identifying a copy in a series of steps
+   * @return a string identifying a copy in a series of transforms
    * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectCopy()
    */
   @Override
@@ -1053,7 +1053,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the transform, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return null;
@@ -1173,32 +1173,32 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * Gets a Map of variables set in EntryStepSetVariables
+   * Gets a Map of variables set in EntryTransformSetVariables
    *
    * @return a map of variable names and values
    */
-  protected Map<String, String> getEntryStepSetVariablesMap() {
-    return entryStepSetVariablesMap;
+  protected Map<String, String> getEntryTransformSetVariablesMap() {
+    return entryTransformSetVariablesMap;
   }
 
   /**
-   * Sets the value of the specified EntryStepSetVariable
+   * Sets the value of the specified EntryTransformSetVariable
    */
-  public void setEntryStepSetVariable( String variableName, String variableValue ) {
+  public void setEntryTransformSetVariable( String variableName, String variableValue ) {
     // ConcurrentHashMap does not allow null keys and null values.
     if ( variableName != null ) {
       if ( variableValue != null ) {
-        entryStepSetVariablesMap.put( variableName, variableValue );
+        entryTransformSetVariablesMap.put( variableName, variableValue );
       } else {
-        entryStepSetVariablesMap.put( variableName, StringUtils.EMPTY );
+        entryTransformSetVariablesMap.put( variableName, StringUtils.EMPTY );
       }
     }
   }
 
   /**
-   * Gets the value of the specified EntryStepSetVariable
+   * Gets the value of the specified EntryTransformSetVariable
    */
-  public String getEntryStepSetVariable( String variableName ) {
-    return entryStepSetVariablesMap.get( variableName );
+  public String getEntryTransformSetVariable( String variableName ) {
+    return entryTransformSetVariablesMap.get( variableName );
   }
 }

@@ -58,12 +58,12 @@ import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.pipeline.StepWithMappingMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.SlaveServerPipelineStatus;
 import org.w3c.dom.Node;
@@ -558,7 +558,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
 
         prepareFieldNamesParameters( parameters, parameterFieldNames, parameterValues, namedParam, this );
 
-        StepWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames,
+        TransformWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames,
           parameters, parameterValues, isPassingAllParameters() );
         boolean doFallback = true;
         SlaveServer remoteSlaveServer = null;
@@ -858,11 +858,11 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
         //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
         // parent parameter.
 
-        StepWithMappingMeta.replaceVariableValues( pipelineMeta, space, "Pipeline" );
+        TransformWithMappingMeta.replaceVariableValues( pipelineMeta, space, "Pipeline" );
         if ( isPassingAllParameters() ) {
           // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
           // variables from the pipeline?' option is checked)
-          StepWithMappingMeta.addMissingVariables( pipelineMeta, space );
+          TransformWithMappingMeta.addMissingVariables( pipelineMeta, space );
         }
         // Pass the IMetaStore references
         //
@@ -1058,7 +1058,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the transform, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   @Override
   public String[] getReferencedObjectDescriptions() {

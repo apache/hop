@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>hop-assemblies-plugins</artifactId>
+        <groupId>org.hop</groupId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <artifactId>hop-assemblies-plugins-transforms</artifactId>
+
+    <name>Hop Assemblies Plugins Transforms</name>
+    <description></description>
+
+    <modules>
+        <module>abort</module>
+        <module>addsequence</module>
+        <module>analyticquery</module>
+        <module>append</module>
+        <module>blockingtransform</module>
+        <module>blockuntiltransformsfinish</module>
+        <module>calculator</module>
+        <module>changefileencoding</module>
+        <module>checksum</module>
+        <module>clonerow</module>
+        <module>closure</module>
+        <module>columnexists</module>
+        <module>combinationlookup</module>        
+        <module>constant</module>
+        <module>creditcardvalidator</module>
+        <module>cubeinput</module>
+        <module>cubeoutput</module>
+        <module>databasejoin</module>
+        <module>databaselookup</module>
+        <module>datagrid</module>
+        <module>dbproc</module>
+        <module>delay</module>
+        <module>delete</module>
+        <module>denormaliser</module>
+        <module>detectemptystream</module>
+        <module>detectlastrow</module>
+        <module>dimensionlookup</module>
+        <module>dynamicsqlrow</module>
+        <module>edi2xml</module>
+        <module>excelinput</module>
+        <module>exceloutput</module>
+        <module>excelwriter</module>
+        <module>execprocess</module>
+        <module>execsqlrow</module>
+        <module>fieldschangesequence</module>
+        <module>fieldsplitter</module>
+        <module>fileexists</module>
+        <module>filelocked</module>
+        <module>filterrows</module>
+        <module>flattener</module>
+        <module>fuzzymatch</module>
+        <module>getfilenames</module>
+        <module>getfilesrowcount</module>
+        <module>getslavesequence</module>
+        <module>getsubfolders</module>
+        <module>gettablenames</module>
+        <module>getvariable</module>
+        <module>http</module>
+        <module>httppost</module>
+        <module>loadfileinput</module>
+        <module>pgbulkloader</module>
+        <module>rowgenerator</module>
+        <module>selectvalues</module>
+        <module>sql</module>
+        <module>terafast</module>
+        <module>textfile</module>
+    </modules>
+
+</project>

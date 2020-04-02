@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Switch-Case - contains example</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>step &#x3c;five&#x3e; receives both &#x22;five&#x22; and &#x22;xfivex&#x22; rows because it is &#xa;declared first in the cases so &#x3c;five alt&#x3e; never receives its row.&#xa; &#xa; &#xa;The case for &#x22;xsixx&#x22; is declared before &#x22;six&#x22; though, so those&#xa;rows are distributed in the desired manner.</note>
+      <note>transform &#x3c;five&#x3e; receives both &#x22;five&#x22; and &#x22;xfivex&#x22; rows because it is &#xa;declared first in the cases so &#x3c;five alt&#x3e; never receives its row.&#xa; &#xa; &#xa;The case for &#x22;xsixx&#x22; is declared before &#x22;six&#x22; though, so those&#xa;rows are distributed in the desired manner.</note>
       <xloc>208</xloc>
       <yloc>379</yloc>
       <width>393</width>
@@ -513,7 +513,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>CSV file input</name>
     <type>CsvInput</type>
     <description/>
@@ -562,20 +562,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>400</xloc>
       <yloc>50</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Switch &#x2f; Case</name>
     <type>SwitchCase</type>
     <description/>
@@ -592,40 +592,40 @@
 <case_value_format/>
 <case_value_decimal/>
 <case_value_group/>
-<default_target_step>other</default_target_step>
+<default_target_transform>other</default_target_transform>
 <cases><case><value>one</value>
-<target_step>one</target_step>
+<target_transform>one</target_transform>
 </case><case><value>two</value>
-<target_step>two</target_step>
+<target_transform>two</target_transform>
 </case><case><value>three</value>
-<target_step>three</target_step>
+<target_transform>three</target_transform>
 </case><case><value>four</value>
-<target_step>four</target_step>
+<target_transform>four</target_transform>
 </case><case><value>five</value>
-<target_step>five</target_step>
+<target_transform>five</target_transform>
 </case><case><value>xfivex</value>
-<target_step>five alt</target_step>
+<target_transform>five alt</target_transform>
 </case><case><value>xsixx</value>
-<target_step>six alt</target_step>
+<target_transform>six alt</target_transform>
 </case><case><value>six</value>
-<target_step>six</target_step>
+<target_transform>six</target_transform>
 </case><case><value/>
-<target_step>null</target_step>
+<target_transform>null</target_transform>
 </case></cases>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>400</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>five</name>
     <type>Dummy</type>
     <description/>
@@ -637,20 +637,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>457</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>five alt</name>
     <type>Dummy</type>
     <description/>
@@ -662,20 +662,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>557</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>four</name>
     <type>Dummy</type>
     <description/>
@@ -687,20 +687,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>357</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>null</name>
     <type>Dummy</type>
     <description/>
@@ -712,20 +712,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>250</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>one</name>
     <type>Dummy</type>
     <description/>
@@ -737,20 +737,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>57</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>other</name>
     <type>Dummy</type>
     <description/>
@@ -762,20 +762,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>550</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>six</name>
     <type>Dummy</type>
     <description/>
@@ -787,20 +787,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>657</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>six alt</name>
     <type>Dummy</type>
     <description/>
@@ -812,20 +812,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>757</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>three</name>
     <type>Dummy</type>
     <description/>
@@ -837,20 +837,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>257</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>two</name>
     <type>Dummy</type>
     <description/>
@@ -862,22 +862,22 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>157</xloc>
       <yloc>299</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 
 import java.util.Collections;
@@ -40,36 +40,36 @@ import java.util.List;
  */
 public class PartitionSettings {
 
-  private final StepMeta stepMeta;
+  private final TransformMeta transformMeta;
   private final PipelineMeta pipelineMeta;
   private final MetaStoreManager<PartitionSchema> schemaManager;
   private final String[] options;
   private final String[] codes;
-  private final StepMeta before;
+  private final TransformMeta before;
 
-  public PartitionSettings( int exactSize, PipelineMeta pipelineMeta, StepMeta stepMeta, MetaStoreManager<PartitionSchema> schemaManager ) {
+  public PartitionSettings( int exactSize, PipelineMeta pipelineMeta, TransformMeta transformMeta, MetaStoreManager<PartitionSchema> schemaManager ) {
     this.pipelineMeta = pipelineMeta;
-    this.stepMeta = stepMeta;
+    this.transformMeta = transformMeta;
     this.schemaManager = schemaManager;
     this.options = new String[ exactSize ];
     this.codes = new String[ exactSize ];
-    this.before = (StepMeta) stepMeta.clone();
-    System.arraycopy( StepPartitioningMeta.methodDescriptions, 0, options, 0, StepPartitioningMeta.methodDescriptions.length );
-    System.arraycopy( StepPartitioningMeta.methodCodes, 0, codes, 0, StepPartitioningMeta.methodCodes.length );
+    this.before = (TransformMeta) transformMeta.clone();
+    System.arraycopy( TransformPartitioningMeta.methodDescriptions, 0, options, 0, TransformPartitioningMeta.methodDescriptions.length );
+    System.arraycopy( TransformPartitioningMeta.methodCodes, 0, codes, 0, TransformPartitioningMeta.methodCodes.length );
   }
 
   public void fillOptionsAndCodesByPlugins( List<PluginInterface> plugins ) {
     int pluginIndex = 0;
     for ( PluginInterface plugin : plugins ) {
-      options[ StepPartitioningMeta.methodDescriptions.length + pluginIndex ] = plugin.getDescription();
-      codes[ StepPartitioningMeta.methodCodes.length + pluginIndex ] = plugin.getIds()[ 0 ];
+      options[ TransformPartitioningMeta.methodDescriptions.length + pluginIndex ] = plugin.getDescription();
+      codes[ TransformPartitioningMeta.methodCodes.length + pluginIndex ] = plugin.getIds()[ 0 ];
       pluginIndex++;
     }
   }
 
   public int getDefaultSelectedMethodIndex() {
     for ( int i = 0; i < codes.length; i++ ) {
-      if ( codes[ i ].equals( stepMeta.getStepPartitioningMeta().getMethod() ) ) {
+      if ( codes[ i ].equals( transformMeta.getTransformPartitioningMeta().getMethod() ) ) {
         return i;
       }
     }
@@ -84,7 +84,7 @@ public class PartitionSettings {
       schemaNames = Collections.emptyList();
     }
 
-    PartitionSchema partitioningSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
+    PartitionSchema partitioningSchema = transformMeta.getTransformPartitioningMeta().getPartitionSchema();
     int defaultSelectedSchemaIndex = 0;
     if ( partitioningSchema != null && partitioningSchema.getName() != null
       && !schemaNames.isEmpty() ) {
@@ -95,7 +95,7 @@ public class PartitionSettings {
   }
 
   public String getMethodByMethodDescription( String methodDescription ) {
-    String method = StepPartitioningMeta.methodCodes[ StepPartitioningMeta.PARTITIONING_METHOD_NONE ];
+    String method = TransformPartitioningMeta.methodCodes[ TransformPartitioningMeta.PARTITIONING_METHOD_NONE ];
     for ( int i = 0; i < options.length; i++ ) {
       if ( options[ i ].equals( methodDescription ) ) {
         method = codes[ i ];
@@ -134,36 +134,36 @@ public class PartitionSettings {
     }
   }
 
-  public StepMeta getStepMeta() {
-    return stepMeta;
+  public TransformMeta getTransformMeta() {
+    return transformMeta;
   }
 
   public void updateMethodType( int methodType ) {
-    stepMeta.getStepPartitioningMeta().setMethodType( methodType );
+    transformMeta.getTransformPartitioningMeta().setMethodType( methodType );
   }
 
   public void updateMethod( String method ) throws HopPluginException {
-    stepMeta.getStepPartitioningMeta().setMethod( method );
+    transformMeta.getTransformPartitioningMeta().setMethod( method );
   }
 
   public void updateSchema( PartitionSchema schema ) {
     if ( schema != null && schema.getName() != null ) {
-      stepMeta.getStepPartitioningMeta().setPartitionSchema( schema );
+      transformMeta.getTransformPartitioningMeta().setPartitionSchema( schema );
     }
   }
 
-  public void rollback( StepMeta before ) throws HopPluginException {
-    updateMethod( before.getStepPartitioningMeta().getMethod() );
-    updateMethodType( before.getStepPartitioningMeta().getMethodType() );
-    updateSchema( before.getStepPartitioningMeta().getPartitionSchema() );
+  public void rollback( TransformMeta before ) throws HopPluginException {
+    updateMethod( before.getTransformPartitioningMeta().getMethod() );
+    updateMethodType( before.getTransformPartitioningMeta().getMethodType() );
+    updateSchema( before.getTransformPartitioningMeta().getPartitionSchema() );
   }
 
-  public StepMeta getBefore() {
+  public TransformMeta getBefore() {
     return before;
   }
 
-  public StepMeta getAfter() {
-    return (StepMeta) stepMeta.clone();
+  public TransformMeta getAfter() {
+    return (TransformMeta) transformMeta.clone();
   }
 
   public PipelineMeta getPipelineMeta() {

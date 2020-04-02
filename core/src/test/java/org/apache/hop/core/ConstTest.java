@@ -1854,8 +1854,8 @@ public class ConstTest {
   @Test
   public void testReplace() {
     final String source = "A journey of a thousand miles never begins";
-    assertEquals( "A journey of a thousand miles begins with a single step", Const.replace( source, "never begins",
-      "begins with a single step" ) );
+    assertEquals( "A journey of a thousand miles begins with a single transform", Const.replace( source, "never begins",
+      "begins with a single transform" ) );
     assertEquals( source, Const.replace( source, "evil", "good" ) );
     assertEquals( "short", Const.replace( "short", "long pattern", "replacement" ) );
     assertEquals( "", Const.replace( "", "anything", "something" ) );
@@ -1868,8 +1868,8 @@ public class ConstTest {
   public void testRepl() {
     String source = "A journey of a thousand miles never begins";
     StringBuffer sb = new StringBuffer( source );
-    Const.repl( sb, "never begins", "begins with a single step" );
-    assertEquals( "A journey of a thousand miles begins with a single step", sb.toString() );
+    Const.repl( sb, "never begins", "begins with a single transform" );
+    assertEquals( "A journey of a thousand miles begins with a single transform", sb.toString() );
     sb = new StringBuffer( source );
     Const.repl( sb, "evil", "good" );
     assertEquals( source, sb.toString() );
@@ -1885,8 +1885,8 @@ public class ConstTest {
 
     // StringBuilder version
     StringBuilder sb2 = new StringBuilder( source );
-    Const.repl( sb2, "never begins", "begins with a single step" );
-    assertEquals( "A journey of a thousand miles begins with a single step", sb2.toString() );
+    Const.repl( sb2, "never begins", "begins with a single transform" );
+    assertEquals( "A journey of a thousand miles begins with a single transform", sb2.toString() );
     sb2 = new StringBuilder( source );
     Const.repl( sb2, "evil", "good" );
     assertEquals( source, sb2.toString() );

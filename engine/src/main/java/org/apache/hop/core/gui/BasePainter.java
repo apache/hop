@@ -31,7 +31,7 @@ import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
 import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
 import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.pipeline.step.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
 import java.util.List;
 

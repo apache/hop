@@ -18,7 +18,7 @@
         <!-- plugins -->
         <hop-plugins-dummy.version>${project.version}</hop-plugins-dummy.version>
         <hop-plugins-core.version>${project.version}</hop-plugins-core.version>
-        <hop-plugins-steps.version>${project.version}</hop-plugins-steps.version>
+        <hop-plugins-transforms.version>${project.version}</hop-plugins-transforms.version>
         <hop-plugins-jobentries.version>${project.version}</hop-plugins-jobentries.version>
         <hop-plugins-databases.version>${project.version}</hop-plugins-databases.version>
     </properties>
@@ -748,8 +748,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-abort</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-abort</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -761,8 +761,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-addsequence</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-addsequence</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -774,8 +774,8 @@
      
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-analyticquery</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-analyticquery</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -787,8 +787,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-append</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-append</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -800,8 +800,8 @@
      
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-blockingstep</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-blockingtransform</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -813,8 +813,8 @@
           
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-blockuntilstepsfinish</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-blockuntiltransformsfinish</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -826,8 +826,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-calculator</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-calculator</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -839,8 +839,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-changefileencoding</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-changefileencoding</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -852,8 +852,8 @@
      
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-checksum</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-checksum</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -865,8 +865,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-clonerow</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-clonerow</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -878,8 +878,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-closure</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-closure</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -891,8 +891,8 @@
       
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-columnexists</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-columnexists</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -904,8 +904,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-combinationlookup</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-combinationlookup</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -913,25 +913,12 @@
                  <artifactId>*</artifactId>
              </exclusion>
          </exclusions>
-     </dependency>     
-
-     <dependency>
-         <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-concatfields</artifactId>
-         <version>${hop-plugins-steps.version}</version>
-         <type>zip</type>
-         <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-         </exclusions>
-     </dependency>     
+     </dependency>
      
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-constant</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-constant</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -943,8 +930,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-creditcardvalidator</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-creditcardvalidator</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -956,8 +943,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-cubeinput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-cubeinput</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -969,8 +956,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-cubeoutput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-cubeoutput</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -982,8 +969,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-databasejoin</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-databasejoin</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -995,8 +982,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-databaselookup</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-databaselookup</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1008,8 +995,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-datagrid</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-datagrid</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1021,8 +1008,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-dbproc</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-dbproc</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1034,8 +1021,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-delay</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-delay</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1047,8 +1034,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-delete</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-delete</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1060,8 +1047,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-denormaliser</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-denormaliser</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1073,8 +1060,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-detectemptystream</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-detectemptystream</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1086,8 +1073,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-detectlastrow</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-detectlastrow</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1099,8 +1086,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-dimensionlookup</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-dimensionlookup</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1112,8 +1099,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-dynamicsqlrow</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-dynamicsqlrow</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1125,8 +1112,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-edi2xml</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-edi2xml</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1138,8 +1125,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-excelinput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-excelinput</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1151,8 +1138,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-exceloutput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-exceloutput</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1164,8 +1151,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-excelwriter</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-excelwriter</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1177,8 +1164,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-execprocess</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-execprocess</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1190,8 +1177,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-execsqlrow</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-execsqlrow</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1203,8 +1190,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-fieldchangesequence</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-fieldchangesequence</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1216,8 +1203,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-fieldsplitter</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-fieldsplitter</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1229,8 +1216,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-fileexists</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-fileexists</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1242,8 +1229,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-filelocked</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-filelocked</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1255,8 +1242,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-filterrows</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-filterrows</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1268,8 +1255,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-flattener</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-flattener</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1281,8 +1268,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-fuzzymatch</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-fuzzymatch</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1294,8 +1281,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-getfilenames</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-getfilenames</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1307,8 +1294,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-getfilesrowscount</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-getfilesrowscount</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1320,8 +1307,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-getslavesequence</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-getslavesequence</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1333,8 +1320,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-getsubfolders</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-getsubfolders</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1346,8 +1333,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-gettablenames</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-gettablenames</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1359,8 +1346,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-getvariable</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-getvariable</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1372,8 +1359,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-http</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-http</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1385,8 +1372,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-httppost</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-httppost</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1398,8 +1385,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-loadfileinput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-loadfileinput</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1411,8 +1398,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-pgbulkloader</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-pgbulkloader</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1424,8 +1411,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-rowgenerator</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-rowgenerator</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1437,8 +1424,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-selectvalues</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-selectvalues</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1450,8 +1437,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-sql</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-sql</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1463,8 +1450,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-terafast</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-terafast</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>
@@ -1476,8 +1463,8 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-textfile</artifactId>
-         <version>${hop-plugins-steps.version}</version>
+         <artifactId>hop-assemblies-plugins-transforms-textfile</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
              <exclusion>

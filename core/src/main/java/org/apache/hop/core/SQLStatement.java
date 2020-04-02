@@ -32,7 +32,7 @@ import org.apache.hop.core.database.DatabaseMeta;
  * @since 02-dec-2004
  */
 public class SQLStatement {
-  private String stepname;
+  private String transformName;
   private DatabaseMeta dbinfo;
   private String sql;
   private String error;
@@ -43,29 +43,29 @@ public class SQLStatement {
    * @param dbinfo The database connection
    * @param sql    The sql to execute on the connection
    */
-  public SQLStatement( String stepname, DatabaseMeta dbinfo, String sql ) {
-    this.stepname = stepname;
+  public SQLStatement( String transformName, DatabaseMeta dbinfo, String sql ) {
+    this.transformName = transformName;
     this.dbinfo = dbinfo;
     this.sql = sql;
     this.error = null;
   }
 
   /**
-   * Set the name of the step for which the SQL is intended
+   * Set the name of the transform for which the SQL is intended
    *
-   * @param stepname the name of the step for which the SQL is intended
+   * @param transformName the name of the transform for which the SQL is intended
    */
-  public void setStepname( String stepname ) {
-    this.stepname = stepname;
+  public void setTransformName( String transformName ) {
+    this.transformName = transformName;
   }
 
   /**
-   * Return the name of the step for which the SQL is intended
+   * Return the name of the transform for which the SQL is intended
    *
-   * @return The name of the step for which the SQL is intended
+   * @return The name of the transform for which the SQL is intended
    */
-  public String getStepname() {
-    return stepname;
+  public String getTransformName() {
+    return transformName;
   }
 
   /**

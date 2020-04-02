@@ -34,18 +34,18 @@ import static org.mockito.Mockito.mock;
 public class SQLStatementTest {
   @Test
   public void testClass() throws HopException {
-    final String name = "stepName";
+    final String name = "transformName";
     final DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     final String sql = "sql string";
     final String error = "error";
 
     SQLStatement statement = new SQLStatement( name, dbMeta, sql );
-    assertSame( name, statement.getStepname() );
+    assertSame( name, statement.getTransformName() );
     assertSame( dbMeta, statement.getDatabase() );
     assertTrue( statement.hasSQL() );
     assertSame( sql, statement.getSQL() );
-    statement.setStepname( null );
-    assertNull( statement.getStepname() );
+    statement.setTransformName( null );
+    assertNull( statement.getTransformName() );
     statement.setDatabase( null );
     assertNull( statement.getDatabase() );
     statement.setSQL( null );

@@ -35,7 +35,7 @@ Repo writes/reads use
 RepoSerializer
          .builder()
          .repo( repo )
-         .stepMeta( stepMeta )
+         .transformMeta( transformMeta )
          .stepId( stepId )
          .transId( transId )
          .serialize()   /  .deserialize()

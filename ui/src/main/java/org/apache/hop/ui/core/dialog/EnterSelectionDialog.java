@@ -31,7 +31,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -234,7 +234,7 @@ public class EnterSelectionDialog extends Dialog {
         }
       } );
 
-      // From step line
+      // From transform line
       wlSelection = new Label( shell, SWT.NONE );
       wlSelection.setText( lineText );
       props.setLook( wlSelection );
@@ -243,7 +243,7 @@ public class EnterSelectionDialog extends Dialog {
       fdlSelection.top = new FormAttachment( treeTb, 10 );
       wlSelection.setLayoutData( fdlSelection );
     } else {
-      // From step line
+      // From transform line
       wlSelection = new Label( shell, SWT.NONE );
       wlSelection.setText( lineText );
       props.setLook( wlSelection );
@@ -302,7 +302,7 @@ public class EnterSelectionDialog extends Dialog {
       buttons = new Button[] { wOK, wCancel };
     }
 
-    BaseStepDialog.positionBottomRightButtons( shell, buttons, margin, null );
+    BaseTransformDialog.positionBottomRightButtons( shell, buttons, margin, null );
 
     Control nextControl = wOK;
 
@@ -369,7 +369,7 @@ public class EnterSelectionDialog extends Dialog {
     getData();
 
     if ( shellWidth == 0 || shellHeight == 0 ) {
-      BaseStepDialog.setSize( shell );
+      BaseTransformDialog.setSize( shell );
     } else {
       shell.setSize( shellWidth, shellHeight );
     }
@@ -526,7 +526,7 @@ public class EnterSelectionDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     wOK.setFocus();
     shell.pack();

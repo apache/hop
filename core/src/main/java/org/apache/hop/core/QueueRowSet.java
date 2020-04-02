@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A simplified rowset for steps for single threaded execution. This row set has no limited size.
+ * A simplified rowset for transforms for single threaded execution. This row set has no limited size.
  *
  * @author matt
  */

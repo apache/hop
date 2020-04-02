@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>GetXMLData - Differents Options.ktr</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>N</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -457,7 +457,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>This step will parse the input XML field and extract all person with&#xa;the selected fields.&#xa;You can use it to read RSS like this &#x3a;&#xa;&#xa;Generate 1 row --&#x3e; Call HTTP --&#x3e; Parse</note>
+      <note>This transform will parse the input XML field and extract all person with&#xa;the selected fields.&#xa;You can use it to read RSS like this &#x3a;&#xa;&#xa;Generate 1 row --&#x3e; Call HTTP --&#x3e; Parse</note>
       <xloc>352</xloc>
       <yloc>800</yloc>
       <width>408</width>
@@ -520,7 +520,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>Please notice &#x27;kind of variable&#x27; use &#x3a; &#x40;_User- mean current User&#xa;-----------------------------------------------------------------------------&#xa;&#xa;Data field &#x3d;  ..&#x2f;..&#x2f;InfoSession&#x2f;InfoSessionData&#x5b;&#x40;User&#x3d;&#x7b;&#x24;User&#x7d;&#x5d;&#x2f;Data&#xa;&#x40;_User-  mean that the step must search Data for current user.&#xa;There must be User field before. </note>
+      <note>Please notice &#x27;kind of variable&#x27; use &#x3a; &#x40;_User- mean current User&#xa;-----------------------------------------------------------------------------&#xa;&#xa;Data field &#x3d;  ..&#x2f;..&#x2f;InfoSession&#x2f;InfoSessionData&#x5b;&#x40;User&#x3d;&#x7b;&#x24;User&#x7d;&#x5d;&#x2f;Data&#xa;&#x40;_User-  mean that the transform must search Data for current user.&#xa;There must be User field before. </note>
       <xloc>384</xloc>
       <yloc>64</yloc>
       <width>477</width>
@@ -541,7 +541,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>2- Read the file and extract all session data&#xa;------------------------------------------------------&#xa;Same than 1. but filename is passed by previous step</note>
+      <note>2- Read the file and extract all session data&#xa;------------------------------------------------------&#xa;Same than 1. but filename is passed by previous transform</note>
       <xloc>32</xloc>
       <yloc>224</yloc>
       <width>338</width>
@@ -583,7 +583,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>3- Read Url &#x28;ex&#x3a;http&#x3a;&#x2f;&#x2f;forums.pentaho.org&#x2f;external.php&#x3f;type&#x3d;xml&#x29;&#xa;------------------------------------------------------&#xa;You can also read the Url thanks to Http step and after parse string &#x28;see 4&#x29;</note>
+      <note>3- Read Url &#x28;ex&#x3a;http&#x3a;&#x2f;&#x2f;forums.pentaho.org&#x2f;external.php&#x3f;type&#x3d;xml&#x29;&#xa;------------------------------------------------------&#xa;You can also read the Url thanks to Http transform and after parse string &#x28;see 4&#x29;</note>
       <xloc>32</xloc>
       <yloc>416</yloc>
       <width>462</width>
@@ -641,7 +641,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Pass URl</name>
     <type>RowGenerator</type>
     <description/>
@@ -672,20 +672,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>64</xloc>
       <yloc>512</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview</name>
     <type>Dummy</type>
     <description/>
@@ -697,20 +697,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>260</xloc>
       <yloc>102</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview2</name>
     <type>Dummy</type>
     <description/>
@@ -722,20 +722,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>352</xloc>
       <yloc>320</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview3</name>
     <type>Dummy</type>
     <description/>
@@ -747,20 +747,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>352</xloc>
       <yloc>512</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview4</name>
     <type>Dummy</type>
     <description/>
@@ -772,20 +772,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>576</xloc>
       <yloc>736</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Read Url</name>
     <type>getXMLData</type>
     <description/>
@@ -908,20 +908,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>224</xloc>
       <yloc>512</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Read XML</name>
     <type>getXMLData</type>
     <description/>
@@ -1029,20 +1029,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>352</xloc>
       <yloc>736</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Read XML file</name>
     <type>getXMLData</type>
     <description/>
@@ -1180,20 +1180,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>48</xloc>
       <yloc>102</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>generate XML</name>
     <type>RowGenerator</type>
     <description/>
@@ -1224,20 +1224,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>32</xloc>
       <yloc>736</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>get filename</name>
     <type>GetVariable</type>
     <description/>
@@ -1263,20 +1263,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>64</xloc>
       <yloc>320</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>parse file from filename</name>
     <type>getXMLData</type>
     <description/>
@@ -1384,22 +1384,22 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>202</xloc>
       <yloc>320</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

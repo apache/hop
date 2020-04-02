@@ -26,7 +26,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -96,7 +96,7 @@ public class SWTDirectGC implements GCInterface {
     this.gc = gc;
     this.area = area;
     this.iconsize = iconsize;
-    this.images = GUIResource.getInstance().getImagesSteps();
+    this.images = GUIResource.getInstance().getImagesTransforms();
 
     this.colors = new ArrayList<Color>();
     this.fonts = new ArrayList<Font>();
@@ -192,8 +192,8 @@ public class SWTDirectGC implements GCInterface {
     switch ( image ) {
       case LOCK:
         return GUIResource.getInstance().getSwtImageLocked();
-      case STEP_ERROR:
-        return GUIResource.getInstance().getSwtImageStepError();
+      case TRANSFORM_ERROR:
+        return GUIResource.getInstance().getSwtImageTransformError();
       case EDIT:
         return GUIResource.getInstance().getSwtImageEdit();
       case CONTEXT_MENU:
@@ -402,10 +402,10 @@ public class SWTDirectGC implements GCInterface {
     return new Point( p.x, p.y );
   }
 
-  public void drawStepIcon( int x, int y, StepMeta stepMeta, float magnification ) {
-    String steptype = stepMeta.getStepID();
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
+    String transformtype = transformMeta.getTransformPluginId();
     Image im =
-      images.get( steptype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
+      images.get( transformtype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
         Math.round( iconsize * magnification ) );
     if ( im != null ) { // Draw the icon!
 
@@ -453,8 +453,8 @@ public class SWTDirectGC implements GCInterface {
   }
 
   @Override
-  public void drawStepIcon( int x, int y, StepMeta stepMeta ) {
-    drawStepIcon( x, y, stepMeta, currentMagnification );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta ) {
+    drawTransformIcon( x, y, transformMeta, currentMagnification );
   }
 
   public void setAntialias( boolean antiAlias ) {

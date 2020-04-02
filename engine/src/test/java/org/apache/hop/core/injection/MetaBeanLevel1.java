@@ -22,9 +22,17 @@
 
 package org.apache.hop.core.injection;
 
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+
 @InjectionSupported( localizationPrefix = "", groups = { "FILENAME_LINES", "FILENAME_LINES2" }, hide = {
   "FLONG_HIDDEN" } )
-public class MetaBeanLevel1 {
+public class MetaBeanLevel1 extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
 
   @InjectionDeep
   private MetaBeanLevel2 sub;
@@ -40,5 +48,16 @@ public class MetaBeanLevel1 {
 
   public MetaBeanLevel2 getSub() {
     return sub;
+  }
+
+  @Override public void setDefault() {
+  }
+
+  @Override public TransformInterface createTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return null;
+  }
+
+  @Override public TransformDataInterface getTransformData() {
+    return null;
   }
 }

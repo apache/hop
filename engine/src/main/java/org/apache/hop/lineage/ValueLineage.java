@@ -24,7 +24,7 @@ package org.apache.hop.lineage;
 
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +39,17 @@ public class ValueLineage {
   private PipelineMeta pipelineMeta;
   private ValueMetaInterface valueMeta;
 
-  private List<StepMeta> sourceSteps;
+  private List<TransformMeta> sourceTransforms;
 
   /**
-   * Create a new ValueLineage object with an empty set of source steps.
+   * Create a new ValueLineage object with an empty set of source transforms.
    *
    * @param valueMeta
    */
   public ValueLineage( PipelineMeta pipelineMeta, ValueMetaInterface valueMeta ) {
     this.pipelineMeta = pipelineMeta;
     this.valueMeta = valueMeta;
-    this.sourceSteps = new ArrayList<StepMeta>();
+    this.sourceTransforms = new ArrayList<TransformMeta>();
   }
 
   /**
@@ -81,17 +81,17 @@ public class ValueLineage {
   }
 
   /**
-   * @return the sourceSteps
+   * @return the sourceTransforms
    */
-  public List<StepMeta> getSourceSteps() {
-    return sourceSteps;
+  public List<TransformMeta> getSourceTransforms() {
+    return sourceTransforms;
   }
 
   /**
-   * @param sourceSteps the sourceSteps to set
+   * @param sourceTransforms the sourceTransforms to set
    */
-  public void setSourceSteps( List<StepMeta> sourceSteps ) {
-    this.sourceSteps = sourceSteps;
+  public void setSourceTransforms( List<TransformMeta> sourceTransforms ) {
+    this.sourceTransforms = sourceTransforms;
   }
 
 }

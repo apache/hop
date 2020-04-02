@@ -72,7 +72,7 @@ public class HopMissingPluginsException extends HopException {
   /**
    * Add a missing plugin id for a given plugin type.
    *
-   * @param pluginTypeClass The class of the plugin type (ex. StepPluginType.class)
+   * @param pluginTypeClass The class of the plugin type (ex. TransformPluginType.class)
    * @param pluginId        The id of the missing plugin
    */
   public void addMissingPluginDetails( Class<? extends PluginTypeInterface> pluginTypeClass, String pluginId ) {

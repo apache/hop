@@ -63,7 +63,7 @@ public class MetaAnnotationInjectionTest {
   @Test
   public void testInjectionDescription() throws Exception {
 
-    BeanInjectionInfo ri = new BeanInjectionInfo( MetaBeanLevel1.class );
+    BeanInjectionInfo<MetaBeanLevel1> ri = new BeanInjectionInfo( MetaBeanLevel1.class );
 
     assertEquals( 3, ri.getGroups().size() );
     assertEquals( "", ri.getGroups().get( 0 ).getName() );
@@ -203,7 +203,7 @@ public class MetaAnnotationInjectionTest {
 
   @Test
   public void testGenerics() throws Exception {
-    BeanInjectionInfo ri = new BeanInjectionInfo( MetaBeanChild.class );
+    BeanInjectionInfo<MetaBeanChild> ri = new BeanInjectionInfo( MetaBeanChild.class );
 
     assertTrue( ri.getProperties().size() == 7 );
     assertTrue( ri.getProperties().containsKey( "BASE_ITEM_NAME" ) );

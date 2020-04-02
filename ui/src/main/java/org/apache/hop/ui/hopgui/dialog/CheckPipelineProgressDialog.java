@@ -83,7 +83,7 @@ public class CheckPipelineProgressDialog {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
-          pipelineMeta.checkSteps(
+          pipelineMeta.checkTransforms(
             remarks, onlySelected, new ProgressMonitorAdapter( monitor ), space, metaStore );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(

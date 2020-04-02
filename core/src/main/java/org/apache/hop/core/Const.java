@@ -484,15 +484,14 @@ public class Const {
     + ".Pipeline.Name";
 
   /**
-   * The step partition ID
+   * The transform partition ID
    */
-  public static final String INTERNAL_VARIABLE_STEP_PARTITION_ID = INTERNAL_VARIABLE_PREFIX + ".Step.Partition.ID";
+  public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID = INTERNAL_VARIABLE_PREFIX + ".Transform.Partition.ID";
 
   /**
-   * The step partition number
+   * The transform partition number
    */
-  public static final String INTERNAL_VARIABLE_STEP_PARTITION_NR = INTERNAL_VARIABLE_PREFIX
-    + ".Step.Partition.Number";
+  public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_NR = INTERNAL_VARIABLE_PREFIX + ".Transform.Partition.Number";
 
   /**
    * The slave server name
@@ -500,14 +499,14 @@ public class Const {
   public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NAME = INTERNAL_VARIABLE_PREFIX + ".Slave.Server.Name";
 
   /**
-   * The step name
+   * The transform name
    */
-  public static final String INTERNAL_VARIABLE_STEP_NAME = INTERNAL_VARIABLE_PREFIX + ".Step.Name";
+  public static final String INTERNAL_VARIABLE_TRANSFORM_NAME = INTERNAL_VARIABLE_PREFIX + ".Transform.Name";
 
   /**
-   * The step copy nr
+   * The transform copy nr
    */
-  public static final String INTERNAL_VARIABLE_STEP_COPYNR = INTERNAL_VARIABLE_PREFIX + ".Step.CopyNr";
+  public static final String INTERNAL_VARIABLE_TRANSFORM_COPYNR = INTERNAL_VARIABLE_PREFIX + ".Transform.CopyNr";
 
   /**
    * The default maximum for the nr of lines in the GUI logs
@@ -636,19 +635,19 @@ public class Const {
   public static final String HOP_JOBENTRY_LOG_TABLE = "HOP_JOBENTRY_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the steps log database by default for all pipelines
+   * The name of the variable that defines the transforms log database by default for all pipelines
    */
-  public static final String HOP_STEP_LOG_DB = "HOP_STEP_LOG_DB";
+  public static final String HOP_TRANSFORM_LOG_DB = "HOP_TRANSFORM_LOG_DB";
 
   /**
-   * The name of the variable that defines the steps log schema by default for all pipelines
+   * The name of the variable that defines the transforms log schema by default for all pipelines
    */
-  public static final String HOP_STEP_LOG_SCHEMA = "HOP_STEP_LOG_SCHEMA";
+  public static final String HOP_TRANSFORM_LOG_SCHEMA = "HOP_TRANSFORM_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the steps log table by default for all pipelines
+   * The name of the variable that defines the transforms log table by default for all pipelines
    */
-  public static final String HOP_STEP_LOG_TABLE = "HOP_STEP_LOG_TABLE";
+  public static final String HOP_TRANSFORM_LOG_TABLE = "HOP_TRANSFORM_LOG_TABLE";
 
   /**
    * The name of the variable that defines the log channel log database by default for all pipelines and jobs
@@ -731,14 +730,14 @@ public class Const {
   public static final String HOP_COMPATIBILITY_IGNORE_TABLE_LOGGING = "HOP_COMPATIBILITY_IGNORE_TABLE_LOGGING";
 
   /**
-   * System wide flag to set or not append and header options dependency on Text file output step. See PDI-5252 for
+   * System wide flag to set or not append and header options dependency on Text file output transform. See PDI-5252 for
    * details.
    */
   public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER =
     "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
 
   /**
-   * System wide flag to control behavior of the merge rows (diff) step in case of "identical" comparison. (PDI-736)
+   * System wide flag to control behavior of the merge rows (diff) transform in case of "identical" comparison. (PDI-736)
    * 'Y' preserves the old behavior and takes the fields from the reference stream
    * 'N' enables the documented behavior and takes the fields from the comparison stream (correct behavior)
    */
@@ -746,7 +745,7 @@ public class Const {
     "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
 
   /**
-   * System wide flag to control behavior of the Memory Group By step in case of SUM and AVERAGE aggregation. (PDI-5537)
+   * System wide flag to control behavior of the Memory Group By transform in case of SUM and AVERAGE aggregation. (PDI-5537)
    * 'Y' preserves the old behavior and always returns a Number type for SUM and Average aggregations
    * 'N' enables the documented behavior of returning the same type as the input fields use (correct behavior).
    */
@@ -790,10 +789,10 @@ public class Const {
   public static final String HOP_CARTE_OBJECT_TIMEOUT_MINUTES = "HOP_CARTE_OBJECT_TIMEOUT_MINUTES";
 
   /**
-   * System wide parameter: the maximum number of step performance snapshots to keep in memory. Set to 0 to keep all
+   * System wide parameter: the maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all
    * snapshots indefinitely (default)
    */
-  public static final String HOP_STEP_PERFORMANCE_SNAPSHOT_LIMIT = "HOP_STEP_PERFORMANCE_SNAPSHOT_LIMIT";
+  public static final String HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT = "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT";
 
   /**
    * A variable to configure the maximum number of job trackers kept in memory.
@@ -830,7 +829,7 @@ public class Const {
    * The default SAP ERP connection factory
    */
   public static final String HOP_SAP_CONNECTION_FACTORY_DEFAULT_NAME =
-    "org.apache.hop.pipeline.steps.sapinput.sap.SAPConnectionFactory";
+    "org.apache.hop.pipeline.transforms.sapinput.sap.SAPConnectionFactory";
 
   /**
    * Name of the environment variable to specify additional classes to scan for plugin annotations
@@ -859,14 +858,14 @@ public class Const {
   public static final String VERSION_COMMENT_EDIT_VERSION = "Modification by user";
 
   /**
-   * The XML file that contains the list of native Hop steps
+   * The XML file that contains the list of native Hop transforms
    */
-  public static final String XML_FILE_HOP_STEPS = "hop-steps.xml";
+  public static final String XML_FILE_HOP_TRANSFORMS = "hop-transforms.xml";
 
   /**
-   * The name of the environment variable that will contain the alternative location of the hop-steps.xml file
+   * The name of the environment variable that will contain the alternative location of the hop-transforms.xml file
    */
-  public static final String HOP_CORE_STEPS_FILE = "HOP_CORE_STEPS_FILE";
+  public static final String HOP_CORE_TRANSFORMS_FILE = "HOP_CORE_TRANSFORMS_FILE";
 
   /**
    * The XML file that contains the list of native partition plugins
@@ -949,12 +948,12 @@ public class Const {
   public static final String HOP_BATCHING_ROWSET = "HOP_BATCHING_ROWSET";
 
   /**
-   * Set this variable to limit max number of files the Text File Output step can have open at one time.
+   * Set this variable to limit max number of files the Text File Output transform can have open at one time.
    */
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
-   * This variable contains the number of milliseconds between flushes of all open files in the Text File Output step.
+   * This variable contains the number of milliseconds between flushes of all open files in the Text File Output transform.
    */
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
@@ -1245,7 +1244,7 @@ public class Const {
     String.valueOf( HOP_ZIP_MAX_TEXT_SIZE_DEFAULT );
 
   /**
-   * <p>A variable to configure if the S3 input / output steps should use the Amazon Default Credentials Provider Chain
+   * <p>A variable to configure if the S3 input / output transforms should use the Amazon Default Credentials Provider Chain
    * even if access credentials are specified within the pipeline.</p>
    */
   public static final String HOP_USE_AWS_DEFAULT_CREDENTIALS = "HOP_USE_AWS_DEFAULT_CREDENTIALS";

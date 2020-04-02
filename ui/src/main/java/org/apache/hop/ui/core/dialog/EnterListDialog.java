@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -300,7 +300,7 @@ public class EnterListDialog extends Dialog {
       }
     } );
 
-    // Drag & Drop for steps
+    // Drag & Drop for transforms
     Transfer[] ttypes = new Transfer[] { TextTransfer.getInstance() };
 
     DragSource ddSource = new DragSource( wListSource, DND.DROP_MOVE | DND.DROP_COPY );
@@ -407,7 +407,7 @@ public class EnterListDialog extends Dialog {
     opened = true;
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     Display display = parent.getDisplay();

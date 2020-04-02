@@ -26,7 +26,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-//import org.apache.hop.pipeline.steps.filterrows.FilterRowsMeta;
+//import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 
 public class StringSearcherTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -39,20 +39,20 @@ public class StringSearcherTest {
   //TODO: Move Test
  /* @Test
   public void testSearchConditionCase() {
-    String dummyStepname = "Output";
+    String dummyTransformName = "Output";
     DummyMeta dummyMeta = new DummyMeta();
-    String dummyStepPid = PluginRegistry.getInstance().getPluginId( StepPluginType.class, dummyMeta );
-    StepMeta dummyStep = new StepMeta( dummyStepPid, dummyStepname, dummyMeta );
+    String dummyTransformPid = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, dummyMeta );
+    TransformMeta dummyTransform = new TransformMeta( dummyTransformPid, dummyTransformname, dummyMeta );
 
     List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
-    StringSearcher.findMetaData( dummyStep, 0, stringList, dummyMeta, 0 );
+    StringSearcher.findMetaData( dummyTransform, 0, stringList, dummyMeta, 0 );
 
     int checkCount = 0;
     String aResult = null;
     // Check that it found a couple of fields and emits the values properly
     for ( int i = 0; i < stringList.size(); i++ ) {
       aResult = stringList.get( i ).toString();
-      if ( aResult.endsWith( "Dummy (stepid)" ) ) {
+      if ( aResult.endsWith( "Dummy (transformId)" ) ) {
         checkCount++;
       } else if ( aResult.endsWith( "Output (name)" ) ) {
         checkCount++;
@@ -72,16 +72,16 @@ public class StringSearcherTest {
     filterRowsMeta.setDefault();
     filterRowsMeta.setCondition( condition );
 
-    String filterRowsPluginPid = PluginRegistry.getInstance().getPluginId( StepPluginType.class, filterRowsMeta );
-    StepMeta filterRowsStep = new StepMeta( filterRowsPluginPid, "Filter Rows", filterRowsMeta );
+    String filterRowsPluginPid = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, filterRowsMeta );
+    TransformMeta filterRowsTransform = new TransformMeta( filterRowsPluginPid, "Filter Rows", filterRowsMeta );
 
     stringList.clear();
-    StringSearcher.findMetaData( filterRowsStep, 0, stringList, filterRowsMeta, 0 );
+    StringSearcher.findMetaData( filterRowsTransform, 0, stringList, filterRowsMeta, 0 );
 
     checkCount = 0;
     for ( int i = 0; i < stringList.size(); i++ ) {
       aResult = stringList.get( i ).toString();
-      if ( aResult.endsWith( "FilterRows (stepid)" ) ) {
+      if ( aResult.endsWith( "FilterRows (transformId)" ) ) {
         checkCount++;
       } else if ( aResult.endsWith( "Filter Rows (name)" ) ) {
         checkCount++;

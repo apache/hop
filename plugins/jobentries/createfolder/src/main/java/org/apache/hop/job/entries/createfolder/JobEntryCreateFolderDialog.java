@@ -33,7 +33,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -218,7 +218,7 @@ public class JobEntryCreateFolderDialog extends JobEntryDialog implements JobEnt
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wAbortExists );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wAbortExists );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -253,7 +253,7 @@ public class JobEntryCreateFolderDialog extends JobEntryDialog implements JobEnt
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -295,7 +295,7 @@ public class JobEntryCreateFolderDialog extends JobEntryDialog implements JobEnt
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

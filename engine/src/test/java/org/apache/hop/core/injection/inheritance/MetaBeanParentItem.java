@@ -22,8 +22,27 @@
 package org.apache.hop.core.injection.inheritance;
 
 import org.apache.hop.core.injection.Injection;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
-public class MetaBeanParentItem {
+public class MetaBeanParentItem extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
   @Injection( name = "BASE_ITEM_NAME" )
   public String name;
+
+
+  @Override public void setDefault() {
+  }
+
+  @Override public TransformInterface createTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return null;
+  }
+
+  @Override public TransformDataInterface getTransformData() {
+    return null;
+  }
 }

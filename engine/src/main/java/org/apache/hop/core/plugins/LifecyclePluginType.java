@@ -55,7 +55,7 @@ public class LifecyclePluginType extends BasePluginType implements PluginTypeInt
   }
 
   /**
-   * Scan & register internal step plugins
+   * Scan & register internal transform plugins
    */
   protected void registerNatives() throws HopPluginException {
     // Up until now, we have no natives.

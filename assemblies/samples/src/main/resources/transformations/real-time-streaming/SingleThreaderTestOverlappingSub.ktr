@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>SingleThreaderSub</name>
     <description/>
@@ -28,11 +28,11 @@
 <table/>
 <timeout_days/>
 <field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>LOGGING_OBJECT_TYPE</id><enabled>Y</enabled><name>LOGGING_OBJECT_TYPE</name></field><field><id>OBJECT_NAME</id><enabled>Y</enabled><name>OBJECT_NAME</name></field><field><id>OBJECT_COPY</id><enabled>Y</enabled><name>OBJECT_COPY</name></field><field><id>REPOSITORY_DIRECTORY</id><enabled>Y</enabled><name>REPOSITORY_DIRECTORY</name></field><field><id>FILENAME</id><enabled>Y</enabled><name>FILENAME</name></field><field><id>OBJECT_ID</id><enabled>Y</enabled><name>OBJECT_ID</name></field><field><id>OBJECT_REVISION</id><enabled>Y</enabled><name>OBJECT_REVISION</name></field><field><id>PARENT_CHANNEL_ID</id><enabled>Y</enabled><name>PARENT_CHANNEL_ID</name></field><field><id>ROOT_CHANNEL_ID</id><enabled>Y</enabled><name>ROOT_CHANNEL_ID</name></field></channel-log-table>
-<step-log-table><connection/>
+<transform-log-table><connection/>
 <schema/>
 <table/>
 <timeout_days/>
-<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></step-log-table>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></transform-log-table>
     </log>
     <maxdate>
       <connection/>
@@ -49,9 +49,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -108,7 +108,7 @@
   </notepads>
   <order>
   <hop> <from>Write to log</from><to>Mapping output specification</to><enabled>Y</enabled> </hop>  <hop> <from>Mapping input specification</from><to>Filter rows</to><enabled>Y</enabled> </hop>  <hop> <from>Filter rows</from><to>Delay row</to><enabled>Y</enabled> </hop>  <hop> <from>Filter rows</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Delay row</from><to>Write to log: Delayed row</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log: Delayed row</from><to>Mapping output specification</to><enabled>Y</enabled> </hop>  </order>
-  <step>
+  <transform>
     <name>Delay row</name>
     <type>Delay</type>
     <description/>
@@ -121,14 +121,14 @@
     <timeout>15</timeout>
     <scaletime>seconds</scaletime>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>440</xloc>
       <yloc>240</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Mapping input specification</name>
     <type>MappingInput</type>
     <description/>
@@ -148,14 +148,14 @@
         <select_unspecified>Y</select_unspecified>
     </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>100</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Mapping output specification</name>
     <type>MappingOutput</type>
     <description/>
@@ -166,14 +166,14 @@
            <schema_name/>
            </partitioning>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>740</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Write to log</name>
     <type>WriteToLog</type>
     <description/>
@@ -192,14 +192,14 @@
         </field>
       </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>520</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filter rows</name>
     <type>FilterRows</type>
     <description/>
@@ -232,14 +232,14 @@
  </condition>
     </compare>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>300</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Write to log: Delayed row</name>
     <type>WriteToLog</type>
     <description/>
@@ -258,16 +258,16 @@
         </field>
       </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>580</xloc>
       <yloc>240</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-   <slave-step-copy-partition-distribution>
-</slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+   <slave-transform-copy-partition-distribution>
+</slave-transform-copy-partition-distribution>
    <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

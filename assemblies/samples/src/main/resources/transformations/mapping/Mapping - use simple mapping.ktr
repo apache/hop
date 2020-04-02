@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Use simple concat mapping</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -468,7 +468,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>A,B</name>
     <type>RowGenerator</type>
     <description/>
@@ -535,20 +535,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>135</xloc>
       <yloc>109</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C,D</name>
     <type>RowGenerator</type>
     <description/>
@@ -615,20 +615,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>135</xloc>
       <yloc>199</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C,D 2</name>
     <type>RowGenerator</type>
     <description/>
@@ -695,20 +695,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>138</xloc>
       <yloc>314</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Mapping &#x28;sub-transformation&#x29;</name>
     <type>Mapping</type>
     <description/>
@@ -726,8 +726,8 @@
     <directory_path/>
     <mappings>
       <input>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>Y</rename_on_output>
     <description/>
@@ -735,8 +735,8 @@
        <connector><parent>D</parent><child>rightValue</child></connector>
     </mapping>      </input>
       <output>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>N</rename_on_output>
     <description/>
@@ -748,20 +748,20 @@
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>264</xloc>
       <yloc>314</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview to see X</name>
     <type>Dummy</type>
     <description/>
@@ -773,20 +773,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>436</xloc>
       <yloc>109</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview to see Y</name>
     <type>Dummy</type>
     <description/>
@@ -798,20 +798,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>436</xloc>
       <yloc>199</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Preview to see Y 2</name>
     <type>Dummy</type>
     <description/>
@@ -823,20 +823,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>431</xloc>
       <yloc>314</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>X&#x3d;A&#x2b;B</name>
     <type>Mapping</type>
     <description/>
@@ -854,8 +854,8 @@
     <directory_path>&#x2f;</directory_path>
     <mappings>
       <input>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>Y</rename_on_output>
     <description/>
@@ -863,8 +863,8 @@
        <connector><parent>B</parent><child>rightValue</child></connector>
     </mapping>      </input>
       <output>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>N</rename_on_output>
     <description/>
@@ -876,20 +876,20 @@
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>265</xloc>
       <yloc>109</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Y&#x3d;C&#x2b;D</name>
     <type>Mapping</type>
     <description/>
@@ -907,8 +907,8 @@
     <directory_path>&#x2f;</directory_path>
     <mappings>
       <input>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>Y</rename_on_output>
     <description/>
@@ -916,8 +916,8 @@
        <connector><parent>D</parent><child>rightValue</child></connector>
     </mapping>      </input>
       <output>
-    <mapping>    <input_step/>
-    <output_step/>
+    <mapping>    <input_transform/>
+    <output_transform/>
     <main_path>Y</main_path>
     <rename_on_output>N</rename_on_output>
     <description/>
@@ -930,22 +930,22 @@
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>265</xloc>
       <yloc>199</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

@@ -25,7 +25,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
@@ -35,21 +35,21 @@ public class PipelinePainterExtension {
   public boolean shadow;
   public List<AreaOwner> areaOwners;
   public PipelineMeta pipelineMeta;
-  public StepMeta stepMeta;
+  public TransformMeta transformMeta;
   public PipelineHopMeta pipelineHop;
   public int x1, y1, x2, y2, mx, my;
   public Point offset;
   public int iconsize;
 
   public PipelinePainterExtension( GCInterface gc, boolean shadow, List<AreaOwner> areaOwners, PipelineMeta pipelineMeta,
-                                   StepMeta stepMeta, PipelineHopMeta pipelineHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
+                                   TransformMeta transformMeta, PipelineHopMeta pipelineHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
                                    int iconsize ) {
     super();
     this.gc = gc;
     this.shadow = shadow;
     this.areaOwners = areaOwners;
     this.pipelineMeta = pipelineMeta;
-    this.stepMeta = stepMeta;
+    this.transformMeta = transformMeta;
     this.pipelineHop = pipelineHop;
     this.x1 = x1;
     this.y1 = y1;

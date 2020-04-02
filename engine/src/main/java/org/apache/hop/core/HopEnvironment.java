@@ -38,11 +38,11 @@ import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.plugins.StepDialogFragmentType;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformDialogFragmentType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
-import org.apache.hop.pipeline.step.RowDistributionPluginType;
+import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,8 +82,8 @@ public class HopEnvironment {
   public static List<PluginTypeInterface> getStandardPluginTypes() {
     return Arrays.asList(
       RowDistributionPluginType.getInstance(),
-      StepPluginType.getInstance(),
-      StepDialogFragmentType.getInstance(),
+      TransformPluginType.getInstance(),
+      TransformDialogFragmentType.getInstance(),
       PartitionerPluginType.getInstance(),
       JobEntryPluginType.getInstance(),
       JobEntryDialogFragmentType.getInstance(),

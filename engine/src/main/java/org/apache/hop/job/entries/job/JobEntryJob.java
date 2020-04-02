@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Recursive definition of a Job. This step means that an entire Job has to be executed. It can be the same Job, but
+ * Recursive definition of a Job. This transform means that an entire Job has to be executed. It can be the same Job, but
  * just make sure that you don't get an endless loop. Provide an escape routine using JobEval.
  *
  * @author Matt
@@ -1191,7 +1191,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the transform, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   @Override
   public String[] getReferencedObjectDescriptions() {

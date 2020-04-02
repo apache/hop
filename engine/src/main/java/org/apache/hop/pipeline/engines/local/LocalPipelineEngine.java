@@ -44,7 +44,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     setRowSetSize( Const.toInt( environmentSubstitute(config.getRowSetSize()), Const.ROWS_IN_ROWSET) );
     setSafeModeEnabled( config.isSafeModeEnabled() );
-    setSortingStepsTopologically( config.isSortingStepsTopologically() );
+    setSortingTransformsTopologically( config.isSortingTransformsTopologically() );
     setGatheringMetrics( config.isGatheringMetrics() );
     setFeedbackShown( config.isFeedbackShown() );
     setFeedbackSize( Const.toInt( environmentSubstitute( config.getFeedbackSize() ), Const.ROWS_UPDATE ) );

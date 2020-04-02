@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>shell for every row - testdata</name>
     <description/>
@@ -63,7 +63,7 @@
   </notepads>
   <order>
   <hop> <from>Generate Rows</from><to>Dummy (do nothing)</to><enabled>Y</enabled> </hop>  <hop> <from>Generate Rows 2</from><to>Dummy (do nothing)</to><enabled>Y</enabled> </hop>  <hop> <from>Generate Rows 3</from><to>Dummy (do nothing)</to><enabled>Y</enabled> </hop>  <hop> <from>Dummy (do nothing)</from><to>Copy rows to result</to><enabled>Y</enabled> </hop>  </order>
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -94,9 +94,9 @@
       <yloc>190</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows 2</name>
     <type>RowGenerator</type>
     <description/>
@@ -127,9 +127,9 @@
       <yloc>264</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows 3</name>
     <type>RowGenerator</type>
     <description/>
@@ -160,9 +160,9 @@
       <yloc>337</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy (do nothing)</name>
     <type>Dummy</type>
     <description/>
@@ -179,9 +179,9 @@
       <yloc>271</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Copy rows to result</name>
     <type>RowsToResult</type>
     <description/>
@@ -198,8 +198,8 @@
       <yloc>269</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-</transformation>
+  <transform_error_handling>
+  </transform_error_handling>
+</pipeline>

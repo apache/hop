@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>String date with time to Date using metadata conversion</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>Date&#x3a; Feb 25, 2010&#xa;Created by&#x3a; Brandon Jackson&#xa;Special thanks to&#x3a; wselwood on IRC for the tip that made this possible.&#xa;&#xa;It is often the case that somewhere along our journey dealing with streams we need to wrangle a date string.&#xa;Here we are simulating the conversion of strings to date datatypes.  The real key to solving the problem is the&#xa;formatting string used in the select step.  &#x22;M&#x2f;d&#x2f;yyyy h&#x3a;m&#x3a;s a&#x22;  This allows a single or double digit month and day.&#xa;It also handles the time portion converting it correctly to a 24hour format in the date data type.&#xa;&#xa;http&#x3a;&#x2f;&#x2f;java.sun.com&#x2f;j2se&#x2f;1.4.2&#x2f;docs&#x2f;api&#x2f;java&#x2f;text&#x2f;SimpleDateFormat.html&#xa;</note>
+      <note>Date&#x3a; Feb 25, 2010&#xa;Created by&#x3a; Brandon Jackson&#xa;Special thanks to&#x3a; wselwood on IRC for the tip that made this possible.&#xa;&#xa;It is often the case that somewhere along our journey dealing with streams we need to wrangle a date string.&#xa;Here we are simulating the conversion of strings to date datatypes.  The real key to solving the problem is the&#xa;formatting string used in the select transform.  &#x22;M&#x2f;d&#x2f;yyyy h&#x3a;m&#x3a;s a&#x22;  This allows a single or double digit month and day.&#xa;It also handles the time portion converting it correctly to a 24hour format in the date data type.&#xa;&#xa;http&#x3a;&#x2f;&#x2f;java.sun.com&#x2f;j2se&#x2f;1.4.2&#x2f;docs&#x2f;api&#x2f;java&#x2f;text&#x2f;SimpleDateFormat.html&#xa;</note>
       <xloc>78</xloc>
       <yloc>18</yloc>
       <width>690</width>
@@ -478,7 +478,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Calculator Step - Demonstrate some useful manipulations of the date.</name>
     <type>Calculator</type>
     <description/>
@@ -550,20 +550,20 @@
       <currency_symbol/>
     </calculation>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>363</xloc>
       <yloc>535</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate a 10 character length date stored as a STRING</name>
     <type>RowGenerator</type>
     <description/>
@@ -594,20 +594,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>569</xloc>
       <yloc>326</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate an 8 character length date stored in a STRING</name>
     <type>RowGenerator</type>
     <description/>
@@ -638,20 +638,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>151</xloc>
       <yloc>326</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate an 9 character length date stored in a STRING</name>
     <type>RowGenerator</type>
     <description/>
@@ -682,21 +682,21 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>363</xloc>
       <yloc>262</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
-    <name>One line javascript step to convert a string to a date type.</name>
+  <transform>
+    <name>One line javascript transform to convert a string to a date type.</name>
     <type>ScriptValueMod</type>
     <description/>
     <distribute>Y</distribute>
@@ -721,20 +721,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>828</xloc>
       <yloc>215</yloc>
       <draw>N</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Select values Step - Convert strings to dates including their time portions.</name>
     <type>SelectValues</type>
     <description/>
@@ -762,22 +762,22 @@
         <currency_symbol/>
         <storage_type/>
       </meta>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>363</xloc>
       <yloc>436</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

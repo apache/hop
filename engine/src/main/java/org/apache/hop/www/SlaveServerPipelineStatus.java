@@ -31,7 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepStatus;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -59,14 +59,14 @@ public class SlaveServerPipelineStatus {
 
   private Date logDate;
 
-  private List<StepStatus> stepStatusList;
+  private List<TransformStatus> transformStatusList;
 
   private Result result;
 
   private boolean paused;
 
   public SlaveServerPipelineStatus() {
-    stepStatusList = new ArrayList<StepStatus>();
+    transformStatusList = new ArrayList<TransformStatus>();
   }
 
   /**
@@ -97,12 +97,12 @@ public class SlaveServerPipelineStatus {
     xml.append( "  " ).append( XMLHandler.addTagValue( "log_date", XMLHandler.date2string( logDate ) ) );
     xml.append( "  " ).append( XMLHandler.addTagValue( "paused", paused ) );
 
-    xml.append( "  " ).append( XMLHandler.openTag( "step_status_list" ) ).append( Const.CR );
-    for ( int i = 0; i < stepStatusList.size(); i++ ) {
-      StepStatus stepStatus = stepStatusList.get( i );
-      xml.append( "    " ).append( stepStatus.getXML() ).append( Const.CR );
+    xml.append( "  " ).append( XMLHandler.openTag( "transform_status_list" ) ).append( Const.CR );
+    for ( int i = 0; i < transformStatusList.size(); i++ ) {
+      TransformStatus transformStatus = transformStatusList.get( i );
+      xml.append( "    " ).append( transformStatus.getXML() ).append( Const.CR );
     }
-    xml.append( "  " ).append( XMLHandler.closeTag( "step_status_list" ) ).append( Const.CR );
+    xml.append( "  " ).append( XMLHandler.closeTag( "transform_status_list" ) ).append( Const.CR );
 
     xml.append( "  " ).append( XMLHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
     xml.append( "  " ).append( XMLHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
@@ -128,12 +128,12 @@ public class SlaveServerPipelineStatus {
     logDate = XMLHandler.stringToDate( XMLHandler.getTagValue( pipelineStatusNode, "log_date" ) );
     paused = "Y".equalsIgnoreCase( XMLHandler.getTagValue( pipelineStatusNode, "paused" ) );
 
-    Node statusListNode = XMLHandler.getSubNode( pipelineStatusNode, "step_status_list" );
-    int nr = XMLHandler.countNodes( statusListNode, StepStatus.XML_TAG );
+    Node statusListNode = XMLHandler.getSubNode( pipelineStatusNode, "transform_status_list" );
+    int nr = XMLHandler.countNodes( statusListNode, TransformStatus.XML_TAG );
     for ( int i = 0; i < nr; i++ ) {
-      Node stepStatusNode = XMLHandler.getSubNodeByNr( statusListNode, StepStatus.XML_TAG, i );
-      StepStatus stepStatus = new StepStatus( stepStatusNode );
-      stepStatusList.add( stepStatus );
+      Node transformStatusNode = XMLHandler.getSubNodeByNr( statusListNode, TransformStatus.XML_TAG, i );
+      TransformStatus transformStatus = new TransformStatus( transformStatusNode );
+      transformStatusList.add( transformStatus );
     }
 
     firstLoggingLineNr = Const.toInt( XMLHandler.getTagValue( pipelineStatusNode, "first_log_line_nr" ), 0 );
@@ -219,17 +219,17 @@ public class SlaveServerPipelineStatus {
   }
 
   /**
-   * @return the stepStatusList
+   * @return the transformStatusList
    */
-  public List<StepStatus> getStepStatusList() {
-    return stepStatusList;
+  public List<TransformStatus> getTransformStatusList() {
+    return transformStatusList;
   }
 
   /**
-   * @param stepStatusList the stepStatusList to set
+   * @param transformStatusList the transformStatusList to set
    */
-  public void setStepStatusList( List<StepStatus> stepStatusList ) {
-    this.stepStatusList = stepStatusList;
+  public void setTransformStatusList( List<TransformStatus> transformStatusList ) {
+    this.transformStatusList = transformStatusList;
   }
 
   /**
@@ -265,11 +265,11 @@ public class SlaveServerPipelineStatus {
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS );
   }
 
-  public long getNrStepErrors() {
+  public long getNrTransformErrors() {
     long errors = 0L;
-    for ( int i = 0; i < stepStatusList.size(); i++ ) {
-      StepStatus stepStatus = stepStatusList.get( i );
-      errors += stepStatus.getErrors();
+    for ( int i = 0; i < transformStatusList.size(); i++ ) {
+      TransformStatus transformStatus = transformStatusList.get( i );
+      errors += transformStatus.getErrors();
     }
     return errors;
   }
@@ -277,35 +277,35 @@ public class SlaveServerPipelineStatus {
   public Result getResult( PipelineMeta pipelineMeta ) {
     Result result = new Result();
 
-    for ( StepStatus stepStatus : stepStatusList ) {
+    for ( TransformStatus transformStatus : transformStatusList ) {
 
-      result.setNrErrors( result.getNrErrors() + stepStatus.getErrors() + ( result.isStopped() ? 1 : 0 ) ); // If the
+      result.setNrErrors( result.getNrErrors() + transformStatus.getErrors() + ( result.isStopped() ? 1 : 0 ) ); // If the
       // remote
       // pipeline is
       // stopped,
       // count as
       // an error
 
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameRead() ) ) {
-        result.increaseLinesRead( stepStatus.getLinesRead() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameRead() ) ) {
+        result.increaseLinesRead( transformStatus.getLinesRead() );
       }
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameInput() ) ) {
-        result.increaseLinesInput( stepStatus.getLinesInput() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameInput() ) ) {
+        result.increaseLinesInput( transformStatus.getLinesInput() );
       }
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameWritten() ) ) {
-        result.increaseLinesWritten( stepStatus.getLinesWritten() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameWritten() ) ) {
+        result.increaseLinesWritten( transformStatus.getLinesWritten() );
       }
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameOutput() ) ) {
-        result.increaseLinesOutput( stepStatus.getLinesOutput() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameOutput() ) ) {
+        result.increaseLinesOutput( transformStatus.getLinesOutput() );
       }
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameUpdated() ) ) {
-        result.increaseLinesUpdated( stepStatus.getLinesUpdated() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameUpdated() ) ) {
+        result.increaseLinesUpdated( transformStatus.getLinesUpdated() );
       }
-      if ( stepStatus.getStepname().equals( pipelineMeta.getPipelineLogTable().getStepnameRejected() ) ) {
-        result.increaseLinesRejected( stepStatus.getLinesRejected() );
+      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameRejected() ) ) {
+        result.increaseLinesRejected( transformStatus.getLinesRejected() );
       }
 
-      if ( stepStatus.isStopped() ) {
+      if ( transformStatus.isStopped() ) {
         result.setStopped( true );
         result.setResult( false );
       }

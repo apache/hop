@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>GetXMLData - large files</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -457,7 +457,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>Tests for the option &#x22;Prune path to handle large files&#x22; &#x28;only functionality tests with small files&#x29;.&#xa;A larger test file with 300MB is available on the PDI online documentation for this step&#x3a; http&#x3a;&#x2f;&#x2f;wiki.pentaho.com&#x2f;display&#x2f;EAI&#x2f;Get&#x2b;Data&#x2b;From&#x2b;XML&#xa;When you switch on detailed logging you will see messages like&#x3a; &#x22;Streaming mode for processing large XML files is activated&#x22;&#xa;Debug logging shows you more detailed messages.</note>
+      <note>Tests for the option &#x22;Prune path to handle large files&#x22; &#x28;only functionality tests with small files&#x29;.&#xa;A larger test file with 300MB is available on the PDI online documentation for this transform&#x3a; http&#x3a;&#x2f;&#x2f;wiki.pentaho.com&#x2f;display&#x2f;EAI&#x2f;Get&#x2b;Data&#x2b;From&#x2b;XML&#xa;When you switch on detailed logging you will see messages like&#x3a; &#x22;Streaming mode for processing large XML files is activated&#x22;&#xa;Debug logging shows you more detailed messages.</note>
       <xloc>12</xloc>
       <yloc>15</yloc>
       <width>889</width>
@@ -615,7 +615,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Conversion Errors</name>
     <type>Dummy</type>
     <description/>
@@ -627,20 +627,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>399</xloc>
       <yloc>432</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29;</name>
     <type>Dummy</type>
     <description/>
@@ -652,20 +652,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>498</xloc>
       <yloc>105</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29; 2</name>
     <type>Dummy</type>
     <description/>
@@ -677,20 +677,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>497</xloc>
       <yloc>168</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29; 2 2</name>
     <type>Dummy</type>
     <description/>
@@ -702,20 +702,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>497</xloc>
       <yloc>235</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29; 2 2 2</name>
     <type>Dummy</type>
     <description/>
@@ -727,20 +727,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>500</xloc>
       <yloc>372</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29; 3</name>
     <type>Dummy</type>
     <description/>
@@ -752,20 +752,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>501</xloc>
       <yloc>300</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>GetXMLData - test 1 - simple functionality test</name>
     <type>getXMLData</type>
     <description/>
@@ -873,20 +873,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>259</xloc>
       <yloc>105</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>GetXMLData - test 1 - simple functionality test - file read triple</name>
     <type>getXMLData</type>
     <description/>
@@ -1004,20 +1004,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>265</xloc>
       <yloc>300</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>GetXMLData - test 2 - missing elements</name>
     <type>getXMLData</type>
     <description/>
@@ -1125,20 +1125,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>263</xloc>
       <yloc>168</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>GetXMLData - test 2 - missing elements 2</name>
     <type>getXMLData</type>
     <description/>
@@ -1246,20 +1246,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>263</xloc>
       <yloc>235</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>GetXMLData - test 3 - error handling</name>
     <type>getXMLData</type>
     <description/>
@@ -1367,23 +1367,23 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>266</xloc>
       <yloc>372</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
+  <transform_error_handling>
       <error>
-        <source_step>GetXMLData - test 3 - error handling</source_step>
-        <target_step>Conversion Errors</target_step>
+        <source_transform>GetXMLData - test 3 - error handling</source_transform>
+        <target_transform>Conversion Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>nr</nr_valuename>
         <descriptions_valuename>desc</descriptions_valuename>
@@ -1393,8 +1393,8 @@
         <max_pct_errors>-1</max_pct_errors>
         <min_pct_rows>-1</min_pct_rows>
       </error>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

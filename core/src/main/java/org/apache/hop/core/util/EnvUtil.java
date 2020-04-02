@@ -93,10 +93,10 @@ public class EnvUtil {
     //
     System.getProperties().put( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME, "slave-pipeline-name" );
 
-    System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_COPYNR, "0" );
-    System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_NAME, "step-name" );
-    System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_PARTITION_ID, "partition-id" );
-    System.getProperties().put( Const.INTERNAL_VARIABLE_STEP_PARTITION_NR, "0" );
+    System.getProperties().put( Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, "0" );
+    System.getProperties().put( Const.INTERNAL_VARIABLE_TRANSFORM_NAME, "transform-name" );
+    System.getProperties().put( Const.INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID, "partition-id" );
+    System.getProperties().put( Const.INTERNAL_VARIABLE_TRANSFORM_PARTITION_NR, "0" );
   }
 
   private static void insertDefaultValues( Map<Object, Object> kettleProperties ) {

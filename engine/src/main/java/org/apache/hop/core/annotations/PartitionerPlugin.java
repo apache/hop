@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * An alternate way of defining partiioners. Classes annotated with "PartitionerPlugin" are automatically recognized and
  * registered as a partitioner plugin.
  * <p>
- * Important: The XML definitions alienate annoated steps and the two methods of definition are therefore mutually
+ * Important: The XML definitions alienate annoated transforms and the two methods of definition are therefore mutually
  * exclusive.
  *
  * @author Alex Silva

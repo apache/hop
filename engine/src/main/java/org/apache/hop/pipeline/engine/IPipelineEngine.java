@@ -151,7 +151,7 @@ public interface IPipelineEngine<T> {
   /**
    * Retrieve the logging text of a particular component in the engine
    *
-   * @param componentName The name of the component (step)
+   * @param componentName The name of the component (transform)
    * @param copyNr        The copy number if multiple components are running in parallel (0 based).
    * @return The logging text
    */
@@ -167,7 +167,7 @@ public interface IPipelineEngine<T> {
   /**
    * Find all component copies by name
    *
-   * @param name   The name of the component to look for (step)
+   * @param name   The name of the component to look for (transform)
    * @return The list of components found
    */
   List<IEngineComponent> getComponentCopies( String name );
@@ -175,7 +175,7 @@ public interface IPipelineEngine<T> {
   /**
    * Find a component by name and copy nr
    *
-   * @param name   The name of the component to look for (step)
+   * @param name   The name of the component to look for (transform)
    * @param copyNr The copy number to match
    * @return The component or null if nothing was found
    */

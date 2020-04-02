@@ -2,7 +2,7 @@ package org.apache.hop.pipeline.engine;
 
 /**
  * An identifiable component of an execution engine {@link IPipelineEngine}
- * In a pipeline engine this would be a step
+ * In a pipeline engine this would be a transform
  */
 public interface IEngineComponent {
 

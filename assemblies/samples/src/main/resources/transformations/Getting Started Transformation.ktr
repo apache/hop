@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Getting Started Transformation</name>
     <description>This is a long description.  The quick brown fox jumped over the lazy dog.   The quick brown fox jumped over the lazy dog.   The quick brown fox jumped over the lazy dog.   The quick brown fox jumped over the lazy dog.   The quick brown fox jumped over the lazy dog.  </description>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -436,7 +436,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>Note&#x3a; This is the example transformation that is built as part of the Getting Started with Pentaho Data Integration guide.&#xa;&#xa;To test this transformation, you will need to&#x3a;&#xa;&#xa;  - Make sure the Data Integration Server is running&#xa;  - Open the Table Output step and click the SQL button to create the target output table</note>
+      <note>Note&#x3a; This is the example transformation that is built as part of the Getting Started with Pentaho Data Integration guide.&#xa;&#xa;To test this transformation, you will need to&#x3a;&#xa;&#xa;  - Make sure the Data Integration Server is running&#xa;  - Open the Table Output transform and click the SQL button to create the target output table</note>
       <xloc>56</xloc>
       <yloc>271</yloc>
       <width>827</width>
@@ -523,7 +523,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Filter rows</name>
     <type>FilterRows</type>
     <description/>
@@ -545,20 +545,20 @@
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>247</xloc>
       <yloc>61</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Lookup Missing Zips</name>
     <type>StreamLookup</type>
     <description/>
@@ -591,20 +591,20 @@
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>247</xloc>
       <yloc>193</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Number range</name>
     <type>NumberRange</type>
     <description/>
@@ -636,20 +636,20 @@
       </rule>
     </rules>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>641</xloc>
       <yloc>61</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Prepare Field Layout</name>
     <type>SelectValues</type>
     <description/>
@@ -701,20 +701,20 @@
         <currency_symbol/>
         <storage_type/>
       </meta>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>362</xloc>
       <yloc>130</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Read Postal Codes</name>
     <type>TextFileInput</type>
     <description/>
@@ -728,7 +728,7 @@
     <accept_filenames>N</accept_filenames>
     <passing_through_fields>N</passing_through_fields>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <separator>,</separator>
     <enclosure>&#x22;</enclosure>
     <enclosure_breaks>N</enclosure_breaks>
@@ -835,20 +835,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>85</xloc>
       <yloc>193</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Read Sales Data</name>
     <type>TextFileInput</type>
     <description/>
@@ -862,7 +862,7 @@
     <accept_filenames>N</accept_filenames>
     <passing_through_fields>N</passing_through_fields>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <separator>,</separator>
     <enclosure>&#x22;</enclosure>
     <enclosure_breaks>N</enclosure_breaks>
@@ -1284,20 +1284,20 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>85</xloc>
       <yloc>61</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Value Mapper</name>
     <type>ValueMapper</type>
     <description/>
@@ -1318,20 +1318,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>477</xloc>
       <yloc>61</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Write to Database</name>
     <type>TableOutput</type>
     <description/>
@@ -1362,22 +1362,22 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>768</xloc>
       <yloc>60</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

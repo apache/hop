@@ -5,10 +5,10 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.RowDistributionInterface;
-import org.apache.hop.pipeline.step.RowDistributionPluginType;
-import org.apache.hop.pipeline.step.StepErrorMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.RowDistributionInterface;
+import org.apache.hop.pipeline.transform.RowDistributionPluginType;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -45,7 +45,7 @@ public class HopGuiPipelineHopDelegate {
     this.props = PropsUI.getInstance();
   }
 
-  public void newHop( PipelineMeta pipelineMeta, StepMeta fr, StepMeta to ) {
+  public void newHop( PipelineMeta pipelineMeta, TransformMeta fr, TransformMeta to ) {
     PipelineHopMeta hi = new PipelineHopMeta( fr, to );
 
     PipelineHopDialog hd = new PipelineHopDialog( hopUi.getShell(), SWT.NONE, hi, pipelineMeta );
@@ -80,7 +80,7 @@ public class HopGuiPipelineHopDelegate {
    */
   public boolean checkIfHopAlreadyExists( PipelineMeta pipelineMeta, PipelineHopMeta newHop ) {
     boolean ok = true;
-    if ( pipelineMeta.findPipelineHop( newHop.getFromStep(), newHop.getToStep() ) != null ) {
+    if ( pipelineMeta.findPipelineHop( newHop.getFromTransform(), newHop.getToTransform() ) != null ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Message" ) ); // "This hop already exists!"
       mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Title" ) ); // Error!
@@ -99,7 +99,7 @@ public class HopGuiPipelineHopDelegate {
   public boolean performNewPipelineHopChecks( PipelineMeta pipelineMeta, PipelineHopMeta newHop ) {
     boolean ok = true;
 
-    if ( pipelineMeta.hasLoop( newHop.getToStep() ) ) {
+    if ( pipelineMeta.hasLoop( newHop.getToTransform() ) ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "PipelineGraph.Dialog.HopCausesLoop.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "PipelineGraph.Dialog.HopCausesLoop.Title" ) );
@@ -111,8 +111,8 @@ public class HopGuiPipelineHopDelegate {
       // when not looping, otherwise we get a loop with
       // StackOverflow there ;-)
       try {
-        if ( !newHop.getToStep().getStepMetaInterface().excludeFromRowLayoutVerification() ) {
-          pipelineMeta.checkRowMixingStatically( newHop.getToStep(), null );
+        if ( !newHop.getToTransform().getTransformMetaInterface().excludeFromRowLayoutVerification() ) {
+          pipelineMeta.checkRowMixingStatically( newHop.getToTransform(), null );
         }
       } catch ( HopRowException re ) {
         // Show warning about mixing rows with conflicting layouts...
@@ -121,28 +121,28 @@ public class HopGuiPipelineHopDelegate {
           .getString( PKG, "PipelineGraph.Dialog.HopCausesRowMixing.Message" ), re );
       }
 
-      verifyCopyDistribute( pipelineMeta, newHop.getFromStep() );
+      verifyCopyDistribute( pipelineMeta, newHop.getFromTransform() );
     }
 
     return ok;
   }
 
-  public void verifyCopyDistribute( PipelineMeta pipelineMeta, StepMeta fr ) {
-    List<StepMeta> nextSteps = pipelineMeta.findNextSteps( fr );
-    int nrNextSteps = nextSteps.size();
+  public void verifyCopyDistribute( PipelineMeta pipelineMeta, TransformMeta fr ) {
+    List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( fr );
+    int nrNextTransforms = nextTransforms.size();
 
     // don't show it for 3 or more hops, by then you should have had the
     // message
-    if ( nrNextSteps == 2 ) {
-      boolean distributes = fr.getStepMetaInterface().excludeFromCopyDistributeVerification();
+    if ( nrNextTransforms == 2 ) {
+      boolean distributes = fr.getTransformMetaInterface().excludeFromCopyDistributeVerification();
       boolean customDistribution = false;
 
       if ( props.showCopyOrDistributeWarning()
-        && !fr.getStepMetaInterface().excludeFromCopyDistributeVerification() ) {
+        && !fr.getTransformMetaInterface().excludeFromCopyDistributeVerification() ) {
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             hopUi.getShell(), BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
-            PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
+            PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextTransforms ) ),
             MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
             PKG, "HopGui.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
         MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
@@ -188,41 +188,41 @@ public class HopGuiPipelineHopDelegate {
     hopUi.undoDelegate.addUndoDelete( pipelineMeta, new Object[] { (PipelineHopMeta) pipelineHopMeta.clone() }, new int[] { index } );
     pipelineMeta.removePipelineHop( index );
 
-    StepMeta fromStepMeta = pipelineHopMeta.getFromStep();
-    StepMeta beforeFrom = (StepMeta) fromStepMeta.clone();
-    int indexFrom = pipelineMeta.indexOfStep( fromStepMeta );
+    TransformMeta fromTransformMeta = pipelineHopMeta.getFromTransform();
+    TransformMeta beforeFrom = (TransformMeta) fromTransformMeta.clone();
+    int indexFrom = pipelineMeta.indexOfTransform( fromTransformMeta );
 
-    StepMeta toStepMeta = pipelineHopMeta.getToStep();
-    StepMeta beforeTo = (StepMeta) toStepMeta.clone();
-    int indexTo = pipelineMeta.indexOfStep( toStepMeta );
+    TransformMeta toTransformMeta = pipelineHopMeta.getToTransform();
+    TransformMeta beforeTo = (TransformMeta) toTransformMeta.clone();
+    int indexTo = pipelineMeta.indexOfTransform( toTransformMeta );
 
-    boolean stepFromNeedAddUndoChange = fromStepMeta.getStepMetaInterface()
-      .cleanAfterHopFromRemove( pipelineHopMeta.getToStep() );
-    boolean stepToNeedAddUndoChange = toStepMeta.getStepMetaInterface().cleanAfterHopToRemove( fromStepMeta );
+    boolean transformFromNeedAddUndoChange = fromTransformMeta.getTransformMetaInterface()
+      .cleanAfterHopFromRemove( pipelineHopMeta.getToTransform() );
+    boolean transformToNeedAddUndoChange = toTransformMeta.getTransformMetaInterface().cleanAfterHopToRemove( fromTransformMeta );
 
     // If this is an error handling hop, disable it
     //
-    if ( pipelineHopMeta.getFromStep().isDoingErrorHandling() ) {
-      StepErrorMeta stepErrorMeta = fromStepMeta.getStepErrorMeta();
+    if ( pipelineHopMeta.getFromTransform().isDoingErrorHandling() ) {
+      TransformErrorMeta transformErrorMeta = fromTransformMeta.getTransformErrorMeta();
 
       // We can only disable error handling if the target of the hop is the same as the target of the error handling.
       //
-      if ( stepErrorMeta.getTargetStep() != null
-        && stepErrorMeta.getTargetStep().equals( pipelineHopMeta.getToStep() ) ) {
+      if ( transformErrorMeta.getTargetTransform() != null
+        && transformErrorMeta.getTargetTransform().equals( pipelineHopMeta.getToTransform() ) ) {
 
-        // Only if the target step is where the error handling is going to...
+        // Only if the target transform is where the error handling is going to...
         //
-        stepErrorMeta.setEnabled( false );
-        stepFromNeedAddUndoChange = true;
+        transformErrorMeta.setEnabled( false );
+        transformFromNeedAddUndoChange = true;
       }
     }
 
-    if ( stepFromNeedAddUndoChange ) {
-      hopUi.undoDelegate.addUndoChange( pipelineMeta, new Object[] { beforeFrom }, new Object[] { fromStepMeta }, new int[] { indexFrom } );
+    if ( transformFromNeedAddUndoChange ) {
+      hopUi.undoDelegate.addUndoChange( pipelineMeta, new Object[] { beforeFrom }, new Object[] { fromTransformMeta }, new int[] { indexFrom } );
     }
 
-    if ( stepToNeedAddUndoChange ) {
-      hopUi.undoDelegate.addUndoChange( pipelineMeta, new Object[] { beforeTo }, new Object[] { toStepMeta }, new int[] { indexTo } );
+    if ( transformToNeedAddUndoChange ) {
+      hopUi.undoDelegate.addUndoChange( pipelineMeta, new Object[] { beforeTo }, new Object[] { toTransformMeta }, new int[] { indexTo } );
     }
 
     pipelineGraph.redraw();

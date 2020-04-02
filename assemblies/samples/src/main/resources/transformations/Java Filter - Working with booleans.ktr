@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>New boolean</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -436,7 +436,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>The Java Filter step exposes all of your fields as native Java types&#xa;They are not wrapped up in some other kind of object where you need&#xa;getters and setters.&#xa;&#xa;We use the java.lang.Boolean type in this example&#x3a;&#xa;http&#x3a;&#x2f;&#x2f;docs.oracle.com&#x2f;javase&#x2f;1.4.2&#x2f;docs&#x2f;api&#x2f;java&#x2f;lang&#x2f;Boolean.html&#xa;&#xa;True values are Boolean.TRUE&#xa;False values are Boolean FALSE&#xa;&#xa;See the step below</note>
+      <note>The Java Filter transform exposes all of your fields as native Java types&#xa;They are not wrapped up in some other kind of object where you need&#xa;getters and setters.&#xa;&#xa;We use the java.lang.Boolean type in this example&#x3a;&#xa;http&#x3a;&#x2f;&#x2f;docs.oracle.com&#x2f;javase&#x2f;1.4.2&#x2f;docs&#x2f;api&#x2f;java&#x2f;lang&#x2f;Boolean.html&#xa;&#xa;True values are Boolean.TRUE&#xa;False values are Boolean FALSE&#xa;&#xa;See the transform below</note>
       <xloc>443</xloc>
       <yloc>120</yloc>
       <width>418</width>
@@ -478,7 +478,7 @@
       <drawshadow>Y</drawshadow>
     </notepad>
     <notepad>
-      <note>PDI&#x27;s Boolean type accepts&#xa;&#xa;True when assigned the value &#x22;Y&#x22;&#xa;False when assigned the value &#x22;N&#x22;&#xa;&#xa;Internally there is a plain java.lang.Boolean object which&#xa;will be initialized to &#x22;Boolean.TRUE&#x22; or &#x22;Boolean.FALSE&#x22;&#xa;whichever the initial values above suggest.&#xa;&#xa;Inspect the step below&#x3a;</note>
+      <note>PDI&#x27;s Boolean type accepts&#xa;&#xa;True when assigned the value &#x22;Y&#x22;&#xa;False when assigned the value &#x22;N&#x22;&#xa;&#xa;Internally there is a plain java.lang.Boolean object which&#xa;will be initialized to &#x22;Boolean.TRUE&#x22; or &#x22;Boolean.FALSE&#x22;&#xa;whichever the initial values above suggest.&#xa;&#xa;Inspect the transform below&#x3a;</note>
       <xloc>35</xloc>
       <yloc>121</yloc>
       <width>345</width>
@@ -499,7 +499,7 @@
       <drawshadow>Y</drawshadow>
     </notepad>
     <notepad>
-      <note>Purpose&#x3a; Demonstrate using a Java Filter step to evaluate outcomes to &#x27;true&#x27; or &#x27;false&#x27; values to direct the rows to a final destination.&#xa;&#xa;A test on a Boolean data type is demonstrated here. Only expressions are accepted.&#xa;</note>
+      <note>Purpose&#x3a; Demonstrate using a Java Filter transform to evaluate outcomes to &#x27;true&#x27; or &#x27;false&#x27; values to direct the rows to a final destination.&#xa;&#xa;A test on a Boolean data type is demonstrated here. Only expressions are accepted.&#xa;</note>
       <xloc>34</xloc>
       <yloc>41</yloc>
       <width>772</width>
@@ -537,7 +537,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Java Filter</name>
     <type>JavaFilter</type>
     <description/>
@@ -552,20 +552,20 @@
 <send_false_to>We are not friends</send_false_to>
 <condition>FRIEND &#x3d;&#x3d; Boolean.TRUE</condition>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>610</xloc>
       <yloc>343</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>My Friends</name>
     <type>DataGrid</type>
     <description/>
@@ -612,20 +612,20 @@
       <line> <item>sjobs</item><item>N</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>55</xloc>
       <yloc>343</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>We are friends</name>
     <type>Dummy</type>
     <description/>
@@ -637,20 +637,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>910</xloc>
       <yloc>312</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>We are not friends</name>
     <type>Dummy</type>
     <description/>
@@ -662,22 +662,22 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>912</xloc>
       <yloc>405</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

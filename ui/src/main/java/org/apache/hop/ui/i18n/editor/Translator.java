@@ -47,7 +47,7 @@ import org.apache.hop.ui.i18n.BundlesStore;
 import org.apache.hop.ui.i18n.KeyOccurrence;
 import org.apache.hop.ui.i18n.MessagesSourceCrawler;
 import org.apache.hop.ui.i18n.TranslationsStore;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
@@ -78,8 +78,11 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -363,7 +366,7 @@ public class Translator {
     wPackages.optWidth( true );
     wPackages.getTable().getColumn( 1 ).setWidth( 1 );
 
-    BaseStepDialog.setSize( shell);
+    BaseTransformDialog.setSize( shell);
 
     shell.open();
   }
@@ -503,7 +506,7 @@ public class Translator {
     wClose = new Button( composite, SWT.NONE );
     wClose.setText( BaseMessages.getString( PKG, "i18nDialog.Close" ) );
 
-    BaseStepDialog.positionBottomButtons(
+    BaseTransformDialog.positionBottomButtons(
       composite, new Button[] { wReload, wSave, wZip, wClose, }, props.getMargin() * 3, null );
 
     /*
@@ -1173,16 +1176,22 @@ public class Translator {
     // OK, we have a distinct list of packages to work with...
     wPackages.table.removeAll();
 
-    Map<String, Map<String, java.util.List<KeyOccurrence>>> sourceMessagesPackages =
-      crawler.getSourcePackageOccurrences();
+    Map<String, Map<String, java.util.List<KeyOccurrence>>> sourceMessagesPackages = crawler.getSourcePackageOccurrences();
 
-    for ( String sourceFolder : sourceMessagesPackages.keySet() ) {
+    // Sort the source folders...
+    //
+    java.util.List<String> sourceFolders = new ArrayList(sourceMessagesPackages.keySet());
+    Collections.sort( sourceFolders);
+    for ( String sourceFolder : sourceFolders ) {
       Map<String, java.util.List<KeyOccurrence>> messagesPackages = sourceMessagesPackages.get( sourceFolder );
+      java.util.List<String> packageNames = new ArrayList( messagesPackages.keySet() );
+      Collections.sort( packageNames );
 
-      for ( String messagesPackage : messagesPackages.keySet() ) {
+      for ( String packageName : packageNames ) {
+
         TableItem item = new TableItem( wPackages.table, SWT.NONE );
         item.setText( 1, sourceFolder );
-        item.setText( 2, messagesPackage );
+        item.setText( 2, packageName );
 
         // count the number of keys for the package that are NOT yet translated...
         //
@@ -1191,11 +1200,11 @@ public class Translator {
           // Check if there is a bundle file for this package.
           // If not we'll paint it in light red
           //
-          BundleFile bundleFile = store.getBundleStore().findBundleFile( messagesPackage, selectedLocale );
+          BundleFile bundleFile = store.getBundleStore().findBundleFile( packageName, selectedLocale );
           if (bundleFile==null) {
             item.setBackground( new Color(shell.getDisplay(), 230, 150, 150 ) );
           } else {
-            java.util.List<KeyOccurrence> todo = getTodoList( selectedLocale, messagesPackage, sourceFolder, true );
+            java.util.List<KeyOccurrence> todo = getTodoList( selectedLocale, packageName, sourceFolder, true );
             if ( todo.size() > 50 ) {
               item.setBackground( new Color( shell.getDisplay(), 150, 150, 150 ) ); // dark gray
             } else if ( todo.size() > 25 ) {

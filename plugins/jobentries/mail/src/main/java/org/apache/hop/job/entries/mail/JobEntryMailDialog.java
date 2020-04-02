@@ -39,7 +39,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -1290,7 +1290,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
     // setButtonPositions(new Button[] { wOK, wCancel }, margin, wTabFolder);
 
     // Add listeners
@@ -1331,7 +1331,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
       }
     } );
 
-    // BaseStepDialog.setTraverseOrder(new Control[] {wName, wDestination, wServer, wUseAuth,
+    // BaseTransformDialog.setTraverseOrder(new Control[] {wName, wDestination, wServer, wUseAuth,
     // wAuthUser, wAuthPass, wReply,
     // wSubject, wAddDate, wIncludeFiles, wTypes, wZipFiles, wZipFilename, wPerson, wPhone,
     // wComment, wOK, wCancel });
@@ -1342,7 +1342,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     activeUsePriority();
     setFlags();
     setUseAuth();
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     props.setDialogSize( shell, "JobMailDialogSize" );
@@ -1542,7 +1542,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

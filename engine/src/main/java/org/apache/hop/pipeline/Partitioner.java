@@ -25,7 +25,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.w3c.dom.Node;
 
 /**
@@ -33,14 +33,14 @@ import org.w3c.dom.Node;
  * <ul>
  * <li><b>Maintain partitioner settings</b><br/>
  * The implementing class typically keeps track of partitioner settings using private fields with corresponding getters
- * and setters. The dialog class implementing StepDialogInterface is using the getters and setters to copy the user
+ * and setters. The dialog class implementing TransformDialogInterface is using the getters and setters to copy the user
  * supplied configuration in and out of the dialog.
  * <p>
  * The following interface method also falls into the area of maintaining settings:
  * <p>
  * <i><a href="#clone()">public Object clone()</a></i>
  * <p>
- * This method is called when a step containing partitioning configuration is duplicated in HopGui. It needs to return a
+ * This method is called when a transform containing partitioning configuration is duplicated in HopGui. It needs to return a
  * deep copy of this partitioner object. It is essential that the implementing class creates proper deep copies if the
  * configuration is stored in modifiable objects, such as lists or custom helper objects. The copy is created by first
  * calling super.clone(), and deep-copying any fields the partitioner may have declared.
@@ -101,7 +101,7 @@ public interface Partitioner {
    *
    * @param meta the new meta
    */
-  public void setMeta( StepPartitioningMeta meta );
+  public void setMeta( TransformPartitioningMeta meta );
 
   /**
    * Gets the id.

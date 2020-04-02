@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Annotated SOAP Web Service call - dialog</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -485,7 +485,7 @@ See also: https://developer.mozilla.org/En/E4X
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Generate SOAP request</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -542,19 +542,19 @@ var requestXml=request.toXMLString();
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>297</xloc>
       <yloc>57</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step>
+  </transform>
+  <transform>
     <name>HTTP Post</name>
     <type>HTTPPOST</type>
     <description/>
@@ -587,19 +587,19 @@ var requestXml=request.toXMLString();
       <response_header/>
     </result>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>490</xloc>
       <yloc>57</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step>
+  </transform>
+  <transform>
     <name>Parse SOAP Response</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -698,19 +698,19 @@ Alert(responseBody.toXMLString());
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>683</xloc>
       <yloc>57</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step>
+  </transform>
+  <transform>
     <name>credit card number</name>
     <type>RowGenerator</type>
     <description/>
@@ -741,21 +741,21 @@ Alert(responseBody.toXMLString());
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>104</xloc>
       <yloc>57</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

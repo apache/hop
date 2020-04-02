@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>example_uniq_rows_validation</name>
     <description/>
@@ -16,7 +16,7 @@
       <rejected/>
       <connection/>
       <table/>
-      <step_performance_table/>
+      <transform_performance_table/>
       <use_batchid>Y</use_batchid>
       <use_logfield>N</use_logfield>
     </log>
@@ -35,8 +35,8 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -119,7 +119,9 @@
   </info>
   <notepads>
     <notepad>
-      <note>This word list is an abusive example of hash collisions.There are 18 unique words, but without Store Values,only 9 are returned.</note>
+      <note>This word list is an abusive example of hash collisions.
+There are 18 unique words, but without Store Values,
+only 9 are returned.</note>
       <xloc>300</xloc>
       <yloc>250</yloc>
       <width>195</width>
@@ -128,7 +130,7 @@
   </notepads>
   <order>
   <hop> <from>Generate Rows</from><to>Get two random numbers 1 - 10</to><enabled>Y</enabled> </hop>  <hop> <from>Get two random numbers 1 - 10</from><to>Unique numbers</to><enabled>Y</enabled> </hop>  <hop> <from>Get word list from transformation XML</from><to>Split field to rows</to><enabled>Y</enabled> </hop>  <hop> <from>Split field to rows</from><to>Select values</to><enabled>Y</enabled> </hop>  <hop> <from>Select values</from><to>Unique words (using hash)</to><enabled>Y</enabled> </hop>  <hop> <from>Select values</from><to>Unique words (using values)</to><enabled>Y</enabled> </hop>  </order>
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -142,14 +144,14 @@
     </fields>
     <limit>100</limit>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>50</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Get two random numbers 1 - 10</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -176,14 +178,14 @@ var val2 = Math.floor(Math.random()*10+1)
         <length>16</length>
         <precision>2</precision>
       </field>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique numbers</name>
     <type>UniqueRowsByHashSet</type>
     <description/>
@@ -196,14 +198,14 @@ var val2 = Math.floor(Math.random()*10+1)
       <store_values>N</store_values>
     <fields>      <field>        <name>val1</name>
         </field>      </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>200</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Get word list from transformation XML</name>
     <type>getXMLData</type>
     <description/>
@@ -254,14 +256,14 @@ var val2 = Math.floor(Math.random()*10+1)
     <XmlField/>
     <prunePath/>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Split field to rows</name>
     <type>SplitFieldToRows3</type>
     <description/>
@@ -278,14 +280,14 @@ var val2 = Math.floor(Math.random()*10+1)
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>150</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique words (using hash)</name>
     <type>UniqueRowsByHashSet</type>
     <description/>
@@ -298,14 +300,14 @@ var val2 = Math.floor(Math.random()*10+1)
       <store_values>N</store_values>
     <fields>      <field>        <name>word1</name>
         </field>      </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>350</xloc>
       <yloc>200</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Select values</name>
     <type>SelectValues</type>
     <description/>
@@ -325,14 +327,14 @@ var val2 = Math.floor(Math.random()*10+1)
         <precision>-2</precision>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>250</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Unique words (using values)</name>
     <type>UniqueRowsByHashSet</type>
     <description/>
@@ -345,16 +347,16 @@ var val2 = Math.floor(Math.random()*10+1)
       <store_values>Y</store_values>
     <fields>      <field>        <name>word1</name>
         </field>      </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>350</xloc>
       <yloc>300</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-   <slave-step-copy-partition-distribution>
-</slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+   <slave-transform-copy-partition-distribution>
+</slave-transform-copy-partition-distribution>
    <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

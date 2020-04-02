@@ -31,7 +31,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ConditionEditor;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -108,7 +108,7 @@ public class EnterConditionDialog extends Dialog {
     fdCond.bottom = new FormAttachment( 100, -50 );
     wCond.setLayoutData( fdCond );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, new Listener() {
@@ -124,7 +124,7 @@ public class EnterConditionDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     Display display = parent.getDisplay();

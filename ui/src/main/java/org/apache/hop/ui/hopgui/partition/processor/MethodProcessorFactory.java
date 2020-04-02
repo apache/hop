@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.partition.processor;
 
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com
@@ -31,11 +31,11 @@ public class MethodProcessorFactory {
 
   public static MethodProcessor create( int methodType ) {
     switch ( methodType ) {
-      case StepPartitioningMeta.PARTITIONING_METHOD_NONE:
+      case TransformPartitioningMeta.PARTITIONING_METHOD_NONE:
         return new NoneMethodProcessor();
-      case StepPartitioningMeta.PARTITIONING_METHOD_MIRROR:
+      case TransformPartitioningMeta.PARTITIONING_METHOD_MIRROR:
         return new MirrorMethodProcessor();
-      case StepPartitioningMeta.PARTITIONING_METHOD_SPECIAL:
+      case TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL:
         return new SpecialMethodProcessor();
       default:
         return new NoneMethodProcessor();

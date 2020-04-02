@@ -27,7 +27,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineHopMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -58,12 +58,12 @@ public class HopGuiPipelineUndoDelegate {
 
   public void undoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
-      // We created a new step : undo this...
-      case NewStep:
-        // Delete the step at correct location:
+      // We created a new transform : undo this...
+      case NewTransform:
+        // Delete the transform at correct location:
         for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = changeAction.getCurrentIndex()[ i ];
-          pipelineMeta.removeStep( idx );
+          pipelineMeta.removeTransform( idx );
         }
         break;
 
@@ -89,13 +89,13 @@ public class HopGuiPipelineUndoDelegate {
       // DELETE
       //
 
-      // We delete a step : undo this...
-      case DeleteStep:
-        // un-Delete the step at correct location: re-insert
+      // We delete a transform : undo this...
+      case DeleteTransform:
+        // un-Delete the transform at correct location: re-insert
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) changeAction.getCurrent()[ i ];
+          TransformMeta transformMeta = (TransformMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
-          pipelineMeta.addStep( idx, stepMeta );
+          pipelineMeta.addTransform( idx, transformMeta );
         }
         break;
 
@@ -116,8 +116,8 @@ public class HopGuiPipelineUndoDelegate {
           PipelineHopMeta hi = (PipelineHopMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           // Build a new hop:
-          StepMeta from = pipelineMeta.findStep( hi.getFromStep().getName() );
-          StepMeta to = pipelineMeta.findStep( hi.getToStep().getName() );
+          TransformMeta from = pipelineMeta.findTransform( hi.getFromTransform().getName() );
+          TransformMeta to = pipelineMeta.findTransform( hi.getToTransform().getName() );
           PipelineHopMeta hinew = new PipelineHopMeta( from, to );
           pipelineMeta.addPipelineHop( idx, hinew );
         }
@@ -127,14 +127,14 @@ public class HopGuiPipelineUndoDelegate {
       // CHANGE
       //
 
-      // We changed a step : undo this...
-      case ChangeStep:
-        // Delete the current step, insert previous version.
+      // We changed a transform : undo this...
+      case ChangeTransform:
+        // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          StepMeta prev = (StepMeta) ( (StepMeta) changeAction.getPrevious()[ i ] ).clone();
+          TransformMeta prev = (TransformMeta) ( (TransformMeta) changeAction.getPrevious()[ i ] ).clone();
           int idx = changeAction.getCurrentIndex()[ i ];
 
-          pipelineMeta.getStep( idx ).replaceMeta( prev );
+          pipelineMeta.getTransform( idx ).replaceMeta( prev );
         }
         break;
 
@@ -165,12 +165,12 @@ public class HopGuiPipelineUndoDelegate {
       // POSITION
       //
 
-      // The position of a step has changed: undo this...
-      case PositionStep:
-        // Find the location of the step:
+      // The position of a transform has changed: undo this...
+      case PositionTransform:
+        // Find the location of the transform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
-          StepMeta stepMeta = pipelineMeta.getStep( changeAction.getCurrentIndex()[ i ] );
-          stepMeta.setLocation( changeAction.getPreviousLocation()[ i ] );
+          TransformMeta transformMeta = pipelineMeta.getTransform( changeAction.getCurrentIndex()[ i ] );
+          transformMeta.setLocation( changeAction.getPreviousLocation()[ i ] );
         }
         break;
 
@@ -206,12 +206,12 @@ public class HopGuiPipelineUndoDelegate {
 
   public void redoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
-      case NewStep:
-        // re-delete the step at correct location:
+      case NewTransform:
+        // re-delete the transform at correct location:
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) changeAction.getCurrent()[ i ];
+          TransformMeta transformMeta = (TransformMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
-          pipelineMeta.addStep( idx, stepMeta );
+          pipelineMeta.addTransform( idx, transformMeta );
         }
         break;
 
@@ -236,11 +236,11 @@ public class HopGuiPipelineUndoDelegate {
       //
       // DELETE
       //
-      case DeleteStep:
-        // re-remove the step at correct location:
+      case DeleteTransform:
+        // re-remove the transform at correct location:
         for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = changeAction.getCurrentIndex()[ i ];
-          pipelineMeta.removeStep( idx );
+          pipelineMeta.removeTransform( idx );
         }
         break;
 
@@ -264,12 +264,12 @@ public class HopGuiPipelineUndoDelegate {
       // CHANGE
       //
 
-      // We changed a step : undo this...
-      case ChangeStep:
-        // Delete the current step, insert previous version.
+      // We changed a transform : undo this...
+      case ChangeTransform:
+        // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) ( (StepMeta) changeAction.getCurrent()[ i ] ).clone();
-          pipelineMeta.getStep( changeAction.getCurrentIndex()[ i ] ).replaceMeta( stepMeta );
+          TransformMeta transformMeta = (TransformMeta) ( (TransformMeta) changeAction.getCurrent()[ i ] ).clone();
+          pipelineMeta.getTransform( changeAction.getCurrentIndex()[ i ] ).replaceMeta( transformMeta );
         }
         break;
 
@@ -300,11 +300,11 @@ public class HopGuiPipelineUndoDelegate {
       //
       // CHANGE POSITION
       //
-      case PositionStep:
+      case PositionTransform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
-          // Find & change the location of the step:
-          StepMeta stepMeta = pipelineMeta.getStep( changeAction.getCurrentIndex()[ i ] );
-          stepMeta.setLocation( changeAction.getCurrentLocation()[ i ] );
+          // Find & change the location of the transform:
+          TransformMeta transformMeta = pipelineMeta.getTransform( changeAction.getCurrentIndex()[ i ] );
+          transformMeta.setLocation( changeAction.getCurrentLocation()[ i ] );
         }
         break;
       case PositionNote:

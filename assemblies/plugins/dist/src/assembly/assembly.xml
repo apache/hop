@@ -24,7 +24,7 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>steps</directory>
+      <directory>transforms</directory>
       <includes>
         <include>**/*.zip</include>
       </includes>

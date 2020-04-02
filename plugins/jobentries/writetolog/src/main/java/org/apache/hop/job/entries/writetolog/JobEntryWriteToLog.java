@@ -152,7 +152,7 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
 
     @Override
     public LoggingObjectType getObjectType() {
-      return LoggingObjectType.STEP;
+      return LoggingObjectType.TRANSFORM;
     }
 
     @Override

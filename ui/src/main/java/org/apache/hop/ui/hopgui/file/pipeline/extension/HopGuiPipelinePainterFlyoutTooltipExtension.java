@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.file.pipeline.extension;
 
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public class HopGuiPipelinePainterFlyoutTooltipExtension {
@@ -48,8 +48,8 @@ public class HopGuiPipelinePainterFlyoutTooltipExtension {
     return (String) this.areaOwner.getExtensionAreaType();
   }
 
-  public StepMeta getStepMeta() {
-    return (StepMeta) this.areaOwner.getParent();
+  public TransformMeta getTransformMeta() {
+    return (TransformMeta) this.areaOwner.getParent();
   }
 
   public HopGuiPipelineGraph getHopGuiPipelineGraph() {

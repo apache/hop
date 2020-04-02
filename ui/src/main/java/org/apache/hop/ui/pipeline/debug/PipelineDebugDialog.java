@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.debug;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.debug.StepDebugMeta;
+import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -39,7 +39,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -83,7 +83,7 @@ public class PipelineDebugDialog extends Dialog {
 
   private Button wOK, wCancel, wLaunch;
 
-  private TableView wSteps;
+  private TableView wTransforms;
 
   private PipelineDebugMeta pipelineDebugMeta;
   private Composite wComposite;
@@ -93,10 +93,10 @@ public class PipelineDebugDialog extends Dialog {
   private Button wFirstRows;
   private Button wPauseBreakPoint;
   private Condition condition;
-  private RowMetaInterface stepInputFields;
+  private RowMetaInterface transformInputFields;
   private ConditionEditor wCondition;
   private Label wlCondition;
-  private Map<StepMeta, StepDebugMeta> stepDebugMetaMap;
+  private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
   private int previousIndex;
 
   public PipelineDebugDialog( Shell parent, PipelineDebugMeta pipelineDebugMeta ) {
@@ -105,10 +105,10 @@ public class PipelineDebugDialog extends Dialog {
     this.pipelineDebugMeta = pipelineDebugMeta;
     props = PropsUI.getInstance();
 
-    // Keep our own map of step debugging information...
+    // Keep our own map of transform debugging information...
     //
-    stepDebugMetaMap = new Hashtable<StepMeta, StepDebugMeta>();
-    stepDebugMetaMap.putAll( pipelineDebugMeta.getStepDebugMetaMap() );
+    transformDebugMetaMap = new Hashtable<TransformMeta, TransformDebugMeta>();
+    transformDebugMetaMap.putAll( pipelineDebugMeta.getTransformDebugMetaMap() );
 
     previousIndex = -1;
 
@@ -158,53 +158,53 @@ public class PipelineDebugDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wLaunch, wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wLaunch, wOK, wCancel }, margin, null );
 
     wOK.setToolTipText( BaseMessages.getString( PKG, "PipelineDebugDialog.Configure.ToolTip" ) );
     wLaunch.setToolTipText( BaseMessages.getString( PKG, "PipelineDebugDialog.Launch.ToolTip" ) );
 
-    // Add the list of steps
+    // Add the list of transforms
     //
-    ColumnInfo[] stepColumns =
+    ColumnInfo[] transformColumns =
       { new ColumnInfo(
-        BaseMessages.getString( PKG, "PipelineDebugDialog.Column.StepName" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
+        BaseMessages.getString( PKG, "PipelineDebugDialog.Column.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true ), // name,
         // non-numeric,
         // readonly
       };
 
-    int nrSteps = pipelineDebugMeta.getPipelineMeta().nrSteps();
-    wSteps =
+    int nrTransforms = pipelineDebugMeta.getPipelineMeta().nrTransforms();
+    wTransforms =
       new TableView(
-        pipelineDebugMeta.getPipelineMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, stepColumns,
-        nrSteps, true, null, props );
-    FormData fdSteps = new FormData();
-    fdSteps.left = new FormAttachment( 0, 0 );
-    fdSteps.right = new FormAttachment( middle, -margin );
-    fdSteps.top = new FormAttachment( 0, margin );
-    fdSteps.bottom = new FormAttachment( wOK, -margin * 2 );
-    wSteps.setLayoutData( fdSteps );
-    wSteps.table.setHeaderVisible( false );
+        pipelineDebugMeta.getPipelineMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, transformColumns,
+        nrTransforms, true, null, props );
+    FormData fdTransform = new FormData();
+    fdTransform.left = new FormAttachment( 0, 0 );
+    fdTransform.right = new FormAttachment( middle, -margin );
+    fdTransform.top = new FormAttachment( 0, margin );
+    fdTransform.bottom = new FormAttachment( wOK, -margin * 2 );
+    wTransforms.setLayoutData( fdTransform );
+    wTransforms.table.setHeaderVisible( false );
 
     // If someone clicks on a row, we want to refresh the right pane...
     //
-    wSteps.table.addSelectionListener( new SelectionAdapter() {
+    wTransforms.table.addSelectionListener( new SelectionAdapter() {
 
       @Override
       public void widgetSelected( SelectionEvent e ) {
         // Before we show anything, make sure to save the content of the screen...
         //
-        getStepDebugMeta();
+        getTransformDebugMeta();
 
         // Now show the information...
         //
-        showStepDebugInformation();
+        showTransformDebugInformation();
       }
 
     } );
 
     // If someone presses enter, launch the pipeline (this allows for "quick-preview")
-    wSteps.table.addKeyListener( new KeyAdapter() {
+    wTransforms.table.addKeyListener( new KeyAdapter() {
 
       @Override
       public void keyPressed( KeyEvent e ) {
@@ -214,7 +214,7 @@ public class PipelineDebugDialog extends Dialog {
       }
     } );
 
-    // Now add the composite on which we will dynamically place a number of widgets, based on the selected step...
+    // Now add the composite on which we will dynamically place a number of widgets, based on the selected transform...
     //
     wComposite = new Composite( shell, SWT.BORDER );
     props.setLook( wComposite );
@@ -234,7 +234,7 @@ public class PipelineDebugDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     // Set the focus on the OK button
@@ -253,38 +253,38 @@ public class PipelineDebugDialog extends Dialog {
   private void getData() {
     // Save the latest changes to the screen...
     //
-    getStepDebugMeta();
+    getTransformDebugMeta();
 
-    // Add the steps...
+    // Add the transforms...
     //
-    refreshStepList();
+    refreshTransformList();
 
   }
 
-  private void refreshStepList() {
+  private void refreshTransformList() {
     GUIResource resource = GUIResource.getInstance();
 
-    // Add the list of steps...
+    // Add the list of transforms...
     //
     int maxIconSize = 0;
     int indexSelected = -1;
-    wSteps.table.removeAll();
-    for ( int i = 0; i < pipelineDebugMeta.getPipelineMeta().getSteps().size(); i++ ) {
-      StepMeta stepMeta = pipelineDebugMeta.getPipelineMeta().getStep( i );
-      TableItem item = new TableItem( wSteps.table, SWT.NONE );
+    wTransforms.table.removeAll();
+    for ( int i = 0; i < pipelineDebugMeta.getPipelineMeta().getTransforms().size(); i++ ) {
+      TransformMeta transformMeta = pipelineDebugMeta.getPipelineMeta().getTransform( i );
+      TableItem item = new TableItem( wTransforms.table, SWT.NONE );
       Image image =
-        resource.getImagesSteps().get( stepMeta.getStepID() ).getAsBitmapForSize( display, ConstUI.ICON_SIZE,
+        resource.getImagesTransforms().get( transformMeta.getTransformPluginId() ).getAsBitmapForSize( display, ConstUI.ICON_SIZE,
           ConstUI.ICON_SIZE );
       item.setImage( 0, image );
       item.setText( 0, "" );
-      item.setText( 1, stepMeta.getName() );
+      item.setText( 1, transformMeta.getName() );
 
       if ( image.getBounds().width > maxIconSize ) {
         maxIconSize = image.getBounds().width;
       }
 
-      StepDebugMeta stepDebugMeta = stepDebugMetaMap.get( stepMeta );
-      if ( stepDebugMeta != null ) {
+      TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
+      if ( transformDebugMeta != null ) {
         // We have debugging information so we mark the row
         //
         item.setBackground( resource.getColorLight() );
@@ -294,24 +294,24 @@ public class PipelineDebugDialog extends Dialog {
       }
     }
 
-    wSteps.removeEmptyRows();
-    wSteps.optWidth( false );
-    wSteps.table.getColumn( 0 ).setWidth( maxIconSize + 10 );
-    wSteps.table.getColumn( 0 ).setAlignment( SWT.CENTER );
+    wTransforms.removeEmptyRows();
+    wTransforms.optWidth( false );
+    wTransforms.table.getColumn( 0 ).setWidth( maxIconSize + 10 );
+    wTransforms.table.getColumn( 0 ).setAlignment( SWT.CENTER );
 
-    // OK, select the first used step debug line...
+    // OK, select the first used transform debug line...
     //
     if ( indexSelected >= 0 ) {
-      wSteps.table.setSelection( indexSelected );
-      showStepDebugInformation();
+      wTransforms.table.setSelection( indexSelected );
+      showTransformDebugInformation();
     }
   }
 
   /**
-   * Grab the step debugging information from the dialog. Store it in our private map
+   * Grab the transform debugging information from the dialog. Store it in our private map
    */
-  private void getStepDebugMeta() {
-    int index = wSteps.getSelectionIndex();
+  private void getTransformDebugMeta() {
+    int index = wTransforms.getSelectionIndex();
     if ( previousIndex >= 0 ) {
       // Is there anything on the composite to save yet?
       //
@@ -319,21 +319,21 @@ public class PipelineDebugDialog extends Dialog {
         return;
       }
 
-      StepMeta stepMeta = pipelineDebugMeta.getPipelineMeta().getStep( previousIndex );
-      StepDebugMeta stepDebugMeta = new StepDebugMeta( stepMeta );
-      stepDebugMeta.setCondition( condition );
-      stepDebugMeta.setPausingOnBreakPoint( wPauseBreakPoint.getSelection() );
-      stepDebugMeta.setReadingFirstRows( wFirstRows.getSelection() );
-      stepDebugMeta.setRowCount( Const.toInt( wRowCount.getText(), -1 ) );
+      TransformMeta transformMeta = pipelineDebugMeta.getPipelineMeta().getTransform( previousIndex );
+      TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
+      transformDebugMeta.setCondition( condition );
+      transformDebugMeta.setPausingOnBreakPoint( wPauseBreakPoint.getSelection() );
+      transformDebugMeta.setReadingFirstRows( wFirstRows.getSelection() );
+      transformDebugMeta.setRowCount( Const.toInt( wRowCount.getText(), -1 ) );
 
-      stepDebugMetaMap.put( stepMeta, stepDebugMeta );
+      transformDebugMetaMap.put( transformMeta, transformDebugMeta );
     }
     previousIndex = index;
   }
 
   private void getInfo( PipelineDebugMeta meta ) {
-    meta.getStepDebugMetaMap().clear();
-    meta.getStepDebugMetaMap().putAll( stepDebugMetaMap );
+    meta.getTransformDebugMetaMap().clear();
+    meta.getTransformDebugMetaMap().putAll( transformDebugMetaMap );
   }
 
   private void ok( boolean config ) {
@@ -342,7 +342,7 @@ public class PipelineDebugDialog extends Dialog {
     } else {
       retval = DEBUG_LAUNCH;
     }
-    getStepDebugMeta();
+    getTransformDebugMeta();
     getInfo( pipelineDebugMeta );
     dispose();
   }
@@ -357,7 +357,7 @@ public class PipelineDebugDialog extends Dialog {
     dispose();
   }
 
-  private void showStepDebugInformation() {
+  private void showTransformDebugInformation() {
 
     // Now that we have all the information to display, let's put some widgets on our composite.
     // Before we go there, let's clear everything that was on there...
@@ -367,21 +367,21 @@ public class PipelineDebugDialog extends Dialog {
     }
     wComposite.layout( true, true );
 
-    int[] selectionIndices = wSteps.table.getSelectionIndices();
+    int[] selectionIndices = wTransforms.table.getSelectionIndices();
     if ( selectionIndices == null || selectionIndices.length != 1 ) {
       return;
     }
 
     previousIndex = selectionIndices[ 0 ];
 
-    // What step did we click on?
+    // What transform did we click on?
     //
-    final StepMeta stepMeta = pipelineDebugMeta.getPipelineMeta().getStep( selectionIndices[ 0 ] );
+    final TransformMeta transformMeta = pipelineDebugMeta.getPipelineMeta().getTransform( selectionIndices[ 0 ] );
 
-    // What is the step debugging metadata?
+    // What is the transform debugging metadata?
     // --> This can be null (most likely scenario)
     //
-    final StepDebugMeta stepDebugMeta = stepDebugMetaMap.get( stepMeta );
+    final TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
 
     // At the top we'll put a few common items like first[x], etc.
     //
@@ -430,8 +430,8 @@ public class PipelineDebugDialog extends Dialog {
     // The condition to pause for...
     //
     condition = null;
-    if ( stepDebugMeta != null ) {
-      condition = stepDebugMeta.getCondition();
+    if ( transformDebugMeta != null ) {
+      condition = transformDebugMeta.getCondition();
     }
     if ( condition == null ) {
       condition = new Condition();
@@ -439,9 +439,9 @@ public class PipelineDebugDialog extends Dialog {
 
     // The input fields...
     try {
-      stepInputFields = pipelineDebugMeta.getPipelineMeta().getStepFields( stepMeta );
-    } catch ( HopStepException e ) {
-      stepInputFields = new RowMeta();
+      transformInputFields = pipelineDebugMeta.getPipelineMeta().getTransformFields( transformMeta );
+    } catch ( HopTransformException e ) {
+      transformInputFields = new RowMeta();
     }
 
     wlCondition = new Label( wComposite, SWT.RIGHT );
@@ -454,7 +454,7 @@ public class PipelineDebugDialog extends Dialog {
     fdlCondition.top = new FormAttachment( wPauseBreakPoint, margin );
     wlCondition.setLayoutData( fdlCondition );
 
-    wCondition = new ConditionEditor( wComposite, SWT.BORDER, condition, stepInputFields );
+    wCondition = new ConditionEditor( wComposite, SWT.BORDER, condition, transformInputFields );
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment( middle, 0 );
     fdCondition.right = new FormAttachment( 100, 0 );
@@ -462,7 +462,7 @@ public class PipelineDebugDialog extends Dialog {
     fdCondition.bottom = new FormAttachment( 100, 0 );
     wCondition.setLayoutData( fdCondition );
 
-    getStepDebugData( stepDebugMeta );
+    getTransformDebugData( transformDebugMeta );
 
     // Add a "clear" button at the bottom on the left...
     //
@@ -478,35 +478,35 @@ public class PipelineDebugDialog extends Dialog {
     wClear.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent event ) {
-        // Clear the preview step information for this step...
+        // Clear the preview transform information for this transform...
         //
-        stepDebugMetaMap.remove( stepMeta );
-        wSteps.table.setSelection( new int[] {} );
+        transformDebugMetaMap.remove( transformMeta );
+        wTransforms.table.setSelection( new int[] {} );
         previousIndex = -1;
 
-        // refresh the steps list...
+        // refresh the transforms list...
         //
-        refreshStepList();
+        refreshTransformList();
 
-        showStepDebugInformation();
+        showTransformDebugInformation();
       }
     } );
 
     wComposite.layout( true, true );
   }
 
-  private void getStepDebugData( StepDebugMeta stepDebugMeta ) {
-    if ( stepDebugMeta == null ) {
+  private void getTransformDebugData( TransformDebugMeta transformDebugMeta ) {
+    if ( transformDebugMeta == null ) {
       return;
     }
 
-    if ( stepDebugMeta.getRowCount() > 0 ) {
-      wRowCount.setText( Integer.toString( stepDebugMeta.getRowCount() ) );
+    if ( transformDebugMeta.getRowCount() > 0 ) {
+      wRowCount.setText( Integer.toString( transformDebugMeta.getRowCount() ) );
     } else {
       wRowCount.setText( "" );
     }
 
-    wFirstRows.setSelection( stepDebugMeta.isReadingFirstRows() );
-    wPauseBreakPoint.setSelection( stepDebugMeta.isPausingOnBreakPoint() );
+    wFirstRows.setSelection( transformDebugMeta.isReadingFirstRows() );
+    wPauseBreakPoint.setSelection( transformDebugMeta.isPausingOnBreakPoint() );
   }
 }

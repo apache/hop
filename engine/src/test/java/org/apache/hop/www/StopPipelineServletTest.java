@@ -114,7 +114,7 @@ public class StopPipelineServletTest {
 
   @Test
   @PrepareForTest( { Encode.class } )
-  public void testWillStopInputStepsOnly() throws ServletException, IOException {
+  public void testWillStopInputTransformsOnly() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );

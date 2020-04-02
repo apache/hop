@@ -187,7 +187,7 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
 
     wlName = new Label( shell, SWT.LEFT );
     props.setLook( wlName );
-    wlName.setText( BaseMessages.getString( PKG, "JobPipeline.JobStep.Label" ) );
+    wlName.setText( BaseMessages.getString( PKG, "JobPipeline.JobTransform.Label" ) );
     fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.top = new FormAttachment( 0, 0 );

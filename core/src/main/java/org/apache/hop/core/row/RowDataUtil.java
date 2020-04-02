@@ -27,14 +27,14 @@ package org.apache.hop.core.row;
  * for a metadata driven system with hiding deletes, over sized arrays etc, we can change these methods to find
  * occurrences.
  * <p>
- * For example, a step adding a field to the row should always call
+ * For example, a transform adding a field to the row should always call
  *
  * <pre>
  * <a href="">public static Object[] resizeArray(Object[] objects, int newSize)</a></i>
  * </pre>
  * <p>
  * which will either physically resize the array or return the original row, in case it was over-allocated and has
- * enough slots. If a step needs to create new rows from scratch, it should use allocateRowData() which will return a
+ * enough slots. If a transform needs to create new rows from scratch, it should use allocateRowData() which will return a
  * somewhat over-allocated object array to fit the desired number of fields.
  *
  * @author Matt

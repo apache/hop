@@ -43,7 +43,7 @@ public class LoggingRegistryTest {
     LoggingObject parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.PIPELINE, null ) );
     parent.setLogChannelId( LOG_CHANEL_ID_PARENT );
 
-    LoggingObject child = new LoggingObject( new SimpleLoggingObject( "child", LoggingObjectType.STEP, parent ) );
+    LoggingObject child = new LoggingObject( new SimpleLoggingObject( "child", LoggingObjectType.TRANSFORM, parent ) );
     child.setLogChannelId( LOG_CHANEL_ID_CHILD );
 
     loggingRegistry.getMap().put( STRING_DEFAULT, child );

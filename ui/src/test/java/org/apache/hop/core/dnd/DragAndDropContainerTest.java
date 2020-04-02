@@ -33,63 +33,63 @@ public class DragAndDropContainerTest {
 
   @Test
   public void newDNDContainer() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name" );
 
     assertNotNull( dnd );
     assertNull( dnd.getId() );
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
-    assertEquals( "BaseStep", dnd.getTypeCode() );
-    assertEquals( "Step Name", dnd.getData() );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, dnd.getType() );
+    assertEquals( "BaseTransform", dnd.getTypeCode() );
+    assertEquals( "Transform Name", dnd.getData() );
   }
 
   @Test
   public void newDNDContainerWithId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name", "TransformID" );
 
     assertNotNull( dnd );
-    assertEquals( "StepID", dnd.getId() );
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
-    assertEquals( "BaseStep", dnd.getTypeCode() );
-    assertEquals( "Step Name", dnd.getData() );
+    assertEquals( "TransformID", dnd.getId() );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, dnd.getType() );
+    assertEquals( "BaseTransform", dnd.getTypeCode() );
+    assertEquals( "Transform Name", dnd.getData() );
   }
 
   @Test
   public void setId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
-    dnd.setId( "StepID" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name" );
+    dnd.setId( "TransformID" );
 
-    assertEquals( "StepID", dnd.getId() );
+    assertEquals( "TransformID", dnd.getId() );
   }
 
   @Test
   public void setData() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
-    dnd.setData( "Another Step" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name" );
+    dnd.setData( "Another Transform" );
 
-    assertEquals( "Another Step", dnd.getData() );
+    assertEquals( "Another Transform", dnd.getData() );
   }
 
   @Test
   public void setType() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_JOB_ENTRY, "Step Name" );
-    dnd.setType( DragAndDropContainer.TYPE_BASE_STEP_TYPE );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_JOB_ENTRY, "Transform Name" );
+    dnd.setType( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE );
 
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, dnd.getType() );
   }
 
   @Test
   public void getTypeFromCode() {
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, DragAndDropContainer.getType( "BaseStep" ) );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, DragAndDropContainer.getType( "BaseTransform" ) );
   }
 
   @Test
   public void getXML() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name" );
 
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<DragAndDrop>\n"
-      + "  <DragType>BaseStep</DragType>\n"
-      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "  <DragType>BaseTransform</DragType>\n"
+      + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
     assertEquals( xml, dnd.getXML() );
@@ -97,13 +97,13 @@ public class DragAndDropContainerTest {
 
   @Test
   public void getXMLWithId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID" );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name", "TransformID" );
 
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<DragAndDrop>\n"
-      + "  <ID>StepID</ID>\n"
-      + "  <DragType>BaseStep</DragType>\n"
-      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "  <ID>TransformID</ID>\n"
+      + "  <DragType>BaseTransform</DragType>\n"
+      + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
     assertEquals( xml, dnd.getXML() );
@@ -113,34 +113,34 @@ public class DragAndDropContainerTest {
   public void newFromXML() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<DragAndDrop>\n"
-      + "  <DragType>BaseStep</DragType>\n"
-      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "  <DragType>BaseTransform</DragType>\n"
+      + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
     DragAndDropContainer dnd = new DragAndDropContainer( xml );
 
     assertNotNull( dnd );
     assertNull( dnd.getId() );
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
-    assertEquals( "BaseStep", dnd.getTypeCode() );
-    assertEquals( "Step Name", dnd.getData() );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, dnd.getType() );
+    assertEquals( "BaseTransform", dnd.getTypeCode() );
+    assertEquals( "Transform Name", dnd.getData() );
   }
 
   @Test
   public void newFromXMLWithId() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<DragAndDrop>\n"
-      + "  <ID>StepID</ID>\n"
-      + "  <DragType>BaseStep</DragType>\n"
-      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "  <ID>TransformID</ID>\n"
+      + "  <DragType>BaseTransform</DragType>\n"
+      + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
     DragAndDropContainer dnd = new DragAndDropContainer( xml );
 
     assertNotNull( dnd );
-    assertEquals( "StepID", dnd.getId() );
-    assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
-    assertEquals( "BaseStep", dnd.getTypeCode() );
-    assertEquals( "Step Name", dnd.getData() );
+    assertEquals( "TransformID", dnd.getId() );
+    assertEquals( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, dnd.getType() );
+    assertEquals( "BaseTransform", dnd.getTypeCode() );
+    assertEquals( "Transform Name", dnd.getData() );
   }
 }

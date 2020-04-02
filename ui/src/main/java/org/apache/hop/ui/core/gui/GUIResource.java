@@ -31,7 +31,7 @@ import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeListener;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
@@ -155,9 +155,9 @@ public class GUIResource {
   private ManagedFont fontBold;
 
   /* * * Images * * */
-  private Map<String, SwtUniversalImage> imagesSteps = new Hashtable<>();
+  private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
 
-  private Map<String, Image> imagesStepsSmall = new Hashtable<>();
+  private Map<String, Image> imagesTransformsSmall = new Hashtable<>();
 
   private Map<String, SwtUniversalImage> imagesJobentries;
 
@@ -305,9 +305,9 @@ public class GUIResource {
 
   private SwtUniversalImage imageCollapseAll;
 
-  private SwtUniversalImage imageStepError;
+  private SwtUniversalImage imageTransformError;
 
-  private SwtUniversalImage imageRedStepError;
+  private SwtUniversalImage imageRedTransformError;
 
   private SwtUniversalImage imageCopyHop;
 
@@ -444,15 +444,15 @@ public class GUIResource {
     clipboard = null;
 
     // Reload images as required by changes in the plugins
-    PluginRegistry.getInstance().addPluginListener( StepPluginType.class, new PluginTypeListener() {
+    PluginRegistry.getInstance().addPluginListener( TransformPluginType.class, new PluginTypeListener() {
       @Override
       public void pluginAdded( Object serviceObject ) {
-        loadStepImages();
+        loadTransformImages();
       }
 
       @Override
       public void pluginRemoved( Object serviceObject ) {
-        loadStepImages();
+        loadTransformImages();
       }
 
       @Override
@@ -537,7 +537,7 @@ public class GUIResource {
     // Load all images from files...
     loadFonts();
     loadCommonImages();
-    loadStepImages();
+    loadTransformImages();
     loadJobEntryImages();
   }
 
@@ -627,8 +627,8 @@ public class GUIResource {
       imageShowResults.dispose();
       imageHideResults.dispose();
       imageCollapseAll.dispose();
-      imageStepError.dispose();
-      imageRedStepError.dispose();
+      imageTransformError.dispose();
+      imageRedTransformError.dispose();
       imageCopyHop.dispose();
       imageErrorHop.dispose();
       imageInfoHop.dispose();
@@ -735,10 +735,10 @@ public class GUIResource {
       imageToolbarViewAsXml.dispose();
 
       // big images
-      disposeUniversalImages( imagesSteps.values() );
+      disposeUniversalImages( imagesTransforms.values() );
 
       // Small images
-      disposeImages( imagesStepsSmall.values() );
+      disposeImages( imagesTransformsSmall.values() );
 
       // Dispose of the images in the map
       disposeImages( imageMap.values() );
@@ -770,35 +770,35 @@ public class GUIResource {
   }
 
   /**
-   * Load all step images from files.
+   * Load all transform images from files.
    */
-  private void loadStepImages() {
-    // imagesSteps.clear();
-    // imagesStepsSmall.clear();
+  private void loadTransformImages() {
+    // imagesTransforms.clear();
+    // imagesTransformsSmall.clear();
 
     //
-    // STEP IMAGES TO LOAD
+    // TRANSFORM IMAGES TO LOAD
     //
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    List<PluginInterface> steps = registry.getPlugins( StepPluginType.class );
-    for ( PluginInterface step : steps ) {
-      if ( imagesSteps.get( step.getIds()[ 0 ] ) != null ) {
+    List<PluginInterface> transforms = registry.getPlugins( TransformPluginType.class );
+    for ( PluginInterface transform : transforms ) {
+      if ( imagesTransforms.get( transform.getIds()[ 0 ] ) != null ) {
         continue;
       }
 
       SwtUniversalImage image = null;
-      Image small_image = null;
+      Image smallImage = null;
 
-      String filename = step.getImageFile();
+      String filename = transform.getImageFile();
       try {
-        ClassLoader classLoader = registry.getClassLoader( step );
+        ClassLoader classLoader = registry.getClassLoader( transform );
         image = SwtSvgImageUtil.getUniversalImage( display, classLoader, filename );
       } catch ( Throwable t ) {
-        log.logError( "Error occurred loading image [" + filename + "] for plugin " + step, t );
+        log.logError( "Error occurred loading image [" + filename + "] for plugin " + transform, t );
       } finally {
         if ( image == null ) {
-          log.logError( "Unable to load image file [" + filename + "] for plugin " + step );
+          log.logError( "Unable to load image file [" + filename + "] for plugin " + transform );
           image = SwtSvgImageUtil.getMissingImage( display );
         }
       }
@@ -806,10 +806,10 @@ public class GUIResource {
       // Calculate the smaller version of the image @ 16x16...
       // Perhaps we should make this configurable?
       //
-      small_image = image.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
+      smallImage = image.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
 
-      imagesSteps.put( step.getIds()[ 0 ], image );
-      imagesStepsSmall.put( step.getIds()[ 0 ], small_image );
+      imagesTransforms.put( transform.getIds()[ 0 ], image );
+      imagesTransformsSmall.put( transform.getIds()[ 0 ], smallImage );
     }
   }
 
@@ -1039,10 +1039,10 @@ public class GUIResource {
     imageCollapseAll = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CollapseAll_image" ) );
 
     // "ui/images/show-error-lines.png;
-    imageStepError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLines_image" ) );
+    imageTransformError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "TransformErrorLines_image" ) );
 
-    // "ui/images/step-error.svg;
-    imageRedStepError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLinesRed_image" ) );
+    // "ui/images/transform-error.svg;
+    imageRedTransformError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "TransformErrorLinesRed_image" ) );
 
     // "ui/images/copy-hop.png;
     imageCopyHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CopyHop_image" ) );
@@ -1252,7 +1252,7 @@ public class GUIResource {
   }
 
   /**
-   * Load all step images from files.
+   * Load all transform images from files.
    */
   private void loadJobEntryImages() {
     imagesJobentries = new Hashtable<String, SwtUniversalImage>();
@@ -1673,17 +1673,17 @@ public class GUIResource {
   }
 
   /**
-   * @return Returns the imagesSteps.
+   * @return Returns the imagesTransforms.
    */
-  public Map<String, SwtUniversalImage> getImagesSteps() {
-    return imagesSteps;
+  public Map<String, SwtUniversalImage> getImagesTransforms() {
+    return imagesTransforms;
   }
 
   /**
-   * @return Returns the imagesStepsSmall.
+   * @return Returns the imagesTransformsSmall.
    */
-  public Map<String, Image> getImagesStepsSmall() {
-    return imagesStepsSmall;
+  public Map<String, Image> getImagesTransformsSmall() {
+    return imagesTransformsSmall;
   }
 
   /**
@@ -2208,20 +2208,20 @@ public class GUIResource {
     return imageCollapseAll.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
   }
 
-  public Image getImageStepError() {
-    return imageStepError.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
+  public Image getImageTransformError() {
+    return imageTransformError.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
-  public SwtUniversalImage getSwtImageStepError() {
-    return imageStepError;
+  public SwtUniversalImage getSwtImageTransformError() {
+    return imageTransformError;
   }
 
-  public Image getImageRedStepError() {
-    return imageRedStepError.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
+  public Image getImageRedTransformError() {
+    return imageRedTransformError.getAsBitmapForSize( display, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
-  public SwtUniversalImage getSwtImageRedStepError() {
-    return imageRedStepError;
+  public SwtUniversalImage getSwtImageRedTransformError() {
+    return imageRedTransformError;
   }
 
   public Image getImageCopyHop() {

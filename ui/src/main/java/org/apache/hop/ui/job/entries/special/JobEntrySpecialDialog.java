@@ -32,7 +32,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -150,7 +150,7 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
-    BaseStepDialog.setSize( shell, 350, 120, true );
+    BaseTransformDialog.setSize( shell, 350, 120, true );
     if ( !this.jobEntry.isDummy() ) {
       shell.setText( BaseMessages.getString( PKG, "JobSpecial.Scheduling.Label" ) );
       wRepeat = new Button( shell, SWT.CHECK );
@@ -225,7 +225,7 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
         }
       };
       wType.addSelectionListener( lsDef );
-      BaseStepDialog.setSize( shell, 370, 285, true );
+      BaseTransformDialog.setSize( shell, 370, 285, true );
     }
     // Some buttons
     wOK = new Button( shell, SWT.PUSH );
@@ -233,7 +233,7 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wDayOfMonth );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wDayOfMonth );
 
     // Add listeners
     lsCancel = new Listener() {

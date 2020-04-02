@@ -22,7 +22,11 @@
 package org.apache.hop.core.injection.inheritance;
 
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 @InjectionSupported( localizationPrefix = "" )
-public class MetaBeanChild extends MetaBeanMiddle<String> {
+public class MetaBeanChild extends MetaBeanMiddle<String>  implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
 }

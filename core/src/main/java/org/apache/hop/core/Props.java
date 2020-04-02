@@ -92,10 +92,10 @@ public class Props implements Cloneable {
   public static final String STRING_LOG_LEVEL = "LogLevel";
   public static final String STRING_LOG_FILTER = "LogFilter";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
-  public static final String STRING_INDICATE_SLOW_PIPELINE_STEPS = "IndicateSlowPipelineSteps";
+  public static final String STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS = "IndicateSlowPipelineTransforms";
 
   public static final String STRING_LAST_PREVIEW_PIPELINE = "LastPreviewPipeline";
-  public static final String STRING_LAST_PREVIEW_STEP = "LastPreviewStep";
+  public static final String STRING_LAST_PREVIEW_TRANSFORM = "LastPreviewTransform";
   public static final String STRING_LAST_PREVIEW_SIZE = "LastPreviewSize";
 
   public static final String STRING_MAX_UNDO = "MaxUndo";
@@ -117,7 +117,7 @@ public class Props implements Cloneable {
   public static final String STRING_USE_DB_CACHE = "UseDBCache";
   public static final String STRING_OPEN_LAST_FILE = "OpenLastFile";
 
-  public static final String STRING_ONLY_ACTIVE_STEPS = "OnlyActiveSteps";
+  public static final String STRING_ONLY_ACTIVE_TRANSFORMS = "OnlyActiveTransforms";
   public static final String STRING_START_SHOW_REPOSITORIES = "ShowRepositoriesAtStartup";
   public static final String STRING_ANTI_ALIASING = "EnableAntiAliasing54";
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
@@ -313,13 +313,13 @@ public class Props implements Cloneable {
     return !"N".equalsIgnoreCase( use );
   }
 
-  public void setOnlyActiveSteps( boolean only ) {
-    properties.setProperty( STRING_ONLY_ACTIVE_STEPS, only ? "Y" : "N" );
+  public void setOnlyActiveTransforms( boolean only ) {
+    properties.setProperty( STRING_ONLY_ACTIVE_TRANSFORMS, only ? "Y" : "N" );
   }
 
-  public boolean getOnlyActiveSteps() {
-    String only = properties.getProperty( STRING_ONLY_ACTIVE_STEPS, "N" );
-    return "Y".equalsIgnoreCase( only ); // Default: show active steps.
+  public boolean getOnlyActiveTransforms() {
+    String only = properties.getProperty( STRING_ONLY_ACTIVE_TRANSFORMS, "N" );
+    return "Y".equalsIgnoreCase( only ); // Default: show active transforms.
   }
 
   public boolean askAboutReplacingDatabaseConnections() {
@@ -425,7 +425,7 @@ public class Props implements Cloneable {
   }
 
   /**
-   * Get the list of recently used step
+   * Get the list of recently used transform
    *
    * @return a list of strings: the plug-in IDs
    */

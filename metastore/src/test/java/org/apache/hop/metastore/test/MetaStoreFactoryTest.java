@@ -80,7 +80,8 @@ public class MetaStoreFactoryTest extends TestCase {
   public void testIDMigration() throws Exception {
 
     String namespace = "custom";
-    String stepName = "Step Name";
+    String pipelineName = "Pipeline Name";
+    String transformName = "Transform Name";
     String elementName = "migration";
     String hostName = "Host Name";
     String fieldMappings = "Field Mappings";
@@ -113,38 +114,40 @@ public class MetaStoreFactoryTest extends TestCase {
     element.setName( elementName );
     element.setElementType( elementType );
 
-    element.addChild( metaStore.newAttribute( "stepName", stepName ) );
-    element.addChild( metaStore.newAttribute( "hostname", hostName ) );
-    element.addChild( metaStore.newAttribute( "fieldMappings", fieldMappings ) );
-    element.addChild( metaStore.newAttribute( "sourceFieldName", sourceFieldName ) );
-    element.addChild( metaStore.newAttribute( "targetFieldName", targetFieldName ) );
-    element.addChild( metaStore.newAttribute( "parameterName", parameterName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_PIPELINE_NAME, pipelineName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_TRANSFORM_NAME, transformName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_HOST_NAME, hostName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_FIELD_MAPPINGS, fieldMappings ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_SOURCE_FIELD_NAME, sourceFieldName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_TARGET_FIELD_NAME, targetFieldName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_PARAMETER_NAME, parameterName ) );
 
     metaStore.createElement( namespace, elementType, element );
 
     MyMigrationElement loadedElement = factory.loadElement( elementName );
 
     assertNotNull( loadedElement );
-    assertEquals( loadedElement.getStepName(), stepName );
+    assertEquals( loadedElement.getPipelineName(), pipelineName );
+    assertEquals( loadedElement.getTransformName(), transformName );
     assertEquals( loadedElement.getHostname(), hostName );
     assertEquals( loadedElement.getFieldMappings(), fieldMappings );
     assertEquals( loadedElement.getSourceFieldName(), sourceFieldName );
     assertEquals( loadedElement.getTargetFieldName(), targetFieldName );
     assertEquals( loadedElement.getParameterName(), parameterName );
 
-    // Test the variation of the step name id
+    // Test the variation of the transform name id
     element = metaStore.newElement();
     element.setName( elementName );
     element.setElementType( elementType );
 
-    element.addChild( metaStore.newAttribute( "stepname", stepName ) );
+    element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_TRANSFORM_NAME, transformName ) );
 
     metaStore.createElement( namespace, elementType, element );
 
     loadedElement = factory.loadElement( elementName );
 
     assertNotNull( loadedElement );
-    assertEquals( loadedElement.getStepname(), stepName );
+    assertEquals( loadedElement.getTransformName(), transformName );
   }
 
   @Test

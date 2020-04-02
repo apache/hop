@@ -25,15 +25,15 @@ package org.apache.hop.core.logging;
 public enum LoggingObjectType {
   // Runtime...
   //
-  PIPELINE, STEP, JOB, JOBENTRY, DATABASE,
+  PIPELINE, TRANSFORM, JOB, JOBENTRY, DATABASE,
 
   // Metadata...
   //
-  PIPELINE_META, STEP_META, JOB_META,
+  PIPELINE_META, TRANSFORM_META, JOB_META,
 
   // User Interface...
   //
-  HOPUI, STEPDIALOG, JOBENTRYDIALOG,
+  HOPUI, TRANSFORM_DIALOG, JOBENTRYDIALOG,
 
   // Web server + HttpServlet...
   //

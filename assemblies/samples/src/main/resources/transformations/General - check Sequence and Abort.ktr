@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>General - check Sequence and Abort</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -456,7 +456,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>You can also use the row number fieldname&#xa;in the CSV file input step to add the sequence&#xa;but this is more flexible.</note>
+      <note>You can also use the row number fieldname&#xa;in the CSV file input transform to add the sequence&#xa;but this is more flexible.</note>
       <xloc>60</xloc>
       <yloc>180</yloc>
       <width>288</width>
@@ -519,7 +519,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>Instead of the Filter rows step you can also&#xa;use the Merge rows &#x28;diff&#x29; step similar.&#xa;See sample &#x22;Merge rows - mergs 2 streams of data and add a flag&#x22;</note>
+      <note>Instead of the Filter rows transform you can also&#xa;use the Merge rows &#x28;diff&#x29; transform similar.&#xa;See sample &#x22;Merge rows - mergs 2 streams of data and add a flag&#x22;</note>
       <xloc>60</xloc>
       <yloc>300</yloc>
       <width>417</width>
@@ -617,7 +617,7 @@
       <enabled>N</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Abort</name>
     <type>Abort</type>
     <description/>
@@ -632,20 +632,20 @@
       <message>ERROR&#x3a; Sequence is wrong</message>
       <always_log_rows>Y</always_log_rows>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>460</xloc>
       <yloc>300</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Add sequence</name>
     <type>Sequence</type>
     <description/>
@@ -667,20 +667,20 @@
       <increment_by>1</increment_by>
       <max_value>999999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>280</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>CSV file input</name>
     <type>CsvInput</type>
     <description/>
@@ -729,20 +729,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>100</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filter rows</name>
     <type>FilterRows</type>
     <description/>
@@ -764,20 +764,20 @@
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>460</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Table output</name>
     <type>TableOutput</type>
     <description/>
@@ -808,20 +808,20 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>720</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>correct</name>
     <type>Dummy</type>
     <description/>
@@ -833,20 +833,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>580</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>wrong sequence</name>
     <type>Dummy</type>
     <description/>
@@ -858,22 +858,22 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>460</xloc>
       <yloc>200</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

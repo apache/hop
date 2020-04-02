@@ -28,14 +28,14 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.pipeline.PipelineHopMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * This class store undo and redo information...
  * <p>
  * Possible changes to a pipeline:
  * <p>
- * step
+ * transform
  * <p>
  * hop
  * <p>
@@ -63,19 +63,19 @@ public class ChangeAction {
 
     None( "" ),
 
-    ChangeStep( BaseMessages.getString( PKG, "TransAction.label.ChangeStep" ) ),
+    ChangeTransform( BaseMessages.getString( PKG, "TransAction.label.ChangeTransform" ) ),
     ChangeHop( BaseMessages.getString( PKG, "TransAction.label.ChangeHop" ) ),
     ChangeNote( BaseMessages.getString( PKG, "TransAction.label.ChangeNote" ) ),
 
-    NewStep( BaseMessages.getString( PKG, "TransAction.label.NewStep" ) ),
+    NewTransform( BaseMessages.getString( PKG, "TransAction.label.NewTransform" ) ),
     NewHop( BaseMessages.getString( PKG, "TransAction.label.NewHop" ) ),
     NewNote( BaseMessages.getString( PKG, "TransAction.label.NewNote" ) ),
-    DeleteStep( BaseMessages.getString( PKG, "TransAction.label.DeleteStep" ) ),
+    DeleteTransform( BaseMessages.getString( PKG, "TransAction.label.DeleteTransform" ) ),
 
     DeleteHop( BaseMessages.getString( PKG, "TransAction.label.DeleteHop" ) ),
     DeleteNote( BaseMessages.getString( PKG, "TransAction.label.DeleteNote" ) ),
 
-    PositionStep( BaseMessages.getString( PKG, "TransAction.label.PositionStep" ) ),
+    PositionTransform( BaseMessages.getString( PKG, "TransAction.label.PositionTransform" ) ),
     PositionNote( BaseMessages.getString( PKG, "TransAction.label.PositionNote" ) ),
 
     ChangeJobEntry( BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" ) ),
@@ -131,8 +131,8 @@ public class ChangeAction {
     current = prev;
     current_index = idx;
 
-    if ( prev[ 0 ] instanceof StepMeta ) {
-      type = ActionType.DeleteStep;
+    if ( prev[ 0 ] instanceof TransformMeta ) {
+      type = ActionType.DeleteTransform;
     }
     if ( prev[ 0 ] instanceof PipelineHopMeta ) {
       type = ActionType.DeleteHop;
@@ -157,8 +157,8 @@ public class ChangeAction {
     current_index = idx;
     previous_index = idx;
 
-    if ( prev[ 0 ] instanceof StepMeta ) {
-      type = ActionType.ChangeStep;
+    if ( prev[ 0 ] instanceof TransformMeta ) {
+      type = ActionType.ChangeTransform;
     }
     if ( prev[ 0 ] instanceof PipelineHopMeta ) {
       type = ActionType.ChangeHop;
@@ -186,8 +186,8 @@ public class ChangeAction {
     current_index = position;
     previous = null;
 
-    if ( prev[ 0 ] instanceof StepMeta ) {
-      type = ActionType.NewStep;
+    if ( prev[ 0 ] instanceof TransformMeta ) {
+      type = ActionType.NewTransform;
     }
     if ( prev[ 0 ] instanceof PipelineHopMeta ) {
       type = ActionType.NewHop;
@@ -222,8 +222,8 @@ public class ChangeAction {
     }
 
     Object fobj = obj[ 0 ];
-    if ( fobj instanceof StepMeta ) {
-      type = ActionType.PositionStep;
+    if ( fobj instanceof TransformMeta ) {
+      type = ActionType.PositionTransform;
     }
     if ( fobj instanceof NotePadMeta ) {
       type = ActionType.PositionNote;

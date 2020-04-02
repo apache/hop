@@ -446,7 +446,7 @@ public class PluginRegistry {
   public <T> T loadClass( PluginInterface plugin, Class<T> pluginClass ) throws HopPluginException {
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
-        PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
+        PKG, "PluginRegistry.RuntimeError.NoValidTransformOrPlugin.PLUGINREGISTRY001" ) );
     }
 
     if ( plugin instanceof ClassLoadingPluginInterface ) {
@@ -733,7 +733,7 @@ public class PluginRegistry {
   }
 
   /**
-   * @return a unique list of all the step plugin package names
+   * @return a unique list of all the transform plugin package names
    */
   public List<String> getPluginPackages( Class<? extends PluginTypeInterface> pluginType ) {
     Set<String> list = new TreeSet<>();
@@ -868,7 +868,7 @@ public class PluginRegistry {
 
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
-        PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
+        PKG, "PluginRegistry.RuntimeError.NoValidTransformOrPlugin.PLUGINREGISTRY001" ) );
     }
 
     try {

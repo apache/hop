@@ -28,7 +28,10 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,11 +43,10 @@ import java.util.Set;
 /**
  * Storage for bean annotations info for Metadata Injection and Load/Save.
  */
-public class BeanInjectionInfo {
-  private static LogChannelInterface LOG =
-    HopLogStore.getLogChannelInterfaceFactory().create( BeanInjectionInfo.class );
+public class BeanInjectionInfo<Meta extends TransformMetaInterface> {
+  private static LogChannelInterface LOG = HopLogStore.getLogChannelInterfaceFactory().create( BeanInjectionInfo.class );
 
-  protected final Class<?> clazz;
+  protected final Class<Meta> clazz;
   private final InjectionSupported clazzAnnotation;
   private Map<String, Property> properties = new HashMap<>();
   private List<Group> groupsList = new ArrayList<>();
@@ -54,18 +56,28 @@ public class BeanInjectionInfo {
   private Map<String, Group> groupsMap = new HashMap<>();
   private Set<String> hideProperties = new HashSet<>();
 
-  public static boolean isInjectionSupported( Class<?> clazz ) {
+  public  static <Meta extends TransformMetaInterface> boolean isInjectionSupported( Class<Meta> clazz ) {
     InjectionSupported annotation = clazz.getAnnotation( InjectionSupported.class );
     return annotation != null;
   }
 
-  public BeanInjectionInfo( Class<?> clazz ) {
-    LOG.logDebug( "Collect bean injection info for " + clazz );
+  public BeanInjectionInfo( Class<Meta> clazz ) {
+    if (LOG.isDebug()) {
+      LOG.logDebug( "Collect bean injection info for " + clazz );
+    }
     try {
       this.clazz = clazz;
       clazzAnnotation = clazz.getAnnotation( InjectionSupported.class );
       if ( clazzAnnotation == null ) {
         throw new RuntimeException( "Injection not supported in " + clazz );
+      }
+
+      Map<String, Type> parameterTypesMap = new HashMap<>(  );
+      TypeVariable<? extends Class<?>>[] typeParameters = clazz.getTypeParameters();
+      for (TypeVariable<? extends Class<?>> typeParameter : typeParameters) {
+        String parameterTypeName = typeParameter.getName();
+        Type parameterType = typeParameter.getBounds()[0];
+        parameterTypesMap.put(parameterTypeName, parameterType);
       }
 
       Group gr0 = new Group( "" );
@@ -82,8 +94,11 @@ public class BeanInjectionInfo {
 
       BeanLevelInfo root = new BeanLevelInfo();
       root.leafClass = clazz;
-      root.init( this );
-
+      if (parameterTypesMap.isEmpty()) {
+        root.init( this );
+      } else {
+        root.init( this, parameterTypesMap );
+      }
       properties = Collections.unmodifiableMap( properties );
       groupsList = Collections.unmodifiableList( groupsList );
       groupsMap = null;
@@ -124,8 +139,7 @@ public class BeanInjectionInfo {
     properties.put( prop.name, prop );
     Group gr = groupsMap.get( metaInj.group() );
     if ( gr == null ) {
-      throw new RuntimeException( "Group '" + metaInj.group() + "' for property '" + metaInj.name()
-        + "' is not defined " + clazz );
+      throw new RuntimeException( "Group '" + metaInj.group() + "' for property '" + metaInj.name() + "' is not defined " + clazz );
     }
     gr.groupProperties.add( prop );
   }

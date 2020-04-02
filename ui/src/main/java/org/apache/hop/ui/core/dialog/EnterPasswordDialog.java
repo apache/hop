@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -120,7 +120,7 @@ public class EnterPasswordDialog extends Dialog {
 
     int margin = props.getMargin();
 
-    // From step line
+    // From transform line
     wlDesc = new Label( shell, SWT.NONE );
     wlDesc.setText( message );
     props.setLook( wlDesc );
@@ -201,7 +201,7 @@ public class EnterPasswordDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {

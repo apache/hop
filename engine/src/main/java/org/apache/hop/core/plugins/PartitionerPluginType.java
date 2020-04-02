@@ -43,7 +43,7 @@ public class PartitionerPluginType extends BasePluginType implements PluginTypeI
 
   private PartitionerPluginType() {
     super( PartitionerPlugin.class, "PARTITIONER", "Partitioner" );
-    populateFolders( "steps" );
+    populateFolders( "transforms" );
   }
 
   public static PartitionerPluginType getInstance() {
@@ -69,7 +69,7 @@ public class PartitionerPluginType extends BasePluginType implements PluginTypeI
   }
 
   /**
-   * Scan & register internal step plugins
+   * Scan & register internal transform plugins
    */
   protected void registerAnnotations() throws HopPluginException {
     // This is no longer done because it was deemed too slow. Only jar files in the plugins/ folders are scanned for

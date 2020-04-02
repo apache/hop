@@ -175,7 +175,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   * Let's put in code here to search for the step plugins..
+   * Let's put in code here to search for the transform plugins..
    */
   @Override
   public void searchPlugins() throws HopPluginException {
@@ -184,7 +184,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   protected void registerNatives() throws HopPluginException {
-    // Scan the native steps...
+    // Scan the native transforms...
     //
     String xmlFile = getXmlPluginFile();
     String alternative = null;
@@ -461,11 +461,11 @@ public abstract class BasePluginType implements PluginTypeInterface {
     Map<Class<?>, String> classMap = new HashMap<>();
     PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
     classMap.put( mainClassTypesAnnotation.value(), clazz.getName() );
-    PluginInterface stepPlugin =
+    PluginInterface transformPlugin =
       new Plugin(
         new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
         false, classMap, new ArrayList<>(), null, null, null, null, null, null );
-    registry.registerPlugin( pluginType, stepPlugin );
+    registry.registerPlugin( pluginType, transformPlugin );
   }
 
   protected PluginInterface registerPluginFromXmlResource( Node pluginNode, String path,

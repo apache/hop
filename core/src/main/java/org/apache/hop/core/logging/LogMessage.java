@@ -120,13 +120,13 @@ public class LogMessage implements LogMessageInterface {
 
     StringBuilder string = new StringBuilder();
 
-    int currentStep = 0;
-    int rootStep = subjects.size() - 1;
+    int currentTransform = 0;
+    int rootTransform = subjects.size() - 1;
 
-    for ( int i = rootStep - 1; i > currentStep; i-- ) {
+    for ( int i = rootTransform - 1; i > currentTransform; i-- ) {
       string.append( "[" ).append( subjects.get( i ) ).append( "]" ).append( "." );
     }
-    string.append( subjects.get( currentStep ) );
+    string.append( subjects.get( currentTransform ) );
     return string.toString();
   }
 

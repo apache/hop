@@ -77,7 +77,7 @@ public class HopGuiJobGridDelegate {
   }
 
   /**
-   * Add a grid with the execution metrics per step in a table view
+   * Add a grid with the execution metrics per transform in a table view
    */
   public void addJobGrid() {
 

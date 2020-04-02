@@ -34,7 +34,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -203,7 +203,7 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button autoCollapseBtn;
 
-  private Button wIndicateSlowSteps;
+  private Button wIndicateSlowTransforms;
 
   /**
    * @deprecated Use CT without <i>props</i> parameter instead
@@ -252,7 +252,7 @@ public class EnterOptionsDialog extends Dialog {
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
 
     fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
@@ -304,7 +304,7 @@ public class EnterOptionsDialog extends Dialog {
 
     wTabFolder.setSelection( 0 );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -869,25 +869,25 @@ public class EnterOptionsDialog extends Dialog {
     wAntiAlias.setLayoutData( fdAntiAlias );
 
     // Enable anti-aliasing
-    Label wlIndicateSlowSteps = new Label( wLookComp, SWT.RIGHT );
-    wlIndicateSlowSteps
-      .setText( BaseMessages.getString( PKG, "EnterOptionsDialog.CanvasIndicateSlowSteps.Label" ) );
-    props.setLook( wlIndicateSlowSteps );
-    FormData fdlIndicateSlowSteps = new FormData();
-    fdlIndicateSlowSteps.left = new FormAttachment( 0, 0 );
-    fdlIndicateSlowSteps.top = new FormAttachment( wAntiAlias, margin );
-    fdlIndicateSlowSteps.right = new FormAttachment( middle, -margin );
-    wlIndicateSlowSteps.setLayoutData( fdlIndicateSlowSteps );
-    wIndicateSlowSteps = new Button( wLookComp, SWT.CHECK );
-    props.setLook( wIndicateSlowSteps );
-    wIndicateSlowSteps.setSelection( props.isIndicateSlowPipelineStepsEnabled() );
-    wIndicateSlowSteps.setToolTipText( BaseMessages.getString(
-      PKG, "EnterOptionsDialog.CanvasIndicateSlowSteps.Tooltip" ) );
-    FormData fdIndicateSlowSteps = new FormData();
-    fdIndicateSlowSteps.left = new FormAttachment( middle, 0 );
-    fdIndicateSlowSteps.top = new FormAttachment( wAntiAlias, margin );
-    fdIndicateSlowSteps.right = new FormAttachment( 100, 0 );
-    wIndicateSlowSteps.setLayoutData( fdIndicateSlowSteps );
+    Label wlIndicateSlowTransforms = new Label( wLookComp, SWT.RIGHT );
+    wlIndicateSlowTransforms
+      .setText( BaseMessages.getString( PKG, "EnterOptionsDialog.CanvasIndicateSlowTransforms.Label" ) );
+    props.setLook( wlIndicateSlowTransforms );
+    FormData fdlIndicateSlowTransforms = new FormData();
+    fdlIndicateSlowTransforms.left = new FormAttachment( 0, 0 );
+    fdlIndicateSlowTransforms.top = new FormAttachment( wAntiAlias, margin );
+    fdlIndicateSlowTransforms.right = new FormAttachment( middle, -margin );
+    wlIndicateSlowTransforms.setLayoutData( fdlIndicateSlowTransforms );
+    wIndicateSlowTransforms = new Button( wLookComp, SWT.CHECK );
+    props.setLook( wIndicateSlowTransforms );
+    wIndicateSlowTransforms.setSelection( props.isIndicateSlowPipelineTransformsEnabled() );
+    wIndicateSlowTransforms.setToolTipText( BaseMessages.getString(
+      PKG, "EnterOptionsDialog.CanvasIndicateSlowTransforms.Tooltip" ) );
+    FormData fdIndicateSlowTransforms = new FormData();
+    fdIndicateSlowTransforms.left = new FormAttachment( middle, 0 );
+    fdIndicateSlowTransforms.top = new FormAttachment( wAntiAlias, margin );
+    fdIndicateSlowTransforms.right = new FormAttachment( 100, 0 );
+    wIndicateSlowTransforms.setLayoutData( fdIndicateSlowTransforms );
 
     // Show original look
     Label wlOriginalLook = new Label( wLookComp, SWT.RIGHT );
@@ -895,7 +895,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlOriginalLook );
     FormData fdlOriginalLook = new FormData();
     fdlOriginalLook.left = new FormAttachment( 0, 0 );
-    fdlOriginalLook.top = new FormAttachment( wIndicateSlowSteps, margin );
+    fdlOriginalLook.top = new FormAttachment( wIndicateSlowTransforms, margin );
     fdlOriginalLook.right = new FormAttachment( middle, -margin );
     wlOriginalLook.setLayoutData( fdlOriginalLook );
     wOriginalLook = new Button( wLookComp, SWT.CHECK );
@@ -903,7 +903,7 @@ public class EnterOptionsDialog extends Dialog {
     wOriginalLook.setSelection( props.isOSLookShown() );
     FormData fdOriginalLook = new FormData();
     fdOriginalLook.left = new FormAttachment( middle, 0 );
-    fdOriginalLook.top = new FormAttachment( wIndicateSlowSteps, margin );
+    fdOriginalLook.top = new FormAttachment( wIndicateSlowTransforms, margin );
     fdOriginalLook.right = new FormAttachment( 100, 0 );
     wOriginalLook.setLayoutData( fdOriginalLook );
 
@@ -1298,7 +1298,7 @@ public class EnterOptionsDialog extends Dialog {
     fdExitWarning.right = new FormAttachment( 100, 0 );
     wExitWarning.setLayoutData( fdExitWarning );
 
-    // Clear custom parameters. (from step)
+    // Clear custom parameters. (from transform)
     Label wlClearCustom = new Label( wGeneralComp, SWT.RIGHT );
     wlClearCustom.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ClearCustomParameters.Label" ) );
     props.setLook( wlClearCustom );
@@ -1592,7 +1592,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setOSLookShown( wOriginalLook.getSelection() );
     props.setBrandingActive( wBranding.getSelection() );
     props.setShowToolTips( tooltipBtn.getSelection() );
-    props.setIndicateSlowPipelineStepsEnabled( wIndicateSlowSteps.getSelection() );
+    props.setIndicateSlowPipelineTransformsEnabled( wIndicateSlowTransforms.getSelection() );
     props.setAutoCollapseCoreObjectsTree( autoCollapseBtn.getSelection() );
     props.setShowingHelpToolTips( helptipBtn.getSelection() );
 

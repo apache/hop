@@ -45,39 +45,39 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.step.BaseStepData.StepExecutionStatus;
-import org.apache.hop.pipeline.step.StepIOMetaInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
-import org.apache.hop.pipeline.step.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.step.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
 
 import java.util.List;
 import java.util.Map;
 
-public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
+public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
   private static Class<?> PKG = PipelinePainter.class; // for i18n purposes, needed by Translator!!
 
-  public static final String STRING_PARTITIONING_CURRENT_STEP = "PartitioningCurrentStep";
-  public static final String STRING_REMOTE_INPUT_STEPS = "RemoteInputSteps";
-  public static final String STRING_REMOTE_OUTPUT_STEPS = "RemoteOutputSteps";
-  public static final String STRING_STEP_ERROR_LOG = "StepErrorLog";
+  public static final String STRING_PARTITIONING_CURRENT_TRANSFORM = "PartitioningCurrentTransform";
+  public static final String STRING_REMOTE_INPUT_TRANSFORMS = "RemoteInputTransforms";
+  public static final String STRING_REMOTE_OUTPUT_TRANSFORMS = "RemoteOutputTransforms";
+  public static final String STRING_TRANSFORM_ERROR_LOG = "TransformErrorLog";
   public static final String STRING_HOP_TYPE_COPY = "HopTypeCopy";
   public static final String STRING_ROW_DISTRIBUTION = "RowDistribution";
 
   private PipelineMeta pipelineMeta;
 
-  private Map<String, String> stepLogMap;
-  private StepMeta startHopStep;
+  private Map<String, String> transformLogMap;
+  private TransformMeta startHopTransform;
   private Point endHopLocation;
-  private StepMeta endHopStep;
-  private StepMeta noInputStep;
+  private TransformMeta endHopTransform;
+  private TransformMeta noInputTransform;
   private StreamType candidateHopType;
-  private boolean startErrorHopStep;
-  private StepMeta showTargetStreamsStep;
+  private boolean startErrorHopTransform;
+  private TransformMeta showTargetStreamsTransform;
   private IPipelineEngine<PipelineMeta> pipeline;
-  private boolean slowStepIndicatorEnabled;
+  private boolean slowTransformIndicatorEnabled;
 
   private EngineMetrics engineMetrics;
 
@@ -89,7 +89,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
                           ScrollBarInterface vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                           int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
-                          boolean slowStepIndicatorEnabled, double zoomFactor ) {
+                          boolean slowTransformIndicatorEnabled, double zoomFactor ) {
     super(
       gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
       shadowSize, antiAliasing, noteFontName, noteFontHeight, zoomFactor );
@@ -98,9 +98,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     this.candidate = candidate;
 
     this.pipeline = pipeline;
-    this.slowStepIndicatorEnabled = slowStepIndicatorEnabled;
+    this.slowTransformIndicatorEnabled = slowTransformIndicatorEnabled;
 
-    stepLogMap = null;
+    transformLogMap = null;
   }
 
   public PipelinePainter( GCInterface gc, PipelineMeta pipelineMeta, Point area, ScrollBarInterface hori,
@@ -203,10 +203,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     if ( candidate != null ) {
       drawHop( candidate, true );
     } else {
-      if ( startHopStep != null && endHopLocation != null ) {
-        Point fr = startHopStep.getLocation();
+      if ( startHopTransform != null && endHopLocation != null ) {
+        Point fr = startHopTransform.getLocation();
         Point to = endHopLocation;
-        if ( endHopStep == null ) {
+        if ( endHopTransform == null ) {
           gc.setForeground( EColor.GRAY );
           arrow = EImage.ARROW_DISABLED;
         } else {
@@ -215,12 +215,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
         }
         Point start = real2screen( fr.x + iconsize / 2, fr.y + iconsize / 2 );
         Point end = real2screen( to.x, to.y );
-        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopStep,
-          endHopStep == null ? endHopLocation : endHopStep );
-      } else if ( endHopStep != null && endHopLocation != null ) {
+        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopTransform,
+          endHopTransform == null ? endHopLocation : endHopTransform );
+      } else if ( endHopTransform != null && endHopLocation != null ) {
         Point fr = endHopLocation;
-        Point to = endHopStep.getLocation();
-        if ( startHopStep == null ) {
+        Point to = endHopTransform.getLocation();
+        if ( startHopTransform == null ) {
           gc.setForeground( EColor.GRAY );
           arrow = EImage.ARROW_DISABLED;
         } else {
@@ -229,54 +229,54 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
         }
         Point start = real2screen( fr.x, fr.y );
         Point end = real2screen( to.x + iconsize / 2, to.y + iconsize / 2 );
-        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopStep == null
-          ? endHopLocation : startHopStep, endHopStep );
+        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopTransform == null
+          ? endHopLocation : startHopTransform, endHopTransform );
       }
 
     }
 
-    // Draw regular step appearance
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      drawStep( stepMeta );
+    // Draw regular transform appearance
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      drawTransform( transformMeta );
     }
 
-    if ( slowStepIndicatorEnabled ) {
+    if ( slowTransformIndicatorEnabled ) {
 
       // Highlight possible bottlenecks
-      for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-        StepMeta stepMeta = pipelineMeta.getStep( i );
-        checkDrawSlowStepIndicator( stepMeta );
+      for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+        TransformMeta transformMeta = pipelineMeta.getTransform( i );
+        checkDrawSlowTransformIndicator( transformMeta );
       }
 
     }
 
-    // Draw step status indicators (running vs. done)
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      drawStepStatusIndicator( stepMeta );
+    // Draw transform status indicators (running vs. done)
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      drawTransformStatusIndicator( transformMeta );
     }
 
-    // Draw performance table for selected step(s)
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      drawStepPerformanceTable( stepMeta );
+    // Draw performance table for selected transform(s)
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      drawTransformPerformanceTable( transformMeta );
     }
 
-    int selectedStepsCount = 0;
-    for ( int i = pipelineMeta.nrSteps() - 1; i >= 0; i-- ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      if ( stepMeta.isSelected() ) {
-        selectedStepsCount++;
+    int selectedTransformsCount = 0;
+    for ( int i = pipelineMeta.nrTransforms() - 1; i >= 0; i-- ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      if ( transformMeta.isSelected() ) {
+        selectedTransformsCount++;
       }
     }
 
     PipelinePainterFlyoutExtension extension = null;
-    for ( int i = pipelineMeta.nrSteps() - 1; i >= 0; i-- ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      if ( stepMeta.isSelected() && selectedStepsCount == 1 ) {
+    for ( int i = pipelineMeta.nrTransforms() - 1; i >= 0; i-- ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      if ( transformMeta.isSelected() && selectedTransformsCount == 1 ) {
         extension = new PipelinePainterFlyoutExtension(
-          gc, areaOwners, pipelineMeta, stepMeta, translationX, translationY, magnification, area, offset );
+          gc, areaOwners, pipelineMeta, transformMeta, translationX, translationY, magnification, area, offset );
         break;
       }
     }
@@ -288,15 +288,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelinePainterFlyout.id, extension );
     } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter step", e );
+      LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter transform", e );
     }
 
-    // Display an icon on the indicated location signaling to the user that the step in question does not accept input
+    // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
     //
-    if ( noInputStep != null ) {
+    if ( noInputTransform != null ) {
       gc.setLineWidth( 2 );
       gc.setForeground( EColor.RED );
-      Point n = noInputStep.getLocation();
+      Point n = noInputTransform.getLocation();
       gc.drawLine( n.x - 5, n.y - 5, n.x + iconsize + 10, n.y + iconsize + 10 );
       gc.drawLine( n.x - 5, n.y + iconsize + 5, n.x + iconsize + 5, n.y - 5 );
     }
@@ -320,16 +320,16 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
 
   }
 
-  private void checkDrawSlowStepIndicator( StepMeta stepMeta ) {
+  private void checkDrawSlowTransformIndicator( TransformMeta transformMeta ) {
 
-    if ( stepMeta == null ) {
+    if ( transformMeta == null ) {
       return;
     }
 
     // draw optional performance indicator
     if ( pipeline != null ) {
 
-      Point pt = stepMeta.getLocation();
+      Point pt = transformMeta.getLocation();
       if ( pt == null ) {
         pt = new Point( 50, 50 );
       }
@@ -340,12 +340,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
 
       List<IEngineComponent> components = engineMetrics.getComponents();
       for ( IEngineComponent component : components ) {
-        if ( component.getName().equals( stepMeta.getName() ) ) {
+        if ( component.getName().equals( transformMeta.getName() ) ) {
           if ( component.isRunning() ) {
             long inputRows = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_IN );
             long outputRows = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_OUT );
 
-            // if the step can't keep up with its input, mark it by drawing an animation
+            // if the transform can't keep up with its input, mark it by drawing an animation
             boolean isSlow = inputRows * 0.85 > outputRows;
             if ( isSlow ) {
               gc.setLineWidth( linewidth + 1 );
@@ -375,16 +375,16 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     }
   }
 
-  private void drawStepPerformanceTable( StepMeta stepMeta ) {
+  private void drawTransformPerformanceTable( TransformMeta transformMeta ) {
 
-    if ( stepMeta == null ) {
+    if ( transformMeta == null ) {
       return;
     }
 
     // draw optional performance indicator
     if ( pipeline != null ) {
 
-      Point pt = stepMeta.getLocation();
+      Point pt = transformMeta.getLocation();
       if ( pt == null ) {
         pt = new Point( 50, 50 );
       }
@@ -393,12 +393,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
       int x = screen.x;
       int y = screen.y;
 
-      List<IEngineComponent> steps = pipeline.getComponentCopies( stepMeta.getName() );
+      List<IEngineComponent> transforms = pipeline.getComponentCopies( transformMeta.getName() );
 
       // draw mouse over performance indicator
       if ( pipeline.isRunning() ) {
 
-        if ( stepMeta.isSelected() ) {
+        if ( transformMeta.isSelected() ) {
 
           // determine popup dimensions up front
           int popupX = x;
@@ -425,7 +425,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
           popupWidth = titleWidth + 2 * MINI_ICON_MARGIN;
 
           // determine total popup width
-          popupWidth += steps.size() * colWidth;
+          popupWidth += transforms.size() * colWidth;
 
           // determine popup position
           popupX = popupX + ( iconsize - popupWidth ) / 2;
@@ -472,16 +472,16 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
             rowY += rowHeight;
           }
 
-          // draw the values for each copy of the step
+          // draw the values for each copy of the transform
           gc.setBackground( EColor.LIGHTGRAY );
           rowX += titleWidth;
 
-          for ( IEngineComponent step : steps ) {
+          for ( IEngineComponent transform : transforms ) {
 
             rowX += colWidth;
             rowY = popupY + MINI_ICON_MARGIN;
 
-            String[] fields = getPeekFields( engineMetrics, step );
+            String[] fields = getPeekFields( engineMetrics, transform );
 
             for ( int i = 0; i < fields.length; i++ ) {
               if ( i % 2 == 1 ) {
@@ -501,32 +501,32 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     }
   }
 
-  public String[] getPeekFields( EngineMetrics engineMetrics, IEngineComponent step ) {
+  public String[] getPeekFields( EngineMetrics engineMetrics, IEngineComponent transform ) {
     String[] fields =
       new String[] {
-        Integer.toString( step.getCopyNr() ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_READ ) ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_WRITTEN ) ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_INPUT ) ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_OUTPUT ) ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_REJECTED ) ),
-        Long.toString( engineMetrics.getComponentMetric( step, Pipeline.METRIC_ERROR ) ),
-        engineMetrics.getComponentStatusMap().get( step ),
+        Integer.toString( transform.getCopyNr() ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_READ ) ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_WRITTEN ) ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_INPUT ) ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_OUTPUT ) ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_REJECTED ) ),
+        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_ERROR ) ),
+        engineMetrics.getComponentStatusMap().get( transform ),
       };
     return fields;
 
   }
 
-  private void drawStepStatusIndicator( StepMeta stepMeta ) {
+  private void drawTransformStatusIndicator( TransformMeta transformMeta ) {
 
-    if ( stepMeta == null ) {
+    if ( transformMeta == null ) {
       return;
     }
 
     // draw status indicator
     if ( pipeline != null ) {
 
-      Point pt = stepMeta.getLocation();
+      Point pt = transformMeta.getLocation();
       if ( pt == null ) {
         pt = new Point( 50, 50 );
       }
@@ -536,11 +536,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
       int y = screen.y;
 
       if (pipeline!=null) {
-        List<IEngineComponent> steps = pipeline.getComponentCopies( stepMeta.getName() );
+        List<IEngineComponent> transforms = pipeline.getComponentCopies( transformMeta.getName() );
 
-        for ( IEngineComponent step : steps ) {
-          String stepStatus = engineMetrics.getComponentStatusMap().get( step );
-          if ( stepStatus != null && stepStatus.equals( StepExecutionStatus.STATUS_FINISHED ) ) {
+        for ( IEngineComponent transform : transforms ) {
+          String transformStatus = engineMetrics.getComponentStatusMap().get( transform );
+          if ( transformStatus != null && transformStatus.equals( TransformExecutionStatus.STATUS_FINISHED ) ) {
             gc.drawImage( EImage.TRUE, ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
           }
         }
@@ -559,24 +559,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
   }
 
   private void drawHop( PipelineHopMeta hi, boolean isCandidate ) {
-    StepMeta fs = hi.getFromStep();
-    StepMeta ts = hi.getToStep();
+    TransformMeta fs = hi.getFromTransform();
+    TransformMeta ts = hi.getToTransform();
 
     if ( fs != null && ts != null ) {
       drawLine( fs, ts, hi, isCandidate );
     }
   }
 
-  private void drawStep( StepMeta stepMeta ) {
-    if ( stepMeta == null ) {
+  private void drawTransform( TransformMeta transformMeta ) {
+    if ( transformMeta == null ) {
       return;
     }
-    boolean isDeprecated = stepMeta.isDeprecated();
+    boolean isDeprecated = transformMeta.isDeprecated();
     int alpha = gc.getAlpha();
 
-    StepIOMetaInterface ioMeta = stepMeta.getStepMetaInterface().getStepIOMeta();
+    TransformIOMetaInterface ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
 
-    Point pt = stepMeta.getLocation();
+    Point pt = transformMeta.getLocation();
     if ( pt == null ) {
       pt = new Point( 50, 50 );
     }
@@ -585,40 +585,40 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     int x = screen.x;
     int y = screen.y;
 
-    boolean stepError = false;
-    if ( stepLogMap != null && !stepLogMap.isEmpty() ) {
-      String log = stepLogMap.get( stepMeta.getName() );
+    boolean transformError = false;
+    if ( transformLogMap != null && !transformLogMap.isEmpty() ) {
+      String log = transformLogMap.get( transformMeta.getName() );
       if ( !Utils.isEmpty( log ) ) {
-        stepError = true;
+        transformError = true;
       }
     }
 
     // PARTITIONING
 
-    // If this step is partitioned, we're drawing a small symbol indicating this...
+    // If this transform is partitioned, we're drawing a small symbol indicating this...
     //
-    if ( stepMeta.isPartitioned() ) {
+    if ( transformMeta.isPartitioned() ) {
       gc.setLineWidth( 1 );
       gc.setForeground( EColor.RED );
       gc.setBackground( EColor.BACKGROUND );
       gc.setFont( EFont.GRAPH );
 
-      PartitionSchema partitionSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
+      PartitionSchema partitionSchema = transformMeta.getTransformPartitioningMeta().getPartitionSchema();
       if ( partitionSchema != null ) {
-        String nrInput = "Px" + partitionSchema.calculatePartitionIDs().size();
+        String nrInput = "Px" + partitionSchema.calculatePartitionIds().size();
 
         Point textExtent = gc.textExtent( nrInput );
         textExtent.x += 2; // add a tiny little bit of a margin
         textExtent.y += 2;
 
-        // Draw it a 2 icons above the step icon.
+        // Draw it a 2 icons above the transform icon.
         // Draw it an icon and a half to the left
         //
         Point point = new Point( x - iconsize - iconsize / 2, y - iconsize - iconsize );
         gc.drawRectangle( point.x, point.y, textExtent.x, textExtent.y );
         gc.drawText( nrInput, point.x + 1, point.y + 1 );
 
-        // Now we draw an arrow from the cube to the step...
+        // Now we draw an arrow from the cube to the transform...
         //
         gc.drawLine( point.x + textExtent.x, point.y + textExtent.y / 2, x - iconsize / 2, point.y
           + textExtent.y / 2 );
@@ -634,15 +634,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
         //
         if ( !shadow ) {
           areaOwners.add( new AreaOwner(
-            AreaType.STEP_PARTITIONING, point.x, point.y, textExtent.x, textExtent.y, offset, stepMeta,
-            STRING_PARTITIONING_CURRENT_STEP ) );
+            AreaType.TRANSFORM_PARTITIONING, point.x, point.y, textExtent.x, textExtent.y, offset, transformMeta,
+            STRING_PARTITIONING_CURRENT_TRANSFORM ) );
         }
       }
     }
 
-    String name = stepMeta.getName();
+    String name = transformMeta.getName();
 
-    if ( stepMeta.isSelected() ) {
+    if ( transformMeta.isSelected() ) {
       gc.setLineWidth( linewidth + 2 );
     } else {
       gc.setLineWidth( linewidth );
@@ -650,20 +650,20 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
 
     // Add to the list of areas...
     if ( !shadow ) {
-      areaOwners.add( new AreaOwner( AreaType.STEP_ICON, x, y, iconsize, iconsize, offset, pipelineMeta, stepMeta ) );
+      areaOwners.add( new AreaOwner( AreaType.TRANSFORM_ICON, x, y, iconsize, iconsize, offset, pipelineMeta, transformMeta ) );
     }
 
     gc.setBackground( EColor.BACKGROUND );
     gc.fillRoundRectangle( x - 1, y - 1, iconsize + 1, iconsize + 1, 8, 8 );
-    gc.drawStepIcon( x, y, stepMeta, magnification );
-    if ( stepError || stepMeta.isMissing() ) {
+    gc.drawTransformIcon( x, y, transformMeta, magnification );
+    if ( transformError || transformMeta.isMissing() ) {
       gc.setForeground( EColor.RED );
     } else if ( isDeprecated ) {
       gc.setForeground( EColor.DEPRECATED );
     } else {
       gc.setForeground( EColor.CRYSTAL );
     }
-    if ( stepMeta.isSelected() ) {
+    if ( transformMeta.isSelected() ) {
       if ( isDeprecated ) {
         gc.setForeground( EColor.DEPRECATED );
       } else {
@@ -674,7 +674,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
 
     Point namePosition = getNamePosition( name, screen, iconsize );
 
-    if ( stepMeta.isSelected() ) {
+    if ( transformMeta.isSelected() ) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha( 192 );
       gc.setBackground( 216, 230, 241 );
@@ -688,46 +688,46 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     gc.drawText( name, namePosition.x, namePosition.y + 2, true );
     boolean partitioned = false;
 
-    StepPartitioningMeta meta = stepMeta.getStepPartitioningMeta();
-    if ( stepMeta.isPartitioned() && meta != null ) {
+    TransformPartitioningMeta meta = transformMeta.getTransformPartitioningMeta();
+    if ( transformMeta.isPartitioned() && meta != null ) {
       partitioned = true;
     }
 
 
-    if ( !stepMeta.getCopiesString().equals( "1" ) && !partitioned ) {
+    if ( !transformMeta.getCopiesString().equals( "1" ) && !partitioned ) {
       gc.setBackground( EColor.BACKGROUND );
       gc.setForeground( EColor.BLACK );
-      String copies = "x" + stepMeta.getCopiesString();
+      String copies = "x" + transformMeta.getCopiesString();
       Point textExtent = gc.textExtent( copies );
 
       gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y + 1, false );
-      areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y + 1, textExtent.x, textExtent.y, offset, pipelineMeta, stepMeta ) );
+      areaOwners.add( new AreaOwner( AreaType.TRANSFORM_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y + 1, textExtent.x, textExtent.y, offset, pipelineMeta, transformMeta ) );
     }
 
-    // If there was an error during the run, the map "stepLogMap" is not empty and not null.
+    // If there was an error during the run, the map "transformLogMap" is not empty and not null.
     //
-    if ( stepError ) {
-      String log = stepLogMap.get( stepMeta.getName() );
+    if ( transformError ) {
+      String log = transformLogMap.get( transformMeta.getName() );
 
-      // Show an error lines icon in the upper right corner of the step...
+      // Show an error lines icon in the upper right corner of the transform...
       //
       int xError = ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4;
       int yError = y - ( MINI_ICON_SIZE / 2 ) - 1;
-      Point ib = gc.getImageBounds( EImage.STEP_ERROR_RED );
-      gc.drawImage( EImage.STEP_ERROR_RED, xError, yError, magnification );
+      Point ib = gc.getImageBounds( EImage.TRANSFORM_ERROR_RED );
+      gc.drawImage( EImage.TRANSFORM_ERROR_RED, xError, yError, magnification );
       if ( !shadow ) {
         areaOwners.add( new AreaOwner(
-          AreaType.STEP_ERROR_RED_ICON, pt.x + iconsize - 3, pt.y - 8, ib.x, ib.y, offset, log,
-          STRING_STEP_ERROR_LOG ) );
+          AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconsize - 3, pt.y - 8, ib.x, ib.y, offset, log,
+          STRING_TRANSFORM_ERROR_LOG ) );
       }
     }
 
 
-    PipelinePainterExtension extension = new PipelinePainterExtension( gc, shadow, areaOwners, pipelineMeta, stepMeta, null, x, y, 0, 0, 0, 0, offset, iconsize );
+    PipelinePainterExtension extension = new PipelinePainterExtension( gc, shadow, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconsize );
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelinePainterStep.id, extension );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelinePainterTransform.id, extension );
     } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter step", e );
+      LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter transform", e );
     }
 
     // Restore the previous alpha value
@@ -744,7 +744,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     return new Point( xpos, ypos );
   }
 
-  private void drawLine( StepMeta fs, StepMeta ts, PipelineHopMeta hi, boolean is_candidate ) {
+  private void drawLine( TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean is_candidate ) {
     int[] line = getLine( fs, ts );
 
     EColor col;
@@ -757,7 +757,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
       arrow = EImage.ARROW_CANDIDATE;
     } else {
       if ( hi.isEnabled() ) {
-        if ( fs.isSendingErrorRowsToStep( ts ) ) {
+        if ( fs.isSendingErrorRowsToTransform( ts ) ) {
           col = EColor.RED;
           linestyle = ELineStyle.DASH;
           activeLinewidth = linewidth + 1;
@@ -775,16 +775,16 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
       activeLinewidth = linewidth + 2;
     }
 
-    // Check to see if the source step is an info step for the target step.
+    // Check to see if the source transform is an info transform for the target transform.
     //
-    StepIOMetaInterface ioMeta = ts.getStepMetaInterface().getStepIOMeta();
+    TransformIOMetaInterface ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
     List<StreamInterface> infoStreams = ioMeta.getInfoStreams();
     if ( !infoStreams.isEmpty() ) {
-      // Check this situation, the source step can't run in multiple copies!
+      // Check this situation, the source transform can't run in multiple copies!
       //
       for ( StreamInterface stream : infoStreams ) {
-        if ( fs.getName().equalsIgnoreCase( stream.getStepname() ) ) {
-          // This is the info step over this hop!
+        if ( fs.getName().equalsIgnoreCase( stream.getTransformName() ) ) {
+          // This is the info transform over this hop!
           //
           if ( fs.getCopies() > 1 ) {
             // This is not a desirable situation, it will always end in error.
@@ -859,22 +859,22 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
       gc.drawImage( arrow, mx, my, magnification, angle );
     }
 
-    if ( startObject instanceof StepMeta && endObject instanceof StepMeta ) {
+    if ( startObject instanceof TransformMeta && endObject instanceof TransformMeta ) {
       factor = 0.8;
 
-      StepMeta fs = (StepMeta) startObject;
-      StepMeta ts = (StepMeta) endObject;
+      TransformMeta fs = (TransformMeta) startObject;
+      TransformMeta ts = (TransformMeta) endObject;
 
       // in between 2 points
       mx = (int) ( x1 + factor * ( x2 - x1 ) / 2 ) - 8;
       my = (int) ( y1 + factor * ( y2 - y1 ) / 2 ) - 8;
 
-      boolean errorHop = fs.isSendingErrorRowsToStep( ts ) || ( startErrorHopStep && fs.equals( startHopStep ) );
+      boolean errorHop = fs.isSendingErrorRowsToTransform( ts ) || ( startErrorHopTransform && fs.equals( startHopTransform ) );
       boolean targetHop =
-        Const.indexOfString( ts.getName(), fs.getStepMetaInterface().getStepIOMeta().getTargetStepnames() ) >= 0;
+        Const.indexOfString( ts.getName(), fs.getTransformMetaInterface().getTransformIOMeta().getTargetTransformNames() ) >= 0;
 
       if ( targetHop ) {
-        StepIOMetaInterface ioMeta = fs.getStepMetaInterface().getStepIOMeta();
+        TransformIOMetaInterface ioMeta = fs.getTransformMetaInterface().getTransformIOMeta();
         StreamInterface targetStream = ioMeta.findTargetStream( ts );
         if ( targetStream != null ) {
           EImage hopsIcon = BasePainter.getStreamIconImage( targetStream.getStreamIcon() );
@@ -882,11 +882,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
           gc.drawImage( hopsIcon, mx, my, magnification );
           if ( !shadow ) {
             areaOwners.add( new AreaOwner(
-              AreaType.STEP_TARGET_HOP_ICON, mx, my, bounds.x, bounds.y, offset, fs, targetStream ) );
+              AreaType.TRANSFORM_TARGET_HOP_ICON, mx, my, bounds.x, bounds.y, offset, fs, targetStream ) );
           }
         }
       } else if ( fs.isDistributes()
-        && fs.getRowDistribution() != null && !ts.getStepPartitioningMeta().isMethodMirror() && !errorHop ) {
+        && fs.getRowDistribution() != null && !ts.getTransformPartitioningMeta().isMethodMirror() && !errorHop ) {
 
         // Draw the custom row distribution plugin icon
         //
@@ -902,7 +902,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
           mx += 16;
         }
 
-      } else if ( !fs.isDistributes() && !ts.getStepPartitioningMeta().isMethodMirror() && !errorHop ) {
+      } else if ( !fs.isDistributes() && !ts.getTransformPartitioningMeta().isMethodMirror() && !errorHop ) {
 
         // Draw the copy icon on the hop
         //
@@ -925,11 +925,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
         mx += 16;
       }
 
-      StepIOMetaInterface ioMeta = ts.getStepMetaInterface().getStepIOMeta();
-      String[] infoStepnames = ioMeta.getInfoStepnames();
+      TransformIOMetaInterface ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
+      String[] infoTransformNames = ioMeta.getInfoTransformNames();
 
-      if ( ( candidateHopType == StreamType.INFO && ts.equals( endHopStep ) && fs.equals( startHopStep ) )
-        || Const.indexOfString( fs.getName(), infoStepnames ) >= 0 ) {
+      if ( ( candidateHopType == StreamType.INFO && ts.equals( endHopTransform ) && fs.equals( startHopTransform ) )
+        || Const.indexOfString( fs.getName(), infoTransformNames ) >= 0 ) {
         Point bounds = gc.getImageBounds( EImage.INFO );
         gc.drawImage( EImage.INFO, mx, my, magnification );
         if ( !shadow ) {
@@ -938,14 +938,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
         mx += 16;
       }
 
-      // Check to see if the source step is an info step for the target step.
+      // Check to see if the source transform is an info transform for the target transform.
       //
-      if ( !Utils.isEmpty( infoStepnames ) ) {
-        // Check this situation, the source step can't run in multiple copies!
+      if ( !Utils.isEmpty( infoTransformNames ) ) {
+        // Check this situation, the source transform can't run in multiple copies!
         //
-        for ( String infoStep : infoStepnames ) {
-          if ( fs.getName().equalsIgnoreCase( infoStep ) ) {
-            // This is the info step over this hop!
+        for ( String infoTransform : infoTransformNames ) {
+          if ( fs.getName().equalsIgnoreCase( infoTransform ) ) {
+            // This is the info transform over this hop!
             //
             if ( fs.getCopies() > 1 ) {
               // This is not a desirable situation, it will always end in error.
@@ -955,7 +955,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
               gc.drawImage( EImage.ERROR, mx, my, magnification );
               if ( !shadow ) {
                 areaOwners.add( new AreaOwner(
-                  AreaType.HOP_INFO_STEP_COPIES_ERROR, mx, my, MINI_ICON_SIZE, MINI_ICON_SIZE, offset, fs, ts ) );
+                  AreaType.HOP_INFO_TRANSFORM_COPIES_ERROR, mx, my, MINI_ICON_SIZE, MINI_ICON_SIZE, offset, fs, ts ) );
               }
               mx += 16;
 
@@ -978,24 +978,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
   }
 
   /**
-   * @return the stepLogMap
+   * @return the transformLogMap
    */
-  public Map<String, String> getStepLogMap() {
-    return stepLogMap;
+  public Map<String, String> getTransformLogMap() {
+    return transformLogMap;
   }
 
   /**
-   * @param stepLogMap the stepLogMap to set
+   * @param transformLogMap the transformLogMap to set
    */
-  public void setStepLogMap( Map<String, String> stepLogMap ) {
-    this.stepLogMap = stepLogMap;
+  public void setTransformLogMap( Map<String, String> transformLogMap ) {
+    this.transformLogMap = transformLogMap;
   }
 
   /**
-   * @param startHopStep the startHopStep to set
+   * @param startHopTransform the start Hop Transform to set
    */
-  public void setStartHopStep( StepMeta startHopStep ) {
-    this.startHopStep = startHopStep;
+  public void setStartHopTransform( TransformMeta startHopTransform ) {
+    this.startHopTransform = startHopTransform;
   }
 
   /**
@@ -1006,39 +1006,39 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
   }
 
   /**
-   * @param noInputStep the noInputStep to set
+   * @param noInputTransform the no Input Transform to set
    */
-  public void setNoInputStep( StepMeta noInputStep ) {
-    this.noInputStep = noInputStep;
+  public void setNoInputTransform( TransformMeta noInputTransform ) {
+    this.noInputTransform = noInputTransform;
   }
 
   /**
-   * @param endHopStep the endHopStep to set
+   * @param endHopTransform the end Hop Transform to set
    */
-  public void setEndHopStep( StepMeta endHopStep ) {
-    this.endHopStep = endHopStep;
+  public void setEndHopTransform( TransformMeta endHopTransform ) {
+    this.endHopTransform = endHopTransform;
   }
 
   public void setCandidateHopType( StreamType candidateHopType ) {
     this.candidateHopType = candidateHopType;
   }
 
-  public void setStartErrorHopStep( boolean startErrorHopStep ) {
-    this.startErrorHopStep = startErrorHopStep;
+  public void setStartErrorHopTransform( boolean startErrorHopTransform ) {
+    this.startErrorHopTransform = startErrorHopTransform;
   }
 
   /**
-   * @return the showTargetStreamsStep
+   * @return the show Target Streams Transform
    */
-  public StepMeta getShowTargetStreamsStep() {
-    return showTargetStreamsStep;
+  public TransformMeta getShowTargetStreamsTransform() {
+    return showTargetStreamsTransform;
   }
 
   /**
-   * @param showTargetStreamsStep the showTargetStreamsStep to set
+   * @param showTargetStreamsTransform the show Target Streams Transform to set
    */
-  public void setShowTargetStreamsStep( StepMeta showTargetStreamsStep ) {
-    this.showTargetStreamsStep = showTargetStreamsStep;
+  public void setShowTargetStreamsTransform( TransformMeta showTargetStreamsTransform ) {
+    this.showTargetStreamsTransform = showTargetStreamsTransform;
   }
 
   public PipelineMeta getPipelineMeta() {
@@ -1057,35 +1057,35 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, StepMeta> {
     this.pipeline = pipeline;
   }
 
-  public boolean isSlowStepIndicatorEnabled() {
-    return slowStepIndicatorEnabled;
+  public boolean isSlowTransformIndicatorEnabled() {
+    return slowTransformIndicatorEnabled;
   }
 
-  public void setSlowStepIndicatorEnabled( boolean slowStepIndicatorEnabled ) {
-    this.slowStepIndicatorEnabled = slowStepIndicatorEnabled;
+  public void setSlowTransformIndicatorEnabled( boolean slowTransformIndicatorEnabled ) {
+    this.slowTransformIndicatorEnabled = slowTransformIndicatorEnabled;
   }
 
-  public StepMeta getStartHopStep() {
-    return startHopStep;
+  public TransformMeta getStartHopTransform() {
+    return startHopTransform;
   }
 
   public Point getEndHopLocation() {
     return endHopLocation;
   }
 
-  public StepMeta getEndHopStep() {
-    return endHopStep;
+  public TransformMeta getEndHopTransform() {
+    return endHopTransform;
   }
 
-  public StepMeta getNoInputStep() {
-    return noInputStep;
+  public TransformMeta getNoInputTransform() {
+    return noInputTransform;
   }
 
   public StreamType getCandidateHopType() {
     return candidateHopType;
   }
 
-  public boolean isStartErrorHopStep() {
-    return startErrorHopStep;
+  public boolean isStartErrorHopTransform() {
+    return startErrorHopTransform;
   }
 }

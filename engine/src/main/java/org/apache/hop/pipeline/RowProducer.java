@@ -24,21 +24,21 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.step.StepInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Allows you to "Inject" rows into a step.
+ * Allows you to "Inject" rows into a transform.
  *
  * @author Matt
  */
 public class RowProducer {
   private RowSet rowSet;
-  private StepInterface stepInterface;
+  private TransformInterface transformInterface;
 
-  public RowProducer( StepInterface stepInterface, RowSet rowSet ) {
-    this.stepInterface = stepInterface;
+  public RowProducer( TransformInterface transformInterface, RowSet rowSet ) {
+    this.transformInterface = transformInterface;
     this.rowSet = rowSet;
   }
 
@@ -79,7 +79,7 @@ public class RowProducer {
 
   /**
    * Signal that we are done producing rows.
-   * It will allow the step to which this producer is attached to know that no more rows are forthcoming.
+   * It will allow the transform to which this producer is attached to know that no more rows are forthcoming.
    */
   public void finished() {
     rowSet.setDone();
@@ -100,17 +100,17 @@ public class RowProducer {
   }
 
   /**
-   * @return Returns the stepInterface.
+   * @return Returns the transformInterface.
    */
-  public StepInterface getStepInterface() {
-    return stepInterface;
+  public TransformInterface getTransformInterface() {
+    return transformInterface;
   }
 
   /**
-   * @param stepInterface The stepInterface to set.
+   * @param transformInterface The transformInterface to set.
    */
-  public void setStepInterface( StepInterface stepInterface ) {
-    this.stepInterface = stepInterface;
+  public void setTransformInterface( TransformInterface transformInterface ) {
+    this.transformInterface = transformInterface;
   }
 
 }

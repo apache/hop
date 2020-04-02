@@ -42,7 +42,7 @@ import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -221,8 +221,8 @@ public class AbstractMetaTest {
     assertNull( meta.viewNextUndo() );
     assertNull( meta.previousUndo() );
     assertNull( meta.nextUndo() );
-    StepMeta fromMeta = mock( StepMeta.class );
-    StepMeta toMeta = mock( StepMeta.class );
+    TransformMeta fromMeta = mock( TransformMeta.class );
+    TransformMeta toMeta = mock( TransformMeta.class );
     Object[] from = new Object[] { fromMeta };
     Object[] to = new Object[] { toMeta };
     int[] pos = new int[ 0 ];
@@ -239,7 +239,7 @@ public class AbstractMetaTest {
     assertNull( meta.viewNextUndo() );
     ChangeAction action = meta.previousUndo();
     assertNotNull( action );
-    assertEquals( ChangeAction.ActionType.ChangeStep, action.getType() );
+    assertEquals( ChangeAction.ActionType.ChangeTransform, action.getType() );
     assertNotNull( meta.viewThisUndo() );
     assertNotNull( meta.viewPreviousUndo() );
     assertNotNull( meta.viewNextUndo() );

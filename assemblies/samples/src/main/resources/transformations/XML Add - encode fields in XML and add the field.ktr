@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>xml demo</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -456,7 +456,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>CHANGE LOG&#xa;-----------------&#xa;&#xa;2006&#x2f;10&#x2f;12 - Initial version by David Zverina&#xa;2006&#x2f;10&#x2f;13 - Modified by Matt Casters&#x3a; removed Table Output step, used a dummy instead</note>
+      <note>CHANGE LOG&#xa;-----------------&#xa;&#xa;2006&#x2f;10&#x2f;12 - Initial version by David Zverina&#xa;2006&#x2f;10&#x2f;13 - Modified by Matt Casters&#x3a; removed Table Output transform, used a dummy instead</note>
       <xloc>201</xloc>
       <yloc>387</yloc>
       <width>567</width>
@@ -534,7 +534,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Add dimensions to rectangles</name>
     <type>Constant</type>
     <description/>
@@ -572,20 +572,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>323</xloc>
       <yloc>21</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Add radius to circles</name>
     <type>Constant</type>
     <description/>
@@ -611,20 +611,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>317</xloc>
       <yloc>260</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Add sequence</name>
     <type>Sequence</type>
     <description/>
@@ -646,20 +646,20 @@
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>139</xloc>
       <yloc>129</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Convert circle to XML class</name>
     <type>AddXML</type>
     <description/>
@@ -722,20 +722,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>463</xloc>
       <yloc>259</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Convert rectangle to XML</name>
     <type>AddXML</type>
     <description/>
@@ -812,20 +812,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>473</xloc>
       <yloc>20</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Create random shape classes</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -854,20 +854,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>311</xloc>
       <yloc>137</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29;</name>
     <type>Dummy</type>
     <description/>
@@ -879,20 +879,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>845</xloc>
       <yloc>147</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -959,20 +959,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>34</xloc>
       <yloc>128</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Remove fluff from circles</name>
     <type>SelectValues</type>
     <description/>
@@ -990,20 +990,20 @@
       </remove>      <remove>        <name>COLOUR</name>
       </remove>      <remove>        <name>RADIUS</name>
       </remove>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>656</xloc>
       <yloc>208</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Remove fluff from rectangles</name>
     <type>SelectValues</type>
     <description/>
@@ -1022,20 +1022,20 @@
       </remove>      <remove>        <name>LENGTH</name>
       </remove>      <remove>        <name>WIDTH</name>
       </remove>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>656</xloc>
       <yloc>64</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Split rectangles and circles</name>
     <type>FilterRows</type>
     <description/>
@@ -1057,22 +1057,22 @@
  <value><name>constant</name><type>String</type><text>circle</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>468</xloc>
       <yloc>135</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

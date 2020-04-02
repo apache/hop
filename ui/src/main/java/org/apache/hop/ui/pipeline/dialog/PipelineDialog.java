@@ -34,7 +34,7 @@ import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.LogTableInterface;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
-import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
@@ -46,9 +46,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineDependency;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaInterface;
-import org.apache.hop.pipeline.steps.tableinput.TableInputMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
@@ -60,7 +60,7 @@ import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -91,12 +91,12 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 
-//import org.apache.hop.pipeline.steps.databaselookup.DatabaseLookupMeta;
+//import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupMeta;
 
 
 public class PipelineDialog extends Dialog {
   public static final int LOG_INDEX_PIPELINE = 0;
-  public static final int LOG_INDEX_STEP = 1;
+  public static final int LOG_INDEX_TRANSFORM = 1;
   public static final int LOG_INDEX_PERFORMANCE = 2;
   public static final int LOG_INDEX_CHANNEL = 3;
   public static final int LOG_INDEX_METRICS = 4;
@@ -184,9 +184,9 @@ public class PipelineDialog extends Dialog {
 
   private Label wlDirectory;
 
-  private Button wEnableStepPerfMonitor;
+  private Button wEnableTransformPerfMonitor;
 
-  private Text wStepPerfInterval;
+  private Text wTransformPerfInterval;
 
   private CCombo wPipelineType;
 
@@ -201,12 +201,12 @@ public class PipelineDialog extends Dialog {
   private PipelineLogTable pipelineLogTable;
   private PerformanceLogTable performanceLogTable;
   private ChannelLogTable channelLogTable;
-  private StepLogTable stepLogTable;
+  private TransformLogTable transformLogTable;
   private MetricsLogTable metricsLogTable;
 
   private DatabaseDialog databaseDialog;
   private SelectionAdapter lsModSel;
-  private TextVar wStepPerfMaxSize;
+  private TextVar wTransformPerfMaxSize;
 
   private ArrayList<PipelineDialogPluginInterface> extraTabs;
 
@@ -228,7 +228,7 @@ public class PipelineDialog extends Dialog {
     pipelineLogTable = (PipelineLogTable) pipelineMeta.getPipelineLogTable().clone();
     performanceLogTable = (PerformanceLogTable) pipelineMeta.getPerformanceLogTable().clone();
     channelLogTable = (ChannelLogTable) pipelineMeta.getChannelLogTable().clone();
-    stepLogTable = (StepLogTable) pipelineMeta.getStepLogTable().clone();
+    transformLogTable = (TransformLogTable) pipelineMeta.getTransformLogTable().clone();
     metricsLogTable = (MetricsLogTable) pipelineMeta.getMetricsLogTable().clone();
   }
 
@@ -304,7 +304,7 @@ public class PipelineDialog extends Dialog {
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
 
     // Add listeners
     lsOK = new Listener() {
@@ -347,7 +347,7 @@ public class PipelineDialog extends Dialog {
     wMaxdateoffset.addSelectionListener( lsDef );
     wMaxdatediff.addSelectionListener( lsDef );
     wUniqueConnections.addSelectionListener( lsDef );
-    wStepPerfInterval.addSelectionListener( lsDef );
+    wTransformPerfInterval.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -364,7 +364,7 @@ public class PipelineDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     changed = false;
 
@@ -695,7 +695,7 @@ public class PipelineDialog extends Dialog {
     props.setLook( wLogTypeList );
 
     wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.Pipeline" ) ); // Index 0
-    wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.Step" ) ); // Index 1
+    wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.Transform" ) ); // Index 1
     wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.Performance" ) ); // Index 2
     wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.LoggingChannels" ) ); // Index 3
     wLogTypeList.add( BaseMessages.getString( PKG, "PipelineDialog.LogTableType.Metrics" ) ); // Index 3
@@ -761,8 +761,8 @@ public class PipelineDialog extends Dialog {
         case LOG_INDEX_CHANNEL:
           getChannelLogTableOptions();
           break;
-        case LOG_INDEX_STEP:
-          getStepLogTableOptions();
+        case LOG_INDEX_TRANSFORM:
+          getTransformLogTableOptions();
           break;
         case LOG_INDEX_METRICS:
           getMetricsLogTableOptions();
@@ -787,8 +787,8 @@ public class PipelineDialog extends Dialog {
         case LOG_INDEX_CHANNEL:
           showChannelLogTableOptions();
           break;
-        case LOG_INDEX_STEP:
-          showStepLogTableOptions();
+        case LOG_INDEX_TRANSFORM:
+          showTransformLogTableOptions();
           break;
         case LOG_INDEX_METRICS:
           showMetricsLogTableOptions();
@@ -818,7 +818,7 @@ public class PipelineDialog extends Dialog {
         field.setEnabled( item.getChecked() );
         field.setFieldName( item.getText( 1 ) );
         if ( field.isSubjectAllowed() ) {
-          field.setSubject( pipelineMeta.findStep( item.getText( 2 ) ) );
+          field.setSubject( pipelineMeta.findTransform( item.getText( 2 ) ) );
         }
       }
     }
@@ -973,8 +973,8 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.FieldName" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.StepName" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, pipelineMeta.getStepNames() ),
+          BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.TransformName" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, pipelineMeta.getTransformNames() ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
@@ -1400,31 +1400,31 @@ public class PipelineDialog extends Dialog {
     wLogComp.layout( true, true );
   }
 
-  private void getStepLogTableOptions() {
+  private void getTransformLogTableOptions() {
 
-    if ( previousLogTableIndex == LOG_INDEX_STEP ) {
+    if ( previousLogTableIndex == LOG_INDEX_TRANSFORM ) {
       // The connection...
       //
-      stepLogTable.setConnectionName( wLogConnection.getText() );
-      stepLogTable.setSchemaName( wLogSchema.getText() );
-      stepLogTable.setTableName( wLogTable.getText() );
-      stepLogTable.setTimeoutInDays( wLogTimeout.getText() );
+      transformLogTable.setConnectionName( wLogConnection.getText() );
+      transformLogTable.setSchemaName( wLogSchema.getText() );
+      transformLogTable.setTableName( wLogTable.getText() );
+      transformLogTable.setTimeoutInDays( wLogTimeout.getText() );
 
-      for ( int i = 0; i < stepLogTable.getFields().size(); i++ ) {
+      for ( int i = 0; i < transformLogTable.getFields().size(); i++ ) {
         TableItem item = wOptionFields.table.getItem( i );
 
-        LogTableField field = stepLogTable.getFields().get( i );
+        LogTableField field = transformLogTable.getFields().get( i );
         field.setEnabled( item.getChecked() );
         field.setFieldName( item.getText( 1 ) );
       }
     }
   }
 
-  private void showStepLogTableOptions() {
+  private void showTransformLogTableOptions() {
 
-    previousLogTableIndex = LOG_INDEX_STEP;
+    previousLogTableIndex = LOG_INDEX_TRANSFORM;
 
-    addDBSchemaTableLogOptions( stepLogTable );
+    addDBSchemaTableLogOptions( transformLogTable );
 
     // The log timeout in days
     //
@@ -1446,7 +1446,7 @@ public class PipelineDialog extends Dialog {
     fdLogTimeout.top = new FormAttachment( wLogTable, margin );
     fdLogTimeout.right = new FormAttachment( 100, 0 );
     wLogTimeout.setLayoutData( fdLogTimeout );
-    wLogTimeout.setText( Const.NVL( stepLogTable.getTimeoutInDays(), "" ) );
+    wLogTimeout.setText( Const.NVL( transformLogTable.getTimeoutInDays(), "" ) );
 
     // Add the fields grid...
     //
@@ -1458,7 +1458,7 @@ public class PipelineDialog extends Dialog {
     fdlFields.top = new FormAttachment( wLogTimeout, margin * 2 );
     wlFields.setLayoutData( fdlFields );
 
-    final java.util.List<LogTableField> fields = stepLogTable.getFields();
+    final java.util.List<LogTableField> fields = transformLogTable.getFields();
     final int nrRows = fields.size();
 
     ColumnInfo[] colinf =
@@ -1742,7 +1742,7 @@ public class PipelineDialog extends Dialog {
     fdUniqueConnections.right = new FormAttachment( 100, 0 );
     wUniqueConnections.setLayoutData( fdUniqueConnections );
 
-    // Show feedback in pipelines steps?
+    // Show feedback in pipelines transforms?
     Label wlManageThreads = new Label( wMiscComp, SWT.RIGHT );
     wlManageThreads.setText( BaseMessages.getString( PKG, "PipelineDialog.ManageThreadPriorities.Label" ) );
     props.setLook( wlManageThreads );
@@ -1813,66 +1813,66 @@ public class PipelineDialog extends Dialog {
     wMonitorComp.setLayout( monitorLayout );
 
     //
-    // Enable step performance monitoring?
+    // Enable transform performance monitoring?
     //
-    Label wlEnableStepPerfMonitor = new Label( wMonitorComp, SWT.LEFT );
-    wlEnableStepPerfMonitor.setText( BaseMessages.getString( PKG, "PipelineDialog.StepPerformanceMonitoring.Label" ) );
-    props.setLook( wlEnableStepPerfMonitor );
+    Label wlEnableTransformPerfMonitor = new Label( wMonitorComp, SWT.LEFT );
+    wlEnableTransformPerfMonitor.setText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceMonitoring.Label" ) );
+    props.setLook( wlEnableTransformPerfMonitor );
     FormData fdlSchemaName = new FormData();
     fdlSchemaName.left = new FormAttachment( 0, 0 );
     fdlSchemaName.right = new FormAttachment( middle, -margin );
     fdlSchemaName.top = new FormAttachment( 0, 0 );
-    wlEnableStepPerfMonitor.setLayoutData( fdlSchemaName );
-    wEnableStepPerfMonitor = new Button( wMonitorComp, SWT.CHECK );
-    props.setLook( wEnableStepPerfMonitor );
-    FormData fdEnableStepPerfMonitor = new FormData();
-    fdEnableStepPerfMonitor.left = new FormAttachment( middle, 0 );
-    fdEnableStepPerfMonitor.right = new FormAttachment( 100, 0 );
-    fdEnableStepPerfMonitor.top = new FormAttachment( 0, 0 );
-    wEnableStepPerfMonitor.setLayoutData( fdEnableStepPerfMonitor );
-    wEnableStepPerfMonitor.addSelectionListener( lsModSel );
+    wlEnableTransformPerfMonitor.setLayoutData( fdlSchemaName );
+    wEnableTransformPerfMonitor = new Button( wMonitorComp, SWT.CHECK );
+    props.setLook( wEnableTransformPerfMonitor );
+    FormData fdEnableTransformPerfMonitor = new FormData();
+    fdEnableTransformPerfMonitor.left = new FormAttachment( middle, 0 );
+    fdEnableTransformPerfMonitor.right = new FormAttachment( 100, 0 );
+    fdEnableTransformPerfMonitor.top = new FormAttachment( 0, 0 );
+    wEnableTransformPerfMonitor.setLayoutData( fdEnableTransformPerfMonitor );
+    wEnableTransformPerfMonitor.addSelectionListener( lsModSel );
 
     //
-    // Step performance interval
+    // Transform performance interval
     //
-    Label wlStepPerfInterval = new Label( wMonitorComp, SWT.LEFT );
-    wlStepPerfInterval.setText( BaseMessages.getString( PKG, "PipelineDialog.StepPerformanceInterval.Label" ) );
-    props.setLook( wlStepPerfInterval );
-    FormData fdlStepPerfInterval = new FormData();
-    fdlStepPerfInterval.left = new FormAttachment( 0, 0 );
-    fdlStepPerfInterval.right = new FormAttachment( middle, -margin );
-    fdlStepPerfInterval.top = new FormAttachment( wEnableStepPerfMonitor, margin );
-    wlStepPerfInterval.setLayoutData( fdlStepPerfInterval );
-    wStepPerfInterval = new Text( wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
-    props.setLook( wStepPerfInterval );
-    FormData fdStepPerfInterval = new FormData();
-    fdStepPerfInterval.left = new FormAttachment( middle, 0 );
-    fdStepPerfInterval.right = new FormAttachment( 100, 0 );
-    fdStepPerfInterval.top = new FormAttachment( wEnableStepPerfMonitor, margin );
-    wStepPerfInterval.setLayoutData( fdStepPerfInterval );
-    wStepPerfInterval.addModifyListener( lsMod );
+    Label wlTransformPerfInterval = new Label( wMonitorComp, SWT.LEFT );
+    wlTransformPerfInterval.setText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceInterval.Label" ) );
+    props.setLook( wlTransformPerfInterval );
+    FormData fdlTransformPerfInterval = new FormData();
+    fdlTransformPerfInterval.left = new FormAttachment( 0, 0 );
+    fdlTransformPerfInterval.right = new FormAttachment( middle, -margin );
+    fdlTransformPerfInterval.top = new FormAttachment( wEnableTransformPerfMonitor, margin );
+    wlTransformPerfInterval.setLayoutData( fdlTransformPerfInterval );
+    wTransformPerfInterval = new Text( wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
+    props.setLook( wTransformPerfInterval );
+    FormData fdTransformPerfInterval = new FormData();
+    fdTransformPerfInterval.left = new FormAttachment( middle, 0 );
+    fdTransformPerfInterval.right = new FormAttachment( 100, 0 );
+    fdTransformPerfInterval.top = new FormAttachment( wEnableTransformPerfMonitor, margin );
+    wTransformPerfInterval.setLayoutData( fdTransformPerfInterval );
+    wTransformPerfInterval.addModifyListener( lsMod );
 
     //
-    // Step performance interval
+    // Transform performance interval
     //
-    Label wlStepPerfMaxSize = new Label( wMonitorComp, SWT.LEFT );
-    wlStepPerfMaxSize.setText( BaseMessages.getString( PKG, "PipelineDialog.StepPerformanceMaxSize.Label" ) );
-    wlStepPerfMaxSize.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.StepPerformanceMaxSize.Tooltip" ) );
-    props.setLook( wlStepPerfMaxSize );
-    FormData fdlStepPerfMaxSize = new FormData();
-    fdlStepPerfMaxSize.left = new FormAttachment( 0, 0 );
-    fdlStepPerfMaxSize.right = new FormAttachment( middle, -margin );
-    fdlStepPerfMaxSize.top = new FormAttachment( wStepPerfInterval, margin );
-    wlStepPerfMaxSize.setLayoutData( fdlStepPerfMaxSize );
-    wStepPerfMaxSize = new TextVar( pipelineMeta, wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
-    wStepPerfMaxSize.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.StepPerformanceMaxSize.Tooltip" ) );
-    props.setLook( wStepPerfMaxSize );
-    FormData fdStepPerfMaxSize = new FormData();
-    fdStepPerfMaxSize.left = new FormAttachment( middle, 0 );
-    fdStepPerfMaxSize.right = new FormAttachment( 100, 0 );
-    fdStepPerfMaxSize.top = new FormAttachment( wStepPerfInterval, margin );
-    wStepPerfMaxSize.setLayoutData( fdStepPerfMaxSize );
-    wStepPerfMaxSize.addModifyListener( lsMod );
+    Label wlTransformPerfMaxSize = new Label( wMonitorComp, SWT.LEFT );
+    wlTransformPerfMaxSize.setText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceMaxSize.Label" ) );
+    wlTransformPerfMaxSize.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceMaxSize.Tooltip" ) );
+    props.setLook( wlTransformPerfMaxSize );
+    FormData fdlTransformPerfMaxSize = new FormData();
+    fdlTransformPerfMaxSize.left = new FormAttachment( 0, 0 );
+    fdlTransformPerfMaxSize.right = new FormAttachment( middle, -margin );
+    fdlTransformPerfMaxSize.top = new FormAttachment( wTransformPerfInterval, margin );
+    wlTransformPerfMaxSize.setLayoutData( fdlTransformPerfMaxSize );
+    wTransformPerfMaxSize = new TextVar( pipelineMeta, wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
+    wTransformPerfMaxSize.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceMaxSize.Tooltip" ) );
+    props.setLook( wTransformPerfMaxSize );
+    FormData fdTransformPerfMaxSize = new FormData();
+    fdTransformPerfMaxSize.left = new FormAttachment( middle, 0 );
+    fdTransformPerfMaxSize.right = new FormAttachment( 100, 0 );
+    fdTransformPerfMaxSize.top = new FormAttachment( wTransformPerfInterval, margin );
+    wTransformPerfMaxSize.setLayoutData( fdTransformPerfMaxSize );
+    wTransformPerfMaxSize.addModifyListener( lsMod );
 
     FormData fdMonitorComp = new FormData();
     fdMonitorComp.left = new FormAttachment( 0, 0 );
@@ -1985,9 +1985,9 @@ public class PipelineDialog extends Dialog {
 
     // Performance monitoring tab:
     //
-    wEnableStepPerfMonitor.setSelection( pipelineMeta.isCapturingStepPerformanceSnapShots() );
-    wStepPerfInterval.setText( Long.toString( pipelineMeta.getStepPerformanceCapturingDelay() ) );
-    wStepPerfMaxSize.setText( Const.NVL( pipelineMeta.getStepPerformanceCapturingSizeLimit(), "" ) );
+    wEnableTransformPerfMonitor.setSelection( pipelineMeta.isCapturingTransformPerformanceSnapShots() );
+    wTransformPerfInterval.setText( Long.toString( pipelineMeta.getTransformPerformanceCapturingDelay() ) );
+    wTransformPerfMaxSize.setText( Const.NVL( pipelineMeta.getTransformPerformanceCapturingSizeLimit(), "" ) );
 
     wPipelineName.selectAll();
     wPipelineName.setFocus();
@@ -2015,10 +2015,10 @@ public class PipelineDialog extends Dialog {
     pipelineMeta.setPipelineLogTable( pipelineLogTable );
     pipelineMeta.setPerformanceLogTable( performanceLogTable );
     pipelineMeta.setChannelLogTable( channelLogTable );
-    pipelineMeta.setStepLogTable( stepLogTable );
+    pipelineMeta.setTransformLogTable( transformLogTable );
     pipelineMeta.setMetricsLogTable( metricsLogTable );
 
-    // pipelineMeta.setStepPerformanceLogTable(wStepLogtable.getText());
+    // pipelineMeta.setTransformPerformanceLogTable(wTransformLogtable.getText());
     pipelineMeta.setMaxDateConnection( pipelineMeta.findDatabase( wMaxdateconnection.getText() ) );
     pipelineMeta.setMaxDateTable( wMaxdatetable.getText() );
     pipelineMeta.setMaxDateField( wMaxdatefield.getText() );
@@ -2093,28 +2093,28 @@ public class PipelineDialog extends Dialog {
 
     // Performance monitoring tab:
     //
-    pipelineMeta.setCapturingStepPerformanceSnapShots( wEnableStepPerfMonitor.getSelection() );
-    pipelineMeta.setStepPerformanceCapturingSizeLimit( wStepPerfMaxSize.getText() );
+    pipelineMeta.setCapturingTransformPerformanceSnapShots( wEnableTransformPerfMonitor.getSelection() );
+    pipelineMeta.setTransformPerformanceCapturingSizeLimit( wTransformPerfMaxSize.getText() );
 
     try {
-      long stepPerformanceCapturingDelay = Long.parseLong( wStepPerfInterval.getText() );
+      long transformPerformanceCapturingDelay = Long.parseLong( wTransformPerfInterval.getText() );
       // values equal or less than zero cause problems during monitoring
-      if ( stepPerformanceCapturingDelay <= 0 && pipelineMeta.isCapturingStepPerformanceSnapShots() ) {
+      if ( transformPerformanceCapturingDelay <= 0 && pipelineMeta.isCapturingTransformPerformanceSnapShots() ) {
         throw new HopException();
       } else {
-        if ( stepPerformanceCapturingDelay <= 0 ) {
-          // PDI-4848: Default to 1 second if step performance monitoring is disabled
-          stepPerformanceCapturingDelay = 1000;
+        if ( transformPerformanceCapturingDelay <= 0 ) {
+          // PDI-4848: Default to 1 second if transform performance monitoring is disabled
+          transformPerformanceCapturingDelay = 1000;
         }
-        pipelineMeta.setStepPerformanceCapturingDelay( stepPerformanceCapturingDelay );
+        pipelineMeta.setTransformPerformanceCapturingDelay( transformPerformanceCapturingDelay );
       }
     } catch ( Exception e ) {
       MessageBox mb = new MessageBox( shell, SWT.ICON_ERROR | SWT.OK );
-      mb.setText( BaseMessages.getString( PKG, "PipelineDialog.InvalidStepPerfIntervalNumber.DialogTitle" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "PipelineDialog.InvalidStepPerfIntervalNumber.DialogMessage" ) );
+      mb.setText( BaseMessages.getString( PKG, "PipelineDialog.InvalidTransformPerfIntervalNumber.DialogTitle" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "PipelineDialog.InvalidTransformPerfIntervalNumber.DialogMessage" ) );
       mb.open();
-      wStepPerfInterval.setFocus();
-      wStepPerfInterval.selectAll();
+      wTransformPerfInterval.setFocus();
+      wTransformPerfInterval.selectAll();
       OK = false;
     }
 
@@ -2135,14 +2135,14 @@ public class PipelineDialog extends Dialog {
   // Get the dependencies
   private void get() {
     Table table = wFields.table;
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
       String con = null;
       String tab = null;
       TableItem item = null;
-      StepMetaInterface sii = stepMeta.getStepMetaInterface();
+      TransformMetaInterface sii = transformMeta.getTransformMetaInterface();
       if ( sii instanceof TableInputMeta ) {
-        TableInputMeta tii = (TableInputMeta) stepMeta.getStepMetaInterface();
+        TableInputMeta tii = (TableInputMeta) transformMeta.getTransformMetaInterface();
         if ( tii.getDatabaseMeta() == null ) {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
           mb.setMessage( BaseMessages.getString( PKG, "PipelineDialog.DatabaseMetaNotSet.Text" ) );
@@ -2153,16 +2153,16 @@ public class PipelineDialog extends Dialog {
         con = tii.getDatabaseMeta().getName();
         tab = getTableFromSQL( tii.getSQL() );
         if ( tab == null ) {
-          tab = stepMeta.getName();
+          tab = transformMeta.getName();
         }
       }
       //TODO: refactor
 /*      if ( sii instanceof DatabaseLookupMeta ) {
-        DatabaseLookupMeta dvli = (DatabaseLookupMeta) stepMeta.getStepMetaInterface();
+        DatabaseLookupMeta dvli = (DatabaseLookupMeta) transformMeta.getTransformMetaInterface();
         con = dvli.getDatabaseMeta().getName();
         tab = dvli.getTablename();
         if ( tab == null ) {
-          tab = stepMeta.getName();
+          tab = transformMeta.getName();
         }
         break;
       }*/
@@ -2207,7 +2207,7 @@ public class PipelineDialog extends Dialog {
       boolean allOK = true;
 
       for ( LogTableInterface logTable : new LogTableInterface[] {
-        pipelineLogTable, performanceLogTable, channelLogTable, stepLogTable, metricsLogTable, } ) {
+        pipelineLogTable, performanceLogTable, channelLogTable, transformLogTable, metricsLogTable, } ) {
         if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
           // OK, we have something to work with!
           //
@@ -2278,7 +2278,7 @@ public class PipelineDialog extends Dialog {
     getPipelineLogTableOptions();
     getPerformanceLogTableOptions();
     getChannelLogTableOptions();
-    getStepLogTableOptions();
+    getTransformLogTableOptions();
     getMetricsLogTableOptions();
   }
 

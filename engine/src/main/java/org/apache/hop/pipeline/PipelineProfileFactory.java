@@ -28,13 +28,13 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.steps.dummy.DummyMeta;
-import org.apache.hop.pipeline.steps.groupby.GroupByMeta;
-import org.apache.hop.pipeline.steps.tableinput.TableInputMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 
 /**
  * Helper class to generate profiling pipelines...
@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.steps.tableinput.TableInputMeta;
  * @author Matt Casters (mcasters@pentaho.org)
  */
 public class PipelineProfileFactory {
-  public static final String RESULT_STEP_NAME = "calc stats";
+  public static final String RESULT_TRANSFORM_NAME = "calc stats";
 
   private DatabaseMeta databaseMeta;
   private String schemaTable;
@@ -69,16 +69,16 @@ public class PipelineProfileFactory {
     //
     PipelineMeta pipelineMeta = new PipelineMeta( databaseMeta );
 
-    // Create a step to read the content of the table
+    // Create a transform to read the content of the table
     // Read the data from the database table...
     // For now we read it all, later we add options to only read the first X rows
     //
     TableInputMeta readMeta = new TableInputMeta();
     readMeta.setSQL( "SELECT * FROM " + schemaTable );
     readMeta.setDatabaseMeta( databaseMeta );
-    StepMeta read = new StepMeta( registry.getPluginId( StepPluginType.class, readMeta ), "Read data", readMeta );
+    TransformMeta read = new TransformMeta( registry.getPluginId( TransformPluginType.class, readMeta ), "Read data", readMeta );
     read.setLocation( 50, 50 );
-    pipelineMeta.addStep( read );
+    pipelineMeta.addTransform( read );
 
     // Grab the data types too
     //
@@ -102,8 +102,8 @@ public class PipelineProfileFactory {
     int[] booleanCalculations =
       new int[] { GroupByMeta.TYPE_GROUP_MIN, GroupByMeta.TYPE_GROUP_MAX, GroupByMeta.TYPE_GROUP_COUNT_ALL, };
 
-    // Run it through the "group by" step without a grouping.
-    // Later, we can use the UnivariateStats plugin/step perhaps.
+    // Run it through the "group by" transform without a grouping.
+    // Later, we can use the UnivariateStats plugin/transform perhaps.
     //
     GroupByMeta statsMeta = new GroupByMeta();
     int nrNumeric = 0;
@@ -183,18 +183,18 @@ public class PipelineProfileFactory {
         }
       }
     }
-    StepMeta calc = new StepMeta( registry.getPluginId( StepPluginType.class, statsMeta ), "Calc", statsMeta );
+    TransformMeta calc = new TransformMeta( registry.getPluginId( TransformPluginType.class, statsMeta ), "Calc", statsMeta );
     calc.setLocation( 250, 50 );
-    pipelineMeta.addStep( calc );
+    pipelineMeta.addTransform( calc );
 
     PipelineHopMeta hop = new PipelineHopMeta( read, calc );
     pipelineMeta.addPipelineHop( hop );
 
     DummyMeta dummyMeta = new DummyMeta();
-    StepMeta result =
-      new StepMeta( registry.getPluginId( StepPluginType.class, dummyMeta ), RESULT_STEP_NAME, dummyMeta );
+    TransformMeta result =
+      new TransformMeta( registry.getPluginId( TransformPluginType.class, dummyMeta ), RESULT_TRANSFORM_NAME, dummyMeta );
     result.setLocation( 450, 50 );
-    pipelineMeta.addStep( result );
+    pipelineMeta.addTransform( result );
 
     PipelineHopMeta hop2 = new PipelineHopMeta( calc, result );
     pipelineMeta.addPipelineHop( hop2 );

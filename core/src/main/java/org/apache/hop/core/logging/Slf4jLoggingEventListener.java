@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
 import static org.apache.hop.core.logging.LoggingObjectType.JOB;
 import static org.apache.hop.core.logging.LoggingObjectType.JOBENTRY;
-import static org.apache.hop.core.logging.LoggingObjectType.STEP;
+import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
 import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
 
 public class Slf4jLoggingEventListener implements HopLoggingEventListener {
@@ -66,7 +66,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
         // this can happen if logObject has been discarded while log events are still in flight.
         logToLogger( diLogger, message.getLevel(),
           message.getSubject() + " " + message.getMessage() );
-      } else if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == STEP || loggingObject.getObjectType() == DATABASE ) {
+      } else if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == TRANSFORM || loggingObject.getObjectType() == DATABASE ) {
         logToLogger( pipelineLogger, message.getLevel(), loggingObject, message );
       } else if ( loggingObject.getObjectType() == JOB || loggingObject.getObjectType() == JOBENTRY ) {
         logToLogger( jobLogger, message.getLevel(), loggingObject, message );

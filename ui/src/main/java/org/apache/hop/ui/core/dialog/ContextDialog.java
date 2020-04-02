@@ -10,7 +10,7 @@ import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -580,15 +580,15 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     HopEnvironment.init();
 
     List<GuiAction> actions = new ArrayList<>();
-    List<PluginInterface> stepPlugins = PluginRegistry.getInstance().getPlugins( StepPluginType.class );
-    for ( PluginInterface stepPlugin : stepPlugins ) {
-      GuiAction createStepAction =
-        new GuiAction( "pipeline-graph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-          (shiftClicked, controlClicked, t) -> System.out.println( "Create step action : " + stepPlugin.getName() + ", shift="+shiftClicked+", control="+controlClicked )
+    List<PluginInterface> transformPlugins = PluginRegistry.getInstance().getPlugins( TransformPluginType.class );
+    for ( PluginInterface transformPlugin : transformPlugins ) {
+      GuiAction createTransformAction =
+        new GuiAction( "pipeline-graph-create-transform-" + transformPlugin.getIds()[ 0 ], GuiActionType.Create, transformPlugin.getName(), transformPlugin.getDescription(), transformPlugin.getImageFile(),
+          (shiftClicked, controlClicked, t) -> System.out.println( "Create transform action : " + transformPlugin.getName() + ", shift="+shiftClicked+", control="+controlClicked )
         );
-      createStepAction.getKeywords().add( stepPlugin.getCategory() );
+      createTransformAction.getKeywords().add( transformPlugin.getCategory() );
       // if (actions.size()<2) {
-      actions.add( createStepAction );
+      actions.add( createTransformAction );
       //}
     }
     ContextDialog dialog = new ContextDialog( shell, "Action test", new Point( 50, 50 ), actions );

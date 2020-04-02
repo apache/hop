@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transforms>
+  <transform id="Dummy">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Dummy</description>
+    <classname>org.apache.hop.pipeline.transforms.dummy.DummyMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy</tooltip>
+    <iconfile>ui/images/DUM.svg</iconfile>
+    <cases_url/>
+    <forum_url/>
+  </transform>
+  <transform id="TableInput">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.TableInput</description>
+    <classname>org.apache.hop.pipeline.transforms.tableinput.TableInputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.TableInput</tooltip>
+    <iconfile>ui/images/TIP.svg</iconfile>
+  </transform>
+  <transform id="SocketReader">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SocketReader</description>
+    <classname>org.apache.hop.pipeline.transforms.socketreader.SocketReaderMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SocketReader</tooltip>
+    <iconfile>ui/images/SKR.svg</iconfile>
+  </transform>
+  <transform id="SocketWriter">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SocketWriter</description>
+    <classname>org.apache.hop.pipeline.transforms.socketwriter.SocketWriterMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SocketWriter</tooltip>
+    <iconfile>ui/images/SKW.svg</iconfile>
+  </transform>
+  <transform id="Injector">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Injector</description>
+    <classname>org.apache.hop.pipeline.transforms.injector.InjectorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector</tooltip>
+    <iconfile>ui/images/INJ.svg</iconfile>
+  </transform>
+  <transform id="MappingInput">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingInput</description>
+    <classname>org.apache.hop.pipeline.transforms.mappinginput.MappingInputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingInputSpecification</tooltip>
+    <iconfile>ui/images/MPI.svg</iconfile>
+  </transform>
+  <transform id="Mapping">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingSubPipeline</description>
+    <classname>org.apache.hop.pipeline.transforms.mapping.MappingMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingSubPipeline</tooltip>
+    <iconfile>ui/images/MAP.svg</iconfile>
+  </transform>
+  <transform id="MappingOutput">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingOutput</description>
+    <classname>org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingOutputSpecification</tooltip>
+    <iconfile>ui/images/MPO.svg</iconfile>
+  </transform>
+  <transform id="GroupBy">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.GroupBy</description>
+    <classname>org.apache.hop.pipeline.transforms.groupby.GroupByMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Groupby</tooltip>
+    <iconfile>ui/images/GRP.svg</iconfile>
+  </transform>
+  <transform id="SingleThreader">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SingleThreader</description>
+    <classname>org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SingleThreader</tooltip>
+    <iconfile>ui/images/MAP.svg</iconfile>
+  </transform>
+  <transform id="JobExecutor">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.JobExecutor</description>
+    <classname>org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.JobExecutor</tooltip>
+    <iconfile>ui/images/JOBEx.svg</iconfile>
+  </transform>
+  <transform id="PipelineExecutor">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.PipelineExecutor</description>
+    <classname>org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta</classname>
+    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.PipelineExecutor</tooltip>
+    <iconfile>ui/images/TRNEx.svg</iconfile>
+  </transform>
+</transforms>

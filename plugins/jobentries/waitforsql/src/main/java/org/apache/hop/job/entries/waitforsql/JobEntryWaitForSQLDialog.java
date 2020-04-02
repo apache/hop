@@ -43,8 +43,8 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
-import org.apache.hop.ui.pipeline.steps.tableinput.SQLValuesHighlight;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -225,7 +225,7 @@ public class JobEntryWaitForSQLDialog extends JobEntryDialog implements JobEntry
     fd.width = 100;
     wCancel.setLayoutData( fd );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );
@@ -664,7 +664,7 @@ public class JobEntryWaitForSQLDialog extends JobEntryDialog implements JobEntry
 
     getData();
     setCustomerSQL();
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     props.setDialogSize( shell, "JobEntryWaitForSQLDialogSize" );

@@ -20,7 +20,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.RowSetSize.Label"
   )
-  @MetaStoreAttribute
+  @MetaStoreAttribute(key="rowset_size")
   protected String rowSetSize;
 
   @GuiWidgetElement(
@@ -31,7 +31,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SafeModeEnabled.Label"
   )
-  @MetaStoreAttribute
+  @MetaStoreAttribute(key="safe_mode")
   protected boolean safeModeEnabled;
 
   @GuiWidgetElement(
@@ -42,19 +42,19 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.GatheringMetrics.Label"
   )
-  @MetaStoreAttribute
+  @MetaStoreAttribute(key="gather_metrics")
   protected boolean gatheringMetrics;
 
   @GuiWidgetElement(
-    id = "sortStepsTopologically",
+    id = "sortTransformsTopologically",
     order = "40",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
     i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SortStepsTopologically.Label"
+    label = "PipelineRunConfigurationDialog.SortTransformsTopologically.Label"
   )
-  @MetaStoreAttribute
-  protected boolean sortingStepsTopologically;
+  @MetaStoreAttribute(key="topo_sort")
+  protected boolean sortingTransformsTopologically;
 
   /**
    * Whether the feedback is shown.
@@ -67,7 +67,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.FeedbackShown.Label"
   )
-  @MetaStoreAttribute
+  @MetaStoreAttribute(key="show_feedback")
   protected boolean feedbackShown;
 
   /**
@@ -81,7 +81,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.FeedbackSize.Label"
   )
-  @MetaStoreAttribute
+  @MetaStoreAttribute(key="feedback_size")
   protected String feedbackSize;
 
 
@@ -155,19 +155,19 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   }
 
   /**
-   * Gets sortingStepsTopologically
+   * Gets sortingTransformsTopologically
    *
-   * @return value of sortingStepsTopologically
+   * @return value of sortingTransformsTopologically
    */
-  public boolean isSortingStepsTopologically() {
-    return sortingStepsTopologically;
+  public boolean isSortingTransformsTopologically() {
+    return sortingTransformsTopologically;
   }
 
   /**
-   * @param sortingStepsTopologically The sortingStepsTopologically to set
+   * @param sortingTransformsTopologically The sortingTransformsTopologically to set
    */
-  public void setSortingStepsTopologically( boolean sortingStepsTopologically ) {
-    this.sortingStepsTopologically = sortingStepsTopologically;
+  public void setSortingTransformsTopologically( boolean sortingTransformsTopologically ) {
+    this.sortingTransformsTopologically = sortingTransformsTopologically;
   }
 
   /**

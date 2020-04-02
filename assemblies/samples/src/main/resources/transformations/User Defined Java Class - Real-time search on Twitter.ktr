@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Twitter demo</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>For this sample to work, you&#x27;ll need to put the JTwitter jar into libext and restart  hopUi&#xa;JTwitter is hosted at http&#x3a;&#x2f;&#x2f;www.winterwell.com&#x2f;software&#x2f;jtwitter.php &#xa;&#xa;The sample is tested to work against JTwitter 2.4&#xa;Don&#x27;t forget to specify your username, password and search term on the paramters pane&#xa;of the UDJC step&#x21;</note>
+      <note>For this sample to work, you&#x27;ll need to put the JTwitter jar into libext and restart  hopUi&#xa;JTwitter is hosted at http&#x3a;&#x2f;&#x2f;www.winterwell.com&#x2f;software&#x2f;jtwitter.php &#xa;&#xa;The sample is tested to work against JTwitter 2.4&#xa;Don&#x27;t forget to specify your username, password and search term on the paramters pane&#xa;of the UDJC transform&#x21;</note>
       <xloc>48</xloc>
       <yloc>50</yloc>
       <width>618</width>
@@ -463,7 +463,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Get Twitter Search results</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -553,8 +553,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
   return true;
 }
 
-public boolean init(StepMetaInterface stepMetaInterface, StepDataInterface stepDataInterface) {
-   if (super.init(stepMetaInterface, stepDataInterface)) {
+public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) {
+   if (super.init(transformMetaInterface, transformDataInterface)) {
      twitter = new Twitter(getParameter("USER"), getParameter("PASSWD"));
      lastId=BigInteger.valueOf(-1L);
      return true;
@@ -627,7 +627,7 @@ public boolean init(StepMetaInterface stepMetaInterface, StepDataInterface stepD
 
         </field>
     </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>USER</parameter_tag>
+<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters><usage_parameter><parameter_tag>USER</parameter_tag>
 <parameter_value>USERNAME</parameter_value>
 <parameter_description>The twitter username</parameter_description>
 </usage_parameter><usage_parameter><parameter_tag>PASSWD</parameter_tag>
@@ -640,20 +640,20 @@ public boolean init(StepMetaInterface stepMetaInterface, StepDataInterface stepD
 <parameter_value>600</parameter_value>
 <parameter_description>Delay between searches in seconds</parameter_description>
 </usage_parameter></usage_parameters>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>192</xloc>
       <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>pentaho_tweets</name>
     <type>InsertUpdate</type>
     <description/>
@@ -708,22 +708,22 @@ public boolean init(StepMetaInterface stepMetaInterface, StepDataInterface stepD
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>436</xloc>
       <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

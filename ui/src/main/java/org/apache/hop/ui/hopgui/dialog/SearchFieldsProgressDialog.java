@@ -23,11 +23,11 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
@@ -40,20 +40,20 @@ import java.lang.reflect.InvocationTargetException;
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   private static Class<?> PKG = SearchFieldsProgressDialog.class; // for i18n purposes, needed by Translator!!
 
-  private StepMeta stepInfo;
+  private TransformMeta transformMeta;
   private boolean before;
   private PipelineMeta pipelineMeta;
   private RowMetaInterface fields;
 
-  public SearchFieldsProgressDialog( PipelineMeta pipelineMeta, StepMeta stepMeta, boolean before ) {
+  public SearchFieldsProgressDialog( PipelineMeta pipelineMeta, TransformMeta transformMeta, boolean before ) {
     this.pipelineMeta = pipelineMeta;
-    this.stepInfo = stepMeta;
+    this.transformMeta = transformMeta;
     this.before = before;
     this.fields = null;
   }
 
   public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-    int size = pipelineMeta.findNrPrevSteps( stepInfo );
+    int size = pipelineMeta.findNrPrevTransforms( transformMeta );
 
     try {
       if ( before ) {
@@ -62,18 +62,18 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
         // for
         // input
         // fields...
-        fields = pipelineMeta.getPrevStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getPrevTransformFields( transformMeta, new ProgressMonitorAdapter( monitor ) );
       } else {
         monitor.beginTask( BaseMessages.getString(
           PKG, "SearchFieldsProgressDialog.Dialog.SearchOutputFields.Message" ), size ); // Searching
         // for
         // output
         // fields...
-        fields = pipelineMeta.getStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getTransformFields( transformMeta, new ProgressMonitorAdapter( monitor ) );
       }
-    } catch ( HopStepException kse ) {
+    } catch ( HopTransformException kse ) {
       throw new InvocationTargetException( kse, BaseMessages.getString(
-        PKG, "SearchFieldsProgressDialog.Log.UnableToGetFields", stepInfo.toString(), kse.getMessage() ) );
+        PKG, "SearchFieldsProgressDialog.Log.UnableToGetFields", transformMeta.toString(), kse.getMessage() ) );
     }
 
     monitor.done();
@@ -108,17 +108,17 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @return Returns the stepInfo.
+   * @return Returns the transform metadata
    */
-  public StepMeta getStepInfo() {
-    return stepInfo;
+  public TransformMeta getTransformMeta() {
+    return transformMeta;
   }
 
   /**
-   * @param stepInfo The stepInfo to set.
+   * @param transformMeta The transform metadata to set.
    */
-  public void setStepInfo( StepMeta stepInfo ) {
-    this.stepInfo = stepInfo;
+  public void setTransformMeta( TransformMeta transformMeta ) {
+    this.transformMeta = transformMeta;
   }
 
   /**

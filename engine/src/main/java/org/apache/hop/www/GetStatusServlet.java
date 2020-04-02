@@ -127,8 +127,8 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <status_desc>Waiting</status_desc>
    * <error_desc/>
    * <paused>N</paused>
-   * <stepstatuslist>
-   * </stepstatuslist>
+   * <transform_status_list>
+   * </transform_status_list>
    * <first_log_line_nr>0</first_log_line_nr>
    * <last_log_line_nr>0</last_log_line_nr>
    * <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;&#x5d;&#x5d;&#x3e;</logging_string>
@@ -139,8 +139,8 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
    * <status_desc>Stopped</status_desc>
    * <error_desc/>
    * <paused>N</paused>
-   * <stepstatuslist>
-   * </stepstatuslist>
+   * <transform_status_list>
+   * </transform_status_list>
    * <first_log_line_nr>0</first_log_line_nr>
    * <last_log_line_nr>0</last_log_line_nr>
    * <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;&#x5d;&#x5d;&#x3e;</logging_string>

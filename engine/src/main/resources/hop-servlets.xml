@@ -57,8 +57,8 @@
     <classname>org.apache.hop.www.ListServerSocketServlet</classname>
   </servlet>
   <servlet id="sniffStep">
-    <description>Sniff test a pipeline step</description>
-    <classname>org.apache.hop.www.SniffStepServlet</classname>
+    <description>Sniff test a pipeline transform</description>
+    <classname>org.apache.hop.www.SniffTransformServlet</classname>
   </servlet>
   <servlet id="pipelineImage">
     <description>Generate a PNG image of a pipeline</description>

@@ -47,7 +47,7 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -115,7 +115,7 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEnt
     getData();
     setActive();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     int width = 750;
     int height = Const.isWindows() ? 730 : 720;
@@ -134,7 +134,7 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEnt
     super.createElements();
     shell.setText( BaseMessages.getString( PKG, "JobPipeline.Header" ) );
 
-    wlPath.setText( BaseMessages.getString( PKG, "JobPipeline.JobStep.Pipeline.Label" ) );
+    wlPath.setText( BaseMessages.getString( PKG, "JobPipeline.JobTransform.Pipeline.Label" ) );
     wPassParams.setText( BaseMessages.getString( PKG, "JobPipeline.PassAllParameters.Label" ) );
 
     wClearRows = new Button( gExecution, SWT.CHECK );
@@ -503,7 +503,7 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEnt
   protected void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       final Dialog dialog = new SimpleMessageDialog( shell,
-        BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ),
+        BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ),
         BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ), MessageDialog.ERROR );
       dialog.open();
       return;

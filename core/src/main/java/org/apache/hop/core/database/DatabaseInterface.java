@@ -1058,14 +1058,14 @@ public interface DatabaseInterface extends Cloneable {
   }
 
   /**
-   * @return true if database supports the standard table output step
+   * @return true if database supports the standard table output transform
    */
   default boolean supportsStandardTableOutput() {
     return true;
   }
 
   /**
-   * @return the unsupported message if database does not support standard table output step
+   * @return the unsupported message if database does not support standard table output transform
    */
   default String getUnsupportedTableOutputMessage() {
     return "";

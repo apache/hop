@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>pipeline-executor-parent</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -467,7 +467,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Add sequence</name>
     <type>Sequence</type>
     <description/>
@@ -489,20 +489,20 @@
       <increment_by>1</increment_by>
       <max_value>999999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>285</xloc>
       <yloc>124</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Data Grid</name>
     <type>DataGrid</type>
     <description/>
@@ -534,20 +534,20 @@
       <line> <item>E</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>143</xloc>
       <yloc>124</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Main &#x28;copy of an input&#x29;</name>
     <type>TextFileOutput</type>
     <description/>
@@ -592,20 +592,20 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>628</xloc>
       <yloc>124</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Result files</name>
     <type>TextFileOutput</type>
     <description/>
@@ -650,20 +650,20 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>441</xloc>
       <yloc>8</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Results &#x28;an output of child pipeline&#x29;</name>
     <type>TextFileOutput</type>
     <description/>
@@ -708,20 +708,20 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>631</xloc>
       <yloc>199</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Statistics &#x28;of child execution&#x29;</name>
     <type>TextFileOutput</type>
     <description/>
@@ -766,20 +766,20 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>443</xloc>
       <yloc>255</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Transformation Executor</name>
     <type>TransExecutor</type>
     <description/>
@@ -800,7 +800,7 @@
     <group_time/>
           <parameters>    <inherit_all_vars>Y</inherit_all_vars>
     </parameters>
-    <execution_result_target_step>Statistics &#x28;of child execution&#x29;</execution_result_target_step>
+    <execution_result_target_transform>Statistics &#x28;of child execution&#x29;</execution_result_target_transform>
     <execution_time_field>ExecutionTime</execution_time_field>
     <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
@@ -815,30 +815,30 @@
     <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
     <execution_log_text_field>ExecutionLogText</execution_log_text_field>
     <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
-    <result_rows_target_step>Results &#x28;an output of child pipeline&#x29;</result_rows_target_step>
+    <result_rows_target_transform>Results &#x28;an output of child pipeline&#x29;</result_rows_target_transform>
       <result_rows_field><name>test_string</name><type>String</type><length>50</length><precision>-1</precision></result_rows_field>
       <result_rows_field><name>test_id</name><type>Integer</type><length>-1</length><precision>0</precision></result_rows_field>
       <result_rows_field><name>test_id_calc</name><type>Integer</type><length>-1</length><precision>0</precision></result_rows_field>
-    <result_files_target_step>Result files</result_files_target_step>
+    <result_files_target_transform>Result files</result_files_target_transform>
     <result_files_file_name_field>FileName</result_files_file_name_field>
-    <executors_output_step>Main &#x28;copy of an input&#x29;</executors_output_step>
+    <executors_output_transform>Main &#x28;copy of an input&#x29;</executors_output_transform>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>442</xloc>
       <yloc>124</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

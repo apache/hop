@@ -179,10 +179,10 @@ public class RowSetTest {
 
     set.setThreadNameFromToCopy( "from", 2, "to", 3 );
 
-    assertEquals( "from", set.getOriginStepName() );
-    assertEquals( 2, set.getOriginStepCopy() );
-    assertEquals( "to", set.getDestinationStepName() );
-    assertEquals( 3, set.getDestinationStepCopy() );
+    assertEquals( "from", set.getOriginTransformName() );
+    assertEquals( 2, set.getOriginTransformCopy() );
+    assertEquals( "to", set.getDestinationTransformName() );
+    assertEquals( 3, set.getDestinationTransformCopy() );
     assertEquals( set.toString(), set.getName() );
     assertEquals( "from.2 - to.3", set.getName() );
   }

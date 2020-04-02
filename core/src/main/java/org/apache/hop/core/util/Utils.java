@@ -167,7 +167,7 @@ public class Utils {
   }
 
   /**
-   * Normalize String array lengths for synchronization of arrays within steps
+   * Normalize String array lengths for synchronization of arrays within transforms
    */
 
   public static String[][] normalizeArrays( int normalizeToLength, String[]... arraysToNormalize ) {
@@ -194,7 +194,7 @@ public class Utils {
   }
 
   /**
-   * Normalize long array lengths for synchronization of arrays within steps
+   * Normalize long array lengths for synchronization of arrays within transforms
    */
 
   public static long[][] normalizeArrays( int normalizeToLength, long[]... arraysToNormalize ) {
@@ -221,7 +221,7 @@ public class Utils {
   }
 
   /**
-   * Normalize int array lengths for synchronization of arrays within steps
+   * Normalize int array lengths for synchronization of arrays within transforms
    */
 
   public static int[][] normalizeArrays( int normalizeToLength, int[]... arraysToNormalize ) {
@@ -248,7 +248,7 @@ public class Utils {
   }
 
   /**
-   * Normalize boolean array lengths for synchronization of arrays within steps
+   * Normalize boolean array lengths for synchronization of arrays within transforms
    */
 
   public static boolean[][] normalizeArrays( int normalizeToLength, boolean[]... arraysToNormalize ) {
@@ -275,7 +275,7 @@ public class Utils {
   }
 
   /**
-   * Normalize short array lengths for synchronization of arrays within steps
+   * Normalize short array lengths for synchronization of arrays within transforms
    */
 
   public static short[][] normalizeArrays( int normalizeToLength, short[]... arraysToNormalize ) {

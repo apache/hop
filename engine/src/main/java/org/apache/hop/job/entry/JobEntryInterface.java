@@ -386,9 +386,9 @@ public interface JobEntryInterface {
   void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore );
 
   /**
-   * Get a list of all the resource dependencies that the step is depending on.
+   * Get a list of all the resource dependencies that the transform is depending on.
    *
-   * @return a list of all the resource dependencies that the step is depending on
+   * @return a list of all the resource dependencies that the transform is depending on
    */
   List<ResourceReference> getResourceDependencies( JobMeta jobMeta );
 
@@ -408,7 +408,7 @@ public interface JobEntryInterface {
                           ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 
   /**
-   * @return The objects referenced in the step, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
+   * @return The objects referenced in the transform, like a a pipeline, a job, a mapper, a reducer, a combiner, ...
    */
   String[] getReferencedObjectDescriptions();
 

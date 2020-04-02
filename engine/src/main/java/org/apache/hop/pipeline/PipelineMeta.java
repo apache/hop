@@ -48,7 +48,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopRowException;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -64,7 +64,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
-import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
@@ -81,23 +81,23 @@ import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.steps.missing.Missing;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.pipeline.step.BaseStep;
-import org.apache.hop.pipeline.step.StepErrorMeta;
-import org.apache.hop.pipeline.step.StepIOMetaInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaChangeListenerInterface;
-import org.apache.hop.pipeline.step.StepMetaInterface;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
-import org.apache.hop.pipeline.step.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.steps.jobexecutor.JobExecutorMeta;
-import org.apache.hop.pipeline.steps.mapping.MappingMeta;
-import org.apache.hop.pipeline.steps.singlethreader.SingleThreaderMeta;
-import org.apache.hop.pipeline.steps.pipelineexecutor.PipelineExecutorMeta;
+import org.apache.hop.pipeline.transform.TransformMetaChangeListenerInterface;
+import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorMeta;
+import org.apache.hop.pipeline.transforms.mapping.MappingMeta;
+import org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta;
+import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -117,7 +117,7 @@ import java.util.stream.Collectors;
 
 /**
  * This class defines information about a pipeline and offers methods to save and load it from XML as
- * well as methods to alter a pipeline by adding/removing databases, steps, hops, etc.
+ * well as methods to alter a pipeline by adding/removing databases, transforms, hops, etc.
  *
  * @author Matt Casters
  * @since 20-jun-2003
@@ -139,9 +139,9 @@ public class PipelineMeta extends AbstractMeta
 
   public static final int BORDER_INDENT = 20;
   /**
-   * The list of steps associated with the pipeline.
+   * The list of transforms associated with the pipeline.
    */
-  protected List<StepMeta> steps;
+  protected List<TransformMeta> transforms;
 
   /**
    * The list of hops associated with the pipeline.
@@ -179,9 +179,9 @@ public class PipelineMeta extends AbstractMeta
   protected PerformanceLogTable performanceLogTable;
 
   /**
-   * The step logging table associated with the pipeline.
+   * The transform logging table associated with the pipeline.
    */
-  protected StepLogTable stepLogTable;
+  protected TransformLogTable transformLogTable;
 
   /**
    * The metricslogging table associated with the pipeline.
@@ -227,9 +227,9 @@ public class PipelineMeta extends AbstractMeta
   protected Hashtable<String, Counter> counters;
 
   /**
-   * Indicators for changes in steps, databases, hops, and notes.
+   * Indicators for changes in transforms, databases, hops, and notes.
    */
-  protected boolean changed_steps, changed_hops;
+  protected boolean changedTransforms, changedHops;
 
   /**
    * The database cache.
@@ -263,24 +263,24 @@ public class PipelineMeta extends AbstractMeta
   protected boolean usingThreadPriorityManagment;
 
   /**
-   * Whether the pipeline is capturing step performance snap shots.
+   * Whether the pipeline is capturing transform performance snap shots.
    */
-  protected boolean capturingStepPerformanceSnapShots;
+  protected boolean capturingTransformPerformanceSnapShots;
 
   /**
-   * The step performance capturing delay.
+   * The transform performance capturing delay.
    */
-  protected long stepPerformanceCapturingDelay;
+  protected long transformPerformanceCapturingDelay;
 
   /**
-   * The step performance capturing size limit.
+   * The transform performance capturing size limit.
    */
-  protected String stepPerformanceCapturingSizeLimit;
+  protected String transformPerformanceCapturingSizeLimit;
 
   /**
-   * The steps fields cache.
+   * The transforms fields cache.
    */
-  protected Map<String, RowMetaInterface> stepsFieldsCache;
+  protected Map<String, RowMetaInterface> transformFieldsCache;
 
   /**
    * The loop cache.
@@ -288,9 +288,9 @@ public class PipelineMeta extends AbstractMeta
   protected Map<String, Boolean> loopCache;
 
   /**
-   * The previous step cache
+   * The previous transform cache
    */
-  protected Map<String, List<StepMeta>> previousStepCache;
+  protected Map<String, List<TransformMeta>> previousTransformCache;
 
   /**
    * The log channel interface.
@@ -298,9 +298,9 @@ public class PipelineMeta extends AbstractMeta
   protected LogChannelInterface log;
 
   /**
-   * The list of StepChangeListeners
+   * The list of TransformChangeListeners
    */
-  protected List<StepMetaChangeListenerInterface> stepChangeListeners;
+  protected List<TransformMetaChangeListenerInterface> transformChangeListeners;
 
   protected byte[] keyForSessionKey;
   boolean isKeyPrivate;
@@ -416,7 +416,7 @@ public class PipelineMeta extends AbstractMeta
   protected static final String XML_TAG_INFO = "info";
 
   /**
-   * A constant specifying the tag value for the XML node of the order of steps.
+   * A constant specifying the tag value for the XML node of the order of transforms.
    */
   public static final String XML_TAG_ORDER = "order";
 
@@ -441,9 +441,9 @@ public class PipelineMeta extends AbstractMeta
   public static final String XML_TAG_PARTITIONSCHEMAS = "partitionschemas";
 
   /**
-   * A constant specifying the tag value for the XML node of the steps' error-handling information.
+   * A constant specifying the tag value for the XML node of the transforms' error-handling information.
    */
-  public static final String XML_TAG_STEP_ERROR_HANDLING = "step_error_handling";
+  public static final String XML_TAG_TRANSFORM_ERROR_HANDLING = "transform_error_handling";
 
   /**
    * Builds a new empty pipeline. The pipeline will have default logging capability and no variables, and
@@ -548,28 +548,28 @@ public class PipelineMeta extends AbstractMeta
         pipelineMeta.clear();
       } else {
         // Clear out the things we're replacing below
-        pipelineMeta.steps = new ArrayList<>();
+        pipelineMeta.transforms = new ArrayList<>();
         pipelineMeta.hops = new ArrayList<>();
         pipelineMeta.notes = new ArrayList<>();
         pipelineMeta.dependencies = new ArrayList<>();
         pipelineMeta.partitionSchemas = new ArrayList<>();
         pipelineMeta.namedParams = new NamedParamsDefault();
-        pipelineMeta.stepChangeListeners = new ArrayList<>();
+        pipelineMeta.transformChangeListeners = new ArrayList<>();
       }
-      for ( StepMeta step : steps ) {
-        pipelineMeta.addStep( (StepMeta) step.clone() );
+      for ( TransformMeta transform : transforms ) {
+        pipelineMeta.addTransform( (TransformMeta) transform.clone() );
       }
-      // PDI-15799: Step references are original yet. Set them to the clones.
-      for ( StepMeta step : pipelineMeta.getSteps() ) {
-        final StepMetaInterface stepMetaInterface = step.getStepMetaInterface();
-        if ( stepMetaInterface != null ) {
-          final StepIOMetaInterface stepIOMeta = stepMetaInterface.getStepIOMeta();
-          if ( stepIOMeta != null ) {
-            for ( StreamInterface stream : stepIOMeta.getInfoStreams() ) {
-              String streamStepName = stream.getStepname();
-              if ( streamStepName != null ) {
-                StepMeta streamStepMeta = pipelineMeta.findStep( streamStepName );
-                stream.setStepMeta( streamStepMeta );
+      // PDI-15799: Transform references are original yet. Set them to the clones.
+      for ( TransformMeta transform : pipelineMeta.getTransforms() ) {
+        final TransformMetaInterface transformMetaInterface = transform.getTransformMetaInterface();
+        if ( transformMetaInterface != null ) {
+          final TransformIOMetaInterface transformIOMeta = transformMetaInterface.getTransformIOMeta();
+          if ( transformIOMeta != null ) {
+            for ( StreamInterface stream : transformIOMeta.getInfoStreams() ) {
+              String streamTransformName = stream.getTransformName();
+              if ( streamTransformName != null ) {
+                TransformMeta streamTransformMeta = pipelineMeta.findTransform( streamTransformName );
+                stream.setTransformMeta( streamTransformMeta );
               }
             }
           }
@@ -599,25 +599,25 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Clears the pipeline's meta-data, including the lists of databases, steps, hops, notes, dependencies,
+   * Clears the pipeline's meta-data, including the lists of databases, transforms, hops, notes, dependencies,
    * partition schemas, slave servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
    * recent connection info is cleared.
    */
   @Override
   public void clear() {
-    steps = new ArrayList<>();
+    transforms = new ArrayList<>();
     hops = new ArrayList<>();
     dependencies = new ArrayList<>();
     partitionSchemas = new ArrayList<>();
     namedParams = new NamedParamsDefault();
-    stepChangeListeners = new ArrayList<>();
+    transformChangeListeners = new ArrayList<>();
 
     pipelineStatus = -1;
     pipelineVersion = null;
 
-    pipelineLogTable = PipelineLogTable.getDefault( this, metaStore, steps );
+    pipelineLogTable = PipelineLogTable.getDefault( this, metaStore, transforms );
     performanceLogTable = PerformanceLogTable.getDefault( this, metaStore );
-    stepLogTable = StepLogTable.getDefault( this, metaStore );
+    transformLogTable = TransformLogTable.getDefault( this, metaStore );
     metricsLogTable = MetricsLogTable.getDefault( this, metaStore );
 
     sizeRowset = Const.ROWS_IN_ROWSET;
@@ -648,66 +648,66 @@ public class PipelineMeta extends AbstractMeta
 
     // The performance monitoring options
     //
-    capturingStepPerformanceSnapShots = false;
-    stepPerformanceCapturingDelay = 1000; // every 1 seconds
-    stepPerformanceCapturingSizeLimit = "100"; // maximum 100 data points
+    capturingTransformPerformanceSnapShots = false;
+    transformPerformanceCapturingDelay = 1000; // every 1 seconds
+    transformPerformanceCapturingSizeLimit = "100"; // maximum 100 data points
 
-    stepsFieldsCache = new HashMap<>();
+    transformFieldsCache = new HashMap<>();
     loopCache = new HashMap<>();
-    previousStepCache = new HashMap<>();
+    previousTransformCache = new HashMap<>();
     pipelineType = PipelineType.Normal;
 
     log = LogChannel.GENERAL;
   }
 
   /**
-   * Add a new step to the pipeline. Also marks that the pipeline's steps have changed.
+   * Add a new transform to the pipeline. Also marks that the pipeline's transforms have changed.
    *
-   * @param stepMeta The meta-data for the step to be added.
+   * @param transformMeta The meta-data for the transform to be added.
    */
-  public void addStep( StepMeta stepMeta ) {
-    steps.add( stepMeta );
-    stepMeta.setParentPipelineMeta( this );
-    StepMetaInterface iface = stepMeta.getStepMetaInterface();
-    if ( iface instanceof StepMetaChangeListenerInterface ) {
-      addStepChangeListener( (StepMetaChangeListenerInterface) iface );
+  public void addTransform( TransformMeta transformMeta ) {
+    transforms.add( transformMeta );
+    transformMeta.setParentPipelineMeta( this );
+    TransformMetaInterface iface = transformMeta.getTransformMetaInterface();
+    if ( iface instanceof TransformMetaChangeListenerInterface ) {
+      addTransformChangeListener( (TransformMetaChangeListenerInterface) iface );
     }
-    changed_steps = true;
+    changedTransforms = true;
     clearCaches();
   }
 
   /**
-   * Add a new step to the pipeline if that step didn't exist yet. Otherwise, replace the step. This method also
-   * marks that the pipeline's steps have changed.
+   * Add a new transform to the pipeline if that transform didn't exist yet. Otherwise, replace the transform. This method also
+   * marks that the pipeline's transforms have changed.
    *
-   * @param stepMeta The meta-data for the step to be added.
+   * @param transformMeta The meta-data for the transform to be added.
    */
-  public void addOrReplaceStep( StepMeta stepMeta ) {
-    int index = steps.indexOf( stepMeta );
+  public void addOrReplaceTransform( TransformMeta transformMeta ) {
+    int index = transforms.indexOf( transformMeta );
     if ( index < 0 ) {
-      index = steps.add( stepMeta ) ? 0 : index;
+      index = transforms.add( transformMeta ) ? 0 : index;
     } else {
-      StepMeta previous = getStep( index );
-      previous.replaceMeta( stepMeta );
+      TransformMeta previous = getTransform( index );
+      previous.replaceMeta( transformMeta );
     }
-    stepMeta.setParentPipelineMeta( this );
-    StepMetaInterface iface = stepMeta.getStepMetaInterface();
-    if ( index != -1 && iface instanceof StepMetaChangeListenerInterface ) {
-      addStepChangeListener( index, (StepMetaChangeListenerInterface) iface );
+    transformMeta.setParentPipelineMeta( this );
+    TransformMetaInterface iface = transformMeta.getTransformMetaInterface();
+    if ( index != -1 && iface instanceof TransformMetaChangeListenerInterface ) {
+      addTransformChangeListener( index, (TransformMetaChangeListenerInterface) iface );
     }
-    changed_steps = true;
+    changedTransforms = true;
     clearCaches();
   }
 
   /**
-   * Add a new hop to the pipeline. The hop information (source and target steps, e.g.) should be configured in
+   * Add a new hop to the pipeline. The hop information (source and target transforms, e.g.) should be configured in
    * the PipelineHopMeta object before calling addPipelineHop(). Also marks that the pipeline's hops have changed.
    *
    * @param hi The hop meta-data to be added.
    */
   public void addPipelineHop( PipelineHopMeta hi ) {
     hops.add( hi );
-    changed_hops = true;
+    changedHops = true;
     clearCaches();
   }
 
@@ -721,19 +721,19 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Add a new step to the pipeline at the specified index. This method sets the step's parent pipeline to
-   * the this pipeline, and marks that the pipelines' steps have changed.
+   * Add a new transform to the pipeline at the specified index. This method sets the transform's parent pipeline to
+   * the this pipeline, and marks that the pipelines' transforms have changed.
    *
-   * @param p        The index into the step list
-   * @param stepMeta The step to be added.
+   * @param p        The index into the transform list
+   * @param transformMeta The transform to be added.
    */
-  public void addStep( int p, StepMeta stepMeta ) {
-    steps.add( p, stepMeta );
-    stepMeta.setParentPipelineMeta( this );
-    changed_steps = true;
-    StepMetaInterface iface = stepMeta.getStepMetaInterface();
-    if ( iface instanceof StepMetaChangeListenerInterface ) {
-      addStepChangeListener( p, (StepMetaChangeListenerInterface) stepMeta.getStepMetaInterface() );
+  public void addTransform( int p, TransformMeta transformMeta ) {
+    transforms.add( p, transformMeta );
+    transformMeta.setParentPipelineMeta( this );
+    changedTransforms = true;
+    TransformMetaInterface iface = transformMeta.getTransformMetaInterface();
+    if ( iface instanceof TransformMetaChangeListenerInterface ) {
+      addTransformChangeListener( p, (TransformMetaChangeListenerInterface) transformMeta.getTransformMetaInterface() );
     }
     clearCaches();
   }
@@ -751,7 +751,7 @@ public class PipelineMeta extends AbstractMeta
     } catch ( IndexOutOfBoundsException e ) {
       hops.add( hi );
     }
-    changed_hops = true;
+    changedHops = true;
     clearCaches();
   }
 
@@ -766,22 +766,22 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get a list of defined steps in this pipeline.
+   * Get a list of defined transforms in this pipeline.
    *
-   * @return an ArrayList of defined steps.
+   * @return an ArrayList of defined transforms.
    */
-  public List<StepMeta> getSteps() {
-    return steps;
+  public List<TransformMeta> getTransforms() {
+    return transforms;
   }
 
   /**
-   * Retrieves a step on a certain location (i.e. the specified index).
+   * Retrieves a transform on a certain location (i.e. the specified index).
    *
-   * @param i The index into the steps list.
-   * @return The desired step's meta-data.
+   * @param i The index into the transforms list.
+   * @return The desired transform's meta-data.
    */
-  public StepMeta getStep( int i ) {
-    return steps.get( i );
+  public TransformMeta getTransform( int i ) {
+    return transforms.get( i );
   }
 
   /**
@@ -814,29 +814,29 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Removes a step from the pipeline on a certain location (i.e. the specified index). Also marks that the
-   * pipeline's steps have changed.
+   * Removes a transform from the pipeline on a certain location (i.e. the specified index). Also marks that the
+   * pipeline's transforms have changed.
    *
    * @param i The index
    */
-  public void removeStep( int i ) {
-    if ( i < 0 || i >= steps.size() ) {
+  public void removeTransform( int i ) {
+    if ( i < 0 || i >= transforms.size() ) {
       return;
     }
 
-    StepMeta removeStep = steps.get( i );
-    StepMetaInterface iface = removeStep.getStepMetaInterface();
-    if ( iface instanceof StepMetaChangeListenerInterface ) {
-      removeStepChangeListener( (StepMetaChangeListenerInterface) iface );
+    TransformMeta removeTransform = transforms.get( i );
+    TransformMetaInterface iface = removeTransform.getTransformMetaInterface();
+    if ( iface instanceof TransformMetaChangeListenerInterface ) {
+      removeTransformChangeListener( (TransformMetaChangeListenerInterface) iface );
     }
 
-    steps.remove( i );
+    transforms.remove( i );
 
-    if ( removeStep.getStepMetaInterface() instanceof Missing ) {
-      removeMissingPipeline( (Missing) removeStep.getStepMetaInterface() );
+    if ( removeTransform.getTransformMetaInterface() instanceof Missing ) {
+      removeMissingPipeline( (Missing) removeTransform.getTransformMetaInterface() );
     }
 
-    changed_steps = true;
+    changedTransforms = true;
     clearCaches();
   }
 
@@ -852,7 +852,7 @@ public class PipelineMeta extends AbstractMeta
     }
 
     hops.remove( i );
-    changed_hops = true;
+    changedHops = true;
     clearCaches();
   }
 
@@ -864,7 +864,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public void removePipelineHop( PipelineHopMeta hop ) {
     hops.remove( hop );
-    changed_hops = true;
+    changedHops = true;
     clearCaches();
   }
 
@@ -888,12 +888,12 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the number of steps in the pipeline.
+   * Gets the number of transforms in the pipeline.
    *
-   * @return The number of steps in the pipeline.
+   * @return The number of transforms in the pipeline.
    */
-  public int nrSteps() {
-    return steps.size();
+  public int nrTransforms() {
+    return transforms.size();
   }
 
   /**
@@ -915,29 +915,29 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the number of stepChangeListeners in the pipeline.
+   * Gets the number of transformChangeListeners in the pipeline.
    *
-   * @return The number of stepChangeListeners in the pipeline.
+   * @return The number of transformChangeListeners in the pipeline.
    */
-  public int nrStepChangeListeners() {
-    return stepChangeListeners.size();
+  public int nrTransformChangeListeners() {
+    return transformChangeListeners.size();
   }
 
   /**
-   * Changes the content of a step on a certain position. This is accomplished by setting the step's metadata at the
-   * specified index to the specified meta-data object. The new step's parent pipeline is updated to be this
+   * Changes the content of a transform on a certain position. This is accomplished by setting the transform's metadata at the
+   * specified index to the specified meta-data object. The new transform's parent pipeline is updated to be this
    * pipeline.
    *
-   * @param i        The index into the steps list
-   * @param stepMeta The step meta-data to set
+   * @param i        The index into the transforms list
+   * @param transformMeta The transform meta-data to set
    */
-  public void setStep( int i, StepMeta stepMeta ) {
-    StepMetaInterface iface = stepMeta.getStepMetaInterface();
-    if ( iface instanceof StepMetaChangeListenerInterface ) {
-      addStepChangeListener( i, (StepMetaChangeListenerInterface) stepMeta.getStepMetaInterface() );
+  public void setTransform( int i, TransformMeta transformMeta ) {
+    TransformMetaInterface iface = transformMeta.getTransformMetaInterface();
+    if ( iface instanceof TransformMetaChangeListenerInterface ) {
+      addTransformChangeListener( i, (TransformMetaChangeListenerInterface) transformMeta.getTransformMetaInterface() );
     }
-    steps.set( i, stepMeta );
-    stepMeta.setParentPipelineMeta( this );
+    transforms.set( i, transformMeta );
+    transformMeta.setParentPipelineMeta( this );
     clearCaches();
   }
 
@@ -954,56 +954,56 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the list of used steps, which are the steps that are connected by hops.
+   * Gets the list of used transforms, which are the transforms that are connected by hops.
    *
-   * @return a list with all the used steps
+   * @return a list with all the used transforms
    */
-  public List<StepMeta> getUsedSteps() {
-    List<StepMeta> list = new ArrayList<>();
+  public List<TransformMeta> getUsedTransforms() {
+    List<TransformMeta> list = new ArrayList<>();
 
-    for ( StepMeta stepMeta : steps ) {
-      if ( isStepUsedInPipelineHops( stepMeta ) ) {
-        list.add( stepMeta );
+    for ( TransformMeta transformMeta : transforms ) {
+      if ( isTransformUsedInPipelineHops( transformMeta ) ) {
+        list.add( transformMeta );
       }
     }
-    if ( list.isEmpty() && getSteps().size() == 1 ) {
-      list = getSteps();
+    if ( list.isEmpty() && getTransforms().size() == 1 ) {
+      list = getTransforms();
     }
 
     return list;
   }
 
   /**
-   * Searches the list of steps for a step with a certain name.
+   * Searches the list of transforms for a transform with a certain name.
    *
-   * @param name The name of the step to look for
-   * @return The step information or null if no nothing was found.
+   * @param name The name of the transform to look for
+   * @return The transform information or null if no nothing was found.
    */
-  public StepMeta findStep( String name ) {
-    return findStep( name, null );
+  public TransformMeta findTransform( String name ) {
+    return findTransform( name, null );
   }
 
   /**
-   * Searches the list of steps for a step with a certain name while excluding one step.
+   * Searches the list of transforms for a transform with a certain name while excluding one transform.
    *
-   * @param name    The name of the step to look for
-   * @param exclude The step information to exclude.
-   * @return The step information or null if nothing was found.
+   * @param name    The name of the transform to look for
+   * @param exclude The transform information to exclude.
+   * @return The transform information or null if nothing was found.
    */
-  public StepMeta findStep( String name, StepMeta exclude ) {
+  public TransformMeta findTransform( String name, TransformMeta exclude ) {
     if ( name == null ) {
       return null;
     }
 
     int excl = -1;
     if ( exclude != null ) {
-      excl = indexOfStep( exclude );
+      excl = indexOfTransform( exclude );
     }
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      if ( i != excl && stepMeta.getName().equalsIgnoreCase( name ) ) {
-        return stepMeta;
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      if ( i != excl && transformMeta.getName().equalsIgnoreCase( name ) ) {
+        return transformMeta;
       }
     }
     return null;
@@ -1028,25 +1028,25 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Search all hops for a hop where a certain step is at the start.
+   * Search all hops for a hop where a certain transform is at the start.
    *
-   * @param fromstep The step at the start of the hop.
+   * @param fromTransform The transform at the start of the hop.
    * @return The hop or null if no hop was found.
    */
-  public PipelineHopMeta findPipelineHopFrom( StepMeta fromstep ) {
+  public PipelineHopMeta findPipelineHopFrom( TransformMeta fromTransform ) {
     int i;
     for ( i = 0; i < nrPipelineHops(); i++ ) {
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.getFromStep() != null && hi.getFromStep().equals( fromstep ) ) { // return the first
+      if ( hi.getFromTransform() != null && hi.getFromTransform().equals( fromTransform ) ) { // return the first
         return hi;
       }
     }
     return null;
   }
 
-  public List<PipelineHopMeta> findAllPipelineHopFrom( StepMeta fromstep ) {
+  public List<PipelineHopMeta> findAllPipelineHopFrom( TransformMeta fromTransform ) {
     return hops.stream()
-      .filter( hop -> hop.getFromStep() != null && hop.getFromStep().equals( fromstep ) )
+      .filter( hop -> hop.getFromTransform() != null && hop.getFromTransform().equals( fromTransform ) )
       .collect( Collectors.toList() );
   }
 
@@ -1057,33 +1057,33 @@ public class PipelineMeta extends AbstractMeta
    * @return The hop or null if no hop was found.
    */
   public PipelineHopMeta findPipelineHop( PipelineHopMeta hi ) {
-    return findPipelineHop( hi.getFromStep(), hi.getToStep() );
+    return findPipelineHop( hi.getFromTransform(), hi.getToTransform() );
   }
 
   /**
-   * Search all hops for a hop where a certain step is at the start and another is at the end.
+   * Search all hops for a hop where a certain transform is at the start and another is at the end.
    *
-   * @param from The step at the start of the hop.
-   * @param to   The step at the end of the hop.
+   * @param from The transform at the start of the hop.
+   * @param to   The transform at the end of the hop.
    * @return The hop or null if no hop was found.
    */
-  public PipelineHopMeta findPipelineHop( StepMeta from, StepMeta to ) {
+  public PipelineHopMeta findPipelineHop( TransformMeta from, TransformMeta to ) {
     return findPipelineHop( from, to, false );
   }
 
   /**
-   * Search all hops for a hop where a certain step is at the start and another is at the end.
+   * Search all hops for a hop where a certain transform is at the start and another is at the end.
    *
-   * @param from        The step at the start of the hop.
-   * @param to          The step at the end of the hop.
+   * @param from        The transform at the start of the hop.
+   * @param to          The transform at the end of the hop.
    * @param disabledToo the disabled too
    * @return The hop or null if no hop was found.
    */
-  public PipelineHopMeta findPipelineHop( StepMeta from, StepMeta to, boolean disabledToo ) {
+  public PipelineHopMeta findPipelineHop( TransformMeta from, TransformMeta to, boolean disabledToo ) {
     for ( int i = 0; i < nrPipelineHops(); i++ ) {
       PipelineHopMeta hi = getPipelineHop( i );
       if ( hi.isEnabled() || disabledToo ) {
-        if ( hi.getFromStep() != null && hi.getToStep() != null && hi.getFromStep().equals( from ) && hi.getToStep()
+        if ( hi.getFromTransform() != null && hi.getToTransform() != null && hi.getFromTransform().equals( from ) && hi.getToTransform()
           .equals( to ) ) {
           return hi;
         }
@@ -1093,16 +1093,16 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Search all hops for a hop where a certain step is at the end.
+   * Search all hops for a hop where a certain transform is at the end.
    *
-   * @param tostep The step at the end of the hop.
+   * @param toTransform The transform at the end of the hop.
    * @return The hop or null if no hop was found.
    */
-  public PipelineHopMeta findPipelineHopTo( StepMeta tostep ) {
+  public PipelineHopMeta findPipelineHopTo( TransformMeta toTransform ) {
     int i;
     for ( i = 0; i < nrPipelineHops(); i++ ) {
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.getToStep() != null && hi.getToStep().equals( tostep ) ) { // Return the first!
+      if ( hi.getToTransform() != null && hi.getToTransform().equals( toTransform ) ) { // Return the first!
         return hi;
       }
     }
@@ -1110,21 +1110,21 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Determines whether or not a certain step is informative. This means that the previous step is sending information
-   * to this step, but only informative. This means that this step is using the information to process the actual stream
-   * of data. We use this in StreamLookup, TableInput and other types of steps.
+   * Determines whether or not a certain transform is informative. This means that the previous transform is sending information
+   * to this transform, but only informative. This means that this transform is using the information to process the actual stream
+   * of data. We use this in StreamLookup, TableInput and other types of transforms.
    *
-   * @param this_step The step that is receiving information.
-   * @param prev_step The step that is sending information
-   * @return true if prev_step if informative for this_step.
+   * @param thisTransform The transform that is receiving information.
+   * @param prevTransform The transform that is sending information
+   * @return true if prevTransform if informative for thisTransform.
    */
-  public boolean isStepInformative( StepMeta this_step, StepMeta prev_step ) {
-    String[] infoSteps = this_step.getStepMetaInterface().getStepIOMeta().getInfoStepnames();
-    if ( infoSteps == null ) {
+  public boolean isTransformMetarmative( TransformMeta thisTransform, TransformMeta prevTransform ) {
+    String[] infoTransforms = thisTransform.getTransformMetaInterface().getTransformIOMeta().getInfoTransformNames();
+    if ( infoTransforms == null ) {
       return false;
     }
-    for ( int i = 0; i < infoSteps.length; i++ ) {
-      if ( prev_step.getName().equalsIgnoreCase( infoSteps[ i ] ) ) {
+    for ( int i = 0; i < infoTransforms.length; i++ ) {
+      if ( prevTransform.getName().equalsIgnoreCase( infoTransforms[ i ] ) ) {
         return true;
       }
     }
@@ -1133,97 +1133,97 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Counts the number of previous steps for a step name.
+   * Counts the number of previous transforms for a transform name.
    *
-   * @param stepname The name of the step to start from
-   * @return The number of preceding steps.
+   * @param transformName The name of the transform to start from
+   * @return The number of preceding transforms.
    * @deprecated
    */
   @Deprecated
-  public int findNrPrevSteps( String stepname ) {
-    return findNrPrevSteps( findStep( stepname ), false );
+  public int findNrPrevTransforms( String transformName ) {
+    return findNrPrevTransforms( findTransform( transformName ), false );
   }
 
   /**
-   * Counts the number of previous steps for a step name taking into account whether or not they are informational.
+   * Counts the number of previous transforms for a transform name taking into account whether or not they are informational.
    *
-   * @param stepname The name of the step to start from
-   * @param info     true if only the informational steps are desired, false otherwise
-   * @return The number of preceding steps.
+   * @param transformName The name of the transform to start from
+   * @param info     true if only the informational transforms are desired, false otherwise
+   * @return The number of preceding transforms.
    * @deprecated
    */
   @Deprecated
-  public int findNrPrevSteps( String stepname, boolean info ) {
-    return findNrPrevSteps( findStep( stepname ), info );
+  public int findNrPrevTransforms( String transformName, boolean info ) {
+    return findNrPrevTransforms( findTransform( transformName ), info );
   }
 
   /**
-   * Find the number of steps that precede the indicated step.
+   * Find the number of transforms that precede the indicated transform.
    *
-   * @param stepMeta The source step
-   * @return The number of preceding steps found.
+   * @param transformMeta The source transform
+   * @return The number of preceding transforms found.
    */
-  public int findNrPrevSteps( StepMeta stepMeta ) {
-    return findNrPrevSteps( stepMeta, false );
+  public int findNrPrevTransforms( TransformMeta transformMeta ) {
+    return findNrPrevTransforms( transformMeta, false );
   }
 
   /**
-   * Find the previous step on a certain location (i.e. the specified index).
+   * Find the previous transform on a certain location (i.e. the specified index).
    *
-   * @param stepname The source step name
-   * @param nr       the index into the step list
-   * @return The preceding step found.
+   * @param transformName The source transform name
+   * @param nr       the index into the transform list
+   * @return The preceding transform found.
    * @deprecated
    */
   @Deprecated
-  public StepMeta findPrevStep( String stepname, int nr ) {
-    return findPrevStep( findStep( stepname ), nr );
+  public TransformMeta findPrevTransform( String transformName, int nr ) {
+    return findPrevTransform( findTransform( transformName ), nr );
   }
 
   /**
-   * Find the previous step on a certain location taking into account the steps being informational or not.
+   * Find the previous transform on a certain location taking into account the transforms being informational or not.
    *
-   * @param stepname The name of the step
-   * @param nr       The index into the step list
-   * @param info     true if only the informational steps are desired, false otherwise
-   * @return The step information
+   * @param transformName The name of the transform
+   * @param nr       The index into the transform list
+   * @param info     true if only the informational transforms are desired, false otherwise
+   * @return The transform information
    * @deprecated
    */
   @Deprecated
-  public StepMeta findPrevStep( String stepname, int nr, boolean info ) {
-    return findPrevStep( findStep( stepname ), nr, info );
+  public TransformMeta findPrevTransform( String transformName, int nr, boolean info ) {
+    return findPrevTransform( findTransform( transformName ), nr, info );
   }
 
   /**
-   * Find the previous step on a certain location (i.e. the specified index).
+   * Find the previous transform on a certain location (i.e. the specified index).
    *
-   * @param stepMeta The source step information
+   * @param transformMeta The source transform information
    * @param nr       the index into the hops list
-   * @return The preceding step found.
+   * @return The preceding transform found.
    */
-  public StepMeta findPrevStep( StepMeta stepMeta, int nr ) {
-    return findPrevStep( stepMeta, nr, false );
+  public TransformMeta findPrevTransform( TransformMeta transformMeta, int nr ) {
+    return findPrevTransform( transformMeta, nr, false );
   }
 
   /**
-   * Count the number of previous steps on a certain location taking into account the steps being informational or not.
+   * Count the number of previous transforms on a certain location taking into account the transforms being informational or not.
    *
-   * @param stepMeta The name of the step
-   * @param info     true if only the informational steps are desired, false otherwise
-   * @return The number of preceding steps
-   * @deprecated please use method findPreviousSteps
+   * @param transformMeta The name of the transform
+   * @param info     true if only the informational transforms are desired, false otherwise
+   * @return The number of preceding transforms
+   * @deprecated please use method findPreviousTransforms
    */
   @Deprecated
-  public int findNrPrevSteps( StepMeta stepMeta, boolean info ) {
+  public int findNrPrevTransforms( TransformMeta transformMeta, boolean info ) {
     int count = 0;
     int i;
 
     for ( i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.getToStep() != null && hi.isEnabled() && hi.getToStep().equals( stepMeta ) ) {
-        // Check if this previous step isn't informative (StreamValueLookup)
+      if ( hi.getToTransform() != null && hi.isEnabled() && hi.getToTransform().equals( transformMeta ) ) {
+        // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if ( info || !isStepInformative( stepMeta, hi.getFromStep() ) ) {
+        if ( info || !isTransformMetarmative( transformMeta, hi.getFromTransform() ) ) {
           count++;
         }
       }
@@ -1232,26 +1232,26 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Find the previous step on a certain location taking into account the steps being informational or not.
+   * Find the previous transform on a certain location taking into account the transforms being informational or not.
    *
-   * @param stepMeta The step
+   * @param transformMeta The transform
    * @param nr       The index into the hops list
-   * @param info     true if we only want the informational steps.
-   * @return The preceding step information
-   * @deprecated please use method findPreviousSteps
+   * @param info     true if we only want the informational transforms.
+   * @return The preceding transform information
+   * @deprecated please use method findPreviousTransforms
    */
   @Deprecated
-  public StepMeta findPrevStep( StepMeta stepMeta, int nr, boolean info ) {
+  public TransformMeta findPrevTransform( TransformMeta transformMeta, int nr, boolean info ) {
     int count = 0;
     int i;
 
     for ( i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.getToStep() != null && hi.isEnabled() && hi.getToStep().equals( stepMeta ) ) {
-        if ( info || !isStepInformative( stepMeta, hi.getFromStep() ) ) {
+      if ( hi.getToTransform() != null && hi.isEnabled() && hi.getToTransform().equals( transformMeta ) ) {
+        if ( info || !isTransformMetarmative( transformMeta, hi.getFromTransform() ) ) {
           if ( count == nr ) {
-            return hi.getFromStep();
+            return hi.getFromTransform();
           }
           count++;
         }
@@ -1261,74 +1261,74 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get the list of previous steps for a certain reference step. This includes the info steps.
+   * Get the list of previous transforms for a certain reference transform. This includes the info transforms.
    *
-   * @param stepMeta The reference step
-   * @return The list of the preceding steps, including the info steps.
+   * @param transformMeta The reference transform
+   * @return The list of the preceding transforms, including the info transforms.
    */
-  public List<StepMeta> findPreviousSteps( StepMeta stepMeta ) {
-    return findPreviousSteps( stepMeta, true );
+  public List<TransformMeta> findPreviousTransforms( TransformMeta transformMeta ) {
+    return findPreviousTransforms( transformMeta, true );
   }
 
   /**
-   * Get the previous steps on a certain location taking into account the steps being informational or not.
+   * Get the previous transforms on a certain location taking into account the transforms being informational or not.
    *
-   * @param stepMeta The name of the step
-   * @param info     true if we only want the informational steps.
-   * @return The list of the preceding steps
+   * @param transformMeta The name of the transform
+   * @param info     true if we only want the informational transforms.
+   * @return The list of the preceding transforms
    */
-  public List<StepMeta> findPreviousSteps( StepMeta stepMeta, boolean info ) {
-    if ( stepMeta == null ) {
+  public List<TransformMeta> findPreviousTransforms( TransformMeta transformMeta, boolean info ) {
+    if ( transformMeta == null ) {
       return new ArrayList<>();
     }
 
-    String cacheKey = getStepMetaCacheKey( stepMeta, info );
-    List<StepMeta> previousSteps = previousStepCache.get( cacheKey );
-    if ( previousSteps == null ) {
-      previousSteps = new ArrayList<>();
+    String cacheKey = getTransformMetaCacheKey( transformMeta, info );
+    List<TransformMeta> previousTransforms = previousTransformCache.get( cacheKey );
+    if ( previousTransforms == null ) {
+      previousTransforms = new ArrayList<>();
       for ( PipelineHopMeta hi : hops ) {
-        if ( hi.getToStep() != null && hi.isEnabled() && hi.getToStep().equals( stepMeta ) ) {
-          // Check if this previous step isn't informative (StreamValueLookup)
+        if ( hi.getToTransform() != null && hi.isEnabled() && hi.getToTransform().equals( transformMeta ) ) {
+          // Check if this previous transform isn't informative (StreamValueLookup)
           // We don't want fields from this stream to show up!
-          if ( info || !isStepInformative( stepMeta, hi.getFromStep() ) ) {
-            previousSteps.add( hi.getFromStep() );
+          if ( info || !isTransformMetarmative( transformMeta, hi.getFromTransform() ) ) {
+            previousTransforms.add( hi.getFromTransform() );
           }
         }
       }
-      previousStepCache.put( cacheKey, previousSteps );
+      previousTransformCache.put( cacheKey, previousTransforms );
     }
-    return previousSteps;
+    return previousTransforms;
   }
 
   /**
-   * Get the informational steps for a certain step. An informational step is a step that provides information for
+   * Get the informational transforms for a certain transform. An informational transform is a transform that provides information for
    * lookups, etc.
    *
-   * @param stepMeta The name of the step
-   * @return An array of the informational steps found
+   * @param transformMeta The name of the transform
+   * @return An array of the informational transforms found
    */
-  public StepMeta[] getInfoStep( StepMeta stepMeta ) {
-    String[] infoStepName = stepMeta.getStepMetaInterface().getStepIOMeta().getInfoStepnames();
-    if ( infoStepName == null ) {
+  public TransformMeta[] getInfoTransform( TransformMeta transformMeta ) {
+    String[] infoTransformName = transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoTransformNames();
+    if ( infoTransformName == null ) {
       return null;
     }
 
-    StepMeta[] infoStep = new StepMeta[ infoStepName.length ];
-    for ( int i = 0; i < infoStep.length; i++ ) {
-      infoStep[ i ] = findStep( infoStepName[ i ] );
+    TransformMeta[] infoTransform = new TransformMeta[ infoTransformName.length ];
+    for ( int i = 0; i < infoTransform.length; i++ ) {
+      infoTransform[ i ] = findTransform( infoTransformName[ i ] );
     }
 
-    return infoStep;
+    return infoTransform;
   }
 
   /**
-   * Find the the number of informational steps for a certain step.
+   * Find the the number of informational transforms for a certain transform.
    *
-   * @param stepMeta The step
-   * @return The number of informational steps found.
+   * @param transformMeta The transform
+   * @return The number of informational transforms found.
    */
-  public int findNrInfoSteps( StepMeta stepMeta ) {
-    if ( stepMeta == null ) {
+  public int findNrInfoTransforms( TransformMeta transformMeta ) {
+    if ( transformMeta == null ) {
       return 0;
     }
 
@@ -1337,13 +1337,13 @@ public class PipelineMeta extends AbstractMeta
     for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi == null || hi.getToStep() == null ) {
+      if ( hi == null || hi.getToTransform() == null ) {
         log.logError( BaseMessages.getString( PKG, "PipelineMeta.Log.DestinationOfHopCannotBeNull" ) );
       }
-      if ( hi != null && hi.getToStep() != null && hi.isEnabled() && hi.getToStep().equals( stepMeta ) ) {
-        // Check if this previous step isn't informative (StreamValueLookup)
+      if ( hi != null && hi.getToTransform() != null && hi.isEnabled() && hi.getToTransform().equals( transformMeta ) ) {
+        // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if ( isStepInformative( stepMeta, hi.getFromStep() ) ) {
+        if ( isTransformMetarmative( transformMeta, hi.getFromTransform() ) ) {
           count++;
         }
       }
@@ -1352,32 +1352,32 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Find the informational fields coming from an informational step into the step specified.
+   * Find the informational fields coming from an informational transform into the transform specified.
    *
-   * @param stepname The name of the step
+   * @param transformName The name of the transform
    * @return A row containing fields with origin.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getPrevInfoFields( String stepname ) throws HopStepException {
-    return getPrevInfoFields( findStep( stepname ) );
+  public RowMetaInterface getPrevInfoFields( String transformName ) throws HopTransformException {
+    return getPrevInfoFields( findTransform( transformName ) );
   }
 
   /**
-   * Find the informational fields coming from an informational step into the step specified.
+   * Find the informational fields coming from an informational transform into the transform specified.
    *
-   * @param stepMeta The receiving step
+   * @param transformMeta The receiving transform
    * @return A row containing fields with origin.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getPrevInfoFields( StepMeta stepMeta ) throws HopStepException {
+  public RowMetaInterface getPrevInfoFields( TransformMeta transformMeta ) throws HopTransformException {
     for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
       PipelineHopMeta hi = getPipelineHop( i );
 
-      if ( hi.isEnabled() && hi.getToStep().equals( stepMeta ) ) {
-        StepMeta infoStep = hi.getFromStep();
-        if ( isStepInformative( stepMeta, infoStep ) ) {
-          RowMetaInterface row = getPrevStepFields( infoStep );
-          return getThisStepFields( infoStep, stepMeta, row );
+      if ( hi.isEnabled() && hi.getToTransform().equals( transformMeta ) ) {
+        TransformMeta infoTransform = hi.getFromTransform();
+        if ( isTransformMetarmative( transformMeta, infoTransform ) ) {
+          RowMetaInterface row = getPrevTransformFields( infoTransform );
+          return getThisTransformFields( infoTransform, transformMeta, row );
         }
       }
     }
@@ -1385,20 +1385,20 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Find the number of succeeding steps for a certain originating step.
+   * Find the number of succeeding transforms for a certain originating transform.
    *
-   * @param stepMeta The originating step
-   * @return The number of succeeding steps.
-   * @deprecated use {@link #getNextSteps(StepMeta)}
+   * @param transformMeta The originating transform
+   * @return The number of succeeding transforms.
+   * @deprecated use {@link #getNextTransforms(TransformMeta)}
    */
   @Deprecated
-  public int findNrNextSteps( StepMeta stepMeta ) {
+  public int findNrNextTransforms( TransformMeta transformMeta ) {
     int count = 0;
     int i;
     for ( i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.isEnabled() && hi.getFromStep().equals( stepMeta ) ) {
+      if ( hi.isEnabled() && hi.getFromTransform().equals( transformMeta ) ) {
         count++;
       }
     }
@@ -1406,24 +1406,24 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Find the succeeding step at a location for an originating step.
+   * Find the succeeding transform at a location for an originating transform.
    *
-   * @param stepMeta The originating step
+   * @param transformMeta The originating transform
    * @param nr       The location
-   * @return The step found.
-   * @deprecated use {@link #getNextSteps(StepMeta)}
+   * @return The transform found.
+   * @deprecated use {@link #getNextTransforms(TransformMeta)}
    */
   @Deprecated
-  public StepMeta findNextStep( StepMeta stepMeta, int nr ) {
+  public TransformMeta findNextTransform( TransformMeta transformMeta, int nr ) {
     int count = 0;
     int i;
 
     for ( i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.isEnabled() && hi.getFromStep().equals( stepMeta ) ) {
+      if ( hi.isEnabled() && hi.getFromTransform().equals( transformMeta ) ) {
         if ( count == nr ) {
-          return hi.getToStep();
+          return hi.getToTransform();
         }
         count++;
       }
@@ -1432,126 +1432,126 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Retrieve an array of preceding steps for a certain destination step. This includes the info steps.
+   * Retrieve an array of preceding transforms for a certain destination transform. This includes the info transforms.
    *
-   * @param stepMeta The destination step
-   * @return An array containing the preceding steps.
+   * @param transformMeta The destination transform
+   * @return An array containing the preceding transforms.
    */
-  public StepMeta[] getPrevSteps( StepMeta stepMeta ) {
-    List<StepMeta> prevSteps = previousStepCache.get( getStepMetaCacheKey( stepMeta, true ) );
-    if ( prevSteps == null ) {
-      prevSteps = new ArrayList<>();
+  public TransformMeta[] getPrevTransforms( TransformMeta transformMeta ) {
+    List<TransformMeta> prevTransforms = previousTransformCache.get( getTransformMetaCacheKey( transformMeta, true ) );
+    if ( prevTransforms == null ) {
+      prevTransforms = new ArrayList<>();
       for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
         PipelineHopMeta hopMeta = getPipelineHop( i );
-        if ( hopMeta.isEnabled() && hopMeta.getToStep().equals( stepMeta ) ) {
-          prevSteps.add( hopMeta.getFromStep() );
+        if ( hopMeta.isEnabled() && hopMeta.getToTransform().equals( transformMeta ) ) {
+          prevTransforms.add( hopMeta.getFromTransform() );
         }
       }
     }
 
-    return prevSteps.toArray( new StepMeta[ prevSteps.size() ] );
+    return prevTransforms.toArray( new TransformMeta[ prevTransforms.size() ] );
   }
 
   /**
-   * Retrieve an array of succeeding step names for a certain originating step name.
+   * Retrieve an array of succeeding transform names for a certain originating transform name.
    *
-   * @param stepname The originating step name
-   * @return An array of succeeding step names
+   * @param transformName The originating transform name
+   * @return An array of succeeding transform names
    */
-  public String[] getPrevStepNames( String stepname ) {
-    return getPrevStepNames( findStep( stepname ) );
+  public String[] getPrevTransformNames( String transformName ) {
+    return getPrevTransformNames( findTransform( transformName ) );
   }
 
   /**
-   * Retrieve an array of preceding steps for a certain destination step.
+   * Retrieve an array of preceding transforms for a certain destination transform.
    *
-   * @param stepMeta The destination step
-   * @return an array of preceding step names.
+   * @param transformMeta The destination transform
+   * @return an array of preceding transform names.
    */
-  public String[] getPrevStepNames( StepMeta stepMeta ) {
-    StepMeta[] prevStepMetas = getPrevSteps( stepMeta );
-    String[] retval = new String[ prevStepMetas.length ];
-    for ( int x = 0; x < prevStepMetas.length; x++ ) {
-      retval[ x ] = prevStepMetas[ x ].getName();
+  public String[] getPrevTransformNames( TransformMeta transformMeta ) {
+    TransformMeta[] prevTransformMetas = getPrevTransforms( transformMeta );
+    String[] retval = new String[ prevTransformMetas.length ];
+    for ( int x = 0; x < prevTransformMetas.length; x++ ) {
+      retval[ x ] = prevTransformMetas[ x ].getName();
     }
 
     return retval;
   }
 
   /**
-   * Retrieve an array of succeeding steps for a certain originating step.
+   * Retrieve an array of succeeding transforms for a certain originating transform.
    *
-   * @param stepMeta The originating step
-   * @return an array of succeeding steps.
-   * @deprecated use findNextSteps instead
+   * @param transformMeta The originating transform
+   * @return an array of succeeding transforms.
+   * @deprecated use findNextTransforms instead
    */
   @Deprecated
-  public StepMeta[] getNextSteps( StepMeta stepMeta ) {
-    List<StepMeta> nextSteps = new ArrayList<>();
+  public TransformMeta[] getNextTransforms( TransformMeta transformMeta ) {
+    List<TransformMeta> nextTransforms = new ArrayList<>();
     for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.isEnabled() && hi.getFromStep().equals( stepMeta ) ) {
-        nextSteps.add( hi.getToStep() );
+      if ( hi.isEnabled() && hi.getFromTransform().equals( transformMeta ) ) {
+        nextTransforms.add( hi.getToTransform() );
       }
     }
 
-    return nextSteps.toArray( new StepMeta[ nextSteps.size() ] );
+    return nextTransforms.toArray( new TransformMeta[ nextTransforms.size() ] );
   }
 
   /**
-   * Retrieve a list of succeeding steps for a certain originating step.
+   * Retrieve a list of succeeding transforms for a certain originating transform.
    *
-   * @param stepMeta The originating step
-   * @return an array of succeeding steps.
+   * @param transformMeta The originating transform
+   * @return an array of succeeding transforms.
    */
-  public List<StepMeta> findNextSteps( StepMeta stepMeta ) {
-    List<StepMeta> nextSteps = new ArrayList<>();
+  public List<TransformMeta> findNextTransforms( TransformMeta transformMeta ) {
+    List<TransformMeta> nextTransforms = new ArrayList<>();
     for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
 
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.isEnabled() && hi.getFromStep().equals( stepMeta ) ) {
-        nextSteps.add( hi.getToStep() );
+      if ( hi.isEnabled() && hi.getFromTransform().equals( transformMeta ) ) {
+        nextTransforms.add( hi.getToTransform() );
       }
     }
 
-    return nextSteps;
+    return nextTransforms;
   }
 
   /**
-   * Retrieve an array of succeeding step names for a certain originating step.
+   * Retrieve an array of succeeding transform names for a certain originating transform.
    *
-   * @param stepMeta The originating step
-   * @return an array of succeeding step names.
+   * @param transformMeta The originating transform
+   * @return an array of succeeding transform names.
    */
-  public String[] getNextStepNames( StepMeta stepMeta ) {
-    StepMeta[] nextStepMeta = getNextSteps( stepMeta );
-    String[] retval = new String[ nextStepMeta.length ];
-    for ( int x = 0; x < nextStepMeta.length; x++ ) {
-      retval[ x ] = nextStepMeta[ x ].getName();
+  public String[] getNextTransformNames( TransformMeta transformMeta ) {
+    TransformMeta[] nextTransformMeta = getNextTransforms( transformMeta );
+    String[] retval = new String[ nextTransformMeta.length ];
+    for ( int x = 0; x < nextTransformMeta.length; x++ ) {
+      retval[ x ] = nextTransformMeta[ x ].getName();
     }
 
     return retval;
   }
 
   /**
-   * Find the step that is located on a certain point on the canvas, taking into account the icon size.
+   * Find the transform that is located on a certain point on the canvas, taking into account the icon size.
    *
    * @param x        the x-coordinate of the point queried
    * @param y        the y-coordinate of the point queried
    * @param iconsize the iconsize
-   * @return The step information if a step is located at the point. Otherwise, if no step was found: null.
+   * @return The transform information if a transform is located at the point. Otherwise, if no transform was found: null.
    */
-  public StepMeta getStep( int x, int y, int iconsize ) {
+  public TransformMeta getTransform( int x, int y, int iconsize ) {
     int i, s;
-    s = steps.size();
+    s = transforms.size();
     for ( i = s - 1; i >= 0; i-- ) { // Back to front because drawing goes from start to end
-      StepMeta stepMeta = steps.get( i );
-      if ( partOfPipelineHop( stepMeta ) ) { // Only consider steps from active or inactive hops!
-        Point p = stepMeta.getLocation();
+      TransformMeta transformMeta = transforms.get( i );
+      if ( partOfPipelineHop( transformMeta ) ) { // Only consider transforms from active or inactive hops!
+        Point p = transformMeta.getLocation();
         if ( p != null ) {
           if ( x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize + 20 ) {
-            return stepMeta;
+            return transformMeta;
           }
         }
       }
@@ -1560,19 +1560,19 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Determines whether or not a certain step is part of a hop.
+   * Determines whether or not a certain transform is part of a hop.
    *
-   * @param stepMeta The step queried
-   * @return true if the step is part of a hop.
+   * @param transformMeta The transform queried
+   * @return true if the transform is part of a hop.
    */
-  public boolean partOfPipelineHop( StepMeta stepMeta ) {
+  public boolean partOfPipelineHop( TransformMeta transformMeta ) {
     int i;
     for ( i = 0; i < nrPipelineHops(); i++ ) {
       PipelineHopMeta hi = getPipelineHop( i );
-      if ( hi.getFromStep() == null || hi.getToStep() == null ) {
+      if ( hi.getFromTransform() == null || hi.getToTransform() == null ) {
         return false;
       }
-      if ( hi.getFromStep().equals( stepMeta ) || hi.getToStep().equals( stepMeta ) ) {
+      if ( hi.getFromTransform().equals( transformMeta ) || hi.getToTransform().equals( transformMeta ) ) {
         return true;
       }
     }
@@ -1580,124 +1580,124 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Returns the fields that are emitted by a certain step name.
+   * Returns the fields that are emitted by a certain transform name.
    *
-   * @param stepname The stepname of the step to be queried.
+   * @param transformName The transformName of the transform to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getStepFields( String stepname ) throws HopStepException {
-    StepMeta stepMeta = findStep( stepname );
-    if ( stepMeta != null ) {
-      return getStepFields( stepMeta );
+  public RowMetaInterface getTransformFields( String transformName ) throws HopTransformException {
+    TransformMeta transformMeta = findTransform( transformName );
+    if ( transformMeta != null ) {
+      return getTransformFields( transformMeta );
     } else {
       return null;
     }
   }
 
   /**
-   * Returns the fields that are emitted by a certain step.
+   * Returns the fields that are emitted by a certain transform.
    *
-   * @param stepMeta The step to be queried.
+   * @param transformMeta The transform to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getStepFields( StepMeta stepMeta ) throws HopStepException {
-    return getStepFields( stepMeta, null );
+  public RowMetaInterface getTransformFields( TransformMeta transformMeta ) throws HopTransformException {
+    return getTransformFields( transformMeta, null );
   }
 
   /**
-   * Gets the fields for each of the specified steps and merges them into a single set
+   * Gets the fields for each of the specified transforms and merges them into a single set
    *
-   * @param stepMeta the step meta
-   * @return an interface to the step fields
-   * @throws HopStepException the kettle step exception
+   * @param transformMeta the transform meta
+   * @return an interface to the transform fields
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getStepFields( StepMeta[] stepMeta ) throws HopStepException {
+  public RowMetaInterface getTransformFields( TransformMeta[] transformMeta ) throws HopTransformException {
     RowMetaInterface fields = new RowMeta();
 
-    for ( int i = 0; i < stepMeta.length; i++ ) {
-      RowMetaInterface flds = getStepFields( stepMeta[ i ] );
+    for ( int i = 0; i < transformMeta.length; i++ ) {
+      RowMetaInterface flds = getTransformFields( transformMeta[ i ] );
       if ( flds != null ) {
-        fields.mergeRowMeta( flds, stepMeta[ i ].getName() );
+        fields.mergeRowMeta( flds, transformMeta[ i ].getName() );
       }
     }
     return fields;
   }
 
   /**
-   * Returns the fields that are emitted by a certain step.
+   * Returns the fields that are emitted by a certain transform.
    *
-   * @param stepMeta The step to be queried.
+   * @param transformMeta The transform to be queried.
    * @param monitor  The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getStepFields( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopStepException {
-    setMetaStoreOnMappingSteps();
-    return getStepFields( stepMeta, null, monitor );
+  public RowMetaInterface getTransformFields( TransformMeta transformMeta, ProgressMonitorListener monitor ) throws HopTransformException {
+    setMetaStoreOnMappingTransforms();
+    return getTransformFields( transformMeta, null, monitor );
   }
 
   /**
-   * Returns the fields that are emitted by a certain step.
+   * Returns the fields that are emitted by a certain transform.
    *
-   * @param stepMeta   The step to be queried.
-   * @param targetStep the target step
+   * @param transformMeta   The transform to be queried.
+   * @param targetTransform the target transform
    * @param monitor    The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getStepFields( StepMeta stepMeta, StepMeta targetStep, ProgressMonitorListener monitor ) throws HopStepException {
+  public RowMetaInterface getTransformFields( TransformMeta transformMeta, TransformMeta targetTransform, ProgressMonitorListener monitor ) throws HopTransformException {
     RowMetaInterface row = new RowMeta();
 
-    if ( stepMeta == null ) {
+    if ( transformMeta == null ) {
       return row;
     }
 
-    String fromToCacheEntry = stepMeta.getName() + ( targetStep != null ? ( "-" + targetStep.getName() ) : "" );
-    RowMetaInterface rowMeta = stepsFieldsCache.get( fromToCacheEntry );
+    String fromToCacheEntry = transformMeta.getName() + ( targetTransform != null ? ( "-" + targetTransform.getName() ) : "" );
+    RowMetaInterface rowMeta = transformFieldsCache.get( fromToCacheEntry );
     if ( rowMeta != null ) {
       return rowMeta;
     }
 
-    // See if the step is sending ERROR rows to the specified target step.
+    // See if the transform is sending ERROR rows to the specified target transform.
     //
-    if ( targetStep != null && stepMeta.isSendingErrorRowsToStep( targetStep ) ) {
+    if ( targetTransform != null && transformMeta.isSendingErrorRowsToTransform( targetTransform ) ) {
       // The error rows are the same as the input rows for
-      // the step but with the selected error fields added
+      // the transform but with the selected error fields added
       //
-      row = getPrevStepFields( stepMeta );
+      row = getPrevTransformFields( transformMeta );
 
       // Add to this the error fields...
-      StepErrorMeta stepErrorMeta = stepMeta.getStepErrorMeta();
-      row.addRowMeta( stepErrorMeta.getErrorFields() );
+      TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();
+      row.addRowMeta( transformErrorMeta.getErrorFields() );
 
       // Store this row in the cache
       //
-      stepsFieldsCache.put( fromToCacheEntry, row );
+      transformFieldsCache.put( fromToCacheEntry, row );
 
       return row;
     }
 
     // Resume the regular program...
 
-    List<StepMeta> prevSteps = findPreviousSteps( stepMeta, false );
+    List<TransformMeta> prevTransforms = findPreviousTransforms( transformMeta, false );
 
-    int nrPrevious = prevSteps.size();
+    int nrPrevious = prevTransforms.size();
 
     if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.FromStepALookingAtPreviousStep", stepMeta.getName(),
+      log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.FromTransformALookingAtPreviousTransform", transformMeta.getName(),
         String.valueOf( nrPrevious ) ) );
     }
-    for ( int i = 0; i < prevSteps.size(); i++ ) {
-      StepMeta prevStepMeta = prevSteps.get( i );
+    for ( int i = 0; i < prevTransforms.size(); i++ ) {
+      TransformMeta prevTransformMeta = prevTransforms.get( i );
 
       if ( monitor != null ) {
         monitor.subTask(
-          BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
+          BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingTransformTask.Title", prevTransformMeta.getName() ) );
       }
 
-      RowMetaInterface add = getStepFields( prevStepMeta, stepMeta, monitor );
+      RowMetaInterface add = getTransformFields( prevTransformMeta, transformMeta, monitor );
       if ( add == null ) {
         add = new RowMeta();
       }
@@ -1718,80 +1718,80 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    // Finally, see if we need to add/modify/delete fields with this step "name"
-    rowMeta = getThisStepFields( stepMeta, targetStep, row, monitor );
+    // Finally, see if we need to add/modify/delete fields with this transform "name"
+    rowMeta = getThisTransformFields( transformMeta, targetTransform, row, monitor );
 
     // Store this row in the cache
     //
-    stepsFieldsCache.put( fromToCacheEntry, rowMeta );
+    transformFieldsCache.put( fromToCacheEntry, rowMeta );
 
     return rowMeta;
   }
 
   /**
-   * Find the fields that are entering a step with a certain name.
+   * Find the fields that are entering a transform with a certain name.
    *
-   * @param stepname The name of the step queried
-   * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException the kettle step exception
+   * @param transformName The name of the transform queried
+   * @return A row containing the fields (w/ origin) entering the transform
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getPrevStepFields( String stepname ) throws HopStepException {
-    return getPrevStepFields( findStep( stepname ) );
+  public RowMetaInterface getPrevTransformFields( String transformName ) throws HopTransformException {
+    return getPrevTransformFields( findTransform( transformName ) );
   }
 
   /**
-   * Find the fields that are entering a certain step.
+   * Find the fields that are entering a certain transform.
    *
-   * @param stepMeta The step queried
-   * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException the kettle step exception
+   * @param transformMeta The transform queried
+   * @return A row containing the fields (w/ origin) entering the transform
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getPrevStepFields( StepMeta stepMeta ) throws HopStepException {
-    return getPrevStepFields( stepMeta, null );
+  public RowMetaInterface getPrevTransformFields( TransformMeta transformMeta ) throws HopTransformException {
+    return getPrevTransformFields( transformMeta, null );
   }
 
   /**
-   * Find the fields that are entering a certain step.
+   * Find the fields that are entering a certain transform.
    *
-   * @param stepMeta The step queried
+   * @param transformMeta The transform queried
    * @param monitor  The progress monitor for progress dialog. (null if not used!)
-   * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException the kettle step exception
+   * @return A row containing the fields (w/ origin) entering the transform
+   * @throws HopTransformException the kettle transform exception
    */
 
 
-  public RowMetaInterface getPrevStepFields( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopStepException {
-    return getPrevStepFields( stepMeta, null, monitor );
+  public RowMetaInterface getPrevTransformFields( TransformMeta transformMeta, ProgressMonitorListener monitor ) throws HopTransformException {
+    return getPrevTransformFields( transformMeta, null, monitor );
   }
 
-  public RowMetaInterface getPrevStepFields(
-    StepMeta stepMeta, final String stepName, ProgressMonitorListener monitor )
-    throws HopStepException {
-    clearStepFieldsCachce();
+  public RowMetaInterface getPrevTransformFields(
+    TransformMeta transformMeta, final String transformName, ProgressMonitorListener monitor )
+    throws HopTransformException {
+    clearTransformFieldsCachce();
     RowMetaInterface row = new RowMeta();
 
-    if ( stepMeta == null ) {
+    if ( transformMeta == null ) {
       return null;
     }
-    List<StepMeta> prevSteps = findPreviousSteps( stepMeta );
-    int nrPrevSteps = prevSteps.size();
+    List<TransformMeta> prevTransforms = findPreviousTransforms( transformMeta );
+    int nrPrevTransforms = prevTransforms.size();
     if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.FromStepALookingAtPreviousStep", stepMeta.getName(),
-        String.valueOf( nrPrevSteps ) ) );
+      log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.FromTransformALookingAtPreviousTransform", transformMeta.getName(),
+        String.valueOf( nrPrevTransforms ) ) );
     }
-    StepMeta prevStepMeta = null;
-    for ( int i = 0; i < nrPrevSteps; i++ ) {
-      prevStepMeta = prevSteps.get( i );
-      if ( stepName != null && !stepName.equalsIgnoreCase( prevStepMeta.getName() ) ) {
+    TransformMeta prevTransformMeta = null;
+    for ( int i = 0; i < nrPrevTransforms; i++ ) {
+      prevTransformMeta = prevTransforms.get( i );
+      if ( transformName != null && !transformName.equalsIgnoreCase( prevTransformMeta.getName() ) ) {
         continue;
       }
 
       if ( monitor != null ) {
         monitor.subTask(
-          BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
+          BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingTransformTask.Title", prevTransformMeta.getName() ) );
       }
 
-      RowMetaInterface add = getStepFields( prevStepMeta, stepMeta, monitor );
+      RowMetaInterface add = getTransformFields( prevTransformMeta, transformMeta, monitor );
 
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.FoundFieldsToAdd2" ) + add.toString() );
@@ -1815,74 +1815,74 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Return the fields that are emitted by a step with a certain name.
+   * Return the fields that are emitted by a transform with a certain name.
    *
-   * @param stepname The name of the step that's being queried.
+   * @param transformName The name of the transform that's being queried.
    * @param row      A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getThisStepFields( String stepname, RowMetaInterface row ) throws HopStepException {
-    return getThisStepFields( findStep( stepname ), null, row );
+  public RowMetaInterface getThisTransformFields( String transformName, RowMetaInterface row ) throws HopTransformException {
+    return getThisTransformFields( findTransform( transformName ), null, row );
   }
 
   /**
-   * Returns the fields that are emitted by a step.
+   * Returns the fields that are emitted by a transform.
    *
-   * @param stepMeta : The StepMeta object that's being queried
-   * @param nextStep : if non-null this is the next step that's call back to ask what's being sent
+   * @param transformMeta : The TransformMeta object that's being queried
+   * @param nextTransform : if non-null this is the next transform that's call back to ask what's being sent
    * @param row      : A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getThisStepFields( StepMeta stepMeta, StepMeta nextStep, RowMetaInterface row ) throws HopStepException {
-    return getThisStepFields( stepMeta, nextStep, row, null );
+  public RowMetaInterface getThisTransformFields( TransformMeta transformMeta, TransformMeta nextTransform, RowMetaInterface row ) throws HopTransformException {
+    return getThisTransformFields( transformMeta, nextTransform, row, null );
   }
 
   /**
-   * Returns the fields that are emitted by a step.
+   * Returns the fields that are emitted by a transform.
    *
-   * @param stepMeta : The StepMeta object that's being queried
-   * @param nextStep : if non-null this is the next step that's call back to ask what's being sent
+   * @param transformMeta : The TransformMeta object that's being queried
+   * @param nextTransform : if non-null this is the next transform that's call back to ask what's being sent
    * @param row      : A row containing the input fields or an empty row if no input is required.
    * @param monitor  the monitor
    * @return A Row containing the output fields.
-   * @throws HopStepException the kettle step exception
+   * @throws HopTransformException the kettle transform exception
    */
-  public RowMetaInterface getThisStepFields( StepMeta stepMeta, StepMeta nextStep, RowMetaInterface row,
-                                             ProgressMonitorListener monitor ) throws HopStepException {
+  public RowMetaInterface getThisTransformFields( TransformMeta transformMeta, TransformMeta nextTransform, RowMetaInterface row,
+                                             ProgressMonitorListener monitor ) throws HopTransformException {
     // Then this one.
     if ( log.isDebug() ) {
       log.logDebug( BaseMessages
-        .getString( PKG, "PipelineMeta.Log.GettingFieldsFromStep", stepMeta.getName(), stepMeta.getStepID() ) );
+        .getString( PKG, "PipelineMeta.Log.GettingFieldsFromTransform", transformMeta.getName(), transformMeta.getTransformPluginId() ) );
     }
-    String name = stepMeta.getName();
+    String name = transformMeta.getName();
 
     if ( monitor != null ) {
-      monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingFieldsFromStepTask.Title", name ) );
+      monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingFieldsFromTransformTask.Title", name ) );
     }
 
-    StepMetaInterface stepint = stepMeta.getStepMetaInterface();
+    TransformMetaInterface transformint = transformMeta.getTransformMetaInterface();
     RowMetaInterface[] inform = null;
-    StepMeta[] lu = getInfoStep( stepMeta );
+    TransformMeta[] lu = getInfoTransform( transformMeta );
     if ( Utils.isEmpty( lu ) ) {
-      inform = new RowMetaInterface[] { stepint.getTableFields(), };
+      inform = new RowMetaInterface[] { transformint.getTableFields(), };
     } else {
       inform = new RowMetaInterface[ lu.length ];
       for ( int i = 0; i < lu.length; i++ ) {
-        inform[ i ] = getStepFields( lu[ i ] );
+        inform[ i ] = getTransformFields( lu[ i ] );
       }
     }
 
-    setMetaStoreOnMappingSteps();
+    setMetaStoreOnMappingTransforms();
 
     // Go get the fields...
     //
     RowMetaInterface before = row.clone();
     RowMetaInterface[] clonedInfo = cloneRowMetaInterfaces( inform );
     if ( !isSomethingDifferentInRow( before, row ) ) {
-      stepint.getFields( before, name, clonedInfo, nextStep, this, metaStore );
-      // pass the clone object to prevent from spoiling data by other steps
+      transformint.getFields( before, name, clonedInfo, nextTransform, this, metaStore );
+      // pass the clone object to prevent from spoiling data by other transforms
       row = before;
     }
 
@@ -1944,24 +1944,24 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Set the MetaStore on the Mapping step. That way the mapping step can determine the output fields for
+   * Set the MetaStore on the Mapping transform. That way the mapping transform can determine the output fields for
    * metastore referencing mappings... This is the exception to the rule so we don't pass this through the getFields()
    * method. TODO: figure out a way to make this more generic.
    */
-  private void setMetaStoreOnMappingSteps() {
+  private void setMetaStoreOnMappingTransforms() {
 
-    for ( StepMeta step : steps ) {
-      if ( step.getStepMetaInterface() instanceof MappingMeta ) {
-        ( (MappingMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
+    for ( TransformMeta transform : transforms ) {
+      if ( transform.getTransformMetaInterface() instanceof MappingMeta ) {
+        ( (MappingMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
-      if ( step.getStepMetaInterface() instanceof SingleThreaderMeta ) {
-        ( (SingleThreaderMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransformMetaInterface() instanceof SingleThreaderMeta ) {
+        ( (SingleThreaderMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
-      if ( step.getStepMetaInterface() instanceof JobExecutorMeta ) {
-        ( (JobExecutorMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransformMetaInterface() instanceof JobExecutorMeta ) {
+        ( (JobExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
-      if ( step.getStepMetaInterface() instanceof PipelineExecutorMeta ) {
-        ( (PipelineExecutorMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransformMetaInterface() instanceof PipelineExecutorMeta ) {
+        ( (PipelineExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
     }
   }
@@ -1973,11 +1973,11 @@ public class PipelineMeta extends AbstractMeta
    * @return true if the pipeline is using the partition schema, false otherwise
    */
   public boolean isUsingPartitionSchema( PartitionSchema partitionSchema ) {
-    // Loop over all steps and see if the partition schema is used.
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepPartitioningMeta stepPartitioningMeta = getStep( i ).getStepPartitioningMeta();
-      if ( stepPartitioningMeta != null ) {
-        PartitionSchema check = stepPartitioningMeta.getPartitionSchema();
+    // Loop over all transforms and see if the partition schema is used.
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformPartitioningMeta transformPartitioningMeta = getTransform( i ).getTransformPartitioningMeta();
+      if ( transformPartitioningMeta != null ) {
+        PartitionSchema check = transformPartitioningMeta.getPartitionSchema();
         if ( check != null && check.equals( partitionSchema ) ) {
           return true;
         }
@@ -1998,13 +1998,13 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Finds the location (index) of the specified step.
+   * Finds the location (index) of the specified transform.
    *
-   * @param stepMeta The step queried
-   * @return The location of the step, or -1 if nothing was found.
+   * @param transformMeta The transform queried
+   * @return The location of the transform, or -1 if nothing was found.
    */
-  public int indexOfStep( StepMeta stepMeta ) {
-    return steps.indexOf( stepMeta );
+  public int indexOfTransform( TransformMeta transformMeta ) {
+    return transforms.indexOf( transformMeta );
   }
 
   /**
@@ -2020,10 +2020,10 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the XML representation of this pipeline, including or excluding step, database, slave server, cluster,
+   * Gets the XML representation of this pipeline, including or excluding transform, database, slave server, cluster,
    * or partition information as specified by the parameters
    *
-   * @param includeSteps           whether to include step data
+   * @param includeTransforms           whether to include transform data
    * @param includeNamedParameters whether to include named parameters data
    * @param includeLog             whether to include log data
    * @param includeDependencies    whether to include dependencies data
@@ -2032,7 +2032,7 @@ public class PipelineMeta extends AbstractMeta
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
    */
-  public String getXML( boolean includeSteps,
+  public String getXML( boolean includeTransforms,
                         boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
                         boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
 
@@ -2080,7 +2080,7 @@ public class PipelineMeta extends AbstractMeta
       retval.append( pipelineLogTable.getXML() );
       retval.append( performanceLogTable.getXML() );
       retval.append( channelLogTable.getXML() );
-      retval.append( stepLogTable.getXML() );
+      retval.append( transformLogTable.getXML() );
       retval.append( metricsLogTable.getXML() );
 
       retval.append( "    " ).append( XMLHandler.closeTag( "log" ) ).append( Const.CR );
@@ -2107,11 +2107,11 @@ public class PipelineMeta extends AbstractMeta
     // Performance monitoring
     //
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "capture_step_performance", capturingStepPerformanceSnapShots ) );
+      .append( XMLHandler.addTagValue( "capture_transform_performance", capturingTransformPerformanceSnapShots ) );
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "step_performance_capturing_delay", stepPerformanceCapturingDelay ) );
+      .append( XMLHandler.addTagValue( "transform_performance_capturing_delay", transformPerformanceCapturingDelay ) );
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "step_performance_capturing_size_limit", stepPerformanceCapturingSizeLimit ) );
+      .append( XMLHandler.addTagValue( "transform_performance_capturing_size_limit", transformPerformanceCapturingSizeLimit ) );
 
     if ( includeDependencies ) {
       retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
@@ -2147,7 +2147,7 @@ public class PipelineMeta extends AbstractMeta
       retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
     }
 
-    if ( includeSteps ) {
+    if ( includeTransforms ) {
       retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
       for ( int i = 0; i < nrPipelineHops(); i++ ) {
         PipelineHopMeta pipelineHopMeta = getPipelineHop( i );
@@ -2155,22 +2155,22 @@ public class PipelineMeta extends AbstractMeta
       }
       retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_ORDER ) ).append( Const.CR );
 
-      /* The steps... */
-      for ( int i = 0; i < nrSteps(); i++ ) {
-        StepMeta stepMeta = getStep( i );
-        retval.append( stepMeta.getXML() );
+      /* The transforms... */
+      for ( int i = 0; i < nrTransforms(); i++ ) {
+        TransformMeta transformMeta = getTransform( i );
+        retval.append( transformMeta.getXML() );
       }
 
-      /* The error handling metadata on the steps */
-      retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_STEP_ERROR_HANDLING ) ).append( Const.CR );
-      for ( int i = 0; i < nrSteps(); i++ ) {
-        StepMeta stepMeta = getStep( i );
+      /* The error handling metadata on the transforms */
+      retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      for ( int i = 0; i < nrTransforms(); i++ ) {
+        TransformMeta transformMeta = getTransform( i );
 
-        if ( stepMeta.getStepErrorMeta() != null ) {
-          retval.append( stepMeta.getStepErrorMeta().getXML() );
+        if ( transformMeta.getTransformErrorMeta() != null ) {
+          retval.append( transformMeta.getTransformErrorMeta().getXML() );
         }
       }
-      retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_STEP_ERROR_HANDLING ) ).append( Const.CR );
+      retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
     }
 
     // Also store the attribute groups
@@ -2354,47 +2354,47 @@ public class PipelineMeta extends AbstractMeta
           notes.add( ni );
         }
 
-        // Handle Steps
-        int s = XMLHandler.countNodes( pipelineNode, StepMeta.XML_TAG );
+        // Handle Transforms
+        int s = XMLHandler.countNodes( pipelineNode, TransformMeta.XML_TAG );
 
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.ReadingSteps" ) + s + " steps..." );
+          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.ReadingTransforms" ) + s + " transforms..." );
         }
         for ( int i = 0; i < s; i++ ) {
-          Node stepnode = XMLHandler.getSubNodeByNr( pipelineNode, StepMeta.XML_TAG, i );
+          Node transformNode = XMLHandler.getSubNodeByNr( pipelineNode, TransformMeta.XML_TAG, i );
 
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtStep" ) + i );
+            log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtTransform" ) + i );
           }
 
-          StepMeta stepMeta = new StepMeta( stepnode, metaStore );
-          stepMeta.setParentPipelineMeta( this ); // for tracing, retain hierarchy
+          TransformMeta transformMeta = new TransformMeta( transformNode, metaStore );
+          transformMeta.setParentPipelineMeta( this ); // for tracing, retain hierarchy
 
-          if ( stepMeta.isMissing() ) {
-            addMissingPipeline( (Missing) stepMeta.getStepMetaInterface() );
+          if ( transformMeta.isMissing() ) {
+            addMissingPipeline( (Missing) transformMeta.getTransformMetaInterface() );
           }
-          addOrReplaceStep( stepMeta );
+          addOrReplaceTransform( transformMeta );
         }
 
-        // Read the error handling code of the steps...
+        // Read the error handling code of the transforms...
         //
-        Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, XML_TAG_STEP_ERROR_HANDLING );
-        int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, StepErrorMeta.XML_ERROR_TAG );
+        Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, XML_TAG_TRANSFORM_ERROR_HANDLING );
+        int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
         for ( int i = 0; i < nrErrorHandlers; i++ ) {
-          Node stepErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, StepErrorMeta.XML_ERROR_TAG, i );
-          StepErrorMeta stepErrorMeta = new StepErrorMeta( this, stepErrorMetaNode, steps );
-          if ( stepErrorMeta.getSourceStep() != null ) {
-            stepErrorMeta.getSourceStep().setStepErrorMeta( stepErrorMeta ); // a bit of a trick, I know.
+          Node transformErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
+          TransformErrorMeta transformErrorMeta = new TransformErrorMeta( this, transformErrorMetaNode, transforms );
+          if ( transformErrorMeta.getSourceTransform() != null ) {
+            transformErrorMeta.getSourceTransform().setTransformErrorMeta( transformErrorMeta ); // a bit of a trick, I know.
           }
         }
 
-        // Have all StreamValueLookups, etc. reference the correct source steps...
+        // Have all StreamValueLookups, etc. reference the correct source transforms...
         //
-        for ( int i = 0; i < nrSteps(); i++ ) {
-          StepMeta stepMeta = getStep( i );
-          StepMetaInterface sii = stepMeta.getStepMetaInterface();
+        for ( int i = 0; i < nrTransforms(); i++ ) {
+          TransformMeta transformMeta = getTransform( i );
+          TransformMetaInterface sii = transformMeta.getTransformMetaInterface();
           if ( sii != null ) {
-            sii.searchInfoAndTargetSteps( steps );
+            sii.searchInfoAndTargetTransforms( transforms );
           }
         }
 
@@ -2412,7 +2412,7 @@ public class PipelineMeta extends AbstractMeta
           }
           Node hopnode = XMLHandler.getSubNodeByNr( ordernode, PipelineHopMeta.XML_HOP_TAG, i );
 
-          PipelineHopMeta hopinf = new PipelineHopMeta( hopnode, steps );
+          PipelineHopMeta hopinf = new PipelineHopMeta( hopnode, transforms );
           hopinf.setErrorHop( isErrorNode( errorHandlingNode, hopnode ) );
           addPipelineHop( hopinf );
         }
@@ -2457,17 +2457,17 @@ public class PipelineMeta extends AbstractMeta
             // Load the XML
             //
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_READ )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "read" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "read" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_WRITTEN )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "write" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "write" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_INPUT )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "input" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "input" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_OUTPUT )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "output" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "output" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_UPDATED )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "update" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "update" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED )
-              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "rejected" ) ) );
+              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "rejected" ) ) );
 
             pipelineLogTable.setConnectionName( XMLHandler.getTagValue( infonode, "log", "connection" ) );
             pipelineLogTable.setSchemaName( XMLHandler.getTagValue( infonode, "log", "schema" ) );
@@ -2481,25 +2481,25 @@ public class PipelineMeta extends AbstractMeta
             pipelineLogTable.findField( PipelineLogTable.ID.CHANNEL_ID ).setEnabled( false );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED ).setEnabled( false );
             performanceLogTable.setConnectionName( pipelineLogTable.getConnectionName() );
-            performanceLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "step_performance_table" ) );
+            performanceLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "transform_performance_table" ) );
           } else {
-            pipelineLogTable.loadXML( pipelineLogNode, steps );
+            pipelineLogTable.loadXML( pipelineLogNode, transforms );
           }
           Node perfLogNode = XMLHandler.getSubNode( logNode, PerformanceLogTable.XML_TAG );
           if ( perfLogNode != null ) {
-            performanceLogTable.loadXML( perfLogNode, steps );
+            performanceLogTable.loadXML( perfLogNode, transforms );
           }
           Node channelLogNode = XMLHandler.getSubNode( logNode, ChannelLogTable.XML_TAG );
           if ( channelLogNode != null ) {
-            channelLogTable.loadXML( channelLogNode, steps );
+            channelLogTable.loadXML( channelLogNode, transforms );
           }
-          Node stepLogNode = XMLHandler.getSubNode( logNode, StepLogTable.XML_TAG );
-          if ( stepLogNode != null ) {
-            stepLogTable.loadXML( stepLogNode, steps );
+          Node transformLogNode = XMLHandler.getSubNode( logNode, TransformLogTable.XML_TAG );
+          if ( transformLogNode != null ) {
+            transformLogTable.loadXML( transformLogNode, transforms );
           }
           Node metricsLogNode = XMLHandler.getSubNode( logNode, MetricsLogTable.XML_TAG );
           if ( metricsLogNode != null ) {
-            metricsLogTable.loadXML( metricsLogNode, steps );
+            metricsLogTable.loadXML( metricsLogNode, transforms );
           }
         }
 
@@ -2563,13 +2563,13 @@ public class PipelineMeta extends AbstractMeta
 
         usingThreadPriorityManagment = !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
-        // Performance monitoring for steps...
+        // Performance monitoring for transforms...
         //
-        capturingStepPerformanceSnapShots =
-          "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "capture_step_performance" ) );
-        stepPerformanceCapturingDelay =
-          Const.toLong( XMLHandler.getTagValue( infonode, "step_performance_capturing_delay" ), 1000 );
-        stepPerformanceCapturingSizeLimit = XMLHandler.getTagValue( infonode, "step_performance_capturing_size_limit" );
+        capturingTransformPerformanceSnapShots =
+          "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "capture_transform_performance" ) );
+        transformPerformanceCapturingDelay =
+          Const.toLong( XMLHandler.getTagValue( infonode, "transform_performance_capturing_delay" ), 1000 );
+        transformPerformanceCapturingSizeLimit = XMLHandler.getTagValue( infonode, "transform_performance_capturing_size_limit" );
 
         // Created user/date
         createdUser = XMLHandler.getTagValue( infonode, "created_user" );
@@ -2586,10 +2586,10 @@ public class PipelineMeta extends AbstractMeta
         }
 
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.NumberOfStepsReaded" ) + nrSteps() );
+          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.NumberOfTransformReaded" ) + nrTransforms() );
           log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.NumberOfHopsReaded" ) + nrPipelineHops() );
         }
-        sortSteps();
+        sortTransforms();
 
         // Load the attribute groups map
         //
@@ -2645,38 +2645,38 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets a List of all the steps that are used in at least one active hop. These steps will be used to execute the
+   * Gets a List of all the transforms that are used in at least one active hop. These transforms will be used to execute the
    * pipeline. The others will not be executed.<br/>
-   * Update 3.0 : we also add those steps that are not linked to another hop, but have at least one remote input or
-   * output step defined.
+   * Update 3.0 : we also add those transforms that are not linked to another hop, but have at least one remote input or
+   * output transform defined.
    *
-   * @param all true if you want to get ALL the steps from the pipeline, false otherwise
-   * @return A List of steps
+   * @param all true if you want to get ALL the transforms from the pipeline, false otherwise
+   * @return A List of transforms
    */
-  public List<StepMeta> getPipelineHopSteps( boolean all ) {
-    List<StepMeta> st = new ArrayList<>();
+  public List<TransformMeta> getPipelineHopTransforms( boolean all ) {
+    List<TransformMeta> st = new ArrayList<>();
     int idx;
 
     for ( int x = 0; x < nrPipelineHops(); x++ ) {
       PipelineHopMeta hi = getPipelineHop( x );
       if ( hi.isEnabled() || all ) {
-        idx = st.indexOf( hi.getFromStep() ); // FROM
+        idx = st.indexOf( hi.getFromTransform() ); // FROM
         if ( idx < 0 ) {
-          st.add( hi.getFromStep() );
+          st.add( hi.getFromTransform() );
         }
 
-        idx = st.indexOf( hi.getToStep() ); // TO
+        idx = st.indexOf( hi.getToTransform() ); // TO
         if ( idx < 0 ) {
-          st.add( hi.getToStep() );
+          st.add( hi.getToTransform() );
         }
       }
     }
 
-    // Also, add the steps that need to be painted, but are not part of a hop
-    for ( int x = 0; x < nrSteps(); x++ ) {
-      StepMeta stepMeta = getStep( x );
-      if ( !isStepUsedInPipelineHops( stepMeta ) ) {
-        st.add( stepMeta );
+    // Also, add the transforms that need to be painted, but are not part of a hop
+    for ( int x = 0; x < nrTransforms(); x++ ) {
+      TransformMeta transformMeta = getTransform( x );
+      if ( !isTransformUsedInPipelineHops( transformMeta ) ) {
+        st.add( transformMeta );
       }
     }
 
@@ -2684,28 +2684,28 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Checks if a step has been used in a hop or not.
+   * Checks if a transform has been used in a hop or not.
    *
-   * @param stepMeta The step queried.
-   * @return true if a step is used in a hop (active or not), false otherwise
+   * @param transformMeta The transform queried.
+   * @return true if a transform is used in a hop (active or not), false otherwise
    */
-  public boolean isStepUsedInPipelineHops( StepMeta stepMeta ) {
-    PipelineHopMeta fr = findPipelineHopFrom( stepMeta );
-    PipelineHopMeta to = findPipelineHopTo( stepMeta );
+  public boolean isTransformUsedInPipelineHops( TransformMeta transformMeta ) {
+    PipelineHopMeta fr = findPipelineHopFrom( transformMeta );
+    PipelineHopMeta to = findPipelineHopTo( transformMeta );
     return fr != null || to != null;
   }
 
   /**
-   * Checks if any selected step has been used in a hop or not.
+   * Checks if any selected transform has been used in a hop or not.
    *
-   * @return true if a step is used in a hop (active or not), false otherwise
+   * @return true if a transform is used in a hop (active or not), false otherwise
    */
-  public boolean isAnySelectedStepUsedInPipelineHops() {
-    List<StepMeta> selectedSteps = getSelectedSteps();
+  public boolean isAnySelectedTransformUsedInPipelineHops() {
+    List<TransformMeta> selectedTransforms = getSelectedTransforms();
     int i = 0;
-    while ( i < selectedSteps.size() ) {
-      StepMeta stepMeta = selectedSteps.get( i );
-      if ( isStepUsedInPipelineHops( stepMeta ) ) {
+    while ( i < selectedTransforms.size() ) {
+      TransformMeta transformMeta = selectedTransforms.get( i );
+      if ( isTransformUsedInPipelineHops( transformMeta ) ) {
         return true;
       }
       i++;
@@ -2718,13 +2718,13 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public void clearChanged() {
-    changed_steps = false;
-    changed_hops = false;
+    changedTransforms = false;
+    changedHops = false;
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      getStep( i ).setChanged( false );
-      if ( getStep( i ).getStepPartitioningMeta() != null ) {
-        getStep( i ).getStepPartitioningMeta().hasChanged( false );
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      getTransform( i ).setChanged( false );
+      if ( getTransform( i ).getTransformPartitioningMeta() != null ) {
+        getTransform( i ).getTransformPartitioningMeta().hasChanged( false );
       }
     }
     for ( int i = 0; i < nrPipelineHops(); i++ ) {
@@ -2738,21 +2738,21 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Checks whether or not the steps have changed.
+   * Checks whether or not the transforms have changed.
    *
-   * @return true if the steps have been changed, false otherwise
+   * @return true if the transforms have been changed, false otherwise
    */
-  public boolean haveStepsChanged() {
-    if ( changed_steps ) {
+  public boolean haveTransformsChanged() {
+    if ( changedTransforms ) {
       return true;
     }
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      if ( stepMeta.hasChanged() ) {
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      if ( transformMeta.hasChanged() ) {
         return true;
       }
-      if ( stepMeta.getStepPartitioningMeta() != null && stepMeta.getStepPartitioningMeta().hasChanged() ) {
+      if ( transformMeta.getTransformPartitioningMeta() != null && transformMeta.getTransformPartitioningMeta().hasChanged() ) {
         return true;
       }
     }
@@ -2765,7 +2765,7 @@ public class PipelineMeta extends AbstractMeta
    * @return true if a hop has been changed, false otherwise
    */
   public boolean haveHopsChanged() {
-    if ( changed_hops ) {
+    if ( changedHops ) {
       return true;
     }
 
@@ -2804,7 +2804,7 @@ public class PipelineMeta extends AbstractMeta
     if ( super.hasChanged() ) {
       return true;
     }
-    if ( haveStepsChanged() ) {
+    if ( haveTransformsChanged() ) {
       return true;
     }
     if ( haveHopsChanged() ) {
@@ -2825,13 +2825,13 @@ public class PipelineMeta extends AbstractMeta
 
         Node errorNode = errors.item( i );
 
-        if ( !StepErrorMeta.XML_ERROR_TAG.equals( errorNode.getNodeName() ) ) {
+        if ( !TransformErrorMeta.XML_ERROR_TAG.equals( errorNode.getNodeName() ) ) {
           i++;
           continue;
         }
 
-        Node errorSourceNode = XMLHandler.getSubNode( errorNode, StepErrorMeta.XML_SOURCE_STEP_TAG );
-        Node errorTagetNode = XMLHandler.getSubNode( errorNode, StepErrorMeta.XML_TARGET_STEP_TAG );
+        Node errorSourceNode = XMLHandler.getSubNode( errorNode, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG );
+        Node errorTagetNode = XMLHandler.getSubNode( errorNode, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG );
 
         String sourceContent = errorSourceNode.getTextContent().trim();
         String tagetContent = errorTagetNode.getTextContent().trim();
@@ -2847,50 +2847,50 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * See if there are any loops in the pipeline, starting at the indicated step. This works by looking at all the
-   * previous steps. If you keep going backward and find the step, there is a loop. Both the informational and the
-   * normal steps need to be checked for loops!
+   * See if there are any loops in the pipeline, starting at the indicated transform. This works by looking at all the
+   * previous transforms. If you keep going backward and find the transform, there is a loop. Both the informational and the
+   * normal transforms need to be checked for loops!
    *
-   * @param stepMeta The step position to start looking
+   * @param transformMeta The transform position to start looking
    * @return true if a loop has been found, false if no loop is found.
    */
-  public boolean hasLoop( StepMeta stepMeta ) {
+  public boolean hasLoop( TransformMeta transformMeta ) {
     clearLoopCache();
-    return hasLoop( stepMeta, null );
+    return hasLoop( transformMeta, null );
   }
 
   /**
-   * @deprecated use {@link #hasLoop(StepMeta, StepMeta)}}
+   * @deprecated use {@link #hasLoop(TransformMeta, TransformMeta)}}
    */
   @Deprecated
-  public boolean hasLoop( StepMeta stepMeta, StepMeta lookup, boolean info ) {
-    return hasLoop( stepMeta, lookup, new HashSet<StepMeta>() );
+  public boolean hasLoop( TransformMeta transformMeta, TransformMeta lookup, boolean info ) {
+    return hasLoop( transformMeta, lookup, new HashSet<TransformMeta>() );
   }
 
   /**
    * Checks for loop.
    *
-   * @param stepMeta the stepmeta
+   * @param transformMeta the transformmeta
    * @param lookup   the lookup
    * @return true, if successful
    */
 
-  public boolean hasLoop( StepMeta stepMeta, StepMeta lookup ) {
-    return hasLoop( stepMeta, lookup, new HashSet<StepMeta>() );
+  public boolean hasLoop( TransformMeta transformMeta, TransformMeta lookup ) {
+    return hasLoop( transformMeta, lookup, new HashSet<TransformMeta>() );
   }
 
   /**
-   * See if there are any loops in the pipeline, starting at the indicated step. This works by looking at all the
-   * previous steps. If you keep going backward and find the original step again, there is a loop.
+   * See if there are any loops in the pipeline, starting at the indicated transform. This works by looking at all the
+   * previous transforms. If you keep going backward and find the original transform again, there is a loop.
    *
-   * @param stepMeta       The step position to start looking
-   * @param lookup         The original step when wandering around the pipeline.
+   * @param transformMeta       The transform position to start looking
+   * @param lookup         The original transform when wandering around the pipeline.
    * @param checkedEntries Already checked entries
    * @return true if a loop has been found, false if no loop is found.
    */
-  private boolean hasLoop( StepMeta stepMeta, StepMeta lookup, HashSet<StepMeta> checkedEntries ) {
+  private boolean hasLoop( TransformMeta transformMeta, TransformMeta lookup, HashSet<TransformMeta> checkedEntries ) {
     String cacheKey =
-      stepMeta.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
+      transformMeta.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
 
     Boolean hasLoop = loopCache.get( cacheKey );
 
@@ -2900,14 +2900,14 @@ public class PipelineMeta extends AbstractMeta
 
     hasLoop = false;
 
-    checkedEntries.add( stepMeta );
+    checkedEntries.add( transformMeta );
 
-    List<StepMeta> prevSteps = findPreviousSteps( stepMeta, true );
-    int nr = prevSteps.size();
+    List<TransformMeta> prevTransforms = findPreviousTransforms( transformMeta, true );
+    int nr = prevTransforms.size();
     for ( int i = 0; i < nr; i++ ) {
-      StepMeta prevStepMeta = prevSteps.get( i );
-      if ( prevStepMeta != null && ( prevStepMeta.equals( lookup )
-        || ( !checkedEntries.contains( prevStepMeta ) && hasLoop( prevStepMeta, lookup == null ? stepMeta : lookup, checkedEntries ) ) ) ) {
+      TransformMeta prevTransformMeta = prevTransforms.get( i );
+      if ( prevTransformMeta != null && ( prevTransformMeta.equals( lookup )
+        || ( !checkedEntries.contains( prevTransformMeta ) && hasLoop( prevTransformMeta, lookup == null ? transformMeta : lookup, checkedEntries ) ) ) ) {
         hasLoop = true;
         break;
       }
@@ -2918,13 +2918,13 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Mark all steps in the pipeline as selected.
+   * Mark all transforms in the pipeline as selected.
    */
   public void selectAll() {
     int i;
-    for ( i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      stepMeta.setSelected( true );
+    for ( i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      transformMeta.setSelected( true );
     }
     for ( i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
@@ -2936,13 +2936,13 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Clear the selection of all steps.
+   * Clear the selection of all transforms.
    */
   public void unselectAll() {
     int i;
-    for ( i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      stepMeta.setSelected( false );
+    for ( i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      transformMeta.setSelected( false );
     }
     for ( i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
@@ -2951,15 +2951,15 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get an array of all the selected step locations.
+   * Get an array of all the selected transform locations.
    *
-   * @return The selected step locations.
+   * @return The selected transform locations.
    */
-  public Point[] getSelectedStepLocations() {
+  public Point[] getSelectedTransformLocations() {
     List<Point> points = new ArrayList<>();
 
-    for ( StepMeta stepMeta : getSelectedSteps() ) {
-      Point p = stepMeta.getLocation();
+    for ( TransformMeta transformMeta : getSelectedTransforms() ) {
+      Point p = transformMeta.getLocation();
       points.add( new Point( p.x, p.y ) ); // explicit copy of location
     }
 
@@ -2983,15 +2983,15 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets a list of the selected steps.
+   * Gets a list of the selected transforms.
    *
-   * @return A list of all the selected steps.
+   * @return A list of all the selected transforms.
    */
-  public List<StepMeta> getSelectedSteps() {
-    List<StepMeta> selection = new ArrayList<>();
-    for ( StepMeta stepMeta : steps ) {
-      if ( stepMeta.isSelected() ) {
-        selection.add( stepMeta );
+  public List<TransformMeta> getSelectedTransforms() {
+    List<TransformMeta> selection = new ArrayList<>();
+    for ( TransformMeta transformMeta : transforms ) {
+      if ( transformMeta.isSelected() ) {
+        selection.add( transformMeta );
       }
 
     }
@@ -2999,46 +2999,46 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets an array of all the selected step names.
+   * Gets an array of all the selected transform names.
    *
-   * @return An array of all the selected step names.
+   * @return An array of all the selected transform names.
    */
-  public String[] getSelectedStepNames() {
-    List<StepMeta> selection = getSelectedSteps();
+  public String[] getSelectedTransformNames() {
+    List<TransformMeta> selection = getSelectedTransforms();
     String[] retval = new String[ selection.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
-      StepMeta stepMeta = selection.get( i );
-      retval[ i ] = stepMeta.getName();
+      TransformMeta transformMeta = selection.get( i );
+      retval[ i ] = transformMeta.getName();
     }
     return retval;
   }
 
   /**
-   * Gets an array of the locations of an array of steps.
+   * Gets an array of the locations of an array of transforms.
    *
-   * @param steps An array of steps
-   * @return an array of the locations of an array of steps
+   * @param transforms An array of transforms
+   * @return an array of the locations of an array of transforms
    */
-  public int[] getStepIndexes( List<StepMeta> steps ) {
-    int[] retval = new int[ steps.size() ];
+  public int[] getTransformIndexes( List<TransformMeta> transforms ) {
+    int[] retval = new int[ transforms.size() ];
 
-    for ( int i = 0; i < steps.size(); i++ ) {
-      retval[ i ] = indexOfStep( steps.get( i ) );
+    for ( int i = 0; i < transforms.size(); i++ ) {
+      retval[ i ] = indexOfTransform( transforms.get( i ) );
     }
 
     return retval;
   }
 
   /**
-   * Gets the maximum size of the canvas by calculating the maximum location of a step.
+   * Gets the maximum size of the canvas by calculating the maximum location of a transform.
    *
-   * @return Maximum coordinate of a step in the pipeline + (100,100) for safety.
+   * @return Maximum coordinate of a transform in the pipeline + (100,100) for safety.
    */
   public Point getMaximum() {
     int maxx = 0, maxy = 0;
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      Point loc = stepMeta.getLocation();
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      Point loc = transformMeta.getLocation();
       if ( loc.x > maxx ) {
         maxx = loc.x;
       }
@@ -3063,13 +3063,13 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Gets the minimum point on the canvas of a pipeline.
    *
-   * @return Minimum coordinate of a step in the pipeline
+   * @return Minimum coordinate of a transform in the pipeline
    */
   public Point getMinimum() {
     int minx = Integer.MAX_VALUE, miny = Integer.MAX_VALUE;
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      Point loc = stepMeta.getLocation();
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
+      Point loc = transformMeta.getLocation();
       if ( loc.x < minx ) {
         minx = loc.x;
       }
@@ -3103,76 +3103,76 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the names of all the steps.
+   * Gets the names of all the transforms.
    *
-   * @return An array of step names.
+   * @return An array of transform names.
    */
-  public String[] getStepNames() {
-    String[] retval = new String[ nrSteps() ];
+  public String[] getTransformNames() {
+    String[] retval = new String[ nrTransforms() ];
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      retval[ i ] = getStep( i ).getName();
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      retval[ i ] = getTransform( i ).getName();
     }
 
     return retval;
   }
 
   /**
-   * Gets all the steps as an array.
+   * Gets all the transforms as an array.
    *
-   * @return An array of all the steps in the pipeline.
+   * @return An array of all the transforms in the pipeline.
    */
-  public StepMeta[] getStepsArray() {
-    StepMeta[] retval = new StepMeta[ nrSteps() ];
+  public TransformMeta[] getTransformsArray() {
+    TransformMeta[] retval = new TransformMeta[ nrTransforms() ];
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      retval[ i ] = getStep( i );
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      retval[ i ] = getTransform( i );
     }
 
     return retval;
   }
 
   /**
-   * Looks in the pipeline to find a step in a previous location starting somewhere.
+   * Looks in the pipeline to find a transform in a previous location starting somewhere.
    *
-   * @param startStep  The starting step
-   * @param stepToFind The step to look for backward in the pipeline
-   * @return true if we can find the step in an earlier location in the pipeline.
+   * @param startTransform  The starting transform
+   * @param transformToFind The transform to look for backward in the pipeline
+   * @return true if we can find the transform in an earlier location in the pipeline.
    */
-  public boolean findPrevious( StepMeta startStep, StepMeta stepToFind ) {
-    String key = startStep.getName() + " - " + stepToFind.getName();
+  public boolean findPrevious( TransformMeta startTransform, TransformMeta transformToFind ) {
+    String key = startTransform.getName() + " - " + transformToFind.getName();
     Boolean result = loopCache.get( key );
     if ( result != null ) {
       return result;
     }
 
-    // Normal steps
+    // Normal transforms
     //
-    List<StepMeta> previousSteps = findPreviousSteps( startStep, false );
-    for ( int i = 0; i < previousSteps.size(); i++ ) {
-      StepMeta stepMeta = previousSteps.get( i );
-      if ( stepMeta.equals( stepToFind ) ) {
+    List<TransformMeta> previousTransforms = findPreviousTransforms( startTransform, false );
+    for ( int i = 0; i < previousTransforms.size(); i++ ) {
+      TransformMeta transformMeta = previousTransforms.get( i );
+      if ( transformMeta.equals( transformToFind ) ) {
         loopCache.put( key, true );
         return true;
       }
 
-      boolean found = findPrevious( stepMeta, stepToFind ); // Look further back in the tree.
+      boolean found = findPrevious( transformMeta, transformToFind ); // Look further back in the tree.
       if ( found ) {
         loopCache.put( key, true );
         return true;
       }
     }
 
-    // Info steps
-    List<StepMeta> infoSteps = findPreviousSteps( startStep, true );
-    for ( int i = 0; i < infoSteps.size(); i++ ) {
-      StepMeta stepMeta = infoSteps.get( i );
-      if ( stepMeta.equals( stepToFind ) ) {
+    // Info transforms
+    List<TransformMeta> infoTransforms = findPreviousTransforms( startTransform, true );
+    for ( int i = 0; i < infoTransforms.size(); i++ ) {
+      TransformMeta transformMeta = infoTransforms.get( i );
+      if ( transformMeta.equals( transformToFind ) ) {
         loopCache.put( key, true );
         return true;
       }
 
-      boolean found = findPrevious( stepMeta, stepToFind ); // Look further back in the tree.
+      boolean found = findPrevious( transformMeta, transformToFind ); // Look further back in the tree.
       if ( found ) {
         loopCache.put( key, true );
         return true;
@@ -3184,13 +3184,13 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Puts the steps in alphabetical order.
+   * Puts the transforms in alphabetical order.
    */
-  public void sortSteps() {
+  public void sortTransforms() {
     try {
-      Collections.sort( steps );
+      Collections.sort( transforms );
     } catch ( Exception e ) {
-      log.logError( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorOfSortingSteps" ) + e );
+      log.logError( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorOfSortingTransforms" ) + e );
       log.logError( Const.getStackTracker( e ) );
     }
   }
@@ -3208,43 +3208,43 @@ public class PipelineMeta extends AbstractMeta
   private long prevCount;
 
   /**
-   * Puts the steps in a more natural order: from start to finish. For the moment, we ignore splits and joins. Splits
+   * Puts the transforms in a more natural order: from start to finish. For the moment, we ignore splits and joins. Splits
    * and joins can't be listed sequentially in any case!
    *
-   * @return a map containing all the previous steps per step
+   * @return a map containing all the previous transforms per transform
    */
-  public Map<StepMeta, Map<StepMeta, Boolean>> sortStepsNatural() {
+  public Map<TransformMeta, Map<TransformMeta, Boolean>> sortTransformsNatural() {
     long startTime = System.currentTimeMillis();
 
     prevCount = 0;
 
-    // First create a map where all the previous steps of another step are kept...
+    // First create a map where all the previous transforms of another transform are kept...
     //
-    final Map<StepMeta, Map<StepMeta, Boolean>> stepMap = new HashMap<>();
+    final Map<TransformMeta, Map<TransformMeta, Boolean>> transformMap = new HashMap<>();
 
-    // Also cache the previous steps
+    // Also cache the previous transforms
     //
-    final Map<StepMeta, List<StepMeta>> previousCache = new HashMap<>();
+    final Map<TransformMeta, List<TransformMeta>> previousCache = new HashMap<>();
 
-    // Cache calculation of steps before another
+    // Cache calculation of transforms before another
     //
-    Map<StepMeta, Map<StepMeta, Boolean>> beforeCache = new HashMap<>();
+    Map<TransformMeta, Map<TransformMeta, Boolean>> beforeCache = new HashMap<>();
 
-    for ( StepMeta stepMeta : steps ) {
-      // What are the previous steps? (cached version for performance)
+    for ( TransformMeta transformMeta : transforms ) {
+      // What are the previous transforms? (cached version for performance)
       //
-      List<StepMeta> prevSteps = previousCache.get( stepMeta );
-      if ( prevSteps == null ) {
-        prevSteps = findPreviousSteps( stepMeta );
+      List<TransformMeta> prevTransforms = previousCache.get( transformMeta );
+      if ( prevTransforms == null ) {
+        prevTransforms = findPreviousTransforms( transformMeta );
         prevCount++;
-        previousCache.put( stepMeta, prevSteps );
+        previousCache.put( transformMeta, prevTransforms );
       }
 
-      // Now get the previous steps recursively, store them in the step map
+      // Now get the previous transforms recursively, store them in the transform map
       //
-      for ( StepMeta prev : prevSteps ) {
-        Map<StepMeta, Boolean> beforePrevMap = updateFillStepMap( previousCache, beforeCache, stepMeta, prev );
-        stepMap.put( stepMeta, beforePrevMap );
+      for ( TransformMeta prev : prevTransforms ) {
+        Map<TransformMeta, Boolean> beforePrevMap = updateFillTransformMap( previousCache, beforeCache, transformMeta, prev );
+        transformMap.put( transformMeta, beforePrevMap );
 
         // Store it also in the beforeCache...
         //
@@ -3252,12 +3252,12 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    Collections.sort( steps, new Comparator<StepMeta>() {
+    Collections.sort( transforms, new Comparator<TransformMeta>() {
 
       @Override
-      public int compare( StepMeta o1, StepMeta o2 ) {
+      public int compare( TransformMeta o1, TransformMeta o2 ) {
 
-        Map<StepMeta, Boolean> beforeMap = stepMap.get( o1 );
+        Map<TransformMeta, Boolean> beforeMap = transformMap.get( o1 );
         if ( beforeMap != null ) {
           if ( beforeMap.get( o2 ) == null ) {
             return -1;
@@ -3272,59 +3272,59 @@ public class PipelineMeta extends AbstractMeta
 
     long endTime = System.currentTimeMillis();
     log.logBasic(
-      BaseMessages.getString( PKG, "PipelineMeta.Log.TimeExecutionStepSort", ( endTime - startTime ), prevCount ) );
+      BaseMessages.getString( PKG, "PipelineMeta.Log.TimeExecutionTransformSort", ( endTime - startTime ), prevCount ) );
 
-    return stepMap;
+    return transformMap;
   }
 
   /**
-   * Fills a map with all steps previous to the given step. This method uses a caching technique, so if a map is
-   * provided that contains the specified previous step, it is immediately returned to avoid unnecessary processing.
-   * Otherwise, the previous steps are determined and added to the map recursively, and a cache is constructed for later
+   * Fills a map with all transforms previous to the given transform. This method uses a caching technique, so if a map is
+   * provided that contains the specified previous transform, it is immediately returned to avoid unnecessary processing.
+   * Otherwise, the previous transforms are determined and added to the map recursively, and a cache is constructed for later
    * use.
    *
    * @param previousCache    the previous cache, must be non-null
    * @param beforeCache      the before cache, must be non-null
-   * @param originStepMeta   the origin step meta
-   * @param previousStepMeta the previous step meta
+   * @param originTransformMeta   the origin transform meta
+   * @param previousTransformMeta the previous transform meta
    * @return the map
    */
-  private Map<StepMeta, Boolean> updateFillStepMap( Map<StepMeta, List<StepMeta>> previousCache,
-                                                    Map<StepMeta, Map<StepMeta, Boolean>> beforeCache, StepMeta originStepMeta, StepMeta previousStepMeta ) {
+  private Map<TransformMeta, Boolean> updateFillTransformMap( Map<TransformMeta, List<TransformMeta>> previousCache,
+                                                         Map<TransformMeta, Map<TransformMeta, Boolean>> beforeCache, TransformMeta originTransformMeta, TransformMeta previousTransformMeta ) {
 
-    // See if we have a hash map to store step occurrence (located before the step)
+    // See if we have a hash map to store transform occurrence (located before the transform)
     //
-    Map<StepMeta, Boolean> beforeMap = beforeCache.get( previousStepMeta );
+    Map<TransformMeta, Boolean> beforeMap = beforeCache.get( previousTransformMeta );
     if ( beforeMap == null ) {
       beforeMap = new HashMap<>();
     } else {
       return beforeMap; // Nothing left to do here!
     }
 
-    // Store the current previous step in the map
+    // Store the current previous transform in the map
     //
-    beforeMap.put( previousStepMeta, Boolean.TRUE );
+    beforeMap.put( previousTransformMeta, Boolean.TRUE );
 
-    // Figure out all the previous steps as well, they all need to go in there...
+    // Figure out all the previous transforms as well, they all need to go in there...
     //
-    List<StepMeta> prevSteps = previousCache.get( previousStepMeta );
-    if ( prevSteps == null ) {
-      prevSteps = findPreviousSteps( previousStepMeta );
+    List<TransformMeta> prevTransforms = previousCache.get( previousTransformMeta );
+    if ( prevTransforms == null ) {
+      prevTransforms = findPreviousTransforms( previousTransformMeta );
       prevCount++;
-      previousCache.put( previousStepMeta, prevSteps );
+      previousCache.put( previousTransformMeta, prevTransforms );
     }
 
-    // Now, get the previous steps for stepMeta recursively...
+    // Now, get the previous transforms for transformMeta recursively...
     // We only do this when the beforeMap is not known yet...
     //
-    for ( StepMeta prev : prevSteps ) {
-      Map<StepMeta, Boolean> beforePrevMap = updateFillStepMap( previousCache, beforeCache, originStepMeta, prev );
+    for ( TransformMeta prev : prevTransforms ) {
+      Map<TransformMeta, Boolean> beforePrevMap = updateFillTransformMap( previousCache, beforeCache, originTransformMeta, prev );
 
       // Keep a copy in the cache...
       //
       beforeCache.put( prev, beforePrevMap );
 
-      // Also add it to the new map for this step...
+      // Also add it to the new map for this transform...
       //
       beforeMap.putAll( beforePrevMap );
     }
@@ -3343,8 +3343,8 @@ public class PipelineMeta extends AbstractMeta
         PipelineHopMeta one = getPipelineHop( i );
         PipelineHopMeta two = getPipelineHop( i + 1 );
 
-        StepMeta a = two.getFromStep();
-        StepMeta b = one.getToStep();
+        TransformMeta a = two.getFromTransform();
+        TransformMeta b = one.getToTransform();
 
         if ( !findPrevious( a, b ) && !a.equals( b ) ) {
           setPipelineHop( i + 1, one );
@@ -3355,36 +3355,36 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Determines the impact of the different steps in a pipeline on databases, tables and field.
+   * Determines the impact of the different transforms in a pipeline on databases, tables and field.
    *
    * @param impact  An ArrayList of DatabaseImpact objects.
    * @param monitor a progress monitor listener to be updated as the pipeline is analyzed
-   * @throws HopStepException if any errors occur during analysis
+   * @throws HopTransformException if any errors occur during analysis
    */
-  public void analyseImpact( List<DatabaseImpact> impact, ProgressMonitorListener monitor ) throws HopStepException {
+  public void analyseImpact( List<DatabaseImpact> impact, ProgressMonitorListener monitor ) throws HopTransformException {
     if ( monitor != null ) {
       monitor
-        .beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.DeterminingImpactTask.Title" ), nrSteps() );
+        .beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.DeterminingImpactTask.Title" ), nrTransforms() );
     }
     boolean stop = false;
-    for ( int i = 0; i < nrSteps() && !stop; i++ ) {
+    for ( int i = 0; i < nrTransforms() && !stop; i++ ) {
       if ( monitor != null ) {
         monitor.subTask(
-          BaseMessages.getString( PKG, "PipelineMeta.Monitor.LookingAtStepTask.Title" ) + ( i + 1 ) + "/" + nrSteps() );
+          BaseMessages.getString( PKG, "PipelineMeta.Monitor.LookingAtTransformTask.Title" ) + ( i + 1 ) + "/" + nrTransforms() );
       }
-      StepMeta stepMeta = getStep( i );
+      TransformMeta transformMeta = getTransform( i );
 
-      RowMetaInterface prev = getPrevStepFields( stepMeta );
-      StepMetaInterface stepint = stepMeta.getStepMetaInterface();
+      RowMetaInterface prev = getPrevTransformFields( transformMeta );
+      TransformMetaInterface transformint = transformMeta.getTransformMetaInterface();
       RowMetaInterface inform = null;
-      StepMeta[] lu = getInfoStep( stepMeta );
+      TransformMeta[] lu = getInfoTransform( transformMeta );
       if ( lu != null ) {
-        inform = getStepFields( lu );
+        inform = getTransformFields( lu );
       } else {
-        inform = stepint.getTableFields();
+        inform = transformint.getTableFields();
       }
 
-      stepint.analyseImpact( impact, this, stepMeta, prev, null, null, inform, metaStore );
+      transformint.analyseImpact( impact, this, transformMeta, prev, null, null, inform, metaStore );
 
       if ( monitor != null ) {
         monitor.worked( 1 );
@@ -3398,19 +3398,19 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Proposes an alternative stepname when the original already exists.
+   * Proposes an alternative transformName when the original already exists.
    *
-   * @param stepname The stepname to find an alternative for
-   * @return The suggested alternative stepname.
+   * @param transformName The transformName to find an alternative for
+   * @return The suggested alternative transformName.
    */
-  public String getAlternativeStepname( String stepname ) {
-    String newname = stepname;
-    StepMeta stepMeta = findStep( newname );
+  public String getAlternativeTransformName( String transformName ) {
+    String newname = transformName;
+    TransformMeta transformMeta = findTransform( newname );
     int nr = 1;
-    while ( stepMeta != null ) {
+    while ( transformMeta != null ) {
       nr++;
-      newname = stepname + " " + nr;
-      stepMeta = findStep( newname );
+      newname = transformName + " " + nr;
+      transformMeta = findTransform( newname );
     }
 
     return newname;
@@ -3420,9 +3420,9 @@ public class PipelineMeta extends AbstractMeta
    * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
    *
    * @return An ArrayList of SQLStatement objects.
-   * @throws HopStepException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public List<SQLStatement> getSQLStatements() throws HopStepException {
+  public List<SQLStatement> getSQLStatements() throws HopTransformException {
     return getSQLStatements( null );
   }
 
@@ -3431,22 +3431,22 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param monitor a progress monitor listener to be updated as the SQL statements are generated
    * @return An ArrayList of SQLStatement objects.
-   * @throws HopStepException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public List<SQLStatement> getSQLStatements( ProgressMonitorListener monitor ) throws HopStepException {
+  public List<SQLStatement> getSQLStatements( ProgressMonitorListener monitor ) throws HopTransformException {
     if ( monitor != null ) {
-      monitor.beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForPipelineTask.Title" ), nrSteps() + 1 );
+      monitor.beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForPipelineTask.Title" ), nrTransforms() + 1 );
     }
     List<SQLStatement> stats = new ArrayList<>();
 
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      TransformMeta transformMeta = getTransform( i );
       if ( monitor != null ) {
         monitor.subTask(
-          BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForStepTask.Title", "" + stepMeta ) );
+          BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForTransformTask.Title", "" + transformMeta ) );
       }
-      RowMetaInterface prev = getPrevStepFields( stepMeta );
-      SQLStatement sql = stepMeta.getStepMetaInterface().getSQLStatements( this, stepMeta, prev, metaStore );
+      RowMetaInterface prev = getPrevTransformFields( transformMeta );
+      SQLStatement sql = transformMeta.getTransformMetaInterface().getSQLStatements( this, transformMeta, prev, metaStore );
       if ( sql.getSQL() != null || sql.hasError() ) {
         stats.add( sql );
       }
@@ -3464,7 +3464,7 @@ public class PipelineMeta extends AbstractMeta
       .isEmpty( performanceLogTable.getTableName() ) ) ) {
       try {
         for ( LogTableInterface logTable : new LogTableInterface[] { pipelineLogTable, performanceLogTable,
-          channelLogTable, stepLogTable, } ) {
+          channelLogTable, transformLogTable, } ) {
           if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
 
             Database db = null;
@@ -3515,9 +3515,9 @@ public class PipelineMeta extends AbstractMeta
    * Get the SQL statements (needed to run this pipeline) as a single String.
    *
    * @return the SQL statements needed to run this pipeline
-   * @throws HopStepException if any errors occur during SQL statement generation
+   * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public String getSQLStatementsString() throws HopStepException {
+  public String getSQLStatementsString() throws HopTransformException {
     String sql = "";
     List<SQLStatement> stats = getSQLStatements();
     for ( int i = 0; i < stats.size(); i++ ) {
@@ -3531,77 +3531,77 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Checks all the steps and fills a List of (CheckResult) remarks.
+   * Checks all the transforms and fills a List of (CheckResult) remarks.
    *
    * @param remarks       The remarks list to add to.
-   * @param only_selected true to check only the selected steps, false for all steps
+   * @param only_selected true to check only the selected transforms, false for all transforms
    * @param monitor       a progress monitor listener to be updated as the SQL statements are generated
    */
-  public void checkSteps( List<CheckResultInterface> remarks, boolean only_selected, ProgressMonitorListener monitor,
+  public void checkTransforms( List<CheckResultInterface> remarks, boolean only_selected, ProgressMonitorListener monitor,
                           VariableSpace space, IMetaStore metaStore ) {
     try {
       remarks.clear(); // Start with a clean slate...
 
       Map<ValueMetaInterface, String> values = new Hashtable<>();
-      String[] stepnames;
-      StepMeta[] steps;
-      List<StepMeta> selectedSteps = getSelectedSteps();
-      if ( !only_selected || selectedSteps.isEmpty() ) {
-        stepnames = getStepNames();
-        steps = getStepsArray();
+      String[] transformnames;
+      TransformMeta[] transforms;
+      List<TransformMeta> selectedTransforms = getSelectedTransforms();
+      if ( !only_selected || selectedTransforms.isEmpty() ) {
+        transformnames = getTransformNames();
+        transforms = getTransformsArray();
       } else {
-        stepnames = getSelectedStepNames();
-        steps = selectedSteps.toArray( new StepMeta[ selectedSteps.size() ] );
+        transformnames = getSelectedTransformNames();
+        transforms = selectedTransforms.toArray( new TransformMeta[ selectedTransforms.size() ] );
       }
 
-      ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckSteps.id,
-        new CheckStepsExtension( remarks, space, this, steps, metaStore ) );
+      ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckTransforms.id,
+        new CheckTransformsExtension( remarks, space, this, transforms, metaStore ) );
 
       boolean stop_checking = false;
 
       if ( monitor != null ) {
         monitor.beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.VerifyingThisPipelineTask.Title" ),
-          steps.length + 2 );
+          transforms.length + 2 );
       }
 
-      for ( int i = 0; i < steps.length && !stop_checking; i++ ) {
+      for ( int i = 0; i < transforms.length && !stop_checking; i++ ) {
         if ( monitor != null ) {
-          monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.VerifyingStepTask.Title", stepnames[ i ] ) );
+          monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.VerifyingTransformTask.Title", transformnames[ i ] ) );
         }
 
-        StepMeta stepMeta = steps[ i ];
+        TransformMeta transformMeta = transforms[ i ];
 
-        int nrinfo = findNrInfoSteps( stepMeta );
-        StepMeta[] infostep = null;
+        int nrinfo = findNrInfoTransforms( transformMeta );
+        TransformMeta[] infoTransform = null;
         if ( nrinfo > 0 ) {
-          infostep = getInfoStep( stepMeta );
+          infoTransform = getInfoTransform( transformMeta );
         }
 
         RowMetaInterface info = null;
-        if ( infostep != null ) {
+        if ( infoTransform != null ) {
           try {
-            info = getStepFields( infostep );
-          } catch ( HopStepException kse ) {
+            info = getTransformFields( infoTransform );
+          } catch ( HopTransformException kse ) {
             info = null;
             CheckResult
               cr =
               new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "PipelineMeta.CheckResult.TypeResultError.ErrorOccurredGettingStepInfoFields.Description",
-                "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
+                "PipelineMeta.CheckResult.TypeResultError.ErrorOccurredGettingTransformMetaFields.Description",
+                "" + transformMeta, Const.CR + kse.getMessage() ), transformMeta );
             remarks.add( cr );
           }
         }
 
-        // The previous fields from non-informative steps:
+        // The previous fields from non-informative transforms:
         RowMetaInterface prev = null;
         try {
-          prev = getPrevStepFields( stepMeta );
-        } catch ( HopStepException kse ) {
+          prev = getPrevTransformFields( transformMeta );
+        } catch ( HopTransformException kse ) {
           CheckResult
             cr =
             new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
               .getString( PKG, "PipelineMeta.CheckResult.TypeResultError.ErrorOccurredGettingInputFields.Description",
-                "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
+                "" + transformMeta, Const.CR + kse.getMessage() ), transformMeta );
           remarks.add( cr );
           // This is a severe error: stop checking...
           // Otherwise we wind up checking time & time again because nothing gets put in the database
@@ -3609,18 +3609,18 @@ public class PipelineMeta extends AbstractMeta
           stop_checking = true;
         }
 
-        if ( isStepUsedInPipelineHops( stepMeta ) || getSteps().size() == 1 ) {
-          // Get the input & output steps!
+        if ( isTransformUsedInPipelineHops( transformMeta ) || getTransforms().size() == 1 ) {
+          // Get the input & output transforms!
           // Copy to arrays:
-          String[] input = getPrevStepNames( stepMeta );
-          String[] output = getNextStepNames( stepMeta );
+          String[] input = getPrevTransformNames( transformMeta );
+          String[] output = getNextTransformNames( transformMeta );
 
-          // Check step specific info...
-          ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckStep.id,
-            new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, metaStore ) );
-          stepMeta.check( remarks, this, prev, input, output, info, space, metaStore );
-          ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckStep.id,
-            new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, metaStore ) );
+          // Check transform specific info...
+          ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckTransform.id,
+            new CheckTransformsExtension( remarks, space, this, new TransformMeta[] { transformMeta }, metaStore ) );
+          transformMeta.check( remarks, this, prev, input, output, info, space, metaStore );
+          ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckTransform.id,
+            new CheckTransformsExtension( remarks, space, this, new TransformMeta[] { transformMeta }, metaStore ) );
 
           // See if illegal characters etc. were used in field-names...
           if ( prev != null ) {
@@ -3647,7 +3647,7 @@ public class PipelineMeta extends AbstractMeta
               }
             }
 
-            // Check if 2 steps with the same name are entering the step...
+            // Check if 2 transforms with the same name are entering the transform...
             if ( prev.size() > 1 ) {
               String[] fieldNames = prev.getFieldNames();
               String[] sortedNames = Const.sortStrings( fieldNames );
@@ -3661,7 +3661,7 @@ public class PipelineMeta extends AbstractMeta
                     cr =
                     new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
                       .getString( PKG, "PipelineMeta.CheckResult.TypeResultWarning.HaveTheSameNameField.Description",
-                        prevName ), stepMeta );
+                        prevName ), transformMeta );
                   remarks.add( cr );
                 } else {
                   prevName = sortedNames[ x ];
@@ -3673,23 +3673,23 @@ public class PipelineMeta extends AbstractMeta
               cr =
               new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
                 .getString( PKG, "PipelineMeta.CheckResult.TypeResultError.CannotFindPreviousFields.Description" )
-                + stepMeta.getName(), stepMeta );
+                + transformMeta.getName(), transformMeta );
             remarks.add( cr );
           }
         } else {
           CheckResult
             cr =
             new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
-              BaseMessages.getString( PKG, "PipelineMeta.CheckResult.TypeResultWarning.StepIsNotUsed.Description" ),
-              stepMeta );
+              BaseMessages.getString( PKG, "PipelineMeta.CheckResult.TypeResultWarning.TransformIsNotUsed.Description" ),
+              transformMeta );
           remarks.add( cr );
         }
 
         // Also check for mixing rows...
         try {
-          checkRowMixingStatically( stepMeta, null );
+          checkRowMixingStatically( transformMeta, null );
         } catch ( HopRowException e ) {
-          CheckResult cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, e.getMessage(), stepMeta );
+          CheckResult cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, e.getMessage(), transformMeta );
           remarks.add( cr );
         }
 
@@ -3779,7 +3779,7 @@ public class PipelineMeta extends AbstractMeta
             cr =
             new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages
               .getString( PKG, "PipelineMeta.CheckResult.TypeResultWarning.Description", v.getName(), message,
-                v.getOrigin() ), findStep( v.getOrigin() ) );
+                v.getOrigin() ), findTransform( v.getOrigin() ) );
           remarks.add( cr );
         }
       } else {
@@ -3792,8 +3792,8 @@ public class PipelineMeta extends AbstractMeta
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
-      ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckSteps.id,
-        new CheckStepsExtension( remarks, space, this, steps, metaStore ) );
+      ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckTransforms.id,
+        new CheckTransformsExtension( remarks, space, this, transforms, metaStore ) );
     } catch ( Exception e ) {
       log.logError( Const.getStackTracker( e ) );
       throw new RuntimeException( e );
@@ -4011,8 +4011,8 @@ public class PipelineMeta extends AbstractMeta
    * @throws HopDatabaseException if any errors occur during query cancellation
    */
   public void cancelQueries() throws HopDatabaseException {
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      getStep( i ).getStepMetaInterface().cancelQueries();
+    for ( int i = 0; i < nrTransforms(); i++ ) {
+      getTransform( i ).getTransformMetaInterface().cancelQueries();
     }
   }
 
@@ -4057,32 +4057,32 @@ public class PipelineMeta extends AbstractMeta
    * Gets a list of all the strings used in this pipeline. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchSteps      true if steps should be searched, false otherwise
+   * @param searchTransforms      true if transforms should be searched, false otherwise
    * @param searchDatabases  true if databases should be searched, false otherwise
    * @param searchNotes      true if notes should be searched, false otherwise
    * @param includePasswords true if passwords should be searched, false otherwise
    * @return a list of search results for strings used in the pipeline.
    */
-  public List<StringSearchResult> getStringList( boolean searchSteps, boolean searchDatabases, boolean searchNotes,
+  public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes,
                                                  boolean includePasswords ) {
     List<StringSearchResult> stringList = new ArrayList<>();
 
-    if ( searchSteps ) {
-      // Loop over all steps in the pipeline and see what the used vars are...
-      for ( int i = 0; i < nrSteps(); i++ ) {
-        StepMeta stepMeta = getStep( i );
-        stringList.add( new StringSearchResult( stepMeta.getName(), stepMeta, this,
-          BaseMessages.getString( PKG, "PipelineMeta.SearchMetadata.StepName" ) ) );
-        if ( stepMeta.getDescription() != null ) {
-          stringList.add( new StringSearchResult( stepMeta.getDescription(), stepMeta, this,
-            BaseMessages.getString( PKG, "PipelineMeta.SearchMetadata.StepDescription" ) ) );
+    if ( searchTransforms ) {
+      // Loop over all transforms in the pipeline and see what the used vars are...
+      for ( int i = 0; i < nrTransforms(); i++ ) {
+        TransformMeta transformMeta = getTransform( i );
+        stringList.add( new StringSearchResult( transformMeta.getName(), transformMeta, this,
+          BaseMessages.getString( PKG, "PipelineMeta.SearchMetadata.TransformName" ) ) );
+        if ( transformMeta.getDescription() != null ) {
+          stringList.add( new StringSearchResult( transformMeta.getDescription(), transformMeta, this,
+            BaseMessages.getString( PKG, "PipelineMeta.SearchMetadata.TransformDescription" ) ) );
         }
-        StepMetaInterface metaInterface = stepMeta.getStepMetaInterface();
-        StringSearcher.findMetaData( metaInterface, 1, stringList, stepMeta, this );
+        TransformMetaInterface metaInterface = transformMeta.getTransformMetaInterface();
+        StringSearcher.findMetaData( metaInterface, 1, stringList, transformMeta, this );
       }
     }
 
-    // Loop over all steps in the pipeline and see what the used vars are...
+    // Loop over all transforms in the pipeline and see what the used vars are...
     if ( searchDatabases ) {
       for ( DatabaseMeta meta : getDatabases() ) {
         stringList.add( new StringSearchResult( meta.getName(), meta, this,
@@ -4120,7 +4120,7 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    // Loop over all steps in the pipeline and see what the used vars are...
+    // Loop over all transforms in the pipeline and see what the used vars are...
     if ( searchNotes ) {
       for ( int i = 0; i < nrNotes(); i++ ) {
         NotePadMeta meta = getNote( i );
@@ -4138,13 +4138,13 @@ public class PipelineMeta extends AbstractMeta
    * Get a list of all the strings used in this pipeline. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchSteps     true if steps should be searched, false otherwise
+   * @param searchTransforms     true if transforms should be searched, false otherwise
    * @param searchDatabases true if databases should be searched, false otherwise
    * @param searchNotes     true if notes should be searched, false otherwise
    * @return a list of search results for strings used in the pipeline.
    */
-  public List<StringSearchResult> getStringList( boolean searchSteps, boolean searchDatabases, boolean searchNotes ) {
-    return getStringList( searchSteps, searchDatabases, searchNotes, false );
+  public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes ) {
+    return getStringList( searchTransforms, searchDatabases, searchNotes, false );
   }
 
   /**
@@ -4246,29 +4246,29 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Check a step to see if there are no multiple steps to read from. If so, check to see if the receiving rows are all
+   * Check a transform to see if there are no multiple transforms to read from. If so, check to see if the receiving rows are all
    * the same in layout. We only want to ONLY use the DBCache for this to prevent GUI stalls.
    *
-   * @param stepMeta the step to check
+   * @param transformMeta the transform to check
    * @param monitor  the monitor
    * @throws HopRowException in case we detect a row mixing violation
    */
-  public void checkRowMixingStatically( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopRowException {
-    List<StepMeta> prevSteps = findPreviousSteps( stepMeta );
-    int nrPrevious = prevSteps.size();
+  public void checkRowMixingStatically( TransformMeta transformMeta, ProgressMonitorListener monitor ) throws HopRowException {
+    List<TransformMeta> prevTransforms = findPreviousTransforms( transformMeta );
+    int nrPrevious = prevTransforms.size();
     if ( nrPrevious > 1 ) {
       RowMetaInterface referenceRow = null;
-      // See if all previous steps send out the same rows...
+      // See if all previous transforms send out the same rows...
       for ( int i = 0; i < nrPrevious; i++ ) {
-        StepMeta previousStep = prevSteps.get( i );
+        TransformMeta previousTransform = prevTransforms.get( i );
         try {
-          RowMetaInterface row = getStepFields( previousStep, monitor ); // Throws HopStepException
+          RowMetaInterface row = getTransformFields( previousTransform, monitor ); // Throws HopTransformException
           if ( referenceRow == null ) {
             referenceRow = row;
-          } else if ( !stepMeta.getStepMetaInterface().excludeFromRowLayoutVerification() ) {
-            BaseStep.safeModeChecking( referenceRow, row );
+          } else if ( !transformMeta.getTransformMetaInterface().excludeFromRowLayoutVerification() ) {
+            BaseTransform.safeModeChecking( referenceRow, row );
           }
-        } catch ( HopStepException e ) {
+        } catch ( HopTransformException e ) {
           // We ignore this one because we are in the process of designing the pipeline, anything intermediate can
           // go wrong.
         }
@@ -4358,74 +4358,74 @@ public class PipelineMeta extends AbstractMeta
 
 
   /**
-   * Finds the mapping input step with the specified name. If no mapping input step is found, null is returned
+   * Finds the mapping input transform with the specified name. If no mapping input transform is found, null is returned
    *
-   * @param stepname the name to search for
-   * @return the step meta-data corresponding to the desired mapping input step, or null if no step was found
-   * @throws HopStepException if any errors occur during the search
+   * @param transformName the name to search for
+   * @return the transform meta-data corresponding to the desired mapping input transform, or null if no transform was found
+   * @throws HopTransformException if any errors occur during the search
    */
-  public StepMeta findMappingInputStep( String stepname ) throws HopStepException {
-    if ( !Utils.isEmpty( stepname ) ) {
-      StepMeta stepMeta = findStep( stepname ); // TODO verify that it's a mapping input!!
-      if ( stepMeta == null ) {
-        throw new HopStepException( BaseMessages.getString(
-          PKG, "PipelineMeta.Exception.StepNameNotFound", stepname ) );
+  public TransformMeta findMappingInputTransform( String transformName ) throws HopTransformException {
+    if ( !Utils.isEmpty( transformName ) ) {
+      TransformMeta transformMeta = findTransform( transformName ); // TODO verify that it's a mapping input!!
+      if ( transformMeta == null ) {
+        throw new HopTransformException( BaseMessages.getString(
+          PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName ) );
       }
-      return stepMeta;
+      return transformMeta;
     } else {
-      // Find the first mapping input step that fits the bill.
-      StepMeta stepMeta = null;
-      for ( StepMeta mappingStep : steps ) {
-        if ( mappingStep.getStepID().equals( "MappingInput" ) ) {
-          if ( stepMeta == null ) {
-            stepMeta = mappingStep;
-          } else if ( stepMeta != null ) {
-            throw new HopStepException( BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.OnlyOneMappingInputStepAllowed", "2" ) );
+      // Find the first mapping input transform that fits the bill.
+      TransformMeta transformMeta = null;
+      for ( TransformMeta mappingTransform : transforms ) {
+        if ( mappingTransform.getTransformPluginId().equals( "MappingInput" ) ) {
+          if ( transformMeta == null ) {
+            transformMeta = mappingTransform;
+          } else if ( transformMeta != null ) {
+            throw new HopTransformException( BaseMessages.getString(
+              PKG, "PipelineMeta.Exception.OnlyOneMappingInputTransformAllowed", "2" ) );
           }
         }
       }
-      if ( stepMeta == null ) {
-        throw new HopStepException( BaseMessages.getString(
-          PKG, "PipelineMeta.Exception.OneMappingInputStepRequired" ) );
+      if ( transformMeta == null ) {
+        throw new HopTransformException( BaseMessages.getString(
+          PKG, "PipelineMeta.Exception.OneMappingInputTransformRequired" ) );
       }
-      return stepMeta;
+      return transformMeta;
     }
   }
 
   /**
-   * Finds the mapping output step with the specified name. If no mapping output step is found, null is returned.
+   * Finds the mapping output transform with the specified name. If no mapping output transform is found, null is returned.
    *
-   * @param stepname the name to search for
-   * @return the step meta-data corresponding to the desired mapping input step, or null if no step was found
-   * @throws HopStepException if any errors occur during the search
+   * @param transformName the name to search for
+   * @return the transform meta-data corresponding to the desired mapping input transform, or null if no transform was found
+   * @throws HopTransformException if any errors occur during the search
    */
-  public StepMeta findMappingOutputStep( String stepname ) throws HopStepException {
-    if ( !Utils.isEmpty( stepname ) ) {
-      StepMeta stepMeta = findStep( stepname ); // TODO verify that it's a mapping output step.
-      if ( stepMeta == null ) {
-        throw new HopStepException( BaseMessages.getString(
-          PKG, "PipelineMeta.Exception.StepNameNotFound", stepname ) );
+  public TransformMeta findMappingOutputTransform( String transformName ) throws HopTransformException {
+    if ( !Utils.isEmpty( transformName ) ) {
+      TransformMeta transformMeta = findTransform( transformName ); // TODO verify that it's a mapping output transform.
+      if ( transformMeta == null ) {
+        throw new HopTransformException( BaseMessages.getString(
+          PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName ) );
       }
-      return stepMeta;
+      return transformMeta;
     } else {
-      // Find the first mapping output step that fits the bill.
-      StepMeta stepMeta = null;
-      for ( StepMeta mappingStep : steps ) {
-        if ( mappingStep.getStepID().equals( "MappingOutput" ) ) {
-          if ( stepMeta == null ) {
-            stepMeta = mappingStep;
-          } else if ( stepMeta != null ) {
-            throw new HopStepException( BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.OnlyOneMappingOutputStepAllowed", "2" ) );
+      // Find the first mapping output transform that fits the bill.
+      TransformMeta transformMeta = null;
+      for ( TransformMeta mappingTransform : transforms ) {
+        if ( mappingTransform.getTransformPluginId().equals( "MappingOutput" ) ) {
+          if ( transformMeta == null ) {
+            transformMeta = mappingTransform;
+          } else if ( transformMeta != null ) {
+            throw new HopTransformException( BaseMessages.getString(
+              PKG, "PipelineMeta.Exception.OnlyOneMappingOutputTransformAllowed", "2" ) );
           }
         }
       }
-      if ( stepMeta == null ) {
-        throw new HopStepException( BaseMessages.getString(
-          PKG, "PipelineMeta.Exception.OneMappingOutputStepRequired" ) );
+      if ( transformMeta == null ) {
+        throw new HopTransformException( BaseMessages.getString(
+          PKG, "PipelineMeta.Exception.OneMappingOutputTransformRequired" ) );
       }
-      return stepMeta;
+      return transformMeta;
     }
   }
 
@@ -4435,8 +4435,8 @@ public class PipelineMeta extends AbstractMeta
    * @return a list of ResourceReferences
    */
   public List<ResourceReference> getResourceDependencies() {
-    return steps.stream()
-      .flatMap( ( StepMeta stepMeta ) -> stepMeta.getResourceDependencies( this ).stream() )
+    return transforms.stream()
+      .flatMap( ( TransformMeta transformMeta ) -> transformMeta.getResourceDependencies( this ).stream() )
       .collect( Collectors.toList() );
   }
 
@@ -4478,15 +4478,15 @@ public class PipelineMeta extends AbstractMeta
           // pipelineMeta.copyVariablesFrom(space);
 
           // Add used resources, modify pipelineMeta accordingly
-          // Go through the list of steps, etc.
-          // These critters change the steps in the cloned PipelineMeta
+          // Go through the list of transforms, etc.
+          // These critters change the transforms in the cloned PipelineMeta
           // At the end we make a new XML version of it in "exported"
           // format...
 
-          // loop over steps, databases will be exported to XML anyway.
+          // loop over transforms, databases will be exported to XML anyway.
           //
-          for ( StepMeta stepMeta : pipelineMeta.getSteps() ) {
-            stepMeta.exportResources( space, definitions, resourceNamingInterface, metaStore );
+          for ( TransformMeta transformMeta : pipelineMeta.getTransforms() ) {
+            transformMeta.exportResources( space, definitions, resourceNamingInterface, metaStore );
           }
 
           // Change the filename, calling this sets internal variables
@@ -4533,73 +4533,73 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Checks whether the pipeline is capturing step performance snapshots.
+   * Checks whether the pipeline is capturing transform performance snapshots.
    *
-   * @return true if the pipeline is capturing step performance snapshots, false otherwise
+   * @return true if the pipeline is capturing transform performance snapshots, false otherwise
    */
-  public boolean isCapturingStepPerformanceSnapShots() {
-    return capturingStepPerformanceSnapShots;
+  public boolean isCapturingTransformPerformanceSnapShots() {
+    return capturingTransformPerformanceSnapShots;
   }
 
   /**
-   * Sets whether the pipeline is capturing step performance snapshots.
+   * Sets whether the pipeline is capturing transform performance snapshots.
    *
-   * @param capturingStepPerformanceSnapShots true if the pipeline is capturing step performance snapshots, false otherwise
+   * @param capturingTransformPerformanceSnapShots true if the pipeline is capturing transform performance snapshots, false otherwise
    */
-  public void setCapturingStepPerformanceSnapShots( boolean capturingStepPerformanceSnapShots ) {
-    this.capturingStepPerformanceSnapShots = capturingStepPerformanceSnapShots;
+  public void setCapturingTransformPerformanceSnapShots( boolean capturingTransformPerformanceSnapShots ) {
+    this.capturingTransformPerformanceSnapShots = capturingTransformPerformanceSnapShots;
   }
 
   /**
-   * Gets the step performance capturing delay.
+   * Gets the transform performance capturing delay.
    *
-   * @return the step performance capturing delay
+   * @return the transform performance capturing delay
    */
-  public long getStepPerformanceCapturingDelay() {
-    return stepPerformanceCapturingDelay;
+  public long getTransformPerformanceCapturingDelay() {
+    return transformPerformanceCapturingDelay;
   }
 
   /**
-   * Sets the step performance capturing delay.
+   * Sets the transform performance capturing delay.
    *
-   * @param stepPerformanceCapturingDelay the stepPerformanceCapturingDelay to set
+   * @param transformPerformanceCapturingDelay the transformPerformanceCapturingDelay to set
    */
-  public void setStepPerformanceCapturingDelay( long stepPerformanceCapturingDelay ) {
-    this.stepPerformanceCapturingDelay = stepPerformanceCapturingDelay;
+  public void setTransformPerformanceCapturingDelay( long transformPerformanceCapturingDelay ) {
+    this.transformPerformanceCapturingDelay = transformPerformanceCapturingDelay;
   }
 
   /**
-   * Gets the step performance capturing size limit.
+   * Gets the transform performance capturing size limit.
    *
-   * @return the step performance capturing size limit
+   * @return the transform performance capturing size limit
    */
-  public String getStepPerformanceCapturingSizeLimit() {
-    return stepPerformanceCapturingSizeLimit;
+  public String getTransformPerformanceCapturingSizeLimit() {
+    return transformPerformanceCapturingSizeLimit;
   }
 
   /**
-   * Sets the step performance capturing size limit.
+   * Sets the transform performance capturing size limit.
    *
-   * @param stepPerformanceCapturingSizeLimit the step performance capturing size limit to set
+   * @param transformPerformanceCapturingSizeLimit the transform performance capturing size limit to set
    */
-  public void setStepPerformanceCapturingSizeLimit( String stepPerformanceCapturingSizeLimit ) {
-    this.stepPerformanceCapturingSizeLimit = stepPerformanceCapturingSizeLimit;
+  public void setTransformPerformanceCapturingSizeLimit( String transformPerformanceCapturingSizeLimit ) {
+    this.transformPerformanceCapturingSizeLimit = transformPerformanceCapturingSizeLimit;
   }
 
   /**
-   * Clears the step fields and loop caches.
+   * Clears the transform fields and loop caches.
    */
   public void clearCaches() {
-    clearStepFieldsCachce();
+    clearTransformFieldsCachce();
     clearLoopCache();
-    clearPreviousStepCache();
+    clearPreviousTransformCache();
   }
 
   /**
-   * Clears the step fields cachce.
+   * Clears the transform fields cachce.
    */
-  private void clearStepFieldsCachce() {
-    stepsFieldsCache.clear();
+  private void clearTransformFieldsCachce() {
+    transformFieldsCache.clear();
   }
 
   /**
@@ -4610,8 +4610,8 @@ public class PipelineMeta extends AbstractMeta
   }
 
   @VisibleForTesting
-  void clearPreviousStepCache() {
-    previousStepCache.clear();
+  void clearPreviousTransformCache() {
+    previousTransformCache.clear();
   }
 
   /**
@@ -4682,32 +4682,32 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the step log table for the pipeline.
+   * Gets the transform log table for the pipeline.
    *
-   * @return the step log table for the pipeline
+   * @return the transform log table for the pipeline
    */
-  public StepLogTable getStepLogTable() {
-    return stepLogTable;
+  public TransformLogTable getTransformLogTable() {
+    return transformLogTable;
   }
 
   /**
-   * Sets the step log table for the pipeline.
+   * Sets the transform log table for the pipeline.
    *
-   * @param stepLogTable the step log table to set
+   * @param transformLogTable the transform log table to set
    */
-  public void setStepLogTable( StepLogTable stepLogTable ) {
-    this.stepLogTable = stepLogTable;
+  public void setTransformLogTable( TransformLogTable transformLogTable ) {
+    this.transformLogTable = transformLogTable;
   }
 
   /**
-   * Gets a list of the log tables (pipeline, step, performance, channel) for the pipeline.
+   * Gets a list of the log tables (pipeline, transform, performance, channel) for the pipeline.
    *
    * @return a list of LogTableInterfaces for the pipeline
    */
   public List<LogTableInterface> getLogTables() {
     List<LogTableInterface> logTables = new ArrayList<>();
     logTables.add( pipelineLogTable );
-    logTables.add( stepLogTable );
+    logTables.add( transformLogTable );
     logTables.add( performanceLogTable );
     logTables.add( channelLogTable );
     logTables.add( metricsLogTable );
@@ -4791,52 +4791,52 @@ public class PipelineMeta extends AbstractMeta
     log.setForcingSeparateLogging( forcingSeparateLogging );
   }
 
-  public void addStepChangeListener( StepMetaChangeListenerInterface listener ) {
-    stepChangeListeners.add( listener );
+  public void addTransformChangeListener( TransformMetaChangeListenerInterface listener ) {
+    transformChangeListeners.add( listener );
   }
 
-  public void addStepChangeListener( int p, StepMetaChangeListenerInterface list ) {
+  public void addTransformChangeListener( int p, TransformMetaChangeListenerInterface list ) {
     int indexListener = -1;
     int indexListenerRemove = -1;
-    StepMeta rewriteStep = steps.get( p );
-    StepMetaInterface iface = rewriteStep.getStepMetaInterface();
-    if ( iface instanceof StepMetaChangeListenerInterface ) {
-      for ( StepMetaChangeListenerInterface listener : stepChangeListeners ) {
+    TransformMeta rewriteTransform = transforms.get( p );
+    TransformMetaInterface iface = rewriteTransform.getTransformMetaInterface();
+    if ( iface instanceof TransformMetaChangeListenerInterface ) {
+      for ( TransformMetaChangeListenerInterface listener : transformChangeListeners ) {
         indexListener++;
         if ( listener.equals( iface ) ) {
           indexListenerRemove = indexListener;
         }
       }
       if ( indexListenerRemove >= 0 ) {
-        stepChangeListeners.add( indexListenerRemove, list );
-      } else if ( stepChangeListeners.size() == 0 && p == 0 ) {
-        stepChangeListeners.add( list );
+        transformChangeListeners.add( indexListenerRemove, list );
+      } else if ( transformChangeListeners.size() == 0 && p == 0 ) {
+        transformChangeListeners.add( list );
       }
     }
   }
 
-  public void removeStepChangeListener( StepMetaChangeListenerInterface list ) {
+  public void removeTransformChangeListener( TransformMetaChangeListenerInterface list ) {
     int indexListener = -1;
     int indexListenerRemove = -1;
-    for ( StepMetaChangeListenerInterface listener : stepChangeListeners ) {
+    for ( TransformMetaChangeListenerInterface listener : transformChangeListeners ) {
       indexListener++;
       if ( listener.equals( list ) ) {
         indexListenerRemove = indexListener;
       }
     }
     if ( indexListenerRemove >= 0 ) {
-      stepChangeListeners.remove( indexListenerRemove );
+      transformChangeListeners.remove( indexListenerRemove );
     }
   }
 
-  public void notifyAllListeners( StepMeta oldMeta, StepMeta newMeta ) {
-    for ( StepMetaChangeListenerInterface listener : stepChangeListeners ) {
-      listener.onStepChange( this, oldMeta, newMeta );
+  public void notifyAllListeners( TransformMeta oldMeta, TransformMeta newMeta ) {
+    for ( TransformMetaChangeListenerInterface listener : transformChangeListeners ) {
+      listener.onTransformChange( this, oldMeta, newMeta );
     }
   }
 
-  public boolean containsStepMeta( StepMeta stepMeta ) {
-    return steps.contains( stepMeta );
+  public boolean containsTransformMeta( TransformMeta transformMeta ) {
+    return transforms.contains( transformMeta );
   }
 
   public List<Missing> getMissingPipeline() {
@@ -4873,9 +4873,9 @@ public class PipelineMeta extends AbstractMeta
       .append( this.getSleepTimeFull() )
       .append( this.isUsingUniqueConnections() )
       .append( this.isUsingThreadPriorityManagment() )
-      .append( this.isCapturingStepPerformanceSnapShots() )
-      .append( this.getStepPerformanceCapturingDelay() )
-      .append( this.getStepPerformanceCapturingSizeLimit() )
+      .append( this.isCapturingTransformPerformanceSnapShots() )
+      .append( this.getTransformPerformanceCapturingDelay() )
+      .append( this.getTransformPerformanceCapturingSizeLimit() )
 
       .append( this.getMaxDateConnection() )
       .append( this.getMaxDateTable() )
@@ -4888,26 +4888,26 @@ public class PipelineMeta extends AbstractMeta
 
       .append( this.nrPipelineHops() )
 
-      // steps
-      .append( this.getSteps().size() )
-      .append( this.getStepNames() )
+      // transforms
+      .append( this.getTransforms().size() )
+      .append( this.getTransformNames() )
 
       // hops
       .append( this.hops );
 
-    List<StepMeta> steps = this.getSteps();
+    List<TransformMeta> transforms = this.getTransforms();
 
-    for ( StepMeta step : steps ) {
+    for ( TransformMeta transform : transforms ) {
       hashCodeBuilder
-        .append( step.getName() )
-        .append( step.getStepMetaInterface().getXML() )
-        .append( step.isDoingErrorHandling() );
+        .append( transform.getName() )
+        .append( transform.getTransformMetaInterface().getXML() )
+        .append( transform.isDoingErrorHandling() );
     }
     return hashCodeBuilder.toHashCode();
   }
 
-  private static String getStepMetaCacheKey( StepMeta stepMeta, boolean info ) {
-    return String.format( "%1$b-%2$s-%3$s", info, stepMeta.getStepID(), stepMeta.toString() );
+  private static String getTransformMetaCacheKey( TransformMeta transformMeta, boolean info ) {
+    return String.format( "%1$b-%2$s-%3$s", info, transformMeta.getTransformPluginId(), transformMeta.toString() );
   }
 
   private static RowMetaInterface[] cloneRowMetaInterfaces( RowMetaInterface[] inform ) {

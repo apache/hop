@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.BaseStepMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -43,7 +43,7 @@ public class TopicSelection extends Composite {
 
   private final PropsUI props;
   private final PipelineMeta pipelineMeta;
-  private final BaseStepMeta stepMeta;
+  private final BaseTransformMeta transformMeta;
   private final ModifyListener lsMod;
   private final boolean topicInField;
   private final String topicGroupLabel;
@@ -63,7 +63,7 @@ public class TopicSelection extends Composite {
     super( builder.composite, builder.style );
     this.props = builder.props;
     this.pipelineMeta = builder.pipelineMeta;
-    this.stepMeta = builder.stepMeta;
+    this.transformMeta = builder.transformMeta;
     this.lsMod = builder.lsMod;
     this.topicInField = builder.topicInField;
     this.topicGroupLabel = builder.topicGroupLabel;
@@ -152,7 +152,7 @@ public class TopicSelection extends Composite {
     formData.right = new FormAttachment( 100, 0 );
 
     wTopicText = new TextVar( pipelineMeta, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTopicField = createFieldDropDown( wTopicGroup, props, stepMeta, formData );
+    wTopicField = createFieldDropDown( wTopicGroup, props, transformMeta, formData );
     wTopicText.setLayoutData( formData );
     wTopicField.setLayoutData( formData );
 
@@ -163,7 +163,7 @@ public class TopicSelection extends Composite {
   }
 
   private void setTopicWidgetVisibility( Button topicComesFromField ) {
-    stepMeta.setChanged( stepMeta.hasChanged() || topicInField != topicComesFromField.getSelection() );
+    transformMeta.setChanged( transformMeta.hasChanged() || topicInField != topicComesFromField.getSelection() );
     wTopicField.setVisible( topicComesFromField.getSelection() );
     wTopicText.setVisible( !topicComesFromField.getSelection() );
     if ( topicComesFromField.getSelection() ) {
@@ -223,7 +223,7 @@ public class TopicSelection extends Composite {
     private int style;
     private PropsUI props;
     private PipelineMeta pipelineMeta;
-    private BaseStepMeta stepMeta;
+    private BaseTransformMeta transformMeta;
     private ModifyListener lsMod;
     private boolean topicInField;
     private String topicGroupLabel;
@@ -252,8 +252,8 @@ public class TopicSelection extends Composite {
       return this;
     }
 
-    public Builder setStepMeta( BaseStepMeta stepMeta ) {
-      this.stepMeta = stepMeta;
+    public Builder setTransformMeta( BaseTransformMeta transformMeta ) {
+      this.transformMeta = transformMeta;
       return this;
     }
 

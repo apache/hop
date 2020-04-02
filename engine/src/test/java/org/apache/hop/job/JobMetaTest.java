@@ -127,7 +127,7 @@ public class JobMetaTest {
   }
 
   @Test
-  public void shouldUseCoordinatesOfItsStepsAndNotesWhenCalculatingMinimumPoint() {
+  public void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
     Point jobEntryPoint = new Point( 500, 500 );
     Point notePadMetaPoint = new Point( 400, 400 );
     JobEntryCopy jobEntryCopy = mock( JobEntryCopy.class );
@@ -140,17 +140,17 @@ public class JobMetaTest {
     assertEquals( 0, point.x );
     assertEquals( 0, point.y );
 
-    // when Job contains a single step or note, then jobMeta should return coordinates of it, subtracting borders
+    // when Job contains a single transform or note, then jobMeta should return coordinates of it, subtracting borders
     jobMeta.addJobEntry( 0, jobEntryCopy );
-    Point actualStepPoint = jobMeta.getMinimum();
-    assertEquals( jobEntryPoint.x - JobMeta.BORDER_INDENT, actualStepPoint.x );
-    assertEquals( jobEntryPoint.y - JobMeta.BORDER_INDENT, actualStepPoint.y );
+    Point actualTransformPoint = jobMeta.getMinimum();
+    assertEquals( jobEntryPoint.x - JobMeta.BORDER_INDENT, actualTransformPoint.x );
+    assertEquals( jobEntryPoint.y - JobMeta.BORDER_INDENT, actualTransformPoint.y );
 
-    // when Job contains step or notes, then jobMeta should return minimal coordinates of them, subtracting borders
+    // when Job contains transform or notes, then jobMeta should return minimal coordinates of them, subtracting borders
     jobMeta.addNote( notePadMeta );
-    Point stepPoint = jobMeta.getMinimum();
-    assertEquals( notePadMetaPoint.x - JobMeta.BORDER_INDENT, stepPoint.x );
-    assertEquals( notePadMetaPoint.y - JobMeta.BORDER_INDENT, stepPoint.y );
+    Point transformPoint = jobMeta.getMinimum();
+    assertEquals( notePadMetaPoint.x - JobMeta.BORDER_INDENT, transformPoint.x );
+    assertEquals( notePadMetaPoint.y - JobMeta.BORDER_INDENT, transformPoint.y );
   }
 
   @Test
@@ -243,9 +243,9 @@ public class JobMetaTest {
   public void testHasLoop_simpleLoop() throws Exception {
     //main->2->3->main
     JobMeta jobMetaSpy = spy( jobMeta );
-    JobEntryCopy jobEntryCopyMain = createJobEntryCopy( "mainStep" );
-    JobEntryCopy jobEntryCopy2 = createJobEntryCopy( "step2" );
-    JobEntryCopy jobEntryCopy3 = createJobEntryCopy( "step3" );
+    JobEntryCopy jobEntryCopyMain = createJobEntryCopy( "mainTransform" );
+    JobEntryCopy jobEntryCopy2 = createJobEntryCopy( "transform2" );
+    JobEntryCopy jobEntryCopy3 = createJobEntryCopy( "transform3" );
     when( jobMetaSpy.findNrPrevJobEntries( jobEntryCopyMain ) ).thenReturn( 1 );
     when( jobMetaSpy.findPrevJobEntry( jobEntryCopyMain, 0 ) ).thenReturn( jobEntryCopy2 );
     when( jobMetaSpy.findNrPrevJobEntries( jobEntryCopy2 ) ).thenReturn( 1 );
@@ -256,13 +256,13 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testHasLoop_loopInPrevSteps() throws Exception {
+  public void testHasLoop_loopInPrevTransforms() throws Exception {
     //main->2->3->4->3
     JobMeta jobMetaSpy = spy( jobMeta );
-    JobEntryCopy jobEntryCopyMain = createJobEntryCopy( "mainStep" );
-    JobEntryCopy jobEntryCopy2 = createJobEntryCopy( "step2" );
-    JobEntryCopy jobEntryCopy3 = createJobEntryCopy( "step3" );
-    JobEntryCopy jobEntryCopy4 = createJobEntryCopy( "step4" );
+    JobEntryCopy jobEntryCopyMain = createJobEntryCopy( "mainTransform" );
+    JobEntryCopy jobEntryCopy2 = createJobEntryCopy( "transform2" );
+    JobEntryCopy jobEntryCopy3 = createJobEntryCopy( "transform3" );
+    JobEntryCopy jobEntryCopy4 = createJobEntryCopy( "transform4" );
     when( jobMetaSpy.findNrPrevJobEntries( jobEntryCopyMain ) ).thenReturn( 1 );
     when( jobMetaSpy.findPrevJobEntry( jobEntryCopyMain, 0 ) ).thenReturn( jobEntryCopy2 );
     when( jobMetaSpy.findNrPrevJobEntries( jobEntryCopy2 ) ).thenReturn( 1 );

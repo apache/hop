@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection />
         <schema />
         <table />
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection />
         <schema />
@@ -437,7 +437,7 @@
   </notepads>
   <order>
   </order>
-  <step>
+  <transform>
     <name>Data Grid</name>
     <type>DataGrid</type>
     <description />
@@ -490,10 +490,10 @@
       <yloc>144</yloc>
       <draw>Y</draw>
     </GUI>
-  </step>
+  </transform>
   <step_error_handling>
   </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_pipeline>N</slave_pipeline>
 </pipeline>

@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.LogTableInterface;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
-import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 
@@ -59,11 +59,11 @@ public class XmlExportHelper {
       pipelineMeta.setPipelineLogTable( clonePipelineLogTable );
     }
 
-    StepLogTable stepLogTable = pipelineMeta.getStepLogTable();
-    if ( stepLogTable != null ) {
-      StepLogTable cloneStepLogTable = (StepLogTable) stepLogTable.clone();
-      cloneStepLogTable.setAllGlobalParametersToNull();
-      pipelineMeta.setStepLogTable( cloneStepLogTable );
+    TransformLogTable transformLogTable = pipelineMeta.getTransformLogTable();
+    if ( transformLogTable != null ) {
+      TransformLogTable cloneTransformLogTable = (TransformLogTable) transformLogTable.clone();
+      cloneTransformLogTable.setAllGlobalParametersToNull();
+      pipelineMeta.setTransformLogTable( cloneTransformLogTable );
     }
 
     PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();

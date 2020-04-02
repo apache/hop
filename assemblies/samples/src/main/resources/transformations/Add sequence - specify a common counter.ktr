@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Add sequence - specify a common counter</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>If you do a preview on the Result step you will note that the generated ID is unique.&#xa;If you specify another counter name in either of the sequence generator steps, you will get duplicates.&#xa;&#xa;Step &#x22;Generate Rows&#x22; does not actually produce output. It creates 1000 empty lines and splits them evenly&#xa;before they reach the two &#x22;Generate ID&#x22; steps &#x28;step type &#x22;sequence generator&#x22;&#x29;. Both sequence generators&#xa;do have the same &#x22;Counter name&#x22; &#x28;double click to edit and see the &#x22;Counter name&#x22; value&#x29;. That makes the&#xa;generated ids unique, even though they are produced by two different sequence generators.</note>
+      <note>If you do a preview on the Result transform you will note that the generated ID is unique.&#xa;If you specify another counter name in either of the sequence generator transforms, you will get duplicates.&#xa;&#xa;Step &#x22;Generate Rows&#x22; does not actually produce output. It creates 1000 empty lines and splits them evenly&#xa;before they reach the two &#x22;Generate ID&#x22; transforms &#x28;transform type &#x22;sequence generator&#x22;&#x29;. Both sequence generators&#xa;do have the same &#x22;Counter name&#x22; &#x28;double click to edit and see the &#x22;Counter name&#x22; value&#x29;. That makes the&#xa;generated ids unique, even though they are produced by two different sequence generators.</note>
       <xloc>32</xloc>
       <yloc>28</yloc>
       <width>663</width>
@@ -519,7 +519,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Gen ID &#x5b;1&#x5d;</name>
     <type>Sequence</type>
     <description/>
@@ -541,20 +541,20 @@
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>352</xloc>
       <yloc>576</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Gen ID &#x5b;2&#x5d;</name>
     <type>Sequence</type>
     <description/>
@@ -576,20 +576,20 @@
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>351</xloc>
       <yloc>736</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate ID</name>
     <type>Sequence</type>
     <description/>
@@ -611,20 +611,20 @@
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>355</xloc>
       <yloc>179</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate ID &#x28;2&#x29;</name>
     <type>Sequence</type>
     <description/>
@@ -646,20 +646,20 @@
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>360</xloc>
       <yloc>361</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -678,20 +678,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>188</xloc>
       <yloc>267</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Result</name>
     <type>Dummy</type>
     <description/>
@@ -703,20 +703,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>563</xloc>
       <yloc>251</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Result 2</name>
     <type>Dummy</type>
     <description/>
@@ -728,20 +728,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>568</xloc>
       <yloc>655</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Row Gen &#x5b;1&#x5d;</name>
     <type>RowGenerator</type>
     <description/>
@@ -760,20 +760,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>158</xloc>
       <yloc>631</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Row Gen &#x5b;2&#x5d;</name>
     <type>RowGenerator</type>
     <description/>
@@ -792,22 +792,22 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>157</xloc>
       <yloc>698</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

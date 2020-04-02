@@ -33,7 +33,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -88,7 +88,7 @@ public class CheckResultDialog extends Dialog {
 
   private boolean show_successful_results = false;
 
-  private String stepname;
+  private String transformName;
 
   private PipelineMeta pipelineMeta;
 
@@ -96,7 +96,7 @@ public class CheckResultDialog extends Dialog {
     super( parent, style );
     remarks = rem;
     props = PropsUI.getInstance();
-    stepname = null;
+    transformName = null;
     this.pipelineMeta = pipelineMeta;
   }
 
@@ -137,7 +137,7 @@ public class CheckResultDialog extends Dialog {
     ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
     colinf[ 0 ] =
       new ColumnInfo(
-        BaseMessages.getString( PKG, "CheckResultDialog.Stepname.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
+        BaseMessages.getString( PKG, "CheckResultDialog.TransformName.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
     colinf[ 1 ] =
       new ColumnInfo(
@@ -173,9 +173,9 @@ public class CheckResultDialog extends Dialog {
     wView.setText( BaseMessages.getString( PKG, "CheckResultDialog.Button.ViewMessage" ) );
 
     wEdit = new Button( shell, SWT.PUSH );
-    wEdit.setText( BaseMessages.getString( PKG, "CheckResultDialog.Button.EditOriginStep" ) );
+    wEdit.setText( BaseMessages.getString( PKG, "CheckResultDialog.Button.EditOriginTransform" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wClose, wView, wEdit }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wClose, wView, wEdit }, margin, null );
 
     // Add listeners
     lsClose = new Listener() {
@@ -213,7 +213,7 @@ public class CheckResultDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -221,7 +221,7 @@ public class CheckResultDialog extends Dialog {
         display.sleep();
       }
     }
-    return stepname;
+    return transformName;
   }
 
   private void noOK() {
@@ -245,7 +245,7 @@ public class CheckResultDialog extends Dialog {
       CheckResultInterface cr = remarks.get( i );
       if ( show_successful_results || cr.getType() != CheckResultInterface.TYPE_RESULT_OK ) {
         TableItem ti = new TableItem( wFields.table, SWT.NONE );
-        // MB - Support both JobEntry and Step Checking
+        // MB - Support both JobEntry and Transform Checking
         // 6/25/07
         CheckResultSourceInterface sourceMeta = cr.getSourceInfo();
         if ( sourceMeta != null ) {
@@ -329,7 +329,7 @@ public class CheckResultDialog extends Dialog {
   private void edit() {
     int idx = wFields.table.getSelectionIndex();
     if ( idx >= 0 ) {
-      stepname = wFields.table.getItem( idx ).getText( 1 );
+      transformName = wFields.table.getItem( idx ).getText( 1 );
       dispose();
     }
   }

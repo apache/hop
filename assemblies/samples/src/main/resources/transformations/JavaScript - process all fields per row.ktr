@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>JavaScript  process all fields per row</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -456,7 +456,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>To see the result, do a preview on this Dummy step&#xa;... or add an output step.</note>
+      <note>To see the result, do a preview on this Dummy transform&#xa;... or add an output transform.</note>
       <xloc>350</xloc>
       <yloc>175</yloc>
       <width>336</width>
@@ -510,7 +510,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29;</name>
     <type>Dummy</type>
     <description/>
@@ -522,20 +522,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>469</xloc>
       <yloc>101</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate some test rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -602,20 +602,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>86</xloc>
       <yloc>101</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Modified Java Script Value</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -635,22 +635,22 @@
         <jsScript_name>replace_Sample</jsScript_name>
         <jsScript_script>&#x2f;&#x2f; Replaces Strings inside the given Variable.&#xa;&#x2f;&#x2f; It is possible to make more replacements inside&#xa;&#x2f;&#x2f; one call. The given variables must be an odd number&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; Usage&#x3a;&#xa;&#x2f;&#x2f; replace&#x28;var, var, var&#x29;&#x3b;&#xa;&#x2f;&#x2f; 1&#x3a; String - The Variable with the content to replace.&#xa;&#x2f;&#x2f; 2&#x3a; String - The Value to search for.&#xa;&#x2f;&#x2f; 3&#x3a; String - The Value to replace with.&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; replace&#x28;var, var, var, var,var,...&#x29;&#xa;&#x2f;&#x2f; 1&#x3a; String - The Variable with the content to replace.&#xa;&#x2f;&#x2f; 2&#x3a; String - The First Value to search for.&#xa;&#x2f;&#x2f; 3&#x3a; String - The First Value to replace with.&#xa;&#x2f;&#x2f; 4&#x3a; String - The Second Value to search for.&#xa;&#x2f;&#x2f; 5&#x3a; String - The Second Value to replace with.&#xa;&#x2f;&#x2f; ...&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; 2006-11-15&#xa;&#x2f;&#x2f;&#xa;var str1 &#x3d; &#x22;Hello World, this is a nice function&#x22;&#x3b;      &#xa;var str2 &#x3d; replace&#x28;str1,&#x22;World&#x22;, &#x22;Folk&#x22;&#x29;&#x3b;&#xa;Alert&#x28;str2&#x29;&#x3b;&#xa;var str2 &#x3d; replace&#x28;str1,&#x22;World&#x22;, &#x22;Folk&#x22;, &#x22;nice&#x22;,&#x22;beautifull&#x22;&#x29;&#x3b;&#xa;Alert&#x28;str2&#x29;&#x3b;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>274</xloc>
       <yloc>101</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

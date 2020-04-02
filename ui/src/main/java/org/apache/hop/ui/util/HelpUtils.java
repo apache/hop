@@ -21,7 +21,7 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ShowHelpDialog;
@@ -80,9 +80,9 @@ public class HelpUtils {
       return "";
     }
     String msg = "";
-    // TODO currently support only Step and JobEntry - extend if required.
-    if ( plugin.getPluginType().equals( StepPluginType.class ) ) {
-      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.StepPluginType.Title", plugin.getName() );
+    // TODO currently support only Transform and JobEntry - extend if required.
+    if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
+      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.TransformPluginType.Title", plugin.getName() );
     } else {
       msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.JobEntryPluginType.Title", plugin.getName() );
     }
@@ -106,9 +106,9 @@ public class HelpUtils {
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       String msg = "";
-      // TODO currently support only Step and JobEntry - extend if required.
-      if ( plugin.getPluginType().equals( StepPluginType.class ) ) {
-        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Step.HelpIsNotAvailable", plugin.getName());
+      // TODO currently support only Transform and JobEntry - extend if required.
+      if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
+        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Transform.HelpIsNotAvailable", plugin.getName());
       } else {
         msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.JobEntry.HelpIsNotAvailable", plugin.getName());
       }

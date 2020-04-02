@@ -22,11 +22,11 @@
 
 package org.apache.hop.lineage;
 
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,8 +37,8 @@ import java.util.Map;
 
 /**
  * This class will help calculate and contain the data lineage for all values in the pipeline.<br>
- * What we will get is a List of ValueLineage objects for all the values steps in the pipeline.<br>
- * Each of these ValueLineage objects contains a list of all the steps it passed through.<br>
+ * What we will get is a List of ValueLineage objects for all the values transforms in the pipeline.<br>
+ * Each of these ValueLineage objects contains a list of all the transforms it passed through.<br>
  * As such, it's a hierarchical view of the pipeline.<br>
  * <p>
  * This view will allow us to see immediately where a certain value is being manipulated.<br>
@@ -50,7 +50,7 @@ public class PipelineDataLineage {
 
   private List<ValueLineage> valueLineages;
 
-  private Map<ValueMetaInterface, List<StepMeta>> fieldStepsMap;
+  private Map<ValueMetaInterface, List<TransformMeta>> fieldTransformsMap;
 
   public PipelineDataLineage( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
@@ -80,34 +80,34 @@ public class PipelineDataLineage {
   }
 
   /**
-   * Using the pipeline, we will calculate the data lineage for each field in each step.
+   * Using the pipeline, we will calculate the data lineage for each field in each transform.
    *
-   * @throws HopStepException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
+   * @throws HopTransformException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
    *                          etc.
    */
-  public void calculateLineage() throws HopStepException {
+  public void calculateLineage() throws HopTransformException {
 
-    // After sorting the steps we get a map of all the previous steps of a certain step.
+    // After sorting the transforms we get a map of all the previous transforms of a certain transform.
     //
-    final Map<StepMeta, Map<StepMeta, Boolean>> stepMap = pipelineMeta.sortStepsNatural();
+    final Map<TransformMeta, Map<TransformMeta, Boolean>> transformMap = pipelineMeta.sortTransformsNatural();
 
-    // However, the we need a sorted list of previous steps per step, not a map.
+    // However, the we need a sorted list of previous transforms per transform, not a map.
     // So lets sort the maps, turn them into lists...
     //
-    Map<StepMeta, List<StepMeta>> previousStepListMap = new HashMap<StepMeta, List<StepMeta>>();
-    for ( StepMeta stepMeta : stepMap.keySet() ) {
-      List<StepMeta> previousSteps = new ArrayList<StepMeta>();
-      previousStepListMap.put( stepMeta, previousSteps );
+    Map<TransformMeta, List<TransformMeta>> previousTransformListMap = new HashMap<TransformMeta, List<TransformMeta>>();
+    for ( TransformMeta transformMeta : transformMap.keySet() ) {
+      List<TransformMeta> previousTransforms = new ArrayList<TransformMeta>();
+      previousTransformListMap.put( transformMeta, previousTransforms );
 
-      previousSteps.addAll( stepMap.get( stepMeta ).keySet() );
+      previousTransforms.addAll( transformMap.get( transformMeta ).keySet() );
 
       // Sort this list...
       //
-      Collections.sort( previousSteps, new Comparator<StepMeta>() {
+      Collections.sort( previousTransforms, new Comparator<TransformMeta>() {
 
-        public int compare( StepMeta o1, StepMeta o2 ) {
+        public int compare( TransformMeta o1, TransformMeta o2 ) {
 
-          Map<StepMeta, Boolean> beforeMap = stepMap.get( o1 );
+          Map<TransformMeta, Boolean> beforeMap = transformMap.get( o1 );
           if ( beforeMap != null ) {
             if ( beforeMap.get( o2 ) == null ) {
               return -1;
@@ -121,32 +121,32 @@ public class PipelineDataLineage {
       } );
     }
 
-    fieldStepsMap = new HashMap<ValueMetaInterface, List<StepMeta>>();
+    fieldTransformsMap = new HashMap<ValueMetaInterface, List<TransformMeta>>();
 
-    List<StepMeta> usedSteps = pipelineMeta.getUsedSteps();
-    for ( StepMeta stepMeta : usedSteps ) {
-      calculateLineage( stepMeta );
+    List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
+    for ( TransformMeta transformMeta : usedTransforms ) {
+      calculateLineage( transformMeta );
     }
   }
 
   /**
-   * Calculate the lineage for the specified step only...
+   * Calculate the lineage for the specified transform only...
    *
-   * @param stepMeta The step to calculate the lineage for.
-   * @throws HopStepException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
+   * @param transformMeta The transform to calculate the lineage for.
+   * @throws HopTransformException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
    *                          etc.
    */
-  private void calculateLineage( StepMeta stepMeta ) throws HopStepException {
-    RowMetaInterface outputMeta = pipelineMeta.getStepFields( stepMeta );
+  private void calculateLineage( TransformMeta transformMeta ) throws HopTransformException {
+    RowMetaInterface outputMeta = pipelineMeta.getTransformFields( transformMeta );
 
-    // The lineage is basically a calculation of origin for each output of a certain step.
+    // The lineage is basically a calculation of origin for each output of a certain transform.
     //
     for ( ValueMetaInterface valueMeta : outputMeta.getValueMetaList() ) {
 
-      StepMeta originStepMeta = pipelineMeta.findStep( valueMeta.getOrigin(), stepMeta );
-      if ( originStepMeta != null ) {
-        /* List<StepMeta> list = */
-        fieldStepsMap.get( originStepMeta );
+      TransformMeta originTransformMeta = pipelineMeta.findTransform( valueMeta.getOrigin(), transformMeta );
+      if ( originTransformMeta != null ) {
+        /* List<TransformMeta> list = */
+        fieldTransformsMap.get( originTransformMeta );
       }
     }
   }

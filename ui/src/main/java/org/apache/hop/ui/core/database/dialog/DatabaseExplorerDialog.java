@@ -45,11 +45,11 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.StepFieldsDialog;
+import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -212,7 +212,7 @@ public class DatabaseExplorerDialog extends Dialog {
     wTree.setLayoutData( fdTree );
 
     if ( !justLook ) {
-      BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, wRefresh }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, wRefresh }, margin, null );
 
       // Add listeners
       wCancel.addListener( SWT.Selection, new Listener() {
@@ -224,7 +224,7 @@ public class DatabaseExplorerDialog extends Dialog {
         }
       );
     } else {
-      BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh }, margin, null );
     }
 
     // Add listeners
@@ -268,7 +268,7 @@ public class DatabaseExplorerDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell, 320, 480, true );
+    BaseTransformDialog.setSize( shell, 320, 480, true );
 
     shell.open();
     Display display = parent.getDisplay();
@@ -746,7 +746,7 @@ public class DatabaseExplorerDialog extends Dialog {
     GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog( shell, dbMeta, sql );
     RowMetaInterface result = pd.open();
     if ( result != null ) {
-      StepFieldsDialog sfd = new StepFieldsDialog( shell, dbMeta, SWT.NONE, tableName, result );
+      TransformFieldsDialog sfd = new TransformFieldsDialog( shell, dbMeta, SWT.NONE, tableName, result );
       sfd.open();
     }
   }
@@ -842,7 +842,7 @@ public class DatabaseExplorerDialog extends Dialog {
       PipelineMeta pipelineMeta = profileFactory.generatePipeline( new LoggingObject( tableName ) );
       PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell,
         pipelineMeta,
-        new String[] { PipelineProfileFactory.RESULT_STEP_NAME, }, new int[] { 25000, } );
+        new String[] { PipelineProfileFactory.RESULT_TRANSFORM_NAME, }, new int[] { 25000, } );
       progressDialog.open();
 
       if ( !progressDialog.isCancelled() ) {
@@ -856,9 +856,9 @@ public class DatabaseExplorerDialog extends Dialog {
           etd.open();
         }
 
-        PreviewRowsDialog prd = new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, PipelineProfileFactory.RESULT_STEP_NAME,
-          progressDialog.getPreviewRowsMeta( PipelineProfileFactory.RESULT_STEP_NAME ), progressDialog
-          .getPreviewRows( PipelineProfileFactory.RESULT_STEP_NAME ), loggingText );
+        PreviewRowsDialog prd = new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, PipelineProfileFactory.RESULT_TRANSFORM_NAME,
+          progressDialog.getPreviewRowsMeta( PipelineProfileFactory.RESULT_TRANSFORM_NAME ), progressDialog
+          .getPreviewRows( PipelineProfileFactory.RESULT_TRANSFORM_NAME ), loggingText );
         prd.open();
 
       }

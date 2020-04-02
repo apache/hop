@@ -25,13 +25,15 @@ package org.apache.hop.core.util.serialization;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.step.BaseStepMeta;
-import org.apache.hop.pipeline.step.StepMetaInterface;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import static org.apache.hop.core.util.serialization.MetaXmlSerializer.deserialize;
 import static org.apache.hop.core.util.serialization.MetaXmlSerializer.serialize;
-import static org.apache.hop.core.util.serialization.StepMetaProps.from;
+import static org.apache.hop.core.util.serialization.TransformMetaProps.from;
 
 /**
  * Handles serialization of meta by implementing getXML/loadXML, readRep/saveRep.
@@ -39,25 +41,26 @@ import static org.apache.hop.core.util.serialization.StepMetaProps.from;
  * Uses {@link MetaXmlSerializer} for generically
  * handling child classes meta.
  */
-public abstract class BaseSerializingMeta extends BaseStepMeta implements StepMetaInterface {
+public abstract class BaseSerializingMeta<Main extends TransformInterface, Data extends TransformDataInterface>
+  extends BaseTransformMeta implements TransformMetaInterface<Main, Data> {
 
   @Override public String getXML() {
     return serialize( from( this ) );
   }
 
   @Override public void loadXML(
-    Node stepnode, IMetaStore metaStore ) throws HopXMLException {
-    deserialize( stepnode ).to( this );
+    Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+    deserialize( transformNode ).to( this );
   }
 
   /**
-   * Creates a copy of this stepMeta with variables globally substituted.
+   * Creates a copy of this transformMeta with variables globally substituted.
    */
-  public StepMetaInterface withVariables( VariableSpace variables ) {
-    return StepMetaProps
+  public TransformMetaInterface withVariables( VariableSpace variables ) {
+    return TransformMetaProps
       .from( this )
       .withVariables( variables )
-      .to( (StepMetaInterface) this.copyObject() );
+      .to( (TransformMetaInterface) this.copyObject() );
   }
 
   /**

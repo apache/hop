@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>VFS Configuration Sample</name>
     <description/>
@@ -32,7 +32,7 @@
       <parameter>
         <name>vfs.http.proxyHost</name>
         <default_value>192.168.1.250</default_value>
-        <description>A parameter that exists but is not used by any steps in this transformation</description>
+        <description>A parameter that exists but is not used by any transforms in this transformation</description>
       </parameter>
       <parameter>
         <name>vfs.sftp.StrictHostKeyChecking</name>
@@ -323,7 +323,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -398,7 +398,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -466,9 +466,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -570,7 +570,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>This example may be run using the following steps&#x3a;&#xa;1&#x29; From the menu&#x3a; Transformation-&#x3e;Settings...&#xa;2&#x29; Goto tab&#x3a; Parameters&#xa;3&#x29; Set the parameters to appropriate values&#xa;4&#x29; Press OK&#xa;5&#x29; Select &#x27;Preview Me&#x27; and right click&#xa;6&#x29; Select &#x27;Preview&#x27; from the bottom of the menu&#xa;7&#x29; Click &#x27;Configure&#x27;&#xa;8&#x29; Fill out the username and password variables appropriately&#xa;    sftp_authkey_username&#xa;    sftp_stdauth_username&#xa;    sftp_stdauth_password&#xa;    - WARNING&#x3a; If there is a Parameter defined with the same name as a Variable, it WILL take prescedence.&#xa;9&#x29; Click &#x27;Launch&#x27;</note>
+      <note>This example may be run using the following transforms&#x3a;&#xa;1&#x29; From the menu&#x3a; Transformation-&#x3e;Settings...&#xa;2&#x29; Goto tab&#x3a; Parameters&#xa;3&#x29; Set the parameters to appropriate values&#xa;4&#x29; Press OK&#xa;5&#x29; Select &#x27;Preview Me&#x27; and right click&#xa;6&#x29; Select &#x27;Preview&#x27; from the bottom of the menu&#xa;7&#x29; Click &#x27;Configure&#x27;&#xa;8&#x29; Fill out the username and password variables appropriately&#xa;    sftp_authkey_username&#xa;    sftp_stdauth_username&#xa;    sftp_stdauth_password&#xa;    - WARNING&#x3a; If there is a Parameter defined with the same name as a Variable, it WILL take prescedence.&#xa;9&#x29; Click &#x27;Launch&#x27;</note>
       <xloc>523</xloc>
       <yloc>109</yloc>
       <width>835</width>
@@ -608,7 +608,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Preview Me</name>
     <type>Dummy</type>
     <description/>
@@ -620,20 +620,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>445</xloc>
       <yloc>189</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>SFTP - Key Authentication</name>
     <type>GetFileNames</type>
     <description/>
@@ -665,20 +665,20 @@
       <include_subfolders/>
     </file>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>212</xloc>
       <yloc>88</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>SFTP - Standard Authentication</name>
     <type>GetFileNames</type>
     <description/>
@@ -710,20 +710,20 @@
       <include_subfolders/>
     </file>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>210</xloc>
       <yloc>189</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>ZIP - Simple</name>
     <type>GetFileNames</type>
     <description/>
@@ -755,22 +755,22 @@
       <include_subfolders/>
     </file>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>210</xloc>
       <yloc>295</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

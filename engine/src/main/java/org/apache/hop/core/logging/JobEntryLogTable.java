@@ -39,7 +39,7 @@ import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
     super.replaceMeta( logTable );
   }
 
-  public void loadXML( Node jobnode, List<StepMeta> steps ) {
+  public void loadXML( Node jobnode, List<TransformMeta> transforms ) {
     Node node = XMLHandler.getSubNode( jobnode, XML_TAG );
     if ( node == null ) {
       return;
@@ -144,7 +144,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.JOBNAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobName" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.JOBENTRYNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobEntryName" ),
+    table.fields.add( new LogTableField( ID.JOBENTRYNAME.id, true, false, "JOBENTRYNAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobEntryName" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobEntryName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesRead" ),
       BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );

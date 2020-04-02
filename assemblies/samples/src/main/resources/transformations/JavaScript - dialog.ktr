@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>JavaScript  dialog</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>This JavaScript asks for a start and ending date with text dialog boxes.&#xa;It is  a proof of concept if dialogs could be used within transformations and may be not supported in the future.&#xa;This could be a base for discussion if a general input step dialog should be created.&#xa;It runs within Spoon, Pan and launched by the &#x22;Test script&#x22; button within the JavaScript editor.&#xa;ATTENTION Mac OSX users&#x3a; This functionality is not yet implemented in the SWT &#x28;see Bug ID 3492&#x29;</note>
+      <note>This JavaScript asks for a start and ending date with text dialog boxes.&#xa;It is  a proof of concept if dialogs could be used within transformations and may be not supported in the future.&#xa;This could be a base for discussion if a general input transform dialog should be created.&#xa;It runs within Spoon, Pan and launched by the &#x22;Test script&#x22; button within the JavaScript editor.&#xa;ATTENTION Mac OSX users&#x3a; This functionality is not yet implemented in the SWT &#x28;see Bug ID 3492&#x29;</note>
       <xloc>19</xloc>
       <yloc>16</yloc>
       <width>714</width>
@@ -456,7 +456,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>This step generates one row with the fields&#xa;- DateFromProposal&#xa;- DateToProposal</note>
+      <note>This transform generates one row with the fields&#xa;- DateFromProposal&#xa;- DateToProposal</note>
       <xloc>26</xloc>
       <yloc>194</yloc>
       <width>281</width>
@@ -477,7 +477,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>This step opens the dialog and&#xa;returns two additional fields&#x3a;&#xa;- DateFromAsString&#xa;- DateToAsString</note>
+      <note>This transform opens the dialog and&#xa;returns two additional fields&#x3a;&#xa;- DateFromAsString&#xa;- DateToAsString</note>
       <xloc>270</xloc>
       <yloc>194</yloc>
       <width>205</width>
@@ -498,7 +498,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>To see the result, do a preview on this Dummy step&#xa;... or add an output step.</note>
+      <note>To see the result, do a preview on this Dummy transform&#xa;... or add an output transform.</note>
       <xloc>448</xloc>
       <yloc>195</yloc>
       <width>336</width>
@@ -552,7 +552,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Dummy &#x28;do nothing&#x29;</name>
     <type>Dummy</type>
     <description/>
@@ -564,20 +564,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>538</xloc>
       <yloc>122</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate a row with defaults</name>
     <type>RowGenerator</type>
     <description/>
@@ -620,20 +620,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>82</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Java-Script with dialog</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -648,7 +648,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>ScriptValue</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f; This JavaScript asks for a start and ending date with text dialog boxes.&#xa;&#x2f;&#x2f; It is  a proof of concept if dialogs could be used out of JavaScript within transformations.&#xa;&#x2f;&#x2f; This could be a base for discussion if a general input step dialog should be created.&#xa;&#x2f;&#x2f; It runs within Spoon, Pan and launched by the &#x22;Test script&#x22; button within the JavaScript editor.&#xa;&#x2f;&#x2f; &#x40;author Jens Bleuel&#xa;&#x2f;&#x2f; &#x40;since 2006-07-11&#xa;&#xa;&#xa;&#x2f;&#x2f; to get the &#x22;Test script&#x22; button at the editor working correctly we need the existing Display &#x2f; Shell&#xa;var display&#x3b;&#xa;var displayHasToBeDisposed&#x3d;false&#x3b;&#xa;var shell&#x3d;null&#x3b;&#xa;&#xa;try &#x7b;&#xa;    display&#x3d;Packages.org.eclipse.swt.widgets.Display.getCurrent&#x28;&#x29;&#x3b;&#xa;    shell&#x3d;display.getActiveShell&#x28;&#x29;&#x3b;&#xa;&#x7d; catch&#x28;e&#x29; &#x7b;&#xa;    &#x2f;&#x2f; if it runs in batch mode &#x28;Pan or preview mode&#x29; no Display is available, so we have to create one&#xa;    display&#x3d;new Packages.org.eclipse.swt.widgets.Display&#x28;&#x29;&#x3b;&#xa;    displayHasToBeDisposed&#x3d;true&#x3b;&#xa;    shell&#x3d;new Packages.org.eclipse.swt.widgets.Shell&#x28;display&#x29;&#x3b;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; if we run in Pan we need to load the properties&#x3a;&#xa;if&#x28;&#x21;Packages.org.pentaho.di.ui.core.PropsUI.isInitialized&#x28;&#x29;&#x29; &#x7b;&#xa;    Packages.org.pentaho.di.ui.core.PropsUI.init&#x28;display,2&#x29;&#x3b; &#x2f;&#x2f;2&#x3d;TYPE_PROPERTIES_PAN&#xa;&#x7d;&#xa;&#xa;var dateDefaultFrom&#x3d;DateFromProposal.getString&#x28;&#x29;.substr&#x28;0,10&#x29;&#x3b; &#x2f;&#x2f;only the date and not the time&#xa;var dialogDateFrom&#x3d;new Packages.org.pentaho.di.ui.core.dialog.EnterTextDialog&#x28;shell, &#x22;Date from&#x22;, &#x22;Please enter the beginning date&#x22;, dateDefaultFrom&#x29;&#x3b;&#xa;var dateFromAsString&#x3d;dialogDateFrom.open&#x28;&#x29;&#x3b;&#xa;&#xa;if&#x28;dateFromAsString&#x21;&#x3d;null &#x26;&#x26; dateFromAsString.length&#x28;&#x29;&#x3e;0&#x29; &#x7b;&#xa;    var dateDefaultTo&#x3d;DateToProposal.getString&#x28;&#x29;.substr&#x28;0,10&#x29;&#x3b; &#x2f;&#x2f;only the date and not the time&#x3b;&#xa;    var dialogDateTo&#x3d;new Packages.org.pentaho.di.ui.core.dialog.EnterTextDialog&#x28;shell, &#x22;Date to&#x22;, &#x22;Please enter the ending date&#x22;, dateDefaultTo&#x29;&#x3b;&#xa;    var dateToAsString&#x3d;dialogDateTo.open&#x28;&#x29;&#x3b;&#xa;    if&#x28;dateToAsString&#x21;&#x3d;null &#x26;&#x26; dateToAsString.length&#x28;&#x29;&#x3e;0&#x29; &#x7b;&#xa;        &#x2f;&#x2f; here you could check or change formats a.s.o&#xa;    &#x7d; else &#x7b;&#xa;        &#x2f;&#x2f; stop transformation when user cancels&#xa;        throw new Packages.java.lang.RuntimeException&#x28;&#x22;Input canceled by the user.&#x22;&#x29;&#x3b;&#xa;    &#x7d;&#xa;&#x7d; else &#x7b;&#xa;    &#x2f;&#x2f; stop transformation when user cancels&#xa;    throw new Packages.java.lang.RuntimeException&#x28;&#x22;Input canceled by the user.&#x22;&#x29;&#x3b;&#xa;&#x7d;&#xa;&#xa;if&#x28;displayHasToBeDisposed&#x29; &#x7b;&#xa;  display.dispose&#x28;&#x29;&#x3b;&#xa;&#x7d;&#xa;</jsScript_script>
+        <jsScript_script>&#x2f;&#x2f; This JavaScript asks for a start and ending date with text dialog boxes.&#xa;&#x2f;&#x2f; It is  a proof of concept if dialogs could be used out of JavaScript within transformations.&#xa;&#x2f;&#x2f; This could be a base for discussion if a general input transform dialog should be created.&#xa;&#x2f;&#x2f; It runs within Spoon, Pan and launched by the &#x22;Test script&#x22; button within the JavaScript editor.&#xa;&#x2f;&#x2f; &#x40;author Jens Bleuel&#xa;&#x2f;&#x2f; &#x40;since 2006-07-11&#xa;&#xa;&#xa;&#x2f;&#x2f; to get the &#x22;Test script&#x22; button at the editor working correctly we need the existing Display &#x2f; Shell&#xa;var display&#x3b;&#xa;var displayHasToBeDisposed&#x3d;false&#x3b;&#xa;var shell&#x3d;null&#x3b;&#xa;&#xa;try &#x7b;&#xa;    display&#x3d;Packages.org.eclipse.swt.widgets.Display.getCurrent&#x28;&#x29;&#x3b;&#xa;    shell&#x3d;display.getActiveShell&#x28;&#x29;&#x3b;&#xa;&#x7d; catch&#x28;e&#x29; &#x7b;&#xa;    &#x2f;&#x2f; if it runs in batch mode &#x28;Pan or preview mode&#x29; no Display is available, so we have to create one&#xa;    display&#x3d;new Packages.org.eclipse.swt.widgets.Display&#x28;&#x29;&#x3b;&#xa;    displayHasToBeDisposed&#x3d;true&#x3b;&#xa;    shell&#x3d;new Packages.org.eclipse.swt.widgets.Shell&#x28;display&#x29;&#x3b;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; if we run in Pan we need to load the properties&#x3a;&#xa;if&#x28;&#x21;Packages.org.pentaho.di.ui.core.PropsUI.isInitialized&#x28;&#x29;&#x29; &#x7b;&#xa;    Packages.org.pentaho.di.ui.core.PropsUI.init&#x28;display,2&#x29;&#x3b; &#x2f;&#x2f;2&#x3d;TYPE_PROPERTIES_PAN&#xa;&#x7d;&#xa;&#xa;var dateDefaultFrom&#x3d;DateFromProposal.getString&#x28;&#x29;.substr&#x28;0,10&#x29;&#x3b; &#x2f;&#x2f;only the date and not the time&#xa;var dialogDateFrom&#x3d;new Packages.org.pentaho.di.ui.core.dialog.EnterTextDialog&#x28;shell, &#x22;Date from&#x22;, &#x22;Please enter the beginning date&#x22;, dateDefaultFrom&#x29;&#x3b;&#xa;var dateFromAsString&#x3d;dialogDateFrom.open&#x28;&#x29;&#x3b;&#xa;&#xa;if&#x28;dateFromAsString&#x21;&#x3d;null &#x26;&#x26; dateFromAsString.length&#x28;&#x29;&#x3e;0&#x29; &#x7b;&#xa;    var dateDefaultTo&#x3d;DateToProposal.getString&#x28;&#x29;.substr&#x28;0,10&#x29;&#x3b; &#x2f;&#x2f;only the date and not the time&#x3b;&#xa;    var dialogDateTo&#x3d;new Packages.org.pentaho.di.ui.core.dialog.EnterTextDialog&#x28;shell, &#x22;Date to&#x22;, &#x22;Please enter the ending date&#x22;, dateDefaultTo&#x29;&#x3b;&#xa;    var dateToAsString&#x3d;dialogDateTo.open&#x28;&#x29;&#x3b;&#xa;    if&#x28;dateToAsString&#x21;&#x3d;null &#x26;&#x26; dateToAsString.length&#x28;&#x29;&#x3e;0&#x29; &#x7b;&#xa;        &#x2f;&#x2f; here you could check or change formats a.s.o&#xa;    &#x7d; else &#x7b;&#xa;        &#x2f;&#x2f; stop transformation when user cancels&#xa;        throw new Packages.java.lang.RuntimeException&#x28;&#x22;Input canceled by the user.&#x22;&#x29;&#x3b;&#xa;    &#x7d;&#xa;&#x7d; else &#x7b;&#xa;    &#x2f;&#x2f; stop transformation when user cancels&#xa;    throw new Packages.java.lang.RuntimeException&#x28;&#x22;Input canceled by the user.&#x22;&#x29;&#x3b;&#xa;&#x7d;&#xa;&#xa;if&#x28;displayHasToBeDisposed&#x29; &#x7b;&#xa;  display.dispose&#x28;&#x29;&#x3b;&#xa;&#x7d;&#xa;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>dateFromAsString</name>
         <rename>dateFromAsString</rename>
         <type>String</type>
@@ -662,22 +662,22 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>333</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

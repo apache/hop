@@ -85,17 +85,17 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>The steps log database default for all transformations</description>
+    <description>The transforms log database default for all transformations</description>
     <variable>HOP_STEP_LOG_DB</variable>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The steps log schema default for all transformations</description>
+    <description>The transforms log schema default for all transformations</description>
     <variable>HOP_STEP_LOG_SCHEMA</variable>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The steps log table default for all transformations</description>
+    <description>The transforms log table default for all transformations</description>
     <variable>HOP_STEP_LOG_TABLE</variable>
   </kettle-variable>
 
@@ -195,7 +195,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>The maximum number of step performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)</description>
+    <description>The maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)</description>
     <variable>HOP_STEP_PERFORMANCE_SNAPSHOT_LIMIT</variable>
     <default-value>0</default-value>
   </kettle-variable>
@@ -213,7 +213,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>The name of the environment variable that will contain the alternative location of the kettle-steps.xml file. You can use this to customize the list of available internal steps outside of the codebase.</description>
+    <description>The name of the environment variable that will contain the alternative location of the kettle-transforms.xml file. You can use this to customize the list of available internal transforms outside of the codebase.</description>
     <variable>HOP_CORE_STEPS_FILE</variable>
     <default-value></default-value>
   </kettle-variable>
@@ -315,7 +315,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to precede log lines with the mapping step name and the mapping itself.</description>
+    <description>Set this variable to Y to precede log lines with the mapping transform name and the mapping itself.</description>
     <variable>HOP_LOG_MARK_MAPPINGS</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -333,7 +333,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y for backward compatibility for the Text File Output step. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.</description>
+    <description>Set this variable to Y for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.</description>
     <variable>HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -378,7 +378,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y for backward compatibility for the Merge Rows (diff) step. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.</description>
+    <description>Set this variable to Y for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.</description>
     <variable>HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -403,7 +403,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields step. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.</description>
+    <description>Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.</description>
     <variable>HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE</variable>
     <default-value>false</default-value>
   </kettle-variable>
@@ -433,13 +433,13 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable is used by the Text File Output step. It defines the max number of simultaneously open files within the step. The step will close/reopen files as necessary to insure the max is not exceeded</description>
+    <description>This environment variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_COUNT</variable>
     <default-value>1024</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable is used by the Text File Output step. It defines the max number of milliseconds between flushes of files opened by the step.</description>
+    <description>This environment variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_LIFE</variable>
     <default-value>0</default-value>
   </kettle-variable>

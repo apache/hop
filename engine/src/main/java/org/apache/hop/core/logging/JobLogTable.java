@@ -36,7 +36,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -111,7 +111,7 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
     return retval.toString();
   }
 
-  public void loadXML( Node jobNode, List<StepMeta> steps ) {
+  public void loadXML( Node jobNode, List<TransformMeta> transforms ) {
     connectionName = XMLHandler.getTagValue( jobNode, "connection" );
     schemaName = XMLHandler.getTagValue( jobNode, "schema" );
     tableName = XMLHandler.getTagValue( jobNode, "table" );
@@ -228,27 +228,27 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
     return findField( ID.LOG_FIELD ).isEnabled();
   }
 
-  public String getStepnameRead() {
+  public String getTransformNameRead() {
     return getSubjectString( ID.LINES_READ );
   }
 
-  public String getStepnameWritten() {
+  public String getTransformNameWritten() {
     return getSubjectString( ID.LINES_WRITTEN );
   }
 
-  public String getStepnameInput() {
+  public String getTransformNameInput() {
     return getSubjectString( ID.LINES_INPUT );
   }
 
-  public String getStepnameOutput() {
+  public String getTransformNameOutput() {
     return getSubjectString( ID.LINES_OUTPUT );
   }
 
-  public String getStepnameUpdated() {
+  public String getTransformNameUpdated() {
     return getSubjectString( ID.LINES_UPDATED );
   }
 
-  public String getStepnameRejected() {
+  public String getTransformNameRejected() {
     return getSubjectString( ID.LINES_REJECTED );
   }
 

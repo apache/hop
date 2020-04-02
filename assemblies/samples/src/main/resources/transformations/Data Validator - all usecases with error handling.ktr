@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Data Validator - explore use-cases</name>
-    <description>Explore all possible use-cases of the Data Validator step</description>
+    <description>Explore all possible use-cases of the Data Validator transform</description>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -806,7 +806,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>A1</name>
     <type>RowGenerator</type>
     <description/>
@@ -837,20 +837,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>267</xloc>
       <yloc>25</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A2</name>
     <type>RowGenerator</type>
     <description/>
@@ -881,20 +881,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>268</xloc>
       <yloc>135</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A3</name>
     <type>RowGenerator</type>
     <description/>
@@ -925,20 +925,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>270</xloc>
       <yloc>262</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A4</name>
     <type>RowGenerator</type>
     <description/>
@@ -969,20 +969,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>272</xloc>
       <yloc>360</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A5</name>
     <type>RowGenerator</type>
     <description/>
@@ -1013,20 +1013,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>278</xloc>
       <yloc>531</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A6</name>
     <type>RowGenerator</type>
     <description/>
@@ -1057,20 +1057,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>281</xloc>
       <yloc>652</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>A7</name>
     <type>RowGenerator</type>
     <description/>
@@ -1101,20 +1101,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>284</xloc>
       <yloc>753</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Abort</name>
     <type>Abort</type>
     <description/>
@@ -1129,20 +1129,20 @@
       <message>WE DIDN&#x27;T FIND EXACTLY 8 VALIDATION ERRORS&#x21;&#x21;</message>
       <always_log_rows>Y</always_log_rows>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>1090</xloc>
       <yloc>86</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B1</name>
     <type>RowGenerator</type>
     <description/>
@@ -1173,20 +1173,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>323</xloc>
       <yloc>26</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B2</name>
     <type>RowGenerator</type>
     <description/>
@@ -1217,20 +1217,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>328</xloc>
       <yloc>135</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B3</name>
     <type>RowGenerator</type>
     <description/>
@@ -1261,20 +1261,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>328</xloc>
       <yloc>263</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B4</name>
     <type>RowGenerator</type>
     <description/>
@@ -1305,20 +1305,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>278</xloc>
       <yloc>430</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B5</name>
     <type>RowGenerator</type>
     <description/>
@@ -1349,20 +1349,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>328</xloc>
       <yloc>532</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B6</name>
     <type>RowGenerator</type>
     <description/>
@@ -1393,20 +1393,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>334</xloc>
       <yloc>652</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>B7</name>
     <type>RowGenerator</type>
     <description/>
@@ -1437,20 +1437,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>337</xloc>
       <yloc>753</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C1</name>
     <type>RowGenerator</type>
     <description/>
@@ -1481,20 +1481,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>385</xloc>
       <yloc>24</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C2</name>
     <type>RowGenerator</type>
     <description/>
@@ -1525,20 +1525,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>386</xloc>
       <yloc>135</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C5</name>
     <type>RowGenerator</type>
     <description/>
@@ -1569,20 +1569,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>376</xloc>
       <yloc>532</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C6</name>
     <type>RowGenerator</type>
     <description/>
@@ -1613,20 +1613,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>383</xloc>
       <yloc>652</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>C7</name>
     <type>RowGenerator</type>
     <description/>
@@ -1657,20 +1657,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>386</xloc>
       <yloc>753</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>D7</name>
     <type>RowGenerator</type>
     <description/>
@@ -1701,20 +1701,20 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>439</xloc>
       <yloc>751</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Data type&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -1751,24 +1751,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>379</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Data type&#x3f; OK</name>
     <type>Validator</type>
     <description/>
@@ -1805,24 +1805,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>447</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filter rows</name>
     <type>FilterRows</type>
     <description/>
@@ -1844,20 +1844,20 @@
  <value><name>constant</name><type>Integer</type><text>7</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>&#x23;&#x3b;-&#x23;</mask></value> </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>927</xloc>
       <yloc>86</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by</name>
     <type>GroupBy</type>
     <description/>
@@ -1887,20 +1887,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>854</xloc>
       <yloc>383</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by 2</name>
     <type>GroupBy</type>
     <description/>
@@ -1930,20 +1930,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>860</xloc>
       <yloc>546</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>In list of values&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -1980,27 +1980,27 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value><value>A</value>
 <value>B</value>
 <value>C</value>
 </allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>810</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Longer&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -2037,24 +2037,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>66</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Maximum&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -2091,24 +2091,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>581</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Minimum&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -2145,24 +2145,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>689</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Null&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -2199,24 +2199,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>288</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OK</name>
     <type>Dummy</type>
     <description/>
@@ -2228,20 +2228,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>730</xloc>
       <yloc>241</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Shorter&#x3f;</name>
     <type>Validator</type>
     <description/>
@@ -2278,24 +2278,24 @@
 <error_code/>
 <error_description/>
 <is_sourcing_values>N</is_sourcing_values>
-<sourcing_step/>
+<sourcing_transform/>
 <sourcing_field/>
 <allowed_value></allowed_value></validator_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>517</xloc>
       <yloc>171</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Total Caught</name>
     <type>GroupBy</type>
     <description/>
@@ -2325,20 +2325,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>927</xloc>
       <yloc>215</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Validation Errors</name>
     <type>Dummy</type>
     <description/>
@@ -2350,20 +2350,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>730</xloc>
       <yloc>545</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Validation Errors &#x28;alt&#x29;</name>
     <type>Dummy</type>
     <description/>
@@ -2375,23 +2375,23 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>730</xloc>
       <yloc>382</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
+  <transform_error_handling>
       <error>
-        <source_step>Data type&#x3f;</source_step>
-        <target_step>Validation Errors &#x28;alt&#x29;</target_step>
+        <source_transform>Data type&#x3f;</source_transform>
+        <target_transform>Validation Errors &#x28;alt&#x29;</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2402,8 +2402,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Data type&#x3f; OK</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Data type&#x3f; OK</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2414,8 +2414,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>In list of values&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>In list of values&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2426,8 +2426,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Longer&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Longer&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2438,8 +2438,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Maximum&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Maximum&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2450,8 +2450,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Minimum&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Minimum&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2462,8 +2462,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Null&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Null&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2474,8 +2474,8 @@
         <min_pct_rows>-1</min_pct_rows>
       </error>
       <error>
-        <source_step>Shorter&#x3f;</source_step>
-        <target_step>Validation Errors</target_step>
+        <source_transform>Shorter&#x3f;</source_transform>
+        <target_transform>Validation Errors</target_transform>
         <is_enabled>Y</is_enabled>
         <nr_valuename>ErrorCount</nr_valuename>
         <descriptions_valuename>ErrorDescription</descriptions_valuename>
@@ -2485,8 +2485,8 @@
         <max_pct_errors>-1</max_pct_errors>
         <min_pct_rows>-1</min_pct_rows>
       </error>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

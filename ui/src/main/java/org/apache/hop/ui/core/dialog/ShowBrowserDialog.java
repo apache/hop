@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ShellAdapter;
@@ -139,7 +139,7 @@ public class ShowBrowserDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell, 800, 600, true );
+    BaseTransformDialog.setSize( shell, 800, 600, true );
 
     shell.open();
     while ( !shell.isDisposed() ) {

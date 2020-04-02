@@ -41,7 +41,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -391,7 +391,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     fdBottomSeparator.right = new FormAttachment( 100, 0 );
     lBottomSeparator.setLayoutData( fdBottomSeparator );
 
-    BaseStepDialog.positionBottomRightButtons( shell, new Button[] { wOK, wCancel }, margin, lBottomSeparator );
+    BaseTransformDialog.positionBottomRightButtons( shell, new Button[] { wOK, wCancel }, margin, lBottomSeparator );
     FormData fdOK = (FormData) wOK.getLayoutData();
     FormData fdHelpButton = new FormData();
     fdHelpButton.top = fdOK.top;
@@ -429,7 +429,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
   @Override
   public JobEntryInterface open() {
     initUI();
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
     shell.open();
     Display display = getParent().getDisplay();
     while ( !shell.isDisposed() ) {
@@ -606,7 +606,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
   protected void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

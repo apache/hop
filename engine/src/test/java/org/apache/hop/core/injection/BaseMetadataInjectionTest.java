@@ -35,6 +35,10 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.After;
 import org.junit.Ignore;
 
@@ -51,14 +55,14 @@ import static org.junit.Assert.fail;
  * Base class for test metadata injection.
  */
 @Ignore
-public abstract class BaseMetadataInjectionTest<T> {
-  protected BeanInjectionInfo info;
-  protected BeanInjector injector;
-  protected T meta;
+public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterface<?, ?>> {
+  protected BeanInjectionInfo<Meta> info;
+  protected BeanInjector<Meta> injector;
+  protected Meta meta;
   protected Set<String> nonTestedProperties;
   protected IMetaStore metaStore;
 
-  protected void setup( T meta ) throws Exception {
+  protected void setup( Meta meta ) throws Exception {
     HopClientEnvironment.init();
 
     this.meta = meta;

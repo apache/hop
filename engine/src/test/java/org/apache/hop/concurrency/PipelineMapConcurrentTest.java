@@ -99,31 +99,31 @@ public class PipelineMapConcurrentTest {
     String clusteredRunId;
     String pipelineName;
     String sourceSlaveName;
-    String sourceStepName;
-    String sourceStepCopy;
+    String sourceTransformName;
+    String sourceTransformCopy;
     String targetSlaveName;
-    String targetStepName;
-    String targetStepCopy;
+    String targetTransformName;
+    String targetTransformCopy;
 
     public ConcurrentAllocate( int portRangeStart, String hostname, String clusteredRunId,
-                               String pipelineName, String sourceSlaveName, String sourceStepName,
-                               String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
+                               String pipelineName, String sourceSlaveName, String sourceTransformName,
+                               String sourceTransformCopy, String targetSlaveName, String targetTransformName, String targetTransformCopy ) {
       this.portRangeStart = portRangeStart;
       this.hostname = hostname;
       this.clusteredRunId = clusteredRunId;
       this.pipelineName = pipelineName;
       this.sourceSlaveName = sourceSlaveName;
-      this.sourceStepName = sourceStepName;
-      this.sourceStepCopy = sourceStepCopy;
+      this.sourceTransformName = sourceTransformName;
+      this.sourceTransformCopy = sourceTransformCopy;
       this.targetSlaveName = targetSlaveName;
-      this.targetStepName = targetStepName;
-      this.targetStepCopy = targetStepCopy;
+      this.targetTransformName = targetTransformName;
+      this.targetTransformCopy = targetTransformCopy;
     }
 
     @Override
     public SocketPortAllocation call() throws Exception {
       return pipelineMap.allocateServerSocketPort( portRangeStart, hostname, clusteredRunId, pipelineName,
-        sourceSlaveName, sourceStepName, sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
+        sourceSlaveName, sourceTransformName, sourceTransformCopy, targetSlaveName, targetTransformName, targetTransformCopy );
     }
   }
 

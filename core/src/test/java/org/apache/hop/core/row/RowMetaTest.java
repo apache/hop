@@ -96,7 +96,7 @@ public class RowMetaTest {
     List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>();
     for ( int i = 0; i < names.length; i++ ) {
       ValueMetaInterface vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
-      vm.setOrigin( "originStep" );
+      vm.setOrigin( "originTransform" );
       list.add( vm );
     }
     return list;
@@ -452,7 +452,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testMergeRowMetaWithOriginStep() throws Exception {
+  public void testMergeRowMetaWithOriginTransform() throws Exception {
 
     List<ValueMetaInterface> list =
       this.generateVList( new String[] { "phobos", "demos", "mars" }, new int[] { 6, 6, 6 } );
@@ -460,7 +460,7 @@ public class RowMetaTest {
     RowMeta toMerge = new RowMeta();
     toMerge.setValueMetaList( list );
 
-    rowMeta.mergeRowMeta( toMerge, "newOriginStep" );
+    rowMeta.mergeRowMeta( toMerge, "newOriginTransform" );
     assertEquals( 7, rowMeta.size() );
 
     list = rowMeta.getValueMetaList();
@@ -476,9 +476,9 @@ public class RowMetaTest {
       }
     }
     assertNotNull( found );
-    assertEquals( found.getOrigin(), "newOriginStep" );
+    assertEquals( found.getOrigin(), "newOriginTransform" );
     assertNotNull( other );
-    assertEquals( other.getOrigin(), "originStep" );
+    assertEquals( other.getOrigin(), "originTransform" );
 
   }
 

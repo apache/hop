@@ -116,7 +116,7 @@ public class LoggingBuffer {
                                                    int to ) {
 
     // Typically, the log channel id is the one from the pipeline or job running currently.
-    // However, we also want to see the details of the steps etc.
+    // However, we also want to see the details of the transforms etc.
     // So we need to look at the parents all the way up if needed...
     //
     List<String> childIds = loggingRegistry.getLogChannelChildren( parentLogChannelId );

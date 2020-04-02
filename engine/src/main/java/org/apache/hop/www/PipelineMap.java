@@ -131,20 +131,20 @@ public class PipelineMap {
 
 
   /**
-   * This is the meat of the whole problem. We'll allocate a port for a given slave, pipeline and step copy,
+   * This is the meat of the whole problem. We'll allocate a port for a given slave, pipeline and transform copy,
    * always on the same host. Algorithm: 1) Search for the right map in the hostPortMap
    *
    * @param portRangeStart     the start of the port range as described in the used cluster schema
    * @param hostname           the host name to allocate this address for
    * @param clusteredRunId     A unique id, created for each new clustered run during pipeline split.
    * @param pipelineName
-   * @param sourceStepName
-   * @param sourceStepCopy
+   * @param sourceTransformName
+   * @param sourceTransformCopy
    * @return
    */
   public SocketPortAllocation allocateServerSocketPort( int portRangeStart, String hostname,
-                                                        String clusteredRunId, String pipelineName, String sourceSlaveName, String sourceStepName,
-                                                        String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
+                                                        String clusteredRunId, String pipelineName, String sourceSlaveName, String sourceTransformName,
+                                                        String sourceTransformCopy, String targetSlaveName, String targetTransformName, String targetTransformCopy ) {
 
     // Do some validations first...
     //
@@ -173,21 +173,21 @@ public class PipelineMap {
       throw new RuntimeException(
         "A server socket allocation always has to accompanied by a target slave server name but it was empty" );
     }
-    if ( Utils.isEmpty( sourceStepName ) ) {
+    if ( Utils.isEmpty( sourceTransformName ) ) {
       throw new RuntimeException(
-        "A server socket allocation always has to accompanied by a source step name but it was empty" );
+        "A server socket allocation always has to accompanied by a source transform name but it was empty" );
     }
-    if ( Utils.isEmpty( targetStepName ) ) {
+    if ( Utils.isEmpty( targetTransformName ) ) {
       throw new RuntimeException(
-        "A server socket allocation always has to accompanied by a target step name but it was empty" );
+        "A server socket allocation always has to accompanied by a target transform name but it was empty" );
     }
-    if ( Utils.isEmpty( sourceStepCopy ) ) {
+    if ( Utils.isEmpty( sourceTransformCopy ) ) {
       throw new RuntimeException(
-        "A server socket allocation always has to accompanied by a source step copy but it was empty" );
+        "A server socket allocation always has to accompanied by a source transform copy but it was empty" );
     }
-    if ( Utils.isEmpty( targetStepCopy ) ) {
+    if ( Utils.isEmpty( targetTransformCopy ) ) {
       throw new RuntimeException(
-        "A server socket allocation always has to accompanied by a target step copy but it was empty" );
+        "A server socket allocation always has to accompanied by a target transform copy but it was empty" );
     }
 
     // Look up the sockets list for the given host
@@ -211,10 +211,10 @@ public class PipelineMap {
           && spa.getSourceSlaveName().equalsIgnoreCase( sourceSlaveName )
           && spa.getTargetSlaveName().equalsIgnoreCase( targetSlaveName )
           && spa.getPipelineName().equalsIgnoreCase( pipelineName )
-          && spa.getSourceStepName().equalsIgnoreCase( sourceStepName )
-          && spa.getSourceStepCopy().equalsIgnoreCase( sourceStepCopy )
-          && spa.getTargetStepName().equalsIgnoreCase( targetStepName )
-          && spa.getTargetStepCopy().equalsIgnoreCase( targetStepCopy ) ) {
+          && spa.getSourceTransformName().equalsIgnoreCase( sourceTransformName )
+          && spa.getSourceTransformCopy().equalsIgnoreCase( sourceTransformCopy )
+          && spa.getTargetTransformName().equalsIgnoreCase( targetTransformName )
+          && spa.getTargetTransformCopy().equalsIgnoreCase( targetTransformCopy ) ) {
           // This is the port we want, return it. Make sure it's allocated.
           //
           spa.setAllocated( true );
@@ -237,7 +237,7 @@ public class PipelineMap {
               socketPortAllocation =
                 new SocketPortAllocation(
                   spa.getPort(), new Date(), clusteredRunId, pipelineName, sourceSlaveName,
-                  sourceStepName, sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
+                  sourceTransformName, sourceTransformCopy, targetSlaveName, targetTransformName, targetTransformCopy );
               serverSocketPorts.set( index, socketPortAllocation );
               break;
             }
@@ -251,8 +251,8 @@ public class PipelineMap {
       //
       socketPortAllocation =
         new SocketPortAllocation(
-          maxPort + 1, new Date(), clusteredRunId, pipelineName, sourceSlaveName, sourceStepName,
-          sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
+          maxPort + 1, new Date(), clusteredRunId, pipelineName, sourceSlaveName, sourceTransformName,
+          sourceTransformCopy, targetSlaveName, targetTransformName, targetTransformCopy );
       serverSocketPorts.add( socketPortAllocation );
     }
 

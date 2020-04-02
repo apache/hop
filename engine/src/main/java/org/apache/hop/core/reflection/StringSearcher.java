@@ -26,7 +26,7 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -39,12 +39,12 @@ public class StringSearcher {
 
   private static final String[] JAVA_PACKAGES = new String[] { "java.util", };
 
-  private static List<String> stepPluginPackages;
+  private static List<String> transformPluginPackages;
   private static List<String> jobEntryPluginPackages;
 
   static {
     PluginRegistry registry = PluginRegistry.getInstance();
-    stepPluginPackages = registry.getPluginPackages( StepPluginType.class );
+    transformPluginPackages = registry.getPluginPackages( TransformPluginType.class );
     jobEntryPluginPackages = registry.getPluginPackages( JobEntryPluginType.class );
   }
 
@@ -56,8 +56,8 @@ public class StringSearcher {
 
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    if ( stepPluginPackages == null ) {
-      stepPluginPackages = registry.getPluginPackages( StepPluginType.class );
+    if ( transformPluginPackages == null ) {
+      transformPluginPackages = registry.getPluginPackages( TransformPluginType.class );
     }
     if ( jobEntryPluginPackages == null ) {
       jobEntryPluginPackages = registry.getPluginPackages( JobEntryPluginType.class );
@@ -91,8 +91,8 @@ public class StringSearcher {
           sanctionedPackage = true;
         }
       }
-      for ( int x = 0; x < stepPluginPackages.size() && !sanctionedPackage; x++ ) {
-        if ( fieldToString.indexOf( stepPluginPackages.get( x ) ) >= 0 ) {
+      for ( int x = 0; x < transformPluginPackages.size() && !sanctionedPackage; x++ ) {
+        if ( fieldToString.indexOf( transformPluginPackages.get( x ) ) >= 0 ) {
           sanctionedPackage = true;
         }
       }

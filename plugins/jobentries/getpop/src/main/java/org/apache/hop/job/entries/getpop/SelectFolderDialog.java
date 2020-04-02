@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -112,7 +112,7 @@ public class SelectFolderDialog extends Dialog {
     fdTree.bottom = new FormAttachment( 100, -50 );
     wTree.setLayoutData( fdTree );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh, wCancel }, Const.MARGIN, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh, wCancel }, Const.MARGIN, null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, new Listener() {
@@ -140,7 +140,7 @@ public class SelectFolderDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     Display display = parent.getDisplay();

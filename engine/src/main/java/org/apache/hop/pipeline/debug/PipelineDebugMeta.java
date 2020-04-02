@@ -23,21 +23,21 @@
 package org.apache.hop.pipeline.debug;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.step.RowAdapter;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * For a certain pipeline, we want to be able to insert break-points into a pipeline. These breakpoints can
- * be applied to steps. When a certain condition is met, the pipeline will be paused and the caller will be
+ * be applied to transforms. When a certain condition is met, the pipeline will be paused and the caller will be
  * informed of this fact through a listener system.
  *
  * @author Matt
@@ -46,14 +46,14 @@ public class PipelineDebugMeta {
 
   public static final String XML_TAG = "pipeline-debug-meta";
 
-  public static final String XML_TAG_STEP_DEBUG_METAS = "step-debug-metas";
+  public static final String XML_TAG_TRANSFORM_DEBUG_METAS = "transform-debug-metas";
 
   private PipelineMeta pipelineMeta;
-  private Map<StepMeta, StepDebugMeta> stepDebugMetaMap;
+  private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
 
   public PipelineDebugMeta( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
-    stepDebugMetaMap = new HashMap<StepMeta, StepDebugMeta>();
+    transformDebugMetaMap = new HashMap<TransformMeta, TransformDebugMeta>();
   }
 
   /**
@@ -71,62 +71,62 @@ public class PipelineDebugMeta {
   }
 
   /**
-   * @return the map that contains the debugging information per step
+   * @return the map that contains the debugging information per transform
    */
-  public Map<StepMeta, StepDebugMeta> getStepDebugMetaMap() {
-    return stepDebugMetaMap;
+  public Map<TransformMeta, TransformDebugMeta> getTransformDebugMetaMap() {
+    return transformDebugMetaMap;
   }
 
   /**
-   * @param stepDebugMeta the map that contains the debugging information per step
+   * @param transformDebugMeta the map that contains the debugging information per transform
    */
-  public void setStepDebugMetaMap( Map<StepMeta, StepDebugMeta> stepDebugMeta ) {
-    this.stepDebugMetaMap = stepDebugMeta;
+  public void setTransformDebugMetaMap( Map<TransformMeta, TransformDebugMeta> transformDebugMeta ) {
+    this.transformDebugMetaMap = transformDebugMeta;
   }
 
   public synchronized void addRowListenersToPipeline( final IPipelineEngine<PipelineMeta> pipeline ) {
 
-    // for every step in the map, add a row listener...
+    // for every transform in the map, add a row listener...
     //
-    for ( final StepMeta stepMeta : stepDebugMetaMap.keySet() ) {
-      final StepDebugMeta stepDebugMeta = stepDebugMetaMap.get( stepMeta );
+    for ( final TransformMeta transformMeta : transformDebugMetaMap.keySet() ) {
+      final TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
 
       // What is the pipeline thread to attach a listener to?
       //
-      for ( IEngineComponent component : pipeline.getComponentCopies( stepMeta.getName() ) ) {
+      for ( IEngineComponent component : pipeline.getComponentCopies( transformMeta.getName() ) ) {
         // TODO: Make this functionality more generic in the pipeline engines
         //
-        if ( component instanceof StepInterface ) {
-          StepInterface baseStep = (StepInterface) component;
-          baseStep.addRowListener( new RowAdapter() {
-               public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
+        if ( component instanceof TransformInterface ) {
+          TransformInterface baseTransform = (TransformInterface) component;
+          baseTransform.addRowListener( new RowAdapter() {
+               public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
                  try {
 
-                   // This block of code is called whenever there is a row written by the step
-                   // So we want to execute the debugging actions that are specified by the step...
+                   // This block of code is called whenever there is a row written by the transform
+                   // So we want to execute the debugging actions that are specified by the transform...
                    //
-                   int rowCount = stepDebugMeta.getRowCount();
+                   int rowCount = transformDebugMeta.getRowCount();
 
-                   if ( stepDebugMeta.isReadingFirstRows() && rowCount > 0 ) {
+                   if ( transformDebugMeta.isReadingFirstRows() && rowCount > 0 ) {
 
-                     int bufferSize = stepDebugMeta.getRowBuffer().size();
+                     int bufferSize = transformDebugMeta.getRowBuffer().size();
                      if ( bufferSize < rowCount ) {
 
                        // This is the classic preview mode.
                        // We add simply add the row to the buffer.
                        //
-                       stepDebugMeta.setRowBufferMeta( rowMeta );
-                       stepDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
+                       transformDebugMeta.setRowBufferMeta( rowMeta );
+                       transformDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
                      } else {
                        // pause the pipeline...
                        //
                        pipeline.pauseRunning();
 
-                       // Also call the pause / break-point listeners on the step debugger...
+                       // Also call the pause / break-point listeners on the transform debugger...
                        //
-                       stepDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
+                       transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
                      }
-                   } else if ( stepDebugMeta.isPausingOnBreakPoint() && stepDebugMeta.getCondition() != null ) {
+                   } else if ( transformDebugMeta.isPausingOnBreakPoint() && transformDebugMeta.getCondition() != null ) {
                      // A break-point is set
                      // Verify the condition and pause if required
                      // Before we do that, see if a row count is set.
@@ -136,40 +136,40 @@ public class PipelineDebugMeta {
                        // Keep a number of rows in memory
                        // Store them in a reverse order to keep it intuitive for the user.
                        //
-                       stepDebugMeta.setRowBufferMeta( rowMeta );
-                       stepDebugMeta.getRowBuffer().add( 0, rowMeta.cloneRow( row ) );
+                       transformDebugMeta.setRowBufferMeta( rowMeta );
+                       transformDebugMeta.getRowBuffer().add( 0, rowMeta.cloneRow( row ) );
 
                        // Only keep a number of rows in memory
                        // If we have too many, remove the last (oldest)
                        //
-                       int bufferSize = stepDebugMeta.getRowBuffer().size();
+                       int bufferSize = transformDebugMeta.getRowBuffer().size();
                        if ( bufferSize > rowCount ) {
-                         stepDebugMeta.getRowBuffer().remove( bufferSize - 1 );
+                         transformDebugMeta.getRowBuffer().remove( bufferSize - 1 );
                        }
                      } else {
                        // Just keep one row...
                        //
-                       if ( stepDebugMeta.getRowBuffer().isEmpty() ) {
-                         stepDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
+                       if ( transformDebugMeta.getRowBuffer().isEmpty() ) {
+                         transformDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
                        } else {
-                         stepDebugMeta.getRowBuffer().set( 0, rowMeta.cloneRow( row ) );
+                         transformDebugMeta.getRowBuffer().set( 0, rowMeta.cloneRow( row ) );
                        }
                      }
 
                      // Now evaluate the condition and see if we need to pause the pipeline
                      //
-                     if ( stepDebugMeta.getCondition().evaluate( rowMeta, row ) ) {
+                     if ( transformDebugMeta.getCondition().evaluate( rowMeta, row ) ) {
                        // We hit the break-point: pause the pipeline
                        //
                        pipeline.pauseRunning();
 
                        // Also fire off the break point listeners...
                        //
-                       stepDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
+                       transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
                      }
                    }
                  } catch ( HopException e ) {
-                   throw new HopStepException( e );
+                   throw new HopTransformException( e );
                  }
                }
              }
@@ -180,38 +180,38 @@ public class PipelineDebugMeta {
   }
 
   /**
-   * Add a break point listener to all defined step debug meta data
+   * Add a break point listener to all defined transform debug meta data
    *
    * @param breakPointListener the break point listener to add
    */
   public void addBreakPointListers( BreakPointListener breakPointListener ) {
-    for ( StepDebugMeta stepDebugMeta : stepDebugMetaMap.values() ) {
-      stepDebugMeta.addBreakPointListener( breakPointListener );
+    for ( TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values() ) {
+      transformDebugMeta.addBreakPointListener( breakPointListener );
     }
   }
 
   /**
-   * @return the number of times the break-point listeners got called. This is the total for all the steps.
+   * @return the number of times the break-point listeners got called. This is the total for all the transforms.
    */
   public int getTotalNumberOfHits() {
     int total = 0;
-    for ( StepDebugMeta stepDebugMeta : stepDebugMetaMap.values() ) {
-      total += stepDebugMeta.getNumberOfHits();
+    for ( TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values() ) {
+      total += transformDebugMeta.getNumberOfHits();
     }
     return total;
   }
 
   /**
-   * @return the number of steps used to preview or debug on
+   * @return the number of transforms used to preview or debug on
    */
-  public int getNrOfUsedSteps() {
+  public int getNrOfUsedTransforms() {
     int nr = 0;
 
-    for ( StepDebugMeta stepDebugMeta : stepDebugMetaMap.values() ) {
-      if ( stepDebugMeta.isReadingFirstRows() && stepDebugMeta.getRowCount() > 0 ) {
+    for ( TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values() ) {
+      if ( transformDebugMeta.isReadingFirstRows() && transformDebugMeta.getRowCount() > 0 ) {
         nr++;
-      } else if ( stepDebugMeta.isPausingOnBreakPoint()
-        && stepDebugMeta.getCondition() != null && !stepDebugMeta.getCondition().isEmpty() ) {
+      } else if ( transformDebugMeta.isPausingOnBreakPoint()
+        && transformDebugMeta.getCondition() != null && !transformDebugMeta.getCondition().isEmpty() ) {
         nr++;
       }
     }

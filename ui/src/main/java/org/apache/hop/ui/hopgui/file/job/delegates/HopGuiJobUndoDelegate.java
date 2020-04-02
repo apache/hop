@@ -58,9 +58,9 @@ public class HopGuiJobUndoDelegate {
 
   public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
-      // We created a new step : undo this...
+      // We created a new transform : undo this...
       case NewJobEntry:
-        // Delete the step at correct location:
+        // Delete the transform at correct location:
         for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobEntry( idx );
@@ -89,9 +89,9 @@ public class HopGuiJobUndoDelegate {
       // DELETE
       //
 
-      // We delete a step : undo this...
+      // We delete a transform : undo this...
       case DeleteJobEntry:
-        // un-Delete the step at correct location: re-insert
+        // un-Delete the transform at correct location: re-insert
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
           JobEntryCopy entry = (JobEntryCopy) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
@@ -127,9 +127,9 @@ public class HopGuiJobUndoDelegate {
       // CHANGE
       //
 
-      // We changed a step : undo this...
+      // We changed a transform : undo this...
       case ChangeJobEntry:
-        // Delete the current step, insert previous version.
+        // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
           JobEntryCopy prev = ( (JobEntryCopy) changeAction.getPrevious()[ i ] ).clone();
           int idx = changeAction.getCurrentIndex()[ i ];
@@ -165,9 +165,9 @@ public class HopGuiJobUndoDelegate {
       // POSITION
       //
 
-      // The position of a step has changed: undo this...
+      // The position of a transform has changed: undo this...
       case PositionJobEntry:
-        // Find the location of the step:
+        // Find the location of the transform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
           JobEntryCopy jobEntry = jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] );
           jobEntry.setLocation( changeAction.getPreviousLocation()[ i ] );
@@ -207,7 +207,7 @@ public class HopGuiJobUndoDelegate {
   public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       case NewJobEntry:
-        // re-delete the step at correct location:
+        // re-delete the transform at correct location:
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
           JobEntryCopy entryCopy = (JobEntryCopy) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
@@ -237,7 +237,7 @@ public class HopGuiJobUndoDelegate {
       // DELETE
       //
       case DeleteJobEntry:
-        // re-remove the step at correct location:
+        // re-remove the transform at correct location:
         for ( int i = changeAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = changeAction.getCurrentIndex()[ i ];
           jobMeta.removeJobEntry( idx );
@@ -264,9 +264,9 @@ public class HopGuiJobUndoDelegate {
       // CHANGE
       //
 
-      // We changed a step : undo this...
-      case ChangeStep:
-        // Delete the current step, insert previous version.
+      // We changed a transform : undo this...
+      case ChangeTransform:
+        // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
           JobEntryCopy clonedEntry = ( (JobEntryCopy) changeAction.getCurrent()[ i ] ).clone();
           jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] ).replaceMeta( clonedEntry );
@@ -300,9 +300,9 @@ public class HopGuiJobUndoDelegate {
       //
       // CHANGE POSITION
       //
-      case PositionStep:
+      case PositionTransform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
-          // Find & change the location of the step:
+          // Find & change the location of the transform:
           JobEntryCopy jobEntry = jobMeta.getJobEntry( changeAction.getCurrentIndex()[ i ] );
           jobEntry.setLocation( changeAction.getCurrentLocation()[ i ] );
         }

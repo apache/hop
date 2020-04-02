@@ -25,13 +25,13 @@ package org.apache.test.util;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -39,11 +39,11 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * This is a base class for creating guard tests, that check a step cannot be executed in the single-threaded mode
+ * This is a base class for creating guard tests, that check a transform cannot be executed in the single-threaded mode
  *
  * @author Andrey Khayrutdinov
  */
-public abstract class SingleThreadedExecutionGuarder<Meta extends StepMetaInterface> {
+public abstract class SingleThreadedExecutionGuarder<Meta extends TransformMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -54,18 +54,18 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends StepMetaInterf
   protected abstract Meta createMeta();
 
   @Test( expected = HopException.class )
-  public void failsWhenGivenNonSingleThreadSteps() throws Exception {
+  public void failsWhenGivenNonSingleThreadTransforms() throws Exception {
     Meta metaInterface = createMeta();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
-    String id = plugReg.getPluginId( StepPluginType.class, metaInterface );
+    String id = plugReg.getPluginId( TransformPluginType.class, metaInterface );
     assertNotNull( "pluginId", id );
 
-    StepMeta stepMeta = new StepMeta( id, "stepMetrics", metaInterface );
+    TransformMeta transformMeta = new TransformMeta( id, "transformMetrics", metaInterface );
 
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName( "failsWhenGivenNonSingleThreadSteps" );
-    pipelineMeta.addStep( stepMeta );
+    pipelineMeta.setName( "failsWhenGivenNonSingleThreadTransforms" );
+    pipelineMeta.addTransform( transformMeta );
 
     Pipeline pipeline = new Pipeline( pipelineMeta );
     pipeline.prepareExecution();

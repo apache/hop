@@ -595,14 +595,14 @@ public class RowMeta implements RowMetaInterface {
 
   /**
    * Merge the values of row r to this Row. The fields that are not yet in the row are added unchanged. The fields that
-   * are in the row are renamed to name_2, name_3, etc. If the fields are renamed, the provided originStepName will be
-   * assigned as the origin step for those fields.
+   * are in the row are renamed to name_2, name_3, etc. If the fields are renamed, the provided originTransformName will be
+   * assigned as the origin transform for those fields.
    *
    * @param r              The row to be merged with this row
-   * @param originStepName The name to use as the origin step
+   * @param originTransformName The name to use as the origin transform
    */
   @Override
-  public void mergeRowMeta( RowMetaInterface r, String originStepName ) {
+  public void mergeRowMeta( RowMetaInterface r, String originTransformName ) {
     lock.writeLock().lock();
     try {
       for ( int x = 0; x < r.size(); x++ ) {
@@ -612,7 +612,7 @@ public class RowMeta implements RowMetaInterface {
         } else {
           // We want to rename the field to Name[2], Name[3], ...
           //
-          addValueMeta( renameValueMetaIfInRow( field, originStepName ) );
+          addValueMeta( renameValueMetaIfInRow( field, originTransformName ) );
         }
       }
     } finally {
@@ -620,7 +620,7 @@ public class RowMeta implements RowMetaInterface {
     }
   }
 
-  private ValueMetaInterface renameValueMetaIfInRow( ValueMetaInterface valueMeta, String originStep ) {
+  private ValueMetaInterface renameValueMetaIfInRow( ValueMetaInterface valueMeta, String originTransform ) {
     // We want to rename the field to Name[2], Name[3], ...
     //
     int index = 1;
@@ -638,8 +638,8 @@ public class RowMeta implements RowMetaInterface {
     // OK, this is the new name and origin to pick
     //
     copy.setName( name );
-    if ( originStep != null ) {
-      copy.setOrigin( originStep );
+    if ( originTransform != null ) {
+      copy.setOrigin( originTransform );
     }
     return copy;
   }

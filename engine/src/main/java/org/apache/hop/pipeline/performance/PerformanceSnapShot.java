@@ -122,28 +122,28 @@ public class PerformanceSnapShot {
   }
 
   /**
-   * @return the stepName
+   * @return the transformName
    */
   public String getComponentName() {
     return componentName;
   }
 
   /**
-   * @param componentName the stepName to set
+   * @param componentName the transformName to set
    */
   public void setComponentName( String componentName ) {
     this.componentName = componentName;
   }
 
   /**
-   * @return the stepCopy
+   * @return the transform copy nr
    */
   public int getCopyNr() {
     return copyNr;
   }
 
   /**
-   * @param copyNr the stepCopy to set
+   * @param copyNr the transform copy nr to set
    */
   public void setCopyNr( int copyNr ) {
     this.copyNr = copyNr;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Twitter JSON parsing and hashtag aggregation</name>
     <description/>
@@ -29,11 +29,11 @@
 <table/>
 <timeout_days/>
 <field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>LOGGING_OBJECT_TYPE</id><enabled>Y</enabled><name>LOGGING_OBJECT_TYPE</name></field><field><id>OBJECT_NAME</id><enabled>Y</enabled><name>OBJECT_NAME</name></field><field><id>OBJECT_COPY</id><enabled>Y</enabled><name>OBJECT_COPY</name></field><field><id>REPOSITORY_DIRECTORY</id><enabled>Y</enabled><name>REPOSITORY_DIRECTORY</name></field><field><id>FILENAME</id><enabled>Y</enabled><name>FILENAME</name></field><field><id>OBJECT_ID</id><enabled>Y</enabled><name>OBJECT_ID</name></field><field><id>OBJECT_REVISION</id><enabled>Y</enabled><name>OBJECT_REVISION</name></field><field><id>PARENT_CHANNEL_ID</id><enabled>Y</enabled><name>PARENT_CHANNEL_ID</name></field><field><id>ROOT_CHANNEL_ID</id><enabled>Y</enabled><name>ROOT_CHANNEL_ID</name></field></channel-log-table>
-<step-log-table><connection/>
+<transform-log-table><connection/>
 <schema/>
 <table/>
 <timeout_days/>
-<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></step-log-table>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></transform-log-table>
     </log>
     <maxdate>
       <connection/>
@@ -50,9 +50,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -70,7 +70,7 @@
   </notepads>
   <order>
   <hop> <from>5 hashtag rows</from><to>No empty hashtag</to><enabled>Y</enabled> </hop>  <hop> <from>Mapping input specification</from><to>Json Input</to><enabled>Y</enabled> </hop>  <hop> <from>No empty hashtag</from><to>count hashtags</to><enabled>Y</enabled> </hop>  <hop> <from>Json Input</from><to>Convert English date</to><enabled>Y</enabled> </hop>  <hop> <from>Convert English date</from><to>5 hashtag rows</to><enabled>Y</enabled> </hop>  <hop> <from>batch date range</from><to>Mapping output specification</to><enabled>Y</enabled> </hop>  <hop> <from>Sort rows</from><to>batch date range</to><enabled>Y</enabled> </hop>  <hop> <from>count hashtags</from><to>Filter out singles</to><enabled>Y</enabled> </hop>  <hop> <from>Filter out singles</from><to>Sort rows</to><enabled>Y</enabled> </hop>  </order>
-  <step>
+  <transform>
     <name>Convert English date</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -93,14 +93,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>315</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Json Input</name>
     <type>JsonInput</type>
     <description/>
@@ -271,14 +271,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
     <extensionFieldName/>
     <sizeFieldName/>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>194</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Mapping input specification</name>
     <type>MappingInput</type>
     <description/>
@@ -298,14 +298,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         <select_unspecified>N</select_unspecified>
     </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>73</xloc>
       <yloc>156</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Mapping output specification</name>
     <type>MappingOutput</type>
     <description/>
@@ -316,14 +316,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
            <schema_name/>
            </partitioning>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>1162</xloc>
       <yloc>163</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>count hashtags</name>
     <type>MemoryGroupBy</type>
     <description/>
@@ -360,14 +360,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         </field>
       </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>678</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>No empty hashtag</name>
     <type>FilterRows</type>
     <description/>
@@ -388,14 +388,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
  </condition>
     </compare>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>557</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>5 hashtag rows</name>
     <type>Normaliser</type>
     <description/>
@@ -422,14 +422,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         <value>4</value>
         <norm>hashtag</norm>
         </field>      </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>436</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows</name>
     <type>SortRows</type>
     <description/>
@@ -469,14 +469,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
       </field>
     </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>920</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>batch date range</name>
     <type>GroupBy</type>
     <description/>
@@ -511,14 +511,14 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         </field>
       </fields>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>1041</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filter out singles</name>
     <type>FilterRows</type>
     <description/>
@@ -539,16 +539,16 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
  <value><name>constant</name><type>Integer</type><text>1</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>#;-#</mask></value> </condition>
     </compare>
      <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+    <input>   </input>   <output>   </output>     <GUI>
       <xloc>799</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
       </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-   <slave-step-copy-partition-distribution>
-</slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+   <slave-transform-copy-partition-distribution>
+</slave-transform-copy-partition-distribution>
    <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

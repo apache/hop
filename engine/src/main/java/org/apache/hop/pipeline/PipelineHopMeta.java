@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -39,22 +39,22 @@ import java.util.Objects;
  */
 
 /**
- * Defines a link between 2 steps in a pipeline
+ * Defines a link between 2 transforms in a pipeline
  */
-public class PipelineHopMeta extends BaseHopMeta<StepMeta> implements Comparable<PipelineHopMeta> {
+public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Comparable<PipelineHopMeta> {
   private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_HOP_TAG = "hop";
   public static final String XML_FROM_TAG = "from";
   public static final String XML_TO_TAG = "to";
 
-  public PipelineHopMeta( StepMeta from, StepMeta to, boolean en ) {
+  public PipelineHopMeta( TransformMeta from, TransformMeta to, boolean en ) {
     this.from = from;
     this.to = to;
     enabled = en;
   }
 
-  public PipelineHopMeta( StepMeta from, StepMeta to ) {
+  public PipelineHopMeta( TransformMeta from, TransformMeta to ) {
     this.from = from;
     this.to = to;
     enabled = true;
@@ -64,10 +64,10 @@ public class PipelineHopMeta extends BaseHopMeta<StepMeta> implements Comparable
     this( null, null, false );
   }
 
-  public PipelineHopMeta( Node hopnode, List<StepMeta> steps ) throws HopXMLException {
+  public PipelineHopMeta( Node hopnode, List<TransformMeta> transforms ) throws HopXMLException {
     try {
-      this.from = searchStep( steps, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_FROM_TAG ) );
-      this.to = searchStep( steps, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_TO_TAG ) );
+      this.from = searchTransform( transforms, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_FROM_TAG ) );
+      this.to = searchTransform( transforms, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_TO_TAG ) );
       String en = XMLHandler.getTagValue( hopnode, "enabled" );
 
       if ( en == null ) {
@@ -80,26 +80,26 @@ public class PipelineHopMeta extends BaseHopMeta<StepMeta> implements Comparable
     }
   }
 
-  public void setFromStep( StepMeta from ) {
+  public void setFromTransform( TransformMeta from ) {
     this.from = from;
   }
 
-  public void setToStep( StepMeta to ) {
+  public void setToTransform( TransformMeta to ) {
     this.to = to;
   }
 
-  public StepMeta getFromStep() {
+  public TransformMeta getFromTransform() {
     return this.from;
   }
 
-  public StepMeta getToStep() {
+  public TransformMeta getToTransform() {
     return this.to;
   }
 
-  private StepMeta searchStep( List<StepMeta> steps, String name ) {
-    for ( StepMeta stepMeta : steps ) {
-      if ( stepMeta.getName().equalsIgnoreCase( name ) ) {
-        return stepMeta;
+  private TransformMeta searchTransform( List<TransformMeta> transforms, String name ) {
+    for ( TransformMeta transformMeta : transforms ) {
+      if ( transformMeta.getName().equalsIgnoreCase( name ) ) {
+        return transformMeta;
       }
     }
 
@@ -111,7 +111,7 @@ public class PipelineHopMeta extends BaseHopMeta<StepMeta> implements Comparable
     if ( this.from == null || this.to == null ) {
       return false;
     }
-    return this.from.equals( other.getFromStep() ) && this.to.equals( other.getToStep() );
+    return this.from.equals( other.getFromTransform() ) && this.to.equals( other.getToTransform() );
   }
 
   public int hashCode() {
@@ -126,7 +126,7 @@ public class PipelineHopMeta extends BaseHopMeta<StepMeta> implements Comparable
   }
 
   public void flip() {
-    StepMeta dummy = this.from;
+    TransformMeta dummy = this.from;
     this.from = this.to;
     this.to = dummy;
   }

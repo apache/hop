@@ -23,7 +23,7 @@
 package org.apache.hop.core;
 
 /**
- * Is used to keep the state of sequences / counters throughout a single session of a Pipeline, but across Steps.
+ * Is used to keep the state of sequences / counters throughout a single session of a Pipeline, but across transforms.
  *
  * @author Matt
  * @since 13-05-2003

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Export Repository</name>
     <description/>
@@ -283,7 +283,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -358,7 +358,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -426,9 +426,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -446,7 +446,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>This transformation shows how to to use the JavaScript step to export objects from a repository.&#xa;&#xa;1&#x29; Import this transformation into your repository.&#xa;2&#x29; Run the transformation and provide the following parameters in the run dialog&#x3a;&#xa;&#xa;DIRECTORY&#x3a;  The directory in the repository to export.&#xa;FILENAME&#x3a; The file name to save the export as.</note>
+      <note>This transformation shows how to to use the JavaScript transform to export objects from a repository.&#xa;&#xa;1&#x29; Import this transformation into your repository.&#xa;2&#x29; Run the transformation and provide the following parameters in the run dialog&#x3a;&#xa;&#xa;DIRECTORY&#x3a;  The directory in the repository to export.&#xa;FILENAME&#x3a; The file name to save the export as.</note>
       <xloc>19</xloc>
       <yloc>15</yloc>
       <width>619</width>
@@ -474,7 +474,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Export Repository</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -489,22 +489,22 @@
     <optimizationLevel/>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f; Get the repository we&#x27;re connected to&#xa;var rep &#x3d; _step_.getTrans&#x28;&#x29;.getRepository&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Ask the repository for its exporter&#xa;var exporter &#x3d; rep.getExporter&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Find the directory to export in the repository&#xa;var repdir &#x3d; rep.loadRepositoryDirectoryTree&#x28;&#x29;.findDirectory&#x28;directory&#x29;&#x3b;&#xa;&#x2f;&#x2f; Export all the objects from the directory into the filename we specified&#xa;exporter.exportAllObjects&#x28;null, filename, repdir, &#x22;all&#x22;&#x29;&#x3b;</jsScript_script>
+        <jsScript_script>&#x2f;&#x2f; Get the repository we&#x27;re connected to&#xa;var rep &#x3d; _transform_.getTrans&#x28;&#x29;.getRepository&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Ask the repository for its exporter&#xa;var exporter &#x3d; rep.getExporter&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Find the directory to export in the repository&#xa;var repdir &#x3d; rep.loadRepositoryDirectoryTree&#x28;&#x29;.findDirectory&#x28;directory&#x29;&#x3b;&#xa;&#x2f;&#x2f; Export all the objects from the directory into the filename we specified&#xa;exporter.exportAllObjects&#x28;null, filename, repdir, &#x22;all&#x22;&#x29;&#x3b;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>410</xloc>
       <yloc>169</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Get Variables</name>
     <type>GetVariable</type>
     <description/>
@@ -542,22 +542,22 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>194</xloc>
       <yloc>169</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

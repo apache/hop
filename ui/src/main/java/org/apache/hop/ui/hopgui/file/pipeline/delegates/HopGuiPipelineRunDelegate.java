@@ -34,8 +34,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
-import org.apache.hop.pipeline.debug.StepDebugMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -130,17 +130,17 @@ public class HopGuiPipelineRunDelegate {
         pipelineDebugMetaMap.put( pipelineMeta, pipelineDebugMeta );
       }
 
-      // Set the default number of rows to retrieve on all selected steps...
+      // Set the default number of rows to retrieve on all selected transforms...
       //
-      List<StepMeta> selectedSteps = pipelineMeta.getSelectedSteps();
-      if ( selectedSteps != null && selectedSteps.size() > 0 ) {
-        pipelineDebugMeta.getStepDebugMetaMap().clear();
-        for ( StepMeta stepMeta : pipelineMeta.getSelectedSteps() ) {
-          StepDebugMeta stepDebugMeta = new StepDebugMeta( stepMeta );
-          stepDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
-          stepDebugMeta.setPausingOnBreakPoint( true );
-          stepDebugMeta.setReadingFirstRows( false );
-          pipelineDebugMeta.getStepDebugMetaMap().put( stepMeta, stepDebugMeta );
+      List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
+      if ( selectedTransforms != null && selectedTransforms.size() > 0 ) {
+        pipelineDebugMeta.getTransformDebugMetaMap().clear();
+        for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
+          TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
+          transformDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
+          transformDebugMeta.setPausingOnBreakPoint( true );
+          transformDebugMeta.setReadingFirstRows( false );
+          pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
         }
       }
 
@@ -154,17 +154,17 @@ public class HopGuiPipelineRunDelegate {
         pipelinePreviewMetaMap.put( pipelineMeta, pipelineDebugMeta );
       }
 
-      // Set the default number of preview rows on all selected steps...
+      // Set the default number of preview rows on all selected transforms...
       //
-      List<StepMeta> selectedSteps = pipelineMeta.getSelectedSteps();
-      if ( selectedSteps != null && selectedSteps.size() > 0 ) {
-        pipelineDebugMeta.getStepDebugMetaMap().clear();
-        for ( StepMeta stepMeta : pipelineMeta.getSelectedSteps() ) {
-          StepDebugMeta stepDebugMeta = new StepDebugMeta( stepMeta );
-          stepDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
-          stepDebugMeta.setPausingOnBreakPoint( false );
-          stepDebugMeta.setReadingFirstRows( true );
-          pipelineDebugMeta.getStepDebugMetaMap().put( stepMeta, stepDebugMeta );
+      List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
+      if ( selectedTransforms != null && selectedTransforms.size() > 0 ) {
+        pipelineDebugMeta.getTransformDebugMetaMap().clear();
+        for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
+          TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
+          transformDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
+          transformDebugMeta.setPausingOnBreakPoint( false );
+          transformDebugMeta.setReadingFirstRows( true );
+          pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
         }
       }
     }
@@ -241,13 +241,13 @@ public class HopGuiPipelineRunDelegate {
         }
       }
 
-      // Verify if there is at least one step specified to debug or preview...
+      // Verify if there is at least one transform specified to debug or preview...
       //
       if ( debug || preview ) {
-        if ( pipelineDebugMeta.getNrOfUsedSteps() == 0 ) {
+        if ( pipelineDebugMeta.getNrOfUsedTransforms() == 0 ) {
           MessageBox box = new MessageBox( hopUi.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
-          box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Title" ) );
-          box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Message" ) );
+          box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Title" ) );
+          box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Message" ) );
           int answer = box.open();
           if ( answer != SWT.YES ) {
             return null;

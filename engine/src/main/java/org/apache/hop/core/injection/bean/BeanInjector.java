@@ -25,6 +25,7 @@ package org.apache.hop.core.injection.bean;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.AfterInjection;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -43,19 +44,19 @@ import static java.util.Objects.requireNonNull;
 /**
  * Engine for get/set metadata injection properties from bean.
  */
-public class BeanInjector {
-  private final BeanInjectionInfo info;
+public class BeanInjector<Meta extends TransformMetaInterface> {
+  private final BeanInjectionInfo<Meta> info;
 
-  public BeanInjector( BeanInjectionInfo info ) {
+  public BeanInjector( BeanInjectionInfo<Meta> info ) {
     this.info = info;
   }
 
   public Object getObject( Object root, String propName ) throws Exception {
-    BeanInjectionInfo.Property prop = info.getProperties().get( propName );
+    BeanInjectionInfo<Meta>.Property prop = info.getProperties().get( propName );
     if ( prop == null ) {
       throw new RuntimeException( "Property not found" );
     }
-    BeanLevelInfo beanLevelInfo = prop.path.get( 1 );
+    BeanLevelInfo<Meta> beanLevelInfo = prop.path.get( 1 );
     return beanLevelInfo.field.get( root );
   }
 
@@ -111,14 +112,14 @@ public class BeanInjector {
   public Object getProperty( Object root, String propName ) throws Exception {
     List<Integer> extractedIndexes = new ArrayList<>();
 
-    BeanInjectionInfo.Property prop = info.getProperties().get( propName );
+    BeanInjectionInfo<Meta>.Property prop = info.getProperties().get( propName );
     if ( prop == null ) {
       throw new RuntimeException( "Property not found" );
     }
 
     Object obj = root;
     for ( int i = 1, arrIndex = 0; i < prop.path.size(); i++ ) {
-      BeanLevelInfo s = prop.path.get( i );
+      BeanLevelInfo<Meta> s = prop.path.get( i );
       obj = s.field.get( obj );
       if ( obj == null ) {
         return null; // some value in path is null - return empty
@@ -209,11 +210,11 @@ public class BeanInjector {
   /**
    * Sets data from RowMetaAndData, or constant value from dataValue depends on 'data != null'.
    */
-  private boolean setProperty( Object root, BeanInjectionInfo.Property prop, int index, RowMetaAndData data,
+  private boolean setProperty( Object root, BeanInjectionInfo<Meta>.Property prop, int index, RowMetaAndData data,
                                String dataName, String dataValue ) throws Exception {
     Object obj = root;
     for ( int i = 1; i < prop.path.size(); i++ ) {
-      BeanLevelInfo s = prop.path.get( i );
+      BeanLevelInfo<Meta> s = prop.path.get( i );
       if ( i < prop.path.size() - 1 ) {
         // get path
         Object next;

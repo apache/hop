@@ -88,7 +88,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements HopServerPlu
    * </tr>
    * <tr>
    * <td>inputOnly</td>
-   * <td>Boolean flag indicates which steps to stop.  Use <code>Y</code> to Stop input processing</td>
+   * <td>Boolean flag indicates which transforms to stop.  Use <code>Y</code> to Stop input processing</td>
    * <td>boolean, optional</td>
    * </tr>
    * </tbody>

@@ -32,13 +32,13 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.ModPartitioner;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.BaseStepMeta;
-import org.apache.hop.pipeline.step.StepDialogInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -59,10 +59,10 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.Arrays;
 
-public class ModPartitionerDialog extends BaseStepDialog implements StepDialogInterface {
+public class ModPartitionerDialog extends BaseTransformDialog implements TransformDialogInterface {
   private static Class<?> PKG = PipelineDialog.class; // for i18n purposes, needed by Translator!!
 
-  private StepPartitioningMeta partitioningMeta;
+  private TransformPartitioningMeta partitioningMeta;
   private ModPartitioner partitioner;
   private String fieldName;
 
@@ -70,11 +70,11 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
   private CCombo wFieldname;
   private FormData fdlFieldname, fdFieldname;
 
-  public ModPartitionerDialog( Shell parent, StepMeta stepMeta, StepPartitioningMeta partitioningMeta,
+  public ModPartitionerDialog( Shell parent, TransformMeta transformMeta, TransformPartitioningMeta partitioningMeta,
                                PipelineMeta pipelineMeta ) {
-    super( parent, (BaseStepMeta) stepMeta.getStepMetaInterface(), pipelineMeta, partitioningMeta
+    super( parent, (BaseTransformMeta) transformMeta.getTransformMetaInterface(), pipelineMeta, partitioningMeta
       .getPartitioner().getDescription() );
-    this.stepMeta = stepMeta;
+    this.transformMeta = transformMeta;
     this.partitioningMeta = partitioningMeta;
     partitioner = (ModPartitioner) partitioningMeta.getPartitioner();
     fieldName = partitioner.getFieldName();
@@ -124,7 +124,7 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
     fdFieldname.right = new FormAttachment( 100, 0 );
     wFieldname.setLayoutData( fdFieldname );
     try {
-      RowMetaInterface inputFields = pipelineMeta.getPrevStepFields( stepMeta );
+      RowMetaInterface inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
       if ( inputFields != null ) {
         String[] fieldNames = inputFields.getFieldNames();
         Arrays.sort( fieldNames );
@@ -195,7 +195,7 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
         display.sleep();
       }
     }
-    return stepname;
+    return transformName;
   }
 
   /**
@@ -206,7 +206,7 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
   }
 
   private void cancel() {
-    stepname = null;
+    transformName = null;
     partitioningMeta.hasChanged( changed );
     dispose();
   }
@@ -220,7 +220,7 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
   private void setShellImage( Shell shell ) {
     PluginInterface plugin = PluginRegistry.getInstance().getPlugin( PartitionerPluginType.class, partitioner.getId() );
     if ( !Utils.isEmpty( plugin.getDocumentationUrl() ) ) {
-      createHelpButton( shell, stepMeta, plugin );
+      createHelpButton( shell, transformMeta, plugin );
     }
 
     shell.setImage( GUIResource.getInstance().getImageHopUi() );

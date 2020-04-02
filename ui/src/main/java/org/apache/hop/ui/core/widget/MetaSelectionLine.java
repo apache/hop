@@ -38,7 +38,7 @@ import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -442,9 +442,9 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
 
     Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( "Owkeej" );
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK }, PropsUI.getInstance().getMargin(), wConnection );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK }, PropsUI.getInstance().getMargin(), wConnection );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
 

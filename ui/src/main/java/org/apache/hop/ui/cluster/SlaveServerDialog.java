@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.www.RegisterPipelineServlet;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -149,7 +149,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     Button[] buttons = new Button[] { wOK, wCancel };
-    BaseStepDialog.positionBottomButtons( shell, buttons, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // The rest stays above the buttons...
 
@@ -203,7 +203,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     Display display = parent.getDisplay();

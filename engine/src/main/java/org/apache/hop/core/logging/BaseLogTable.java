@@ -250,7 +250,7 @@ public abstract class BaseLogTable {
    * Return the subject in the form of a string for the specified ID.
    *
    * @param id the id of the field to look for.
-   * @return the string of the subject (name of step) or null if nothing was found.
+   * @return the string of the subject (name of transform) or null if nothing was found.
    */
   public String getSubjectString( String id ) {
     LogTableField field = findField( id );

@@ -32,26 +32,26 @@ public class SocketPortAllocation {
   private String pipelineName;
   private String clusterRunId;
   private String sourceSlaveName;
-  private String sourceStepName;
-  private String sourceStepCopy;
+  private String sourceTransformName;
+  private String sourceTransformCopy;
   private String targetSlaveName;
-  private String targetStepName;
-  private String targetStepCopy;
+  private String targetTransformName;
+  private String targetTransformCopy;
 
   public SocketPortAllocation( int port, Date lastRequested, String clusterRunId, String pipelineName,
-                               String sourceSlaveName, String sourceStepName, String sourceStepCopy, String targetSlaveName,
-                               String targetStepName, String targetStepCopy ) {
+                               String sourceSlaveName, String sourceTransformName, String sourceTransformCopy, String targetSlaveName,
+                               String targetTransformName, String targetTransformCopy ) {
     this.port = port;
     this.lastRequested = lastRequested;
     this.clusterRunId = clusterRunId;
     this.pipelineName = pipelineName;
     this.sourceSlaveName = sourceSlaveName;
-    this.sourceStepName = sourceStepName;
-    this.sourceStepCopy = sourceStepCopy;
+    this.sourceTransformName = sourceTransformName;
+    this.sourceTransformCopy = sourceTransformCopy;
 
     this.targetSlaveName = targetSlaveName;
-    this.targetStepName = targetStepName;
-    this.targetStepCopy = targetStepCopy;
+    this.targetTransformName = targetTransformName;
+    this.targetTransformCopy = targetTransformCopy;
     this.allocated = true;
   }
 
@@ -129,59 +129,59 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @return the sourceStepName
+   * @return the sourceTransformName
    */
-  public String getSourceStepName() {
-    return sourceStepName;
+  public String getSourceTransformName() {
+    return sourceTransformName;
   }
 
   /**
-   * @param sourceStepName the sourceStepName to set
+   * @param sourceTransformName the sourceTransformName to set
    */
-  public void setSourceStepName( String sourceStepName ) {
-    this.sourceStepName = sourceStepName;
+  public void setSourceTransformName( String sourceTransformName ) {
+    this.sourceTransformName = sourceTransformName;
   }
 
   /**
-   * @return the sourceStepCopy
+   * @return the sourceTransformCopy
    */
-  public String getSourceStepCopy() {
-    return sourceStepCopy;
+  public String getSourceTransformCopy() {
+    return sourceTransformCopy;
   }
 
   /**
-   * @param sourceStepCopy the sourceStepCopy to set
+   * @param sourceTransformCopy the sourceTransformCopy to set
    */
-  public void setSourceStepCopy( String sourceStepCopy ) {
-    this.sourceStepCopy = sourceStepCopy;
+  public void setSourceTransformCopy( String sourceTransformCopy ) {
+    this.sourceTransformCopy = sourceTransformCopy;
   }
 
   /**
-   * @return the targetStepName
+   * @return the targetTransformName
    */
-  public String getTargetStepName() {
-    return targetStepName;
+  public String getTargetTransformName() {
+    return targetTransformName;
   }
 
   /**
-   * @param targetStepName the targetStepName to set
+   * @param targetTransformName the targetTransformName to set
    */
-  public void setTargetStepName( String targetStepName ) {
-    this.targetStepName = targetStepName;
+  public void setTargetTransformName( String targetTransformName ) {
+    this.targetTransformName = targetTransformName;
   }
 
   /**
-   * @return the targetStepCopy
+   * @return the targetTransformCopy
    */
-  public String getTargetStepCopy() {
-    return targetStepCopy;
+  public String getTargetTransformCopy() {
+    return targetTransformCopy;
   }
 
   /**
-   * @param targetStepCopy the targetStepCopy to set
+   * @param targetTransformCopy the targetTransformCopy to set
    */
-  public void setTargetStepCopy( String targetStepCopy ) {
-    this.targetStepCopy = targetStepCopy;
+  public void setTargetTransformCopy( String targetTransformCopy ) {
+    this.targetTransformCopy = targetTransformCopy;
   }
 
   /**

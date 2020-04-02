@@ -47,7 +47,7 @@ public class DatabaseImpact {
     BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Update" ) };
 
   private String pipelineName;
-  private String stepname;
+  private String transformName;
   private String dbname;
   private String table;
   private String field;
@@ -57,11 +57,11 @@ public class DatabaseImpact {
   private String remark;
   private int type;
 
-  public DatabaseImpact( int type, String pipelineName, String stepname, String dbname, String table, String field,
+  public DatabaseImpact( int type, String pipelineName, String transformName, String dbname, String table, String field,
                          String valuename, String valueorigin, String sql, String remark ) {
     this.type = type;
     this.pipelineName = pipelineName;
-    this.stepname = stepname;
+    this.transformName = transformName;
     this.dbname = dbname;
     this.table = table;
     this.field = field;
@@ -75,8 +75,8 @@ public class DatabaseImpact {
     return pipelineName;
   }
 
-  public String getStepName() {
-    return stepname;
+  public String getTransformName() {
+    return transformName;
   }
 
   public String getValueOrigin() {
@@ -134,8 +134,8 @@ public class DatabaseImpact {
       BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Pipeline" ) ), getPipelineName() );
     r.addValue(
       new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Step" ) ),
-      getStepName() );
+        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Transform" ) ),
+      getTransformName() );
     r
       .addValue(
         new ValueMetaString(

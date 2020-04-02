@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -301,14 +301,14 @@ public class ShowMessageDialog extends Dialog {
         formLayout.marginWidth = 15;
         formLayout.marginHeight = 15;
         setFdlDesc( margin * 3, 0, 0, margin );
-        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), 0,
-          BaseStepDialog.BUTTON_ALIGNMENT_RIGHT, wlDesc );
+        BaseTransformDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), 0,
+          BaseTransformDialog.BUTTON_ALIGNMENT_RIGHT, wlDesc );
         break;
       default:
         formLayout.marginWidth = Const.FORM_MARGIN;
         formLayout.marginHeight = Const.FORM_MARGIN;
         setFdlDesc( margin * 2, margin, 0, margin );
-        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), margin, wlDesc );
+        BaseTransformDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), margin, wlDesc );
         break;
     }
   }

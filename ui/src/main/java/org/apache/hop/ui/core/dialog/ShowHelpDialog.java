@@ -26,7 +26,7 @@ import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -241,7 +241,7 @@ public class ShowHelpDialog extends Dialog {
     setUpListeners();
 
     // Specs are 760/530, but due to rendering differences, we need to adjust the actual hgt/wdt used
-    BaseStepDialog.setSize( shell, 755, 538, true );
+    BaseTransformDialog.setSize( shell, 755, 538, true );
     shell.setMinimumSize( 515, 408 );
 
 

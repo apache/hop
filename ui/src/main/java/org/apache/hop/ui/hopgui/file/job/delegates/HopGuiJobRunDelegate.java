@@ -118,7 +118,7 @@ public class HopGuiJobRunDelegate {
         jobMeta.setLogLevel( executionConfiguration.getLogLevel() );
       }
 
-      // Set the start step name
+      // Set the start transform name
       //
       if ( executionConfiguration.getStartCopyName() != null ) {
         jobMeta.setStartCopyName( executionConfiguration.getStartCopyName() );

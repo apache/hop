@@ -38,7 +38,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -68,7 +68,7 @@ public class PreviewRowsDialog {
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 
-  private String stepname;
+  private String transformName;
 
   private Label wlFields;
 
@@ -126,14 +126,14 @@ public class PreviewRowsDialog {
 
   private List<DialogClosedListener> dialogClosedListeners;
 
-  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String stepName,
+  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String transformName,
                             RowMetaInterface rowMeta, List<Object[]> rowBuffer ) {
-    this( parent, space, style, stepName, rowMeta, rowBuffer, null );
+    this( parent, space, style, transformName, rowMeta, rowBuffer, null );
   }
 
-  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String stepName,
+  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String transformName,
                             RowMetaInterface rowMeta, List<Object[]> rowBuffer, String loggingText ) {
-    this.stepname = stepName;
+    this.transformName = transformName;
     this.buffer = rowBuffer;
     this.loggingText = loggingText;
     this.rowMeta = rowMeta;
@@ -170,7 +170,7 @@ public class PreviewRowsDialog {
       title = BaseMessages.getString( PKG, "PreviewRowsDialog.Title" );
     }
     if ( message == null ) {
-      message = BaseMessages.getString( PKG, "PreviewRowsDialog.Header", stepname );
+      message = BaseMessages.getString( PKG, "PreviewRowsDialog.Header", transformName );
     }
 
     if ( buffer != null ) {
@@ -243,7 +243,7 @@ public class PreviewRowsDialog {
 
     // Position the buttons...
     //
-    BaseStepDialog
+    BaseTransformDialog
       .positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), props.getMargin(), null );
 
     // Detect X or ALT-F4 or something that kills this window...
@@ -256,7 +256,7 @@ public class PreviewRowsDialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
 
@@ -422,7 +422,7 @@ public class PreviewRowsDialog {
   }
 
   private void close() {
-    stepname = null;
+    transformName = null;
     dispose();
   }
 

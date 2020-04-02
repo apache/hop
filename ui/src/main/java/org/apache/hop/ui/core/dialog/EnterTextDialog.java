@@ -30,7 +30,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -138,7 +138,7 @@ public class EnterTextDialog extends Dialog {
 
     int margin = props.getMargin();
 
-    // From step line
+    // From transform line
     wlDesc = new Label( shell, SWT.NONE );
     wlDesc.setText( message );
     props.setLook( wlDesc );
@@ -174,7 +174,7 @@ public class EnterTextDialog extends Dialog {
       wCancel = new Button( shell, SWT.PUSH );
       wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-      BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
 
       // Add listeners
       lsCancel = new Listener() {
@@ -194,7 +194,7 @@ public class EnterTextDialog extends Dialog {
       wOK = new Button( shell, SWT.PUSH );
       wOK.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
 
-      BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK }, margin, null );
 
       // Add listeners
       lsOK = new Listener() {
@@ -222,7 +222,7 @@ public class EnterTextDialog extends Dialog {
     origText = text;
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {

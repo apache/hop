@@ -125,14 +125,14 @@ public class Metrics implements MetricsInterface {
     MetricsSnapshotType.START, "METRIC_PIPELINE_INIT", "Initialize a pipeline" );
   public static Metrics METRIC_PIPELINE_INIT_STOP = new Metrics(
     MetricsSnapshotType.STOP, "METRIC_PIPELINE_INIT", "Initialize a pipeline" );
-  public static Metrics METRIC_STEP_EXECUTION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_STEP_EXECUTION", "Execute a step" );
-  public static Metrics METRIC_STEP_EXECUTION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_STEP_EXECUTION", "Execute a step" );
-  public static Metrics METRIC_STEP_INIT_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_STEP_INIT", "Initialize a step" );
-  public static Metrics METRIC_STEP_INIT_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_STEP_INIT", "Initialize a step" );
+  public static Metrics METRIC_TRANSFORM_EXECUTION_START = new Metrics(
+    MetricsSnapshotType.START, "METRIC_TRANSFORM_EXECUTION", "Execute a transform" );
+  public static Metrics METRIC_TRANSFORM_EXECUTION_STOP = new Metrics(
+    MetricsSnapshotType.STOP, "METRIC_TRANSFORM_EXECUTION", "Execute a transform" );
+  public static Metrics METRIC_TRANSFORM_INIT_START = new Metrics(
+    MetricsSnapshotType.START, "METRIC_TRANSFORM_INIT", "Initialize a transform" );
+  public static Metrics METRIC_TRANSFORM_INIT_STOP = new Metrics(
+    MetricsSnapshotType.STOP, "METRIC_TRANSFORM_INIT", "Initialize a transform" );
 
   // Logging back-end
   //

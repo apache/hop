@@ -436,9 +436,9 @@ public class RowMetaAndData implements Cloneable {
     data = RowDataUtil.removeItem( data, index );
   }
 
-  public void mergeRowMetaAndData( RowMetaAndData rowMetaAndData, String originStepName ) {
+  public void mergeRowMetaAndData( RowMetaAndData rowMetaAndData, String originTransformName ) {
     int originalMetaSize = rowMeta.size();
-    rowMeta.mergeRowMeta( rowMetaAndData.getRowMeta(), originStepName );
+    rowMeta.mergeRowMeta( rowMetaAndData.getRowMeta(), originTransformName );
     data = RowDataUtil.addRowData( data, originalMetaSize, rowMetaAndData.getData() );
   }
 }

@@ -65,7 +65,7 @@ public class HopGuiJobClipboardDelegate {
     try {
       Document doc = XMLHandler.loadXMLString( clipcontent );
       Node jobNode = XMLHandler.getSubNode( doc, XML_TAG_JOB_JOB_ENTRIES );
-      // De-select all, re-select pasted steps...
+      // De-select all, re-select pasted transforms...
       jobMeta.unselectAll();
 
       Node entriesNode = XMLHandler.getSubNode( jobNode, XML_TAG_ENTRIES );
@@ -162,8 +162,8 @@ public class HopGuiJobClipboardDelegate {
       hopGui.undoDelegate.addUndoNew( jobMeta, notes, notePos, true );
 
     } catch ( HopException e ) {
-      // "Error pasting steps...",
-      // "I was unable to paste steps to this pipeline"
+      // "Error pasting transforms...",
+      // "I was unable to paste transforms to this pipeline"
       new ErrorDialog( hopGui.getShell(),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Title" ),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Message" ), e );
@@ -186,12 +186,12 @@ public class HopGuiJobClipboardDelegate {
       }
       xml.append( XMLHandler.closeTag( XML_TAG_ENTRIES ) ).append( Const.CR );
 
-      // Also check for the hops in between the selected steps...
+      // Also check for the hops in between the selected transforms...
       xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
-      for ( JobEntryCopy step1 : entries ) {
-        for ( JobEntryCopy step2 : entries ) {
-          if ( !step1.equals( step2 ) ) {
-            JobHopMeta hop = jobMeta.findJobHop( step1, step2, true );
+      for ( JobEntryCopy transform1 : entries ) {
+        for ( JobEntryCopy transform2 : entries ) {
+          if ( !transform1.equals( transform2 ) ) {
+            JobHopMeta hop = jobMeta.findJobHop( transform1, transform2, true );
             if ( hop != null ) {
               // Ok, we found one...
               xml.append( hop.getXML() ).append( Const.CR );

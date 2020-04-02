@@ -150,11 +150,11 @@ public class SnapAllignDistribute {
     }
     // Then apply the coordinate...
     for ( int i = 0; i < elements.size(); i++ ) {
-      GUIPositionInterface stepMeta = elements.get( i );
+      GUIPositionInterface transformMeta = elements.get( i );
 
-      Point p = stepMeta.getLocation();
+      Point p = transformMeta.getLocation();
       before[ i ] = new Point( p.x, p.y );
-      stepMeta.setLocation( max, p.y );
+      transformMeta.setLocation( max, p.y );
       after[ i ] = new Point( max, p.y );
     }
 
@@ -267,11 +267,11 @@ public class SnapAllignDistribute {
       order[ i ] = i;
     }
 
-    // Difficult to keep the steps in the correct order.
+    // Difficult to keep the transforms in the correct order.
     // If you just set the x-coordinates, you get special effects.
     // Best is to keep the current order of things.
     // First build an arraylist and store the order there.
-    // Then sort order[], based upon the coordinate of the step.
+    // Then sort order[], based upon the coordinate of the transform.
     for ( int i = 0; i < elements.size(); i++ ) {
       for ( int j = 0; j < elements.size() - 1; j++ ) {
         Point p1 = ( elements.get( order[ j ] ) ).getLocation();
@@ -289,7 +289,7 @@ public class SnapAllignDistribute {
       }
     }
 
-    // The distance between two steps becomes.
+    // The distance between two transforms becomes.
     int distance = ( max - min ) / ( elements.size() - 1 );
 
     for ( int i = 0; i < elements.size(); i++ ) {
@@ -338,11 +338,11 @@ public class SnapAllignDistribute {
       order[ i ] = i;
     }
 
-    // Difficult to keep the steps in the correct order.
+    // Difficult to keep the transforms in the correct order.
     // If you just set the y-coordinates, you get special effects.
     // Best is to keep the current order of things.
     // First build an arraylist and store the order there.
-    // Then sort order[], based upon the coordinate of the step.
+    // Then sort order[], based upon the coordinate of the transform.
     for ( int i = 0; i < elements.size(); i++ ) {
       for ( int j = 0; j < elements.size() - 1; j++ ) {
         Point p1 = ( elements.get( order[ j ] ) ).getLocation();
@@ -360,7 +360,7 @@ public class SnapAllignDistribute {
       }
     }
 
-    // The distance between two steps becomes.
+    // The distance between two transforms becomes.
     int distance = ( max - min ) / ( elements.size() - 1 );
 
     for ( int i = 0; i < elements.size(); i++ ) {

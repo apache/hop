@@ -33,13 +33,13 @@ import org.apache.hop.core.logging.LogChannelInterfaceFactory;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.pipeline.step.StepStatus;
-import org.apache.hop.pipeline.steps.pipelineexecutor.PipelineExecutorParameters;
+import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -82,7 +82,7 @@ public class SubPipelineExecutorTest {
   @BeforeClass
   public static void init() throws Exception {
     HopClientEnvironment.init();
-    PluginRegistry.addPluginType( StepPluginType.getInstance() );
+    PluginRegistry.addPluginType( TransformPluginType.getInstance() );
     PluginRegistry.init();
     if ( !Props.isInitialized() ) {
       Props.init();
@@ -107,7 +107,7 @@ public class SubPipelineExecutorTest {
     Pipeline parentPipeline = spy( new Pipeline( parentMeta, loggingObject ) );
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "subpipelinename", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "Group By" );
-    RowMetaInterface rowMeta = parentMeta.getStepFields( "Data Grid" );
+    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),
@@ -128,19 +128,19 @@ public class SubPipelineExecutorTest {
           + "===================="
       );
 
-    Map<String, StepStatus> statuses = subPipelineExecutor.getStatuses();
+    Map<String, TransformStatus> statuses = subPipelineExecutor.getStatuses();
     assertEquals( 3, statuses.size() );
-    List<StepStatus> statusList = new ArrayList<>( statuses.values() );
-    assertEquals( "Get rows from result", statusList.get( 0 ).getStepname() );
-    assertEquals( "Group by", statusList.get( 1 ).getStepname() );
-    assertEquals( "Write to log", statusList.get( 2 ).getStepname() );
-    for ( Map.Entry<String, StepStatus> entry : statuses.entrySet() ) {
-      StepStatus statusSpy = spy( entry.getValue() );
+    List<TransformStatus> statusList = new ArrayList<>( statuses.values() );
+    assertEquals( "Get rows from result", statusList.get( 0 ).getTransformName() );
+    assertEquals( "Group by", statusList.get( 1 ).getTransformName() );
+    assertEquals( "Write to log", statusList.get( 2 ).getTransformName() );
+    for ( Map.Entry<String, TransformStatus> entry : statuses.entrySet() ) {
+      TransformStatus statusSpy = spy( entry.getValue() );
       statuses.put( entry.getKey(), statusSpy );
     }
 
     subPipelineExecutor.execute( rows );
-    for ( Map.Entry<String, StepStatus> entry : statuses.entrySet() ) {
+    for ( Map.Entry<String, TransformStatus> entry : statuses.entrySet() ) {
       verify( entry.getValue() ).updateAll( any() );
     }
 
@@ -159,7 +159,7 @@ public class SubPipelineExecutorTest {
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
     subPipelineExecutor.running = Mockito.spy( subPipelineExecutor.running );
-    RowMetaInterface rowMeta = parentMeta.getStepFields( "Data Grid" );
+    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),
@@ -183,7 +183,7 @@ public class SubPipelineExecutorTest {
     Pipeline parentPipeline = new Pipeline( parentMeta, loggingObject );
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
-    RowMetaInterface rowMeta = parentMeta.getStepFields( "Data Grid" );
+    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),

@@ -42,7 +42,7 @@ import java.util.Date;
  *
  * @author Matt
  * @since 19-04-2004
- * @deprecated replaced by implementation in the ...steps.fileinput.text package
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
 public class TextFileInputField implements Cloneable, TextFileInputFieldInterface {

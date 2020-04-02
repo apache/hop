@@ -25,7 +25,7 @@ package org.apache.hop.core.logging;
 /**
  * This is a single log table field.<br>
  * The user can select this field or not, sees a field name, a description in the UI too. The user can also specify a
- * subject like a step name.
+ * subject like a transform name.
  *
  * @author matt
  */

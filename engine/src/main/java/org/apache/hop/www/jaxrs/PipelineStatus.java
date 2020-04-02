@@ -22,7 +22,7 @@
 
 package org.apache.hop.www.jaxrs;
 
-import org.apache.hop.pipeline.step.StepStatus;
+import org.apache.hop.pipeline.transform.TransformStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class PipelineStatus {
   private String id;
   private String name;
   private String status;
-  private List<StepStatus> stepStatus = new ArrayList<StepStatus>();
+  private List<TransformStatus> transformStatuses = new ArrayList<TransformStatus>();
 
   public PipelineStatus() {
   }
@@ -63,16 +63,16 @@ public class PipelineStatus {
     this.status = status;
   }
 
-  public List<StepStatus> getStepStatus() {
-    return stepStatus;
+  public List<TransformStatus> getTransformStatuses() {
+    return transformStatuses;
   }
 
-  public void setStepStatus( List<StepStatus> stepStatus ) {
-    this.stepStatus = stepStatus;
+  public void setTransformStatuses( List<TransformStatus> transformStatuses ) {
+    this.transformStatuses = transformStatuses;
   }
 
-  public void addStepStatus( StepStatus status ) {
-    stepStatus.add( status );
+  public void addTransformStatus( TransformStatus status ) {
+    transformStatuses.add( status );
   }
 
 }

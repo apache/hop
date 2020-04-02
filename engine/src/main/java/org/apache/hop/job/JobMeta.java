@@ -906,7 +906,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   public void removeJobEntry( int i ) {
     JobEntryCopy deleted = jobcopies.remove( i );
     if ( deleted != null ) {
-      // give step a chance to cleanup
+      // give transform a chance to cleanup
       deleted.setParentJobMeta( null );
       if ( deleted.getEntry() instanceof MissingEntry ) {
         removeMissingEntry( (MissingEntry) deleted.getEntry() );
@@ -1339,7 +1339,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * Proposes an alternative job entry name when the original already exists...
    *
    * @param entryname The job entry name to find an alternative for..
-   * @return The alternative stepname.
+   * @return The alternative transformName.
    */
   public String getAlternativeJobentryName( String entryname ) {
     String newname = entryname;
@@ -1486,7 +1486,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Get the minimum point on the canvas of a job
    *
-   * @return Minimum coordinate of a step in the job
+   * @return Minimum coordinate of a transform in the job
    */
   public Point getMinimum() {
     int minx = Integer.MAX_VALUE;
@@ -1545,7 +1545,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Get all the selected note locations
    *
-   * @return The selected step and notes locations.
+   * @return The selected transform and notes locations.
    */
   public Point[] getSelectedNoteLocations() {
     List<Point> points = new ArrayList<Point>();
@@ -1734,11 +1734,11 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    *
    * @return A list of StringSearchResult with strings used in the job
    */
-  public List<StringSearchResult> getStringList( boolean searchSteps, boolean searchDatabases, boolean searchNotes ) {
+  public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes ) {
     List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
 
-    if ( searchSteps ) {
-      // Loop over all steps in the pipeline and see what the used
+    if ( searchTransforms ) {
+      // Loop over all transforms in the pipeline and see what the used
       // vars are...
       for ( int i = 0; i < nrJobEntries(); i++ ) {
         JobEntryCopy entryMeta = getJobEntry( i );
@@ -1753,7 +1753,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       }
     }
 
-    // Loop over all steps in the pipeline and see what the used vars
+    // Loop over all transforms in the pipeline and see what the used vars
     // are...
     if ( searchDatabases ) {
       for ( DatabaseMeta meta : getDatabases() ) {
@@ -1793,7 +1793,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       }
     }
 
-    // Loop over all steps in the pipeline and see what the used vars
+    // Loop over all transforms in the pipeline and see what the used vars
     // are...
     if ( searchNotes ) {
       for ( int i = 0; i < nrNotes(); i++ ) {
@@ -2066,12 +2066,12 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
           JobMeta jobMeta = (JobMeta) this.realClone( false );
 
           // Add used resources, modify pipelineMeta accordingly
-          // Go through the list of steps, etc.
-          // These critters change the steps in the cloned PipelineMeta
+          // Go through the list of transforms, etc.
+          // These critters change the transforms in the cloned PipelineMeta
           // At the end we make a new XML version of it in "exported"
           // format...
 
-          // loop over steps, databases will be exported to XML anyway.
+          // loop over transforms, databases will be exported to XML anyway.
           //
           for ( JobEntryCopy jobEntry : jobMeta.jobcopies ) {
             jobEntry.getEntry().exportResources( jobMeta, definitions, namingInterface, metaStore );

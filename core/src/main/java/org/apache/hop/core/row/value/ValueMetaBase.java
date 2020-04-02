@@ -3695,7 +3695,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   public int compare( Object data1, ValueMetaInterface meta2, Object data2 ) throws HopValueException {
     if ( meta2 == null ) {
       throw new HopValueException( toStringMeta()
-        + " : Second meta data (meta2) is null, please check one of the previous steps." );
+        + " : Second meta data (meta2) is null, please check one of the previous transforms." );
     }
 
     try {

@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -268,7 +268,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cParams = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Argument" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 126 ), // Stepname
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 126 ), // TransformName
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Default" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false, true, 138 ), // Preview size
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Value" ),
@@ -302,7 +302,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cVariables = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Argument" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 287 ), // Stepname
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 287 ), // TransformName
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Value" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false, false, 300 ), // Preview size
     };
@@ -387,7 +387,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected void openDialog() {
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     // Set the focus on the OK button
     wOK.setFocus();

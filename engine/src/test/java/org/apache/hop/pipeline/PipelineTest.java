@@ -31,17 +31,17 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.step.StepDataInterface;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaDataCombi;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -81,9 +81,9 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class PipelineTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  @Mock private StepInterface stepMock, stepMock2;
-  @Mock private StepDataInterface data, data2;
-  @Mock private StepMeta stepMeta, stepMeta2;
+  @Mock private TransformInterface transformMock, transformMock2;
+  @Mock private TransformDataInterface data, data2;
+  @Mock private TransformMeta transformMeta, transformMeta2;
   @Mock private PipelineMeta pipelineMeta;
 
 
@@ -107,20 +107,20 @@ public class PipelineTest {
   }
 
   /**
-   * PDI-14948 - Execution of pipeline with no steps never ends
+   * PDI-14948 - Execution of pipeline with no transforms never ends
    */
   @Test( timeout = 1000 )
-  public void pipelineWithNoStepsIsNotEndless() throws Exception {
-    Pipeline pipelineWithNoSteps = new Pipeline( new PipelineMeta() );
-    pipelineWithNoSteps = spy( pipelineWithNoSteps );
+  public void pipelineWithNoTransformsIsNotEndless() throws Exception {
+    Pipeline pipelineWithNoTransforms = new Pipeline( new PipelineMeta() );
+    pipelineWithNoTransforms = spy( pipelineWithNoTransforms );
 
-    pipelineWithNoSteps.prepareExecution();
+    pipelineWithNoTransforms.prepareExecution();
 
-    pipelineWithNoSteps.startThreads();
+    pipelineWithNoTransforms.startThreads();
 
     // check pipeline lifecycle is not corrupted
-    verify( pipelineWithNoSteps ).firePipelineStartedListeners();
-    verify( pipelineWithNoSteps ).firePipelineFinishedListeners();
+    verify( pipelineWithNoTransforms ).firePipelineStartedListeners();
+    verify( pipelineWithNoTransforms ).firePipelineFinishedListeners();
   }
 
   /**
@@ -204,21 +204,21 @@ public class PipelineTest {
     Database mockedDataBase = mock( Database.class );
     Pipeline pipeline = mock( Pipeline.class );
 
-    StepLogTable stepLogTable =
-      StepLogTable.getDefault( mock( VariableSpace.class ), mock( IMetaStore.class ) );
-    stepLogTable.setConnectionName( "connection" );
+    TransformLogTable transformLogTable =
+      TransformLogTable.getDefault( mock( VariableSpace.class ), mock( IMetaStore.class ) );
+    transformLogTable.setConnectionName( "connection" );
 
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setStepLogTable( stepLogTable );
+    pipelineMeta.setTransformLogTable( transformLogTable );
 
     when( pipeline.getPipelineMeta() ).thenReturn( pipelineMeta );
     when( pipeline.createDataBase( any( DatabaseMeta.class ) ) ).thenReturn( mockedDataBase );
-    when( pipeline.getSteps() ).thenReturn( new ArrayList<>() );
+    when( pipeline.getTransforms() ).thenReturn( new ArrayList<>() );
 
-    doCallRealMethod().when( pipeline ).writeStepLogInformation();
-    pipeline.writeStepLogInformation();
+    doCallRealMethod().when( pipeline ).writeTransformLogInformation();
+    pipeline.writeTransformLogInformation();
 
-    verify( mockedDataBase ).cleanupLogRecords( stepLogTable );
+    verify( mockedDataBase ).cleanupLogRecords( transformLogTable );
   }
 
   @Test
@@ -252,57 +252,57 @@ public class PipelineTest {
 
   @Test
   public void testSafeStop() {
-    when( stepMock.isSafeStopped() ).thenReturn( false );
-    when( stepMock.getStepname() ).thenReturn( "stepName" );
+    when( transformMock.isSafeStopped() ).thenReturn( false );
+    when( transformMock.getTransformName() ).thenReturn( "transformName" );
 
-    pipeline.setSteps( of( combi( stepMock, data, stepMeta ) ) );
+    pipeline.setTransforms( of( combi( transformMock, data, transformMeta ) ) );
     Result result = pipeline.getResult();
     assertFalse( result.isSafeStop() );
 
-    when( stepMock.isSafeStopped() ).thenReturn( true );
+    when( transformMock.isSafeStopped() ).thenReturn( true );
     result = pipeline.getResult();
     assertTrue( result.isSafeStop() );
   }
 
   @Test
-  public void safeStopStopsInputStepsRightAway() throws HopException {
-    pipeline.setSteps( of( combi( stepMock, data, stepMeta ) ) );
-    when( pipelineMeta.findPreviousSteps( stepMeta, true ) ).thenReturn( emptyList() );
+  public void safeStopStopsInputTransformsRightAway() throws HopException {
+    pipeline.setTransforms( of( combi( transformMock, data, transformMeta ) ) );
+    when( pipelineMeta.findPreviousTransforms( transformMeta, true ) ).thenReturn( emptyList() );
     pipeline.pipelineMeta = pipelineMeta;
     pipeline.safeStop();
-    verifyStopped( stepMock, 1 );
+    verifyStopped( transformMock, 1 );
   }
 
   @Test
-  public void safeLetsNonInputStepsKeepRunning() throws HopException {
-    pipeline.setSteps( of(
-      combi( stepMock, data, stepMeta ),
-      combi( stepMock2, data2, stepMeta2 ) ) );
+  public void safeLetsNonInputTransformsKeepRunning() throws HopException {
+    pipeline.setTransforms( of(
+      combi( transformMock, data, transformMeta ),
+      combi( transformMock2, data2, transformMeta2 ) ) );
 
-    when( pipelineMeta.findPreviousSteps( stepMeta, true ) ).thenReturn( emptyList() );
-    // stepMeta2 will have stepMeta as previous, so is not an input step
-    when( pipelineMeta.findPreviousSteps( stepMeta2, true ) ).thenReturn( of( stepMeta ) );
+    when( pipelineMeta.findPreviousTransforms( transformMeta, true ) ).thenReturn( emptyList() );
+    // transformMeta2 will have transformMeta as previous, so is not an input transform
+    when( pipelineMeta.findPreviousTransforms( transformMeta2, true ) ).thenReturn( of( transformMeta ) );
     pipeline.pipelineMeta = pipelineMeta;
 
     pipeline.safeStop();
-    verifyStopped( stepMock, 1 );
-    // non input step shouldn't have stop called
-    verifyStopped( stepMock2, 0 );
+    verifyStopped( transformMock, 1 );
+    // non input transform shouldn't have stop called
+    verifyStopped( transformMock2, 0 );
   }
 
-  private void verifyStopped( StepInterface step, int numberTimesCalled ) throws HopException {
-    verify( step, times( numberTimesCalled ) ).setStopped( true );
-    verify( step, times( numberTimesCalled ) ).setSafeStopped( true );
-    verify( step, times( numberTimesCalled ) ).resumeRunning();
-    verify( step, times( numberTimesCalled ) ).stopRunning( any(), any() );
+  private void verifyStopped( TransformInterface transform, int numberTimesCalled ) throws HopException {
+    verify( transform, times( numberTimesCalled ) ).setStopped( true );
+    verify( transform, times( numberTimesCalled ) ).setSafeStopped( true );
+    verify( transform, times( numberTimesCalled ) ).resumeRunning();
+    verify( transform, times( numberTimesCalled ) ).stopRunning( any(), any() );
   }
 
-  private StepMetaDataCombi combi( StepInterface step, StepDataInterface data, StepMeta stepMeta ) {
-    StepMetaDataCombi stepMetaDataCombi = new StepMetaDataCombi();
-    stepMetaDataCombi.step = step;
-    stepMetaDataCombi.data = data;
-    stepMetaDataCombi.stepMeta = stepMeta;
-    return stepMetaDataCombi;
+  private TransformMetaDataCombi combi( TransformInterface transform, TransformDataInterface data, TransformMeta transformMeta ) {
+    TransformMetaDataCombi transformMetaDataCombi = new TransformMetaDataCombi();
+    transformMetaDataCombi.transform = transform;
+    transformMetaDataCombi.data = data;
+    transformMetaDataCombi.transformMeta = transformMeta;
+    return transformMetaDataCombi;
   }
 
   private void startThreads( Runnable one, Runnable two, CountDownLatch start ) throws InterruptedException {

@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
- * A step "meta" that contains a reference to a sub-pipeline.
+ * A transform "meta" that contains a reference to a sub-pipeline.
  */
 public interface ISubPipelineAwareMeta {
 
   String getFileName();
 
-  StepMeta getParentStepMeta();
+  TransformMeta getParentTransformMeta();
 
 }

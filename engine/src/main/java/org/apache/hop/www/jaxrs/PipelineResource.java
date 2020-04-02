@@ -31,9 +31,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.BaseStepData.StepExecutionStatus;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepStatus;
+import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 
@@ -85,11 +85,11 @@ public class PipelineResource {
     status.setName( entry.getName() );
     status.setStatus( pipeline.getStatus() );
 
-    for ( int i = 0; i < pipeline.nrSteps(); i++ ) {
-      StepInterface step = pipeline.getRunThread( i );
-      if ( ( step.isRunning() ) || step.getStatus() != StepExecutionStatus.STATUS_EMPTY ) {
-        StepStatus stepStatus = new StepStatus( step );
-        status.addStepStatus( stepStatus );
+    for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
+      TransformInterface transform = pipeline.getRunThread( i );
+      if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
+        TransformStatus transformStatus = new TransformStatus( transform );
+        status.addTransformStatus( transformStatus );
       }
     }
     return status;

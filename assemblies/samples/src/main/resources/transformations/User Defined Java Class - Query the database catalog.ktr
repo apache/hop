@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>User Defined Java Class - Query the database catalog</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -467,7 +467,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Data Grid</name>
     <type>DataGrid</type>
     <description/>
@@ -495,20 +495,20 @@
       <line> <item>EMPLOYEES</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>163</xloc>
       <yloc>111</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>User Defined Java Class</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -594,9 +594,9 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 	return true;
 }
 
-public boolean init(StepMetaInterface stepMetaInterface, StepDataInterface stepDataInterface)
+public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface)
 {
-    if (!parent.initImpl(stepMetaInterface, stepDataInterface)) {
+    if (!parent.initImpl(transformMetaInterface, transformDataInterface)) {
       return false;
     }
     String dbName = getParameter("DBNAME");
@@ -675,29 +675,29 @@ public void dispose(StepMetaInterface smi, StepDataInterface sdi)
 
         </field>
     </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>DBNAME</parameter_tag>
+<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters><usage_parameter><parameter_tag>DBNAME</parameter_tag>
 <parameter_value>SampleData.H2</parameter_value>
 <parameter_description>The name of the database</parameter_description>
 </usage_parameter><usage_parameter><parameter_tag>TABLEFIELD</parameter_tag>
 <parameter_value>table</parameter_value>
 <parameter_description>The name of the input field that contains the table name</parameter_description>
 </usage_parameter></usage_parameters>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>407</xloc>
       <yloc>111</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

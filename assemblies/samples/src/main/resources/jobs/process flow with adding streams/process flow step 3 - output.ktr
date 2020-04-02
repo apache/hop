@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
-    <name>process flow step 3 - output</name>
+    <name>process flow transform 3 - output</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>Output part of the sample for&#xa;- Get data from a lot of different input steps&#xa;- Do some complex transformation for each input&#xa;- Sort all the results from all the inputs together&#xa;- Write all to 1 file</note>
+      <note>Output part of the sample for&#xa;- Get data from a lot of different input transforms&#xa;- Do some complex transformation for each input&#xa;- Sort all the results from all the inputs together&#xa;- Write all to 1 file</note>
       <xloc>57</xloc>
       <yloc>56</yloc>
       <width>308</width>
@@ -498,7 +498,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>Remember&#x3a; you do not have the field&#x2f;values at design time&#xa;when you use &#x22;Get rows from result&#x22;&#xa;so take it from one of the input steps.</note>
+      <note>Remember&#x3a; you do not have the field&#x2f;values at design time&#xa;when you use &#x22;Get rows from result&#x22;&#xa;so take it from one of the input transforms.</note>
       <xloc>76</xloc>
       <yloc>316</yloc>
       <width>365</width>
@@ -531,7 +531,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Get rows from result</name>
     <type>RowsFromResult</type>
     <description/>
@@ -543,20 +543,20 @@
       <schema_name/>
     </partitioning>
     <fields>      </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>64</xloc>
       <yloc>253</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows</name>
     <type>SortRows</type>
     <description/>
@@ -585,20 +585,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>176</xloc>
       <yloc>252</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Text file output</name>
     <type>TextFileOutput</type>
     <description/>
@@ -643,22 +643,22 @@
     <fields>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>315</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

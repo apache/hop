@@ -36,7 +36,7 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
 
   /**
    * Create a list of supported actions on a pipeline.
-   * We'll add the creation of every possible step as well as the modification of the pipeline itself.
+   * We'll add the creation of every possible transform as well as the modification of the pipeline itself.
    *
    * @return The list of supported actions
    */

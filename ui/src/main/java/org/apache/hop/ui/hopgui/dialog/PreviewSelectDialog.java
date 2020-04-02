@@ -25,13 +25,13 @@ package org.apache.hop.ui.hopgui.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -63,7 +63,7 @@ public class PreviewSelectDialog extends Dialog {
   private Shell shell;
   private PipelineMeta pipelineMeta;
 
-  public String[] previewSteps;
+  public String[] previewTransforms;
   public int[] previewSizes;
 
   private PropsUI props;
@@ -74,7 +74,7 @@ public class PreviewSelectDialog extends Dialog {
     this.pipelineMeta = pipelineMeta;
     this.props = PropsUI.getInstance();
 
-    previewSteps = null;
+    previewTransforms = null;
     previewSizes = null;
   }
 
@@ -99,21 +99,21 @@ public class PreviewSelectDialog extends Dialog {
     int margin = props.getMargin();
 
     wlFields = new Label( shell, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Label.Steps" ) ); // Steps:
+    wlFields.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Label.Transforms" ) ); // Transforms:
     props.setLook( wlFields );
     fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( 0, margin );
     wlFields.setLayoutData( fdlFields );
 
-    List<StepMeta> usedSteps = pipelineMeta.getUsedSteps();
-    final int FieldsRows = usedSteps.size();
+    List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
+    final int FieldsRows = usedTransforms.size();
 
     ColumnInfo[] colinf =
       {
         new ColumnInfo(
-          BaseMessages.getString( PKG, "PreviewSelectDialog.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT,
-          false, true ), // Stepname
+          BaseMessages.getString( PKG, "PreviewSelectDialog.Column.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT,
+          false, true ), // TransformName
         new ColumnInfo(
           BaseMessages.getString( PKG, "PreviewSelectDialog.Column.PreviewSize" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, false ), // Preview size
@@ -136,7 +136,7 @@ public class PreviewSelectDialog extends Dialog {
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wPreview, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wPreview, wCancel }, margin, null );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -160,7 +160,7 @@ public class PreviewSelectDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     getData();
 
@@ -181,41 +181,41 @@ public class PreviewSelectDialog extends Dialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    String[] prSteps = props.getLastPreview();
+    String[] prTransforms = props.getLastPreview();
     int[] prSizes = props.getLastPreviewSize();
     String name;
-    List<StepMeta> selectedSteps = pipelineMeta.getSelectedSteps();
-    List<StepMeta> usedSteps = pipelineMeta.getUsedSteps();
+    List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
+    List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
 
-    if ( selectedSteps.size() == 0 ) {
+    if ( selectedTransforms.size() == 0 ) {
 
       int line = 0;
-      for ( StepMeta stepMeta : usedSteps ) {
+      for ( TransformMeta transformMeta : usedTransforms ) {
 
         TableItem item = wFields.table.getItem( line++ );
-        name = stepMeta.getName();
-        item.setText( 1, stepMeta.getName() );
+        name = transformMeta.getName();
+        item.setText( 1, transformMeta.getName() );
         item.setText( 2, "0" );
 
         // Remember the last time...?
-        for ( int x = 0; x < prSteps.length; x++ ) {
-          if ( prSteps[ x ].equalsIgnoreCase( name ) ) {
+        for ( int x = 0; x < prTransforms.length; x++ ) {
+          if ( prTransforms[ x ].equalsIgnoreCase( name ) ) {
             item.setText( 2, "" + prSizes[ x ] );
           }
         }
       }
     } else {
-      // No previous selection: set the selected steps to the default preview size
+      // No previous selection: set the selected transforms to the default preview size
       //
       int line = 0;
-      for ( StepMeta stepMeta : usedSteps ) {
+      for ( TransformMeta transformMeta : usedTransforms ) {
         TableItem item = wFields.table.getItem( line++ );
-        name = stepMeta.getName();
-        item.setText( 1, stepMeta.getName() );
+        name = transformMeta.getName();
+        item.setText( 1, transformMeta.getName() );
         item.setText( 2, "" );
 
-        // Is the step selected?
-        if ( stepMeta.isSelected() ) {
+        // Is the transform selected?
+        if ( transformMeta.isSelected() ) {
           item.setText( 2, "" + props.getDefaultPreviewSize() );
         }
       }
@@ -238,7 +238,7 @@ public class PreviewSelectDialog extends Dialog {
       }
     }
 
-    previewSteps = new String[ sels ];
+    previewTransforms = new String[ sels ];
     previewSizes = new int[ sels ];
 
     sels = 0;
@@ -247,14 +247,14 @@ public class PreviewSelectDialog extends Dialog {
       int size = Const.toInt( ti.getText( 2 ), 0 );
 
       if ( size > 0 ) {
-        previewSteps[ sels ] = ti.getText( 1 );
+        previewTransforms[ sels ] = ti.getText( 1 );
         previewSizes[ sels ] = size;
 
         sels++;
       }
     }
 
-    props.setLastPreview( previewSteps, previewSizes );
+    props.setLastPreview( previewTransforms, previewSizes );
 
     dispose();
   }

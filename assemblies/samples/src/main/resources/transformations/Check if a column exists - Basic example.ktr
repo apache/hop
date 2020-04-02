@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Check if a column exists - Basic example</name>
     <description/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -467,7 +467,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Check if &#x22;CUSTOMERNAME&#x22; exists</name>
     <type>ColumnExists</type>
     <description/>
@@ -486,20 +486,20 @@
     <columnnamefield>name</columnnamefield>
       <resultfieldname>exists</resultfieldname>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>280</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Generate Rows</name>
     <type>RowGenerator</type>
     <description/>
@@ -542,29 +542,29 @@
     <row_time_field/>
     <last_time_field/>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>100</xloc>
       <yloc>120</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
 <attributes><group><name>METASTORE.pentaho</name>
 <attribute><key>Kettle Data Service</key>
 <value>&#x7b;&#x22;namespace&#x22;&#x3a;&#x22;pentaho&#x22;,&#x22;id&#x22;&#x3a;&#x22;Kettle Data Service&#x22;,&#x22;name&#x22;&#x3a;&#x22;Kettle Data Service&#x22;,&#x22;description&#x22;&#x3a;&#x22;The elements describing data services based upon transformation output&#x22;,&#x22;metaStoreName&#x22;&#x3a;null&#x7d;</value>
 </attribute></group><group><name>&#x7b;&#x22;_&#x22;&#x3a;&#x22;Embedded MetaStore Elements&#x22;,&#x22;namespace&#x22;&#x3a;&#x22;pentaho&#x22;,&#x22;type&#x22;&#x3a;&#x22;Kettle Data Service&#x22;&#x7d;</name>
 <attribute><key>Check if a column exists - Basic example-Check if &#x22;CUSTOMERNAME&#x22; exists-507288649</key>
-<value>&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;step_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;name&#x22;,&#x22;value&#x22;&#x3a;&#x22;29b58f89-eb05-454a-85b2-368d6a591a1f&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;template_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;default&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;time_to_live&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;_POJO_&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.cache.ServiceCache&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;type&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;enabled&#x22;,&#x22;value&#x22;&#x3a;&#x22;Y&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;0&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;push_down_opt_meta&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.PushDownOptimizationMeta&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;is_user_defined&#x22;,&#x22;value&#x22;&#x3a;&#x22;N&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;Check if a column exists - Basic example-Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists-507288649&#x22;,&#x22;value&#x22;&#x3a;null,&#x22;name&#x22;&#x3a;&#x22;Check if a column exists - Basic example-Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists-507288649&#x22;,&#x22;owner&#x22;&#x3a;null,&#x22;ownerPermissionsList&#x22;&#x3a;&#x5b;&#x5d;&#x7d;</value>
+<value>&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;transform_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;transform_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;name&#x22;,&#x22;value&#x22;&#x3a;&#x22;29b58f89-eb05-454a-85b2-368d6a591a1f&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;template_name&#x22;,&#x22;value&#x22;&#x3a;&#x22;default&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;time_to_live&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;_POJO_&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.cache.ServiceCache&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;type&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;enabled&#x22;,&#x22;value&#x22;&#x3a;&#x22;Y&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;0&#x22;,&#x22;value&#x22;&#x3a;null&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;push_down_opt_meta&#x22;,&#x22;value&#x22;&#x3a;&#x22;org.pentaho.di.pipeline.dataservice.optimization.PushDownOptimizationMeta&#x22;&#x7d;,&#x7b;&#x22;children&#x22;&#x3a;&#x5b;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;is_user_defined&#x22;,&#x22;value&#x22;&#x3a;&#x22;N&#x22;&#x7d;&#x5d;,&#x22;id&#x22;&#x3a;&#x22;Check if a column exists - Basic example-Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists-507288649&#x22;,&#x22;value&#x22;&#x3a;null,&#x22;name&#x22;&#x3a;&#x22;Check if a column exists - Basic example-Check if &#x5c;&#x22;CUSTOMERNAME&#x5c;&#x22; exists-507288649&#x22;,&#x22;owner&#x22;&#x3a;null,&#x22;ownerPermissionsList&#x22;&#x3a;&#x5b;&#x5d;&#x7d;</value>
 </attribute></group></attributes>
-</transformation>
+</pipeline>

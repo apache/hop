@@ -36,7 +36,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -82,11 +82,11 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
 
   private String logSizeLimit;
 
-  private List<StepMeta> steps;
+  private List<TransformMeta> transforms;
 
-  public PipelineLogTable( VariableSpace space, IMetaStore metaStore, List<StepMeta> steps ) {
+  public PipelineLogTable( VariableSpace space, IMetaStore metaStore, List<TransformMeta> transforms ) {
     super( space, metaStore, null, null, null );
-    this.steps = steps;
+    this.transforms = transforms;
   }
 
   @Override
@@ -119,7 +119,7 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<TransformMeta> transforms ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -138,7 +138,7 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
       if ( field != null ) {
         field.setFieldName( XMLHandler.getTagValue( fieldNode, "name" ) );
         field.setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( fieldNode, "enabled" ) ) );
-        field.setSubject( StepMeta.findStep( steps, XMLHandler.getTagValue( fieldNode, "subject" ) ) );
+        field.setSubject( TransformMeta.findTransform( transforms, XMLHandler.getTagValue( fieldNode, "subject" ) ) );
       }
     }
   }
@@ -155,8 +155,8 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
 
   //CHECKSTYLE:LineLength:OFF
   public static PipelineLogTable getDefault( VariableSpace space, IMetaStore metaStore,
-                                             List<StepMeta> steps ) {
-    PipelineLogTable table = new PipelineLogTable( space, metaStore, steps );
+                                             List<TransformMeta> transforms ) {
+    PipelineLogTable table = new PipelineLogTable( space, metaStore, transforms );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.BatchID" ),
       BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
@@ -239,51 +239,51 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
     return findField( ID.LOG_FIELD ).isEnabled();
   }
 
-  public String getStepnameRead() {
+  public String getTransformNameRead() {
     return getSubjectString( ID.LINES_READ );
   }
 
-  public void setStepRead( StepMeta read ) {
+  public void setTransformRead( TransformMeta read ) {
     findField( ID.LINES_READ ).setSubject( read );
   }
 
-  public String getStepnameWritten() {
+  public String getTransformNameWritten() {
     return getSubjectString( ID.LINES_WRITTEN );
   }
 
-  public void setStepWritten( StepMeta written ) {
+  public void setTransformWritten( TransformMeta written ) {
     findField( ID.LINES_WRITTEN ).setSubject( written );
   }
 
-  public String getStepnameInput() {
+  public String getTransformNameInput() {
     return getSubjectString( ID.LINES_INPUT );
   }
 
-  public void setStepInput( StepMeta input ) {
+  public void setTransformInput( TransformMeta input ) {
     findField( ID.LINES_INPUT ).setSubject( input );
   }
 
-  public String getStepnameOutput() {
+  public String getTransformNameOutput() {
     return getSubjectString( ID.LINES_OUTPUT );
   }
 
-  public void setStepOutput( StepMeta output ) {
+  public void setTransformOutput( TransformMeta output ) {
     findField( ID.LINES_OUTPUT ).setSubject( output );
   }
 
-  public String getStepnameUpdated() {
+  public String getTransformNameUpdated() {
     return getSubjectString( ID.LINES_UPDATED );
   }
 
-  public void setStepUpdate( StepMeta update ) {
+  public void setTransformUpdate( TransformMeta update ) {
     findField( ID.LINES_UPDATED ).setSubject( update );
   }
 
-  public String getStepnameRejected() {
+  public String getTransformNameRejected() {
     return getSubjectString( ID.LINES_REJECTED );
   }
 
-  public void setStepRejected( StepMeta rejected ) {
+  public void setTransformRejected( TransformMeta rejected ) {
     findField( ID.LINES_REJECTED ).setSubject( rejected );
   }
 

@@ -56,7 +56,7 @@ public class JobDialogPluginType extends BasePluginType implements PluginTypeInt
   }
 
   /**
-   * Scan & register internal step plugins
+   * Scan & register internal transform plugins
    */
   protected void registerNatives() throws HopPluginException {
     // No native plugins

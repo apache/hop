@@ -24,9 +24,9 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.RowSet;
-import org.apache.hop.pipeline.step.BaseStep;
-import org.apache.hop.pipeline.step.StepDataInterface;
-import org.apache.hop.pipeline.step.StepMetaInterface;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,17 +43,17 @@ import static org.junit.Assert.fail;
  */
 public class PipelineTestingUtil {
 
-  public static List<Object[]> execute( BaseStep step,
-                                        StepMetaInterface meta,
-                                        StepDataInterface data,
+  public static List<Object[]> execute( BaseTransform transform,
+                                        TransformMetaInterface meta,
+                                        TransformDataInterface data,
                                         int expectedRowsAmount,
                                         boolean checkIsDone ) throws Exception {
     RowSet output = new BlockingRowSet( Math.max( 1, expectedRowsAmount ) );
-    step.setOutputRowSets( Collections.singletonList( output ) );
+    transform.setOutputRowSets( Collections.singletonList( output ) );
 
     int i = 0;
     List<Object[]> result = new ArrayList<>( expectedRowsAmount );
-    while ( step.processRow( meta, data ) && i < expectedRowsAmount ) {
+    while ( transform.processRow( meta, data ) && i < expectedRowsAmount ) {
       Object[] row = output.getRowImmediate();
       assertNotNull( Integer.toString( i ), row );
       result.add( row );

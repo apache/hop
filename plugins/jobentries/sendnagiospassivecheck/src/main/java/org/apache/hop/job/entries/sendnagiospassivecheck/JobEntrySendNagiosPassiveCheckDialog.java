@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -474,7 +474,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -517,7 +517,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     getData();
 
     wTabFolder.setSelection( 0 );
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     props.setDialogSize( shell, "JobSendNagiosPassiveCheckDialogSize" );
@@ -596,8 +596,8 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "System.Error.StepNameMissing.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "System.Error.StepNameMissing.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "System.Error.TransformNameMissing.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.Error.TransformNameMissing.Title" ) );
       mb.open();
       return;
     }

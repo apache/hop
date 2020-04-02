@@ -24,14 +24,14 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.step.StepPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
 /**
  * Implements common functionality needed by partitioner plugins.
  */
 public abstract class BasePartitioner implements Partitioner {
 
-  protected StepPartitioningMeta meta;
+  protected TransformPartitioningMeta meta;
   protected int nrPartitions = -1;
   protected String id;
   protected String description;
@@ -82,7 +82,7 @@ public abstract class BasePartitioner implements Partitioner {
   public void init( RowMetaInterface rowMeta ) throws HopException {
 
     if ( nrPartitions < 0 ) {
-      nrPartitions = meta.getPartitionSchema().calculatePartitionIDs().size();
+      nrPartitions = meta.getPartitionSchema().calculatePartitionIds().size();
     }
 
   }
@@ -92,16 +92,16 @@ public abstract class BasePartitioner implements Partitioner {
    *
    * @return the meta
    */
-  public StepPartitioningMeta getMeta() {
+  public TransformPartitioningMeta getMeta() {
     return meta;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#setMeta(org.apache.hop.pipeline.step.StepPartitioningMeta)
+   * @see org.apache.hop.pipeline.Partitioner#setMeta(org.apache.hop.pipeline.transform.TransformPartitioningMeta)
    */
-  public void setMeta( StepPartitioningMeta meta ) {
+  public void setMeta( TransformPartitioningMeta meta ) {
     this.meta = meta;
   }
 

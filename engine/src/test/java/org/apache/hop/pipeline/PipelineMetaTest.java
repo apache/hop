@@ -25,7 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
 import org.apache.hop.core.row.RowMeta;
@@ -35,11 +35,13 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.pipeline.step.StepIOMeta;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaChangeListenerInterface;
-import org.apache.hop.pipeline.step.StepMetaInterface;
-import org.apache.hop.pipeline.steps.dummy.DummyMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaChangeListenerInterface;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,15 +80,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-//import org.apache.hop.pipeline.steps.datagrid.DataGridMeta;
-//import org.apache.hop.pipeline.steps.textfileoutput.TextFileOutputMeta;
-//import org.apache.hop.pipeline.steps.userdefinedjavaclass.InfoStepDefinition;
-//import org.apache.hop.pipeline.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
-//import org.apache.hop.pipeline.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
+//import org.apache.hop.pipeline.transforms.datagrid.DataGridMeta;
+//import org.apache.hop.pipeline.transforms.textfileoutput.TextFileOutputMeta;
+//import org.apache.hop.pipeline.transforms.userdefinedjavaclass.InfoTransformDefinition;
+//import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef;
+//import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta;
 
 @RunWith( PowerMockRunner.class )
 public class PipelineMetaTest {
-  public static final String STEP_NAME = "Any step name";
+  public static final String TRANSFORM_NAME = "Any transform name";
 
 
   @BeforeClass
@@ -108,32 +110,32 @@ public class PipelineMetaTest {
     final Point minimalCanvasPoint = new Point( 0, 0 );
 
     //for test goal should content coordinate more than NotePadMetaPoint
-    final Point stepPoint = new Point( 500, 500 );
+    final Point transformPoint = new Point( 500, 500 );
 
     //empty Pipeline return 0 coordinate point
     Point point = pipelineMeta.getMinimum();
     assertEquals( minimalCanvasPoint.x, point.x );
     assertEquals( minimalCanvasPoint.y, point.y );
 
-    //when Pipeline  content Step  than pipeline should return minimal coordinate of step
-    StepMeta stepMeta = mock( StepMeta.class );
-    when( stepMeta.getLocation() ).thenReturn( stepPoint );
-    pipelineMeta.addStep( stepMeta );
-    Point actualStepPoint = pipelineMeta.getMinimum();
-    assertEquals( stepPoint.x - PipelineMeta.BORDER_INDENT, actualStepPoint.x );
-    assertEquals( stepPoint.y - PipelineMeta.BORDER_INDENT, actualStepPoint.y );
+    //when Pipeline  content Transform  than pipeline should return minimal coordinate of transform
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    when( transformMeta.getLocation() ).thenReturn( transformPoint );
+    pipelineMeta.addTransform( transformMeta );
+    Point actualTransformPoint = pipelineMeta.getMinimum();
+    assertEquals( transformPoint.x - PipelineMeta.BORDER_INDENT, actualTransformPoint.x );
+    assertEquals( transformPoint.y - PipelineMeta.BORDER_INDENT, actualTransformPoint.y );
   }
 
 
   @Test
-  public void getThisStepFieldsPassesCloneRowMeta() throws Exception {
+  public void getThisTransformFieldsPassesCloneRowMeta() throws Exception {
     final String overriddenValue = "overridden";
 
-    StepMeta nextStep = mockStepMeta( "nextStep" );
+    TransformMeta nextTransform = mockTransformMeta( "nextTransform" );
 
-    StepMetaInterface smi = mock( StepMetaInterface.class );
-    StepIOMeta ioMeta = mock( StepIOMeta.class );
-    when( smi.getStepIOMeta() ).thenReturn( ioMeta );
+    TransformMetaInterface smi = mock( TransformMetaInterface.class );
+    TransformIOMeta ioMeta = mock( TransformIOMeta.class );
+    when( smi.getTransformIOMeta() ).thenReturn( ioMeta );
     doAnswer( new Answer<Object>() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
         RowMetaInterface rmi = (RowMetaInterface) invocation.getArguments()[ 0 ];
@@ -142,37 +144,37 @@ public class PipelineMetaTest {
         return null;
       }
     } ).when( smi ).getFields(
-      any( RowMetaInterface.class ), anyString(), any( RowMetaInterface[].class ), eq( nextStep ),
+      any( RowMetaInterface.class ), anyString(), any( RowMetaInterface[].class ), eq( nextTransform ),
       any( VariableSpace.class ), any( IMetaStore.class ) );
 
-    StepMeta thisStep = mockStepMeta( "thisStep" );
-    when( thisStep.getStepMetaInterface() ).thenReturn( smi );
+    TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
+    when( thisTransform.getTransformMetaInterface() ).thenReturn( smi );
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "value" ) );
 
-    RowMetaInterface thisStepsFields = pipelineMeta.getThisStepFields( thisStep, nextStep, rowMeta );
+    RowMetaInterface thisTransformsFields = pipelineMeta.getThisTransformFields( thisTransform, nextTransform, rowMeta );
 
-    assertEquals( 1, thisStepsFields.size() );
-    assertEquals( overriddenValue, thisStepsFields.getValueMeta( 0 ).getName() );
+    assertEquals( 1, thisTransformsFields.size() );
+    assertEquals( overriddenValue, thisTransformsFields.getValueMeta( 0 ).getName() );
   }
 
   @Test
-  public void getThisStepFieldsPassesClonedInfoRowMeta() throws Exception {
+  public void getThisTransformFieldsPassesClonedInfoRowMeta() throws Exception {
     // given
-    StepMetaInterface smi = mock( StepMetaInterface.class );
-    StepIOMeta ioMeta = mock( StepIOMeta.class );
-    when( smi.getStepIOMeta() ).thenReturn( ioMeta );
+    TransformMetaInterface smi = mock( TransformMetaInterface.class );
+    TransformIOMeta ioMeta = mock( TransformIOMeta.class );
+    when( smi.getTransformIOMeta() ).thenReturn( ioMeta );
 
-    StepMeta thisStep = mockStepMeta( "thisStep" );
-    StepMeta nextStep = mockStepMeta( "nextStep" );
-    when( thisStep.getStepMetaInterface() ).thenReturn( smi );
+    TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
+    TransformMeta nextTransform = mockTransformMeta( "nextTransform" );
+    when( thisTransform.getTransformMetaInterface() ).thenReturn( smi );
 
     RowMeta row = new RowMeta();
     when( smi.getTableFields() ).thenReturn( row );
 
     // when
-    pipelineMeta.getThisStepFields( thisStep, nextStep, row );
+    pipelineMeta.getThisTransformFields( thisTransform, nextTransform, row );
 
     // then
     verify( smi, never() ).getFields( any(), any(), eq( new RowMetaInterface[] { row } ), any(), any(), any() );
@@ -249,37 +251,37 @@ public class PipelineMetaTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename( "pipelineFile" );
     pipelineMeta.setName( "myPipeline" );
-    StepMeta step1 = new StepMeta( "name1", null );
-    StepMeta step2 = new StepMeta( "name2", null );
-    StepMeta step3 = new StepMeta( "name3", null );
-    StepMeta step4 = new StepMeta( "name4", null );
-    PipelineHopMeta hopMeta1 = new PipelineHopMeta( step1, step2, true );
-    PipelineHopMeta hopMeta2 = new PipelineHopMeta( step2, step3, true );
-    PipelineHopMeta hopMeta3 = new PipelineHopMeta( step3, step4, false );
+    TransformMeta transform1 = new TransformMeta( "name1", null );
+    TransformMeta transform2 = new TransformMeta( "name2", null );
+    TransformMeta transform3 = new TransformMeta( "name3", null );
+    TransformMeta transform4 = new TransformMeta( "name4", null );
+    PipelineHopMeta hopMeta1 = new PipelineHopMeta( transform1, transform2, true );
+    PipelineHopMeta hopMeta2 = new PipelineHopMeta( transform2, transform3, true );
+    PipelineHopMeta hopMeta3 = new PipelineHopMeta( transform3, transform4, false );
     pipelineMeta.addPipelineHop( 0, hopMeta1 );
     pipelineMeta.addPipelineHop( 1, hopMeta2 );
     pipelineMeta.addPipelineHop( 2, hopMeta3 );
-    List<StepMeta> hops = pipelineMeta.getPipelineHopSteps( true );
-    assertSame( step1, hops.get( 0 ) );
-    assertSame( step2, hops.get( 1 ) );
-    assertSame( step3, hops.get( 2 ) );
-    assertSame( step4, hops.get( 3 ) );
+    List<TransformMeta> hops = pipelineMeta.getPipelineHopTransforms( true );
+    assertSame( transform1, hops.get( 0 ) );
+    assertSame( transform2, hops.get( 1 ) );
+    assertSame( transform3, hops.get( 2 ) );
+    assertSame( transform4, hops.get( 3 ) );
     assertEquals( hopMeta2, pipelineMeta.findPipelineHop( "name2 --> name3 (enabled)" ) );
-    assertEquals( hopMeta3, pipelineMeta.findPipelineHopFrom( step3 ) );
+    assertEquals( hopMeta3, pipelineMeta.findPipelineHopFrom( transform3 ) );
     assertEquals( hopMeta2, pipelineMeta.findPipelineHop( hopMeta2 ) );
-    assertEquals( hopMeta1, pipelineMeta.findPipelineHop( step1, step2 ) );
-    assertEquals( null, pipelineMeta.findPipelineHop( step3, step4, false ) );
-    assertEquals( hopMeta3, pipelineMeta.findPipelineHop( step3, step4, true ) );
-    assertEquals( hopMeta2, pipelineMeta.findPipelineHopTo( step3 ) );
+    assertEquals( hopMeta1, pipelineMeta.findPipelineHop( transform1, transform2 ) );
+    assertEquals( null, pipelineMeta.findPipelineHop( transform3, transform4, false ) );
+    assertEquals( hopMeta3, pipelineMeta.findPipelineHop( transform3, transform4, true ) );
+    assertEquals( hopMeta2, pipelineMeta.findPipelineHopTo( transform3 ) );
     pipelineMeta.removePipelineHop( 0 );
-    hops = pipelineMeta.getPipelineHopSteps( true );
-    assertSame( step2, hops.get( 0 ) );
-    assertSame( step3, hops.get( 1 ) );
-    assertSame( step4, hops.get( 2 ) );
+    hops = pipelineMeta.getPipelineHopTransforms( true );
+    assertSame( transform2, hops.get( 0 ) );
+    assertSame( transform3, hops.get( 1 ) );
+    assertSame( transform4, hops.get( 2 ) );
     pipelineMeta.removePipelineHop( hopMeta2 );
-    hops = pipelineMeta.getPipelineHopSteps( true );
-    assertSame( step3, hops.get( 0 ) );
-    assertSame( step4, hops.get( 1 ) );
+    hops = pipelineMeta.getPipelineHopTransforms( true );
+    assertSame( transform3, hops.get( 0 ) );
+    assertSame( transform4, hops.get( 1 ) );
   }
 
   @Test
@@ -287,60 +289,60 @@ public class PipelineMetaTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename( "pipelineFile" );
     pipelineMeta.setName( "myPipeline" );
-    StepMeta step1 = new StepMeta( "name1", null );
-    StepMeta step2 = new StepMeta( "name2", null );
-    StepMeta step3 = new StepMeta( "name3", null );
-    StepMeta step4 = new StepMeta( "name4", null );
-    PipelineHopMeta hopMeta1 = new PipelineHopMeta( step1, step2, true );
-    PipelineHopMeta hopMeta2 = new PipelineHopMeta( step2, step3, true );
-    PipelineHopMeta hopMeta3 = new PipelineHopMeta( step2, step4, true );
+    TransformMeta transform1 = new TransformMeta( "name1", null );
+    TransformMeta transform2 = new TransformMeta( "name2", null );
+    TransformMeta transform3 = new TransformMeta( "name3", null );
+    TransformMeta transform4 = new TransformMeta( "name4", null );
+    PipelineHopMeta hopMeta1 = new PipelineHopMeta( transform1, transform2, true );
+    PipelineHopMeta hopMeta2 = new PipelineHopMeta( transform2, transform3, true );
+    PipelineHopMeta hopMeta3 = new PipelineHopMeta( transform2, transform4, true );
     pipelineMeta.addPipelineHop( 0, hopMeta1 );
     pipelineMeta.addPipelineHop( 1, hopMeta2 );
     pipelineMeta.addPipelineHop( 2, hopMeta3 );
-    List<PipelineHopMeta> allPipelineHopFrom = pipelineMeta.findAllPipelineHopFrom( step2 );
-    assertEquals( step3, allPipelineHopFrom.get( 0 ).getToStep() );
-    assertEquals( step4, allPipelineHopFrom.get( 1 ).getToStep() );
+    List<PipelineHopMeta> allPipelineHopFrom = pipelineMeta.findAllPipelineHopFrom( transform2 );
+    assertEquals( transform3, allPipelineHopFrom.get( 0 ).getToTransform() );
+    assertEquals( transform4, allPipelineHopFrom.get( 1 ).getToTransform() );
   }
 
   @Test
-  public void testAddStepWithChangeListenerInterface() {
-    StepMeta stepMeta = mock( StepMeta.class );
-    StepMetaChangeListenerInterfaceMock metaInterface = mock( StepMetaChangeListenerInterfaceMock.class );
-    when( stepMeta.getStepMetaInterface() ).thenReturn( metaInterface );
-    assertEquals( 0, pipelineMeta.steps.size() );
-    assertEquals( 0, pipelineMeta.stepChangeListeners.size() );
-    // should not throw exception if there are no steps in step meta
-    pipelineMeta.addStep( 0, stepMeta );
-    assertEquals( 1, pipelineMeta.steps.size() );
-    assertEquals( 1, pipelineMeta.stepChangeListeners.size() );
+  public void testAddTransformWithChangeListenerInterface() {
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    TransformMetaChangeListenerInterfaceMock metaInterface = mock( TransformMetaChangeListenerInterfaceMock.class );
+    when( transformMeta.getTransformMetaInterface() ).thenReturn( metaInterface );
+    assertEquals( 0, pipelineMeta.transforms.size() );
+    assertEquals( 0, pipelineMeta.transformChangeListeners.size() );
+    // should not throw exception if there are no transforms in transform meta
+    pipelineMeta.addTransform( 0, transformMeta );
+    assertEquals( 1, pipelineMeta.transforms.size() );
+    assertEquals( 1, pipelineMeta.transformChangeListeners.size() );
 
-    pipelineMeta.addStep( 0, stepMeta );
-    assertEquals( 2, pipelineMeta.steps.size() );
-    assertEquals( 2, pipelineMeta.stepChangeListeners.size() );
+    pipelineMeta.addTransform( 0, transformMeta );
+    assertEquals( 2, pipelineMeta.transforms.size() );
+    assertEquals( 2, pipelineMeta.transformChangeListeners.size() );
   }
 
   @Test
-  public void testIsAnySelectedStepUsedInPipelineHopsNothingSelectedCase() {
-    List<StepMeta> selectedSteps = asList( new StepMeta(), new StepMeta(), new StepMeta() );
-    pipelineMeta.getSteps().addAll( selectedSteps );
+  public void testIsAnySelectedTransformUsedInPipelineHopsNothingSelectedCase() {
+    List<TransformMeta> selectedTransforms = asList( new TransformMeta(), new TransformMeta(), new TransformMeta() );
+    pipelineMeta.getTransforms().addAll( selectedTransforms );
 
-    assertFalse( pipelineMeta.isAnySelectedStepUsedInPipelineHops() );
+    assertFalse( pipelineMeta.isAnySelectedTransformUsedInPipelineHops() );
   }
 
   @Test
-  public void testIsAnySelectedStepUsedInPipelineHopsAnySelectedCase() {
-    StepMeta stepMeta = new StepMeta();
-    stepMeta.setName( STEP_NAME );
+  public void testIsAnySelectedTransformUsedInPipelineHopsAnySelectedCase() {
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName( TRANSFORM_NAME );
     PipelineHopMeta pipelineHopMeta = new PipelineHopMeta();
-    stepMeta.setSelected( true );
-    List<StepMeta> selectedSteps = asList( new StepMeta(), stepMeta, new StepMeta() );
+    transformMeta.setSelected( true );
+    List<TransformMeta> selectedTransforms = asList( new TransformMeta(), transformMeta, new TransformMeta() );
 
-    pipelineHopMeta.setToStep( stepMeta );
-    pipelineHopMeta.setFromStep( stepMeta );
-    pipelineMeta.getSteps().addAll( selectedSteps );
+    pipelineHopMeta.setToTransform( transformMeta );
+    pipelineHopMeta.setFromTransform( transformMeta );
+    pipelineMeta.getTransforms().addAll( selectedTransforms );
     pipelineMeta.addPipelineHop( pipelineHopMeta );
 
-    assertTrue( pipelineMeta.isAnySelectedStepUsedInPipelineHops() );
+    assertTrue( pipelineMeta.isAnySelectedTransformUsedInPipelineHops() );
   }
 
   @Test
@@ -353,14 +355,14 @@ public class PipelineMetaTest {
     assertNotNull( clone );
   }
 
-  private static StepMeta mockStepMeta( String name ) {
-    StepMeta meta = mock( StepMeta.class );
+  private static TransformMeta mockTransformMeta( String name ) {
+    TransformMeta meta = mock( TransformMeta.class );
     when( meta.getName() ).thenReturn( name );
     return meta;
   }
 
-  public abstract static class StepMetaChangeListenerInterfaceMock
-    implements StepMetaInterface, StepMetaChangeListenerInterface {
+  public abstract static class TransformMetaChangeListenerInterfaceMock
+    implements TransformMetaInterface<TransformInterface, TransformDataInterface>, TransformMetaChangeListenerInterface {
     @Override
     public abstract Object clone();
   }
@@ -413,109 +415,109 @@ public class PipelineMetaTest {
   public void testHasLoop_simpleLoop() throws Exception {
     //main->2->3->main
     PipelineMeta pipelineMetaSpy = spy( pipelineMeta );
-    StepMeta stepMetaMain = createStepMeta( "mainStep" );
-    StepMeta stepMeta2 = createStepMeta( "step2" );
-    StepMeta stepMeta3 = createStepMeta( "step3" );
-    List<StepMeta> mainPrevSteps = new ArrayList<>();
-    mainPrevSteps.add( stepMeta2 );
-    doReturn( mainPrevSteps ).when( pipelineMetaSpy ).findPreviousSteps( stepMetaMain, true );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMetaMain ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMetaMain, 0 ) ).thenReturn( stepMeta2 );
-    List<StepMeta> stepmeta2PrevSteps = new ArrayList<>();
-    stepmeta2PrevSteps.add( stepMeta3 );
-    doReturn( stepmeta2PrevSteps ).when( pipelineMetaSpy ).findPreviousSteps( stepMeta2, true );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMeta2 ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMeta2, 0 ) ).thenReturn( stepMeta3 );
-    List<StepMeta> stepmeta3PrevSteps = new ArrayList<>();
-    stepmeta3PrevSteps.add( stepMetaMain );
-    doReturn( stepmeta3PrevSteps ).when( pipelineMetaSpy ).findPreviousSteps( stepMeta3, true );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMeta3 ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMeta3, 0 ) ).thenReturn( stepMetaMain );
-    assertTrue( pipelineMetaSpy.hasLoop( stepMetaMain ) );
+    TransformMeta transformMetaMain = createTransformMeta( "mainTransform" );
+    TransformMeta transformMeta2 = createTransformMeta( "transform2" );
+    TransformMeta transformMeta3 = createTransformMeta( "transform3" );
+    List<TransformMeta> mainPrevTransforms = new ArrayList<>();
+    mainPrevTransforms.add( transformMeta2 );
+    doReturn( mainPrevTransforms ).when( pipelineMetaSpy ).findPreviousTransforms( transformMetaMain, true );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMetaMain ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMetaMain, 0 ) ).thenReturn( transformMeta2 );
+    List<TransformMeta> transformmeta2PrevTransforms = new ArrayList<>();
+    transformmeta2PrevTransforms.add( transformMeta3 );
+    doReturn( transformmeta2PrevTransforms ).when( pipelineMetaSpy ).findPreviousTransforms( transformMeta2, true );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMeta2 ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMeta2, 0 ) ).thenReturn( transformMeta3 );
+    List<TransformMeta> transformmeta3PrevTransforms = new ArrayList<>();
+    transformmeta3PrevTransforms.add( transformMetaMain );
+    doReturn( transformmeta3PrevTransforms ).when( pipelineMetaSpy ).findPreviousTransforms( transformMeta3, true );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMeta3 ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMeta3, 0 ) ).thenReturn( transformMetaMain );
+    assertTrue( pipelineMetaSpy.hasLoop( transformMetaMain ) );
   }
 
   @Test
-  public void testHasLoop_loopInPrevSteps() throws Exception {
+  public void testHasLoop_loopInPrevTransforms() throws Exception {
     //main->2->3->4->3
     PipelineMeta pipelineMetaSpy = spy( pipelineMeta );
-    StepMeta stepMetaMain = createStepMeta( "mainStep" );
-    StepMeta stepMeta2 = createStepMeta( "step2" );
-    StepMeta stepMeta3 = createStepMeta( "step3" );
-    StepMeta stepMeta4 = createStepMeta( "step4" );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMetaMain ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMetaMain, 0 ) ).thenReturn( stepMeta2 );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMeta2 ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMeta2, 0 ) ).thenReturn( stepMeta3 );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMeta3 ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMeta3, 0 ) ).thenReturn( stepMeta4 );
-    when( pipelineMetaSpy.findNrPrevSteps( stepMeta4 ) ).thenReturn( 1 );
-    when( pipelineMetaSpy.findPrevStep( stepMeta4, 0 ) ).thenReturn( stepMeta3 );
+    TransformMeta transformMetaMain = createTransformMeta( "mainTransform" );
+    TransformMeta transformMeta2 = createTransformMeta( "transform2" );
+    TransformMeta transformMeta3 = createTransformMeta( "transform3" );
+    TransformMeta transformMeta4 = createTransformMeta( "transform4" );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMetaMain ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMetaMain, 0 ) ).thenReturn( transformMeta2 );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMeta2 ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMeta2, 0 ) ).thenReturn( transformMeta3 );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMeta3 ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMeta3, 0 ) ).thenReturn( transformMeta4 );
+    when( pipelineMetaSpy.findNrPrevTransforms( transformMeta4 ) ).thenReturn( 1 );
+    when( pipelineMetaSpy.findPrevTransform( transformMeta4, 0 ) ).thenReturn( transformMeta3 );
     //check no StackOverflow error
-    assertFalse( pipelineMetaSpy.hasLoop( stepMetaMain ) );
+    assertFalse( pipelineMetaSpy.hasLoop( transformMetaMain ) );
   }
 
 
   @Test
-  public void infoStepFieldsAreNotIncludedInGetStepFields() throws HopStepException {
-    // validates that the fields from info steps are not included in the resulting step fields for a stepMeta.
-    //  This is important with steps like StreamLookup and Append, where the previous steps may or may not
-    //  have their fields included in the current step.
+  public void infoTransformFieldsAreNotIncludedInGetTransformFields() throws HopTransformException {
+    // validates that the fields from info transforms are not included in the resulting transform fields for a transformMeta.
+    //  This is important with transforms like StreamLookup and Append, where the previous transforms may or may not
+    //  have their fields included in the current transform.
 
     PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
-    StepMeta toBeAppended1 = testStep( "toBeAppended1",
-      emptyList(),  // no info steps
-      asList( "field1", "field2" )  // names of fields from this step
+    TransformMeta toBeAppended1 = testTransform( "toBeAppended1",
+      emptyList(),  // no info transforms
+      asList( "field1", "field2" )  // names of fields from this transform
     );
-    StepMeta toBeAppended2 = testStep( "toBeAppended2", emptyList(), asList( "field1", "field2" ) );
+    TransformMeta toBeAppended2 = testTransform( "toBeAppended2", emptyList(), asList( "field1", "field2" ) );
 
-    StepMeta append = testStep( "append",
-      asList( "toBeAppended1", "toBeAppended2" ),  // info step names
-      singletonList( "outputField" )   // output field of this step
+    TransformMeta append = testTransform( "append",
+      asList( "toBeAppended1", "toBeAppended2" ),  // info transform names
+      singletonList( "outputField" )   // output field of this transform
     );
-    StepMeta after = new StepMeta( "after", new DummyMeta() );
+    TransformMeta after = new TransformMeta( "after", new DummyMeta() );
 
     wireUpTestPipelineMeta( pipelineMeta, toBeAppended1, toBeAppended2, append, after );
 
-    RowMetaInterface results = pipelineMeta.getStepFields( append, after, mock( ProgressMonitorListener.class ) );
+    RowMetaInterface results = pipelineMeta.getTransformFields( append, after, mock( ProgressMonitorListener.class ) );
 
     assertThat( 1, equalTo( results.size() ) );
     assertThat( "outputField", equalTo( results.getFieldNames()[ 0 ] ) );
   }
 
   @Test
-  public void prevStepFieldsAreIncludedInGetStepFields() throws HopStepException {
+  public void prevTransformFieldsAreIncludedInGetTransformFields() throws HopTransformException {
 
     PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
-    StepMeta prevStep1 = testStep( "prevStep1", emptyList(), asList( "field1", "field2" ) );
-    StepMeta prevStep2 = testStep( "prevStep2", emptyList(), asList( "field3", "field4", "field5" ) );
+    TransformMeta prevTransform1 = testTransform( "prevTransform1", emptyList(), asList( "field1", "field2" ) );
+    TransformMeta prevTransform2 = testTransform( "prevTransform2", emptyList(), asList( "field3", "field4", "field5" ) );
 
-    StepMeta someStep = testStep( "step", asList( "prevStep1" ), asList( "outputField" ) );
+    TransformMeta someTransform = testTransform( "transform", asList( "prevTransform1" ), asList( "outputField" ) );
 
-    StepMeta after = new StepMeta( "after", new DummyMeta() );
+    TransformMeta after = new TransformMeta( "after", new DummyMeta() );
 
-    wireUpTestPipelineMeta( pipelineMeta, prevStep1, prevStep2, someStep, after );
+    wireUpTestPipelineMeta( pipelineMeta, prevTransform1, prevTransform2, someTransform, after );
 
-    RowMetaInterface results = pipelineMeta.getStepFields( someStep, after, mock( ProgressMonitorListener.class ) );
+    RowMetaInterface results = pipelineMeta.getTransformFields( someTransform, after, mock( ProgressMonitorListener.class ) );
 
     assertThat( 4, equalTo( results.size() ) );
     assertThat( new String[] { "field3", "field4", "field5", "outputField" }, equalTo( results.getFieldNames() ) );
   }
 
   @Test
-  public void findPreviousStepsNullMeta() {
+  public void findPreviousTransformsNullMeta() {
     PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
-    List<StepMeta> result = pipelineMeta.findPreviousSteps( null, false );
+    List<TransformMeta> result = pipelineMeta.findPreviousTransforms( null, false );
 
     assertThat( 0, equalTo( result.size() ) );
     assertThat( result, equalTo( new ArrayList<>() ) );
   }
 
-  private void wireUpTestPipelineMeta( PipelineMeta pipelineMeta, StepMeta toBeAppended1, StepMeta toBeAppended2,
-                                    StepMeta append, StepMeta after ) {
-    pipelineMeta.addStep( append );
-    pipelineMeta.addStep( after );
-    pipelineMeta.addStep( toBeAppended1 );
-    pipelineMeta.addStep( toBeAppended2 );
+  private void wireUpTestPipelineMeta( PipelineMeta pipelineMeta, TransformMeta toBeAppended1, TransformMeta toBeAppended2,
+                                       TransformMeta append, TransformMeta after ) {
+    pipelineMeta.addTransform( append );
+    pipelineMeta.addTransform( after );
+    pipelineMeta.addTransform( toBeAppended1 );
+    pipelineMeta.addTransform( toBeAppended2 );
 
     pipelineMeta.addPipelineHop( new PipelineHopMeta( toBeAppended1, append ) );
     pipelineMeta.addPipelineHop( new PipelineHopMeta( toBeAppended2, append ) );
@@ -523,22 +525,22 @@ public class PipelineMetaTest {
   }
 
 
-  private StepMeta testStep( String name, List<String> infoStepnames, List<String> fieldNames )
-    throws HopStepException {
-    StepMetaInterface smi = stepMetaInterfaceWithFields( new DummyMeta(), infoStepnames, fieldNames );
-    return new StepMeta( name, smi );
+  private TransformMeta testTransform( String name, List<String> infoTransformNames, List<String> fieldNames )
+    throws HopTransformException {
+    TransformMetaInterface smi = transformMetaInterfaceWithFields( new DummyMeta(), infoTransformNames, fieldNames );
+    return new TransformMeta( name, smi );
   }
 
-  private StepMetaInterface stepMetaInterfaceWithFields(
-    StepMetaInterface smi, List<String> infoStepnames, List<String> fieldNames )
-    throws HopStepException {
+  private TransformMetaInterface transformMetaInterfaceWithFields(
+    TransformMetaInterface smi, List<String> infoTransformNames, List<String> fieldNames )
+    throws HopTransformException {
     RowMeta rowMetaWithFields = new RowMeta();
-    StepIOMeta stepIOMeta = mock( StepIOMeta.class );
-    when( stepIOMeta.getInfoStepnames() ).thenReturn( infoStepnames.toArray( new String[ 0 ] ) );
+    TransformIOMeta transformIOMeta = mock( TransformIOMeta.class );
+    when( transformIOMeta.getInfoTransformNames() ).thenReturn( infoTransformNames.toArray( new String[ 0 ] ) );
     fieldNames.stream()
       .forEach( field -> rowMetaWithFields.addValueMeta( new ValueMetaString( field ) ) );
-    StepMetaInterface newSmi = spy( smi );
-    when( newSmi.getStepIOMeta() ).thenReturn( stepIOMeta );
+    TransformMetaInterface newSmi = spy( smi );
+    when( newSmi.getTransformIOMeta() ).thenReturn( transformIOMeta );
 
     doAnswer( (Answer<Void>) invocationOnMock -> {
       RowMetaInterface passedRmi = (RowMetaInterface) invocationOnMock.getArguments()[ 0 ];
@@ -551,10 +553,10 @@ public class PipelineMetaTest {
   }
 
 
-  private StepMeta createStepMeta( String name ) {
-    StepMeta stepMeta = mock( StepMeta.class );
-    when( stepMeta.getName() ).thenReturn( name );
-    return stepMeta;
+  private TransformMeta createTransformMeta( String name ) {
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    when( transformMeta.getName() ).thenReturn( name );
+    return transformMeta;
   }
 
   @Test

@@ -46,8 +46,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
-import org.apache.hop.ui.pipeline.steps.tableinput.SQLValuesHighlight;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -222,7 +222,7 @@ public class SQLEditor {
 
     wClear.setToolTipText( BaseMessages.getString( PKG, "SQLEditor.Button.ClearCache.Tooltip" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wExec, wClear, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wExec, wClear, wCancel }, margin, null );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -256,7 +256,7 @@ public class SQLEditor {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     getData();
 

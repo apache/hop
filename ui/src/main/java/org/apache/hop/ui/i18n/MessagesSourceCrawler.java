@@ -247,7 +247,7 @@ public class MessagesSourceCrawler {
 
       // What we first look for is the import of the messages package.
       //
-      // "package org.apache.hop.pipeline.steps.sortedmerge;"
+      // "package org.apache.hop.pipeline.transforms.sortedmerge;"
       //
       if ( packagePattern.matcher( line ).matches() ) {
         int beginIndex = line.indexOf( "org.apache.hop." );

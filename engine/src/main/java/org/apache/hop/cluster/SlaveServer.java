@@ -64,7 +64,7 @@ import org.apache.hop.www.SlaveServerDetection;
 import org.apache.hop.www.SlaveServerJobStatus;
 import org.apache.hop.www.SlaveServerStatus;
 import org.apache.hop.www.SlaveServerPipelineStatus;
-import org.apache.hop.www.SniffStepServlet;
+import org.apache.hop.www.SniffTransformServlet;
 import org.apache.hop.www.SslConfiguration;
 import org.apache.hop.www.StartJobServlet;
 import org.apache.hop.www.StartPipelineServlet;
@@ -1049,16 +1049,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * Sniff rows on a the slave server, return xml containing the row metadata and data.
    *
    * @param pipelineName pipeline name
-   * @param stepName  step name
-   * @param copyNr    step copy number
+   * @param transformName  transform name
+   * @param copyNr    transform copy number
    * @param lines     lines number
-   * @param type      step type
+   * @param type      transform type
    * @return xml with row metadata and data
    * @throws Exception
    */
-  public String sniffStep( String pipelineName, String stepName, String copyNr, int lines, String type ) throws Exception {
-    return execService( SniffStepServlet.CONTEXT_PATH + "/?pipeline=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&step="
-      + URLEncoder.encode( stepName, "UTF-8" ) + "&copynr=" + copyNr + "&type=" + type + "&lines=" + lines + "&xml=Y" );
+  public String sniffTransform( String pipelineName, String transformName, String copyNr, int lines, String type ) throws Exception {
+    return execService( SniffTransformServlet.CONTEXT_PATH + "/?pipeline=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&transform="
+      + URLEncoder.encode( transformName, "UTF-8" ) + "&copynr=" + copyNr + "&type=" + type + "&lines=" + lines + "&xml=Y" );
   }
 
   public long getNextSlaveSequenceValue( String slaveSequenceName, long incrementValue ) throws HopException {

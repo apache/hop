@@ -34,14 +34,14 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * This class contains code to help you drag data from one part of a GUI to another by using XML as an intermediate
- * step.
+ * transform.
  *
  * @author matt
  * @since 2006-04-16
  */
 public class DragAndDropContainer implements XMLInterface {
-  public static final int TYPE_STEP = 1;
-  public static final int TYPE_BASE_STEP_TYPE = 2;
+  public static final int TYPE_TRANSFORM = 1;
+  public static final int TYPE_BASE_TRANSFORM_TYPE = 2;
   public static final int TYPE_DATABASE_CONNECTION = 3;
   public static final int TYPE_PIPELINE_HOP = 4;
   public static final int TYPE_TEXT = 5;
@@ -56,7 +56,7 @@ public class DragAndDropContainer implements XMLInterface {
   public static final int TYPE_BUSINESS_MODEL = 14;
 
   private static final String[] typeCodes = {
-    "", "Step", "BaseStep", "DatabaseConnection", "PipelineHop", "Text", "Jobentry", "BaseJobentry",
+    "", "Transform", "BaseTransform", "DatabaseConnection", "PipelineHop", "Text", "Jobentry", "BaseJobentry",
     "PhysicalTable", "PhysicalColumn", "BusinessView", "BusinessTable", "BusinessColumn", "Relationship",
     "Business Model" };
   private static final String XML_TAG = "DragAndDrop";
@@ -80,7 +80,7 @@ public class DragAndDropContainer implements XMLInterface {
    *
    * @param type The type of drag&drop to perform
    * @param data The data in the form of a String
-   * @param id   The id of the step in the form of a String
+   * @param id   The id of the transform in the form of a String
    */
   public DragAndDropContainer( int type, String data, String id ) {
     this.type = type;

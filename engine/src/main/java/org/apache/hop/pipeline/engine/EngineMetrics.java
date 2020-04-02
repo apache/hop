@@ -56,7 +56,7 @@ public class EngineMetrics {
   }
 
   /**
-   * @param component The component to set a metric for (e.g. step name)
+   * @param component The component to set a metric for (e.g. transform name)
    * @param metric    The metric (e.g. input, output, ...)
    * @param amount    the metric amount
    */
@@ -88,7 +88,7 @@ public class EngineMetrics {
   /**
    * Retrieve the amount for a specific metric
    *
-   * @param component The component of the metric (e.g. step name)
+   * @param component The component of the metric (e.g. transform name)
    * @param metric    The metric (e.g. input, output, ...)
    * @return the metric amount or null if nothing was found
    */
@@ -106,7 +106,7 @@ public class EngineMetrics {
   /**
    * Increment the amount for a specific metric (+1).  If the metric didn't exist create it and set it to 1.
    *
-   * @param component The component of the metric (e.g. step name)
+   * @param component The component of the metric (e.g. transform name)
    * @param metric    The metric (e.g. input, output, ...)
    */
   public void incrementComponentMetric( IEngineComponent component, IEngineMetric metric ) {
@@ -124,7 +124,7 @@ public class EngineMetrics {
   /**
    * Remove the amount for a specific metric
    *
-   * @param component The component of the metric (e.g. step name)
+   * @param component The component of the metric (e.g. transform name)
    * @param metric    The name of the metric (e.g. input, output, ...)
    * @return the metric amount or null if nothing stored in the first place
    */

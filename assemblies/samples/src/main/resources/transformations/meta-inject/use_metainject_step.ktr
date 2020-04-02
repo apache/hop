@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
-    <name>use_metainject_step</name>
+    <name>use_metainject_transform</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -273,7 +273,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -348,7 +348,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -416,9 +416,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -463,7 +463,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>ETL Metadata Injection</name>
     <type>MetaInject</type>
     <description/>
@@ -479,181 +479,181 @@
     <trans_name/>
     <filename>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;read_csv_file.ktr</filename>
     <directory_path/>
-    <source_step/>
+    <source_transform/>
     <source_output_fields>    </source_output_fields>    <target_file/>
     <no_execution>N</no_execution>
-    <stream_source_step/>
-    <stream_target_step/>
-    <mappings>      <mapping>        <target_step_name>CSV file input</target_step_name>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_length</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>length</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>format</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>format</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>length</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>length</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_precision</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>precision</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_format</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>format</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_name</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>name</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_DECIMAL</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>decimal</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_LENGTH</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>length</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_GROUP</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>group</source_field>
-      </mapping>      <mapping>        <target_step_name>Select values</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>Select values</target_transform_name>
         <target_attribute_key>META_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Rename</source_step>
+        <source_transform>Rename</source_transform>
         <source_field>name</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_PRECISION</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>precision</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_FORMAT</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>format</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_currency</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>currency</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>name</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>name</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>decimal</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>decimal</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_type</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>type</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_decimal</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>decimal</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>type</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_CURRENCY</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>currency</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_trim_type</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>trimtype</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>type</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>type</source_field>
-      </mapping>      <mapping>        <target_step_name>Select values</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>Select values</target_transform_name>
         <target_attribute_key>REMOVE_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Remove</source_step>
+        <source_transform>Remove</source_transform>
         <source_field>name</source_field>
-      </mapping>      <mapping>        <target_step_name>Select values</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>Select values</target_transform_name>
         <target_attribute_key>META_RENAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Rename</source_step>
+        <source_transform>Rename</source_transform>
         <source_field>rename</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>precision</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>precision</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>currency</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>currency</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>name</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>group</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>group</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>trim_type</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>trimtype</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FIELD_TRIM_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>trimtype</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>FILENAME</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_step>Using variable to resolve filename</source_step>
+        <source_transform>Using variable to resolve filename</source_transform>
         <source_field>filename</source_field>
-      </mapping>      <mapping>        <target_step_name>CSV file input</target_step_name>
+      </mapping>      <mapping>        <target_transform_name>CSV file input</target_transform_name>
         <target_attribute_key>field_group</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_step>Fields</source_step>
+        <source_transform>Fields</source_transform>
         <source_field>group</source_field>
       </mapping>    </mappings>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>266</xloc>
       <yloc>126</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Fields</name>
     <type>DataGrid</type>
     <description/>
@@ -778,20 +778,20 @@
       <line> <item>state</item><item>String</item><item/><item>30</item><item/><item/><item/><item/><item>none</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>129</xloc>
       <yloc>33</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Filename 2</name>
     <type>RowGenerator</type>
     <description/>
@@ -822,20 +822,20 @@
     <row_time_field>now</row_time_field>
     <last_time_field>FiveSecondsAgo</last_time_field>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>167</xloc>
       <yloc>375</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Remove</name>
     <type>DataGrid</type>
     <description/>
@@ -863,20 +863,20 @@
       <line> <item>stateCode</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>431</xloc>
       <yloc>139</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Rename</name>
     <type>DataGrid</type>
     <description/>
@@ -915,20 +915,20 @@
       <line> <item>id</item><item>DEMO_ID</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>409</xloc>
       <yloc>33</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Using variable to resolve filename</name>
     <type>SetValueConstant</type>
     <description/>
@@ -949,22 +949,22 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>167</xloc>
       <yloc>240</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

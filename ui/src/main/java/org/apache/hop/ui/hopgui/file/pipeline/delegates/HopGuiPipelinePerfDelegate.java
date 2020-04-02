@@ -88,23 +88,23 @@ public class HopGuiPipelinePerfDelegate {
   private static final int DATA_CHOICE_OUTPUT_BUFFER_SIZE = 7;
 
   private static String[] dataChoices = new String[] {
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Written" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Read" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Input" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Output" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Updated" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Rejected" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.InputBufferSize" ),
-    BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.OutputBufferSize" ), };
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Written" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Read" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Input" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Output" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Updated" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Rejected" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.InputBufferSize" ),
+    BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.OutputBufferSize" ), };
 
   private HopGui hopUi;
   private HopGuiPipelineGraph pipelineGraph;
 
   private CTabItem pipelinePerfTab;
 
-  private Map<IEngineComponent, List<PerformanceSnapShot>> stepPerformanceSnapShots;
-  private IEngineComponent[] steps;
-  private org.eclipse.swt.widgets.List stepsList;
+  private Map<IEngineComponent, List<PerformanceSnapShot>> transformPerformanceSnapShots;
+  private IEngineComponent[] transforms;
+  private org.eclipse.swt.widgets.List transformsList;
   private Canvas canvas;
   private Image image;
   private long timeDifference;
@@ -177,7 +177,7 @@ public class HopGuiPipelinePerfDelegate {
     // is called when the pipeline-graph is not running, so we check
     // early to make sure it won't happen (see PDI-5009)
     if ( !pipelineGraph.isRunning()
-      || pipelineGraph.pipeline == null || !pipelineGraph.pipeline.getSubject().isCapturingStepPerformanceSnapShots() ) {
+      || pipelineGraph.pipeline == null || !pipelineGraph.pipeline.getSubject().isCapturingTransformPerformanceSnapShots() ) {
       showEmptyGraph();
       return; // TODO: display help text and rerty button
     }
@@ -197,15 +197,15 @@ public class HopGuiPipelinePerfDelegate {
     emptyGraph = false;
 
     this.title = pipelineGraph.pipeline.getSubject().getName();
-    this.timeDifference = pipelineGraph.pipeline.getSubject().getStepPerformanceCapturingDelay();
-    this.stepPerformanceSnapShots = pipelineGraph.pipeline.getEngineMetrics().getComponentPerformanceSnapshots();
+    this.timeDifference = pipelineGraph.pipeline.getSubject().getTransformPerformanceCapturingDelay();
+    this.transformPerformanceSnapShots = pipelineGraph.pipeline.getEngineMetrics().getComponentPerformanceSnapshots();
 
     // Wait a second for the first data to pour in...
     // TODO: make this wait more elegant...
     //
-    while ( this.stepPerformanceSnapShots == null || stepPerformanceSnapShots.isEmpty() ) {
+    while ( this.transformPerformanceSnapShots == null || transformPerformanceSnapShots.isEmpty() ) {
 
-      this.stepPerformanceSnapShots = pipelineGraph.pipeline.getEngineMetrics().getComponentPerformanceSnapshots();
+      this.transformPerformanceSnapShots = pipelineGraph.pipeline.getEngineMetrics().getComponentPerformanceSnapshots();
       try {
         // Getting engine metrics is fairly expensive so wait long enough
         //
@@ -215,20 +215,20 @@ public class HopGuiPipelinePerfDelegate {
       }
     }
 
-    Set<IEngineComponent> stepsSet = stepPerformanceSnapShots.keySet();
-    steps = stepsSet.toArray( new IEngineComponent[ stepsSet.size() ] );
-    Arrays.sort( steps );
+    Set<IEngineComponent> transformsSet = transformPerformanceSnapShots.keySet();
+    transforms = transformsSet.toArray( new IEngineComponent[ transformsSet.size() ] );
+    Arrays.sort( transforms );
 
-    String[] stepNames = new String[steps.length];
-    for (int i=0;i<steps.length;i++) {
-      stepNames[i] = steps.toString();
+    String[] transformNames = new String[transforms.length];
+    for (int i=0;i<transforms.length;i++) {
+      transformNames[i] = transforms.toString();
     }
 
-    // Display 2 lists with the data types and the steps on the left side.
+    // Display 2 lists with the data types and the transforms on the left side.
     // Then put a canvas with the graph on the right side
     //
     Label dataListLabel = new Label( perfComposite, SWT.NONE );
-    dataListLabel.setText( BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Metrics.Label" ) );
+    dataListLabel.setText( BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Metrics.Label" ) );
     hopUi.getProps().setLook( dataListLabel );
     FormData fdDataListLabel = new FormData();
 
@@ -245,11 +245,11 @@ public class HopGuiPipelinePerfDelegate {
 
       public void widgetSelected( SelectionEvent event ) {
 
-        // If there are multiple selections here AND there are multiple selections in the steps list, we only take the
-        // first step in the selection...
+        // If there are multiple selections here AND there are multiple selections in the transforms list, we only take the
+        // first transform in the selection...
         //
-        if ( dataList.getSelectionCount() > 1 && stepsList.getSelectionCount() > 1 ) {
-          stepsList.setSelection( stepsList.getSelectionIndices()[ 0 ] );
+        if ( dataList.getSelectionCount() > 1 && transformsList.getSelectionCount() > 1 ) {
+          transformsList.setSelection( transformsList.getSelectionIndices()[ 0 ] );
         }
 
         updateGraph();
@@ -263,41 +263,41 @@ public class HopGuiPipelinePerfDelegate {
     fdDataList.bottom = new FormAttachment( 40, props.getMargin() );
     dataList.setLayoutData( fdDataList );
 
-    Label stepsListLabel = new Label( perfComposite, SWT.NONE );
-    stepsListLabel.setText( BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.Steps.Label" ) );
+    Label transformsListLabel = new Label( perfComposite, SWT.NONE );
+    transformsListLabel.setText( BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Transforms.Label" ) );
 
-    hopUi.getProps().setLook( stepsListLabel );
+    hopUi.getProps().setLook( transformsListLabel );
 
-    FormData fdStepsListLabel = new FormData();
-    fdStepsListLabel.left = new FormAttachment( 0, 0 );
-    fdStepsListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
-    fdStepsListLabel.top = new FormAttachment( dataList, props.getMargin() );
-    stepsListLabel.setLayoutData( fdStepsListLabel );
+    FormData fdTransformsListLabel = new FormData();
+    fdTransformsListLabel.left = new FormAttachment( 0, 0 );
+    fdTransformsListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdTransformsListLabel.top = new FormAttachment( dataList, props.getMargin() );
+    transformsListLabel.setLayoutData( fdTransformsListLabel );
 
-    stepsList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
+    transformsList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
         | SWT.H_SCROLL | SWT.V_SCROLL | SWT.LEFT | SWT.BORDER );
-    hopUi.getProps().setLook( stepsList );
-    stepsList.setItems( stepNames );
-    stepsList.addSelectionListener( new SelectionAdapter() {
+    hopUi.getProps().setLook( transformsList );
+    transformsList.setItems( transformNames );
+    transformsList.addSelectionListener( new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent event ) {
 
         // If there are multiple selections here AND there are multiple selections in the data list, we only take the
         // first data item in the selection...
         //
-        if ( dataList.getSelectionCount() > 1 && stepsList.getSelectionCount() > 1 ) {
+        if ( dataList.getSelectionCount() > 1 && transformsList.getSelectionCount() > 1 ) {
           dataList.setSelection( dataList.getSelectionIndices()[ 0 ] );
         }
 
         updateGraph();
       }
     } );
-    FormData fdStepsList = new FormData();
-    fdStepsList.left = new FormAttachment( 0, 0 );
-    fdStepsList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
-    fdStepsList.top = new FormAttachment( stepsListLabel, props.getMargin() );
-    fdStepsList.bottom = new FormAttachment( 100, props.getMargin() );
-    stepsList.setLayoutData( fdStepsList );
+    FormData fdTransformsList = new FormData();
+    fdTransformsList.left = new FormAttachment( 0, 0 );
+    fdTransformsList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdTransformsList.top = new FormAttachment( transformsListLabel, props.getMargin() );
+    fdTransformsList.bottom = new FormAttachment( 100, props.getMargin() );
+    transformsList.setLayoutData( fdTransformsList );
 
     canvas = new Canvas( perfComposite, SWT.NONE );
     hopUi.getProps().setLook( canvas );
@@ -428,10 +428,10 @@ public class HopGuiPipelinePerfDelegate {
     //
     DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-    String[] selectedSteps = stepsList.getSelection();
-    if ( selectedSteps == null || selectedSteps.length == 0 ) {
-      selectedSteps = new String[] { steps[ 0 ].toString(), }; // first step
-      stepsList.select( 0 );
+    String[] selectedTransforms = transformsList.getSelection();
+    if ( selectedTransforms == null || selectedTransforms.length == 0 ) {
+      selectedTransforms = new String[] { transforms[ 0 ].toString(), }; // first transform
+      transformsList.select( 0 );
     }
     int[] dataIndices = dataList.getSelectionIndices();
     if ( dataIndices == null || dataIndices.length == 0 ) {
@@ -439,19 +439,19 @@ public class HopGuiPipelinePerfDelegate {
       dataList.select( 0 );
     }
 
-    boolean multiStep = stepsList.getSelectionCount() > 1;
+    boolean multiTransform = transformsList.getSelectionCount() > 1;
     boolean multiData = dataList.getSelectionCount() > 1;
-    boolean calcMoving = !multiStep && !multiData; // A single metric shown for a single step
+    boolean calcMoving = !multiTransform && !multiData; // A single metric shown for a single transform
     List<Double> movingList = new ArrayList<Double>();
     int movingSize = 10;
     double movingTotal = 0;
     int totalTimeInSeconds = 0;
 
-    for ( int t = 0; t < selectedSteps.length; t++ ) {
+    for ( int t = 0; t < selectedTransforms.length; t++ ) {
 
-      String stepNameCopy = selectedSteps[ t ];
+      String transformNameCopy = selectedTransforms[ t ];
 
-      List<PerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
+      List<PerformanceSnapShot> snapShotList = transformPerformanceSnapShots.get( transformNameCopy );
       if ( snapShotList != null && snapShotList.size() > 1 ) {
         totalTimeInSeconds =
           (int) Math
@@ -466,8 +466,8 @@ public class HopGuiPipelinePerfDelegate {
             for ( int d = 0; d < dataIndices.length; d++ ) {
 
               String dataType;
-              if ( multiStep ) {
-                dataType = stepNameCopy;
+              if ( multiTransform ) {
+                dataType = transformNameCopy;
               } else {
                 dataType = dataChoices[ dataIndices[ d ] ];
               }
@@ -521,16 +521,16 @@ public class HopGuiPipelinePerfDelegate {
       }
     }
     String chartTitle = title;
-    if ( multiStep ) {
+    if ( multiTransform ) {
       chartTitle += " (" + dataChoices[ dataIndices[ 0 ] ] + ")";
     } else {
-      chartTitle += " (" + selectedSteps[ 0 ] + ")";
+      chartTitle += " (" + selectedTransforms[ 0 ] + ")";
     }
     final JFreeChart chart =
       ChartFactory.createLineChart( chartTitle, // chart title
-        BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.TimeInSeconds.Label", Integer
+        BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.TimeInSeconds.Label", Integer
           .toString( totalTimeInSeconds ), Long.toString( timeDifference ) ), // domain axis label
-        BaseMessages.getString( PKG, "StepPerformanceSnapShotDialog.RowsPerSecond.Label" ), // range axis label
+        BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.RowsPerSecond.Label" ), // range axis label
         dataset, // data
         PlotOrientation.VERTICAL, // orientation
         true, // include legend

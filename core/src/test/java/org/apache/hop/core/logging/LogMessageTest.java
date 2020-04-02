@@ -60,7 +60,7 @@ public class LogMessageTest {
     assertTrue( LOG_MESSAGE.equals( logMessage.getMessage() ) );
     assertTrue( LOG_LEVEL.equals( logMessage.getLevel() ) );
     assertTrue( treeLogChannelId.equals( logMessage.getLogChannelId() ) );
-    assertTrue( "[PIPELINE_SUBJECT].[STEP_SUBJECT].PIPELINE_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
+    assertTrue( "[PIPELINE_SUBJECT].[TRANSFORM_SUBJECT].PIPELINE_CHILD_SUBJECT".equals( logMessage.getSubject() ) );
   }
 
   @Test
@@ -135,10 +135,10 @@ public class LogMessageTest {
     LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
     LoggingObjectInterface pipelineLogObject =
       new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
-    LoggingObjectInterface stepLogObject =
-      new SimpleLoggingObject( "STEP_SUBJECT", LoggingObjectType.STEP, pipelineLogObject );
+    LoggingObjectInterface transformLogObject =
+      new SimpleLoggingObject( "TRANSFORM_SUBJECT", LoggingObjectType.TRANSFORM, pipelineLogObject );
     LoggingObjectInterface pipelineChildLogObject =
-      new SimpleLoggingObject( "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, stepLogObject );
+      new SimpleLoggingObject( "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, transformLogObject );
     return pipelineChildLogObject;
   }
 

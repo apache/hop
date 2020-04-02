@@ -34,8 +34,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IEngineMetric;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepStatus;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -85,9 +85,9 @@ public class HopGuiPipelineGridDelegate {
 
   private Composite pipelineGridComposite;
 
-  private boolean hideInactiveSteps;
+  private boolean hideInactiveTransforms;
 
-  private boolean showSelectedSteps;
+  private boolean showSelectedTransforms;
 
   private final ReentrantLock refreshViewLock;
 
@@ -99,7 +99,7 @@ public class HopGuiPipelineGridDelegate {
     this.hopUi = hopUi;
     this.pipelineGraph = pipelineGraph;
     this.refreshViewLock = new ReentrantLock();
-    hideInactiveSteps = false;
+    hideInactiveTransforms = false;
   }
 
   public void showGridView() {
@@ -114,7 +114,7 @@ public class HopGuiPipelineGridDelegate {
   }
 
   /**
-   * Add a grid with the execution metrics per step in a table view
+   * Add a grid with the execution metrics per transform in a table view
    */
   public void addPipelineGrid() {
 
@@ -140,18 +140,18 @@ public class HopGuiPipelineGridDelegate {
 
     addToolBar();
 
-    //ignore whitespace for stepname column valueMeta, causing sorting to ignore whitespace
-    String stepNameColumnName = BaseMessages.getString( PKG, "PipelineLog.Column.Stepname" );
-    ValueMetaInterface valueMeta = new ValueMetaString( stepNameColumnName );
+    //ignore whitespace for transformName column valueMeta, causing sorting to ignore whitespace
+    String transformNameColumnName = BaseMessages.getString( PKG, "PipelineLog.Column.TransformName" );
+    ValueMetaInterface valueMeta = new ValueMetaString( transformNameColumnName );
     valueMeta.setIgnoreWhitespace( true );
-    ColumnInfo stepNameColumnInfo =
-      new ColumnInfo( stepNameColumnName, ColumnInfo.COLUMN_TYPE_TEXT, false,
+    ColumnInfo transformNameColumnInfo =
+      new ColumnInfo( transformNameColumnName, ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
-    stepNameColumnInfo.setValueMeta( valueMeta );
+    transformNameColumnInfo.setValueMeta( valueMeta );
 
     ColumnInfo[] colinf =
       new ColumnInfo[] {
-        stepNameColumnInfo,
+        transformNameColumnInfo,
         new ColumnInfo(
           BaseMessages.getString( PKG, "PipelineLog.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
         new ColumnInfo(
@@ -205,7 +205,7 @@ public class HopGuiPipelineGridDelegate {
     pipelineGridView.setLayoutData( fdView );
 
     ColumnInfo numberColumn = pipelineGridView.getNumberColumn();
-    ValueMetaInterface numberColumnValueMeta = new ValueMetaString( "#", HopGuiPipelineGridDelegate::subStepCompare );
+    ValueMetaInterface numberColumnValueMeta = new ValueMetaString( "#", HopGuiPipelineGridDelegate::subTransformCompare );
     numberColumn.setValueMeta( numberColumnValueMeta );
 
     // Timer updates the view every UPDATE_TIME_VIEW interval
@@ -251,17 +251,17 @@ public class HopGuiPipelineGridDelegate {
     id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "PipelineLog.Button.ShowOnlyActiveSteps",
-    toolTip = "PipelineLog.Button.ShowOnlyActiveSteps",
+    label = "PipelineLog.Button.ShowOnlyActiveTransforms",
+    toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-inactive.svg"
   )
   public void showHideInactive() {
-    hideInactiveSteps = !hideInactiveSteps;
+    hideInactiveTransforms = !hideInactiveTransforms;
 
     ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_INACTIVE );
     if ( toolItem != null ) {
-      if ( hideInactiveSteps ) {
+      if ( hideInactiveTransforms ) {
         toolItem.setImage( GUIResource.getInstance().getImageHideInactive() );
       } else {
         toolItem.setImage( GUIResource.getInstance().getImageShowInactive() );
@@ -274,17 +274,17 @@ public class HopGuiPipelineGridDelegate {
     id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "PipelineLog.Button.ShowOnlySelectedSteps",
-    toolTip = "PipelineLog.Button.ShowOnlySelectedSteps",
+    label = "PipelineLog.Button.ShowOnlySelectedTransforms",
+    toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/toolbar/show-all.svg"
   )
   public void showHideSelected() {
-    showSelectedSteps = !showSelectedSteps;
+    showSelectedTransforms = !showSelectedTransforms;
 
     ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_SELECTED );
     if ( toolItem != null ) {
-      if ( showSelectedSteps ) {
+      if ( showSelectedTransforms ) {
         toolItem.setImage( GUIResource.getInstance().getImageShowSelected() );
       } else {
         toolItem.setImage( GUIResource.getInstance().getImageShowAll() );
@@ -308,11 +308,11 @@ public class HopGuiPipelineGridDelegate {
         boolean select = true;
         // If we hide inactive components we only want to see stuff running
         //
-        select = select && ( !hideInactiveSteps || component.isRunning() );
+        select = select && ( !hideInactiveTransforms || component.isRunning() );
 
         // If we opted to only see selected components...
         //
-        select = select && ( !showSelectedSteps || component.isSelected() );
+        select = select && ( !showSelectedTransforms || component.isSelected() );
 
         if ( select ) {
           shownComponents.add( component );
@@ -323,11 +323,11 @@ public class HopGuiPipelineGridDelegate {
       //
       List<ColumnInfo> columns = new ArrayList<>();
 
-      // First the name of the component (step):
+      // First the name of the component (transform):
       // Then the copy number
-      // TODO: rename step to component
+      // TODO: rename transform to component
       //
-      columns.add( new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ) );
+      columns.add( new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ) );
       ColumnInfo copyColumn = new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, true, true );
       copyColumn.setAllignement( SWT.RIGHT );
       columns.add( copyColumn );
@@ -403,15 +403,15 @@ public class HopGuiPipelineGridDelegate {
     }
   }
 
-  private void updateRowFromBaseStep( StepInterface baseStep, TableItem row ) {
-    StepStatus stepStatus = new StepStatus( baseStep );
+  private void updateRowFromBaseTransform( TransformInterface baseTransform, TableItem row ) {
+    TransformStatus transformStatus = new TransformStatus( baseTransform );
 
-    String[] fields = stepStatus.getPipelineLogFields();
+    String[] fields = transformStatus.getPipelineLogFields();
 
     updateCellsIfChanged( fields, row );
 
     // Error lines should appear in red:
-    if ( baseStep.getErrors() > 0 ) {
+    if ( baseTransform.getErrors() > 0 ) {
       row.setBackground( GUIResource.getInstance().getColorRed() );
     } else {
       row.setBackground( GUIResource.getInstance().getColorWhite() );
@@ -437,7 +437,7 @@ public class HopGuiPipelineGridDelegate {
   }
 
   /**
-   * Sub Step Compare
+   * Sub Transform Compare
    * <p>
    * Note - nulls must be handled outside of this method
    *
@@ -445,17 +445,17 @@ public class HopGuiPipelineGridDelegate {
    * @param o2 - Second object to compare
    * @return 0 if equal, integer greater than 0 if o1 > o2, integer less than 0 if o2 > o1
    */
-  static int subStepCompare( Object o1, Object o2 ) {
+  static int subTransformCompare( Object o1, Object o2 ) {
     final String[] string1 = o1.toString().split( "\\." );
     final String[] string2 = o2.toString().split( "\\." );
 
-    //Compare the base step first
+    //Compare the base transform first
     int cmp = Integer.compare( Integer.parseInt( string1[ 0 ] ), Integer.parseInt( string2[ 0 ] ) );
 
-    //if the base step numbers are equal, then we need to compare the sub step numbers
+    //if the base transform numbers are equal, then we need to compare the sub transform numbers
     if ( cmp == 0 ) {
       if ( string1.length == 2 && string2.length == 2 ) {
-        //compare the sub step numbers
+        //compare the sub transform numbers
         cmp = Integer.compare( Integer.parseInt( string1[ 1 ] ), Integer.parseInt( string2[ 1 ] ) );
       } else if ( string1.length < string2.length ) {
         cmp = -1;

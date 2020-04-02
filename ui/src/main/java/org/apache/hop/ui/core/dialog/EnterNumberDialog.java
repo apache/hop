@@ -127,7 +127,7 @@ public class EnterNumberDialog extends Dialog {
 
     int length = Const.LENGTH;
 
-    // From step line
+    // From transform line
     wlNumber = new Label( shell, SWT.NONE );
     wlNumber.setText( lineText );
     props.setLook( wlNumber );

@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Displays the delete message box to confirm deletes of multiple steps or job entries
+ * Displays the delete message box to confirm deletes of multiple transforms or job entries
  *
  * @author David Kincade
  */
@@ -45,20 +45,20 @@ public class DeleteMessageBox extends MessageBox {
   // The text to display in the dialog
   private String text = null;
 
-  // The list of proposed steps to be deleted
-  private List<String> stepList = null;
+  // The list of proposed transforms to be deleted
+  private List<String> transformList = null;
 
   /**
    * Creates a message box to confirm the deletion of the items
    *
    * @param shell    the shell which will be the parent of the new instance
    * @param text     the title for the dialog
-   * @param stepList the text list of proposed steps to be deleted
+   * @param transformList the text list of proposed transforms to be deleted
    */
-  public DeleteMessageBox( Shell shell, String text, List<String> stepList ) {
+  public DeleteMessageBox( Shell shell, String text, List<String> transformList ) {
     super( shell, SWT.YES | SWT.NO | SWT.ICON_WARNING );
     this.text = text;
-    this.stepList = stepList;
+    this.transformList = transformList;
   }
 
   /**
@@ -78,15 +78,15 @@ public class DeleteMessageBox extends MessageBox {
   }
 
   /**
-   * Builds a message from the text and the stepList
+   * Builds a message from the text and the transformList
    *
    * @return
    */
   protected String buildMessage() {
     StringBuilder sb = new StringBuilder();
     sb.append( text ).append( Const.CR );
-    if ( stepList != null ) {
-      for ( Iterator<String> it = stepList.iterator(); it.hasNext(); ) {
+    if ( transformList != null ) {
+      for ( Iterator<String> it = transformList.iterator(); it.hasNext(); ) {
         sb.append( "  - " ).append( it.next() ).append( Const.CR );
       }
     }

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A partition schema allow you to partition a step according into a number of partitions that run independendly. It
+ * A partition schema allow you to partition a transform according into a number of partitions that run independendly. It
  * allows us to "map"
  *
  * @author Matt
@@ -157,7 +157,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     numberOfPartitions = XMLHandler.getTagValue( partitionSchemaNode, "nr_partitions" );
   }
 
-  public List<String> calculatePartitionIDs() {
+  public List<String> calculatePartitionIds() {
     int nrPartitions = Const.toInt(environmentSubstitute( numberOfPartitions ), -1);
     if (dynamicallyDefined) {
       List<String> list = new ArrayList<>(  );

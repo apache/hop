@@ -33,9 +33,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.step.BaseStepData.StepExecutionStatus;
-import org.apache.hop.pipeline.step.StepInterface;
-import org.apache.hop.pipeline.step.StepStatus;
+import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
@@ -143,8 +143,8 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
    * <status_desc>Stopped</status_desc>
    * <error_desc/>
    * <paused>N</paused>
-   * <stepstatuslist>
-   * <stepstatus><stepname>Dummy &#x28;do nothing&#x29;</stepname>
+   * <transform_status_list>
+   * <transform_status><transformName>Dummy &#x28;do nothing&#x29;</transformName>
    * <copy>0</copy><linesRead>0</linesRead>
    * <linesWritten>0</linesWritten><linesInput>0</linesInput>
    * <linesOutput>0</linesOutput><linesUpdated>0</linesUpdated>
@@ -152,8 +152,8 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
    * <statusDescription>Stopped</statusDescription><seconds>0.0</seconds>
    * <speed>-</speed><priority>-</priority><stopped>Y</stopped>
    * <paused>N</paused>
-   * </stepstatus>
-   * </stepstatuslist>
+   * </transform_status>
+   * </transform_status_list>
    * <first_log_line_nr>0</first_log_line_nr>
    * <last_log_line_nr>37</last_log_line_nr>
    * <result>
@@ -278,11 +278,11 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
             pipelineStatus.setLastLoggingLineNr( lastLineNr );
             pipelineStatus.setLogDate( pipeline.getLogDate() );
 
-            for ( int i = 0; i < pipeline.nrSteps(); i++ ) {
-              StepInterface baseStep = pipeline.getRunThread( i );
-              if ( ( baseStep.isRunning() ) || baseStep.getStatus() != StepExecutionStatus.STATUS_EMPTY ) {
-                StepStatus stepStatus = new StepStatus( baseStep );
-                pipelineStatus.getStepStatusList().add( stepStatus );
+            for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
+              TransformInterface baseTransform = pipeline.getRunThread( i );
+              if ( ( baseTransform.isRunning() ) || baseTransform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
+                TransformStatus transformStatus = new TransformStatus( baseTransform );
+                pipelineStatus.getTransformStatusList().add( transformStatus );
               }
             }
 
@@ -398,10 +398,10 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
           out.print( "</div>" );
 
           out.print( "<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">" );
-          out.print( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Step detail</div>" );
+          out.print( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Transform detail</div>" );
           out.println( "<table class=\"pentaho-table\" border=\"" + tableBorder + "\">" );
           out.print( "<tr class=\"cellTableRow\"> <th class=\"cellTableHeader\">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.Stepname" ) + "</th> <th class=\"cellTableHeader\">"
+            + BaseMessages.getString( PKG, "PipelineStatusServlet.TransformName" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "PipelineStatusServlet.CopyNr" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "PipelineStatusServlet.Read" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "PipelineStatusServlet.Written" ) + "</th> <th class=\"cellTableHeader\">"
@@ -416,39 +416,39 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
             + BaseMessages.getString( PKG, "PipelineStatusServlet.prinout" ) + "</th> </tr>" );
 
           boolean evenRow = true;
-          for ( int i = 0; i < pipeline.nrSteps(); i++ ) {
-            StepInterface step = pipeline.getRunThread( i );
-            if ( ( step.isRunning() ) || step.getStatus() != StepExecutionStatus.STATUS_EMPTY ) {
-              StepStatus stepStatus = new StepStatus( step );
+          for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
+            TransformInterface transform = pipeline.getRunThread( i );
+            if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
+              TransformStatus transformStatus = new TransformStatus( transform );
               boolean snif = false;
               String htmlString = "";
-              if ( step.isRunning() && !step.isStopped() && !step.isPaused() ) {
+              if ( transform.isRunning() && !transform.isStopped() && !transform.isPaused() ) {
                 snif = true;
                 String sniffLink =
                   " <a href=\""
-                    + convertContextPath( SniffStepServlet.CONTEXT_PATH ) + "?pipeline="
+                    + convertContextPath( SniffTransformServlet.CONTEXT_PATH ) + "?pipeline="
                     + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
-                    + "&lines=50" + "&copynr=" + step.getCopy() + "&type=" + SniffStepServlet.TYPE_OUTPUT
-                    + "&step=" + URLEncoder.encode( step.getStepname(), "UTF-8" ) + "\">"
-                    + Encode.forHtml( stepStatus.getStepname() ) + "</a>";
-                stepStatus.setStepname( sniffLink );
+                    + "&lines=50" + "&copynr=" + transform.getCopy() + "&type=" + SniffTransformServlet.TYPE_OUTPUT
+                    + "&transform=" + URLEncoder.encode( transform.getTransformName(), "UTF-8" ) + "\">"
+                    + Encode.forHtml( transformStatus.getTransformName() ) + "</a>";
+                transformStatus.setTransformName( sniffLink );
               }
 
               String rowClass = evenRow ? "cellTableEvenRow" : "cellTableOddRow";
               String cellClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
-              htmlString = "<tr class=\"" + rowClass + "\"><td class=\"cellTableCell cellTableFirstColumn " + cellClass + "\">" + stepStatus.getStepname() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getCopy() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesRead() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesWritten() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesInput() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesOutput() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesUpdated() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getLinesRejected() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getErrors() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getStatusDescription() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getSeconds() + "</td>"
-                + "<td class=\"cellTableCell " + cellClass + "\">" + stepStatus.getSpeed() + "</td>"
-                + "<td class=\"cellTableCell cellTableLastColumn " + cellClass + "\">" + stepStatus.getPriority() + "</td></tr>";
+              htmlString = "<tr class=\"" + rowClass + "\"><td class=\"cellTableCell cellTableFirstColumn " + cellClass + "\">" + transformStatus.getTransformName() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getCopy() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesRead() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesWritten() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesInput() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesOutput() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesUpdated() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getLinesRejected() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getErrors() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getStatusDescription() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getSeconds() + "</td>"
+                + "<td class=\"cellTableCell " + cellClass + "\">" + transformStatus.getSpeed() + "</td>"
+                + "<td class=\"cellTableCell cellTableLastColumn " + cellClass + "\">" + transformStatus.getPriority() + "</td></tr>";
               evenRow = !evenRow;
               out.print( htmlString );
             }

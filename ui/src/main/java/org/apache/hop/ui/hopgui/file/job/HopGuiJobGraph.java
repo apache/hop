@@ -315,7 +315,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   private JobEntryCopy endHopEntry;
   private JobEntryCopy noInputEntry;
   private DefaultToolTip toolTip;
-  private Point[] previous_step_locations;
+  private Point[] previous_transform_locations;
   private Point[] previous_note_locations;
   private JobEntryCopy currentEntry;
 
@@ -443,7 +443,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     canvas.addMouseTrackListener( this );
     canvas.addMouseWheelListener( this );
 
-    // Drag & Drop for steps
+    // Drag & Drop for transforms
     Transfer[] ttypes = new Transfer[] { XMLTransfer.getInstance() };
     DropTarget ddTarget = new DropTarget( canvas, DND.DROP_MOVE );
     ddTarget.setTransfer( ttypes );
@@ -659,7 +659,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         switch ( areaOwner.getAreaType() ) {
           case JOB_ENTRY_MINI_ICON_OUTPUT:
             // Click on the output icon means: start of drag
-            // Action: We show the input icons on the other steps...
+            // Action: We show the input icons on the other transforms...
             //
             selectedEntry = null;
             startHopEntry = (JobEntryCopy) areaOwner.getOwner();
@@ -668,7 +668,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
           case JOB_ENTRY_MINI_ICON_INPUT:
             // Click on the input icon means: start to a new hop
-            // In this case, we set the end hop step...
+            // In this case, we set the end hop transform...
             //
             selectedEntry = null;
             startHopEntry = null;
@@ -709,7 +709,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
               // selected too late.
               // It is not captured here, but in the mouseMoveListener...
               //
-              previous_step_locations = jobMeta.getSelectedLocations();
+              previous_transform_locations = jobMeta.getSelectedLocations();
 
               Point p = jobEntryCopy.getLocation();
               iconoffset = new Point( real.x - p.x, real.y - p.y );
@@ -805,7 +805,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
-    // Quick new hop option? (drag from one step to another)
+    // Quick new hop option? (drag from one transform to another)
     //
     if ( hop_candidate != null && areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
@@ -849,7 +849,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                 singleClickEntry = selectedEntry;
               }
             } else {
-              // Find out which Steps & Notes are selected
+              // Find out which Transforms & Notes are selected
               selectedEntries = jobMeta.getSelectedEntries();
               selectedNotes = jobMeta.getSelectedNotes();
 
@@ -864,16 +864,16 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                   previous_note_locations, jobMeta.getSelectedNoteLocations(), also );
                 also = selectedEntries != null && selectedEntries.size() > 0;
               }
-              if ( selectedEntries != null && selectedEntries.size() > 0 && previous_step_locations != null ) {
+              if ( selectedEntries != null && selectedEntries.size() > 0 && previous_transform_locations != null ) {
                 int[] indexes = jobMeta.getEntryIndexes( selectedEntries );
                 addUndoPosition(
                   selectedEntries.toArray( new JobEntryCopy[ selectedEntries.size() ] ), indexes,
-                  previous_step_locations, jobMeta.getSelectedLocations(), also );
+                  previous_transform_locations, jobMeta.getSelectedLocations(), also );
               }
             }
           }
 
-          // OK, we moved the step, did we move it across a hop?
+          // OK, we moved the transform, did we move it across a hop?
           // If so, ask to split the hop!
           if ( split_hop ) {
             JobHopMeta hi = findHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedEntry );
@@ -906,7 +906,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                 // C-->--A or B-->--C don't exists...
                 // A ==> hi.getFromEntry()
                 // B ==> hi.getToEntry();
-                // C ==> selected_step
+                // C ==> selectedTransform
                 //
                 if ( jobMeta.findJobHop( selectedEntry, hi.getFromEntry() ) == null
                   && jobMeta.findJobHop( hi.getToEntry(), selectedEntry ) == null ) {
@@ -962,7 +962,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                   singleClickNote = selectedNote;
                 }
               } else {
-                // Find out which Steps & Notes are selected
+                // Find out which Transforms & Notes are selected
                 selectedEntries = jobMeta.getSelectedEntries();
                 selectedNotes = jobMeta.getSelectedNotes();
 
@@ -975,11 +975,11 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
                     previous_note_locations, jobMeta.getSelectedNoteLocations(), also );
                   also = selectedEntries != null && selectedEntries.size() > 0;
                 }
-                if ( selectedEntries != null && selectedEntries.size() > 0 && previous_step_locations != null ) {
+                if ( selectedEntries != null && selectedEntries.size() > 0 && previous_transform_locations != null ) {
                   int[] indexes = jobMeta.getEntryIndexes( selectedEntries );
                   addUndoPosition(
                     selectedEntries.toArray( new JobEntryCopy[ selectedEntries.size() ] ), indexes,
-                    previous_step_locations, jobMeta.getSelectedLocations(), also );
+                    previous_transform_locations, jobMeta.getSelectedLocations(), also );
                 }
               }
             }
@@ -1079,7 +1079,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       selectedEntry.setSelected( true );
       selectedEntries = new ArrayList<>();
       selectedEntries.add( selectedEntry );
-      previous_step_locations = new Point[] { selectedEntry.getLocation() };
+      previous_transform_locations = new Point[] { selectedEntry.getLocation() };
       redraw();
     } else if ( selectedNote != null && !selectedNote.isSelected() ) {
       jobMeta.unselectAll();
@@ -1095,7 +1095,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       selectionRegion.height = real.y - selectionRegion.y;
       redraw();
     } else if ( selectedEntry != null && lastButton == 1 && !shift && startHopEntry == null ) {
-      // Move around steps & notes
+      // Move around transforms & notes
       //
       //
       // One or more icons are selected and moved around...
@@ -1127,7 +1127,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       selectedNotes = jobMeta.getSelectedNotes();
       selectedEntries = jobMeta.getSelectedEntries();
 
-      // Adjust location of selected steps...
+      // Adjust location of selected transforms...
       if ( selectedEntries != null ) {
         for ( int i = 0; i < selectedEntries.size(); i++ ) {
           JobEntryCopy jobEntryCopy = selectedEntries.get( i );
@@ -1155,7 +1155,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         && ( ( startHopEntry != null && !startHopEntry.equals( jobEntryCopy ) ) || ( endHopEntry != null && !endHopEntry
         .equals( jobEntryCopy ) ) ) ) {
         if ( hop_candidate == null ) {
-          // See if the step accepts input. If not, we can't create a new hop...
+          // See if the transform accepts input. If not, we can't create a new hop...
           //
           if ( startHopEntry != null ) {
             if ( !jobEntryCopy.isStart() ) {
@@ -1182,7 +1182,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       redraw();
     }
 
-    // Move around notes & steps
+    // Move around notes & transforms
     //
     if ( selectedNote != null ) {
       if ( lastButton == 1 && !shift ) {
@@ -1197,7 +1197,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         selectedNotes = jobMeta.getSelectedNotes();
         selectedEntries = jobMeta.getSelectedEntries();
 
-        // Adjust location of selected steps...
+        // Adjust location of selected transforms...
         if ( selectedEntries != null ) {
           for ( int i = 0; i < selectedEntries.size(); i++ ) {
             JobEntryCopy jobEntryCopy = selectedEntries.get( i );
@@ -1657,7 +1657,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   }
 
   /**
-   * See if location (x,y) is on a line between two steps: the hop!
+   * See if location (x,y) is on a line between two transforms: the hop!
    *
    * @param x
    * @param y
@@ -1668,11 +1668,11 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   }
 
   /**
-   * See if location (x,y) is on a line between two steps: the hop!
+   * See if location (x,y) is on a line between two transforms: the hop!
    *
    * @param x
    * @param y
-   * @param exclude the step to exclude from the hops (from or to location). Specify null if no step is to be excluded.
+   * @param exclude the transform to exclude from the hops (from or to location). Specify null if no transform is to be excluded.
    * @return the pipeline hop on the specified location, otherwise: null
    */
   private JobHopMeta findHop( int x, int y, JobEntryCopy exclude ) {
@@ -1687,7 +1687,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         return null;
       }
 
-      // If either the "from" or "to" step is excluded, skip this hop.
+      // If either the "from" or "to" transform is excluded, skip this hop.
       //
       if ( exclude != null && ( exclude.equals( fs ) || exclude.equals( ts ) ) ) {
         continue;
@@ -1789,7 +1789,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
    * Go from serial to parallel to serial execution
    */
   @GuiContextAction(
-    id = "jobgraph-step-10600-parallel",
+    id = "jobgraph-transform-10600-parallel",
     parentId = HopGuiJobEntryContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Parallel execution",
@@ -2244,7 +2244,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
           break;
 
         case JOB_ENTRY_MINI_ICON_EDIT:
-          tip.append( BaseMessages.getString( PKG, "JobGraph.EditStep.Tooltip" ) );
+          tip.append( BaseMessages.getString( PKG, "JobGraph.EditTransform.Tooltip" ) );
           tipImage = GUIResource.getInstance().getImageEdit();
           resetDelayTimer( (JobEntryCopy) areaOwner.getOwner() );
           break;
@@ -2883,8 +2883,8 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
         // Enable/disable the align/distribute toolbar buttons
         //
-        boolean selectedStep = !jobMeta.getSelectedEntries().isEmpty();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedStep );
+        boolean selectedTransform = !jobMeta.getSelectedEntries().isEmpty();
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
 
         boolean selectedEntries = !jobMeta.getSelectedEntries().isEmpty();
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedEntries );
@@ -3396,12 +3396,12 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     };
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoPosition( Object[] obj, int[] pos, Point[] prev, Point[] curr ) {
     addUndoPosition( obj, pos, prev, curr, false );
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoPosition( Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso ) {
     // It's better to store the indexes of the objects, not the objects itself!
     jobMeta.addUndo( obj, null, pos, prev, curr, PipelineMeta.TYPE_UNDO_POSITION, nextAlso );
@@ -3447,7 +3447,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       lastChained = null;
     }
 
-    // If there is exactly one selected step, pick that one as last chained.
+    // If there is exactly one selected transform, pick that one as last chained.
     //
     List<JobEntryCopy> sel = jobMeta.getSelectedEntries();
     if ( sel.size() == 1 ) {

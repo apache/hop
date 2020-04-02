@@ -23,11 +23,11 @@
 package org.apache.hop.ui.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.BaseStepMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,19 +54,19 @@ public abstract class WidgetUtils {
   }
 
   /**
-   * creates a ComboVar populated with fields from the previous step.
+   * creates a ComboVar populated with fields from the previous transform.
    *
    * @param parentComposite - the composite in which the widget will be placed
    * @param props           - PropsUI props for L&F
-   * @param stepMeta        - stepMeta of the current step
+   * @param transformMeta        - transformMeta of the current transform
    * @param formData        - FormData to use for placement
    */
   public static ComboVar createFieldDropDown(
-    Composite parentComposite, PropsUI props, BaseStepMeta stepMeta, FormData formData ) {
-    PipelineMeta pipelineMeta = stepMeta.getParentStepMeta().getParentPipelineMeta();
+    Composite parentComposite, PropsUI props, BaseTransformMeta transformMeta, FormData formData ) {
+    PipelineMeta pipelineMeta = transformMeta.getParentTransformMeta().getParentPipelineMeta();
     ComboVar fieldDropDownCombo = new ComboVar( pipelineMeta, parentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( fieldDropDownCombo );
-    fieldDropDownCombo.addModifyListener( e -> stepMeta.setChanged() );
+    fieldDropDownCombo.addModifyListener( e -> transformMeta.setChanged() );
 
     fieldDropDownCombo.setLayoutData( formData );
     Listener focusListener = e -> {
@@ -75,15 +75,15 @@ public abstract class WidgetUtils {
       fieldDropDownCombo.setText( current );
 
       try {
-        RowMetaInterface rmi = pipelineMeta.getPrevStepFields( stepMeta.getParentStepMeta().getName() );
+        RowMetaInterface rmi = pipelineMeta.getPrevTransformFields( transformMeta.getParentTransformMeta().getName() );
         List ls = rmi.getValueMetaList();
         for ( Object l : ls ) {
           ValueMetaBase vmb = (ValueMetaBase) l;
           fieldDropDownCombo.add( vmb.getName() );
         }
-      } catch ( HopStepException ex ) {
-        // can be ignored, since previous step may not be set yet.
-        stepMeta.logDebug( ex.getMessage(), ex );
+      } catch ( HopTransformException ex ) {
+        // can be ignored, since previous transform may not be set yet.
+        transformMeta.logDebug( ex.getMessage(), ex );
       }
     };
     fieldDropDownCombo.getCComboWidget().addListener( SWT.FocusIn, focusListener );

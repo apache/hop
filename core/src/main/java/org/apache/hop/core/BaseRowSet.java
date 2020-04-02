@@ -41,10 +41,10 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   protected RowMetaInterface rowMeta;
 
   protected AtomicBoolean done;
-  protected volatile String originStepName;
-  protected AtomicInteger originStepCopy;
-  protected volatile String destinationStepName;
-  protected AtomicInteger destinationStepCopy;
+  protected volatile String originTransformName;
+  protected AtomicInteger originTransformCopy;
+  protected volatile String destinationTransformName;
+  protected AtomicInteger destinationTransformCopy;
 
   protected volatile String remoteSlaveServerName;
   private ReadWriteLock lock;
@@ -53,13 +53,13 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
     // not done putting data into this RowSet
     done = new AtomicBoolean( false );
 
-    originStepCopy = new AtomicInteger( 0 );
-    destinationStepCopy = new AtomicInteger( 0 );
+    originTransformCopy = new AtomicInteger( 0 );
+    destinationTransformCopy = new AtomicInteger( 0 );
     lock = new ReentrantReadWriteLock();
   }
 
   /**
-   * Compares using the target steps and copy, not the source.
+   * Compares using the target transforms and copy, not the source.
    * That way, re-partitioning is always done in the same way.
    */
   @Override
@@ -68,14 +68,14 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
     String target;
 
     try {
-      target = remoteSlaveServerName + "." + destinationStepName + "." + destinationStepCopy.intValue();
+      target = remoteSlaveServerName + "." + destinationTransformName + "." + destinationTransformCopy.intValue();
     } finally {
       lock.readLock().unlock();
     }
 
     String comp =
       rowSet.getRemoteSlaveServerName()
-        + "." + rowSet.getDestinationStepName() + "." + rowSet.getDestinationStepCopy();
+        + "." + rowSet.getDestinationTransformName() + "." + rowSet.getDestinationTransformCopy();
 
     return target.compareTo( comp );
   }
@@ -150,41 +150,41 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getOriginStepName()
+   * @see org.apache.hop.core.RowSetInterface#getOriginTransformName()
    */
   @Override
-  public String getOriginStepName() {
-    return originStepName;
+  public String getOriginTransformName() {
+    return originTransformName;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getOriginStepCopy()
+   * @see org.apache.hop.core.RowSetInterface#getOriginTransformCopy()
    */
   @Override
-  public int getOriginStepCopy() {
-    return originStepCopy.get();
+  public int getOriginTransformCopy() {
+    return originTransformCopy.get();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getDestinationStepName()
+   * @see org.apache.hop.core.RowSetInterface#getDestinationTransformName()
    */
   @Override
-  public String getDestinationStepName() {
-    return destinationStepName;
+  public String getDestinationTransformName() {
+    return destinationTransformName;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getDestinationStepCopy()
+   * @see org.apache.hop.core.RowSetInterface#getDestinationTransformCopy()
    */
   @Override
-  public int getDestinationStepCopy() {
-    return destinationStepCopy.get();
+  public int getDestinationTransformCopy() {
+    return destinationTransformCopy.get();
   }
 
   /*
@@ -215,11 +215,11 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
 
     lock.writeLock().lock();
     try {
-      originStepName = from;
-      originStepCopy.set( from_copy );
+      originTransformName = from;
+      originTransformCopy.set( from_copy );
 
-      destinationStepName = to;
-      destinationStepCopy.set( to_copy );
+      destinationTransformName = to;
+      destinationTransformCopy.set( to_copy );
     } finally {
       lock.writeLock().unlock();
     }
@@ -231,13 +231,13 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
 
     lock.readLock().lock();
     try {
-      str = new StringBuilder( originStepName )
+      str = new StringBuilder( originTransformName )
         .append( "." )
-        .append( originStepCopy )
+        .append( originTransformCopy )
         .append( " - " )
-        .append( destinationStepName )
+        .append( destinationTransformName )
         .append( "." )
-        .append( destinationStepCopy );
+        .append( destinationTransformCopy );
 
       if ( !Utils.isEmpty( remoteSlaveServerName ) ) {
         str.append( " (" )

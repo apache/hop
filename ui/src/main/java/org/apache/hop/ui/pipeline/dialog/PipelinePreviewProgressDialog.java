@@ -30,8 +30,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.BreakPointListener;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
-import org.apache.hop.pipeline.debug.StepDebugMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -53,7 +53,7 @@ public class PipelinePreviewProgressDialog {
 
   private Shell shell;
   private PipelineMeta pipelineMeta;
-  private String[] previewStepNames;
+  private String[] previewTransformNames;
   private int[] previewSize;
   private Pipeline pipeline;
 
@@ -64,10 +64,10 @@ public class PipelinePreviewProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while previewing a pipeline...
    */
-  public PipelinePreviewProgressDialog( Shell shell, PipelineMeta pipelineMeta, String[] previewStepNames, int[] previewSize ) {
+  public PipelinePreviewProgressDialog( Shell shell, PipelineMeta pipelineMeta, String[] previewTransformNames, int[] previewSize ) {
     this.shell = shell;
     this.pipelineMeta = pipelineMeta;
-    this.previewStepNames = previewStepNames;
+    this.previewTransformNames = previewTransformNames;
     this.previewSize = previewSize;
 
     cancelled = false;
@@ -170,33 +170,33 @@ public class PipelinePreviewProgressDialog {
     // Add the preview / debugging information...
     //
     pipelineDebugMeta = new PipelineDebugMeta( pipelineMeta );
-    for ( int i = 0; i < previewStepNames.length; i++ ) {
-      StepMeta stepMeta = pipelineMeta.findStep( previewStepNames[ i ] );
-      StepDebugMeta stepDebugMeta = new StepDebugMeta( stepMeta );
-      stepDebugMeta.setReadingFirstRows( true );
-      stepDebugMeta.setRowCount( previewSize[ i ] );
-      pipelineDebugMeta.getStepDebugMetaMap().put( stepMeta, stepDebugMeta );
+    for ( int i = 0; i < previewTransformNames.length; i++ ) {
+      TransformMeta transformMeta = pipelineMeta.findTransform( previewTransformNames[ i ] );
+      TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
+      transformDebugMeta.setReadingFirstRows( true );
+      transformDebugMeta.setRowCount( previewSize[ i ] );
+      pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
     }
 
     int previousPct = 0;
     final List<String> previewComplete = new ArrayList<>();
-    // We add a break-point that is called every time we have a step with a full preview row buffer
+    // We add a break-point that is called every time we have a transform with a full preview row buffer
     // That makes it easy and fast to see if we have all the rows we need
     //
     pipelineDebugMeta.addBreakPointListers( new BreakPointListener() {
-      public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, StepDebugMeta stepDebugMeta,
+      public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, TransformDebugMeta transformDebugMeta,
                                  RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
-        String stepName = stepDebugMeta.getStepMeta().getName();
-        previewComplete.add( stepName );
+        String transformName = transformDebugMeta.getTransformMeta().getName();
+        previewComplete.add( transformName );
         progressMonitor.subTask( BaseMessages.getString(
-          PKG, "PipelinePreviewProgressDialog.SubTask.StepPreviewFinished", stepName ) );
+          PKG, "PipelinePreviewProgressDialog.SubTask.TransformPreviewFinished", transformName ) );
       }
     } );
     // set the appropriate listeners on the pipeline...
     //
     pipelineDebugMeta.addRowListenersToPipeline( pipeline );
 
-    // Fire off the step threads... start running!
+    // Fire off the transform threads... start running!
     //
     try {
       pipeline.startThreads();
@@ -213,15 +213,15 @@ public class PipelinePreviewProgressDialog {
       return;
     }
 
-    while ( previewComplete.size() < previewStepNames.length
+    while ( previewComplete.size() < previewTransformNames.length
       && !pipeline.isFinished() && !progressMonitor.isCanceled() ) {
 
       // How many rows are done?
       int nrDone = 0;
       int nrTotal = 0;
-      for ( StepDebugMeta stepDebugMeta : pipelineDebugMeta.getStepDebugMetaMap().values() ) {
-        nrDone += stepDebugMeta.getRowBuffer().size();
-        nrTotal += stepDebugMeta.getRowCount();
+      for ( TransformDebugMeta transformDebugMeta : pipelineDebugMeta.getTransformDebugMetaMap().values() ) {
+        nrDone += transformDebugMeta.getRowBuffer().size();
+        nrTotal += transformDebugMeta.getRowCount();
       }
 
       int pct = 100 * nrDone / nrTotal;
@@ -256,36 +256,36 @@ public class PipelinePreviewProgressDialog {
   }
 
   /**
-   * @param stepname the name of the step to get the preview rows for
+   * @param transformName the name of the transform to get the preview rows for
    * @return A list of rows as the result of the preview run.
    */
-  public List<Object[]> getPreviewRows( String stepname ) {
+  public List<Object[]> getPreviewRows( String transformName ) {
     if ( pipelineDebugMeta == null ) {
       return null;
     }
 
-    for ( StepMeta stepMeta : pipelineDebugMeta.getStepDebugMetaMap().keySet() ) {
-      if ( stepMeta.getName().equals( stepname ) ) {
-        StepDebugMeta stepDebugMeta = pipelineDebugMeta.getStepDebugMetaMap().get( stepMeta );
-        return stepDebugMeta.getRowBuffer();
+    for ( TransformMeta transformMeta : pipelineDebugMeta.getTransformDebugMetaMap().keySet() ) {
+      if ( transformMeta.getName().equals( transformName ) ) {
+        TransformDebugMeta transformDebugMeta = pipelineDebugMeta.getTransformDebugMetaMap().get( transformMeta );
+        return transformDebugMeta.getRowBuffer();
       }
     }
     return null;
   }
 
   /**
-   * @param stepname the name of the step to get the preview rows for
+   * @param transformName the name of the transform to get the preview rows for
    * @return A description of the row (metadata)
    */
-  public RowMetaInterface getPreviewRowsMeta( String stepname ) {
+  public RowMetaInterface getPreviewRowsMeta( String transformName ) {
     if ( pipelineDebugMeta == null ) {
       return null;
     }
 
-    for ( StepMeta stepMeta : pipelineDebugMeta.getStepDebugMetaMap().keySet() ) {
-      if ( stepMeta.getName().equals( stepname ) ) {
-        StepDebugMeta stepDebugMeta = pipelineDebugMeta.getStepDebugMetaMap().get( stepMeta );
-        return stepDebugMeta.getRowBufferMeta();
+    for ( TransformMeta transformMeta : pipelineDebugMeta.getTransformDebugMetaMap().keySet() ) {
+      if ( transformMeta.getName().equals( transformName ) ) {
+        TransformDebugMeta transformDebugMeta = pipelineDebugMeta.getTransformDebugMetaMap().get( transformMeta );
+        return transformDebugMeta.getRowBufferMeta();
       }
     }
     return null;

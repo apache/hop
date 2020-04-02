@@ -23,10 +23,17 @@ package org.apache.hop.core.injection.inheritance;
 
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.List;
 
-public class MetaBeanParent<T extends MetaBeanParentItem, A> {
+public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
 
   @InjectionDeep
   public List<T> items;
@@ -41,6 +48,20 @@ public class MetaBeanParent<T extends MetaBeanParentItem, A> {
 
   @InjectionDeep( prefix = "SUB" )
   public List<T> test2() {
+    return null;
+  }
+
+
+
+
+  @Override public void setDefault() {
+  }
+
+  @Override public TransformInterface createTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return null;
+  }
+
+  @Override public TransformDataInterface getTransformData() {
     return null;
   }
 }

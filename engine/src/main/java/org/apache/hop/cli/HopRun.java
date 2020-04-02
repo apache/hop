@@ -281,7 +281,7 @@ public class HopRun implements Runnable {
         if ( configuration.isLogRemoteExecutionLocally() ) {
           log.logBasic( pipelineStatus.getLoggingString() );
         }
-        if ( pipelineStatus.getNrStepErrors() > 0 ) {
+        if ( pipelineStatus.getNrTransformErrors() > 0 ) {
           // Error
           throw new Exception( "Remote pipeline ended with an error" );
         }

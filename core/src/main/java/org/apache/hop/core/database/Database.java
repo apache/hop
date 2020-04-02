@@ -590,7 +590,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       pstmt_seq = null;
     }
 
-    // See if there are other steps using this connection in a connection
+    // See if there are other transforms using this connection in a connection
     // group.
     // If so, we will hold commit & connection close until then.
     //
@@ -1191,7 +1191,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    *
    * @param ps           The prepared statement
    * @param batch        True if you want to use batch inserts (size = commit size)
-   * @param handleCommit True if you want to handle the commit here after the commit size (False e.g. in case the step
+   * @param handleCommit True if you want to handle the commit here after the commit size (False e.g. in case the transform
    *                     handles this, see TableOutput)
    * @return true if the rows are safe: if batch of rows was sent to the database OR if a commit was done.
    * @throws HopDatabaseException
@@ -1225,8 +1225,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
       written++;
 
-      if ( handleCommit ) { // some steps handle the commit themselves (see e.g.
-        // TableOutput step)
+      if ( handleCommit ) { // some transforms handle the commit themselves (see e.g.
+        // TableOutput transform)
         if ( !isAutoCommit() && ( written % commitsize ) == 0 ) {
           if ( useBatchInsert ) {
             isBatchUpdate = true;
@@ -4574,7 +4574,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
       // CHE: Iterate through the result sets and update counts
       // to receive all error messages from within the stored procedure.
-      // This is only the first step to ensure that the stored procedure
+      // This is only the first transform to ensure that the stored procedure
       // is properly executed. A future extension would be to return all
       // result sets and update counts properly.
 

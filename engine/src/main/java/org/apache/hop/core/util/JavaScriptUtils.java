@@ -32,8 +32,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * This class contains common code from {@linkplain org.apache.hop.pipeline.steps.script.Script} and {@linkplain
- * org.apache.hop.pipeline.steps .scriptvalues_mod.ScriptValuesMod} classes
+ * This class contains common code from {@linkplain org.apache.hop.pipeline.transforms.script.Script} and {@linkplain
+ * org.apache.hop.pipeline.transforms .scriptvalues_mod.ScriptValuesMod} classes
  *
  * @author Andrey Khayrutdinov
  */

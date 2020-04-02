@@ -31,14 +31,14 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class describes a step performance logging table
+ * This class describes a transform performance logging table
  *
  * @author matt
  */
@@ -50,8 +50,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
 
   public enum ID {
 
-    ID_BATCH( "ID_BATCH" ), SEQ_NR( "SEQ_NR" ), LOGDATE( "LOGDATE" ), PIPELINE_NAME( "PIPELINE_NAME" ), STEPNAME(
-      "STEPNAME" ), STEP_COPY( "STEP_COPY" ), LINES_READ( "LINES_READ" ), LINES_WRITTEN( "LINES_WRITTEN" ),
+    ID_BATCH( "ID_BATCH" ), SEQ_NR( "SEQ_NR" ), LOGDATE( "LOGDATE" ), PIPELINE_NAME( "PIPELINE_NAME" ), TRANSFORM_NAME(
+      "TRANSFORM_NAME" ), TRANSFORM_COPY( "TRANSFORM_COPY" ), LINES_READ( "LINES_READ" ), LINES_WRITTEN( "LINES_WRITTEN" ),
     LINES_UPDATED( "LINES_UPDATED" ), LINES_INPUT( "LINES_INPUT" ), LINES_OUTPUT( "LINES_OUTPUT" ),
     LINES_REJECTED( "LINES_REJECTED" ), ERRORS( "ERRORS" ), INPUT_BUFFER_ROWS( "INPUT_BUFFER_ROWS" ),
     OUTPUT_BUFFER_ROWS( "OUTPUT_BUFFER_ROWS" );
@@ -102,7 +102,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<TransformMeta> transforms ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -134,10 +134,10 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.PipelineName" ),
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.STEPNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.StepName" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.StepName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.STEP_COPY.id, true, false, "STEP_COPY", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.StepCopy" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.StepCopy" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+    table.fields.add( new LogTableField( ID.TRANSFORM_NAME.id, true, false, "TRANSFORM_NAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.TransformName" ),
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.TRANSFORM_COPY.id, true, false, "TRANSFORM_COPY", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.TransformCopy" ),
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformCopy" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesRead" ),
       BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesWritten" ),
@@ -215,10 +215,10 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
               case PIPELINE_NAME:
                 value = snapShot.getParentName();
                 break;
-              case STEPNAME:
+              case TRANSFORM_NAME:
                 value = snapShot.getComponentName();
                 break;
-              case STEP_COPY:
+              case TRANSFORM_COPY:
                 value = new Long( snapShot.getCopyNr() );
                 break;
               case LINES_READ:

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>XML Add - creating multi level XML files</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>5000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -456,7 +456,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>Revision notes&#x3a;&#xa;2006-12-04 Jens Bleuel&#x3a; created&#xa;2009-10-12 linked to new XML Join step</note>
+      <note>Revision notes&#x3a;&#xa;2006-12-04 Jens Bleuel&#x3a; created&#xa;2009-10-12 linked to new XML Join transform</note>
       <xloc>631</xloc>
       <yloc>676</yloc>
       <width>263</width>
@@ -498,7 +498,7 @@
       <drawshadow>N</drawshadow>
     </notepad>
     <notepad>
-      <note>REMARK&#x3a; This example is easier to solve now with the step &#x22;Join XML&#x22;&#xa;see Example &#x22;XML Join - Create a multilayer XML file&#x22;</note>
+      <note>REMARK&#x3a; This example is easier to solve now with the transform &#x22;Join XML&#x22;&#xa;see Example &#x22;XML Join - Create a multilayer XML file&#x22;</note>
       <xloc>417</xloc>
       <yloc>11</yloc>
       <width>434</width>
@@ -691,7 +691,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Dummy for aggregation</name>
     <type>Constant</type>
     <description/>
@@ -717,20 +717,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>240</xloc>
       <yloc>578</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Fill the placeholder</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -753,20 +753,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>241</xloc>
       <yloc>518</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Fill the placeholder 2</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -789,20 +789,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>73</xloc>
       <yloc>498</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Fill the placeholder 3</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -825,20 +825,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>550</xloc>
       <yloc>523</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by</name>
     <type>GroupBy</type>
     <description/>
@@ -871,20 +871,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>550</xloc>
       <yloc>669</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by 2</name>
     <type>GroupBy</type>
     <description/>
@@ -917,20 +917,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>241</xloc>
       <yloc>648</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by 3</name>
     <type>GroupBy</type>
     <description/>
@@ -966,20 +966,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>811</xloc>
       <yloc>432</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by 3 2</name>
     <type>GroupBy</type>
     <description/>
@@ -1012,20 +1012,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>416</xloc>
       <yloc>368</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Group by 3 2 2</name>
     <type>GroupBy</type>
     <description/>
@@ -1061,20 +1061,20 @@
         </field>
       </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>681</xloc>
       <yloc>363</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Join Rows &#x28;cartesian product&#x29;</name>
     <type>JoinRows</type>
     <description/>
@@ -1098,20 +1098,20 @@
  </condition>
     </compare>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>73</xloc>
       <yloc>418</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderHeaderComments</name>
     <type>ExcelInput</type>
     <description/>
@@ -1136,7 +1136,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1208,20 +1208,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>420</xloc>
       <yloc>67</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderHeaders</name>
     <type>ExcelInput</type>
     <description/>
@@ -1246,7 +1246,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1342,20 +1342,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>251</xloc>
       <yloc>71</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderLineComments</name>
     <type>ExcelInput</type>
     <description/>
@@ -1380,7 +1380,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1464,20 +1464,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>685</xloc>
       <yloc>69</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderLines</name>
     <type>ExcelInput</type>
     <description/>
@@ -1502,7 +1502,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1622,20 +1622,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>554</xloc>
       <yloc>66</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderList</name>
     <type>ExcelInput</type>
     <description/>
@@ -1660,7 +1660,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1744,20 +1744,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>76</xloc>
       <yloc>57</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>OrderSubLines</name>
     <type>ExcelInput</type>
     <description/>
@@ -1782,7 +1782,7 @@
     <add_to_result_filenames>Y</add_to_result_filenames>
     <accept_filenames>N</accept_filenames>
     <accept_field/>
-    <accept_stepname/>
+    <accept_transformname/>
     <file>
       <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;XML Add - creating multi level XML files.xls</name>
       <filemask/>
@@ -1890,20 +1890,20 @@
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>815</xloc>
       <yloc>133</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Placeholder</name>
     <type>Constant</type>
     <description/>
@@ -1929,20 +1929,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>76</xloc>
       <yloc>174</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Placeholder 2</name>
     <type>Constant</type>
     <description/>
@@ -1980,20 +1980,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>247</xloc>
       <yloc>185</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Placeholder 3x</name>
     <type>Constant</type>
     <description/>
@@ -2031,20 +2031,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>553</xloc>
       <yloc>180</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Replace separators</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -2067,20 +2067,20 @@
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>    <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>73</xloc>
       <yloc>558</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows</name>
     <type>SortRows</type>
     <description/>
@@ -2117,20 +2117,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>551</xloc>
       <yloc>584</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows 2</name>
     <type>SortRows</type>
     <description/>
@@ -2175,20 +2175,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>809</xloc>
       <yloc>364</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows 2 2</name>
     <type>SortRows</type>
     <description/>
@@ -2225,20 +2225,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>414</xloc>
       <yloc>288</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Sort rows 2 2 2</name>
     <type>SortRows</type>
     <description/>
@@ -2283,20 +2283,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>679</xloc>
       <yloc>283</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stream lookup</name>
     <type>StreamLookup</type>
     <description/>
@@ -2329,20 +2329,20 @@
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>547</xloc>
       <yloc>432</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stream lookup 2</name>
     <type>StreamLookup</type>
     <description/>
@@ -2371,20 +2371,20 @@
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>241</xloc>
       <yloc>438</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stream lookup 2 2</name>
     <type>StreamLookup</type>
     <description/>
@@ -2413,20 +2413,20 @@
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>242</xloc>
       <yloc>369</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stream lookup 3</name>
     <type>StreamLookup</type>
     <description/>
@@ -2459,20 +2459,20 @@
       </value>
     </lookup>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>551</xloc>
       <yloc>363</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>XML File output</name>
     <type>TextFileOutput</type>
     <description/>
@@ -2529,20 +2529,20 @@
       </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>73</xloc>
       <yloc>638</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderHeaderComments</name>
     <type>AddXML</type>
     <description/>
@@ -2591,20 +2591,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>417</xloc>
       <yloc>178</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderHeaders</name>
     <type>AddXML</type>
     <description/>
@@ -2723,20 +2723,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>244</xloc>
       <yloc>291</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderLineComments</name>
     <type>AddXML</type>
     <description/>
@@ -2785,20 +2785,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>682</xloc>
       <yloc>173</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderLines</name>
     <type>AddXML</type>
     <description/>
@@ -2931,20 +2931,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>550</xloc>
       <yloc>291</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderList</name>
     <type>AddXML</type>
     <description/>
@@ -3035,20 +3035,20 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>73</xloc>
       <yloc>280</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>xmlOrderSubLines</name>
     <type>AddXML</type>
     <description/>
@@ -3125,22 +3125,22 @@
         </field>
     </fields>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>806</xloc>
       <yloc>292</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

@@ -30,7 +30,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
- * This class represents the step plugin type.
+ * This class represents the transform plugin type.
  *
  * @author matt
  */

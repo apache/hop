@@ -43,7 +43,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -165,7 +165,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     wCancel.addListener( SWT.Selection, this::cancel );
 
     Button[] buttons = new Button[] { wOK, wCancel };
-    BaseStepDialog.positionBottomButtons( shell, buttons, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
 
     // The generic widgets: name, description and pipeline engine type
@@ -256,7 +256,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     wName.addListener( SWT.DefaultSelection, this::ok );
     wDescription.addListener( SWT.DefaultSelection, this::ok );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     Display display = parent.getDisplay();

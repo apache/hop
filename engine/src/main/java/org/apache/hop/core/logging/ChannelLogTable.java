@@ -30,7 +30,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -98,7 +98,7 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<TransformMeta> transforms ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );

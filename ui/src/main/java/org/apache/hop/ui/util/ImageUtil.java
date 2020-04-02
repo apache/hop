@@ -116,7 +116,7 @@ public class ImageUtil {
   }
 
   /**
-   * TODO: Load job and step images.
+   * TODO: Load job and transform images.
    */
   public static Image getImage( Display display, ClassLoader classLoader, String filename ) {
     try {
@@ -134,7 +134,7 @@ public class ImageUtil {
    * TODO: GUI resources.
    */
   public static Image getImage( Display display, String location ) {
-    // TODO: find other instances of getImage (plugin, steps) and transition them to new model through an laf manager
+    // TODO: find other instances of getImage (plugin, transforms) and transition them to new model through an laf manager
     try {
       InputStream is = HopVFS.getInputStream( location );
       Image im = new Image( display, is );

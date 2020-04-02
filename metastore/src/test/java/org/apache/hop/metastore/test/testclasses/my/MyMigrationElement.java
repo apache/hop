@@ -24,7 +24,8 @@ import org.apache.hop.metastore.persist.MetaStoreElementType;
   description = "This is my migration element type" )
 public class MyMigrationElement {
 
-  public static final String MY_MIGRATION_STEP_NAME = "step_name";
+  public static final String MY_MIGRATION_PIPELINE_NAME = "pipeline_name";
+  public static final String MY_MIGRATION_TRANSFORM_NAME = "transform_name";
   public static final String MY_MIGRATION_HOST_NAME = "host_name";
   public static final String MY_MIGRATION_FIELD_MAPPINGS = "field_mappings";
   public static final String MY_MIGRATION_PARAMETER_NAME = "parameter_name";
@@ -41,14 +42,14 @@ public class MyMigrationElement {
 
   protected String name;
 
-  @MetaStoreAttribute( key = MY_MIGRATION_STEP_NAME )
-  protected String stepName;
+  @MetaStoreAttribute( key = MY_MIGRATION_PIPELINE_NAME )
+  protected String pipelineName;
 
   @MetaStoreAttribute( key = MY_MIGRATION_HOST_NAME )
   protected String hostname;
 
-  @MetaStoreAttribute( key = MY_MIGRATION_STEP_NAME )
-  protected String stepname;
+  @MetaStoreAttribute( key = MY_MIGRATION_TRANSFORM_NAME )
+  protected String transformName;
 
   @MetaStoreAttribute( key = MY_MIGRATION_FIELD_MAPPINGS )
   protected String fieldMappings;
@@ -62,66 +63,130 @@ public class MyMigrationElement {
   @MetaStoreAttribute( key = MY_MIGRATION_TARGET_FIELD_NAME )
   protected String targetFieldName;
 
+  /**
+   * Gets name
+   *
+   * @return value of name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * @param name The name to set
+   */
   public void setName( String name ) {
     this.name = name;
   }
 
-  public String getStepName() {
-    return stepName;
+  /**
+   * Gets pipelineName
+   *
+   * @return value of pipelineName
+   */
+  public String getPipelineName() {
+    return pipelineName;
   }
 
-  public void setStepName( String stepName ) {
-    this.stepName = stepName;
+  /**
+   * @param pipelineName The pipelineName to set
+   */
+  public void setPipelineName( String pipelineName ) {
+    this.pipelineName = pipelineName;
   }
 
+  /**
+   * Gets hostname
+   *
+   * @return value of hostname
+   */
   public String getHostname() {
     return hostname;
   }
 
+  /**
+   * @param hostname The hostname to set
+   */
   public void setHostname( String hostname ) {
     this.hostname = hostname;
   }
 
-  public String getStepname() {
-    return stepname;
+  /**
+   * Gets transformName
+   *
+   * @return value of transformName
+   */
+  public String getTransformName() {
+    return transformName;
   }
 
-  public void setStepname( String stepname ) {
-    this.stepname = stepname;
+  /**
+   * @param transformName The transformName to set
+   */
+  public void setTransformName( String transformName ) {
+    this.transformName = transformName;
   }
 
+  /**
+   * Gets fieldMappings
+   *
+   * @return value of fieldMappings
+   */
   public String getFieldMappings() {
     return fieldMappings;
   }
 
+  /**
+   * @param fieldMappings The fieldMappings to set
+   */
   public void setFieldMappings( String fieldMappings ) {
     this.fieldMappings = fieldMappings;
   }
 
+  /**
+   * Gets parameterName
+   *
+   * @return value of parameterName
+   */
   public String getParameterName() {
     return parameterName;
   }
 
+  /**
+   * @param parameterName The parameterName to set
+   */
   public void setParameterName( String parameterName ) {
     this.parameterName = parameterName;
   }
 
+  /**
+   * Gets sourceFieldName
+   *
+   * @return value of sourceFieldName
+   */
   public String getSourceFieldName() {
     return sourceFieldName;
   }
 
+  /**
+   * @param sourceFieldName The sourceFieldName to set
+   */
   public void setSourceFieldName( String sourceFieldName ) {
     this.sourceFieldName = sourceFieldName;
   }
 
+  /**
+   * Gets targetFieldName
+   *
+   * @return value of targetFieldName
+   */
   public String getTargetFieldName() {
     return targetFieldName;
   }
 
+  /**
+   * @param targetFieldName The targetFieldName to set
+   */
   public void setTargetFieldName( String targetFieldName ) {
     this.targetFieldName = targetFieldName;
   }

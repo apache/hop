@@ -32,7 +32,7 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.job.JobMeta;
@@ -50,11 +50,11 @@ public class SwingGUIResource {
 
   private static SwingGUIResource instance;
 
-  private Map<String, SwingUniversalImage> stepImages;
+  private Map<String, SwingUniversalImage> transformImages;
   private Map<String, SwingUniversalImage> entryImages;
 
   private SwingGUIResource() {
-    this.stepImages = loadStepImages();
+    this.transformImages = loadTransformImages();
     this.entryImages = loadEntryImages();
   }
 
@@ -65,17 +65,17 @@ public class SwingGUIResource {
     return instance;
   }
 
-  private Map<String, SwingUniversalImage> loadStepImages() {
+  private Map<String, SwingUniversalImage> loadTransformImages() {
     Map<String, SwingUniversalImage> map = new HashMap<>();
 
-    for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( StepPluginType.class ) ) {
+    for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( TransformPluginType.class ) ) {
       try {
         SwingUniversalImage image = getUniversalImageIcon( plugin );
         for ( String id : plugin.getIds() ) {
           map.put( id, image );
         }
       } catch ( Exception e ) {
-        log.logError( "Unable to load step icon image for plugin: "
+        log.logError( "Unable to load transform icon image for plugin: "
           + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
       }
     }
@@ -202,7 +202,7 @@ public class SwingGUIResource {
     return entryImages;
   }
 
-  public Map<String, SwingUniversalImage> getStepImages() {
-    return stepImages;
+  public Map<String, SwingUniversalImage> getTransformImages() {
+    return transformImages;
   }
 }

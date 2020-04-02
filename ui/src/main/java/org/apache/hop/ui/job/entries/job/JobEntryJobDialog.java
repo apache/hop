@@ -47,7 +47,7 @@ import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entries.pipeline.JobEntryBaseDialog;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -117,7 +117,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     getData();
     setActive();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     int width = 750;
     int height = Const.isWindows() ? 730 : 718;
@@ -136,7 +136,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     super.createElements();
     shell.setText( BaseMessages.getString( PKG, "JobJob.Header" ) );
 
-    wlPath.setText( BaseMessages.getString( PKG, "JobJob.JobStep.Job.Label" ) );
+    wlPath.setText( BaseMessages.getString( PKG, "JobJob.JobTransform.Job.Label" ) );
     //wlDescription.setText( BaseMessages.getString( PKG, "JobJob.Local.Label" ) );
     wPassParams.setText( BaseMessages.getString( PKG, "JobJob.PassAllParameters.Label" ) );
 
@@ -510,7 +510,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
   public void ok() {
     if ( Utils.isEmpty( getName() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

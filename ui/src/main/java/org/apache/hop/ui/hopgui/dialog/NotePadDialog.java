@@ -30,7 +30,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -204,7 +204,7 @@ public class NotePadDialog extends Dialog {
     fileLayout.marginHeight = 3;
     wNoteContentComp.setLayout( fileLayout );
 
-    // From step line
+    // From transform line
     wlDesc = new Label( wNoteContentComp, SWT.NONE );
     wlDesc.setText( BaseMessages.getString( PKG, "NotePadDialog.ContentTab.Note.Label" ) );
     props.setLook( wlDesc );
@@ -527,7 +527,7 @@ public class NotePadDialog extends Dialog {
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wNoteFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wNoteFolder );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -553,7 +553,7 @@ public class NotePadDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {

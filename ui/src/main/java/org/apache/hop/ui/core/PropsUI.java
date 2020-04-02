@@ -561,27 +561,27 @@ public class PropsUI extends Props {
     return properties.getProperty( STRING_LAST_PREVIEW_PIPELINE, "" );
   }
 
-  public void setLastPreview( String[] lastpreview, int[] stepsize ) {
-    properties.setProperty( STRING_LAST_PREVIEW_STEP, "" + lastpreview.length );
+  public void setLastPreview( String[] lastpreview, int[] transformsize ) {
+    properties.setProperty( STRING_LAST_PREVIEW_TRANSFORM, "" + lastpreview.length );
 
     for ( int i = 0; i < lastpreview.length; i++ ) {
-      properties.setProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), lastpreview[ i ] );
-      properties.setProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" + stepsize[ i ] );
+      properties.setProperty( STRING_LAST_PREVIEW_TRANSFORM + ( i + 1 ), lastpreview[ i ] );
+      properties.setProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" + transformsize[ i ] );
     }
   }
 
   public String[] getLastPreview() {
-    String snr = properties.getProperty( STRING_LAST_PREVIEW_STEP );
+    String snr = properties.getProperty( STRING_LAST_PREVIEW_TRANSFORM );
     int nr = Const.toInt( snr, 0 );
     String[] lp = new String[ nr ];
     for ( int i = 0; i < nr; i++ ) {
-      lp[ i ] = properties.getProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), "" );
+      lp[ i ] = properties.getProperty( STRING_LAST_PREVIEW_TRANSFORM + ( i + 1 ), "" );
     }
     return lp;
   }
 
   public int[] getLastPreviewSize() {
-    String snr = properties.getProperty( STRING_LAST_PREVIEW_STEP );
+    String snr = properties.getProperty( STRING_LAST_PREVIEW_TRANSFORM );
     int nr = Const.toInt( snr, 0 );
     int[] si = new int[ nr ];
     for ( int i = 0; i < nr; i++ ) {
@@ -1006,13 +1006,13 @@ public class PropsUI extends Props {
     }
   }
 
-  public boolean isIndicateSlowPipelineStepsEnabled() {
-    String indicate = properties.getProperty( STRING_INDICATE_SLOW_PIPELINE_STEPS, "Y" );
+  public boolean isIndicateSlowPipelineTransformsEnabled() {
+    String indicate = properties.getProperty( STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS, "Y" );
     return YES.equalsIgnoreCase( indicate );
   }
 
-  public void setIndicateSlowPipelineStepsEnabled( boolean indicate ) {
-    properties.setProperty( STRING_INDICATE_SLOW_PIPELINE_STEPS, indicate ? YES : NO );
+  public void setIndicateSlowPipelineTransformsEnabled( boolean indicate ) {
+    properties.setProperty( STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS, indicate ? YES : NO );
   }
 
   private void resetRecentSearches() {

@@ -1,0 +1,81 @@
+/*! ******************************************************************************
+ *
+ * Pentaho Data Integration
+ *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+package org.apache.hop.pipeline.transforms.clonerow;
+
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * @author Andrey Khayrutdinov
+ */
+public class CloneRowTest {
+
+  private TransformMockHelper<CloneRowMeta, CloneRowData> transformMockHelper;
+
+  @Before
+  public void setup() {
+    transformMockHelper =
+      new TransformMockHelper<CloneRowMeta, CloneRowData>( "Test CloneRow", CloneRowMeta.class, CloneRowData.class );
+    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+      .thenReturn( transformMockHelper.logChannelInterface );
+    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+  }
+
+  @After
+  public void tearDown() {
+    transformMockHelper.cleanUp();
+  }
+
+  @Test( expected = HopException.class )
+  public void nullNrCloneField() throws Exception {
+    CloneRow transform =
+      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.pipeline );
+    transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+
+    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    when( inputRowMeta.getInteger( any( Object[].class ), anyInt() ) ).thenReturn( null );
+
+    RowSet inputRowSet = transformMockHelper.getMockInputRowSet( new Integer[] { null } );
+    when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
+    transform.setInputRowSets( Collections.singletonList( inputRowSet ) );
+
+    when( transformMockHelper.processRowsTransformMetaInterface.isNrCloneInField() ).thenReturn( true );
+    when( transformMockHelper.processRowsTransformMetaInterface.getNrCloneField() ).thenReturn( "field" );
+
+    transform.processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
+  }
+}

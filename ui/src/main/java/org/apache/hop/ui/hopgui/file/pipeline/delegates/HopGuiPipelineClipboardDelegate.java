@@ -9,9 +9,9 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepErrorMeta;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaInterface;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -26,8 +26,8 @@ import java.util.List;
 public class HopGuiPipelineClipboardDelegate {
   private static final Class<?> PKG = HopGui.class; // i18n messages bundle location
 
-  public static final String XML_TAG_PIPELINE_STEPS = "pipeline-steps";
-  private static final String XML_TAG_STEPS = "steps";
+  public static final String XML_TAG_PIPELINE_TRANSFORMS = "pipeline-transforms";
+  private static final String XML_TAG_TRANSFORMS = "transforms";
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
@@ -63,29 +63,29 @@ public class HopGuiPipelineClipboardDelegate {
 
     try {
       Document doc = XMLHandler.loadXMLString( clipcontent );
-      Node pipelineNode = XMLHandler.getSubNode( doc, XML_TAG_PIPELINE_STEPS );
-      // De-select all, re-select pasted steps...
+      Node pipelineNode = XMLHandler.getSubNode( doc, XML_TAG_PIPELINE_TRANSFORMS );
+      // De-select all, re-select pasted transforms...
       pipelineMeta.unselectAll();
 
-      Node stepsNode = XMLHandler.getSubNode( pipelineNode, "steps" );
-      int nr = XMLHandler.countNodes( stepsNode, "step" );
+      Node transformsNode = XMLHandler.getSubNode( pipelineNode, "transforms" );
+      int nr = XMLHandler.countNodes( transformsNode, "transform" );
       if ( log.isDebug() ) {
-        // "I found "+nr+" steps to paste on location: "
-        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundSteps", "" + nr ) + loc );
+        // "I found "+nr+" transforms to paste on location: "
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundTransforms", "" + nr ) + loc );
       }
-      StepMeta[] steps = new StepMeta[ nr ];
-      ArrayList<String> stepOldNames = new ArrayList<>( nr );
+      TransformMeta[] transforms = new TransformMeta[ nr ];
+      ArrayList<String> transformOldNames = new ArrayList<>( nr );
 
       // Point min = new Point(loc.x, loc.y);
       Point min = new Point( 99999999, 99999999 );
 
-      // Load the steps...
+      // Load the transforms...
       for ( int i = 0; i < nr; i++ ) {
-        Node stepNode = XMLHandler.getSubNodeByNr( stepsNode, "step", i );
-        steps[ i ] = new StepMeta( stepNode, hopGui.getMetaStore() );
+        Node transformNode = XMLHandler.getSubNodeByNr( transformsNode, "transform", i );
+        transforms[ i ] = new TransformMeta( transformNode, hopGui.getMetaStore() );
 
         if ( loc != null ) {
-          Point p = steps[ i ].getLocation();
+          Point p = transforms[ i ].getLocation();
 
           if ( min.x > p.x ) {
             min.x = p.x;
@@ -107,27 +107,27 @@ public class HopGuiPipelineClipboardDelegate {
 
       for ( int i = 0; i < nr; i++ ) {
         Node hopNode = XMLHandler.getSubNodeByNr( hopsNode, "hop", i );
-        hops[ i ] = new PipelineHopMeta( hopNode, Arrays.asList( steps ) );
+        hops[ i ] = new PipelineHopMeta( hopNode, Arrays.asList( transforms ) );
       }
 
       // This is the offset:
       Point offset = new Point( loc.x - min.x, loc.y - min.y );
 
       // Undo/redo object positions...
-      int[] position = new int[ steps.length ];
+      int[] position = new int[ transforms.length ];
 
-      for ( int i = 0; i < steps.length; i++ ) {
-        Point p = steps[ i ].getLocation();
-        String name = steps[ i ].getName();
+      for ( int i = 0; i < transforms.length; i++ ) {
+        Point p = transforms[ i ].getLocation();
+        String name = transforms[ i ].getName();
 
-        steps[ i ].setLocation( p.x + offset.x, p.y + offset.y );
+        transforms[ i ].setLocation( p.x + offset.x, p.y + offset.y );
 
         // Check the name, find alternative...
-        stepOldNames.add( name );
-        steps[ i ].setName( pipelineMeta.getAlternativeStepname( name ) );
-        pipelineMeta.addStep( steps[ i ] );
-        position[ i ] = pipelineMeta.indexOfStep( steps[ i ] );
-        steps[ i ].setSelected( true );
+        transformOldNames.add( name );
+        transforms[ i ].setName( pipelineMeta.getAlternativeTransformName( name ) );
+        pipelineMeta.addTransform( transforms[ i ] );
+        position[ i ] = pipelineMeta.indexOfTransform( transforms[ i ] );
+        transforms[ i ].setSelected( true );
       }
 
       // Add the hops too...
@@ -153,38 +153,38 @@ public class HopGuiPipelineClipboardDelegate {
         notes[ i ].setSelected( true );
       }
 
-      // Set the source and target steps ...
-      for ( StepMeta step : steps ) {
-        StepMetaInterface smi = step.getStepMetaInterface();
-        smi.searchInfoAndTargetSteps( pipelineMeta.getSteps() );
+      // Set the source and target transforms ...
+      for ( TransformMeta transform : transforms ) {
+        TransformMetaInterface smi = transform.getTransformMetaInterface();
+        smi.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
       }
 
       // Set the error handling hops
-      Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, PipelineMeta.XML_TAG_STEP_ERROR_HANDLING );
-      int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, StepErrorMeta.XML_ERROR_TAG );
+      Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING );
+      int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
       for ( int i = 0; i < nrErrorHandlers; i++ ) {
-        Node stepErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, StepErrorMeta.XML_ERROR_TAG, i );
-        StepErrorMeta stepErrorMeta =
-          new StepErrorMeta( pipelineMeta.getParentVariableSpace(), stepErrorMetaNode, pipelineMeta.getSteps() );
+        Node transformErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
+        TransformErrorMeta transformErrorMeta =
+          new TransformErrorMeta( pipelineMeta.getParentVariableSpace(), transformErrorMetaNode, pipelineMeta.getTransforms() );
 
-        // Handle pasting multiple times, need to update source and target step names
-        int srcStepPos = stepOldNames.indexOf( stepErrorMeta.getSourceStep().getName() );
-        int tgtStepPos = stepOldNames.indexOf( stepErrorMeta.getTargetStep().getName() );
-        StepMeta sourceStep = pipelineMeta.findStep( steps[ srcStepPos ].getName() );
-        if ( sourceStep != null ) {
-          sourceStep.setStepErrorMeta( stepErrorMeta );
+        // Handle pasting multiple times, need to update source and target transform names
+        int srcTransformPos = transformOldNames.indexOf( transformErrorMeta.getSourceTransform().getName() );
+        int tgtTransformPos = transformOldNames.indexOf( transformErrorMeta.getTargetTransform().getName() );
+        TransformMeta sourceTransform = pipelineMeta.findTransform( transforms[ srcTransformPos ].getName() );
+        if ( sourceTransform != null ) {
+          sourceTransform.setTransformErrorMeta( transformErrorMeta );
         }
-        sourceStep.setStepErrorMeta( null );
-        if ( tgtStepPos >= 0 ) {
-          sourceStep.setStepErrorMeta( stepErrorMeta );
-          StepMeta targetStep = pipelineMeta.findStep( steps[ tgtStepPos ].getName() );
-          stepErrorMeta.setSourceStep( sourceStep );
-          stepErrorMeta.setTargetStep( targetStep );
+        sourceTransform.setTransformErrorMeta( null );
+        if ( tgtTransformPos >= 0 ) {
+          sourceTransform.setTransformErrorMeta( transformErrorMeta );
+          TransformMeta targetTransform = pipelineMeta.findTransform( transforms[ tgtTransformPos ].getName() );
+          transformErrorMeta.setSourceTransform( sourceTransform );
+          transformErrorMeta.setTargetTransform( targetTransform );
         }
       }
 
       // Save undo information too...
-      hopGui.undoDelegate.addUndoNew( pipelineMeta, steps, position, false );
+      hopGui.undoDelegate.addUndoNew( pipelineMeta, transforms, position, false );
 
       int[] hopPos = new int[ hops.length ];
       for ( int i = 0; i < hops.length; i++ ) {
@@ -199,35 +199,35 @@ public class HopGuiPipelineClipboardDelegate {
       hopGui.undoDelegate.addUndoNew( pipelineMeta, notes, notePos, true );
 
     } catch ( HopException e ) {
-      // "Error pasting steps...",
-      // "I was unable to paste steps to this pipeline"
-      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteSteps.Title" ), BaseMessages
-        .getString( PKG, "HopGui.Dialog.UnablePasteSteps.Message" ), e );
+      // "Error pasting transforms...",
+      // "I was unable to paste transforms to this pipeline"
+      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteTransforms.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.UnablePasteTransforms.Message" ), e );
     }
     pipelineGraph.redraw();
   }
 
-  public void copySelected( PipelineMeta pipelineMeta, List<StepMeta> steps, List<NotePadMeta> notes ) {
-    if ( steps == null || steps.size() == 0 ) {
+  public void copySelected( PipelineMeta pipelineMeta, List<TransformMeta> transforms, List<NotePadMeta> notes ) {
+    if ( transforms == null || transforms.size() == 0 ) {
       return;
     }
 
     StringBuilder xml = new StringBuilder( 5000 ).append( XMLHandler.getXMLHeader() );
     try {
-      xml.append( XMLHandler.openTag( XML_TAG_PIPELINE_STEPS ) ).append( Const.CR );
+      xml.append( XMLHandler.openTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( XML_TAG_STEPS ) ).append( Const.CR );
-      for ( StepMeta step : steps ) {
-        xml.append( step.getXML() );
+      xml.append( XMLHandler.openTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
+      for ( TransformMeta transform : transforms ) {
+        xml.append( transform.getXML() );
       }
-      xml.append( XMLHandler.closeTag( XML_TAG_STEPS ) ).append( Const.CR );
+      xml.append( XMLHandler.closeTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
 
-      // Also check for the hops in between the selected steps...
+      // Also check for the hops in between the selected transforms...
       xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
-      for ( StepMeta step1 : steps ) {
-        for ( StepMeta step2 : steps ) {
-          if ( step1 != step2 ) {
-            PipelineHopMeta hop = pipelineMeta.findPipelineHop( step1, step2, true );
+      for ( TransformMeta transform1 : transforms ) {
+        for ( TransformMeta transform2 : transforms ) {
+          if ( transform1 != transform2 ) {
+            PipelineHopMeta hop = pipelineMeta.findPipelineHop( transform1, transform2, true );
             if ( hop != null ) {
               // Ok, we found one...
               xml.append( hop.getXML() ).append( Const.CR );
@@ -245,15 +245,15 @@ public class HopGuiPipelineClipboardDelegate {
       }
       xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_STEP_ERROR_HANDLING ) ).append( Const.CR );
-      for ( StepMeta step : steps ) {
-        if ( step.getStepErrorMeta() != null ) {
-          xml.append( step.getStepErrorMeta().getXML() ).append( Const.CR );
+      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      for ( TransformMeta transform : transforms ) {
+        if ( transform.getTransformErrorMeta() != null ) {
+          xml.append( transform.getTransformErrorMeta().getXML() ).append( Const.CR );
         }
       }
-      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_STEP_ERROR_HANDLING ) ).append( Const.CR );
+      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
 
-      xml.append( XMLHandler.closeTag( XML_TAG_PIPELINE_STEPS ) ).append( Const.CR );
+      xml.append( XMLHandler.closeTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
 
       toClipboard( xml.toString() );
     } catch ( Exception ex ) {

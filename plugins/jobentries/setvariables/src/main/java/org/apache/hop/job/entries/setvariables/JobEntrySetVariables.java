@@ -219,16 +219,16 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
 
       // if parentJob exists - clear/reset all entrySetVariables before applying the actual ones
       if ( parentJob != null ) {
-        for ( String key : getEntryStepSetVariablesMap().keySet() ) {
+        for ( String key : getEntryTransformSetVariablesMap().keySet() ) {
           String parameterValue = parentJob.getParameterValue( key );
-          // if variable is not a namedParameter then it is a EntryStepSetVariable - reset value to ""
+          // if variable is not a namedParameter then it is a EntryTransformSetVariable - reset value to ""
           if ( parameterValue == null ) {
             parentJob.setVariable( key, "" );
             setVariable( key, "" );
           } else {
-            // if it is a parameter, then get the initial saved value of parent -  saved in entryStepSetVariables Map
-            parentJob.setVariable( key, getEntryStepSetVariable( key ) );
-            setVariable( key, getEntryStepSetVariable( key ) );
+            // if it is a parameter, then get the initial saved value of parent -  saved in entryTransformSetVariables Map
+            parentJob.setVariable( key, getEntryTransformSetVariable( key ) );
+            setVariable( key, getEntryTransformSetVariable( key ) );
           }
         }
       }
@@ -276,11 +276,11 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
               String parameterValue = parentJob.getParameterValue( varname );
               // if not a parameter, set the value
               if ( parameterValue == null ) {
-                setEntryStepSetVariable( varname, value );
+                setEntryTransformSetVariable( varname, value );
               } else {
                 //if parameter, save the initial parameter value for use in reset/clear variables in future calls
-                if ( parameterValue != null && parameterValue != value && !entryStepSetVariablesMap.containsKey( varname ) ) {
-                  setEntryStepSetVariable( varname, parameterValue );
+                if ( parameterValue != null && parameterValue != value && !entryTransformSetVariablesMap.containsKey( varname ) ) {
+                  setEntryTransformSetVariable( varname, parameterValue );
                 }
               }
               parentJob.setVariable( varname, value );

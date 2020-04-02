@@ -41,15 +41,15 @@ public class PipelineMapTest {
 
   private static final String TEST_SOURCE_SLAVE_NAME = "TEST_SOURCE_SLAVE_NAME";
 
-  private static final String TEST_SOURCE_STEP_NAME = "TEST_SOURCE_STEP_NAME";
+  private static final String TEST_SOURCE_TRANSFORM_NAME = "TEST_SOURCE_TRANSFORM_NAME";
 
-  private static final String TEST_SOURCE_STEP_COPY = "TEST_SOURCE_STEP_COPY";
+  private static final String TEST_SOURCE_TRANSFORM_COPY = "TEST_SOURCE_TRANSFORM_COPY";
 
   private static final String TEST_TARGET_SLAVE_NAME = "TEST_TARGET_SLAVE_NAME";
 
-  private static final String TEST_TARGET_STEP_NAME = "TEST_TARGET_STEP_NAME";
+  private static final String TEST_TARGET_TRANSFORM_NAME = "TEST_TARGET_TRANSFORM_NAME";
 
-  private static final String TEST_TARGET_STEP_COPY = "TEST_TARGET_STEP_COPY";
+  private static final String TEST_TARGET_TRANSFORM_COPY = "TEST_TARGET_TRANSFORM_COPY";
 
   private PipelineMap pipelineMap;
 
@@ -61,8 +61,8 @@ public class PipelineMapTest {
   @Test
   public void getHostServerSocketPorts() {
     pipelineMap.allocateServerSocketPort( 1, TEST_HOST, CLUSTERED_RUN_ID, TEST_PIPELINE_NAME,
-      TEST_SOURCE_SLAVE_NAME, TEST_SOURCE_STEP_NAME, TEST_SOURCE_STEP_COPY, TEST_TARGET_SLAVE_NAME,
-      TEST_TARGET_STEP_NAME, TEST_TARGET_STEP_COPY );
+      TEST_SOURCE_SLAVE_NAME, TEST_SOURCE_TRANSFORM_NAME, TEST_SOURCE_TRANSFORM_COPY, TEST_TARGET_SLAVE_NAME,
+      TEST_TARGET_TRANSFORM_NAME, TEST_TARGET_TRANSFORM_COPY );
     List<SocketPortAllocation> actualResult = pipelineMap.getHostServerSocketPorts( TEST_HOST );
 
     assertNotNull( actualResult );

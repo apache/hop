@@ -1,0 +1,110 @@
+/*! ******************************************************************************
+ *
+ * Pentaho Data Integration
+ *
+ * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+package org.apache.hop.pipeline.transform;
+
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.VariableSpace;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.hop.i18n.BaseMessages.getString;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith( MockitoJUnitRunner.class )
+public class TransformOptionTest {
+  @Mock TransformMeta transformMeta;
+  @Mock VariableSpace space;
+
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init();
+  }
+
+  @Before
+  public void setup() {
+    when( space.environmentSubstitute( anyString() ) ).thenAnswer( incovacationMock -> {
+      Object[] arguments = incovacationMock.getArguments();
+      return (String) arguments[ 0 ];
+    } );
+  }
+
+  @Test
+  public void testCheckPass() {
+    List<CheckResultInterface> remarks = new ArrayList<>();
+    TransformOption.checkInteger( remarks, transformMeta, space, "IDENTIFIER", "9" );
+    TransformOption.checkLong( remarks, transformMeta, space, "IDENTIFIER", "9" );
+    TransformOption.checkBoolean( remarks, transformMeta, space, "IDENTIFIER", "true" );
+    TransformOption.checkBoolean( remarks, transformMeta, space, "IDENTIFIER", "false" );
+    assertEquals( 0, remarks.size() );
+  }
+
+  @Test
+  public void testCheckPassEmpty() {
+    List<CheckResultInterface> remarks = new ArrayList<>();
+    TransformOption.checkInteger( remarks, transformMeta, space, "IDENTIFIER", "" );
+    TransformOption.checkLong( remarks, transformMeta, space, "IDENTIFIER", "" );
+    TransformOption.checkBoolean( remarks, transformMeta, space, "IDENTIFIER", "" );
+    TransformOption.checkInteger( remarks, transformMeta, space, "IDENTIFIER", null );
+    TransformOption.checkLong( remarks, transformMeta, space, "IDENTIFIER", null );
+    TransformOption.checkBoolean( remarks, transformMeta, space, "IDENTIFIER", null );
+    assertEquals( 0, remarks.size() );
+  }
+
+  @Test
+  public void testCheckFailInteger() {
+    List<CheckResultInterface> remarks = new ArrayList<>();
+    TransformOption.checkInteger( remarks, transformMeta, space, "IDENTIFIER", "asdf" );
+    assertEquals( 1, remarks.size() );
+    assertEquals( remarks.get( 0 ).getText(),
+      getString( TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER" ) );
+  }
+
+  @Test
+  public void testCheckFailLong() {
+    List<CheckResultInterface> remarks = new ArrayList<>();
+    TransformOption.checkLong( remarks, transformMeta, space, "IDENTIFIER", "asdf" );
+    assertEquals( 1, remarks.size() );
+    assertEquals( remarks.get( 0 ).getText(),
+      getString( TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER" ) );
+  }
+
+  @Test
+  public void testCheckFailBoolean() {
+    List<CheckResultInterface> remarks = new ArrayList<>();
+    TransformOption.checkBoolean( remarks, transformMeta, space, "IDENTIFIER", "asdf" );
+    assertEquals( 1, remarks.size() );
+    assertEquals( remarks.get( 0 ).getText(),
+      getString( TransformOption.class, "TransformOption.CheckResult.NotABoolean", "IDENTIFIER" ) );
+  }
+}

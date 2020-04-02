@@ -25,7 +25,7 @@ package org.apache.hop.lineage;
 import java.util.List;
 
 /**
- * This describes how a field gets renamed in a certain step.<br>
+ * This describes how a field gets renamed in a certain transform.<br>
  * It helps us to do the complete lineage from source to target and back.<br>
  *
  * @author matt

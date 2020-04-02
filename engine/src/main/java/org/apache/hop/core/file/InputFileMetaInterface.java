@@ -23,43 +23,45 @@
 package org.apache.hop.core.file;
 
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.pipeline.step.StepMetaInterface;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 /**
- * @deprecated replaced by implementation in the ...steps.fileinput.text package
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public interface InputFileMetaInterface extends StepMetaInterface {
+public interface InputFileMetaInterface<Main extends TransformInterface, Data extends TransformDataInterface> extends TransformMetaInterface<Main, Data> {
 
-  public TextFileInputField[] getInputFields();
+  TextFileInputField[] getInputFields();
 
-  public int getFileFormatTypeNr();
+  int getFileFormatTypeNr();
 
-  public boolean hasHeader();
+  boolean hasHeader();
 
-  public int getNrHeaderLines();
+  int getNrHeaderLines();
 
-  public String[] getFilePaths( VariableSpace space );
+  String[] getFilePaths( VariableSpace space );
 
-  public boolean isErrorIgnored();
+  boolean isErrorIgnored();
 
-  public String getErrorCountField();
+  String getErrorCountField();
 
-  public String getErrorFieldsField();
+  String getErrorFieldsField();
 
-  public String getErrorTextField();
+  String getErrorTextField();
 
-  public String getFileType();
+  String getFileType();
 
-  public String getEnclosure();
+  String getEnclosure();
 
-  public String getEscapeCharacter();
+  String getEscapeCharacter();
 
-  public String getSeparator();
+  String getSeparator();
 
-  public boolean isErrorLineSkipped();
+  boolean isErrorLineSkipped();
 
-  public boolean includeFilename();
+  boolean includeFilename();
 
-  public boolean includeRowNumber();
+  boolean includeRowNumber();
 }

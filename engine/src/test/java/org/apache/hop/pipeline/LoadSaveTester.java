@@ -25,7 +25,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.pipeline.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -56,9 +56,9 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
     Map<String, FieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
-    String xml = "<step>" + metaToSave.getXML() + "</step>";
+    String xml = "<transform>" + metaToSave.getXML() + "</transform>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ) );
+    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "transform" ) );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }
 

@@ -23,7 +23,7 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.step.StepInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,16 +46,16 @@ import static org.mockito.Mockito.when;
 public class RowProducerTest {
 
   RowProducer rowProducer;
-  StepInterface stepInterface;
+  TransformInterface transformInterface;
   RowSet rowSet;
   RowMetaInterface rowMeta;
   Object[] rowData;
 
   @Before
   public void setUp() throws Exception {
-    stepInterface = mock( StepInterface.class );
+    transformInterface = mock( TransformInterface.class );
     rowSet = mock( RowSet.class );
-    rowProducer = new RowProducer( stepInterface, rowSet );
+    rowProducer = new RowProducer( transformInterface, rowSet );
     rowMeta = mock( RowMetaInterface.class );
     rowData = new Object[] {};
   }
@@ -101,12 +101,12 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testGetSetStepInterface() throws Exception {
-    assertEquals( stepInterface, rowProducer.getStepInterface() );
-    rowProducer.setStepInterface( null );
-    assertNull( rowProducer.getStepInterface() );
-    StepInterface newStepInterface = mock( StepInterface.class );
-    rowProducer.setStepInterface( newStepInterface );
-    assertEquals( newStepInterface, rowProducer.getStepInterface() );
+  public void testGetSetTransformInterface() throws Exception {
+    assertEquals( transformInterface, rowProducer.getTransformInterface() );
+    rowProducer.setTransformInterface( null );
+    assertNull( rowProducer.getTransformInterface() );
+    TransformInterface newTransformInterface = mock( TransformInterface.class );
+    rowProducer.setTransformInterface( newTransformInterface );
+    assertEquals( newTransformInterface, rowProducer.getTransformInterface() );
   }
 }

@@ -33,7 +33,7 @@ import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.util.SwingSvgImageUtil;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.jfree.text.TextUtilities;
 
 import javax.imageio.ImageIO;
@@ -54,7 +54,7 @@ public class SwingGC implements GCInterface {
 
   private static SwingUniversalImage imageLocked;
 
-  private static SwingUniversalImage imageStepError;
+  private static SwingUniversalImage imageTransformError;
 
   private static SwingUniversalImage imageEdit;
 
@@ -125,7 +125,7 @@ public class SwingGC implements GCInterface {
   //TODO should be changed to PropsUI usage
   private int small_icon_size = 16;
 
-  private Map<String, SwingUniversalImage> stepImages;
+  private Map<String, SwingUniversalImage> transformImages;
   private Map<String, SwingUniversalImage> entryImages;
 
   private BufferedImage image;
@@ -160,7 +160,7 @@ public class SwingGC implements GCInterface {
       this.gc = image.createGraphics();
     }
     this.observer = observer;
-    this.stepImages = SwingGUIResource.getInstance().getStepImages();
+    this.transformImages = SwingGUIResource.getInstance().getTransformImages();
     this.entryImages = SwingGUIResource.getInstance().getEntryImages();
     this.iconsize = iconsize;
     this.area = area;
@@ -203,7 +203,7 @@ public class SwingGC implements GCInterface {
     this.hopOK = new Color( 12, 178, 15 );
 
     imageLocked = getImageIcon( BasePropertyHandler.getProperty( "Locked_image" ) );
-    imageStepError = getImageIcon( BasePropertyHandler.getProperty( "StepErrorLines_image" ) );
+    imageTransformError = getImageIcon( BasePropertyHandler.getProperty( "TransformErrorLines_image" ) );
     imageEdit = getImageIcon( BasePropertyHandler.getProperty( "EditSmall_image" ) );
     imageContextMenu = getImageIcon( BasePropertyHandler.getProperty( "ContextMenu_image" ) );
     imageTrue = getImageIcon( BasePropertyHandler.getProperty( "True_image" ) );
@@ -415,8 +415,8 @@ public class SwingGC implements GCInterface {
     switch ( image ) {
       case LOCK:
         return imageLocked;
-      case STEP_ERROR:
-        return imageStepError;
+      case TRANSFORM_ERROR:
+        return imageTransformError;
       case EDIT:
         return imageEdit;
       case CONTEXT_MENU:
@@ -682,9 +682,9 @@ public class SwingGC implements GCInterface {
     return new Point( maxWidth, height );
   }
 
-  public void drawStepIcon( int x, int y, StepMeta stepMeta, float magnification ) {
-    String steptype = stepMeta.getStepID();
-    SwingUniversalImage im = stepImages.get( steptype );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
+    String transformtype = transformMeta.getTransformPluginId();
+    SwingUniversalImage im = transformImages.get( transformtype );
     if ( im != null ) { // Draw the icon!
 
       drawImage( im, x + xOffset, y + xOffset, iconsize );
@@ -725,8 +725,8 @@ public class SwingGC implements GCInterface {
   }
 
   @Override
-  public void drawStepIcon( int x, int y, StepMeta stepMeta ) {
-    drawStepIcon( x, y, stepMeta, 1.0f );
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta ) {
+    drawTransformIcon( x, y, transformMeta, 1.0f );
   }
 
   public void setAntialias( boolean antiAlias ) {

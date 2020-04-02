@@ -182,7 +182,7 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
-      // In case the name of the file comes from previous steps, forget about this!
+      // In case the name of the file comes from previous transforms, forget about this!
       //
       if ( !Utils.isEmpty( filename ) ) {
         // From : ${FOLDER}/../foo/bar.csv

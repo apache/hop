@@ -27,6 +27,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import java.util.List;
 
 public interface BreakPointListener {
-  public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, StepDebugMeta stepDebugMeta,
+  public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, TransformDebugMeta transformDebugMeta,
                              RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer );
 }

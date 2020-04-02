@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.pipeline.step.StepMeta;
-import org.apache.hop.pipeline.step.StepMetaInterface;
-import org.apache.hop.pipeline.steps.dummy.DummyMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class PipelinePreviewFactory {
-  public static final PipelineMeta generatePreviewPipeline( VariableSpace parent, StepMetaInterface oneMeta,
-                                                            String oneStepname ) {
+  public static final PipelineMeta generatePreviewPipeline( VariableSpace parent, TransformMetaInterface oneMeta,
+                                                            String oneTransformName ) {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     PipelineMeta previewMeta = new PipelineMeta( parent );
@@ -39,15 +39,15 @@ public class PipelinePreviewFactory {
     //
     previewMeta.setName( parent == null ? "Preview pipeline" : parent.toString() );
 
-    // At it to the first step.
-    StepMeta one = new StepMeta( registry.getPluginId( StepPluginType.class, oneMeta ), oneStepname, oneMeta );
+    // At it to the first transform.
+    TransformMeta one = new TransformMeta( registry.getPluginId( TransformPluginType.class, oneMeta ), oneTransformName, oneMeta );
     one.setLocation( 50, 50 );
-    previewMeta.addStep( one );
+    previewMeta.addTransform( one );
 
     DummyMeta twoMeta = new DummyMeta();
-    StepMeta two = new StepMeta( registry.getPluginId( StepPluginType.class, twoMeta ), "dummy", twoMeta );
+    TransformMeta two = new TransformMeta( registry.getPluginId( TransformPluginType.class, twoMeta ), "dummy", twoMeta );
     two.setLocation( 250, 50 );
-    previewMeta.addStep( two );
+    previewMeta.addTransform( two );
 
     PipelineHopMeta hop = new PipelineHopMeta( one, two );
     previewMeta.addPipelineHop( hop );

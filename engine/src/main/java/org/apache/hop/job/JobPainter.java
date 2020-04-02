@@ -177,7 +177,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       drawJobEntryCopy( je );
     }
 
-    // Display an icon on the indicated location signaling to the user that the step in question does not accept input
+    // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
     //
     if ( noInputEntry != null ) {
       gc.setLineWidth( 2 );

@@ -34,12 +34,12 @@ public class HopGuiUndoDelegate implements AddUndoPositionInterface {
     hopUi.setUndoMenu( undoInterface );
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoPosition( UndoInterface undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr ) {
     addUndoPosition( undoInterface, obj, pos, prev, curr, false );
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoPosition( UndoInterface undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso ) {
     // It's better to store the indexes of the objects, not the objects
     // itself!
@@ -47,12 +47,12 @@ public class HopGuiUndoDelegate implements AddUndoPositionInterface {
     hopUi.setUndoMenu( undoInterface );
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoChange( UndoInterface undoInterface, Object[] from, Object[] to, int[] pos ) {
     addUndoChange( undoInterface, from, to, pos, false );
   }
 
-  // Change of step, connection, hop or note...
+  // Change of transform, connection, hop or note...
   public void addUndoChange( UndoInterface undoInterface, Object[] from, Object[] to, int[] pos, boolean nextAlso ) {
     undoInterface.addUndo( from, to, pos, null, null, JobMeta.TYPE_UNDO_CHANGE, nextAlso );
     hopUi.setUndoMenu( undoInterface );

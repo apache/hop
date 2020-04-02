@@ -28,7 +28,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -53,13 +53,13 @@ public class EnterSearchDialog {
   private boolean retval;
   private Display display;
 
-  private boolean searchingSteps;
+  private boolean searchingTransforms;
   private boolean searchingDatabases;
   private boolean searchingNotes;
   private String filterString;
 
-  private Label wlStep;
-  private Button wStep;
+  private Label wlTransform;
+  private Button wTransform;
 
   private Label wlDB;
   private Button wDB;
@@ -75,7 +75,7 @@ public class EnterSearchDialog {
 
     retval = true;
 
-    searchingSteps = true;
+    searchingTransforms = true;
     searchingDatabases = true;
     searchingNotes = true;
   }
@@ -94,24 +94,24 @@ public class EnterSearchDialog {
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
-    // Search Steps?...
-    wlStep = new Label( shell, SWT.RIGHT );
-    wlStep.setText( BaseMessages.getString( PKG, "EnterSearchDialog.Step.Label" ) );
-    props.setLook( wlStep );
-    FormData fdlStep = new FormData();
-    fdlStep.left = new FormAttachment( 0, 0 );
-    fdlStep.top = new FormAttachment( 0, 0 );
-    fdlStep.right = new FormAttachment( middle, -margin );
-    wlStep.setLayoutData( fdlStep );
+    // Search Transforms?...
+    wlTransform = new Label( shell, SWT.RIGHT );
+    wlTransform.setText( BaseMessages.getString( PKG, "EnterSearchDialog.Transform.Label" ) );
+    props.setLook( wlTransform );
+    FormData fdlTransform = new FormData();
+    fdlTransform.left = new FormAttachment( 0, 0 );
+    fdlTransform.top = new FormAttachment( 0, 0 );
+    fdlTransform.right = new FormAttachment( middle, -margin );
+    wlTransform.setLayoutData( fdlTransform );
 
-    wStep = new Button( shell, SWT.CHECK );
-    props.setLook( wStep );
-    wStep.setToolTipText( BaseMessages.getString( PKG, "EnterSearchDialog.Step.Tooltip" ) );
-    FormData fdStep = new FormData();
-    fdStep.left = new FormAttachment( middle, 0 );
-    fdStep.top = new FormAttachment( 0, 0 );
-    fdStep.right = new FormAttachment( 100, 0 );
-    wStep.setLayoutData( fdStep );
+    wTransform = new Button( shell, SWT.CHECK );
+    props.setLook( wTransform );
+    wTransform.setToolTipText( BaseMessages.getString( PKG, "EnterSearchDialog.Transform.Tooltip" ) );
+    FormData fdTransform = new FormData();
+    fdTransform.left = new FormAttachment( middle, 0 );
+    fdTransform.top = new FormAttachment( 0, 0 );
+    fdTransform.right = new FormAttachment( 100, 0 );
+    wTransform.setLayoutData( fdTransform );
 
     // Search databases...
     wlDB = new Label( shell, SWT.RIGHT );
@@ -119,7 +119,7 @@ public class EnterSearchDialog {
     props.setLook( wlDB );
     FormData fdlDB = new FormData();
     fdlDB.left = new FormAttachment( 0, 0 );
-    fdlDB.top = new FormAttachment( wStep, margin );
+    fdlDB.top = new FormAttachment( wTransform, margin );
     fdlDB.right = new FormAttachment( middle, -margin );
     wlDB.setLayoutData( fdlDB );
     wDB = new Button( shell, SWT.CHECK );
@@ -127,7 +127,7 @@ public class EnterSearchDialog {
     wDB.setToolTipText( BaseMessages.getString( PKG, "EnterSearchDialog.DB.Tooltip" ) );
     FormData fdDB = new FormData();
     fdDB.left = new FormAttachment( middle, 0 );
-    fdDB.top = new FormAttachment( wStep, margin );
+    fdDB.top = new FormAttachment( wTransform, margin );
     fdDB.right = new FormAttachment( 100, 0 );
     wDB.setLayoutData( fdDB );
 
@@ -182,7 +182,7 @@ public class EnterSearchDialog {
       }
     } );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), wFilter );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), wFilter );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -200,7 +200,7 @@ public class EnterSearchDialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
 
@@ -214,7 +214,7 @@ public class EnterSearchDialog {
   }
 
   private void getData() {
-    wStep.setSelection( searchingSteps );
+    wTransform.setSelection( searchingTransforms );
     wDB.setSelection( searchingDatabases );
     wNote.setSelection( searchingNotes );
     wFilter.setText( Const.NVL( filterString, "" ) );
@@ -236,7 +236,7 @@ public class EnterSearchDialog {
 
   public void ok() {
     retval = true;
-    searchingSteps = wStep.getSelection();
+    searchingTransforms = wTransform.getSelection();
     searchingDatabases = wDB.getSelection();
     searchingNotes = wNote.getSelection();
     filterString = wFilter.getText();
@@ -244,8 +244,8 @@ public class EnterSearchDialog {
     dispose();
   }
 
-  public boolean isSearchingSteps() {
-    return searchingSteps;
+  public boolean isSearchingTransforms() {
+    return searchingTransforms;
   }
 
   public boolean isSearchingDatabases() {

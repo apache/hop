@@ -30,7 +30,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,32 +50,32 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * Shows a dialog that allows you to select the steps you want to preview by entering a number of rows.
+ * Shows a dialog that allows you to select the transforms you want to preview by entering a number of rows.
  *
  * @author Matt
  */
 public class EnterPreviewRowsDialog extends Dialog {
   private static Class<?> PKG = EnterPreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
 
-  private String stepname;
+  private String transformName;
 
-  private Label wlStepList;
-  private List wStepList;
-  private FormData fdlStepList, fdStepList;
+  private Label wlTransformList;
+  private List wTransformList;
+  private FormData fdlTransformList, fdTransformList;
 
   private Button wShow, wClose;
   private Listener lsShow, lsClose;
 
   private Shell shell;
-  private java.util.List<String> stepNames;
+  private java.util.List<String> transformNames;
   private java.util.List<RowMetaInterface> rowMetas;
   private java.util.List<java.util.List<Object[]>> rowDatas;
   private PropsUI props;
 
-  public EnterPreviewRowsDialog( Shell parent, int style, java.util.List<String> stepNames,
+  public EnterPreviewRowsDialog( Shell parent, int style, java.util.List<String> transformNames,
                                  java.util.List<RowMetaInterface> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
     super( parent, style );
-    this.stepNames = stepNames;
+    this.transformNames = transformNames;
     this.rowDatas = rowBuffers;
     this.rowMetas = rowMetas;
     props = PropsUI.getInstance();
@@ -93,35 +93,35 @@ public class EnterPreviewRowsDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewStep.Title" ) ); // Select the
-    // preview step:
+    shell.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Title" ) ); // Select the
+    // preview transform:
     shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // Filename line
-    wlStepList = new Label( shell, SWT.NONE );
-    wlStepList.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewStep.Message" ) ); // Step
+    wlTransformList = new Label( shell, SWT.NONE );
+    wlTransformList.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Message" ) ); // Transform
     // name :
-    props.setLook( wlStepList );
-    fdlStepList = new FormData();
-    fdlStepList.left = new FormAttachment( 0, 0 );
-    fdlStepList.top = new FormAttachment( 0, margin );
-    wlStepList.setLayoutData( fdlStepList );
-    wStepList = new List( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL );
-    for ( int i = 0; i < stepNames.size(); i++ ) {
-      wStepList.add( stepNames.get( i ) );
+    props.setLook( wlTransformList );
+    fdlTransformList = new FormData();
+    fdlTransformList.left = new FormAttachment( 0, 0 );
+    fdlTransformList.top = new FormAttachment( 0, margin );
+    wlTransformList.setLayoutData( fdlTransformList );
+    wTransformList = new List( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL );
+    for ( int i = 0; i < transformNames.size(); i++ ) {
+      wTransformList.add( transformNames.get( i ) );
     }
-    wStepList.select( 0 );
-    props.setLook( wStepList );
-    fdStepList = new FormData();
-    fdStepList.left = new FormAttachment( middle, 0 );
-    fdStepList.top = new FormAttachment( 0, margin );
-    fdStepList.bottom = new FormAttachment( 100, -60 );
-    fdStepList.right = new FormAttachment( 100, 0 );
-    wStepList.setLayoutData( fdStepList );
-    wStepList.addSelectionListener( new SelectionAdapter() {
+    wTransformList.select( 0 );
+    props.setLook( wTransformList );
+    fdTransformList = new FormData();
+    fdTransformList.left = new FormAttachment( middle, 0 );
+    fdTransformList.top = new FormAttachment( 0, margin );
+    fdTransformList.bottom = new FormAttachment( 100, -60 );
+    fdTransformList.right = new FormAttachment( 100, 0 );
+    wTransformList.setLayoutData( fdTransformList );
+    wTransformList.addSelectionListener( new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent arg0 ) {
         show();
       }
@@ -133,7 +133,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wShow, wClose }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wShow, wClose }, margin, null );
     // Add listeners
     lsShow = new Listener() {
       public void handleEvent( Event e ) {
@@ -158,11 +158,11 @@ public class EnterPreviewRowsDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     // Immediately show the only preview entry
-    if ( stepNames.size() == 1 ) {
-      wStepList.select( 0 );
+    if ( transformNames.size() == 1 ) {
+      wTransformList.select( 0 );
       show();
     }
 
@@ -172,7 +172,7 @@ public class EnterPreviewRowsDialog extends Dialog {
         display.sleep();
       }
     }
-    return stepname;
+    return transformName;
   }
 
   public void dispose() {
@@ -195,11 +195,11 @@ public class EnterPreviewRowsDialog extends Dialog {
       return;
     }
 
-    int nr = wStepList.getSelectionIndex();
+    int nr = wTransformList.getSelectionIndex();
 
     java.util.List<Object[]> buffer = rowDatas.get( nr );
     RowMetaInterface rowMeta = rowMetas.get( nr );
-    String name = stepNames.get( nr );
+    String name = transformNames.get( nr );
 
     if ( rowMeta != null && buffer != null && buffer.size() > 0 ) {
       PreviewRowsDialog prd =

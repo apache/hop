@@ -39,7 +39,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
@@ -126,7 +126,7 @@ public class MetaStoreExplorerDialog {
     closeButton = new Button( shell, SWT.PUSH );
     closeButton.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { closeButton, }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { closeButton, }, margin, null );
 
     // Add listeners
     closeButton.addListener( SWT.Selection, new Listener() {
@@ -219,7 +219,7 @@ public class MetaStoreExplorerDialog {
       }
     } );
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {

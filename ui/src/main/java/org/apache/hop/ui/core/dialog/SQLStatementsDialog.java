@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -82,7 +82,7 @@ public class SQLStatementsDialog extends Dialog {
 
   private Color red;
 
-  private String stepname;
+  private String transformName;
 
   private VariableSpace variables;
 
@@ -92,7 +92,7 @@ public class SQLStatementsDialog extends Dialog {
     this.props = PropsUI.getInstance();
     this.variables = space;
 
-    this.stepname = null;
+    this.transformName = null;
   }
 
   public String open() {
@@ -120,7 +120,7 @@ public class SQLStatementsDialog extends Dialog {
     ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
     colinf[ 0 ] =
       new ColumnInfo(
-        BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT,
+        BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false, true );
     colinf[ 1 ] =
       new ColumnInfo(
@@ -169,7 +169,7 @@ public class SQLStatementsDialog extends Dialog {
     wExec.setLayoutData( fdExec );
 
     wEdit = new Button( shell, SWT.PUSH );
-    wEdit.setText( BaseMessages.getString( PKG, "SQLStatementDialog.Button.EditStep" ) );
+    wEdit.setText( BaseMessages.getString( PKG, "SQLStatementDialog.Button.EditTransform" ) );
     fdEdit = new FormData();
     fdEdit.left = new FormAttachment( wExec, margin );
     fdEdit.bottom = new FormAttachment( 100, 0 );
@@ -211,7 +211,7 @@ public class SQLStatementsDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -219,7 +219,7 @@ public class SQLStatementsDialog extends Dialog {
         display.sleep();
       }
     }
-    return stepname;
+    return transformName;
   }
 
   public void dispose() {
@@ -235,7 +235,7 @@ public class SQLStatementsDialog extends Dialog {
       SQLStatement stat = stats.get( i );
       TableItem ti = wFields.table.getItem( i );
 
-      String name = stat.getStepname();
+      String name = stat.getTransformName();
       DatabaseMeta dbinfo = stat.getDatabase();
       String sql = stat.getSQL();
       String error = stat.getError();
@@ -284,7 +284,7 @@ public class SQLStatementsDialog extends Dialog {
           .append( "-------------------------------------------------------------------------------------------" )
           .append( Const.CR );
       }
-      sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Step", stat.getStepname() ) );
+      sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Transform", stat.getTransformName() ) );
       sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Connection", ( di != null
         ? di.getName() : BaseMessages.getString( PKG, "SQLStatementDialog.Log.Undefined" ) ) ) );
       if ( stat.hasSQL() ) {
@@ -374,13 +374,13 @@ public class SQLStatementsDialog extends Dialog {
   private void edit() {
     int idx = wFields.table.getSelectionIndex();
     if ( idx >= 0 ) {
-      stepname = wFields.table.getItem( idx ).getText( 1 );
+      transformName = wFields.table.getItem( idx ).getText( 1 );
       dispose();
     } else {
-      stepname = null;
+      transformName = null;
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "StepFieldsDialog.OriginStep.Title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "StepFieldsDialog.OriginStep.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "TransformFieldsDialog.OriginTransform.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "TransformFieldsDialog.OriginTransform.Message" ) );
       mb.open();
     }
   }

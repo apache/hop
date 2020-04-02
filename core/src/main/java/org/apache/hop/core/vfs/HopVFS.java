@@ -60,7 +60,7 @@ public class HopVFS {
   private static FileSystemOptions fsOptionsForScheme;
   private final DefaultFileSystemManager fsm;
   private static final int TIMEOUT_LIMIT = 9000;
-  private static final int TIME_TO_SLEEP_STEP = 50;
+  private static final int TIME_TO_SLEEP_TRANSFORM = 50;
 
   private static VariableSpace defaultVariableSpace;
 
@@ -145,8 +145,8 @@ public class HopVFS {
       while ( relativeFilename && hasScheme && timeOut > 0 ) {
         String[] schemes = fsManager.getSchemes();
         try {
-          Thread.sleep( TIME_TO_SLEEP_STEP );
-          timeOut -= TIME_TO_SLEEP_STEP;
+          Thread.sleep( TIME_TO_SLEEP_TRANSFORM );
+          timeOut -= TIME_TO_SLEEP_TRANSFORM;
           relativeFilename = checkForScheme( schemes, relativeFilename, vfsFilename, space, fsOptionsForScheme );
         } catch ( InterruptedException e ) {
           relativeFilename = false;

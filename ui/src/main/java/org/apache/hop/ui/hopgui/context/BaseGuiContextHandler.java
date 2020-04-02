@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class BaseGuiContextHandler {
 
-  public static final String CONTEXT_ID = "HopGuiPipelineStepContext";
+  public static final String CONTEXT_ID = "HopGuiPipelineTransformContext";
 
   public BaseGuiContextHandler() {
   }

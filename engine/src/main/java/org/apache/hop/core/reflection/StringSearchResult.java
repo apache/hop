@@ -70,7 +70,7 @@ public class StringSearchResult {
     rowMeta.addValueMeta( new ValueMetaString(
       BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.StepDatabaseNotice" ) ) );
+      BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(
       BaseMessages.getString( PKG, "SearchResult.String" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(

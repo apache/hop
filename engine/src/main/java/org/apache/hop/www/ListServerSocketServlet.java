@@ -197,10 +197,10 @@ public class ListServerSocketServlet extends BaseHttpServlet implements HopServe
 
         out.println( allocation.getPort()
           + " : Pipeline=" + allocation.getPipelineName() + ", " + allocation.getSourceSlaveName()
-          + "/" + allocation.getSourceStepName() + "." + allocation.getSourceStepCopy() );
+          + "/" + allocation.getSourceTransformName() + "." + allocation.getSourceTransformCopy() );
         out.println( " --> "
-          + allocation.getTargetSlaveName() + "/" + allocation.getTargetStepName() + "."
-          + allocation.getTargetStepCopy() );
+          + allocation.getTargetSlaveName() + "/" + allocation.getTargetTransformName() + "."
+          + allocation.getTargetTransformCopy() );
         out.println( " id=" + allocation.getClusterRunId() + ", allocated=" + allocation.isAllocated() );
         out.println( " time=" + allocation.getLastRequested() );
 

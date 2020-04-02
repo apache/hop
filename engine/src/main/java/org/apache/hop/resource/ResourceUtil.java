@@ -42,7 +42,7 @@ public class ResourceUtil {
   private static Class<?> PKG = ResourceUtil.class; // for i18n purposes, needed by Translator!!
 
   /**
-   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Step, Job Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Transform, Job Entry, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in
@@ -60,7 +60,7 @@ public class ResourceUtil {
   }
 
   /**
-   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Step, Job Entry, etc) to a ZIP
+   * Serializes the referenced resource export interface (Job, Pipeline, Mapping, Transform, Job Entry, etc) to a ZIP
    * file.
    *
    * @param zipFilename             The ZIP file to put the content in

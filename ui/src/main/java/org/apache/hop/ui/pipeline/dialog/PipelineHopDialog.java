@@ -26,11 +26,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.step.StepMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.step.BaseStepDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -114,9 +114,9 @@ public class PipelineHopDialog extends Dialog {
     int margin = props.getMargin();
     int width = 0;
 
-    // From step line
+    // From transform line
     wlFrom = new Label( shell, SWT.RIGHT );
-    wlFrom.setText( BaseMessages.getString( PKG, "PipelineHopDialog.FromStep.Label" ) );
+    wlFrom.setText( BaseMessages.getString( PKG, "PipelineHopDialog.FromTransform.Label" ) );
     props.setLook( wlFrom );
     fdlFrom = new FormData();
     fdlFrom.left = new FormAttachment( 0, 0 );
@@ -124,12 +124,12 @@ public class PipelineHopDialog extends Dialog {
     fdlFrom.top = new FormAttachment( 0, margin );
     wlFrom.setLayoutData( fdlFrom );
     wFrom = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wFrom.setText( BaseMessages.getString( PKG, "PipelineHopDialog.FromStepDropdownList.Label" ) );
+    wFrom.setText( BaseMessages.getString( PKG, "PipelineHopDialog.FromTransformDropdownList.Label" ) );
     props.setLook( wFrom );
 
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      wFrom.add( stepMeta.getName() );
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      wFrom.add( transformMeta.getName() );
     }
     wFrom.addModifyListener( lsMod );
 
@@ -141,7 +141,7 @@ public class PipelineHopDialog extends Dialog {
 
     // To line
     wlTo = new Label( shell, SWT.RIGHT );
-    wlTo.setText( BaseMessages.getString( PKG, "PipelineHopDialog.TargetStep.Label" ) );
+    wlTo.setText( BaseMessages.getString( PKG, "PipelineHopDialog.TargetTransform.Label" ) );
     props.setLook( wlTo );
     fdlTo = new FormData();
     fdlTo.left = new FormAttachment( 0, 0 );
@@ -149,12 +149,12 @@ public class PipelineHopDialog extends Dialog {
     fdlTo.top = new FormAttachment( wFrom, margin );
     wlTo.setLayoutData( fdlTo );
     wTo = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
-    wTo.setText( BaseMessages.getString( PKG, "PipelineHopDialog.TargetStepDropdownList.Label" ) );
+    wTo.setText( BaseMessages.getString( PKG, "PipelineHopDialog.TargetTransformDropdownList.Label" ) );
     props.setLook( wTo );
 
-    for ( int i = 0; i < pipelineMeta.nrSteps(); i++ ) {
-      StepMeta stepMeta = pipelineMeta.getStep( i );
-      wTo.add( stepMeta.getName() );
+    for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+      TransformMeta transformMeta = pipelineMeta.getTransform( i );
+      wTo.add( transformMeta.getName() );
     }
     wTo.addModifyListener( lsMod );
 
@@ -251,7 +251,7 @@ public class PipelineHopDialog extends Dialog {
 
     getData();
 
-    BaseStepDialog.setSize( shell );
+    BaseTransformDialog.setSize( shell );
 
     input.setChanged( changed );
 
@@ -273,11 +273,11 @@ public class PipelineHopDialog extends Dialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( input.getFromStep() != null ) {
-      wFrom.setText( input.getFromStep().getName() );
+    if ( input.getFromTransform() != null ) {
+      wFrom.setText( input.getFromTransform().getName() );
     }
-    if ( input.getToStep() != null ) {
-      wTo.setText( input.getToStep().getName() );
+    if ( input.getToTransform() != null ) {
+      wTo.setText( input.getToTransform().getName() );
     }
     wEnabled.setSelection( input.isEnabled() );
   }
@@ -289,27 +289,27 @@ public class PipelineHopDialog extends Dialog {
   }
 
   private void ok() {
-    StepMeta fromBackup = input.getFromStep();
-    StepMeta toBackup = input.getToStep();
-    input.setFromStep( pipelineMeta.findStep( wFrom.getText() ) );
-    input.setToStep( pipelineMeta.findStep( wTo.getText() ) );
+    TransformMeta fromBackup = input.getFromTransform();
+    TransformMeta toBackup = input.getToTransform();
+    input.setFromTransform( pipelineMeta.findTransform( wFrom.getText() ) );
+    input.setToTransform( pipelineMeta.findTransform( wTo.getText() ) );
 
     pipelineMeta.clearCaches();
 
-    if ( input.getFromStep() == null || input.getToStep() == null ) {
+    if ( input.getFromTransform() == null || input.getToTransform() == null ) {
       MessageBox mb = new MessageBox( shell, SWT.YES | SWT.ICON_WARNING );
-      mb.setMessage( BaseMessages.getString( PKG, "PipelineHopDialog.StepDoesNotExist.DialogMessage", input.getFromStep() == null ? wFrom
+      mb.setMessage( BaseMessages.getString( PKG, "PipelineHopDialog.TransformDoesNotExist.DialogMessage", input.getFromTransform() == null ? wFrom
         .getText() : wTo.getText() ) );
-      mb.setText( BaseMessages.getString( PKG, "PipelineHopDialog.StepDoesNotExist.DialogTitle" ) );
+      mb.setText( BaseMessages.getString( PKG, "PipelineHopDialog.TransformDoesNotExist.DialogTitle" ) );
       mb.open();
-    } else if ( input.getFromStep().equals( input.getToStep() ) ) {
+    } else if ( input.getFromTransform().equals( input.getToTransform() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.YES | SWT.ICON_WARNING );
-      mb.setMessage( BaseMessages.getString( PKG, "PipelineHopDialog.CannotGoToSameStep.DialogMessage" ) );
-      mb.setText( BaseMessages.getString( PKG, "PipelineHopDialog.CannotGoToSameStep.DialogTitle" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "PipelineHopDialog.CannotGoToSameTransform.DialogMessage" ) );
+      mb.setText( BaseMessages.getString( PKG, "PipelineHopDialog.CannotGoToSameTransform.DialogTitle" ) );
       mb.open();
-    } else if ( pipelineMeta.hasLoop( input.getToStep() ) ) {
-      input.setFromStep( fromBackup );
-      input.setToStep( toBackup );
+    } else if ( pipelineMeta.hasLoop( input.getToTransform() ) ) {
+      input.setFromTransform( fromBackup );
+      input.setToTransform( toBackup );
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "PipelineHopDialog.LoopsNotAllowed.DialogMessage" ) );
       mb.setText( BaseMessages.getString( PKG, "PipelineHopDialog.LoopsNotAllowed.DialogTitle" ) );

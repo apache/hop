@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transformation>
+<pipeline>
   <info>
     <name>Java Filter - Testing String Values</name>
     <description/>
@@ -272,7 +272,7 @@
           <name>ROOT_CHANNEL_ID</name>
         </field>
       </channel-log-table>
-      <step-log-table>
+      <transform-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -347,7 +347,7 @@
           <enabled>N</enabled>
           <name>LOG_FIELD</name>
         </field>
-      </step-log-table>
+      </transform-log-table>
       <metrics-log-table>
         <connection/>
         <schema/>
@@ -415,9 +415,9 @@
     <feedback_size>50000</feedback_size>
     <using_thread_priorities>Y</using_thread_priorities>
     <shared_objects_file/>
-    <capture_step_performance>N</capture_step_performance>
-    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
-    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
     <partitionschemas>
@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>The Java Filter step exposes all of your fields as native Java types&#xa;They are not wrapped up in some other kind of object where you need&#xa;getters and setters.&#xa;&#xa;We use the java.lang.String type in this example&#x3a;&#xa;http&#x3a;&#x2f;&#x2f;docs.oracle.com&#x2f;javase&#x2f;tutorial&#x2f;java&#x2f;data&#x2f;comparestrings.html&#xa;&#xa;See the step below</note>
+      <note>The Java Filter transform exposes all of your fields as native Java types&#xa;They are not wrapped up in some other kind of object where you need&#xa;getters and setters.&#xa;&#xa;We use the java.lang.String type in this example&#x3a;&#xa;http&#x3a;&#x2f;&#x2f;docs.oracle.com&#x2f;javase&#x2f;tutorial&#x2f;java&#x2f;data&#x2f;comparestrings.html&#xa;&#xa;See the transform below</note>
       <xloc>385</xloc>
       <yloc>102</yloc>
       <width>418</width>
@@ -477,7 +477,7 @@
       <drawshadow>Y</drawshadow>
     </notepad>
     <notepad>
-      <note>Purpose&#x3a; Demonstrate using a Java Filter step to evaluate outcomes to &#x27;true&#x27; or &#x27;false&#x27; values to direct the rows to a final destination.&#xa;&#xa;A test on a String data type is demonstrated here.  Only expressions are accepted.&#xa;</note>
+      <note>Purpose&#x3a; Demonstrate using a Java Filter transform to evaluate outcomes to &#x27;true&#x27; or &#x27;false&#x27; values to direct the rows to a final destination.&#xa;&#xa;A test on a String data type is demonstrated here.  Only expressions are accepted.&#xa;</note>
       <xloc>28</xloc>
       <yloc>15</yloc>
       <width>772</width>
@@ -515,7 +515,7 @@
       <enabled>Y</enabled>
     </hop>
   </order>
-  <step>
+  <transform>
     <name>Java Filter</name>
     <type>JavaFilter</type>
     <description/>
@@ -530,20 +530,20 @@
 <send_false_to>Stock price decreases</send_false_to>
 <condition>MARKET_SENTIMENT.equals&#x28;&#x22;Positive&#x22;&#x29;</condition>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>456</xloc>
       <yloc>319</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Market sentiment</name>
     <type>DataGrid</type>
     <description/>
@@ -575,20 +575,20 @@
       <line> <item>Negative</item> </line>
     </data>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>118</xloc>
       <yloc>319</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stock price decreases</name>
     <type>Dummy</type>
     <description/>
@@ -600,20 +600,20 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>738</xloc>
       <yloc>371</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step>
+  <transform>
     <name>Stock price increases</name>
     <type>Dummy</type>
     <description/>
@@ -625,22 +625,22 @@
       <schema_name/>
     </partitioning>
     <cluster_schema/>
-    <remotesteps>
+
       <input>
       </input>
       <output>
       </output>
-    </remotesteps>
+
     <GUI>
       <xloc>736</xloc>
       <yloc>278</yloc>
       <draw>Y</draw>
     </GUI>
-    </step>
+    </transform>
 
-  <step_error_handling>
-  </step_error_handling>
-  <slave-step-copy-partition-distribution>
-  </slave-step-copy-partition-distribution>
+  <transform_error_handling>
+  </transform_error_handling>
+  <slave-transform-copy-partition-distribution>
+  </slave-transform-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-</transformation>
+</pipeline>

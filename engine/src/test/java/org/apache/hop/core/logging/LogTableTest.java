@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 public class LogTableTest {
   private static String PARAM_START_SYMBOL = "${";
   private static String PARAM_END_SYMBOL = "}";
-  private static String GLOBAL_PARAM = PARAM_START_SYMBOL + Const.HOP_STEP_LOG_DB + PARAM_END_SYMBOL;
+  private static String GLOBAL_PARAM = PARAM_START_SYMBOL + Const.HOP_TRANSFORM_LOG_DB + PARAM_END_SYMBOL;
   private static String USER_PARAM = PARAM_START_SYMBOL + "param-content" + PARAM_END_SYMBOL;
   private static String HARDCODED_VALUE = "hardcoded";
   private VariableSpace mockedVariableSpace;
@@ -40,7 +40,7 @@ public class LogTableTest {
 
   @Before
   public void init() {
-    System.setProperty( Const.HOP_STEP_LOG_DB, "HOP_STEP_LOG_DB_VALUE" );
+    System.setProperty( Const.HOP_TRANSFORM_LOG_DB, "HOP_TRANSFORM_LOG_DB_VALUE" );
     System.setProperty( Const.HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT, "true" );
     mockedVariableSpace = mock( VariableSpace.class );
     mockedMetaStore = mock( IMetaStore.class );

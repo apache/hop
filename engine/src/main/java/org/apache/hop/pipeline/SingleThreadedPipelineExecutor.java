@@ -26,66 +26,68 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.step.StepMetaDataCombi;
-import org.apache.hop.pipeline.step.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SingleThreadedPipelineExecutor {
 
+  private final List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms;
   private Pipeline pipeline;
-  private List<StepMetaDataCombi> steps;
   private boolean[] done;
   private int nrDone;
-  private List<List<StreamInterface>> stepInfoStreams;
-  private List<List<RowSet>> stepInfoRowSets;
+  private List<List<StreamInterface>> transformInfoStreams;
+  private List<List<RowSet>> transformInfoRowSets;
   private LogChannelInterface log;
 
   public SingleThreadedPipelineExecutor( final Pipeline pipeline ) {
     this.pipeline = pipeline;
     this.log = pipeline.getLogChannel();
 
-    steps = pipeline.getSteps();
+    transforms = pipeline.getTransforms();
 
     // Always disable thread priority management, it will always slow us down...
     //
-    for ( StepMetaDataCombi combi : steps ) {
-      combi.step.setUsingThreadPriorityManagment( false );
+    for ( TransformMetaDataCombi combi : transforms ) {
+      combi.transform.setUsingThreadPriorityManagment( false );
     }
 
-    sortSteps();
+    sortTransforms();
 
-    done = new boolean[ steps.size() ];
+    done = new boolean[ transforms.size() ];
     nrDone = 0;
 
-    stepInfoStreams = new ArrayList<List<StreamInterface>>();
-    stepInfoRowSets = new ArrayList<List<RowSet>>();
-    for ( StepMetaDataCombi combi : steps ) {
-      List<StreamInterface> infoStreams = combi.stepMeta.getStepMetaInterface().getStepIOMeta().getInfoStreams();
-      stepInfoStreams.add( infoStreams );
+    transformInfoStreams = new ArrayList<List<StreamInterface>>();
+    transformInfoRowSets = new ArrayList<List<RowSet>>();
+    for ( TransformMetaDataCombi combi : transforms ) {
+      List<StreamInterface> infoStreams = combi.transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoStreams();
+      transformInfoStreams.add( infoStreams );
       List<RowSet> infoRowSets = new ArrayList<RowSet>();
       for ( StreamInterface infoStream : infoStreams ) {
-        RowSet infoRowSet = pipeline.findRowSet( infoStream.getStepname(), 0, combi.stepname, 0 );
+        RowSet infoRowSet = pipeline.findRowSet( infoStream.getTransformName(), 0, combi.transformName, 0 );
         if ( infoRowSet != null ) {
           infoRowSets.add( infoRowSet );
         }
       }
-      stepInfoRowSets.add( infoRowSets );
+      transformInfoRowSets.add( infoRowSets );
     }
 
   }
 
   /**
-   * Sort the steps from start to finish...
+   * Sort the transforms from start to finish...
    */
-  private void sortSteps() {
+  private void sortTransforms() {
 
     // The bubble sort algorithm in contrast to the QuickSort or MergeSort
     // algorithms
     // does indeed cover all possibilities.
-    // Sorting larger pipelines with hundreds of steps might be too slow
+    // Sorting larger pipelines with hundreds of transforms might be too slow
     // though.
     // We should consider caching PipelineMeta.findPrevious() results in that case.
     //
@@ -94,7 +96,7 @@ public class SingleThreadedPipelineExecutor {
     //
     // Cocktail sort (bi-directional bubble sort)
     //
-    // Original sort was taking 3ms for 30 steps
+    // Original sort was taking 3ms for 30 transforms
     // cocktail sort takes about 8ms for the same 30, but it works :)
 
     // set these to true if you are working on this algorithm and don't like
@@ -102,8 +104,8 @@ public class SingleThreadedPipelineExecutor {
     //
     boolean testing = true; // log sort details
 
-    int stepsMinSize = 0;
-    int stepsSize = steps.size();
+    int transformsMinSize = 0;
+    int transformsSize = transforms.size();
 
     // Noticed a problem with an immediate shrinking iteration window
     // trapping rows that need to be sorted.
@@ -117,12 +119,12 @@ public class SingleThreadedPipelineExecutor {
     // After this many iterations enable trimming inner iteration
     // window on no change being detected.
     //
-    int windowShrinkThreshold = (int) Math.round( stepsSize * 0.75 );
+    int windowShrinkThreshold = (int) Math.round( transformsSize * 0.75 );
 
     // give ourselves some room to sort big lists. the window threshold should
     // stop us before reaching this anyway.
     //
-    int totalIterations = stepsSize * 2;
+    int totalIterations = transformsSize * 2;
     int actualIterations = 0;
 
     boolean isBefore = false;
@@ -132,15 +134,15 @@ public class SingleThreadedPipelineExecutor {
     boolean lastForwardChange = true;
     boolean keepSortingForward = true;
 
-    StepMetaDataCombi one = null;
-    StepMetaDataCombi two = null;
+    TransformMetaDataCombi one = null;
+    TransformMetaDataCombi two = null;
 
     StringBuilder tLogString = new StringBuilder(); // this helps group our
     // output so other threads
     // don't get logs in our
     // output.
     tLogString.append( "-------------------------------------------------------" ).append( "\n" );
-    tLogString.append( "--SingleThreadedPipelineExecutor.sortSteps(cocktail)" ).append( "\n" );
+    tLogString.append( "--SingleThreadedPipelineExecutor.sortTransforms(cocktail)" ).append( "\n" );
     tLogString.append( "--Pipeline: " ).append( pipeline.getName() ).append( "\n" );
     tLogString.append( "-" ).append( "\n" );
 
@@ -151,16 +153,16 @@ public class SingleThreadedPipelineExecutor {
       // Go forward through the list
       //
       if ( keepSortingForward ) {
-        for ( int y = stepsMinSize; y < stepsSize - 1; y++ ) {
-          one = steps.get( y );
-          two = steps.get( y + 1 );
-          isBefore = pipeline.getPipelineMeta().findPrevious( one.stepMeta, two.stepMeta );
+        for ( int y = transformsMinSize; y < transformsSize - 1; y++ ) {
+          one = transforms.get( y );
+          two = transforms.get( y + 1 );
+          isBefore = pipeline.getPipelineMeta().findPrevious( one.transformMeta, two.transformMeta );
           if ( isBefore ) {
             // two was found to be positioned BEFORE one so we need to
             // switch them...
             //
-            steps.set( y, two );
-            steps.set( y + 1, one );
+            transforms.set( y, two );
+            transforms.set( y + 1, one );
             forwardChange = true;
 
           }
@@ -169,51 +171,51 @@ public class SingleThreadedPipelineExecutor {
 
       // Go backward through the list
       //
-      for ( int z = stepsSize - 1; z > stepsMinSize; z-- ) {
-        one = steps.get( z );
-        two = steps.get( z - 1 );
+      for ( int z = transformsSize - 1; z > transformsMinSize; z-- ) {
+        one = transforms.get( z );
+        two = transforms.get( z - 1 );
 
-        isBefore = pipeline.getPipelineMeta().findPrevious( one.stepMeta, two.stepMeta );
+        isBefore = pipeline.getPipelineMeta().findPrevious( one.transformMeta, two.transformMeta );
         if ( !isBefore ) {
           // two was found NOT to be positioned BEFORE one so we need to
           // switch them...
           //
-          steps.set( z, two );
-          steps.set( z - 1, one );
+          transforms.set( z, two );
+          transforms.set( z - 1, one );
           backwardChange = true;
         }
       }
 
-      // Shrink stepsSize(max) if there was no forward change
+      // Shrink transformsSize(max) if there was no forward change
       //
       if ( x > windowShrinkThreshold && !forwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsSize--;
-        if ( stepsSize <= stepsMinSize ) {
+        transformsSize--;
+        if ( transformsSize <= transformsMinSize ) {
           if ( testing ) {
-            tLogString.append( String.format( "stepsMinSize:%s  stepsSize:%s", stepsMinSize, stepsSize ) );
+            tLogString.append( String.format( "transformsMinSize:%s  transformsSize:%s", transformsMinSize, transformsSize ) );
             tLogString
-              .append( "stepsSize is <= stepsMinSize.. exiting outer sort loop. index:" + x ).append( "\n" );
+              .append( "transformsSize is <= transformsMinSize.. exiting outer sort loop. index:" + x ).append( "\n" );
           }
           break;
         }
       }
 
-      // shrink stepsMinSize(min) if there was no backward change
+      // shrink transformsMinSize(min) if there was no backward change
       //
       if ( x > windowShrinkThreshold && !backwardChange ) {
 
         // should we keep going? check the window size
         //
-        stepsMinSize++;
-        if ( stepsMinSize >= stepsSize ) {
+        transformsMinSize++;
+        if ( transformsMinSize >= transformsSize ) {
           if ( testing ) {
-            tLogString.append( String.format( "stepsMinSize:%s  stepsSize:%s", stepsMinSize, stepsSize ) ).append(
+            tLogString.append( String.format( "transformsMinSize:%s  transformsSize:%s", transformsMinSize, transformsSize ) ).append(
               "\n" );
             tLogString
-              .append( "stepsMinSize is >= stepsSize.. exiting outer sort loop. index:" + x ).append( "\n" );
+              .append( "transformsMinSize is >= transformsSize.. exiting outer sort loop. index:" + x ).append( "\n" );
           }
           break;
         }
@@ -228,7 +230,7 @@ public class SingleThreadedPipelineExecutor {
         if ( testing ) {
           tLogString.append( String.format( "existing outer loop because no "
               + "change was detected going forward or backward. index:%s  min:%s  max:%s",
-            x, stepsMinSize, stepsSize ) ).append( "\n" );
+            x, transformsMinSize, transformsSize ) ).append( "\n" );
         }
         break;
       }
@@ -250,12 +252,12 @@ public class SingleThreadedPipelineExecutor {
     long totalTime = ( endTime - startTime );
 
     tLogString.append( "-------------------------------------------------------" ).append( "\n" );
-    tLogString.append( "Steps sort time: " + totalTime + "ms" ).append( "\n" );
+    tLogString.append( "Transforms sort time: " + totalTime + "ms" ).append( "\n" );
     tLogString.append( "Total iterations: " + actualIterations ).append( "\n" );
-    tLogString.append( "Step count: " + steps.size() ).append( "\n" );
-    tLogString.append( "Steps after sort: " ).append( "\n" );
-    for ( StepMetaDataCombi combi : steps ) {
-      tLogString.append( combi.step.getStepname() ).append( "\n" );
+    tLogString.append( "Transform count: " + transforms.size() ).append( "\n" );
+    tLogString.append( "Transforms after sort: " ).append( "\n" );
+    for ( TransformMetaDataCombi combi : transforms ) {
+      tLogString.append( combi.transform.getTransformName() ).append( "\n" );
     }
     tLogString.append( "-------------------------------------------------------" ).append( "\n" );
 
@@ -266,10 +268,10 @@ public class SingleThreadedPipelineExecutor {
 
   public boolean init() throws HopException {
 
-    // Initialize all the steps...
+    // Initialize all the transforms...
     //
-    for ( StepMetaDataCombi combi : steps ) {
-      boolean ok = combi.step.init( combi.meta, combi.data );
+    for ( TransformMetaDataCombi combi : transforms ) {
+      boolean ok = combi.transform.init( combi.meta, combi.data );
       if ( !ok ) {
         return false;
       }
@@ -279,33 +281,33 @@ public class SingleThreadedPipelineExecutor {
   }
 
   /**
-   * Give all steps in the pipeline the chance to process all rows on input...
+   * Give all transforms in the pipeline the chance to process all rows on input...
    *
    * @return true if more iterations can be performed. False if this is not the case.
    */
   public boolean oneIteration() throws HopException {
 
-    for ( int s = 0; s < steps.size() && !pipeline.isStopped(); s++ ) {
+    for ( int s = 0; s < transforms.size() && !pipeline.isStopped(); s++ ) {
       if ( !done[ s ] ) {
 
-        StepMetaDataCombi combi = steps.get( s );
+        TransformMetaDataCombi combi = transforms.get( s );
 
-        // If this step is waiting for data (text, db, and so on), we simply read all the data
+        // If this transform is waiting for data (text, db, and so on), we simply read all the data
         // This means that it is impractical to use this pipeline type to load large files.
         //
-        boolean stepDone = false;
-        // For every input row we call the processRow() method of the step.
+        boolean transformDone = false;
+        // For every input row we call the processRow() method of the transform.
         //
-        List<RowSet> infoRowSets = stepInfoRowSets.get( s );
+        List<RowSet> infoRowSets = transformInfoRowSets.get( s );
 
-        // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" step and so on.
+        // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and so on.
         //
         for ( RowSet rowSet : infoRowSets ) {
           boolean once = true;
-          while ( once || ( rowSet.size() > 0 && !stepDone ) ) {
+          while ( once || ( rowSet.size() > 0 && !transformDone ) ) {
             once = false;
-            stepDone = !combi.step.processRow( combi.meta, combi.data );
-            if ( combi.step.getErrors() > 0 ) {
+            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
           }
@@ -313,23 +315,23 @@ public class SingleThreadedPipelineExecutor {
 
         // Do normal processing of input rows...
         //
-        List<RowSet> rowSets = combi.step.getInputRowSets();
+        List<RowSet> rowSets = combi.transform.getInputRowSets();
 
         // If there are no input row sets, we read all rows until finish.
-        // This applies to steps like "Table Input", "Text File Input" and so on.
+        // This applies to transforms like "Table Input", "Text File Input" and so on.
         // If they do have an input row set, to get filenames or other parameters,
         // we need to handle this in the batchComplete() methods.
         //
         if ( rowSets.size() == 0 ) {
-          while ( !stepDone && !pipeline.isStopped() ) {
-            stepDone = !combi.step.processRow( combi.meta, combi.data );
-            if ( combi.step.getErrors() > 0 ) {
+          while ( !transformDone && !pipeline.isStopped() ) {
+            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
           }
         } else {
-          // Since we can't be sure that the step actually reads from the row sets where we measure rows,
-          // we simply count the total nr of rows on input. The steps will find the rows in either row set.
+          // Since we can't be sure that the transform actually reads from the row sets where we measure rows,
+          // we simply count the total nr of rows on input. The transforms will find the rows in either row set.
           //
           int nrRows = 0;
           for ( RowSet rowSet : rowSets ) {
@@ -339,25 +341,25 @@ public class SingleThreadedPipelineExecutor {
           // Now do the number of processRows() calls.
           //
           for ( int i = 0; i < nrRows; i++ ) {
-            stepDone = !combi.step.processRow( combi.meta, combi.data );
-            if ( combi.step.getErrors() > 0 ) {
+            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
           }
         }
 
-        // Signal the step that a batch of rows has passed for this iteration (sort rows and all)
+        // Signal the transform that a batch of rows has passed for this iteration (sort rows and all)
         //
-        combi.step.batchComplete();
-        if ( stepDone ) {
+        combi.transform.batchComplete();
+        if ( transformDone ) {
           nrDone++;
         }
 
-        done[ s ] = stepDone;
+        done[ s ] = transformDone;
       }
     }
 
-    return nrDone < steps.size() && !pipeline.isStopped();
+    return nrDone < transforms.size() && !pipeline.isStopped();
   }
 
   protected int getTotalRows( List<RowSet> rowSets ) {
@@ -384,15 +386,15 @@ public class SingleThreadedPipelineExecutor {
 
     // Call output done.
     //
-    for ( StepMetaDataCombi combi : pipeline.getSteps() ) {
-      combi.step.setOutputDone();
+    for ( TransformMetaDataCombi combi : pipeline.getTransforms() ) {
+      combi.transform.setOutputDone();
     }
 
-    // Finalize all the steps...
+    // Finalize all the transforms...
     //
-    for ( StepMetaDataCombi combi : steps ) {
-      combi.step.dispose( combi.meta, combi.data );
-      combi.step.markStop();
+    for ( TransformMetaDataCombi combi : transforms ) {
+      combi.transform.dispose( combi.meta, combi.data );
+      combi.transform.markStop();
     }
 
   }

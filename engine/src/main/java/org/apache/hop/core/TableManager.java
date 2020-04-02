@@ -23,8 +23,8 @@
 package org.apache.hop.core;
 
 /**
- * An interface for pipeline steps that manage loading data into a database table (or other storage system). For
- * example a table output step or a bulk loader. This interface is used by the Agile BI plugin to determine which steps
+ * An interface for pipeline transforms that manage loading data into a database table (or other storage system). For
+ * example a table output transform or a bulk loader. This interface is used by the Agile BI plugin to determine which transforms
  * it can manipulate during loading of data.
  *
  * @author jamesdixon

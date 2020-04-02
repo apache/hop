@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * An extension to the {@link DefaultInjectionTypeConverter} that converts null and empty values to -1 for
  * number/int type variables. This ensures that 0's aren't inserted for field values that are meant to remain empty.
- * This assumes that the step dialog knows to treat field values set to -1 as "empty".
+ * This assumes that the transform dialog knows to treat field values set to -1 as "empty".
  */
 public class NullNumberConverter extends DefaultInjectionTypeConverter {
 
