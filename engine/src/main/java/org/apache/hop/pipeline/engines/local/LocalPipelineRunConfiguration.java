@@ -100,6 +100,11 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   public LocalPipelineRunConfiguration( LocalPipelineRunConfiguration config ) {
     super( config );
     this.rowSetSize = config.rowSetSize;
+    this.feedbackShown = config.feedbackShown;
+    this.feedbackSize = config.feedbackSize;
+    this.safeModeEnabled = config.safeModeEnabled;
+    this.gatheringMetrics = config.gatheringMetrics;
+    this.sortingTransformsTopologically = config.sortingTransformsTopologically;
   }
 
   public LocalPipelineRunConfiguration clone() {
