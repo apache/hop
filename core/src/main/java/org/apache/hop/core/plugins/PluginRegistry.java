@@ -755,10 +755,11 @@ public class PluginRegistry {
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ID.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Name.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Description.Label" ) ) );
-    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Libraries.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ImageFile.Label" ) ) );
-    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ClassName.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Category.Label" ) ) );
+    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Keywords.Label" ) ) );
+    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ClassName.Label" ) ) );
+    row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Libraries.Label" ) ) );
 
     return row;
   }
@@ -780,10 +781,11 @@ public class PluginRegistry {
       row[ rowIndex++ ] = plugin.getIds()[ 0 ];
       row[ rowIndex++ ] = plugin.getName();
       row[ rowIndex++ ] = Const.NVL( plugin.getDescription(), "" );
-      row[ rowIndex++ ] = Utils.isEmpty( plugin.getLibraries() ) ? "" : plugin.getLibraries().toString();
       row[ rowIndex++ ] = Const.NVL( plugin.getImageFile(), "" );
+      row[ rowIndex++ ] = Const.NVL( plugin.getCategory(), "" );
+      row[ rowIndex++ ] = String.join(",", plugin.getKeywords());
       row[ rowIndex++ ] = plugin.getClassMap().values().toString();
-      row[ rowIndex ] = Const.NVL( plugin.getCategory(), "" );
+      row[ rowIndex++ ] = String.join(",", plugin.getLibraries());
 
       rowBuffer.getBuffer().add( row );
     }
