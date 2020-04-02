@@ -3354,7 +3354,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   /*
@@ -3478,7 +3478,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   /*

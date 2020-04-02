@@ -2049,7 +2049,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   @Override
@@ -2115,7 +2115,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   @Override

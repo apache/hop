@@ -171,7 +171,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   }
 
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   public String environmentSubstitute( String aString ) {
@@ -226,7 +226,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   }
 
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   public void injectVariables( Map<String, String> prop ) {

@@ -78,7 +78,7 @@ public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMeta
 
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   @Override
@@ -144,7 +144,7 @@ public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMeta
 
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   @Override

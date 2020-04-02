@@ -165,7 +165,6 @@ public class JobTest {
   public void testSetInternalEntryCurrentDirectoryWithFilename() {
     Job jobTest = new Job();
     boolean hasFilename = true;
-    boolean hasRepoDir = false;
     jobTest.copyVariablesFrom( null );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );

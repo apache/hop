@@ -4456,7 +4456,7 @@ public class Database implements IVariables, ILoggingObject {
 
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
 
     // Also share the variables with the meta data object
     // Make sure it's not the databaseMeta object itself. We would get an

@@ -519,7 +519,7 @@ public class JobEntryBase implements Cloneable, IVariables, ILoggingObject,
    */
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   /**
@@ -653,7 +653,7 @@ public class JobEntryBase implements Cloneable, IVariables, ILoggingObject,
    */
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   /**

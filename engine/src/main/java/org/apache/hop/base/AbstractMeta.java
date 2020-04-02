@@ -948,7 +948,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
 
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   /*
@@ -1071,7 +1071,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    */
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   /*

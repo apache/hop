@@ -3501,7 +3501,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   @Override
   public void copyVariablesFrom( IVariables variables ) {
-    variables.copyVariablesFrom( variables );
+    this.variables.copyVariablesFrom( variables );
   }
 
   /**
@@ -3647,7 +3647,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   @Override
   public void shareVariablesWith( IVariables variables ) {
-    variables = variables;
+    this.variables = variables;
   }
 
   /**
