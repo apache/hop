@@ -2928,18 +2928,16 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
     JobDialog jd = new JobDialog( hopUi.getShell(), SWT.NONE, jobMeta );
     jd.setDirectoryChangeAllowed( allowDirectoryChange );
-    JobMeta newJobMeta = jd.open();
+    if ( jd.open()!=null ) {
+      // If we added properties, add them to the variables too, so that they appear in the CTRL-SPACE variable completion.
+      //
+      hopUi.setParametersAsVariablesInUI( jobMeta, jobMeta );
 
-    // If we added properties, add them to the variables too, so that they appear in the CTRL-SPACE variable completion.
-    //
-    hopUi.setParametersAsVariablesInUI( jobMeta, jobMeta );
-
-    if ( newJobMeta != null ) {
       updateGui();
+      perspective.updateTabs();
+      return true;
     }
-
-    updateGui();
-    return newJobMeta != null;
+    return false;
   }
 
   @Override
@@ -3504,6 +3502,15 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
 
   // TODO
   public void editJobEntry( JobMeta jobMeta, JobEntryCopy entryCopy ) {
+  }
+
+  @Override
+  public String getName() {
+    return jobMeta.getName();
+  }
+
+  @Override public void setName( String name ) {
+    jobMeta.setName( name );
   }
 
   @Override public String getFilename() {

@@ -9,6 +9,19 @@ import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvider {
 
   /**
+   * Get the user friendly name of the file being handled
+   *
+   * @return The user friendly name
+   */
+  String getName();
+
+  /**
+   * Set the user friendly name of the underlying file
+   * @param name The user friendly name
+   */
+  void setName(String name);
+
+  /**
    * Get a hold of the file type details
    *
    * @return

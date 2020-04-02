@@ -3182,6 +3182,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.pipelineMeta = pipelineMeta;
   }
 
+  @Override public String getName() {
+    return pipelineMeta.getName();
+  }
+
+  @Override public void setName( String name ) {
+    pipelineMeta.setName( name );
+  }
 
   @Override public void setFilename( String filename ) {
     pipelineMeta.setFilename( filename );
@@ -3239,18 +3246,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   }
 
-  public boolean editProperties( PipelineMeta pipelineMeta, HopGui hopUi, boolean allowDirectoryChange,
-                                 PipelineDialog.Tabs currentTab ) {
+  public boolean editProperties( PipelineMeta pipelineMeta, HopGui hopUi, boolean allowDirectoryChange, PipelineDialog.Tabs currentTab ) {
     if ( pipelineMeta == null ) {
       return false;
     }
 
     PipelineDialog tid = new PipelineDialog( hopUi.getShell(), SWT.NONE, pipelineMeta, currentTab );
     tid.setDirectoryChangeAllowed( allowDirectoryChange );
-    PipelineMeta ti = tid.open();
-
-    updateGui();
-    return ti != null;
+    if (tid.open()!=null) {
+      hopUi.setParametersAsVariablesInUI( pipelineMeta, pipelineMeta );
+      updateGui();
+      perspective.updateTabs();
+      return true;
+    }
+    return false;
   }
 
   @Override public boolean hasChanged() {
@@ -4212,7 +4221,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * @param transformMeta
    */
   public void editTransform( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
-    // TODO: implement this
+    pipelineTransformDelegate.editTransform( pipelineMeta, transformMeta );
   }
 
   public String buildTabName() throws HopException {

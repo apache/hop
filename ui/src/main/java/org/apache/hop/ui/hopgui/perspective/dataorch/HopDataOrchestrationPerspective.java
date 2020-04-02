@@ -81,8 +81,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionHistory = new Stack<>();
     tabSelectionIndex = 0;
 
-    pipelineFileType = new HopPipelineFileType<PipelineMeta>();
-    jobFileType = new HopJobFileType<JobMeta>();
+    pipelineFileType = new HopPipelineFileType<>();
+    jobFileType = new HopJobFileType<>();
   }
 
   @GuiToolbarElement(
@@ -277,7 +277,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Set the tab name
     //
-    tabItem.setText( Const.NVL( pipelineGraph.buildTabName(), "" ) );
+    updateTabLabel(tabItem, pipelineMeta.getFilename(), pipelineMeta.getName());
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
@@ -304,6 +304,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return pipelineGraph;
   }
 
+  public void updateTabLabel( CTabItem tabItem, String filename, String name ) {
+    tabItem.setText( Const.NVL( name, "<>" ) );
+    tabItem.setToolTipText( filename );
+  }
+
   /**
    * Add a new job tab to the tab folder...
    *
@@ -318,7 +323,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Set the tab name
     //
-    tabItem.setText( Const.NVL( jobGraph.buildTabName(), "" ) );
+    updateTabLabel(tabItem, jobMeta.getFilename(), jobMeta.getName());
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
@@ -436,6 +441,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return handlers;
   }
 
+  /**
+   * Update all the tab labels...
+   */
+  public void updateTabs() {
+    for (TabItemHandler item : items) {
+      HopFileTypeHandlerInterface typeHandler = item.getTypeHandler();
+      updateTabLabel( item.getTabItem(), typeHandler.getFilename(), typeHandler.getName() );
+    }
+  }
 
   /**
    * Gets items
@@ -566,4 +580,5 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public HopJobFileType<JobMeta> getJobFileType() {
     return jobFileType;
   }
+
 }

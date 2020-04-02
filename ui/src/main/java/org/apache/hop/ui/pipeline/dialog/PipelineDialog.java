@@ -240,11 +240,7 @@ public class PipelineDialog extends Dialog {
     props.setLook( shell );
     shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        changed = true;
-      }
-    };
+    lsMod = e -> changed = true;
     lsModSel = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         changed = true;
