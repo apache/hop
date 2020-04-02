@@ -59,7 +59,7 @@ public class PluginRegistryUnitTest {
     PluginRegistry.getInstance().reset();
     RowBuffer result = PluginRegistry.getInstance().getPluginInformation( BasePluginType.class );
     assertNotNull( result );
-    assertEquals( 8, result.getRowMeta().size() );
+    assertEquals( 9, result.getRowMeta().size() );
 
     for ( ValueMetaInterface vmi : result.getRowMeta().getValueMetaList() ) {
       assertEquals( ValueMetaInterface.TYPE_STRING, vmi.getType() );
