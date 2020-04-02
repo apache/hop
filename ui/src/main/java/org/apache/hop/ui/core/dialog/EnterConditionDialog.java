@@ -25,7 +25,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -61,9 +61,9 @@ public class EnterConditionDialog extends Dialog {
   private Button wCancel;
 
   private Condition condition;
-  private RowMetaInterface fields;
+  private IRowMeta fields;
 
-  public EnterConditionDialog( Shell parent, int style, RowMetaInterface fields, Condition condition ) {
+  public EnterConditionDialog( Shell parent, int style, IRowMeta fields, Condition condition ) {
     super( parent, style );
     this.props = PropsUI.getInstance();
     this.fields = fields;

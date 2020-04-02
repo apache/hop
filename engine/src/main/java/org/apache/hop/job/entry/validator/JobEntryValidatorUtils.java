@@ -26,8 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class JobEntryValidatorUtils {
 
-  public static final int LEVEL_FAILURE_DEFAULT = CheckResultInterface.TYPE_RESULT_ERROR;
+  public static final int LEVEL_FAILURE_DEFAULT = ICheckResult.TYPE_RESULT_ERROR;
 
   /**
    * Returns a AndValidator singleton.
@@ -111,10 +111,10 @@ public class JobEntryValidatorUtils {
     final String key = getKeyLevelOnFail( validatorName );
     if ( context.containsKey( key ) ) {
       return (Integer) context.get( key );
-    } else if ( context.containsKey( JobEntryValidator.KEY_LEVEL_ON_FAIL ) ) {
-      return (Integer) context.get( JobEntryValidator.KEY_LEVEL_ON_FAIL );
+    } else if ( context.containsKey( IJobEntryValidator.KEY_LEVEL_ON_FAIL ) ) {
+      return (Integer) context.get( IJobEntryValidator.KEY_LEVEL_ON_FAIL );
     } else {
-      return CheckResultInterface.TYPE_RESULT_ERROR;
+      return ICheckResult.TYPE_RESULT_ERROR;
     }
   }
 
@@ -124,18 +124,18 @@ public class JobEntryValidatorUtils {
   }
 
   public static void putLevelOnFail( Map<String, Object> map, int levelOnFail ) {
-    map.put( JobEntryValidator.KEY_LEVEL_ON_FAIL, levelOnFail );
+    map.put( IJobEntryValidator.KEY_LEVEL_ON_FAIL, levelOnFail );
   }
 
   public static String getKeyLevelOnFail( String validatorName ) {
-    return validatorName + "-" + JobEntryValidator.KEY_LEVEL_ON_FAIL;
+    return validatorName + "-" + IJobEntryValidator.KEY_LEVEL_ON_FAIL;
   }
 
   /**
    * Fails if a field's value does not match the given mask.
    */
-  public static boolean validateMask( CheckResultSourceInterface source, String propertyName,
-                                      List<CheckResultInterface> remarks, String mask, int levelOnFail ) {
+  public static boolean validateMask( ICheckResultSource source, String propertyName,
+                                      List<ICheckResult> remarks, String mask, int levelOnFail ) {
     // TODO review.  Appears unused, and would cause stackoverflow if it _was_ used.  commenting out.
     //return validateMask( source, propertyName, remarks, mask, LEVEL_FAILURE_DEFAULT );
     throw new UnsupportedOperationException();
@@ -144,8 +144,8 @@ public class JobEntryValidatorUtils {
   /**
    * Fails if a field's value does not match the given mask.
    */
-  public static boolean validateMask( CheckResultSourceInterface source, String propertyName, int levelOnFail,
-                                      List<CheckResultInterface> remarks, String mask ) {
+  public static boolean validateMask( ICheckResultSource source, String propertyName, int levelOnFail,
+                                      List<ICheckResult> remarks, String mask ) {
     final String VALIDATOR_NAME = "matches";
     String value = null;
 
@@ -155,7 +155,7 @@ public class JobEntryValidatorUtils {
       if ( null == mask ) {
         addGeneralRemark(
           source, propertyName, VALIDATOR_NAME, remarks, "errors.missingVar",
-          CheckResultInterface.TYPE_RESULT_ERROR );
+          ICheckResult.TYPE_RESULT_ERROR );
         return false;
       }
 
@@ -171,27 +171,27 @@ public class JobEntryValidatorUtils {
     }
   }
 
-  public static void addFailureRemark( CheckResultSourceInterface source, String propertyName,
-                                       String validatorName, List<CheckResultInterface> remarks, int level ) {
+  public static void addFailureRemark( ICheckResultSource source, String propertyName,
+                                       String validatorName, List<ICheckResult> remarks, int level ) {
     String key = "messages.failed." + validatorName;
     remarks.add( new CheckResult( level, ValidatorMessages.getString( key, propertyName ), source ) );
   }
 
-  public static void addExceptionRemark( CheckResultSourceInterface source, String propertyName,
-                                         String validatorName, List<CheckResultInterface> remarks, Exception e ) {
+  public static void addExceptionRemark( ICheckResultSource source, String propertyName,
+                                         String validatorName, List<ICheckResult> remarks, Exception e ) {
     String key = "messages.failed.unableToValidate";
-    remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, ValidatorMessages.getString(
+    remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, ValidatorMessages.getString(
       key, propertyName, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() ), source ) );
   }
 
-  public static void addGeneralRemark( CheckResultSourceInterface source, String propertyName,
-                                       String validatorName, List<CheckResultInterface> remarks, String key, int level ) {
+  public static void addGeneralRemark( ICheckResultSource source, String propertyName,
+                                       String validatorName, List<ICheckResult> remarks, String key, int level ) {
     remarks.add( new CheckResult(
-      CheckResultInterface.TYPE_RESULT_ERROR, ValidatorMessages.getString( key ), source ) );
+      ICheckResult.TYPE_RESULT_ERROR, ValidatorMessages.getString( key ), source ) );
   }
 
-  public static void addOkRemark( CheckResultSourceInterface source, String propertyName,
-                                  List<CheckResultInterface> remarks ) {
+  public static void addOkRemark( ICheckResultSource source, String propertyName,
+                                  List<ICheckResult> remarks ) {
     final int SUBSTRING_LENGTH = 20;
     String value = ValidatorUtils.getValueAsString( source, propertyName );
     String substr = null;
@@ -201,7 +201,7 @@ public class JobEntryValidatorUtils {
         substr += "...";
       }
     }
-    remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_OK, ValidatorMessages.getString(
+    remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_OK, ValidatorMessages.getString(
       "messages.passed", propertyName, substr ), source ) );
   }
 

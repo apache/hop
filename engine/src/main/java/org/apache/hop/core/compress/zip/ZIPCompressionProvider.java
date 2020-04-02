@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.compress.zip;
 
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ZIPCompressionProvider implements CompressionProvider {
+public class ZIPCompressionProvider implements ICompressionProvider {
 
   @Override
   public ZIPCompressionInputStream createInputStream( InputStream in ) throws IOException {

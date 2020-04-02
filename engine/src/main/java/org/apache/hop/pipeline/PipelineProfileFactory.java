@@ -26,11 +26,11 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
@@ -47,7 +47,7 @@ public class PipelineProfileFactory {
   private DatabaseMeta databaseMeta;
   private String schemaTable;
 
-  private RowMetaInterface tableLayout;
+  private IRowMeta tableLayout;
 
   /**
    * @param databaseMeta
@@ -58,7 +58,7 @@ public class PipelineProfileFactory {
     this.schemaTable = schemaTable;
   }
 
-  public PipelineMeta generatePipeline( LoggingObjectInterface parentLoggingInterface ) throws HopException {
+  public PipelineMeta generatePipeline( ILoggingObject parentLoggingInterface ) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     // Get the list of fields from the table...
@@ -110,7 +110,7 @@ public class PipelineProfileFactory {
     int nrDates = 0;
     int nrStrings = 0;
     int nrBooleans = 0;
-    for ( ValueMetaInterface valueMeta : tableLayout.getValueMetaList() ) {
+    for ( IValueMeta valueMeta : tableLayout.getValueMetaList() ) {
       if ( valueMeta.isNumeric() ) {
         nrNumeric++;
       }
@@ -132,7 +132,7 @@ public class PipelineProfileFactory {
     statsMeta.allocate( 0, nrCalculations );
     int calcIndex = 0;
     for ( int i = 0; i < tableLayout.size(); i++ ) {
-      ValueMetaInterface valueMeta = tableLayout.getValueMeta( i );
+      IValueMeta valueMeta = tableLayout.getValueMeta( i );
       // Numeric data...
       //
       if ( valueMeta.isNumeric() ) {
@@ -202,7 +202,7 @@ public class PipelineProfileFactory {
     return pipelineMeta;
   }
 
-  private RowMetaInterface getTableFields( LoggingObjectInterface parentLoggingObject ) throws HopDatabaseException {
+  private IRowMeta getTableFields( ILoggingObject parentLoggingObject ) throws HopDatabaseException {
     Database database = new Database( parentLoggingObject, databaseMeta );
     try {
       database.connect();
@@ -216,7 +216,7 @@ public class PipelineProfileFactory {
   /**
    * @return the tableLayout
    */
-  public RowMetaInterface getTableLayout() {
+  public IRowMeta getTableLayout() {
     return tableLayout;
   }
 }

@@ -30,9 +30,9 @@ import jxl.write.WritableImage;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.OutputStream;
 import java.util.Hashtable;
@@ -42,11 +42,11 @@ import java.util.Map;
  * @author Matt
  * @since 7-sep-2006
  */
-public class ExcelOutputData extends BaseTransformData implements TransformDataInterface {
+public class ExcelOutputData extends BaseTransformData implements ITransformData {
   public int splitnr;
 
-  public RowMetaInterface previousMeta;
-  public RowMetaInterface outputMeta;
+  public IRowMeta previousMeta;
+  public IRowMeta outputMeta;
   public int[] fieldnrs;
 
   public WritableWorkbook workbook;

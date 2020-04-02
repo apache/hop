@@ -23,11 +23,11 @@
 package org.apache.hop.pipeline.transforms.detectemptystream;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -50,7 +50,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
 )
-public class DetectEmptyStreamMeta extends BaseTransformMeta implements TransformMetaInterface<DetectEmptyStream, DetectEmptyStreamData> {
+public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   public DetectEmptyStreamMeta() {
@@ -72,8 +72,8 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements Transfor
   public void setDefault() {
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
@@ -102,9 +102,9 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements Transfor
     }
   }
 
-  public DetectEmptyStream createTransform( TransformMeta transformMeta, DetectEmptyStreamData transformDataInterface, int cnr, PipelineMeta tr,
+  public DetectEmptyStream createTransform( TransformMeta transformMeta, DetectEmptyStreamData iTransformData, int cnr, PipelineMeta tr,
                                             Pipeline pipeline ) {
-    return new DetectEmptyStream( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new DetectEmptyStream( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public DetectEmptyStreamData getTransformData() {

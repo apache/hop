@@ -25,8 +25,8 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -37,7 +37,7 @@ import java.util.List;
  *
  */
 
-public class PipelineDependency implements XMLInterface, Cloneable {
+public class PipelineDependency implements IXml, Cloneable {
   private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "dependency";
@@ -56,7 +56,7 @@ public class PipelineDependency implements XMLInterface, Cloneable {
     this( null, null, null );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
     xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );

@@ -57,9 +57,9 @@ public class TeraFastTest {
   @Before
   public void setUp() {
     transformMockHelper = new TransformMockHelper<>( "TeraFast", TeraFastMeta.class, GenericTransformData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-    teraFast = new TeraFast( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    teraFast = new TeraFast( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
   }
 
   @After

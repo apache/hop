@@ -30,26 +30,26 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -869,20 +869,20 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
     rowLimit = 0;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       PropertyInputField field = inputFields[ i ];
 
       int type = field.getType();
-      if ( type == ValueMetaInterface.TYPE_NONE ) {
-        type = ValueMetaInterface.TYPE_STRING;
+      if ( type == IValueMeta.TYPE_NONE ) {
+        type = IValueMeta.TYPE_STRING;
       }
       try {
-        ValueMetaInterface v =
-          ValueMetaFactory.createValueMeta( space.environmentSubstitute( field.getName() ), type );
+        IValueMeta v =
+          ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -895,25 +895,25 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
         throw new HopTransformException( e );
       }
     }
-    String realFilenameField = space.environmentSubstitute( filenameField );
+    String realFilenameField = variables.environmentSubstitute( filenameField );
     if ( includeFilename && !Utils.isEmpty( realFilenameField ) ) {
-      ValueMetaInterface v = new ValueMetaString( realFilenameField );
+      IValueMeta v = new ValueMetaString( realFilenameField );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
-    String realRowNumberField = space.environmentSubstitute( rowNumberField );
+    String realRowNumberField = variables.environmentSubstitute( rowNumberField );
     if ( includeRowNumber && !Utils.isEmpty( realRowNumberField ) ) {
-      ValueMetaInterface v = new ValueMetaInteger( realRowNumberField );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( realRowNumberField );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
-    String realSectionField = space.environmentSubstitute( iniSectionField );
+    String realSectionField = variables.environmentSubstitute( iniSectionField );
     if ( includeIniSection && !Utils.isEmpty( realSectionField ) ) {
-      ValueMetaInterface v = new ValueMetaString( realSectionField );
+      IValueMeta v = new ValueMetaString( realSectionField );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -922,54 +922,54 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
     // Add additional fields
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getShortFileNameField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getExtensionField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaInteger( space.environmentSubstitute( getSizeField() ) );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       r.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaBoolean( space.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v =
+        new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaDate( space.environmentSubstitute( getLastModificationDateField() ) );
+      IValueMeta v =
+        new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getRootUriField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -998,18 +998,18 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
     return 0;
   }
 
-  public FileInputList getFiles( VariableSpace space ) {
+  public FileInputList getFiles( iVariables variables ) {
     String[] required = new String[ fileName.length ];
     boolean[] subdirs = new boolean[ fileName.length ]; // boolean arrays are defaulted to false.
     for ( int i = 0; i < required.length; i++ ) {
       required[ i ] = "Y";
     }
-    return FileInputList.createFileList( space, fileName, fileMask, excludeFileMask, required, subdirs );
+    return FileInputList.createFileList( variables, fileName, fileMask, excludeFileMask, required, subdirs );
 
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -1043,12 +1043,12 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
 
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new PropertyInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new PropertyInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new PropertyInputData();
   }
 
@@ -1062,14 +1062,14 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -1077,8 +1077,8 @@ public class PropertyInputMeta extends BaseTransformMeta implements TransformMet
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
-          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName[ i ] ), variables );
+          fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

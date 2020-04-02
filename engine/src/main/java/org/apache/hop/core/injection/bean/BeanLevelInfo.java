@@ -25,7 +25,7 @@ package org.apache.hop.core.injection.bean;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionTypeConverter;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -43,7 +43,7 @@ import java.util.TreeMap;
 /**
  * Storage for one transform on the bean deep level.
  */
-class BeanLevelInfo<Meta extends TransformMetaInterface> {
+class BeanLevelInfo<Meta extends ITransformMeta> {
   enum DIMENSION {
     NONE, ARRAY, LIST
   }

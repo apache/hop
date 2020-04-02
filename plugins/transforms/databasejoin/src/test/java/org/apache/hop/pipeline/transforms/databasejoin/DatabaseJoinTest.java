@@ -26,8 +26,8 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,8 +65,8 @@ public class DatabaseJoinTest {
     when( mockPipelineMeta.findTransform( anyString() ) ).thenReturn( mockTransformMeta );
     when( mockTransformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mockTransformPartitioningMeta );
 
-    mockTransformMetaInterface = mock( DatabaseJoinMeta.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
-    mockTransformDataInterface = mock( DatabaseJoinData.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
+    mockTransformMetaInterface = mock( DatabaseJoinMeta.class, withSettings().extraInterfaces( ITransformMeta.class ) );
+    mockTransformDataInterface = mock( DatabaseJoinData.class, withSettings().extraInterfaces( ITransformMeta.class ) );
     mockTransformDataInterface.db = mock( Database.class );
     mockTransformDataInterface.pstmt = mock( PreparedStatement.class );
     mockDatabaseJoin = spy( new DatabaseJoin( mockTransformMeta, mockTransformDataInterface, 1, mockPipelineMeta, mockPipeline ) );

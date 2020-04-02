@@ -24,7 +24,7 @@ package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XMLHandler;
 import org.mozilla.javascript.Context;
 
@@ -42,28 +42,28 @@ public class JavaScriptUtils {
   public static Object convertFromJs( Object value, int type, String fieldName ) throws HopValueException {
     String classType = value.getClass().getName();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return jsToNumber( value, classType );
 
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return jsToInteger( value, value.getClass() );
 
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         return jsToString( value, classType );
 
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         return jsToDate( value, classType );
 
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         return value;
 
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return jsToBigNumber( value, classType );
 
-      case ValueMetaInterface.TYPE_BINARY: {
+      case IValueMeta.TYPE_BINARY: {
         return Context.jsToJava( value, byte[].class );
       }
-      case ValueMetaInterface.TYPE_NONE: {
+      case IValueMeta.TYPE_NONE: {
         throw new RuntimeException( "No data output data type was specified for new field ["
           + fieldName + "]" );
       }

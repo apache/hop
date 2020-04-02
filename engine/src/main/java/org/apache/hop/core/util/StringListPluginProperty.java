@@ -34,7 +34,7 @@ import java.util.prefs.Preferences;
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl</a>
  */
-public class StringListPluginProperty extends KeyValue<List<String>> implements PluginProperty, Iterable<String> {
+public class StringListPluginProperty extends KeyValue<List<String>> implements IPluginProperty, Iterable<String> {
 
   /**
    * Serial version UID.

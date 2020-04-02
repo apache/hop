@@ -27,8 +27,8 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ExecutorInterface;
-import org.apache.hop.core.ExtensionDataInterface;
+import org.apache.hop.core.IExecutor;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -43,37 +43,37 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.JobTracker;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.logging.LoggingHierarchy;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.job.JobEntryJob;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entries.pipeline.JobEntryPipeline;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.resource.ResourceUtil;
@@ -113,13 +113,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Matt Casters
  * @since 07-apr-2003
  */
-public class Job extends Thread implements VariableSpace, NamedParams, HasLogChannelInterface, LoggingObjectInterface,
-  ExecutorInterface, ExtensionDataInterface {
+public class Job extends Thread implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
+  IExecutor, IExtensionData {
   private static Class<?> PKG = Job.class; // for i18n purposes, needed by Translator!!
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__job_execution_configuration__.xml";
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
@@ -131,7 +131,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
   private AtomicInteger errors;
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   /**
    * The job that's launching this (sub-) job. This gives us access to the whole chain, including the parent variables,
@@ -147,7 +147,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /**
    * The parent logging interface to reference
    */
-  private LoggingObjectInterface parentLoggingObject;
+  private ILoggingObject parentLoggingObject;
 
   /**
    * Keep a list of the job entries that were executed. org.apache.hop.core.logging.CentralLogStore.getInstance()
@@ -182,11 +182,11 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
   private boolean interactive;
 
-  private List<JobListener> jobListeners;
+  private List<IJobListener> jobListeners;
 
-  private List<JobEntryListener> jobEntryListeners;
+  private List<IJobEntryListener> jobEntryListeners;
 
-  private List<DelegationListener> delegationListeners;
+  private List<IDelegationListener> delegationListeners;
 
   private Map<JobEntryCopy, JobEntryPipeline> activeJobEntryPipeline;
 
@@ -195,7 +195,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /**
    * Parameters of the job.
    */
-  private NamedParams namedParams = new NamedParamsDefault();
+  private INamedParams namedParams = new NamedParamsDefault();
 
   private SocketRepository socketRepository;
 
@@ -250,9 +250,9 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   public void init() {
     status = new AtomicInteger();
 
-    jobListeners = new ArrayList<JobListener>();
-    jobEntryListeners = new ArrayList<JobEntryListener>();
-    delegationListeners = new ArrayList<DelegationListener>();
+    jobListeners = new ArrayList<IJobListener>();
+    jobEntryListeners = new ArrayList<IJobEntryListener>();
+    delegationListeners = new ArrayList<IDelegationListener>();
 
     // these 2 maps are being modified concurrently and must be thread-safe
     activeJobEntryPipeline = new ConcurrentHashMap<JobEntryCopy, JobEntryPipeline>();
@@ -292,7 +292,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     this( jobMeta, null );
   }
 
-  public Job( JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
+  public Job( JobMeta jobMeta, ILoggingObject parentLogging ) {
     this.jobMeta = jobMeta;
     this.containerObjectId = jobMeta.getContainerObjectId();
     this.parentLoggingObject = parentLogging;
@@ -557,11 +557,11 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /**
    * Sets the finished flag.<b> Then launch all the job listeners and call the jobFinished method for each.<br>
    *
-   * @see JobListener#jobFinished(Job)
+   * @see IJobListener#jobFinished(Job)
    */
   public void fireJobFinishListeners() throws HopException {
     synchronized ( jobListeners ) {
-      for ( JobListener jobListener : jobListeners ) {
+      for ( IJobListener jobListener : jobListeners ) {
         jobListener.jobFinished( this );
       }
     }
@@ -570,11 +570,11 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /**
    * Call all the jobStarted method for each listener.<br>
    *
-   * @see JobListener#jobStarted(Job)
+   * @see IJobListener#jobStarted(Job)
    */
   public void fireJobStartListeners() throws HopException {
     synchronized ( jobListeners ) {
-      for ( JobListener jobListener : jobListeners ) {
+      for ( IJobListener jobListener : jobListeners ) {
         jobListener.jobStarted( this );
       }
     }
@@ -628,8 +628,8 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       }
 
       // Which entry is next?
-      JobEntryInterface jobEntryInterface = jobEntryCopy.getEntry();
-      jobEntryInterface.getLogChannel().setLogLevel( logLevel );
+      IJobEntry jobEntry = jobEntryCopy.getEntry();
+      jobEntry.getLogChannel().setLogLevel( logLevel );
 
       // Track the fact that we are going to launch the next job entry...
       JobEntryResult jerBefore =
@@ -638,17 +638,17 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       jobTracker.addJobTracker( new JobTracker( jobMeta, jerBefore ) );
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader( jobEntryInterface.getClass().getClassLoader() );
+      Thread.currentThread().setContextClassLoader( jobEntry.getClass().getClassLoader() );
       // Execute this entry...
-      JobEntryInterface cloneJei = (JobEntryInterface) jobEntryInterface.clone();
-      ( (VariableSpace) cloneJei ).copyVariablesFrom( this );
+      IJobEntry cloneJei = (IJobEntry) jobEntry.clone();
+      ( (IVariables) cloneJei ).copyVariablesFrom( this );
       cloneJei.setMetaStore( getJobMeta().getMetaStore() );
       cloneJei.setParentJob( this );
       cloneJei.setParentJobMeta( this.getJobMeta() );
       final long start = System.currentTimeMillis();
 
       cloneJei.getLogChannel().logDetailed( "Starting job entry" );
-      for ( JobEntryListener jobEntryListener : jobEntryListeners ) {
+      for ( IJobEntryListener jobEntryListener : jobEntryListeners ) {
         jobEntryListener.beforeExecution( this, jobEntryCopy, cloneJei );
       }
       if ( interactive ) {
@@ -679,7 +679,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
           log.logMinimal( throughput );
         }
       }
-      for ( JobEntryListener jobEntryListener : jobEntryListeners ) {
+      for ( IJobEntryListener jobEntryListener : jobEntryListeners ) {
         jobEntryListener.afterExecution( this, jobEntryCopy, cloneJei, newResult );
       }
 
@@ -1385,7 +1385,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    *
    * @param var the new internal kettle variables.
    */
-  public void setInternalHopVariables( VariableSpace var ) {
+  public void setInternalHopVariables( IVariables var ) {
     boolean hasFilename = jobMeta != null && !Utils.isEmpty( jobMeta.getFilename() );
     if ( hasFilename ) { // we have a finename that's defined.
       try {
@@ -1422,16 +1422,16 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#copyVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#copyVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
-  @Override public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  @Override public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String)
    */
   @Override public String environmentSubstitute( String aString ) {
     return variables.environmentSubstitute( aString );
@@ -1440,13 +1440,13 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String[])
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override public String[] environmentSubstitute( String[] aString ) {
     return variables.environmentSubstitute( aString );
   }
 
-  @Override public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  @Override public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
@@ -1454,9 +1454,9 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getParentVariableSpace()
+   * @see org.apache.hop.core.variables.IVariables#getParentVariableSpace()
    */
-  @Override public VariableSpace getParentVariableSpace() {
+  @Override public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
@@ -1464,16 +1464,16 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#setParentVariableSpace(org.apache.hop.core.variables.IVariables)
    */
-  @Override public void setParentVariableSpace( VariableSpace parent ) {
+  @Override public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String, java.lang.String)
    */
   @Override public String getVariable( String variableName, String defaultValue ) {
     return variables.getVariable( variableName, defaultValue );
@@ -1482,7 +1482,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String)
    */
   @Override public String getVariable( String variableName ) {
     return variables.getVariable( variableName );
@@ -1491,7 +1491,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see org.apache.hop.core.variables.IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
@@ -1507,16 +1507,16 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#initializeVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
-  @Override public void initializeVariablesFrom( VariableSpace parent ) {
+  @Override public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#listVariables()
+   * @see org.apache.hop.core.variables.IVariables#listVariables()
    */
   @Override public String[] listVariables() {
     return variables.listVariables();
@@ -1525,7 +1525,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#setVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#setVariable(java.lang.String, java.lang.String)
    */
   @Override public void setVariable( String variableName, String variableValue ) {
     variables.setVariable( variableName, variableValue );
@@ -1534,16 +1534,16 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#shareVariablesWith(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#shareVariablesWith(org.apache.hop.core.variables.IVariables)
    */
-  @Override public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  @Override public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#injectVariables(java.util.Map)
+   * @see org.apache.hop.core.variables.IVariables#injectVariables(java.util.Map)
    */
   @Override public void injectVariables( Map<String, String> prop ) {
     variables.injectVariables( prop );
@@ -1602,10 +1602,10 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       // Inject certain internal variables to make it more intuitive.
       //
       for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
-        executionConfiguration.getVariables().put( var, jobMeta.getVariable( var ) );
+        executionConfiguration.getVariablesMap().put( var, jobMeta.getVariable( var ) );
       }
       for ( String var : Const.INTERNAL_JOB_VARIABLES ) {
-        executionConfiguration.getVariables().put( var, jobMeta.getVariable( var ) );
+        executionConfiguration.getVariablesMap().put( var, jobMeta.getVariable( var ) );
       }
 
       if ( executionConfiguration.isPassingExport() ) {
@@ -1658,40 +1658,40 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     }
   }
 
-  public void addJobListener( JobListener jobListener ) {
+  public void addJobListener( IJobListener jobListener ) {
     synchronized ( jobListeners ) {
       jobListeners.add( jobListener );
     }
   }
 
-  public void addJobEntryListener( JobEntryListener jobEntryListener ) {
+  public void addJobEntryListener( IJobEntryListener jobEntryListener ) {
     jobEntryListeners.add( jobEntryListener );
   }
 
-  public void removeJobListener( JobListener jobListener ) {
+  public void removeJobListener( IJobListener jobListener ) {
     synchronized ( jobListeners ) {
       jobListeners.remove( jobListener );
     }
   }
 
-  public void removeJobEntryListener( JobEntryListener jobEntryListener ) {
+  public void removeJobEntryListener( IJobEntryListener jobEntryListener ) {
     jobEntryListeners.remove( jobEntryListener );
   }
 
-  public List<JobEntryListener> getJobEntryListeners() {
+  public List<IJobEntryListener> getJobEntryListeners() {
     return jobEntryListeners;
   }
 
-  public List<JobListener> getJobListeners() {
+  public List<IJobListener> getJobListeners() {
     synchronized ( jobListeners ) {
-      return new ArrayList<JobListener>( jobListeners );
+      return new ArrayList<IJobListener>( jobListeners );
     }
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
@@ -1701,7 +1701,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
    */
   @Override public String getParameterDescription( String key ) throws UnknownParamException {
     return namedParams.getParameterDescription( key );
@@ -1710,7 +1710,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
    */
   @Override public String getParameterDefault( String key ) throws UnknownParamException {
     return namedParams.getParameterDefault( key );
@@ -1719,7 +1719,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterValue(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
    */
   @Override public String getParameterValue( String key ) throws UnknownParamException {
     return namedParams.getParameterValue( key );
@@ -1728,7 +1728,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
    */
   @Override public String[] listParameters() {
     return namedParams.listParameters();
@@ -1737,7 +1737,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override public void setParameterValue( String key, String value ) throws UnknownParamException {
     namedParams.setParameterValue( key, value );
@@ -1746,7 +1746,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#eraseParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
    */
   public void eraseParameters() {
     namedParams.eraseParameters();
@@ -1755,7 +1755,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
    */
   public void clearParameters() {
     namedParams.clearParameters();
@@ -1764,7 +1764,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#activateParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
    */
   public void activateParameters() {
     String[] keys = listParameters();
@@ -1794,20 +1794,20 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#copyParametersFrom(org.apache.hop.core.parameters.NamedParams)
+   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
    */
-  public void copyParametersFrom( NamedParams params ) {
+  public void copyParametersFrom( INamedParams params ) {
     namedParams.copyParametersFrom( params );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#mergeParametersWith(org.apache.hop.core.parameters.NamedParams,
+   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams,
    * boolean replace)
    */
   @Override
-  public void mergeParametersWith( NamedParams params, boolean replace ) {
+  public void mergeParametersWith( INamedParams params, boolean replace ) {
     namedParams.mergeParametersWith( params, replace );
   }
 
@@ -1832,9 +1832,9 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   /**
    * Gets the log channel interface.
    *
-   * @return LogChannelInterface
+   * @return ILogChannel
    */
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -1891,7 +1891,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    *
    * @return parentLoggingObject
    */
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parentLoggingObject;
   }
 
@@ -1923,7 +1923,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     List<LoggingHierarchy> hierarchy = new ArrayList<LoggingHierarchy>();
     List<String> childIds = LoggingRegistry.getInstance().getLogChannelChildren( getLogChannelId() );
     for ( String childId : childIds ) {
-      LoggingObjectInterface loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
+      ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
       if ( loggingObject != null ) {
         hierarchy.add( new LoggingHierarchy( getLogChannelId(), batchId, loggingObject ) );
       }
@@ -2002,7 +2002,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    *
    * @return the parent logging object
    */
-  public LoggingObjectInterface getParentLoggingObject() {
+  public ILoggingObject getParentLoggingObject() {
     return parentLoggingObject;
   }
 
@@ -2114,15 +2114,15 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     this.transactionId = transactionId;
   }
 
-  public List<DelegationListener> getDelegationListeners() {
+  public List<IDelegationListener> getDelegationListeners() {
     return delegationListeners;
   }
 
-  public void setDelegationListeners( List<DelegationListener> delegationListeners ) {
+  public void setDelegationListeners( List<IDelegationListener> delegationListeners ) {
     this.delegationListeners = delegationListeners;
   }
 
-  public void addDelegationListener( DelegationListener delegationListener ) {
+  public void addDelegationListener( IDelegationListener delegationListener ) {
     delegationListeners.add( delegationListener );
   }
 

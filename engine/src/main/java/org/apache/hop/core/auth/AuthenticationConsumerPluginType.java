@@ -27,7 +27,7 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
@@ -37,17 +37,17 @@ import java.util.Map;
 /**
  * This class represents the authentication plugin type.
  */
-@PluginMainClassType( AuthenticationConsumerType.class )
+@PluginMainClassType( IAuthenticationConsumerType.class )
 @PluginAnnotationType( AuthenticationConsumerPlugin.class )
-public class AuthenticationConsumerPluginType extends BasePluginType implements PluginTypeInterface {
+public class AuthenticationConsumerPluginType extends BasePluginType implements IPluginType {
   protected static AuthenticationConsumerPluginType pluginType = new AuthenticationConsumerPluginType();
 
   private AuthenticationConsumerPluginType() {
-    super( AuthenticationProviderPlugin.class, "AUTHENTICATION_CONSUMER", "AuthenticationConsumer" );
+    super( AuthenticationProviderPlugin.class, "AUTHENTICATION_CONSUMER", "IAuthenticationConsumer" );
     populateFolders( "authentication" );
   }
 
-  public void registerPlugin( URLClassLoader classLoader, Class<? extends AuthenticationConsumerType> clazz ) throws HopPluginException {
+  public void registerPlugin( URLClassLoader classLoader, Class<? extends IAuthenticationConsumerType> clazz ) throws HopPluginException {
     AuthenticationConsumerPlugin pluginAnnotation =
       clazz.getAnnotation( AuthenticationConsumerPlugin.class );
     AuthenticationConsumerPluginType.getInstance().handlePluginAnnotation( clazz, pluginAnnotation,

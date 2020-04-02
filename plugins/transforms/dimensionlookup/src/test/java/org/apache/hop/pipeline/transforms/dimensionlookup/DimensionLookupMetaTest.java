@@ -28,20 +28,20 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogChannelInterfaceFactory;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogChannelFactory;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.NonZeroIntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
@@ -70,7 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class DimensionLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DimensionLookupMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DimensionLookupMeta> testMetaClass = DimensionLookupMeta.class;
   private ThreadLocal<DimensionLookupMeta> holdTestingMeta = new ThreadLocal<DimensionLookupMeta>();
@@ -96,17 +96,17 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
     };
     Map<String, String> setterMap = new HashMap<>();
 
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldLookup", stringArrayLoadSaveValidator );
     // Note - have to use the non-zero int load/save validator here because if "update"
-    // is false, code in DimensionLookupMeta replaces "ValueMetaInterface.TYPE_NONE" with
-    // ValueMetaInterface.TYPE_STRING. This happens about once out of every 3 or so runs of
+    // is false, code in DimensionLookupMeta replaces "IValueMeta.TYPE_NONE" with
+    // IValueMeta.TYPE_STRING. This happens about once out of every 3 or so runs of
     // the test which made it a bit difficult to track down.
     // MB - 5/2016
     attrValidatorMap.put( "fieldUpdate", new FieldUpdateIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator(
@@ -115,7 +115,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
     attrValidatorMap.put( "startDateAlternative", new IntLoadSaveValidator( DimensionLookupMeta.getStartDateAlternativeCodes().length ) );
     attrValidatorMap.put( "sequenceName", new SequenceNameLoadSaveValidator() );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
@@ -123,7 +123,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof DimensionLookupMeta ) {
       ( (DimensionLookupMeta) someMeta ).allocate( 5, 5 );
       // doing this as a work-around for sequenceName validation.
@@ -146,10 +146,10 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
 
   @Before
   public void setUp() throws Exception {
-    LogChannelInterfaceFactory logChannelInterfaceFactory = mock( LogChannelInterfaceFactory.class );
-    LogChannelInterface logChannelInterface = mock( LogChannelInterface.class );
-    HopLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
-    when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    ILogChannelFactory logChannelFactory = mock( ILogChannelFactory.class );
+    ILogChannel logChannelInterface = mock( ILogChannel.class );
+    HopLogStore.setLogChannelFactory( logChannelFactory );
+    when( logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       logChannelInterface );
   }
 
@@ -168,7 +168,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
     meta.setFieldStream( new String[] { "" } );
     meta.setDatabaseMeta( dbMeta );
     doReturn( extraFields ).when( meta ).getDatabaseTableFields( (Database) anyObject(), anyString(), anyString() );
-    doReturn( mock( LogChannelInterface.class ) ).when( meta ).getLog();
+    doReturn( mock( ILogChannel.class ) ).when( meta ).getLog();
 
     RowMeta row = new RowMeta();
     try {
@@ -188,7 +188,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
         return mock( Database.class );
       }
 
-      @Override protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+      @Override protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
         throws HopDatabaseException {
         assertEquals( "aSchema", schemaName );
         assertEquals( "aDimTable", tableName );
@@ -226,7 +226,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
   // I'm holding onto the meta in a threadlocal, and have to have
   // this special load/save handler for sequenceName.
   // MB - 5/2016
-  public class SequenceNameLoadSaveValidator implements FieldLoadSaveValidator<String> {
+  public class SequenceNameLoadSaveValidator implements IFieldLoadSaveValidator<String> {
     final Random rand = new Random();
 
     @Override
@@ -253,11 +253,11 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
 
   public class FieldUpdateIntArrayLoadSaveValidator extends PrimitiveIntArrayLoadSaveValidator {
 
-    public FieldUpdateIntArrayLoadSaveValidator( FieldLoadSaveValidator<Integer> fieldValidator ) {
+    public FieldUpdateIntArrayLoadSaveValidator( IFieldLoadSaveValidator<Integer> fieldValidator ) {
       this( fieldValidator, null );
     }
 
-    public FieldUpdateIntArrayLoadSaveValidator( FieldLoadSaveValidator<Integer> fieldValidator, Integer elements ) {
+    public FieldUpdateIntArrayLoadSaveValidator( IFieldLoadSaveValidator<Integer> fieldValidator, Integer elements ) {
       super( fieldValidator, elements );
     }
 

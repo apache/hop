@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,7 +41,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
 
@@ -58,7 +58,7 @@ import java.util.Map;
         description = "BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
 )
-public class ExcelWriterTransformMeta extends BaseTransformMeta implements TransformMetaInterface<ExcelWriterTransform, ExcelWriterTransformData> {
+public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
@@ -732,7 +732,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
 
   }
 
-  public String[] getFiles( VariableSpace space ) {
+  public String[] getFiles( IVariables variables ) {
     int copies = 1;
     int splits = 1;
 
@@ -754,7 +754,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[ i ] = buildFilename( space, copy, split );
+        retval[ i ] = buildFilename( variables, copy, split );
         i++;
       }
     }
@@ -765,12 +765,12 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
     return retval;
   }
 
-  public String buildFilename( VariableSpace space, int transformnr, int splitnr ) {
+  public String buildFilename( IVariables variables, int transformnr, int splitnr ) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = space.environmentSubstitute( fileName );
-    String realextension = space.environmentSubstitute( extension );
+    String retval = variables.environmentSubstitute( fileName );
+    String realextension = variables.environmentSubstitute( extension );
 
     Date now = new Date();
 
@@ -805,8 +805,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -890,15 +890,15 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
     if ( prev != null && prev.size() > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ExcelWriterTransformMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
@@ -916,11 +916,11 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
       if ( error_found ) {
         error_message =
           BaseMessages.getString( PKG, "ExcelWriterTransformMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ExcelWriterTransformMeta.CheckResult.AllFieldsFound" ), transformMeta );
         remarks.add( cr );
       }
@@ -929,43 +929,43 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ExcelWriterTransformMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "ExcelWriterTransformMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
 
     cr =
-      new CheckResult( CheckResultInterface.TYPE_RESULT_COMMENT, BaseMessages.getString(
+      new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString(
         PKG, "ExcelWriterTransformMeta.CheckResult.FilesNotChecked" ), transformMeta );
     remarks.add( cr );
   }
 
   /**
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName ), space );
-        fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
       if ( !Utils.isEmpty( templateFileName ) ) {
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( templateFileName ), space );
-        templateFileName = resourceNamingInterface.nameResource( fileObject, space, true );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( templateFileName ), variables );
+        templateFileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 
       return null;
@@ -975,9 +975,9 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public ExcelWriterTransform createTransform( TransformMeta transformMeta, ExcelWriterTransformData transformDataInterface, int cnr,
+  public ExcelWriterTransform createTransform( TransformMeta transformMeta, ExcelWriterTransformData iTransformData, int cnr,
                                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelWriterTransform( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ExcelWriterTransform( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

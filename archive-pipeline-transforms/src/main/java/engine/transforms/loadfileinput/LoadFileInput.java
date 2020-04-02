@@ -30,16 +30,16 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -54,15 +54,15 @@ import java.util.List;
  * @author Samatar
  * @since 20-06-2007
  */
-public class LoadFileInput extends BaseTransform implements TransformInterface {
+public class LoadFileInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   LoadFileInputMeta meta;
   LoadFileInputData data;
 
-  public LoadFileInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public LoadFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private void addFileToResultFilesName( FileObject file ) throws Exception {
@@ -97,7 +97,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
 
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type after the processing.
-          data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+          data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
           if ( meta.getFileInFields() ) {
             // Check is filename field is provided
@@ -214,7 +214,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     try {
       // Grab a row
       Object[] outputRowData = getOneRow();
@@ -340,8 +340,8 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
 
         Object o = null;
         int indexField = data.totalpreviousfields + i;
-        ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( indexField );
-        ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( indexField );
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( indexField );
+        IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( indexField );
 
         switch ( loadFileInputField.getElementType() ) {
           case LoadFileInputField.ELEMENT_TYPE_FILECONTENT:
@@ -372,7 +372,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
               default:
                 break;
             }
-            if ( targetValueMeta.getType() != ValueMetaInterface.TYPE_BINARY ) {
+            if ( targetValueMeta.getType() != IValueMeta.TYPE_BINARY ) {
               // handle as a String
               if ( meta.getEncoding() != null ) {
                 o = new String( data.filecontent, meta.getEncoding() );
@@ -391,7 +391,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
             break;
         }
 
-        if ( targetValueMeta.getType() == ValueMetaInterface.TYPE_BINARY ) {
+        if ( targetValueMeta.getType() == IValueMeta.TYPE_BINARY ) {
           // save as byte[] without any conversion
           outputRowData[ indexField ] = o;
         } else {
@@ -446,7 +446,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
       if ( meta.getRootUriField() != null && meta.getRootUriField().length() > 0 ) {
         outputRowData[ rowIndex++ ] = data.rootUriName;
       }
-      RowMetaInterface irow = getInputRowMeta();
+      IRowMeta irow = getInputRowMeta();
 
       data.previousRow = irow == null ? outputRowData : irow.cloneRow( outputRowData ); // copy it to make
       // surely the next transform doesn't change it in between...
@@ -461,7 +461,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
     return outputRowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LoadFileInputMeta) smi;
     data = (LoadFileInputData) sdi;
 
@@ -478,7 +478,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
 
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type after the processing.
-          data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+          data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
         } catch ( Exception e ) {
           logError( "Error at transform initialization: " + e.toString() );
           logError( Const.getStackTracker( e ) );
@@ -493,7 +493,7 @@ public class LoadFileInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LoadFileInputMeta) smi;
     data = (LoadFileInputData) sdi;
     if ( data.file != null ) {

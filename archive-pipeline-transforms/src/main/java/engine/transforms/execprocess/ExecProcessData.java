@@ -22,19 +22,19 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-11-2008
  */
-public class ExecProcessData extends BaseTransformData implements TransformDataInterface {
+public class ExecProcessData extends BaseTransformData implements ITransformData {
   public int indexOfProcess;
   public int[] indexOfArguments;
-  public RowMetaInterface previousRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta previousRowMeta;
+  public IRowMeta outputRowMeta;
   public int NrPrevFields;
   public Runtime runtime;
 

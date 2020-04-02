@@ -23,8 +23,8 @@
 package org.apache.hop.core.reflection;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -65,8 +65,8 @@ public class StringSearchResult {
     this.string = string;
   }
 
-  public static final RowMetaInterface getResultRowMeta() {
-    RowMetaInterface rowMeta = new RowMeta();
+  public static final IRowMeta getResultRowMeta() {
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString(
       BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(

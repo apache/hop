@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   private CsvInput csvInput;
   private String[] expected;
   private String content;
-  private TransformMockHelper<CsvInputMeta, TransformDataInterface> transformMockHelper;
+  private TransformMockHelper<CsvInputMeta, ITransformData> transformMockHelper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
@@ -61,7 +61,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     transformMockHelper = TransformMockUtil
       .getTransformMockHelper( CsvInputMeta.class, "Pdi15270Test" );
-    csvInput = new CsvInput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+    csvInput = new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 

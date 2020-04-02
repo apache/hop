@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 
 import java.util.List;
 
@@ -151,11 +151,11 @@ public class Utils {
   /**
    * Resolves password from variable if it's necessary and decrypts if the password was encrypted
    *
-   * @param variables VariableSpace is used for resolving
+   * @param variables IVariables is used for resolving
    * @param password  the password for resolving and decrypting
    * @return resolved decrypted password
    */
-  public static String resolvePassword( VariableSpace variables, String password ) {
+  public static String resolvePassword( IVariables variables, String password ) {
     String resolvedPassword = variables.environmentSubstitute( password );
     if ( resolvedPassword != null ) {
       // returns resolved decrypted password

@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.delay;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 27-06-2008
  */
-public class DelayData extends BaseTransformData implements TransformDataInterface {
+public class DelayData extends BaseTransformData implements ITransformData {
   public int Multiple;
   public int timeout;
 

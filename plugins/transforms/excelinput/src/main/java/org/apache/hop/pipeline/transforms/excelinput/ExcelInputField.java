@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
@@ -56,7 +56,7 @@ public class ExcelInputField implements Cloneable {
   public ExcelInputField( String fieldname, int position, int length ) {
     this.name = fieldname;
     this.length = length;
-    this.type = ValueMetaInterface.TYPE_STRING;
+    this.type = IValueMeta.TYPE_STRING;
     this.format = "";
     this.trimtype = ExcelInputMeta.TYPE_TRIM_NONE;
     this.groupSymbol = "";

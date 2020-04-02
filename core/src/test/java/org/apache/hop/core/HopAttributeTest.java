@@ -36,7 +36,7 @@ public class HopAttributeTest {
     final String description = "description";
     final String tooltip = "tooltip";
     final int type = 6;
-    final HopAttributeInterface parent = mock( HopAttributeInterface.class );
+    final IHopAttribute parent = mock( IHopAttribute.class );
     HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, type, parent );
     assertSame( key, attribute.getKey() );
     assertSame( xmlCode, attribute.getXmlCode() );

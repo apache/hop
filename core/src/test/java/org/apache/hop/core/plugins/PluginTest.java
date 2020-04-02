@@ -43,26 +43,26 @@ public class PluginTest {
   @Test
   public void testFragmentMerge() {
     Map<Class<?>, String> classMap = new HashMap<Class<?>, String>() {{
-      put( PluginTypeInterface.class, String.class.getName() );
+      put( IPluginType.class, String.class.getName() );
     }};
     List<String> libraries = new ArrayList<String>() {{
       add( String.class.getName() );
     }};
 
-    PluginInterface plugin =
+    IPlugin plugin =
       new Plugin(
         new String[] { "plugintest" }, BasePluginType.class, String.class, "", "plugin test", "",
         "", false, null, false, classMap, libraries, null,
         null, null, null, null, null );
 
-    PluginInterface fragment =
+    IPlugin fragment =
       new Plugin(
         new String[] { "plugintest" }, BaseFragmentType.class, String.class, "", null,
         "fragment test",
         "fragment image",
         false, null, false,
         new HashMap<Class<?>, String>() {{
-          put( PluginTypeListener.class, Integer.class.getName() );
+          put( IPluginTypeListener.class, Integer.class.getName() );
         }},
         new ArrayList<String>() {{
           add( Integer.class.getName() );
@@ -74,7 +74,7 @@ public class PluginTest {
 
     plugin.merge( fragment );
 
-    assertTrue( classMap.containsKey( PluginTypeListener.class ) );
+    assertTrue( classMap.containsKey( IPluginTypeListener.class ) );
     assertEquals( libraries.size(), 2 );
     assertTrue( libraries.contains( Integer.class.getName() ) );
     assertEquals( "", plugin.getDescription() );
@@ -86,7 +86,7 @@ public class PluginTest {
 
   @Test
   public void testFragmentMergeWithNull() {
-    PluginInterface plugin =
+    IPlugin plugin =
       new Plugin(
         new String[] { "plugintest" }, BasePluginType.class, String.class, "", "plugin test", "",
         "a", false, null, false, new HashMap<>(), Collections.emptyList(), null,
@@ -95,7 +95,7 @@ public class PluginTest {
     plugin.merge( null );
     assertEquals( "a", plugin.getImageFile() );
 
-    PluginInterface fragment = mock( PluginInterface.class );
+    IPlugin fragment = mock( IPlugin.class );
     when( fragment.getImageFile() ).thenReturn( "b" );
 
     plugin.merge( fragment );

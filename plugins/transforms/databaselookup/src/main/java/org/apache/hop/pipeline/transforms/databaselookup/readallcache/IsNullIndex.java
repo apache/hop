@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
 
   private final boolean isMatchingNull;
 
-  IsNullIndex( int column, ValueMetaInterface valueMeta, int rowsAmount, boolean isMatchingNull ) {
+  IsNullIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingNull ) {
     super( column, valueMeta, rowsAmount );
     this.isMatchingNull = isMatchingNull;
   }
@@ -46,7 +46,7 @@ class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
   }
 
   @Override
-  void doApply( SearchingContext context, ValueMetaInterface lookupMeta, Object lookupValue ) throws HopException {
+  void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) throws HopException {
     int artificialRow = isMatchingNull ? Integer.MAX_VALUE : -1;
 
     int afterLastValue = findInsertionPointOf( new IndexedValue( null, artificialRow ) );

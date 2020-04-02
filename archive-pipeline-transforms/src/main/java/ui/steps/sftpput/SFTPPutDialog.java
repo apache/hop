@@ -27,14 +27,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopJobException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -77,7 +77,7 @@ import java.net.UnknownHostException;
  * @author Samatar Hassan
  * @since 30-April-2012
  */
-public class SFTPPutDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SFTPPutDialog extends BaseTransformDialog implements ITransformDialog {
   //for i18n purposes, needed by Translator!!
   private static Class<?> PKG = org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta.class;
 
@@ -1175,7 +1175,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements TransformDialo
         wRemoteDirectory.removeAll();
         wDestinationFolderFieldName.removeAll();
         wRemoteFileName.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           String[] fields = r.getFieldNames();
           wSourceFileNameField.setItems( fields );

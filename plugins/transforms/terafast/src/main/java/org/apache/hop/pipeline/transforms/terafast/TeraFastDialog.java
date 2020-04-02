@@ -27,21 +27,21 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.KeyValue;
-import org.apache.hop.core.util.PluginProperty;
+import org.apache.hop.core.util.IPluginProperty;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.SimpleFileSelection;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.*;
@@ -60,7 +60,7 @@ import java.util.*;
 		  pluginType = PluginDialog.PluginType.TRANSFORM,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class TeraFastDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -165,7 +165,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
    * @param property property.
    * @param textVar  text varibale.
    */
-  public static void setTextIfPropertyValue( final PluginProperty property, final TextVar textVar ) {
+  public static void setTextIfPropertyValue( final IPluginProperty property, final TextVar textVar ) {
     if ( property.evaluate() ) {
       textVar.setText( ( (KeyValue<?>) property ).stringValue() );
     }
@@ -175,7 +175,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
    * @param property property.
    * @param combo    text variable.
    */
-  public static void setTextIfPropertyValue( final PluginProperty property, final CCombo combo ) {
+  public static void setTextIfPropertyValue( final IPluginProperty property, final CCombo combo ) {
     if ( property.evaluate() ) {
       combo.setText( ( (KeyValue<?>) property ).stringValue() );
     }
@@ -184,7 +184,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
   /**
    * {@inheritDoc}
    *
-   * @see TransformDialogInterface#open()
+   * @see ITransformDialog#open()
    */
   public String open() {
     this.changed = this.meta.hasChanged();
@@ -218,7 +218,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
           return;
         }
         try {
-          final RowMetaInterface row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( transformMetaSearchFields );
+          final IRowMeta row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( transformMetaSearchFields );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -377,8 +377,8 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields;
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
 
     try {
       sourceFields = this.pipelineMeta.getPrevTransformFields( this.transformMeta );
@@ -401,7 +401,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
@@ -461,10 +461,10 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
    */
   public void getUpdate() {
     try {
-      final RowMetaInterface row = this.pipelineMeta.getPrevTransformFields( this.transformName );
+      final IRowMeta row = this.pipelineMeta.getPrevTransformFields( this.transformName );
       if ( row != null ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( final TableItem tableItem, final ValueMetaInterface value ) {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
+          public boolean tableItemInserted( final TableItem tableItem, final IValueMeta value ) {
             // possible to check format of input fields
             return true;
           }
@@ -929,7 +929,7 @@ public class TeraFastDialog extends BaseTransformDialog implements TransformDial
     @Override
     public void run() {
       try {
-        final RowMetaInterface rowMeta = this.dialog.meta.getRequiredFields( this.dialog.pipelineMeta );
+        final IRowMeta rowMeta = this.dialog.meta.getRequiredFields( this.dialog.pipelineMeta );
         if ( rowMeta == null ) {
           return;
         }

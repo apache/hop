@@ -44,10 +44,10 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
 
   private static final int SHELL_WIDTH = 300;
 
-  private GetFieldsCapableTransformDialog parentDialog;
+  private IGetFieldsCapableTransformDialog parentDialog;
   private boolean reloadAllFields;
 
-  public GetFieldsSampleDataDialog( final Shell parentShell, final GetFieldsCapableTransformDialog parentDialog,
+  public GetFieldsSampleDataDialog( final Shell parentShell, final IGetFieldsCapableTransformDialog parentDialog,
                                     final boolean reloadAllFields ) {
     super( parentShell, SAMPLE_SIZE,
       BaseMessages.getString( PKG, "GetFieldsSampleSizeDialog.Title" ),

@@ -52,7 +52,7 @@ public class CheckBoxToolTip extends ToolTip {
   private String checkBoxMessage;
   private boolean visible;
 
-  private List<CheckBoxToolTipListener> listeners;
+  private List<ICheckBoxToolTipListener> listeners;
 
   private Display display;
   protected Rectangle checkBoxBounds;
@@ -62,7 +62,7 @@ public class CheckBoxToolTip extends ToolTip {
   public CheckBoxToolTip( Control control ) {
     super( control, ToolTip.RECREATE, true );
     image = control.getDisplay().getSystemImage( SWT.ICON_INFORMATION );
-    listeners = new ArrayList<CheckBoxToolTipListener>();
+    listeners = new ArrayList<ICheckBoxToolTipListener>();
     visible = false;
     display = control.getDisplay();
 
@@ -136,7 +136,7 @@ public class CheckBoxToolTip extends ToolTip {
     disable.addSelectionListener( new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent e ) {
-        for ( CheckBoxToolTipListener listener : listeners ) {
+        for ( ICheckBoxToolTipListener listener : listeners ) {
           listener.checkBoxSelected( false );
         }
         hide();
@@ -167,7 +167,7 @@ public class CheckBoxToolTip extends ToolTip {
     super.hide();
   }
 
-  public void addCheckBoxToolTipListener( CheckBoxToolTipListener listener ) {
+  public void addCheckBoxToolTipListener( ICheckBoxToolTipListener listener ) {
     listeners.add( listener );
   }
 

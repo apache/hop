@@ -22,18 +22,18 @@
 
 package org.apache.hop.job.entries.msgboxinfo;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.GUIFactory;
-import org.apache.hop.core.gui.ThreadDialogs;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.gui.IThreadDialogs;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -55,7 +55,7 @@ import java.util.List;
   image = "MsgBoxInfo.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
-public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, IJobEntry {
   private String bodymessage;
   private String titremessage;
 
@@ -105,7 +105,7 @@ public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, JobEn
       // Try to display MSGBOX
       boolean response = true;
 
-      ThreadDialogs dialogs = GUIFactory.getThreadDialogs();
+      IThreadDialogs dialogs = GUIFactory.getThreadDialogs();
       if ( dialogs != null ) {
         response =
           dialogs.threadMessageBox( getRealBodyMessage() + Const.CR, getRealTitleMessage(), true, Const.INFO );
@@ -183,7 +183,7 @@ public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "bodyMessage", remarks );
     JobEntryValidatorUtils.addOkRemark( this, "titleMessage", remarks );

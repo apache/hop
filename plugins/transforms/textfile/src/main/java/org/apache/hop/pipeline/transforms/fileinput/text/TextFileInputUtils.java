@@ -26,15 +26,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
 
@@ -52,7 +52,7 @@ import java.util.List;
 public class TextFileInputUtils {
   private static Class<?> PKG = TextFileInputUtils.class; // for i18n purposes, needed by Translator!!
 
-  public static final String[] guessStringsFromLine( VariableSpace space, LogChannelInterface log, String line,
+  public static final String[] guessStringsFromLine( IVariables variables, ILogChannel log, String line,
                                                      TextFileInputMeta inf, String delimiter, String enclosure, String escapeCharacter ) throws HopException {
     List<String> strings = new ArrayList<>();
 
@@ -280,13 +280,13 @@ public class TextFileInputUtils {
     return strings.toArray( new String[ strings.size() ] );
   }
 
-  public static final String getLine( LogChannelInterface log, InputStreamReader reader, int formatNr,
+  public static final String getLine( ILogChannel log, InputStreamReader reader, int formatNr,
                                       StringBuilder line ) throws HopFileException {
     EncodingType type = EncodingType.guessEncodingType( reader.getEncoding() );
     return getLine( log, reader, type, formatNr, line );
   }
 
-  public static final String getLine( LogChannelInterface log, InputStreamReader reader, EncodingType encodingType,
+  public static final String getLine( ILogChannel log, InputStreamReader reader, EncodingType encodingType,
                                       int formatNr, StringBuilder line ) throws HopFileException {
     int c = 0;
     line.setLength( 0 );
@@ -357,10 +357,10 @@ public class TextFileInputUtils {
     return null;
   }
 
-  public static final Object[] convertLineToRow( LogChannelInterface log, TextFileLine textFileLine,
-                                                 TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
-                                                 RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
-                                                 String escapeCharacter, FileErrorHandler errorHandler,
+  public static final Object[] convertLineToRow( ILogChannel log, TextFileLine textFileLine,
+                                                 TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, IRowMeta outputRowMeta,
+                                                 IRowMeta convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
+                                                 String escapeCharacter, IFileErrorHandler errorHandler,
                                                  BaseFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
                                                  boolean hidden, Date modificationDateTime, String uri, String rooturi, String extension, Long size )
     throws HopException {
@@ -375,10 +375,10 @@ public class TextFileInputUtils {
    *                         being parsed - this allows us to analyze fields, even if some field is mis-configured
    *                         and causes a parsing error for the values of that field.
    */
-  public static final Object[] convertLineToRow( LogChannelInterface log, TextFileLine textFileLine,
-                                                 TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
-                                                 RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
-                                                 String escapeCharacter, FileErrorHandler errorHandler,
+  public static final Object[] convertLineToRow( ILogChannel log, TextFileLine textFileLine,
+                                                 TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, IRowMeta outputRowMeta,
+                                                 IRowMeta convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
+                                                 String escapeCharacter, IFileErrorHandler errorHandler,
                                                  BaseFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
                                                  boolean hidden, Date modificationDateTime, String uri, String rooturi, String extension, Long size,
                                                  final boolean failOnParseError )
@@ -415,14 +415,14 @@ public class TextFileInputUtils {
       for ( fieldnr = 0; fieldnr < nrFields; fieldnr++ ) {
         BaseFileField f = info.inputFields[ fieldnr ];
         int valuenr = shiftFields + fieldnr;
-        ValueMetaInterface valueMeta = outputRowMeta.getValueMeta( valuenr );
-        ValueMetaInterface convertMeta = convertRowMeta.getValueMeta( valuenr );
+        IValueMeta valueMeta = outputRowMeta.getValueMeta( valuenr );
+        IValueMeta convertMeta = convertRowMeta.getValueMeta( valuenr );
 
         Object value;
 
         String nullif = fieldnr < nrFields ? f.getNullString() : "";
         String ifnull = fieldnr < nrFields ? f.getIfNullValue() : "";
-        int trim_type = fieldnr < nrFields ? f.getTrimType() : ValueMetaInterface.TRIM_TYPE_NONE;
+        int trim_type = fieldnr < nrFields ? f.getTrimType() : IValueMeta.TRIM_TYPE_NONE;
 
         if ( fieldnr < strings.length ) {
           String pol = strings[ fieldnr ];
@@ -582,7 +582,7 @@ public class TextFileInputUtils {
     return r;
   }
 
-  public static final String[] convertLineToStrings( LogChannelInterface log, String line, TextFileInputMeta inf,
+  public static final String[] convertLineToStrings( ILogChannel log, String line, TextFileInputMeta inf,
                                                      String delimiter, String enclosure, String escapeCharacters ) throws HopException {
     String[] strings = new String[ inf.inputFields.length ];
     int fieldnr;

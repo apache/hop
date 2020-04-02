@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.apache.hop.pipeline.transforms.javafilter.JavaFilterMeta;
@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class JavaFilterDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class JavaFilterDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
 
   private Text wTransformName;

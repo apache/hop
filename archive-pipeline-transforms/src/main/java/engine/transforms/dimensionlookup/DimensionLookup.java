@@ -32,8 +32,8 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashMap;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -43,8 +43,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -62,7 +62,7 @@ import java.util.List;
  * @author Matt
  * @since 14-may-2003
  */
-public class DimensionLookup extends BaseTransform implements TransformInterface {
+public class DimensionLookup extends BaseTransform implements ITransform {
   private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int CREATION_METHOD_AUTOINC = 1;
@@ -75,9 +75,9 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
   private DimensionLookupData data;
   int[] columnLookupArray = null;
 
-  public DimensionLookup( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public DimensionLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   protected void setMeta( DimensionLookupMeta meta ) {
@@ -110,7 +110,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
 
@@ -136,10 +136,10 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       //
       data.lazyList = new ArrayList<Integer>();
       for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
-        ValueMetaInterface valueMeta = data.inputRowMeta.getValueMeta( i );
+        IValueMeta valueMeta = data.inputRowMeta.getValueMeta( i );
         if ( valueMeta.isStorageBinaryString() ) {
           data.lazyList.add( i );
-          valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         }
       }
 
@@ -190,7 +190,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
           //
           data.cacheKeyRowMeta = new RowMeta();
           for ( int i = 0; i < data.keynrs.length; i++ ) {
-            ValueMetaInterface key = data.inputRowMeta.getValueMeta( data.keynrs[ i ] );
+            IValueMeta key = data.inputRowMeta.getValueMeta( data.keynrs[ i ] );
             data.cacheKeyRowMeta.addValueMeta( key.clone() );
           }
 
@@ -224,7 +224,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
     // convert row to normal storage...
     //
     for ( int lazyFieldIndex : data.lazyList ) {
-      ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( lazyFieldIndex );
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta( lazyFieldIndex );
       r[ lazyFieldIndex ] = valueMeta.convertToNormalStorageType( r[ lazyFieldIndex ] );
     }
 
@@ -296,7 +296,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       logDetailed( "Pre-loading cache by reading from database with: " + Const.CR + sql + Const.CR );
 
       List<Object[]> rows = data.db.getRows( sql, -1 );
-      RowMetaInterface rowMeta = data.db.getReturnRowMeta();
+      IRowMeta rowMeta = data.db.getReturnRowMeta();
 
       data.preloadKeyIndexes = new int[ meta.getKeyLookup().length ];
       for ( int i = 0; i < data.preloadKeyIndexes.length; i++ ) {
@@ -334,10 +334,10 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
     }
   }
 
-  private synchronized Object[] lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private synchronized Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     Object[] outputRow = new Object[ data.outputRowMeta.size() ];
 
-    RowMetaInterface lookupRowMeta;
+    IRowMeta lookupRowMeta;
     Object[] lookupRow;
 
     Object[] returnRow = null;
@@ -359,7 +359,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       //
       // Create a row to compare with
       //
-      RowMetaInterface preloadRowMeta = data.preloadCache.getRowMeta();
+      IRowMeta preloadRowMeta = data.preloadCache.getRowMeta();
 
       // In this case it's all the same. (simple)
       //
@@ -375,11 +375,11 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
 
         // From data type...
         //
-        ValueMetaInterface fromValueMeta = rowMeta.getValueMeta( from );
+        IValueMeta fromValueMeta = rowMeta.getValueMeta( from );
 
         // to date type...
         //
-        ValueMetaInterface toValueMeta = data.preloadCache.getRowMeta().getValueMeta( to );
+        IValueMeta toValueMeta = data.preloadCache.getRowMeta().getValueMeta( to );
 
         // From value:
         //
@@ -608,11 +608,11 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
           if ( data.fieldnrs[ i ] >= 0 ) {
             // Only compare real fields, not last updated row, last version, etc
             //
-            ValueMetaInterface v1 = data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] );
+            IValueMeta v1 = data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] );
             Object valueData1 = row[ data.fieldnrs[ i ] ];
             findColumn = meta.getFieldStream()[ i ];
             // find the returnRowMeta based on the field in the fieldLookup list
-            ValueMetaInterface v2 = null;
+            IValueMeta v2 = null;
             Object valueData2 = null;
             // Fix for PDI-8122
             // See if it's already been computed.
@@ -796,9 +796,9 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       if ( isDebug() ) {
         log.logDebug( "Changing the type of the technical key from TYPE_BIGNUMBER to an TYPE_INTEGER" );
       }
-      ValueMetaInterface tkValueMeta = data.returnRowMeta.getValueMeta( 0 );
+      IValueMeta tkValueMeta = data.returnRowMeta.getValueMeta( 0 );
       data.returnRowMeta.setValueMeta( 0, ValueMetaFactory.cloneValueMeta(
-        tkValueMeta, ValueMetaInterface.TYPE_INTEGER ) );
+        tkValueMeta, IValueMeta.TYPE_INTEGER ) );
     }
 
     outputRow[ outputIndex++ ] = data.returnRowMeta.getInteger( returnRow, inputIndex++ );
@@ -832,7 +832,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
    * table: dimension table keys[]: which dim-fields do we use to look up key? retval: name of the key to return
    * datefield: do we have a datefield? datefrom, dateto: date-range, if any.
    */
-  private void setDimLookup( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  private void setDimLookup( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
     data.lookupRowMeta = new RowMeta();
@@ -911,7 +911,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       if ( databaseMeta.supportsSetMaxRows() ) {
         data.prepStatementLookup.setMaxRows( 1 ); // alywas get only 1 line back!
       }
-      if ( databaseMeta.getDatabaseInterface().isMySQLVariant() ) {
+      if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
         data.prepStatementLookup.setFetchSize( 0 ); // Make sure to DISABLE Streaming Result sets
       }
       logDetailed( "Finished preparing dimension lookup statement." );
@@ -928,13 +928,13 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
    * This inserts new record into dimension Optionally, if the entry already exists, update date range from previous
    * version of the entry.
    */
-  public Long dimInsert( RowMetaInterface inputRowMeta, Object[] row, Long technicalKey, boolean newEntry,
+  public Long dimInsert( IRowMeta inputRowMeta, Object[] row, Long technicalKey, boolean newEntry,
                          Long versionNr, Date dateFrom, Date dateTo ) throws HopException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
     if ( data.prepStatementInsert == null
       && data.prepStatementUpdate == null ) { // first time: construct prepared statement
-      RowMetaInterface insertRowMeta = new RowMeta();
+      IRowMeta insertRowMeta = new RowMeta();
 
       /*
        * Construct the SQL statement...
@@ -983,7 +983,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       // Finally, the special update fields...
       //
       for ( int i = 0; i < meta.getFieldUpdate().length; i++ ) {
-        ValueMetaInterface valueMeta = null;
+        IValueMeta valueMeta = null;
         switch ( meta.getFieldUpdate()[ i ] ) {
           case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
           case DimensionLookupMeta.TYPE_UPDATE_DATE_INSERTED:
@@ -1055,7 +1055,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
        * UPDATE d_customer SET dateto = val_datnow, last_updated = <now> last_version = false WHERE keylookup[] =
        * keynrs[] AND versionfield = val_version - 1 ;
        */
-      RowMetaInterface updateRowMeta = new RowMeta();
+      IRowMeta updateRowMeta = new RowMeta();
 
       String sql_upd = "UPDATE " + data.schemaTable + Const.CR;
 
@@ -1067,7 +1067,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       // The special update fields...
       //
       for ( int i = 0; i < meta.getFieldUpdate().length; i++ ) {
-        ValueMetaInterface valueMeta = null;
+        IValueMeta valueMeta = null;
         switch ( meta.getFieldUpdate()[ i ] ) {
           case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
           case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
@@ -1280,7 +1280,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
     return log.isDebug();
   }
 
-  public void dimUpdate( RowMetaInterface rowMeta, Object[] row, Long dimkey, Date valueDate )
+  public void dimUpdate( IRowMeta rowMeta, Object[] row, Long dimkey, Date valueDate )
     throws HopDatabaseException {
     if ( data.prepStatementDimensionUpdate == null ) {
       // first time: construct prepared statement
@@ -1310,7 +1310,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       // The special update fields...
       //
       for ( int i = 0; i < meta.getFieldUpdate().length; i++ ) {
-        ValueMetaInterface valueMeta = null;
+        IValueMeta valueMeta = null;
         switch ( meta.getFieldUpdate()[ i ] ) {
           case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
           case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
@@ -1375,7 +1375,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
 
   // This updates all versions of a dimension entry.
   //
-  public void dimPunchThrough( RowMetaInterface rowMeta, Object[] row ) throws HopDatabaseException {
+  public void dimPunchThrough( IRowMeta rowMeta, Object[] row ) throws HopDatabaseException {
     if ( data.prepStatementPunchThrough == null ) { // first time: construct prepared statement
       DatabaseMeta databaseMeta = meta.getDatabaseMeta();
       data.punchThroughRowMeta = new RowMeta();
@@ -1402,7 +1402,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       // The special update fields...
       //
       for ( int i = 0; i < meta.getFieldUpdate().length; i++ ) {
-        ValueMetaInterface valueMeta = null;
+        IValueMeta valueMeta = null;
         switch ( meta.getFieldUpdate()[ i ] ) {
           case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
           case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
@@ -1473,7 +1473,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
    * @param valueDateTo   the end of the valid date range
    * @return the values to store in the cache as a row.
    */
-  private Object[] getCacheValues( RowMetaInterface rowMeta, Object[] row, Long technicalKey, Long valueVersion,
+  private Object[] getCacheValues( IRowMeta rowMeta, Object[] row, Long technicalKey, Long valueVersion,
                                    Date valueDateFrom, Date valueDateTo ) {
     if ( data.cacheValueRowMeta == null ) {
       return null; // nothing is in the cache.
@@ -1592,7 +1592,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
 
     if ( isRowLevel() ) {
       logRowlevel(
-        "Cache store: key=" + Arrays.toString( keyValues ) + "    values=" + Arrays.toString( returnValues ) );
+        "ICache store: key=" + Arrays.toString( keyValues ) + "    values=" + Arrays.toString( returnValues ) );
     }
   }
 
@@ -1600,13 +1600,13 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
    * @return the cache value row metadata. The items that are cached is basically the return row metadata:<br>
    * - Technical key (Integer) - Version (Integer) -
    */
-  private RowMetaInterface assembleCacheValueRowMeta() {
-    RowMetaInterface cacheRowMeta = data.returnRowMeta.clone();
+  private IRowMeta assembleCacheValueRowMeta() {
+    IRowMeta cacheRowMeta = data.returnRowMeta.clone();
     // The technical key and version are always an Integer...
     //
     /*
-     * cacheRowMeta.getValueMeta(0).setType(ValueMetaInterface.TYPE_INTEGER);
-     * cacheRowMeta.getValueMeta(1).setType(ValueMetaInterface.TYPE_INTEGER);
+     * cacheRowMeta.getValueMeta(0).setType(IValueMeta.TYPE_INTEGER);
+     * cacheRowMeta.getValueMeta(1).setType(IValueMeta.TYPE_INTEGER);
      */
     return cacheRowMeta;
   }
@@ -1633,7 +1633,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
       long to = ( (Date) row[ row.length - 1 ] ).getTime();
       if ( time >= from && time < to ) { // sanity check to see if we have the right version
         if ( isRowLevel() ) {
-          logRowlevel( "Cache hit: key="
+          logRowlevel( "ICache hit: key="
             + data.cacheKeyRowMeta.getString( keyValues ) + "  values=" + data.cacheValueRowMeta.getString( row ) );
         }
         return row;
@@ -1694,7 +1694,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
 
@@ -1739,7 +1739,7 @@ public class DimensionLookup extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
     if ( data.db != null ) {

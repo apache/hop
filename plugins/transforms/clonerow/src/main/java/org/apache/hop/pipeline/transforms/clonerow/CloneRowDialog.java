@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.clonerow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog( id = "CloneRow", pluginType = PluginDialog.PluginType.TRANSFORM, image = "CloneRow.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Clone+row" )
-public class CloneRowDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class CloneRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CloneRowDialog.class; // for i18n purposes, needed by Translator!!
 
   private CloneRowMeta input;
@@ -388,7 +388,7 @@ public class CloneRowDialog extends BaseTransformDialog implements TransformDial
       try {
         String field = wNrCloneField.getText();
         wNrCloneField.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wNrCloneField.setItems( r.getFieldNames() );
         }

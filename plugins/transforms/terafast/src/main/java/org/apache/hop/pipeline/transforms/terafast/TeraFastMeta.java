@@ -24,23 +24,23 @@ package org.apache.hop.pipeline.transforms.terafast;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.*;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.List;
 
@@ -160,23 +160,23 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see TransformMetaInterface#check(List, PipelineMeta,
-   * TransformMeta, RowMetaInterface, String[],
-   * String[], RowMetaInterface)
+   * @see ITransformMeta#check(List, PipelineMeta,
+   * TransformMeta, IRowMeta, String[],
+   * String[], IRowMeta)
    */
-  public void check( final List<CheckResultInterface> remarks, final PipelineMeta transmeta, final TransformMeta transformMeta,
-                     final RowMetaInterface prev, final String[] input, final String[] output, final RowMetaInterface info,
-                     VariableSpace space, IMetaStore metaStore ) {
+  public void check( final List<ICheckResult> remarks, final PipelineMeta transmeta, final TransformMeta transformMeta,
+                     final IRowMeta prev, final String[] input, final String[] output, final IRowMeta info,
+                     IVariables variables, IMetaStore metaStore ) {
     CheckResult checkResult;
     try {
-      RowMetaInterface tableFields = getRequiredFields( transmeta );
+      IRowMeta tableFields = getRequiredFields( transmeta );
       checkResult =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, MESSAGES
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
           .getString( "TeraFastMeta.Message.ConnectionEstablished" ), transformMeta );
       remarks.add( checkResult );
 
       checkResult =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, MESSAGES
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
           .getString( "TeraFastMeta.Message.TableExists" ), transformMeta );
       remarks.add( checkResult );
 
@@ -185,21 +185,21 @@ public class TeraFastMeta extends AbstractTransformMeta {
         if ( tableFields.searchValueMeta( field ) == null ) {
           error = true;
           checkResult =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, MESSAGES
+            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
               .getString( "TeraFastMeta.Exception.TableFieldNotFound" ), transformMeta );
           remarks.add( checkResult );
         }
       }
       if ( !error ) {
         checkResult =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, MESSAGES
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
             .getString( "TeraFastMeta.Message.AllTableFieldsFound" ), transformMeta );
         remarks.add( checkResult );
       }
       if ( prev != null && prev.size() > 0 ) {
         // transform mode. transform receiving input
         checkResult =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, MESSAGES
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
             .getString( "TeraFastMeta.Message.TransformInputDataFound" ), transformMeta );
         remarks.add( checkResult );
 
@@ -208,25 +208,25 @@ public class TeraFastMeta extends AbstractTransformMeta {
           if ( prev.searchValueMeta( field ) == null ) {
             error = true;
             checkResult =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, MESSAGES
+              new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
                 .getString( "TeraFastMeta.Exception.StreamFieldNotFound" ), transformMeta );
             remarks.add( checkResult );
           }
         }
         if ( !error ) {
           checkResult =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, MESSAGES
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
               .getString( "TeraFastMeta.Message.AllStreamFieldsFound" ), transformMeta );
           remarks.add( checkResult );
         }
       }
     } catch ( HopDatabaseException e ) {
       checkResult =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, MESSAGES
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
           .getString( "TeraFastMeta.Exception.ConnectionFailed" ), transformMeta );
       remarks.add( checkResult );
     } catch ( HopException e ) {
-      checkResult = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, e.getMessage(), transformMeta );
+      checkResult = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta );
       remarks.add( checkResult );
     }
   }
@@ -247,28 +247,28 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see TransformMetaInterface#createTransform(TransformMeta,
-   * TransformDataInterface, int, PipelineMeta, Pipeline)
+   * @see ITransformMeta#createTransform(TransformMeta,
+   * ITransformData, int, PipelineMeta, Pipeline)
    */
-  public TransformInterface createTransform( final TransformMeta transformMeta, final TransformDataInterface transformDataInterface, final int cnr,
-                                             final PipelineMeta pipelineMeta, final Pipeline disp ) {
-    return new TeraFast( transformMeta, transformDataInterface, cnr, pipelineMeta, disp );
+  public ITransform createTransform( final TransformMeta transformMeta, final ITransformData iTransformData, final int cnr,
+                                     final PipelineMeta pipelineMeta, final Pipeline disp ) {
+    return new TeraFast( transformMeta, iTransformData, cnr, pipelineMeta, disp );
   }
 
   /**
    * {@inheritDoc}
    *
-   * @see TransformMetaInterface#getTransformData()
+   * @see ITransformMeta#getTransformData()
    */
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new GenericTransformData();
   }
 
   /**
    * {@inheritDoc}
    *
-   * @see TransformMetaInterface#setDefault()
+   * @see ITransformMeta#setDefault()
    */
   public void setDefault() {
     this.fastloadPath.setValue( DEFAULT_FASTLOAD_PATH );
@@ -284,31 +284,31 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see BaseTransformMeta#getFields(RowMetaInterface, String,
-   * RowMetaInterface[], TransformMeta,
-   * VariableSpace)
+   * @see BaseTransformMeta#getFields(IRowMeta, String,
+   * IRowMeta[], TransformMeta,
+   * IVariables)
    */
   @Override
-  public void getFields( final RowMetaInterface inputRowMeta, final String name, final RowMetaInterface[] info,
-                         final TransformMeta nextTransform, final VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( final IRowMeta inputRowMeta, final String name, final IRowMeta[] info,
+                         final TransformMeta nextTransform, final IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
   /**
    * {@inheritDoc}
    *
-   * @see BaseTransformMeta#getRequiredFields(VariableSpace)
+   * @see BaseTransformMeta#getRequiredFields(IVariables)
    */
   @Override
-  public RowMetaInterface getRequiredFields( final VariableSpace space ) throws HopException {
+  public IRowMeta getRequiredFields( final IVariables variables ) throws HopException {
     if ( !this.useControlFile.getValue() ) {
       final Database database = connectToDatabase();
-      database.shareVariablesWith( space );
+      database.shareVariablesWith( variables );
 
-      RowMetaInterface fields =
+      IRowMeta fields =
         database.getTableFieldsMeta(
           StringUtils.EMPTY,
-          space.environmentSubstitute( this.targetTable.getValue() ) );
+          variables.environmentSubstitute( this.targetTable.getValue() ) );
       database.disconnect();
       if ( fields == null ) {
         throw new HopException( MESSAGES.getString( "TeraFastMeta.Exception.TableNotFound" ) );

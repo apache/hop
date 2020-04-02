@@ -29,8 +29,8 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -76,7 +76,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryShellDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryShell.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILEFORMATS = new String[] {
@@ -195,12 +195,12 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
 
   private FormData fdScript, fdInsertScript, fdlInsertScript;
 
-  public JobEntryShellDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryShellDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryShell) jobEntryInt;
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     display = parent.getDisplay();
 

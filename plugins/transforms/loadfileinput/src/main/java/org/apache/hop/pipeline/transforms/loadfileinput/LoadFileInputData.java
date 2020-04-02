@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Date;
 
@@ -34,9 +34,9 @@ import java.util.Date;
  * @author Samatar
  * @since 21-06-2007
  */
-public class LoadFileInputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+public class LoadFileInputData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
   public String thisline, nextline, lastline;
   public Object[] previousRow;
   public int nr_repeats;
@@ -57,7 +57,7 @@ public class LoadFileInputData extends BaseTransformData implements TransformDat
 
   public long fileSize;
 
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
   public String filename;
   public String shortFilename;
   public String path;

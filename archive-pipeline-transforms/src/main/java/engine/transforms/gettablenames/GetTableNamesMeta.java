@@ -29,20 +29,20 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -315,35 +315,35 @@ public class GetTableNamesMeta extends BaseTransformMeta implements TransformMet
     schemaNameField = null;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
-    String realtablename = space.environmentSubstitute( tablenamefieldname );
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+    String realtablename = variables.environmentSubstitute( tablenamefieldname );
     if ( !Utils.isEmpty( realtablename ) ) {
-      ValueMetaInterface v = new ValueMetaString( realtablename );
+      IValueMeta v = new ValueMetaString( realtablename );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
-    String realObjectType = space.environmentSubstitute( objecttypefieldname );
+    String realObjectType = variables.environmentSubstitute( objecttypefieldname );
     if ( !Utils.isEmpty( realObjectType ) ) {
-      ValueMetaInterface v = new ValueMetaString( realObjectType );
+      IValueMeta v = new ValueMetaString( realObjectType );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
-    String sysobject = space.environmentSubstitute( issystemobjectfieldname );
+    String sysobject = variables.environmentSubstitute( issystemobjectfieldname );
     if ( !Utils.isEmpty( sysobject ) ) {
-      ValueMetaInterface v = new ValueMetaBoolean( sysobject );
+      IValueMeta v = new ValueMetaBoolean( sysobject );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
-    String realSQLCreation = space.environmentSubstitute( sqlcreationfieldname );
+    String realSQLCreation = variables.environmentSubstitute( sqlcreationfieldname );
     if ( !Utils.isEmpty( realSQLCreation ) ) {
-      ValueMetaInterface v = new ValueMetaString( realSQLCreation );
+      IValueMeta v = new ValueMetaString( realSQLCreation );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -409,7 +409,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements TransformMet
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -443,12 +443,12 @@ public class GetTableNamesMeta extends BaseTransformMeta implements TransformMet
 
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetTableNames( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new GetTableNames( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new GetTableNamesData();
   }
 

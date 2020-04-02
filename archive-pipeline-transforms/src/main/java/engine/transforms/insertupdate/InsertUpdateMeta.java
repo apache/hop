@@ -36,10 +36,10 @@ import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -47,8 +47,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
@@ -169,7 +169,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
    *           usually "this" for a calling transform
    * @return Returns the commitSize.
    */
-  public int getCommitSize( VariableSpace vs ) {
+  public int getCommitSize( iVariables vs ) {
     //this happens when the transform is created via API and no setDefaults was called
     commitSize = ( commitSize == null ) ? "0" : commitSize;
     return Integer.parseInt( vs.environmentSubstitute( commitSize ) );
@@ -463,13 +463,13 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -491,7 +491,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
           error_message = "";
 
           // Check fields in table
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
@@ -501,7 +501,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
             for ( int i = 0; i < keyLookup.length; i++ ) {
               String lufield = keyLookup[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -531,7 +531,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
             for ( int i = 0; i < updateLookup.length; i++ ) {
               String lufield = updateLookup[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -571,7 +571,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -584,7 +584,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
             if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
+              IValueMeta v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -614,7 +614,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
           for ( int i = 0; i < updateStream.length; i++ ) {
             String lufield = updateStream[ i ];
 
-            ValueMetaInterface v = prev.searchValueMeta( lufield );
+            IValueMeta v = prev.searchValueMeta( lufield );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -668,14 +668,14 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         // Copy the row
-        RowMetaInterface tableFields = RowMetaUtils.getRowMetaForUpdate( prev, keyLookup,
+        IRowMeta tableFields = RowMetaUtils.getRowMetaForUpdate( prev, keyLookup,
           keyStream, updateLookup, updateStream );
 
         if ( !Utils.isEmpty( tableName ) ) {
@@ -732,12 +732,12 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -749,7 +749,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
 
       // Insert update fields : read/write
       for ( int i = 0; i < updateLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( updateStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -761,12 +761,12 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new InsertUpdate( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new InsertUpdate( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new InsertUpdateData();
   }
 
@@ -792,9 +792,9 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     this.updateBypassed = updateBypassed;
   }
 
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
-    String realSchemaName = space.environmentSubstitute( schemaName );
-    String realTableName = space.environmentSubstitute( tableName );
+  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+    String realSchemaName = variables.environmentSubstitute( schemaName );
+    String realTableName = variables.environmentSubstitute( tableName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -845,7 +845,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     return true;
   }
 
-  @Override public RowMeta getRowMeta( TransformDataInterface transformData ) {
+  @Override public RowMeta getRowMeta( ITransformData transformData ) {
     return (RowMeta) ( (InsertUpdateData) transformData ).insertRowMeta;
   }
 

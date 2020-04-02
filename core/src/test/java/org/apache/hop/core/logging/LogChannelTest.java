@@ -48,7 +48,7 @@ public class LogChannelTest {
   private String channelId = "1234-5678-abcd-efgh";
 
   private LogLevel logLevel;
-  private LogMessageInterface logMsgInterface;
+  private ILogMessage logMsgInterface;
   private LogChannelFileWriterBuffer logChFileWriterBuffer;
 
   @Before
@@ -73,7 +73,7 @@ public class LogChannelTest {
     Whitebox.setInternalState( logLevel, "name", "Basic" );
     Whitebox.setInternalState( logLevel, "ordinal", 3 );
 
-    logMsgInterface = mock( LogMessageInterface.class );
+    logMsgInterface = mock( ILogMessage.class );
     Mockito.when( logMsgInterface.getLevel() ).thenReturn( logLevel );
 
     logChannel = new LogChannel( logChannelSubject );
@@ -106,7 +106,7 @@ public class LogChannelTest {
     Whitebox.setInternalState( logLevelFil, "ordinal", 1 );
     when( logLevelFil.isError() ).thenReturn( false );
 
-    LogMessageInterface logMsgInterfaceFil = mock( LogMessageInterface.class );
+    ILogMessage logMsgInterfaceFil = mock( ILogMessage.class );
     Mockito.when( logMsgInterfaceFil.getLevel() ).thenReturn( logLevelFil );
     Mockito.when( logMsgInterfaceFil.toString() ).thenReturn( "a" );
 

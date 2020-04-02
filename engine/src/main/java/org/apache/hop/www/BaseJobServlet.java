@@ -56,7 +56,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
 
     JobMeta jobMeta = jobConfiguration.getJobMeta();
     jobMeta.setLogLevel( jobExecutionConfiguration.getLogLevel() );
-    jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
+    jobMeta.injectVariables( jobExecutionConfiguration.getVariablesMap() );
 
     String carteObjectId = UUID.randomUUID().toString();
 
@@ -69,10 +69,10 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     job.initializeVariablesFrom( null );
     job.getJobMeta().setMetaStore( jobMap.getSlaveServerConfig().getMetaStore() );
     job.getJobMeta().setInternalHopVariables( job );
-    job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariables() );
+    job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariablesMap() );
     job.setSocketRepository( getSocketRepository() );
 
-    copyJobParameters( job, jobExecutionConfiguration.getParams() );
+    copyJobParameters( job, jobExecutionConfiguration.getParametersMap() );
 
     // Check if there is a starting point specified.
     String startCopyName = jobExecutionConfiguration.getStartCopyName();
@@ -102,10 +102,10 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
     pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
-    pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariables() );
+    pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
 
     // Also copy the parameters over...
-    copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParams() );
+    copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParametersMap() );
 
     String carteObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =

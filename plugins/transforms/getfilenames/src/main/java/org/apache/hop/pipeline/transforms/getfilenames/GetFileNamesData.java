@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.getfilenames;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.playlist.FilePlayList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.playlist.IFilePlayList;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -45,7 +45,7 @@ import java.util.zip.ZipInputStream;
  * @author Matt
  * @since 22-jan-2005
  */
-public class GetFileNamesData extends BaseTransformData implements TransformDataInterface {
+public class GetFileNamesData extends BaseTransformData implements ITransformData {
   public List<String> lineBuffer;
 
   public Object[] previous_row;
@@ -62,7 +62,7 @@ public class GetFileNamesData extends BaseTransformData implements TransformData
 
   public SimpleDateFormat daf;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public DateFormatSymbols dafs;
 
@@ -92,9 +92,9 @@ public class GetFileNamesData extends BaseTransformData implements TransformData
 
   public boolean doneWithHeader;
 
-  public FileErrorHandler dataErrorLineHandler;
+  public IFileErrorHandler dataErrorLineHandler;
 
-  public FilePlayList filePlayList;
+  public IFilePlayList filePlayList;
 
   public FileObject file;
 
@@ -107,7 +107,7 @@ public class GetFileNamesData extends BaseTransformData implements TransformData
   public int indexOfWildcardField;
   public int indexOfExcludeWildcardField;
 
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public Object[] readrow;
 

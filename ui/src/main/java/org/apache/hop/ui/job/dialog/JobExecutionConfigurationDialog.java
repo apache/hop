@@ -174,14 +174,14 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
   private void getVariablesData() {
     wVariables.clearAll( false );
-    List<String> variableNames = new ArrayList<>( configuration.getVariables().keySet() );
+    List<String> variableNames = new ArrayList<>( configuration.getVariablesMap().keySet() );
     Collections.sort( variableNames );
 
-    List<String> paramNames = new ArrayList<>( configuration.getParams().keySet() );
+    List<String> paramNames = new ArrayList<>( configuration.getParametersMap().keySet() );
 
     for ( int i = 0; i < variableNames.size(); i++ ) {
       String variableName = variableNames.get( i );
-      String variableValue = configuration.getVariables().get( variableName );
+      String variableValue = configuration.getVariablesMap().get( variableName );
 
       if ( !paramNames.contains( variableName ) ) {
         //

@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -89,7 +89,7 @@ public class NormaliserTest {
   private List<RowMetaAndData> getExpectedWikiOutputRowMetaAndData() {
     final Date theDate = new Date( 103, 01, 01 );
     List<RowMetaAndData> list = new ArrayList<>();
-    RowMetaInterface rm = new RowMeta();
+    IRowMeta rm = new RowMeta();
     rm.addValueMeta( new ValueMetaDate( "DATE" ) );
     rm.addValueMeta( new ValueMetaString( "Type" ) );
     rm.addValueMeta( new ValueMetaInteger( "Product Sales" ) );
@@ -121,7 +121,7 @@ public class NormaliserTest {
   private List<RowMetaAndData> getWikiInputRowMetaAndData() {
     List<RowMetaAndData> list = new ArrayList<>();
     Object[] row = new Object[ 7 ];
-    RowMetaInterface rm = new RowMeta();
+    IRowMeta rm = new RowMeta();
     rm.addValueMeta( new ValueMetaDate( "DATE" ) );
     row[ 0 ] = new Date( 103, 01, 01 );
     rm.addValueMeta( new ValueMetaInteger( "PR1_NR" ) );
@@ -145,8 +145,8 @@ public class NormaliserTest {
     for ( int i = 0; i < outputList.size(); i++ ) {
       RowMetaAndData aRowMetaAndData = outputList.get( i );
       RowMetaAndData expectedRowMetaAndData = expectedOutput.get( i );
-      RowMetaInterface rowMeta = aRowMetaAndData.getRowMeta();
-      RowMetaInterface expectedRowMeta = expectedRowMetaAndData.getRowMeta();
+      IRowMeta rowMeta = aRowMetaAndData.getRowMeta();
+      IRowMeta expectedRowMeta = expectedRowMetaAndData.getRowMeta();
       String[] fields = rowMeta.getFieldNames();
       String[] expectedFields = expectedRowMeta.getFieldNames();
       assertEquals( expectedFields.length, fields.length );

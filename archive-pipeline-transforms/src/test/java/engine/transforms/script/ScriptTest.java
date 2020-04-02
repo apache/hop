@@ -42,7 +42,7 @@ public class ScriptTest {
   @Before
   public void setUp() throws Exception {
     helper = new TransformMockHelper<>( "test-script", ScriptMeta.class, ScriptData.class );
-    when( helper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( helper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       helper.logChannelInterface );
     when( helper.pipeline.isRunning() ).thenReturn( true );
     when( helper.initTransformMetaInterface.getJSScripts() ).thenReturn(
@@ -56,7 +56,7 @@ public class ScriptTest {
 
   @Test
   public void testOutputDoneIfInputEmpty() throws Exception {
-    Script transform = new Script( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    Script transform = new Script( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform.init( helper.initTransformMetaInterface, helper.initTransformDataInterface );
 
     RowSet rs = helper.getMockInputRowSet( new Object[ 0 ][ 0 ] );

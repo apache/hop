@@ -25,8 +25,8 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
@@ -40,8 +40,8 @@ public class ModPartitioner extends BasePartitioner {
     super();
   }
 
-  public Partitioner getInstance() {
-    Partitioner partitioner = new ModPartitioner();
+  public IPartitioner getInstance() {
+    IPartitioner partitioner = new ModPartitioner();
     partitioner.setId( getId() );
     partitioner.setDescription( getDescription() );
     return partitioner;
@@ -58,7 +58,7 @@ public class ModPartitioner extends BasePartitioner {
     return "org.apache.hop.ui.pipeline.dialog.ModPartitionerDialog";
   }
 
-  public int getPartition( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  public int getPartition( IRowMeta rowMeta, Object[] row ) throws HopException {
     init( rowMeta );
 
     if ( partitionColumnIndex < 0 ) {
@@ -71,11 +71,11 @@ public class ModPartitioner extends BasePartitioner {
 
     long value;
 
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( partitionColumnIndex );
+    IValueMeta valueMeta = rowMeta.getValueMeta( partitionColumnIndex );
     Object valueData = row[ partitionColumnIndex ];
 
     switch ( valueMeta.getType() ) {
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         Long longValue = rowMeta.getInteger( row, partitionColumnIndex );
         if ( longValue == null ) {
           value = valueMeta.hashCode( valueData );

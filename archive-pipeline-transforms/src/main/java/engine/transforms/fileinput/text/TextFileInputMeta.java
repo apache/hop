@@ -37,8 +37,8 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -46,18 +46,18 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
@@ -597,8 +597,8 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !inputFiles.passingThruFields ) {
       // all incoming fields are not transmitted !
       row.clear();
@@ -618,12 +618,12 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       BaseFileField field = inputFields[ i ];
 
       int type = field.getType();
-      if ( type == ValueMetaInterface.TYPE_NONE ) {
-        type = ValueMetaInterface.TYPE_STRING;
+      if ( type == IValueMeta.TYPE_NONE ) {
+        type = IValueMeta.TYPE_STRING;
       }
 
       try {
-        ValueMetaInterface v = ValueMetaFactory.createValueMeta( field.getName(), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( field.getName(), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -642,31 +642,31 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     }
     if ( errorHandling.errorIgnored ) {
       if ( errorCountField != null && errorCountField.length() > 0 ) {
-        ValueMetaInterface v = new ValueMetaInteger( errorCountField );
-        v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+        IValueMeta v = new ValueMetaInteger( errorCountField );
+        v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
         v.setOrigin( name );
         row.addValueMeta( v );
       }
       if ( errorFieldsField != null && errorFieldsField.length() > 0 ) {
-        ValueMetaInterface v = new ValueMetaString( errorFieldsField );
+        IValueMeta v = new ValueMetaString( errorFieldsField );
         v.setOrigin( name );
         row.addValueMeta( v );
       }
       if ( errorTextField != null && errorTextField.length() > 0 ) {
-        ValueMetaInterface v = new ValueMetaString( errorTextField );
+        IValueMeta v = new ValueMetaString( errorTextField );
         v.setOrigin( name );
         row.addValueMeta( v );
       }
     }
     if ( content.includeFilename ) {
-      ValueMetaInterface v = new ValueMetaString( content.filenameField );
+      IValueMeta v = new ValueMetaString( content.filenameField );
       v.setLength( 100 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( content.includeRowNumber ) {
-      ValueMetaInterface v = new ValueMetaInteger( content.rowNumberField );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( content.rowNumberField );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -674,56 +674,56 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     // Add additional fields
 
     if ( StringUtils.isNotBlank( additionalOutputFields.shortFilenameField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.shortFilenameField ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.shortFilenameField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.extensionField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.extensionField ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.extensionField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.pathField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.pathField ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.pathField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.sizeField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.sizeField ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.sizeField ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.hiddenField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaBoolean( space.environmentSubstitute( additionalOutputFields.hiddenField ) );
+      IValueMeta v =
+        new ValueMetaBoolean( variables.environmentSubstitute( additionalOutputFields.hiddenField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( StringUtils.isNotBlank( additionalOutputFields.lastModificationField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaDate( space.environmentSubstitute( additionalOutputFields.lastModificationField ) );
+      IValueMeta v =
+        new ValueMetaDate( variables.environmentSubstitute( additionalOutputFields.lastModificationField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.uriField ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.uriField ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.uriField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( StringUtils.isNotBlank( additionalOutputFields.rootUriField ) ) {
-      ValueMetaInterface v = new ValueMetaString( additionalOutputFields.rootUriField );
+      IValueMeta v = new ValueMetaString( additionalOutputFields.rootUriField );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -894,8 +894,8 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -936,13 +936,13 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new TextFileInput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new TextFileInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new TextFileInputData();
   }
 
@@ -1022,15 +1022,15 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
@@ -1047,10 +1047,10 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
             continue;
           }
 
-          FileObject fileObject = getFileObject( space.environmentSubstitute( fileName ), space );
+          FileObject fileObject = getFileObject( variables.environmentSubstitute( fileName ), variables );
 
           inputFiles.fileName[ i ] =
-            resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( inputFiles.fileMask[ i ] ) );
+            iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( inputFiles.fileMask[ i ] ) );
         }
       }
       return null;
@@ -1125,23 +1125,23 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     return inputFiles.acceptingField;
   }
 
-  public String[] getFilePaths( VariableSpace space ) {
+  public String[] getFilePaths( iVariables variables ) {
     return FileInputList.createFilePathList(
-      space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
+      variables, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
       inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 
-  public FileInputList getTextFileList( VariableSpace space ) {
+  public FileInputList getTextFileList( iVariables variables ) {
     return FileInputList.createFileList(
-      space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
+      variables, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
       inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 
   /**
    * For testing
    */
-  FileObject getFileObject( String vfsFileName, VariableSpace variableSpace ) throws HopFileException {
-    return HopVFS.getFileObject( variableSpace.environmentSubstitute( vfsFileName ), variableSpace );
+  FileObject getFileObject( String vfsFileName, iVariables variables ) throws HopFileException {
+    return HopVFS.getFileObject( variables.environmentSubstitute( vfsFileName ), variables );
   }
 
   @Override

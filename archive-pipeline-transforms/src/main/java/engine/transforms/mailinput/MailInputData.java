@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.job.entries.getpop.MailConnection;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.mail.Message;
 import java.util.Iterator;
@@ -34,11 +34,11 @@ import java.util.Iterator;
  * @author Matt
  * @since 24-jan-2005
  */
-public class MailInputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface inputRowMeta;
+public class MailInputData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
   public int totalpreviousfields;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public MailConnection mailConn;
   public int messagesCount;
   public long rownr;

@@ -68,7 +68,7 @@ public class StaxPoiWorkbook implements KWorkbook {
 
   protected StaxPoiWorkbook() {
     openSheetsMap = new HashMap<String, StaxPoiSheet>();
-    this.log = HopLogStore.getLogChannelInterfaceFactory().create( this );
+    this.log = HopLogStore.getLogChannelFactory().create( this );
   }
 
   public StaxPoiWorkbook( String filename, String encoding ) throws HopException {

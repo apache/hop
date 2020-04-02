@@ -31,7 +31,7 @@ import com.enterprisedt.net.ftp.FTPFileParser;
 import com.enterprisedt.net.ftp.FTPTransferType;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -41,14 +41,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -82,7 +82,7 @@ import java.util.regex.Pattern;
   image = "FTP.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileTransfer"
 )
-public class JobEntryFTP extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryFTP extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryFTP.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
@@ -1287,7 +1287,7 @@ public class JobEntryFTP extends JobEntryBase implements Cloneable, JobEntryInte
     this.activeConnection = activeConnection;
   }
 
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
@@ -1336,7 +1336,7 @@ public class JobEntryFTP extends JobEntryBase implements Cloneable, JobEntryInte
     if ( log.isDebug() ) {
       logDebug( BaseMessages.getString( PKG, "JobEntryFTP.DEBUG.Get.Variable.Space" ) );
     }
-    VariableSpace vs = this.getVariables();
+    IVariables vs = this.getVariables();
     if ( vs != null ) {
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "JobEntryFTP.DEBUG.Getting.Other.Parsers" ) );

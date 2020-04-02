@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -58,20 +58,20 @@ public class UserDefinedJavaClassMetaInjectionTest extends BaseMetadataInjection
     check( "TAG", () -> meta.getUsageParameters().get( 0 ).tag );
 
     ArrayList<UserDefinedJavaClassMeta.FieldInfo> fieldList = new ArrayList<>();
-    fieldList.add( new UserDefinedJavaClassMeta.FieldInfo( null, ValueMetaInterface.TYPE_STRING, -1, -1 ) );
+    fieldList.add( new UserDefinedJavaClassMeta.FieldInfo( null, IValueMeta.TYPE_STRING, -1, -1 ) );
     meta.replaceFields( fieldList );
     check( "FIELD_NAME", () -> meta.getFieldInfo().get( 0 ).name );
     check( "FIELD_LENGTH", () -> meta.getFieldInfo().get( 0 ).length );
     check( "FIELD_PRECISION", () -> meta.getFieldInfo().get( 0 ).precision );
 
     skipPropertyTest( "FIELD_TYPE" );
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "String" ), "f" );
-    assertEquals( ValueMetaInterface.TYPE_STRING, meta.getFieldInfo().get( 0 ).type );
+    assertEquals( IValueMeta.TYPE_STRING, meta.getFieldInfo().get( 0 ).type );
     // reset the field info array, so we can set it again
     meta.setFieldInfo( new ArrayList<>() );
     injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "Integer" ), "f" );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, meta.getFieldInfo().get( 0 ).type );
+    assertEquals( IValueMeta.TYPE_INTEGER, meta.getFieldInfo().get( 0 ).type );
 
     injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaString( "" ), "" ), "" );
     assertEquals( -1, meta.getFieldInfo().get( 0 ).length );

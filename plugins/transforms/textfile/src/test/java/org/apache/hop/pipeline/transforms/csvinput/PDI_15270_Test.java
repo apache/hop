@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -58,7 +58,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "Pdi15270Test" );
-    csvInput = new CsvInput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+    csvInput = new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 
@@ -120,7 +120,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   }
 
   public void doTest( String content, String[] expected ) throws Exception {
-    RowSet output = new QueueRowSet();
+    IRowSet output = new QueueRowSet();
 
     File tmp = createTestFile( ENCODING, content );
     try {

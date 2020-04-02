@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.missing;
 
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -55,8 +55,8 @@ public class Missing extends DummyMeta {
     this.missingPluginId = missingPluginId;
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, DummyData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new MissingTransform( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, DummyData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new MissingTransform( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 }

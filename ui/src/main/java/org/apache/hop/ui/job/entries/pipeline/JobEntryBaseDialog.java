@@ -35,7 +35,7 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -157,7 +157,7 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
   protected ComboVar wRunConfiguration;
 
   public JobEntryBaseDialog( Shell parent,
-                             JobEntryInterface jobEntryInt,
+                             IJobEntry jobEntryInt,
                              JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     log = new LogChannel( jobMeta );

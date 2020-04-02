@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.filelocked;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2009
  */
-public class FileLockedData extends BaseTransformData implements TransformDataInterface {
+public class FileLockedData extends BaseTransformData implements ITransformData {
   public int indexOfFileename;
-  public RowMetaInterface previousRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta previousRowMeta;
+  public IRowMeta outputRowMeta;
   public int NrPrevFields;
 
   public FileLockedData() {

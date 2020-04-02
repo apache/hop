@@ -24,15 +24,15 @@ package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.UUID4Util;
 import org.apache.hop.core.util.UUIDUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -48,7 +48,7 @@ import java.util.List;
  * @author Matt, Samatar
  * @since 8-8-2008
  */
-public class RandomValue extends BaseTransform implements TransformInterface {
+public class RandomValue extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -56,12 +56,12 @@ public class RandomValue extends BaseTransform implements TransformInterface {
 
   private RandomValueData data;
 
-  public RandomValue( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public RandomValue( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private Object[] getRandomValue( RowMetaInterface inputRowMeta, Object[] inputRowData ) {
+  private Object[] getRandomValue( IRowMeta inputRowMeta, Object[] inputRowData ) {
     Object[] row = new Object[ data.outputRowMeta.size() ];
     for ( int i = 0; i < inputRowMeta.size(); i++ ) {
       row[ i ] = inputRowData[ i ]; // no data is changed, clone is not
@@ -147,7 +147,7 @@ public class RandomValue extends BaseTransform implements TransformInterface {
 
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Object[] row;
     if ( data.readsRows ) {
       row = getRow();
@@ -172,7 +172,7 @@ public class RandomValue extends BaseTransform implements TransformInterface {
       }
     }
 
-    RowMetaInterface imeta = getInputRowMeta();
+    IRowMeta imeta = getInputRowMeta();
     if ( imeta == null ) {
       imeta = new RowMeta();
       this.setInputRowMeta( imeta );
@@ -196,7 +196,7 @@ public class RandomValue extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (RandomValueMeta) smi;
     data = (RandomValueData) sdi;
 
@@ -249,7 +249,7 @@ public class RandomValue extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     super.dispose( smi, sdi );
   }
 

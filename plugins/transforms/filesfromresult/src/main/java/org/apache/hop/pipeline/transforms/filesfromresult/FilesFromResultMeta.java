@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.filesfromresult;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -56,7 +56,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Job",
         documentationUrl = ""
 )
-public class FilesFromResultMeta extends BaseTransformMeta implements TransformMetaInterface<FilesFromResult, FilesFromResultData> {
+public class FilesFromResultMeta extends BaseTransformMeta implements ITransformMeta<FilesFromResult, FilesFromResultData> {
   private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
 
   public FilesFromResultMeta() {
@@ -78,14 +78,14 @@ public class FilesFromResultMeta extends BaseTransformMeta implements TransformM
   public void setDefault() {
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Add the fields from a ResultFile
     try {
       ResultFile resultFile =
         new ResultFile(
-          ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( "foo.bar", space ), "parentOrigin", "origin" );
+          ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( "foo.bar", variables ), "parentOrigin", "origin" );
       RowMetaAndData add = resultFile.getRow();
 
       // Set the origin on the fields...
@@ -98,26 +98,26 @@ public class FilesFromResultMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "FilesFromResultMeta.CheckResult.TransformExpectingNoReadingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "FilesFromResultMeta.CheckResult.NoInputReceivedError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public FilesFromResult createTransform( TransformMeta transformMeta, FilesFromResultData transformDataInterface, int cnr,
+  public FilesFromResult createTransform( TransformMeta transformMeta, FilesFromResultData iTransformData, int cnr,
                                           PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FilesFromResult( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FilesFromResult( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public FilesFromResultData getTransformData() {

@@ -25,7 +25,7 @@ package org.apache.hop.core.encryption;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.eclipse.jetty.util.security.Password;
@@ -39,7 +39,7 @@ import org.eclipse.jetty.util.security.Password;
  */
 public class Encr {
 
-  private static TwoWayPasswordEncoderInterface encoder;
+  private static ITwoWayPasswordEncoder encoder;
 
   public Encr() {
   }
@@ -54,11 +54,11 @@ public class Encr {
       throw new HopException( "Unable to initialize the two way password encoder: No encoder plugin type specified." );
     }
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.findPluginWithId( TwoWayPasswordEncoderPluginType.class, encoderPluginId );
+    IPlugin plugin = registry.findPluginWithId( TwoWayPasswordEncoderPluginType.class, encoderPluginId );
     if ( plugin == null ) {
       throw new HopException( "Unable to find plugin with ID '" + encoderPluginId + "'" );
     }
-    encoder = (TwoWayPasswordEncoderInterface) registry.loadClass( plugin );
+    encoder = (ITwoWayPasswordEncoder) registry.loadClass( plugin );
 
     // Load encoder specific options...
     //

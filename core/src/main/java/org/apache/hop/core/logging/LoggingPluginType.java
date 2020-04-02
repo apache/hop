@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.util.Utils;
 
 import java.lang.annotation.Annotation;
@@ -37,9 +37,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( LoggingPluginInterface.class )
+@PluginMainClassType( ILoggingPlugin.class )
 @PluginAnnotationType( LoggingPlugin.class )
-public class LoggingPluginType extends BasePluginType implements PluginTypeInterface {
+public class LoggingPluginType extends BasePluginType implements IPluginType {
 
   private static LoggingPluginType loggingPluginType;
 

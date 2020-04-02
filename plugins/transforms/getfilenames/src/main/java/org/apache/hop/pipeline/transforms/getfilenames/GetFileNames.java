@@ -37,10 +37,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.io.IOException;
 import java.util.Date;
@@ -52,16 +52,16 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class GetFileNames extends BaseTransform implements TransformInterface {
+public class GetFileNames extends BaseTransform implements ITransform {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
 
   private GetFileNamesMeta meta;
 
   private GetFileNamesData data;
 
-  public GetFileNames( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public GetFileNames( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -76,7 +76,7 @@ public class GetFileNames extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( !meta.isFileField() ) {
       if ( data.filenr >= data.filessize ) {
         setOutputDone();
@@ -297,7 +297,7 @@ public class GetFileNames extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (GetFileNamesMeta) smi;
     data = (GetFileNamesData) sdi;
 
@@ -336,7 +336,7 @@ public class GetFileNames extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (GetFileNamesMeta) smi;
     data = (GetFileNamesData) sdi;
     if ( data.file != null ) {

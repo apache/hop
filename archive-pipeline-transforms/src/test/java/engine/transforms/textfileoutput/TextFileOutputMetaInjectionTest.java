@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -239,7 +239,7 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "left" ), "f" );
     assertEquals( 1, meta.getOutputFields()[ 0 ].getTrimType() );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "right" ), "f" );

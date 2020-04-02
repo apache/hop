@@ -30,10 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,19 +49,19 @@ import java.util.List;
  * @since 03-11-2008
  */
 
-public class ExecProcess extends BaseTransform implements TransformInterface {
+public class ExecProcess extends BaseTransform implements ITransform {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExecProcessMeta meta;
   private ExecProcessData data;
 
-  public ExecProcess( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ExecProcess( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 
@@ -265,7 +265,7 @@ public class ExecProcess extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 
@@ -281,7 +281,7 @@ public class ExecProcess extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 

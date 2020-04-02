@@ -27,10 +27,10 @@ import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageBitmap;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.SvgImage;
@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SwingGUIResource {
-  private static LogChannelInterface log = new LogChannel( "SwingGUIResource" );
+  private static ILogChannel log = new LogChannel( "SwingGUIResource" );
 
   private static SwingGUIResource instance;
 
@@ -68,7 +68,7 @@ public class SwingGUIResource {
   private Map<String, SwingUniversalImage> loadTransformImages() {
     Map<String, SwingUniversalImage> map = new HashMap<>();
 
-    for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( TransformPluginType.class ) ) {
+    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( TransformPluginType.class ) ) {
       try {
         SwingUniversalImage image = getUniversalImageIcon( plugin );
         for ( String id : plugin.getIds() ) {
@@ -86,7 +86,7 @@ public class SwingGUIResource {
   private Map<String, SwingUniversalImage> loadEntryImages() {
     Map<String, SwingUniversalImage> map = new HashMap<>();
 
-    for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( JobEntryPluginType.class ) ) {
+    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( JobEntryPluginType.class ) ) {
       try {
         if ( JobMeta.STRING_SPECIAL.equals( plugin.getIds()[ 0 ] ) ) {
           continue;
@@ -108,7 +108,7 @@ public class SwingGUIResource {
     return map;
   }
 
-  private SwingUniversalImage getUniversalImageIcon( PluginInterface plugin ) throws HopException {
+  private SwingUniversalImage getUniversalImageIcon( IPlugin plugin ) throws HopException {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
       String filename = plugin.getImageFile();

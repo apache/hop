@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -72,7 +72,7 @@ public class CheckResultDialog extends Dialog {
   private static final String STRING_SHOW_REMARKS = BaseMessages.getString(
     PKG, "CheckResultDialog.WarningsErrors.Label" );
 
-  private List<CheckResultInterface> remarks;
+  private List<ICheckResult> remarks;
 
   private Label wlFields;
   private TableView wFields;
@@ -92,7 +92,7 @@ public class CheckResultDialog extends Dialog {
 
   private PipelineMeta pipelineMeta;
 
-  public CheckResultDialog( PipelineMeta pipelineMeta, Shell parent, int style, List<CheckResultInterface> rem ) {
+  public CheckResultDialog( PipelineMeta pipelineMeta, Shell parent, int style, List<ICheckResult> rem ) {
     super( parent, style );
     remarks = rem;
     props = PropsUI.getInstance();
@@ -242,12 +242,12 @@ public class CheckResultDialog extends Dialog {
     wFields.table.removeAll();
 
     for ( int i = 0; i < remarks.size(); i++ ) {
-      CheckResultInterface cr = remarks.get( i );
-      if ( show_successful_results || cr.getType() != CheckResultInterface.TYPE_RESULT_OK ) {
+      ICheckResult cr = remarks.get( i );
+      if ( show_successful_results || cr.getType() != ICheckResult.TYPE_RESULT_OK ) {
         TableItem ti = new TableItem( wFields.table, SWT.NONE );
         // MB - Support both JobEntry and Transform Checking
         // 6/25/07
-        CheckResultSourceInterface sourceMeta = cr.getSourceInfo();
+        ICheckResultSource sourceMeta = cr.getSourceInfo();
         if ( sourceMeta != null ) {
           ti.setText( 1, sourceMeta.getName() );
         } else {
@@ -258,16 +258,16 @@ public class CheckResultDialog extends Dialog {
 
         Color col = ti.getBackground();
         switch ( cr.getType() ) {
-          case CheckResultInterface.TYPE_RESULT_OK:
+          case ICheckResult.TYPE_RESULT_OK:
             col = green;
             break;
-          case CheckResultInterface.TYPE_RESULT_ERROR:
+          case ICheckResult.TYPE_RESULT_ERROR:
             col = red;
             break;
-          case CheckResultInterface.TYPE_RESULT_WARNING:
+          case ICheckResult.TYPE_RESULT_WARNING:
             col = yellow;
             break;
-          case CheckResultInterface.TYPE_RESULT_COMMENT:
+          case ICheckResult.TYPE_RESULT_COMMENT:
           default:
             break;
         }

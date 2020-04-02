@@ -22,17 +22,17 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.ObjectProvider;
-import org.apache.test.util.ObjectTester;
-import org.apache.test.util.ObjectValidator;
+import org.apache.test.util.IObjectProvider;
+import org.apache.test.util.IObjectTester;
+import org.apache.test.util.IObjectValidator;
 
 import java.util.Collection;
 
-public class DefaultObjectTester<T> implements ObjectTester<T> {
-  private final ObjectProvider<T> provider;
-  private final ObjectValidator<T> validator;
+public class DefaultObjectTester<T> implements IObjectTester<T> {
+  private final IObjectProvider<T> provider;
+  private final IObjectValidator<T> validator;
 
-  public DefaultObjectTester( ObjectProvider<T> provider, ObjectValidator<T> validator ) {
+  public DefaultObjectTester( IObjectProvider<T> provider, IObjectValidator<T> validator ) {
     this.provider = provider;
     this.validator = validator;
   }

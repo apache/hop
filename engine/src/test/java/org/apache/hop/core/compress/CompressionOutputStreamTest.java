@@ -60,7 +60,7 @@ public class CompressionOutputStreamTest {
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    CompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
     ByteArrayOutputStream in = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS( in, provider );
   }
@@ -76,13 +76,13 @@ public class CompressionOutputStreamTest {
 
   @Test
   public void getCompressionProvider() {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 
   @Test
   public void testClose() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS( out, provider );
     outStream.close();
@@ -90,7 +90,7 @@ public class CompressionOutputStreamTest {
 
   @Test
   public void testWrite() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS( out, provider );
     outStream.write( "Test".getBytes() );
@@ -98,14 +98,14 @@ public class CompressionOutputStreamTest {
 
   @Test
   public void testAddEntry() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS( out, provider );
     outStream.addEntry( null, null );
   }
 
   private static class DummyCompressionOS extends CompressionOutputStream {
-    public DummyCompressionOS( OutputStream out, CompressionProvider provider ) {
+    public DummyCompressionOS( OutputStream out, ICompressionProvider provider ) {
       super( out, provider );
     }
   }

@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ProgressMonitorAdapter;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,17 +49,17 @@ public class CheckPipelineProgressDialog {
 
   private Shell shell;
   private PipelineMeta pipelineMeta;
-  private List<CheckResultInterface> remarks;
+  private List<ICheckResult> remarks;
   private boolean onlySelected;
 
-  private VariableSpace space;
+  private IVariables variables;
 
   private IMetaStore metaStore;
 
   /**
    * Creates a new dialog that will handle the wait while checking a pipeline...
    */
-  public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<CheckResultInterface> remarks,
+  public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
                                       boolean onlySelected ) {
     this( shell, pipelineMeta, remarks, onlySelected, pipelineMeta, HopGui.getInstance().getMetaStore() );
   }
@@ -67,13 +67,13 @@ public class CheckPipelineProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while checking a pipeline...
    */
-  public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<CheckResultInterface> remarks,
-                                      boolean onlySelected, VariableSpace space, IMetaStore metaStore ) {
+  public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
+                                      boolean onlySelected, IVariables variables, IMetaStore metaStore ) {
     this.shell = shell;
     this.pipelineMeta = pipelineMeta;
     this.onlySelected = onlySelected;
     this.remarks = remarks;
-    this.space = space;
+    this.variables = variables;
     this.metaStore = metaStore;
   }
 
@@ -84,7 +84,7 @@ public class CheckPipelineProgressDialog {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
           pipelineMeta.checkTransforms(
-            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), space, metaStore );
+            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), variables, metaStore );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "AnalyseImpactProgressDialog.RuntimeError.ErrorCheckingPipeline.Exception", e.toString() ) );

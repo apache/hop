@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
@@ -34,12 +34,12 @@ import java.util.zip.GZIPInputStream;
  * @author Matt
  * @since 24-jan-2005
  */
-public class CubeInputData extends BaseTransformData implements TransformDataInterface {
+public class CubeInputData extends BaseTransformData implements ITransformData {
   public InputStream fis;
   public GZIPInputStream zip;
   public DataInputStream dis;
 
-  public RowMetaInterface meta;
+  public IRowMeta meta;
 
   public CubeInputData() {
     super();

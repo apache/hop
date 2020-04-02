@@ -33,20 +33,20 @@ import java.util.Collection;
 public class ObjectTesterBuilder<T> {
   private Collection<T> objects;
 
-  private ObjectProvider<T> provider;
+  private IObjectProvider<T> provider;
 
   private boolean useEqualsEquals = false;
 
-  private ObjectValidator<T> validator;
+  private IObjectValidator<T> validator;
 
-  public ObjectTester<T> build() {
-    ObjectProvider<T> provider = this.provider;
+  public IObjectTester<T> build() {
+    IObjectProvider<T> provider = this.provider;
     if ( provider == null ) {
       if ( objects != null ) {
         provider = new CollectionObjectProvider<T>( objects );
       }
     }
-    ObjectValidator<T> validator = this.validator;
+    IObjectValidator<T> validator = this.validator;
     if ( validator == null ) {
       if ( useEqualsEquals ) {
         validator = new EqualsEqualsValidator<T>();
@@ -70,7 +70,7 @@ public class ObjectTesterBuilder<T> {
     return this;
   }
 
-  public ObjectTesterBuilder<T> setProvider( ObjectProvider<T> provider ) {
+  public ObjectTesterBuilder<T> setProvider( IObjectProvider<T> provider ) {
     this.provider = provider;
     return this;
   }
@@ -84,7 +84,7 @@ public class ObjectTesterBuilder<T> {
     return setUseEqualsEquals( true );
   }
 
-  public ObjectTesterBuilder<T> setValidator( ObjectValidator<T> validator ) {
+  public ObjectTesterBuilder<T> setValidator( IObjectValidator<T> validator ) {
     this.validator = validator;
     return this;
   }

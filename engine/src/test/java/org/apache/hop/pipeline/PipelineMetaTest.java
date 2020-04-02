@@ -23,24 +23,24 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.listeners.ContentChangedListener;
+import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaChangeListenerInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -133,19 +133,19 @@ public class PipelineMetaTest {
 
     TransformMeta nextTransform = mockTransformMeta( "nextTransform" );
 
-    TransformMetaInterface smi = mock( TransformMetaInterface.class );
+    ITransformMeta smi = mock( ITransformMeta.class );
     TransformIOMeta ioMeta = mock( TransformIOMeta.class );
     when( smi.getTransformIOMeta() ).thenReturn( ioMeta );
     doAnswer( new Answer<Object>() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        RowMetaInterface rmi = (RowMetaInterface) invocation.getArguments()[ 0 ];
+        IRowMeta rmi = (IRowMeta) invocation.getArguments()[ 0 ];
         rmi.clear();
         rmi.addValueMeta( new ValueMetaString( overriddenValue ) );
         return null;
       }
     } ).when( smi ).getFields(
-      any( RowMetaInterface.class ), anyString(), any( RowMetaInterface[].class ), eq( nextTransform ),
-      any( VariableSpace.class ), any( IMetaStore.class ) );
+      any( IRowMeta.class ), anyString(), any( IRowMeta[].class ), eq( nextTransform ),
+      any( IVariables.class ), any( IMetaStore.class ) );
 
     TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
     when( thisTransform.getTransformMetaInterface() ).thenReturn( smi );
@@ -153,7 +153,7 @@ public class PipelineMetaTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "value" ) );
 
-    RowMetaInterface thisTransformsFields = pipelineMeta.getThisTransformFields( thisTransform, nextTransform, rowMeta );
+    IRowMeta thisTransformsFields = pipelineMeta.getThisTransformFields( thisTransform, nextTransform, rowMeta );
 
     assertEquals( 1, thisTransformsFields.size() );
     assertEquals( overriddenValue, thisTransformsFields.getValueMeta( 0 ).getName() );
@@ -162,7 +162,7 @@ public class PipelineMetaTest {
   @Test
   public void getThisTransformFieldsPassesClonedInfoRowMeta() throws Exception {
     // given
-    TransformMetaInterface smi = mock( TransformMetaInterface.class );
+    ITransformMeta smi = mock( ITransformMeta.class );
     TransformIOMeta ioMeta = mock( TransformIOMeta.class );
     when( smi.getTransformIOMeta() ).thenReturn( ioMeta );
 
@@ -177,12 +177,12 @@ public class PipelineMetaTest {
     pipelineMeta.getThisTransformFields( thisTransform, nextTransform, row );
 
     // then
-    verify( smi, never() ).getFields( any(), any(), eq( new RowMetaInterface[] { row } ), any(), any(), any() );
+    verify( smi, never() ).getFields( any(), any(), eq( new IRowMeta[] { row } ), any(), any(), any() );
   }
 
   @Test
   public void testContentChangeListener() throws Exception {
-    ContentChangedListener listener = mock( ContentChangedListener.class );
+    IContentChangedListener listener = mock( IContentChangedListener.class );
     pipelineMeta.addContentChangedListener( listener );
 
     pipelineMeta.setChanged();
@@ -362,7 +362,7 @@ public class PipelineMetaTest {
   }
 
   public abstract static class TransformMetaChangeListenerInterfaceMock
-    implements TransformMetaInterface<TransformInterface, TransformDataInterface>, TransformMetaChangeListenerInterface {
+    implements ITransformMeta<ITransform, ITransformData>, ITransformMetaChangeListener {
     @Override
     public abstract Object clone();
   }
@@ -404,10 +404,10 @@ public class PipelineMetaTest {
 
     PipelineMeta meta = new PipelineMeta();
 
-    VariableSpace variableSpace = Mockito.mock( VariableSpace.class );
-    Mockito.when( variableSpace.listVariables() ).thenReturn( new String[ 0 ] );
+    IVariables variables = Mockito.mock( IVariables.class );
+    Mockito.when( variables.listVariables() ).thenReturn( new String[ 0 ] );
 
-    meta.loadXML( jobNode, null, metaStore, false, variableSpace );
+    meta.loadXML( jobNode, null, metaStore, false, variables );
     meta.setInternalHopVariables( null );
   }
 
@@ -478,7 +478,7 @@ public class PipelineMetaTest {
 
     wireUpTestPipelineMeta( pipelineMeta, toBeAppended1, toBeAppended2, append, after );
 
-    RowMetaInterface results = pipelineMeta.getTransformFields( append, after, mock( ProgressMonitorListener.class ) );
+    IRowMeta results = pipelineMeta.getTransformFields( append, after, mock( IProgressMonitor.class ) );
 
     assertThat( 1, equalTo( results.size() ) );
     assertThat( "outputField", equalTo( results.getFieldNames()[ 0 ] ) );
@@ -497,7 +497,7 @@ public class PipelineMetaTest {
 
     wireUpTestPipelineMeta( pipelineMeta, prevTransform1, prevTransform2, someTransform, after );
 
-    RowMetaInterface results = pipelineMeta.getTransformFields( someTransform, after, mock( ProgressMonitorListener.class ) );
+    IRowMeta results = pipelineMeta.getTransformFields( someTransform, after, mock( IProgressMonitor.class ) );
 
     assertThat( 4, equalTo( results.size() ) );
     assertThat( new String[] { "field3", "field4", "field5", "outputField" }, equalTo( results.getFieldNames() ) );
@@ -527,23 +527,23 @@ public class PipelineMetaTest {
 
   private TransformMeta testTransform( String name, List<String> infoTransformNames, List<String> fieldNames )
     throws HopTransformException {
-    TransformMetaInterface smi = transformMetaInterfaceWithFields( new DummyMeta(), infoTransformNames, fieldNames );
+    ITransformMeta smi = transformMetaInterfaceWithFields( new DummyMeta(), infoTransformNames, fieldNames );
     return new TransformMeta( name, smi );
   }
 
-  private TransformMetaInterface transformMetaInterfaceWithFields(
-    TransformMetaInterface smi, List<String> infoTransformNames, List<String> fieldNames )
+  private ITransformMeta transformMetaInterfaceWithFields(
+    ITransformMeta smi, List<String> infoTransformNames, List<String> fieldNames )
     throws HopTransformException {
     RowMeta rowMetaWithFields = new RowMeta();
     TransformIOMeta transformIOMeta = mock( TransformIOMeta.class );
     when( transformIOMeta.getInfoTransformNames() ).thenReturn( infoTransformNames.toArray( new String[ 0 ] ) );
     fieldNames.stream()
       .forEach( field -> rowMetaWithFields.addValueMeta( new ValueMetaString( field ) ) );
-    TransformMetaInterface newSmi = spy( smi );
+    ITransformMeta newSmi = spy( smi );
     when( newSmi.getTransformIOMeta() ).thenReturn( transformIOMeta );
 
     doAnswer( (Answer<Void>) invocationOnMock -> {
-      RowMetaInterface passedRmi = (RowMetaInterface) invocationOnMock.getArguments()[ 0 ];
+      IRowMeta passedRmi = (IRowMeta) invocationOnMock.getArguments()[ 0 ];
       passedRmi.addRowMeta( rowMetaWithFields );
       return null;
     } ).when( newSmi )

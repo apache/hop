@@ -26,7 +26,7 @@ import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -53,7 +53,7 @@ public class GetPreviewTableProgressDialog {
   private String tableName;
   private int limit;
   private List<Object[]> rows;
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
   private Database db;
 
@@ -142,7 +142,7 @@ public class GetPreviewTableProgressDialog {
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 }

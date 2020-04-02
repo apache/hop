@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.fixedinput;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,13 +35,13 @@ import java.nio.channels.FileChannel;
  * @author Matt
  * @since 24-jan-2005
  */
-public class FixedInputData extends BaseTransformData implements TransformDataInterface {
+public class FixedInputData extends BaseTransformData implements ITransformData {
 
   public FileInputStream fis;
   public FileChannel fc;
   public ByteBuffer bb;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
 
   public byte[] byteBuffer;
   public int startBuffer;

@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.datagrid;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith( PowerMockRunner.class )
 public class DataGrid_EmptyStringVsNull_Test {
-  private TransformMockHelper<DataGridMeta, TransformDataInterface> helper;
+  private TransformMockHelper<DataGridMeta, ITransformData> helper;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -92,8 +92,8 @@ public class DataGrid_EmptyStringVsNull_Test {
   }
 
   private void executeAndAssertResults( List<Object[]> expected ) throws Exception {
-    final String stringType = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_STRING );
-    final String numberType = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_NUMBER );
+    final String stringType = ValueMetaFactory.getValueMetaName( IValueMeta.TYPE_STRING );
+    final String numberType = ValueMetaFactory.getValueMetaName( IValueMeta.TYPE_NUMBER );
 
     DataGridMeta meta = new DataGridMeta();
     meta.allocate( 3 );

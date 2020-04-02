@@ -28,14 +28,14 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
 @PluginMainClassType( IPipelineEngine.class )
 @PluginAnnotationType( PipelineEnginePlugin.class )
-public class PipelineEnginePluginType extends BasePluginType implements PluginTypeInterface {
+public class PipelineEnginePluginType extends BasePluginType implements IPluginType {
 
   private PipelineEnginePluginType() {
     super( PipelineEnginePlugin.class, "HOP_PIPELINE_ENGINES", "Hop Pipeline Engines" );

@@ -2,7 +2,7 @@ package org.apache.hop.cli;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -10,12 +10,12 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
@@ -102,12 +102,12 @@ public class HopRun implements Runnable {
     "--add-variable-to-environment", }, description = "When creating an environment, add the given variable in format <Variable>=<Value>:<Description>. You can specify this option multiple times." )
   private Map<String, String> variablesToAddToEnvironment;
 
-  private VariableSpace space;
+  private IVariables variables;
   private String realRunConfigurationName;
   private String realFilename;
   private String realSlaveServerName;
   private CommandLine cmd;
-  private LogChannelInterface log;
+  private ILogChannel log;
   private DelegatingMetaStore metaStore;
 
   public void run() {
@@ -155,22 +155,22 @@ public class HopRun implements Runnable {
   private void buildVariableSpace() throws IOException {
     // Load kettle.properties before running for convenience...
     //
-    space = Variables.getADefaultVariableSpace();
+    variables = Variables.getADefaultVariableSpace();
     Properties kettleProperties = new Properties();
     kettleProperties.load( new FileInputStream( Const.getHopDirectory() + "/hop.properties" ) );
     for ( final String key : kettleProperties.stringPropertyNames() ) {
-      space.setVariable( key, kettleProperties.getProperty( key ) );
+      variables.setVariable( key, kettleProperties.getProperty( key ) );
     }
   }
 
-  private void runPipeline( CommandLine cmd, LogChannelInterface log ) {
+  private void runPipeline( CommandLine cmd, ILogChannel log ) {
 
     try {
       calculateRealFilename();
 
       // Run the pipeline with the given filename
       //
-      PipelineMeta pipelineMeta = new PipelineMeta( realFilename, metaStore, true, space );
+      PipelineMeta pipelineMeta = new PipelineMeta( realFilename, metaStore, true, variables );
 
       // Configure the basic execution settings
       //
@@ -216,14 +216,14 @@ public class HopRun implements Runnable {
    * This way we can actually use environment variables to parse the real filename
    */
   private void calculateRealFilename() throws HopException {
-    realFilename = space.environmentSubstitute( filename );
+    realFilename = variables.environmentSubstitute( filename );
 
     try {
       FileObject fileObject = HopVFS.getFileObject( realFilename );
       if ( !fileObject.exists() ) {
         // Try to prepend with ${ENVIRONMENT_HOME}
         //
-        String alternativeFilename = space.environmentSubstitute( "${ENVIRONMENT_HOME}/" + filename );
+        String alternativeFilename = variables.environmentSubstitute( "${ENVIRONMENT_HOME}/" + filename );
         fileObject = HopVFS.getFileObject( alternativeFilename );
         if ( fileObject.exists() ) {
           realFilename = alternativeFilename;
@@ -235,12 +235,12 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runPipelineLocal( CommandLine cmd, LogChannelInterface log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
+  private void runPipelineLocal( CommandLine cmd, ILogChannel log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
     try {
       Pipeline pipeline = new Pipeline( pipelineMeta );
       pipeline.initializeVariablesFrom( null );
       pipeline.getPipelineMeta().setInternalHopVariables( pipeline );
-      pipeline.injectVariables( configuration.getVariables() );
+      pipeline.injectVariables( configuration.getVariablesMap() );
 
       pipeline.setLogLevel( configuration.getLogLevel() );
       pipeline.setMetaStore( metaStore );
@@ -261,7 +261,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runPipelineRemote( CommandLine cmd, LogChannelInterface log, PipelineMeta pipelineMeta, PipelineExecutionConfiguration configuration ) {
+  private void runPipelineRemote( CommandLine cmd, ILogChannel log, PipelineMeta pipelineMeta, PipelineExecutionConfiguration configuration ) {
     SlaveServer slaveServer = configuration.getRemoteServer();
     slaveServer.shareVariablesWith( pipelineMeta );
     try {
@@ -271,7 +271,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  public static Result runPipelineOnSlaveServer( LogChannelInterface log, PipelineMeta pipelineMeta, SlaveServer slaveServer, PipelineExecutionConfiguration configuration, IMetaStore metaStore,
+  public static Result runPipelineOnSlaveServer( ILogChannel log, PipelineMeta pipelineMeta, SlaveServer slaveServer, PipelineExecutionConfiguration configuration, IMetaStore metaStore,
                                                  boolean dontWait, int queryDelay ) throws Exception {
     try {
       String carteObjectId = Pipeline.sendToSlaveServer( pipelineMeta, configuration, metaStore );
@@ -294,13 +294,13 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runJob( CommandLine cmd, LogChannelInterface log ) {
+  private void runJob( CommandLine cmd, ILogChannel log ) {
     try {
       calculateRealFilename();
 
       // Run the job with the given filename
       //
-      JobMeta jobMeta = new JobMeta( space, realFilename, metaStore );
+      JobMeta jobMeta = new JobMeta( variables, realFilename, metaStore );
 
       // Configure the basic execution settings
       //
@@ -340,18 +340,18 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runJobLocal( CommandLine cmd, LogChannelInterface log, JobExecutionConfiguration configuration, JobMeta jobMeta ) {
+  private void runJobLocal( CommandLine cmd, ILogChannel log, JobExecutionConfiguration configuration, JobMeta jobMeta ) {
     try {
       Job job = new Job( null, jobMeta );
       job.initializeVariablesFrom( null );
       job.getJobMeta().setInternalHopVariables( job );
-      job.injectVariables( configuration.getVariables() );
+      job.injectVariables( configuration.getVariablesMap() );
 
       job.setLogLevel( configuration.getLogLevel() );
 
       // Explicitly set parameters
-      for ( String parameterName : configuration.getParams().keySet() ) {
-        jobMeta.setParameterValue( parameterName, configuration.getParams().get( parameterName ) );
+      for ( String parameterName : configuration.getParametersMap().keySet() ) {
+        jobMeta.setParameterValue( parameterName, configuration.getParametersMap().get( parameterName ) );
       }
 
       // Also copy the parameters over...
@@ -367,7 +367,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runJobRemote( CommandLine cmd, LogChannelInterface log, JobMeta jobMeta, JobExecutionConfiguration configuration ) {
+  private void runJobRemote( CommandLine cmd, ILogChannel log, JobMeta jobMeta, JobExecutionConfiguration configuration ) {
     SlaveServer slaveServer = configuration.getRemoteServer();
     slaveServer.shareVariablesWith( jobMeta );
 
@@ -378,7 +378,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  public static Result runJobOnSlaveServer( LogChannelInterface log, JobMeta jobMeta, SlaveServer slaveServer, JobExecutionConfiguration configuration, IMetaStore metaStore, boolean dontWait,
+  public static Result runJobOnSlaveServer( ILogChannel log, JobMeta jobMeta, SlaveServer slaveServer, JobExecutionConfiguration configuration, IMetaStore metaStore, boolean dontWait,
                                             boolean remoteLogging, int queryDelay ) throws Exception {
     try {
       String carteObjectId = Job.sendToSlaveServer( jobMeta, configuration, metaStore );
@@ -439,25 +439,25 @@ public class HopRun implements Runnable {
     return Const.toInt( queryDelay, 5 );
   }
 
-  private void parseOptions( CommandLine cmd, ExecutionConfiguration configuration, NamedParams namedParams ) throws MetaStoreException {
+  private void parseOptions( CommandLine cmd, IExecutionConfiguration configuration, INamedParams namedParams ) throws MetaStoreException {
 
     if ( StringUtils.isNotEmpty( slaveServerName ) ) {
-      realSlaveServerName = space.environmentSubstitute( slaveServerName );
+      realSlaveServerName = variables.environmentSubstitute( slaveServerName );
       configureSlaveServer( configuration, realSlaveServerName );
       configuration.setExecutingRemotely( true );
       configuration.setExecutingLocally( false );
     }
     configuration.setPassingExport( exportToSlaveServer );
-    realRunConfigurationName = space.environmentSubstitute( runConfigurationName );
+    realRunConfigurationName = variables.environmentSubstitute( runConfigurationName );
     configuration.setRunConfiguration( realRunConfigurationName );
-    configuration.setLogLevel( LogLevel.getLogLevelForCode( space.environmentSubstitute( level ) ) );
+    configuration.setLogLevel( LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) ) );
 
     // Set variables and parameters...
     //
     parseParametersAndVariables( cmd, configuration, namedParams );
   }
 
-  private void configureSlaveServer( ExecutionConfiguration configuration, String name ) throws MetaStoreException {
+  private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws MetaStoreException {
     MetaStoreFactory<SlaveServer> slaveFactory = new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
     SlaveServer slaveServer = slaveFactory.loadElement( name );
     if ( slaveServer == null ) {
@@ -494,7 +494,7 @@ public class HopRun implements Runnable {
    * @param configuration
    * @param namedParams
    */
-  private void parseParametersAndVariables( CommandLine cmd, ExecutionConfiguration configuration, NamedParams namedParams ) {
+  private void parseParametersAndVariables( CommandLine cmd, IExecutionConfiguration configuration, INamedParams namedParams ) {
     try {
       String[] availableParameters = namedParams.listParameters();
       if ( parameters != null ) {
@@ -509,11 +509,11 @@ public class HopRun implements Runnable {
             if ( Const.indexOfString( key, availableParameters ) < 0 ) {
               // A variable
               //
-              configuration.getVariables().put( key, value );
+              configuration.getVariablesMap().put( key, value );
             } else {
               // A parameter
               //
-              configuration.getParams().put( key, value );
+              configuration.getParametersMap().put( key, value );
             }
           }
         }
@@ -538,16 +538,16 @@ public class HopRun implements Runnable {
    * @param configuration
    * @param namedParams
    */
-  private void configureParametersAndVariables( CommandLine cmd, ExecutionConfiguration configuration, VariableSpace space, NamedParams namedParams ) {
+  private void configureParametersAndVariables( CommandLine cmd, IExecutionConfiguration configuration, IVariables variables, INamedParams namedParams ) {
 
     // Copy variables over to the pipeline or job metadata
     //
-    space.injectVariables( configuration.getVariables() );
+    variables.injectVariables( configuration.getVariablesMap() );
 
     // Set the parameter values
     //
-    for ( String key : configuration.getParams().keySet() ) {
-      String value = configuration.getParams().get( key );
+    for ( String key : configuration.getParametersMap().keySet() ) {
+      String value = configuration.getParametersMap().get( key );
       try {
         namedParams.setParameterValue( key, value );
       } catch ( UnknownParamException e ) {
@@ -602,7 +602,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void printOptions( ExecutionConfiguration configuration ) {
+  private void printOptions( IExecutionConfiguration configuration ) {
     if ( StringUtils.isNotEmpty( realFilename ) ) {
       log.logMinimal( "OPTION: filename : '" + realFilename + "'" );
     }
@@ -625,16 +625,16 @@ public class HopRun implements Runnable {
     }
     log.logMinimal( "OPTION: Logging level : " + configuration.getLogLevel().getDescription() );
 
-    if ( !configuration.getVariables().isEmpty() ) {
+    if ( !configuration.getVariablesMap().isEmpty() ) {
       log.logMinimal( "OPTION: Variables: " );
-      for ( String variable : configuration.getVariables().keySet() ) {
-        log.logMinimal( "  " + variable + " : '" + configuration.getVariables().get( variable ) );
+      for ( String variable : configuration.getVariablesMap().keySet() ) {
+        log.logMinimal( "  " + variable + " : '" + configuration.getVariablesMap().get( variable ) );
       }
     }
-    if ( !configuration.getParams().isEmpty() ) {
+    if ( !configuration.getParametersMap().isEmpty() ) {
       log.logMinimal( "OPTION: Parameters: " );
-      for ( String parameter : configuration.getParams().keySet() ) {
-        log.logMinimal( "OPTION:   " + parameter + " : '" + configuration.getParams().get( parameter ) );
+      for ( String parameter : configuration.getParametersMap().keySet() ) {
+        log.logMinimal( "OPTION:   " + parameter + " : '" + configuration.getParametersMap().get( parameter ) );
       }
     }
 
@@ -654,7 +654,7 @@ public class HopRun implements Runnable {
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 

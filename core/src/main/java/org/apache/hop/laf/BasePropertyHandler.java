@@ -29,11 +29,11 @@ package org.apache.hop.laf;
  *
  * @author dhushon
  */
-public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
+public class BasePropertyHandler implements ILAFChangeListener<IPropertyHandler> {
 
   static BasePropertyHandler instance = null;
-  protected PropertyHandler handler = null;
-  Class<PropertyHandler> clazz = PropertyHandler.class;
+  protected IPropertyHandler handler = null;
+  Class<IPropertyHandler> clazz = IPropertyHandler.class;
 
   static {
     getInstance();
@@ -44,7 +44,7 @@ public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
   }
 
   private void init() {
-    // counting on LAFFactory to return a class conforming to @see MessageHandler
+    // counting on LAFFactory to return a class conforming to @see IMessageHandler
     handler = LAFFactory.getHandler( clazz );
   }
 
@@ -55,11 +55,11 @@ public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
     return instance;
   }
 
-  protected PropertyHandler getHandler() {
+  protected IPropertyHandler getHandler() {
     return handler;
   }
 
-  protected static PropertyHandler getInstanceHandler() {
+  protected static IPropertyHandler getInstanceHandler() {
     return getInstance().getHandler();
   }
 
@@ -86,7 +86,7 @@ public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
   }
 
   @Override
-  public void notify( PropertyHandler changedObject ) {
+  public void notify( IPropertyHandler changedObject ) {
     handler = changedObject;
   }
 

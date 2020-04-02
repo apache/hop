@@ -33,10 +33,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -61,16 +61,16 @@ import java.util.List;
  */
 public class CsvInput
   extends BaseTransform<CsvInputMeta, CsvInputData>
-  implements TransformInterface<CsvInputMeta, CsvInputData> {
+  implements ITransform<CsvInputMeta, CsvInputData> {
 
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private CsvInputMeta meta;
   private CsvInputData data;
 
-  public CsvInput( TransformMeta transformMeta, CsvInputData transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public CsvInput( TransformMeta transformMeta, CsvInputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow( CsvInputMeta smi, CsvInputData sdi ) throws HopException {
@@ -98,8 +98,8 @@ public class CsvInput
       // Pretend it's a lazy conversion object anyway and get the native type during conversion.
       //
       data.convertRowMeta = data.outputRowMeta.clone();
-      for ( ValueMetaInterface valueMeta : data.convertRowMeta.getValueMetaList() ) {
-        valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      for ( IValueMeta valueMeta : data.convertRowMeta.getValueMetaList() ) {
+        valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
       }
 
       // Calculate the indexes for the filename and row number fields
@@ -431,9 +431,9 @@ public class CsvInput
     return bomSize;
   }
 
-  FieldsMapping createFieldMapping( String fileName, CsvInputMeta csvInputMeta )
+  IFieldsMapping createFieldMapping( String fileName, CsvInputMeta csvInputMeta )
     throws HopException {
-    FieldsMapping mapping = null;
+    IFieldsMapping mapping = null;
     if ( csvInputMeta.isHeaderPresent() ) {
       String[] fieldNames = readFieldNamesFromFile( fileName, csvInputMeta );
       mapping = NamedFieldsMapping.mapping( fieldNames, fieldNames( csvInputMeta ) );
@@ -564,7 +564,7 @@ public class CsvInput
       boolean newLineFound = false;
       boolean endOfBuffer = false;
       List<Exception> conversionExceptions = null;
-      List<ValueMetaInterface> exceptionFields = null;
+      List<IValueMeta> exceptionFields = null;
 
       // The strategy is as follows...
       // We read a block of byte[] from the file.
@@ -719,7 +719,7 @@ public class CsvInput
         }
 
         final int actualFieldIndex = outputIndex++;
-        if ( actualFieldIndex != FieldsMapping.FIELD_DOES_NOT_EXIST ) {
+        if ( actualFieldIndex != IFieldsMapping.FIELD_DOES_NOT_EXIST ) {
           if ( !skipRow ) {
             if ( meta.isLazyConversionActive() ) {
               outputRowData[ actualFieldIndex ] = field;
@@ -728,7 +728,7 @@ public class CsvInput
               // The convert object uses binary storage as such we just have to ask the native type from it.
               // That will do the actual conversion.
               //
-              ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( actualFieldIndex );
+              IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( actualFieldIndex );
               try {
                 outputRowData[ actualFieldIndex ] = sourceValueMeta.convertBinaryStringToNativeType( field );
               } catch ( HopValueException e ) {
@@ -738,7 +738,7 @@ public class CsvInput
 
                 if ( conversionExceptions == null ) {
                   conversionExceptions = new ArrayList<Exception>();
-                  exceptionFields = new ArrayList<ValueMetaInterface>();
+                  exceptionFields = new ArrayList<IValueMeta>();
                 }
 
                 conversionExceptions.add( e );
@@ -949,7 +949,7 @@ public class CsvInput
    * @return list of string detected
    * @throws HopException
    */
-  public static String[] guessStringsFromLine( LogChannelInterface log, String line, String delimiter,
+  public static String[] guessStringsFromLine( ILogChannel log, String line, String delimiter,
                                                String enclosure, String escapeCharacter ) throws HopException {
     List<String> strings = new ArrayList<>();
 

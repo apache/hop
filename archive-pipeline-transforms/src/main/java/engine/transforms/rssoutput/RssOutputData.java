@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.rssoutput;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
@@ -40,9 +40,9 @@ import java.util.List;
  * @author Samatar
  * @since 4-Nov-2007
  */
-public class RssOutputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+public class RssOutputData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
   List<SyndEntry> entries = new ArrayList<SyndEntry>();
   SyndFeed feed;
   private static final String DATE_FORMAT = "yyyy-MM-dd H:mm:ss";

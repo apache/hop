@@ -30,7 +30,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
@@ -95,8 +95,8 @@ public class FieldSplitterMetaTest {
     setterMap.put( "ifnull", "setFieldIfNull" );
     setterMap.put( "trimtype", "setFieldTrimType" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     fieldLoadSaveValidatorAttributeMap.put( "name",
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
@@ -128,7 +128,7 @@ public class FieldSplitterMetaTest {
         new IntLoadSaveValidator( ValueMetaBase.getTrimTypeCodes().length ), 5 ) );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( FieldSplitterMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }

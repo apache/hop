@@ -26,11 +26,11 @@ package org.apache.hop.ui.core.gui;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUI;
@@ -72,7 +72,7 @@ import java.util.Map;
  */
 public class GUIResource {
 
-  private static LogChannelInterface log = new LogChannel( "GUIResource" );
+  private static ILogChannel log = new LogChannel( "GUIResource" );
 
   private static GUIResource guiResource;
 
@@ -444,7 +444,7 @@ public class GUIResource {
     clipboard = null;
 
     // Reload images as required by changes in the plugins
-    PluginRegistry.getInstance().addPluginListener( TransformPluginType.class, new PluginTypeListener() {
+    PluginRegistry.getInstance().addPluginListener( TransformPluginType.class, new IPluginTypeListener() {
       @Override
       public void pluginAdded( Object serviceObject ) {
         loadTransformImages();
@@ -460,7 +460,7 @@ public class GUIResource {
       }
     } );
 
-    PluginRegistry.getInstance().addPluginListener( JobEntryPluginType.class, new PluginTypeListener() {
+    PluginRegistry.getInstance().addPluginListener( JobEntryPluginType.class, new IPluginTypeListener() {
       @Override public void pluginAdded( Object serviceObject ) {
         // make sure we load up the images for any new job entries that have been registered
         loadJobEntryImages();
@@ -781,8 +781,8 @@ public class GUIResource {
     //
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    List<PluginInterface> transforms = registry.getPlugins( TransformPluginType.class );
-    for ( PluginInterface transform : transforms ) {
+    List<IPlugin> transforms = registry.getPlugins( TransformPluginType.class );
+    for ( IPlugin transform : transforms ) {
       if ( imagesTransforms.get( transform.getIds()[ 0 ] ) != null ) {
         continue;
       }
@@ -1263,9 +1263,9 @@ public class GUIResource {
     // //
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    List<PluginInterface> plugins = registry.getPlugins( JobEntryPluginType.class );
+    List<IPlugin> plugins = registry.getPlugins( JobEntryPluginType.class );
     for ( int i = 0; i < plugins.size(); i++ ) {
-      PluginInterface plugin = plugins.get( i );
+      IPlugin plugin = plugins.get( i );
 
       if ( "SPECIAL".equals( plugin.getIds()[ 0 ] ) ) {
         continue;

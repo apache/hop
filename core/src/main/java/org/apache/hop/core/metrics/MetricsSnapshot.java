@@ -22,18 +22,18 @@
 
 package org.apache.hop.core.metrics;
 
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.MetricsInterface;
+import org.apache.hop.core.logging.IMetrics;
 import org.apache.hop.core.util.StringUtil;
 
 import java.util.Date;
 
-public class MetricsSnapshot implements MetricsSnapshotInterface {
+public class MetricsSnapshot implements IMetricsSnapshot {
 
   private Date date;
   private MetricsSnapshotType type;
-  private MetricsInterface metric;
+  private IMetrics metric;
   private String subject;
   private String logChannelId;
   private Long value;
@@ -46,7 +46,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * @param subject      the name of the metric subject (ex. the name of the database we're connecting to)
    * @param logChannelId
    */
-  public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, String subject, String logChannelId ) {
+  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String subject, String logChannelId ) {
     this.date = new Date();
     this.type = type;
     this.metric = metric;
@@ -61,7 +61,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * @param description
    * @param logChannelId
    */
-  public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, String logChannelId ) {
+  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String logChannelId ) {
     this( type, metric, null, logChannelId );
   }
 
@@ -74,7 +74,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * @param value        The value
    * @param logChannelId The logging channel to reference.
    */
-  public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, String subject, long value,
+  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String subject, long value,
                           String logChannelId ) {
     this( type, metric, subject, logChannelId );
     this.value = value;
@@ -88,7 +88,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * @param value        The value
    * @param logChannelId The logging channel to reference.
    */
-  public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, long value, String logChannelId ) {
+  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, long value, String logChannelId ) {
     this( type, metric, null, value, logChannelId );
   }
 
@@ -101,7 +101,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
     }
   }
 
-  public static String getKey( MetricsInterface metric, String subject ) {
+  public static String getKey( IMetrics metric, String subject ) {
     if ( subject == null ) {
       return metric.getCode();
     } else {
@@ -111,7 +111,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
 
   @Override
   public String toString() {
-    LoggingObjectInterface loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
     String subject = null;
     if ( loggingObject != null ) {
       subject = loggingObject.getObjectName() + "(" + loggingObject.getObjectType() + ")";
@@ -204,14 +204,14 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * @return the metric
    */
   @Override
-  public MetricsInterface getMetric() {
+  public IMetrics getMetric() {
     return metric;
   }
 
   /**
    * @param metric the metric to set
    */
-  public void setMetric( MetricsInterface metric ) {
+  public void setMetric( IMetrics metric ) {
     this.metric = metric;
   }
 

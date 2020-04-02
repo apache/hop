@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.mappinginput;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class MappingInput
   extends BaseTransform<MappingInputMeta, MappingInputData>
-  implements TransformInterface<MappingInputMeta, MappingInputData> {
+  implements ITransform<MappingInputMeta, MappingInputData> {
 
   private static Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
   private int timeOut = 60000;
@@ -54,9 +54,9 @@ public class MappingInput
 
   private MappingInputData data;
 
-  public MappingInput( TransformMeta transformMeta, MappingInputData transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MappingInput( TransformMeta transformMeta, MappingInputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public void setTimeOut( int timeOut ) {
@@ -118,7 +118,7 @@ public class MappingInput
       // That means that all fields go through unchanged, unless specified.
       //
       for ( MappingValueRename valueRename : data.valueRenames ) {
-        ValueMetaInterface valueMeta = data.outputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
+        IValueMeta valueMeta = data.outputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta == null ) {
           throw new HopTransformException( BaseMessages.getString( PKG, "MappingInput.Exception.UnableToFindMappedValue",
             valueRename.getSourceValueName() ) );
@@ -181,8 +181,8 @@ public class MappingInput
     return super.init( smi, sdi );
   }
 
-  public void setConnectorTransforms( TransformInterface[] sourceTransforms, List<MappingValueRename> valueRenames,
-                                 String mappingTransformName ) {
+  public void setConnectorTransforms( ITransform[] sourceTransforms, List<MappingValueRename> valueRenames,
+                                      String mappingTransformName ) {
 
     if ( sourceTransforms == null ) {
       throw new IllegalArgumentException( BaseMessages
@@ -201,13 +201,13 @@ public class MappingInput
       }
     }
 
-    for ( TransformInterface sourceTransform : sourceTransforms ) {
+    for ( ITransform sourceTransform : sourceTransforms ) {
 
       // We don't want to add the mapping-to-mapping rowset
       //
       if ( !sourceTransform.isMapping() ) {
         // OK, before we leave, make sure there is a rowset that covers the path to this target transform.
-        // We need to create a new RowSet and add it to the Input RowSets of the target transform
+        // We need to create a new IRowSet and add it to the Input RowSets of the target transform
         //
         BlockingRowSet rowSet = new BlockingRowSet( getPipeline().getRowSetSize() );
 

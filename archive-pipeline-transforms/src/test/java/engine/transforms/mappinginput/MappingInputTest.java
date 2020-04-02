@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.mappinginput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.validator.Validator;
@@ -56,7 +56,7 @@ public class MappingInputTest {
     transformMockHelper =
       new TransformMockHelper<MappingInputMeta, MappingInputData>( transformName, MappingInputMeta.class,
         MappingInputData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     // when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
     setProcessRowEnded( false );
@@ -85,7 +85,7 @@ public class MappingInputTest {
     when( transformMockHelper.transformMeta.getName() ).thenReturn( transformName );
     when( transformMockHelper.transformMeta.getTransformErrorMeta() ).thenReturn( transformErrorMeta );
 
-    TransformInterface[] si = new TransformInterface[] { previousTransform };
+    ITransform[] si = new ITransform[] { previousTransform };
     mappingInput.setConnectorTransforms( si, Collections.<MappingValueRename>emptyList(), transformName );
     assertEquals( previousTransform.getOutputRowSets().size(), 0 );
 
@@ -120,10 +120,10 @@ public class MappingInputTest {
         mappingInput.setConnectorTransforms( null, Collections.<MappingValueRename>emptyList(), "" );
       } catch ( IllegalArgumentException ex1 ) {
         try {
-          mappingInput.setConnectorTransforms( new TransformInterface[ 0 ], null, "" );
+          mappingInput.setConnectorTransforms( new ITransform[ 0 ], null, "" );
         } catch ( IllegalArgumentException ex3 ) {
           try {
-            mappingInput.setConnectorTransforms( new TransformInterface[] { mock( TransformInterface.class ) },
+            mappingInput.setConnectorTransforms( new ITransform[] { mock( ITransform.class ) },
               Collections.<MappingValueRename>emptyList(), null );
           } catch ( IllegalArgumentException ignored ) {
             exception = true;

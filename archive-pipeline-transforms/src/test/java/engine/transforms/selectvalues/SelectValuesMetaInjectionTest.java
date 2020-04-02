@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.selectvalues;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -138,7 +138,7 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "META_STORAGE_TYPE", setValue( mftt, "normal" ), "f" );
     assertEquals( 0, meta.getMeta()[ 0 ].getStorageType() );
     injector.setProperty( meta, "META_STORAGE_TYPE", setValue( mftt, "binary-string" ), "f" );
@@ -154,7 +154,7 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
   //PDI-16932 test default values length and precision after injection
   @Test
   public void testDefaultValue() throws Exception {
-    ValueMetaInterface valueMeta = new ValueMetaString( "f" );
+    IValueMeta valueMeta = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_NAME", setValue( valueMeta, "testValue" ), "f" );
     nonTestedProperties.clear(); // we don't need to test other properties
     assertEquals( SelectValuesMeta.UNDEFINED, meta.getSelectFields()[ 0 ].getLength() );

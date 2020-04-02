@@ -25,14 +25,14 @@ package org.apache.hop.ui.pipeline.transforms.regexeval;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.regexeval.RegexEvalMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class RegexEvalDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class RegexEvalDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlScript;
@@ -717,7 +717,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements TransformDia
     // Clear the existing list, and reload
     wfieldevaluate.removeAll();
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         for ( String item : r.getFieldNames() ) {
           wfieldevaluate.add( item );

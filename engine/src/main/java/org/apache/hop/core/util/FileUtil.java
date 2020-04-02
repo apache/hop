@@ -23,8 +23,8 @@
 package org.apache.hop.core.util;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -32,7 +32,7 @@ import java.io.File;
 
 public class FileUtil {
   public static boolean createParentFolder( Class<?> PKG, String filename, boolean createParentFolder,
-                                            LogChannelInterface log, VariableSpace vs ) {
+                                            ILogChannel log, IVariables vs ) {
     // Check for parent folder
     FileObject parentfolder = null;
     boolean resultat = true;

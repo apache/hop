@@ -25,7 +25,7 @@ import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.poi.util.TempFile;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class OraBulkDataOutputTest {
   private OraBulkLoaderMeta oraBulkLoaderMeta;
   private OraBulkDataOutput oraBulkDataOutput;
   private Process sqlldrProcess;
-  private VariableSpace space;
+  private iVariables variables;
 
   @BeforeClass
   public static void setupBeforeClass() throws HopException {
@@ -61,7 +61,7 @@ public class OraBulkDataOutputTest {
   public void setUp() {
     String recTerm = Const.CR;
     sqlldrProcess = mock( Process.class );
-    space = mock( VariableSpace.class );
+    variables = mock( iVariables.class );
     oraBulkLoaderMeta = mock( OraBulkLoaderMeta.class );
     oraBulkDataOutput = spy( new OraBulkDataOutput( oraBulkLoaderMeta, recTerm ) );
 
@@ -80,11 +80,11 @@ public class OraBulkDataOutputTest {
       tempFile.deleteOnExit();
 
       doReturn( dataFileVfsPath ).when( oraBulkLoaderMeta ).getDataFile();
-      doReturn( tempFilePath ).when( space ).environmentSubstitute( dataFileVfsPath );
-      doReturn( tempFileObject ).when( oraBulkDataOutput ).getFileObject( tempFilePath, space );
+      doReturn( tempFilePath ).when( variables ).environmentSubstitute( dataFileVfsPath );
+      doReturn( tempFileObject ).when( oraBulkDataOutput ).getFileObject( tempFilePath, variables );
       doReturn( tempFilePath ).when( oraBulkDataOutput ).getFilename( tempFileObject );
 
-      oraBulkDataOutput.open( space, sqlldrProcess );
+      oraBulkDataOutput.open( variables, sqlldrProcess );
       oraBulkDataOutput.close();
 
     } catch ( Exception ex ) {
@@ -96,7 +96,7 @@ public class OraBulkDataOutputTest {
   public void testOpenFileException() {
     doThrow( IOException.class ).when( oraBulkLoaderMeta ).getDataFile();
     try {
-      oraBulkDataOutput.open( space, sqlldrProcess );
+      oraBulkDataOutput.open( variables, sqlldrProcess );
       fail( "An IOException was supposed to be thrown, failing test" );
     } catch ( HopException kex ) {
       assertTrue( kex.getMessage().contains( "IO exception occured:" ) );

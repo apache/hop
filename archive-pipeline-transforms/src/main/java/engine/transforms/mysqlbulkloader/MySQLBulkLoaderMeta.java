@@ -38,10 +38,10 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -49,8 +49,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -350,13 +350,13 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -381,7 +381,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
           String schemaTable =
             databaseMeta.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
               .environmentSubstitute( tableName ) );
-          RowMetaInterface r = db.getTableFields( schemaTable );
+          IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -396,7 +396,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
             for ( int i = 0; i < fieldTable.length; i++ ) {
               String field = fieldTable[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( field );
+              IValueMeta v = r.searchValueMeta( field );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -435,7 +435,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
           boolean error_found = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -488,20 +488,20 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         // Copy the row
-        RowMetaInterface tableFields = new RowMeta();
+        IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
         for ( int i = 0; i < fieldTable.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
           if ( v != null ) {
-            ValueMetaInterface tableField = v.clone();
+            IValueMeta tableField = v.clone();
             tableField.setName( fieldTable[ i ] );
             tableFields.addValueMeta( tableField );
           } else {
@@ -544,13 +544,13 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
       for ( int i = 0; i < fieldTable.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
@@ -561,12 +561,12 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new MySQLBulkLoader( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new MySQLBulkLoader( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new MySQLBulkLoaderData();
   }
 
@@ -578,9 +578,9 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
-    String realTableName = space.environmentSubstitute( tableName );
-    String realSchemaName = space.environmentSubstitute( schemaName );
+  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+    String realTableName = variables.environmentSubstitute( tableName );
+    String realSchemaName = variables.environmentSubstitute( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

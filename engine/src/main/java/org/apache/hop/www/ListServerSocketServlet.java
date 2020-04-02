@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class ListServerSocketServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class ListServerSocketServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = 3634806745372015720L;
 
   public static final String CONTEXT_PATH = "/hop/listSocket";

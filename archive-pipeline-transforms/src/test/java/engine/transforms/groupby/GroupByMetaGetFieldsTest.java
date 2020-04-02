@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.groupby;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
@@ -61,11 +61,11 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 public class GroupByMetaGetFieldsTest {
 
   private GroupByMeta groupByMeta;
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
-  private RowMetaInterface[] mockInfo;
+  private IRowMeta[] mockInfo;
   private TransformMeta mockNextTransform;
-  private VariableSpace mockSpace;
+  private iVariables mockSpace;
   private IMetaStore mockIMetaStore;
 
   @Before

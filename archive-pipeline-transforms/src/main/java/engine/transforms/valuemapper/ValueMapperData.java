@@ -22,11 +22,11 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Hashtable;
 
@@ -34,9 +34,9 @@ import java.util.Hashtable;
  * @author Matt
  * @since 24-jan-2005
  */
-public class ValueMapperData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface previousMeta;
-  public RowMetaInterface outputMeta;
+public class ValueMapperData extends BaseTransformData implements ITransformData {
+  public IRowMeta previousMeta;
+  public IRowMeta outputMeta;
 
   public int keynr;
 
@@ -44,9 +44,9 @@ public class ValueMapperData extends BaseTransformData implements TransformDataI
 
   public int emptyFieldIndex;
 
-  public ValueMetaInterface stringMeta;
-  public ValueMetaInterface outputValueMeta;
-  public ValueMetaInterface sourceValueMeta;
+  public IValueMeta stringMeta;
+  public IValueMeta outputValueMeta;
+  public IValueMeta sourceValueMeta;
 
   public ValueMapperData() {
     super();

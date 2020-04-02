@@ -25,12 +25,12 @@ package org.apache.hop.job;
 import org.apache.hop.core.exception.HopException;
 
 /**
- * Utility class to allow only certain methods of JobListener to be overridden.
+ * Utility class to allow only certain methods of IJobListener to be overridden.
  *
  * @author Marc
  */
 
-public class JobAdapter implements JobListener {
+public class JobAdapter implements IJobListener {
 
   @Override
   public void jobFinished( Job job ) throws HopException {

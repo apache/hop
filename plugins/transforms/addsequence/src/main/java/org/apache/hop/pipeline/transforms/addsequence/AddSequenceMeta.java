@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.addsequence;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.annotations.Transform;
@@ -32,10 +32,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -61,7 +61,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = ""
 )
-public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaInterface<AddSequence, AddSequenceData> {
+public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta<AddSequence, AddSequenceData> {
 
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -260,10 +260,10 @@ public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
-    ValueMetaInterface v = new ValueMetaInteger( valuename );
-    // v.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+    IValueMeta v = new ValueMetaInteger( valuename );
+    // v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin( name );
     row.addValueMeta( v );
   }
@@ -289,8 +289,8 @@ public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( useDatabase ) {
@@ -301,16 +301,16 @@ public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaI
         if ( db.checkSequenceExists( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
           .environmentSubstitute( sequenceName ) ) ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
               PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title" ), transformMeta );
         } else {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
               PKG, "AddSequenceMeta.CheckResult.SequenceCouldNotBeFound.Title", sequenceName ), transformMeta );
         }
       } catch ( HopException e ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title" )
             + Const.CR + e.getMessage(), transformMeta );
       } finally {
@@ -321,19 +321,19 @@ public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaI
 
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "AddSequenceMeta.CheckResult.TransformIsReceving.Title" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "AddSequenceMeta.CheckResult.NoInputReceived.Title" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -365,9 +365,9 @@ public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public AddSequence createTransform( TransformMeta transformMeta, AddSequenceData transformDataInterface, int cnr,
+  public AddSequence createTransform( TransformMeta transformMeta, AddSequenceData iTransformData, int cnr,
                                       PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new AddSequence( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new AddSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

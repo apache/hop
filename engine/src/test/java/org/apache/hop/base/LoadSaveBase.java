@@ -30,12 +30,12 @@ import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
-import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DefaultFieldLoadSaveValidatorFactory;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.test.util.JavaBeanManipulator;
 
 import java.lang.reflect.Method;
@@ -55,25 +55,25 @@ public abstract class LoadSaveBase<T> {
   final Class<T> clazz;
   protected final List<String> xmlAttributes;
   protected final JavaBeanManipulator<T> manipulator;
-  protected final FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
-  protected final InitializerInterface<T> initializer;
+  protected final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
+  protected final IInitializerInterface<T> initializer;
   protected IMetaStore metaStore;
 
   public LoadSaveBase( Class<T> clazz,
                        List<String> commonAttributes, List<String> xmlAttributes,
                        Map<String, String> getterMap, Map<String, String> setterMap,
-                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                       InitializerInterface<T> initializer ) {
+                       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
+                       IInitializerInterface<T> initializer ) {
     this.clazz = clazz;
     this.xmlAttributes = concat( commonAttributes, xmlAttributes );
     this.manipulator =
       new JavaBeanManipulator<T>( clazz, this.xmlAttributes, getterMap, setterMap );
     this.initializer = initializer;
 
-    Map<Getter<?>, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorMethodMap =
-      new HashMap<Getter<?>, FieldLoadSaveValidator<?>>( fieldLoadSaveValidatorAttributeMap.size() );
-    for ( Map.Entry<String, FieldLoadSaveValidator<?>> entry : fieldLoadSaveValidatorAttributeMap.entrySet() ) {
+    Map<IGetter<?>, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorMethodMap =
+      new HashMap<IGetter<?>, IFieldLoadSaveValidator<?>>( fieldLoadSaveValidatorAttributeMap.size() );
+    for ( Map.Entry<String, IFieldLoadSaveValidator<?>> entry : fieldLoadSaveValidatorAttributeMap.entrySet() ) {
       fieldLoadSaveValidatorMethodMap.put( manipulator.getGetter( entry.getKey() ), entry.getValue() );
     }
     this.fieldLoadSaveValidatorFactory =
@@ -84,8 +84,8 @@ public abstract class LoadSaveBase<T> {
   public LoadSaveBase( Class<T> clazz,
                        List<String> commonAttributes, List<String> xmlAttributes,
                        Map<String, String> getterMap, Map<String, String> setterMap,
-                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
@@ -93,7 +93,7 @@ public abstract class LoadSaveBase<T> {
   public LoadSaveBase( Class<T> clazz, List<String> commonAttributes ) {
     this( clazz, commonAttributes, new ArrayList<>(),
       new HashMap<>(), new HashMap<>(),
-      new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
   public T createMeta() {
@@ -112,15 +112,15 @@ public abstract class LoadSaveBase<T> {
   }
 
   @SuppressWarnings( { "unchecked" } )
-  protected Map<String, FieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
-                                                                                       T metaToSave ) {
-    Map<String, FieldLoadSaveValidator<?>> validatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
+                                                                                        T metaToSave ) {
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     metaStore = new MemoryMetaStore();
     for ( String attribute : attributes ) {
-      Getter<?> getter = manipulator.getGetter( attribute );
+      IGetter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )
-      Setter setter = manipulator.getSetter( attribute );
-      FieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
+      ISetter setter = manipulator.getSetter( attribute );
+      IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
       try {
         Object testValue = validator.getTestObject();
         //no-inspection unchecked
@@ -138,14 +138,14 @@ public abstract class LoadSaveBase<T> {
     return validatorMap;
   }
 
-  protected void validateLoadedMeta( List<String> attributes, Map<String, FieldLoadSaveValidator<?>> validatorMap,
+  protected void validateLoadedMeta( List<String> attributes, Map<String, IFieldLoadSaveValidator<?>> validatorMap,
                                      T metaSaved, T metaLoaded ) {
     for ( String attribute : attributes ) {
       try {
-        Getter<?> getterMethod = manipulator.getGetter( attribute );
+        IGetter<?> getterMethod = manipulator.getGetter( attribute );
         Object originalValue = getterMethod.get( metaSaved );
         Object value = getterMethod.get( metaLoaded );
-        FieldLoadSaveValidator<?> validator = validatorMap.get( attribute );
+        IFieldLoadSaveValidator<?> validator = validatorMap.get( attribute );
         Method[] validatorMethods = validator.getClass().getMethods();
         Method validatorMethod = null;
         for ( Method method : validatorMethods ) {

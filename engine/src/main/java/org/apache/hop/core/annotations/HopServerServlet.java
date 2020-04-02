@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation signals to the Hop plugin registry that it needs to consider the annotated class as a carte
- * servlet plugin. The class needs to implement the HopServerPluginInterface interface
+ * servlet plugin. The class needs to implement the IHopServerPlugin interface
  *
  * @author Matt Casters
  */

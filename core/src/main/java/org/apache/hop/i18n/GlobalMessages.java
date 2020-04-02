@@ -24,7 +24,7 @@ package org.apache.hop.i18n;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class GlobalMessages extends AbstractMessageHandler {
   protected static final Map<String, ResourceBundle> locales = Collections
     .synchronizedMap( new HashMap<String, ResourceBundle>() );
 
-  protected static final LogChannelInterface log = new LogChannel( "i18n" );
+  protected static final ILogChannel log = new LogChannel( "i18n" );
 
   public static final String[] localeCodes = {
     "en_US", "nl_NL", "zh_CN", "es_ES", "fr_FR", "de_DE", "pt_BR", "pt_PT", "es_AR", "no_NO", "it_IT", "ja_JP",
@@ -62,7 +62,7 @@ public class GlobalMessages extends AbstractMessageHandler {
   public GlobalMessages() {
   }
 
-  public static synchronized MessageHandler getInstance() {
+  public static synchronized IMessageHandler getInstance() {
     if ( GMinstance == null ) {
       GMinstance = new GlobalMessages();
     }

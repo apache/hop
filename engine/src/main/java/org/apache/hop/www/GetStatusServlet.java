@@ -42,7 +42,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class GetStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = GetStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -916,7 +916,7 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
   }
 
   public String toString() {
-    return "Status Handler";
+    return "Status IHandler";
   }
 
   public String getService() {

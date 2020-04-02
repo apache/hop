@@ -31,10 +31,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -73,7 +73,7 @@ public class IfNullTest {
   @Before
   public void setUp() {
     smh = new TransformMockHelper<IfNullMeta, IfNullData>( "Field IfNull processor", IfNullMeta.class, IfNullData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
 
@@ -92,8 +92,8 @@ public class IfNullTest {
     IfNullMeta processRowMeta = smh.processRowsTransformMetaInterface;
     doReturn( createFields( "null-field", "empty-field", "space-field" ) ).when( processRowMeta ).getFields();
     doReturn( "replace-value" ).when( processRowMeta ).getReplaceAllByValue();
-    doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(), any(
-      RowMetaInterface[].class ), any( TransformMeta.class ), any( VariableSpace.class ), any(
+    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(), any(
+      IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ), any(
       IMetaStore.class ) );
     return processRowMeta;
   }
@@ -108,9 +108,9 @@ public class IfNullTest {
     return fields;
   }
 
-  private RowMeta buildInputRowMeta( ValueMetaInterface... valueMetaInterface ) {
+  private RowMeta buildInputRowMeta( IValueMeta... iValueMeta ) {
     RowMeta inputRowMeta = new RowMeta();
-    for ( ValueMetaInterface iValuMetaInterface : valueMetaInterface ) {
+    for ( IValueMeta iValuMetaInterface : iValueMeta ) {
       inputRowMeta.addValueMeta( iValuMetaInterface );
     }
     return inputRowMeta;
@@ -119,8 +119,8 @@ public class IfNullTest {
   @Test
   public void testString_emptyIsNull() throws HopException {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    IfNull transform = new IfNull( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.transformDataInterface );
+    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
     final RowMeta inputRowMeta = buildInputRowMeta( //
       new ValueMetaString( "some-field" ), //
       new ValueMetaString( "null-field" ), //
@@ -150,8 +150,8 @@ public class IfNullTest {
   @Test
   public void testString_emptyIsNotNull() throws HopException {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    IfNull transform = new IfNull( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.transformDataInterface );
+    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
     final RowMeta inputRowMeta = buildInputRowMeta( //
       new ValueMetaString( "some-field" ), //
       new ValueMetaString( "null-field" ), //

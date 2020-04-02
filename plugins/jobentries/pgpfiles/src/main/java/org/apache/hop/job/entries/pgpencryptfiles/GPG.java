@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -50,7 +50,7 @@ public class GPG {
 
   private static Class<?> PKG = JobEntryPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private final String gnuPGCommand = "--batch --armor ";
 
@@ -111,10 +111,10 @@ public class GPG {
    * Constructs a new GnuPG
    *
    * @param gpgFilename  gpg program location
-   * @param logInterface LogChannelInterface
+   * @param logInterface ILogChannel
    * @throws HopException
    */
-  public GPG( String gpgFilename, LogChannelInterface logInterface ) throws HopException {
+  public GPG( String gpgFilename, ILogChannel logInterface ) throws HopException {
     this.log = logInterface;
     this.gpgexe = gpgFilename;
     // Let's check GPG filename

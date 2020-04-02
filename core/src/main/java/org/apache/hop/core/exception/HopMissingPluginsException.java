@@ -23,8 +23,8 @@
 package org.apache.hop.core.exception;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,16 +39,16 @@ public class HopMissingPluginsException extends HopException {
   private static final long serialVersionUID = -3008319146447259788L;
 
   public static class PluginDetails {
-    private final Class<? extends PluginTypeInterface> pluginTypeClass;
+    private final Class<? extends IPluginType> pluginTypeClass;
     private final String pluginId;
 
-    public PluginDetails( Class<? extends PluginTypeInterface> pluginTypeClass, String pluginId ) {
+    public PluginDetails( Class<? extends IPluginType> pluginTypeClass, String pluginId ) {
       super();
       this.pluginTypeClass = pluginTypeClass;
       this.pluginId = pluginId;
     }
 
-	public Class<? extends PluginTypeInterface> getPluginTypeClass() {
+	public Class<? extends IPluginType> getPluginTypeClass() {
 		return pluginTypeClass;
 	}
 
@@ -75,7 +75,7 @@ public class HopMissingPluginsException extends HopException {
    * @param pluginTypeClass The class of the plugin type (ex. TransformPluginType.class)
    * @param pluginId        The id of the missing plugin
    */
-  public void addMissingPluginDetails( Class<? extends PluginTypeInterface> pluginTypeClass, String pluginId ) {
+  public void addMissingPluginDetails( Class<? extends IPluginType> pluginTypeClass, String pluginId ) {
     missingPluginDetailsList.add( new PluginDetails( pluginTypeClass, pluginId ) );
   }
 
@@ -95,7 +95,7 @@ public class HopMissingPluginsException extends HopException {
     for ( PluginDetails details : missingPluginDetailsList ) {
       message.append( Const.CR );
       try {
-        PluginTypeInterface pluginType = PluginRegistry.getInstance().getPluginType( details.pluginTypeClass );
+        IPluginType pluginType = PluginRegistry.getInstance().getPluginType( details.pluginTypeClass );
         message.append( pluginType.getName() );
       } catch ( Exception e ) {
         message.append( "UnknownPluginType-" ).append( details.getPluginTypeClass().getName() );

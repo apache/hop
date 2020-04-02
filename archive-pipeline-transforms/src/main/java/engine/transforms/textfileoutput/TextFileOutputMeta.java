@@ -33,23 +33,23 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.file.BaseFileOutputMeta;
@@ -421,7 +421,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
 
   /**
    * @return Returns the splitEvery.
-   * @deprecated use {@link #getSplitEvery(VariableSpace)} or {@link #getSplitEveryRows()}
+   * @deprecated use {@link #getSplitEvery(iVariables)} or {@link #getSplitEveryRows()}
    */
   @Override
   public int getSplitEvery() {
@@ -433,7 +433,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
    * @return At how many rows to split into another file.
    */
   @Override
-  public int getSplitEvery( VariableSpace varSpace ) {
+  public int getSplitEvery( iVariables varSpace ) {
     return Const.toInt( varSpace == null ? splitEveryRows : varSpace.environmentSubstitute( splitEveryRows ), 0 );
   }
 
@@ -748,29 +748,29 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
     fileAppended = false;
   }
 
-  public String buildFilename( VariableSpace space, int transformnr, String partnr, int splitnr, boolean ziparchive ) {
-    return super.buildFilename( space, Integer.toString( transformnr ), partnr, Integer.toString( splitnr ), ziparchive );
+  public String buildFilename( iVariables variables, int transformnr, String partnr, int splitnr, boolean ziparchive ) {
+    return super.buildFilename( variables, Integer.toString( transformnr ), partnr, Integer.toString( splitnr ), ziparchive );
   }
 
-  public String buildFilename( String filename, String extension, VariableSpace space, int transformnr, String partnr,
+  public String buildFilename( String filename, String extension, iVariables variables, int transformnr, String partnr,
                                int splitnr, boolean ziparchive, TextFileOutputMeta meta ) {
 
-    final String realFileName = space.environmentSubstitute( filename );
-    final String realExtension = space.environmentSubstitute( extension );
-    return super.buildFilename( space, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
+    final String realFileName = variables.environmentSubstitute( filename );
+    final String realExtension = variables.environmentSubstitute( extension );
+    return super.buildFilename( variables, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
       .toString( splitnr ), new Date(), ziparchive, true, meta );
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // No values are added to the row in this type of transform
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
     for ( int i = 0; i < outputFields.length; i++ ) {
       TextFileField field = outputFields[ i ];
-      ValueMetaInterface v = row.searchValueMeta( field.getName() );
+      IValueMeta v = row.searchValueMeta( field.getName() );
       if ( v != null ) {
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
@@ -858,8 +858,8 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -913,13 +913,13 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new TextFileOutput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new TextFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new TextFileOutputData();
   }
 
@@ -927,15 +927,15 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
    * Since the exported pipeline that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
@@ -945,8 +945,8 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
       if ( !fileNameInField ) {
 
         if ( !Utils.isEmpty( fileName ) ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName ), space );
-          fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+          fileName = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }
 

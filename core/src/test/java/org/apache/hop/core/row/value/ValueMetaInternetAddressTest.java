@@ -23,7 +23,7 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.Test;
 
 import java.net.InetAddress;
@@ -165,14 +165,14 @@ public class ValueMetaInternetAddressTest {
     assertEquals( inetAddress, vmInet.convertBinaryStringToNativeType( output ) );
 
     // Test binary string storage type
-    vmInet.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    vmInet.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     output = vmInet.getBinaryString( vmString.getBinaryString( "127.0.0.1" ) );
     assertNotNull( output );
     assertArrayEquals( vmString.getBinaryString( "127.0.0.1" ), output );
     assertEquals( inetAddress, vmInet.convertBinaryStringToNativeType( output ) );
 
     // Test indexed storage
-    vmInet.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
+    vmInet.setStorageType( IValueMeta.STORAGE_TYPE_INDEXED );
     vmInet.setIndex( new InetAddress[] { inetAddress } );
     assertArrayEquals( vmString.getBinaryString( "127.0.0.1" ), vmInet.getBinaryString( 0 ) );
     assertEquals( inetAddress, vmInet.convertBinaryStringToNativeType( output ) );
@@ -187,11 +187,11 @@ public class ValueMetaInternetAddressTest {
 
   @Test
   public void testGetNativeDataType() throws UnknownHostException, HopValueException {
-    ValueMetaInterface vmi = new ValueMetaInternetAddress( "Test" );
+    IValueMeta vmi = new ValueMetaInternetAddress( "Test" );
     InetAddress expected = InetAddress.getByAddress( new byte[] { (byte) 192, (byte) 168, 1, 1 } );
 
-    assertEquals( ValueMetaInterface.TYPE_INET, vmi.getType() );
-    assertEquals( ValueMetaInterface.STORAGE_TYPE_NORMAL, vmi.getStorageType() );
+    assertEquals( IValueMeta.TYPE_INET, vmi.getType() );
+    assertEquals( IValueMeta.STORAGE_TYPE_NORMAL, vmi.getStorageType() );
     assertSame( expected, vmi.getNativeDataType( expected ) );
   }
 }

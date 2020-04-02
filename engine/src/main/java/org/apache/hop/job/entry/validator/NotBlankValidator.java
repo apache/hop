@@ -24,8 +24,8 @@ package org.apache.hop.job.entry.validator;
 
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 
 import java.util.List;
 
@@ -34,14 +34,14 @@ import java.util.List;
  *
  * @author mlowery
  */
-public class NotBlankValidator implements JobEntryValidator {
+public class NotBlankValidator implements IJobEntryValidator {
 
   public static final NotBlankValidator INSTANCE = new NotBlankValidator();
 
   private static final String VALIDATOR_NAME = "notBlank";
 
-  public boolean validate( CheckResultSourceInterface source, String propertyName,
-                           List<CheckResultInterface> remarks, ValidatorContext context ) {
+  public boolean validate( ICheckResultSource source, String propertyName,
+                           List<ICheckResult> remarks, ValidatorContext context ) {
     String value = ValidatorUtils.getValueAsString( source, propertyName );
     if ( GenericValidator.isBlankOrNull( value ) ) {
       JobEntryValidatorUtils.addFailureRemark(

@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.simplemapping;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
@@ -40,7 +40,7 @@ public class RowOutputDataMapper extends RowAdapter {
   private MappingIODefinition inputDefinition;
   private MappingIODefinition outputDefinition;
   private boolean first = true;
-  private RowMetaInterface renamedRowMeta;
+  private IRowMeta renamedRowMeta;
   private PutRowInterface putRowInterface;
 
   public RowOutputDataMapper( MappingIODefinition inputDefinition, MappingIODefinition outputDefinition,
@@ -51,7 +51,7 @@ public class RowOutputDataMapper extends RowAdapter {
   }
 
   @Override
-  public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
 
     if ( first ) {
       first = false;
@@ -59,14 +59,14 @@ public class RowOutputDataMapper extends RowAdapter {
 
       if ( inputDefinition.isRenamingOnOutput() ) {
         for ( MappingValueRename valueRename : inputDefinition.getValueRenames() ) {
-          ValueMetaInterface valueMeta = renamedRowMeta.searchValueMeta( valueRename.getTargetValueName() );
+          IValueMeta valueMeta = renamedRowMeta.searchValueMeta( valueRename.getTargetValueName() );
           if ( valueMeta != null ) {
             valueMeta.setName( valueRename.getSourceValueName() );
           }
         }
       }
       for ( MappingValueRename valueRename : outputDefinition.getValueRenames() ) {
-        ValueMetaInterface valueMeta = renamedRowMeta.searchValueMeta( valueRename.getSourceValueName() );
+        IValueMeta valueMeta = renamedRowMeta.searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta != null ) {
           valueMeta.setName( valueRename.getTargetValueName() );
         }

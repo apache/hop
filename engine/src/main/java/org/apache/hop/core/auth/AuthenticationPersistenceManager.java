@@ -22,20 +22,20 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
 import org.apache.hop.core.auth.core.AuthenticationManager;
-import org.apache.hop.core.auth.core.AuthenticationProvider;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 
 public class AuthenticationPersistenceManager {
   private static final Class<?> PKG = AuthenticationPersistenceManager.class;
-  private static final LogChannelInterface log = new LogChannel( AuthenticationPersistenceManager.class.getName() );
+  private static final ILogChannel log = new LogChannel( AuthenticationPersistenceManager.class.getName() );
 
   public static AuthenticationManager getAuthenticationManager() {
     AuthenticationManager manager = new AuthenticationManager();
@@ -43,16 +43,16 @@ public class AuthenticationPersistenceManager {
 
     // TODO: Register providers from metastore
 
-    for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( AuthenticationConsumerPluginType.class ) ) {
+    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( AuthenticationConsumerPluginType.class ) ) {
       try {
         Object pluginMain = PluginRegistry.getInstance().loadClass( plugin );
-        if ( pluginMain instanceof AuthenticationConsumerType ) {
-          Class<? extends AuthenticationConsumer<?, ?>> consumerClass =
-            ( (AuthenticationConsumerType) pluginMain ).getConsumerClass();
+        if ( pluginMain instanceof IAuthenticationConsumerType ) {
+          Class<? extends IAuthenticationConsumer<?, ?>> consumerClass =
+            ( (IAuthenticationConsumerType) pluginMain ).getConsumerClass();
           manager.registerConsumerClass( consumerClass );
         } else {
           throw new HopPluginException( BaseMessages.getString( PKG,
-            "AuthenticationPersistenceManager.NotConsumerType", pluginMain, AuthenticationConsumerType.class ) );
+            "AuthenticationPersistenceManager.NotConsumerType", pluginMain, IAuthenticationConsumerType.class ) );
         }
       } catch ( HopPluginException e ) {
         log.logError( e.getMessage(), e );
@@ -63,7 +63,7 @@ public class AuthenticationPersistenceManager {
     return manager;
   }
 
-  public static void persistAuthenticationProvider( AuthenticationProvider authenticationProvider ) {
+  public static void persistAuthenticationProvider( IAuthenticationProvider authenticationProvider ) {
     // TODO: Persist to metastore
   }
 }

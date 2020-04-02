@@ -26,12 +26,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.rssoutput.RssOutputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -72,7 +72,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RssOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class RssOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RssOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlRemarqChannel;
@@ -1715,7 +1715,7 @@ public class RssOutputDialog extends BaseTransformDialog implements TransformDia
   private void getFields() {
     if ( !gotPreviousFields ) {
       try {
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           fieldNames = r.getFieldNames();
         }
@@ -1730,10 +1730,10 @@ public class RssOutputDialog extends BaseTransformDialog implements TransformDia
 
   private void get( TableView wTable ) {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             return true;
           }
         };

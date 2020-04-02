@@ -26,7 +26,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -51,14 +51,14 @@ public class FilesToResultMetaTest {
     setterMap.put( "filename_field", "setFilenameField" );
     setterMap.put( "file_type", "setFileType" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorAttributeMap.put( "file_type",
       new IntLoadSaveValidator( ResultFile.fileTypeCode.length ) );
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( FilesToResultMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
     loadSaveTester.testSerialization();
   }
 }

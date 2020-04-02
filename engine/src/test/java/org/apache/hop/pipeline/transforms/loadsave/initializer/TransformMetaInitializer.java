@@ -22,12 +22,12 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.initializer;
 
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
-public abstract class TransformMetaInitializer<T extends TransformMetaInterface>
-  implements InitializerInterface<TransformMetaInterface> {
+public abstract class TransformMetaInitializer<T extends ITransformMeta>
+  implements IInitializerInterface<ITransformMeta> {
 
   @Override
-  public abstract void modify( TransformMetaInterface object );
+  public abstract void modify( ITransformMeta object );
 
 }

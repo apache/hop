@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.fuzzymatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransform;
@@ -764,7 +764,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
       }
     }
 
-    StreamInterface infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
+    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
     wTransform.setText( Const.NVL( infoStream.getTransformName(), "" ) );
 
     wReturn.setRowNums();
@@ -813,7 +813,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
       }
     }
 
-    StreamInterface infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
+    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
     infoStream.setTransformMeta( pipelineMeta.findTransform( wTransform.getText() ) );
     if ( infoStream.getTransformMeta() == null ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
@@ -840,7 +840,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
       try {
         wMainStreamField.removeAll();
 
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wMainStreamField.setItems( r.getFieldNames() );
         }
@@ -862,7 +862,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
       try {
         wLookupField.removeAll();
 
-        RowMetaInterface r = pipelineMeta.getTransformFields( wTransform.getText() );
+        IRowMeta r = pipelineMeta.getTransformFields( wTransform.getText() );
         if ( r != null ) {
           wLookupField.setItems( r.getFieldNames() );
         }
@@ -966,7 +966,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
     try {
       String transformFrom = wTransform.getText();
       if ( !Utils.isEmpty( transformFrom ) ) {
-        RowMetaInterface r = pipelineMeta.getTransformFields( transformFrom );
+        IRowMeta r = pipelineMeta.getTransformFields( transformFrom );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1 }, new int[] { 4 }, -1, -1, null );
         } else {
@@ -995,7 +995,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements TransformDi
         TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
         if ( lookupTransformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getTransformFields( lookupTransformMeta );
+            IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
             Map<String, Integer> lookupFields = new HashMap<String, Integer>();
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {

@@ -24,15 +24,15 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-public class PrimitiveBooleanArrayLoadSaveValidator implements FieldLoadSaveValidator<boolean[]> {
-  private final FieldLoadSaveValidator<Boolean> validator;
+public class PrimitiveBooleanArrayLoadSaveValidator implements IFieldLoadSaveValidator<boolean[]> {
+  private final IFieldLoadSaveValidator<Boolean> validator;
   private final Integer elements;
 
-  public PrimitiveBooleanArrayLoadSaveValidator( FieldLoadSaveValidator<Boolean> fieldValidator ) {
+  public PrimitiveBooleanArrayLoadSaveValidator( IFieldLoadSaveValidator<Boolean> fieldValidator ) {
     this( fieldValidator, null );
   }
 
-  public PrimitiveBooleanArrayLoadSaveValidator( FieldLoadSaveValidator<Boolean> fieldValidator, Integer elements ) {
+  public PrimitiveBooleanArrayLoadSaveValidator( IFieldLoadSaveValidator<Boolean> fieldValidator, Integer elements ) {
     validator = fieldValidator;
     this.elements = elements;
   }

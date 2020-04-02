@@ -31,10 +31,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,8 +42,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -125,7 +125,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
    *           usually "this" for a calling transform
    * @return Returns the commitSize.
    */
-  public int getCommitSize( VariableSpace vs ) {
+  public int getCommitSize( iVariables vs ) {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = ( commitSize == null ) ? "0" : commitSize;
     return Integer.parseInt( vs.environmentSubstitute( commitSize ) );
@@ -328,13 +328,13 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -356,7 +356,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           error_message = "";
 
           // Check fields in table
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
@@ -366,7 +366,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
             for ( int i = 0; i < keyLookup.length; i++ ) {
               String lufield = keyLookup[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -407,7 +407,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -419,7 +419,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
             if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
+              IValueMeta v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -476,7 +476,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -535,12 +535,12 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -552,12 +552,12 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new Delete( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Delete( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new DeleteData();
   }
 

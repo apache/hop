@@ -25,7 +25,7 @@ package org.apache.hop.core.row;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
@@ -70,44 +70,44 @@ public class ValueMetaAndDataTest {
 
     result = new ValueMetaAndData( new ValueMetaString( "ValueStringName" ), "testValue1" );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta().getType() );
     assertEquals( "ValueStringName", result.getValueMeta().getName() );
     assertEquals( "testValue1", result.getValueData() );
 
     result = new ValueMetaAndData( "StringName", "testValue2" );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta().getType() );
     assertEquals( "StringName", result.getValueMeta().getName() );
     assertEquals( "testValue2", result.getValueData() );
 
     result = new ValueMetaAndData( "NumberName", Double.valueOf( "123.45" ) );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta().getType() );
     assertEquals( "NumberName", result.getValueMeta().getName() );
     assertEquals( Double.valueOf( "123.45" ), result.getValueData() );
 
     result = new ValueMetaAndData( "IntegerName", Long.valueOf( 234 ) );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, result.getValueMeta().getType() );
     assertEquals( "IntegerName", result.getValueMeta().getName() );
     assertEquals( Long.valueOf( 234 ), result.getValueData() );
 
     Date testDate = Calendar.getInstance().getTime();
     result = new ValueMetaAndData( "DateName", testDate );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_DATE, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_DATE, result.getValueMeta().getType() );
     assertEquals( "DateName", result.getValueMeta().getName() );
     assertEquals( testDate, result.getValueData() );
 
     result = new ValueMetaAndData( "BigNumberName", new BigDecimal( "123456789.987654321" ) );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_BIGNUMBER, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_BIGNUMBER, result.getValueMeta().getType() );
     assertEquals( "BigNumberName", result.getValueMeta().getName() );
     assertEquals( new BigDecimal( "123456789.987654321" ), result.getValueData() );
 
     result = new ValueMetaAndData( "BooleanName", Boolean.TRUE );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_BOOLEAN, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_BOOLEAN, result.getValueMeta().getType() );
     assertEquals( "BooleanName", result.getValueMeta().getName() );
     assertEquals( Boolean.TRUE, result.getValueData() );
 
@@ -115,13 +115,13 @@ public class ValueMetaAndDataTest {
     new Random().nextBytes( testBytes );
     result = new ValueMetaAndData( "BinaryName", testBytes );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_BINARY, result.getValueMeta().getType() );
     assertEquals( "BinaryName", result.getValueMeta().getName() );
     assertArrayEquals( testBytes, (byte[]) result.getValueData() );
 
     result = new ValueMetaAndData( "SerializableName", new StringBuilder( "serializable test" ) );
     assertNotNull( result );
-    assertEquals( ValueMetaInterface.TYPE_SERIALIZABLE, result.getValueMeta().getType() );
+    assertEquals( IValueMeta.TYPE_SERIALIZABLE, result.getValueMeta().getType() );
     assertEquals( "SerializableName", result.getValueMeta().getName() );
     assertTrue( result.getValueData() instanceof StringBuilder );
     assertEquals( "serializable test", result.getValueData().toString() );
@@ -133,9 +133,9 @@ public class ValueMetaAndDataTest {
   public void testLoadXML() throws HopValueException, HopPluginException, ParseException {
     PowerMockito.mockStatic( EnvUtil.class );
     Mockito.when( EnvUtil.getSystemProperty( Const.HOP_DEFAULT_DATE_FORMAT ) ).thenReturn( "yyyy-MM-dd HH:mm:ss.SSS" );
-    ValueMetaAndData valueMetaAndData = new ValueMetaAndData( Mockito.mock( ValueMetaInterface.class ), new Object() );
-    List<PluginInterface> pluginTypeList = new ArrayList<>();
-    PluginInterface plugin = Mockito.mock( PluginInterface.class );
+    ValueMetaAndData valueMetaAndData = new ValueMetaAndData( Mockito.mock( IValueMeta.class ), new Object() );
+    List<IPlugin> pluginTypeList = new ArrayList<>();
+    IPlugin plugin = Mockito.mock( IPlugin.class );
     Mockito.when( plugin.getName() ).thenReturn( "3" );
     String[] ids = { "3" };
     Mockito.when( plugin.getIds() ).thenReturn( ids );

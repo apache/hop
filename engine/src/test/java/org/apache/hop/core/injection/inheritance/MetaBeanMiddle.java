@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.apache.hop.core.injection.inheritance;
 
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
-public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T> implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
+public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T> implements ITransformMeta<ITransform, ITransformData> {
 
 }

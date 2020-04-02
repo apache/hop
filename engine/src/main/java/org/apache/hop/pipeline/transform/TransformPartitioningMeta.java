@@ -27,18 +27,18 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PartitionerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.Partitioner;
+import org.apache.hop.pipeline.IPartitioner;
 import org.w3c.dom.Node;
 
-public class TransformPartitioningMeta implements XMLInterface, Cloneable {
+public class TransformPartitioningMeta implements IXml, Cloneable {
   public static final int PARTITIONING_METHOD_NONE = 0;
   public static final int PARTITIONING_METHOD_MIRROR = 1;
   public static final int PARTITIONING_METHOD_SPECIAL = 2;
@@ -51,7 +51,7 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
 
   private PartitionSchema partitionSchema;
 
-  private Partitioner partitioner;
+  private IPartitioner partitioner;
 
   private boolean hasChanged = false;
 
@@ -153,7 +153,7 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 150 );
 
     xml.append( "    " ).append( XMLHandler.openTag( "partitioning" ) ).append( Const.CR );
@@ -228,7 +228,7 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
     }
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.findPluginWithName( PartitionerPluginType.class, name );
+    IPlugin plugin = registry.findPluginWithName( PartitionerPluginType.class, name );
     if ( plugin != null ) {
       return name;
     }
@@ -253,7 +253,7 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
       }
     }
 
-    PluginInterface plugin =
+    IPlugin plugin =
       PluginRegistry.getInstance().findPluginWithId( PartitionerPluginType.class, description );
     if ( plugin != null ) {
       return PARTITIONING_METHOD_SPECIAL;
@@ -285,8 +285,8 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
     switch ( methodType ) {
       case PARTITIONING_METHOD_SPECIAL: {
         PluginRegistry registry = PluginRegistry.getInstance();
-        PluginInterface plugin = registry.findPluginWithId( PartitionerPluginType.class, method );
-        partitioner = (Partitioner) registry.loadClass( plugin );
+        IPlugin plugin = registry.findPluginWithId( PartitionerPluginType.class, method );
+        partitioner = (IPartitioner) registry.loadClass( plugin );
         partitioner.setId( plugin.getIds()[ 0 ] );
         break;
       }
@@ -303,18 +303,18 @@ public class TransformPartitioningMeta implements XMLInterface, Cloneable {
     return methodType == PARTITIONING_METHOD_MIRROR;
   }
 
-  public int getPartition( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  public int getPartition( IRowMeta rowMeta, Object[] row ) throws HopException {
     if ( partitioner != null ) {
       return partitioner.getPartition( rowMeta, row );
     }
     return 0;
   }
 
-  public Partitioner getPartitioner() {
+  public IPartitioner getPartitioner() {
     return partitioner;
   }
 
-  public void setPartitioner( Partitioner partitioner ) {
+  public void setPartitioner( IPartitioner partitioner ) {
     this.partitioner = partitioner;
   }
 

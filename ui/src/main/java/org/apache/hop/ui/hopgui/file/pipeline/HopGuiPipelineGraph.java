@@ -26,9 +26,9 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
@@ -41,9 +41,9 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.Redrawable;
+import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -53,19 +53,19 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogParentProvidedInterface;
+import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -86,15 +86,15 @@ import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.pipeline.transform.RowDistributionInterface;
+import org.apache.hop.pipeline.transform.IRowDistribution;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PrintSpool;
@@ -108,7 +108,7 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
+import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -116,7 +116,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiSlaveDelegate;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
@@ -211,9 +211,9 @@ import java.util.UUID;
   description = "The pipeline graph GUI plugin"
 )
 public class HopGuiPipelineGraph extends HopGuiAbstractGraph
-  implements Redrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
-  HasLogChannelInterface, LogParentProvidedInterface,  // TODO: Aren't these the same?
-  HopFileTypeHandlerInterface,
+  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
+  IHasLogChannel, ILogParentProvided,  // TODO: Aren't these the same?
+  IHopFileTypeHandler,
   IGuiRefresher {
 
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
@@ -241,7 +241,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String LOAD_TAB = "loadTab";
   public static final String PREVIEW_PIPELINE = "previewPipeline";
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private static final int HOP_SEL_MARGIN = 9;
 
@@ -308,7 +308,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /**
    * A list of remarks on the current Pipeline...
    */
-  private List<CheckResultInterface> remarks;
+  private List<ICheckResult> remarks;
 
   /**
    * A list of impacts of the current pipeline on the used databases.
@@ -369,8 +369,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public HopGuiSlaveDelegate slaveDelegate;
   public HopGuiNotePadDelegate notePadDelegate;
 
-  public List<SelectedTransformListener> transformListeners;
-  public List<TransformSelectionListener> currentTransformListeners = new ArrayList<>();
+  public List<ISelectedTransformListener> transformListeners;
+  public List<ITransformSelectionListener> currentTransformListeners = new ArrayList<>();
 
   /**
    * A map that keeps track of which log line was written by which transform
@@ -421,11 +421,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.currentTransform = currentTransform;
   }
 
-  public void addSelectedTransformListener( SelectedTransformListener selectedTransformListener ) {
+  public void addSelectedTransformListener( ISelectedTransformListener selectedTransformListener ) {
     transformListeners.add( selectedTransformListener );
   }
 
-  public void addCurrentTransformListener( TransformSelectionListener transformSelectionListener ) {
+  public void addCurrentTransformListener( ITransformSelectionListener transformSelectionListener ) {
     currentTransformListeners.add( transformSelectionListener );
   }
 
@@ -523,7 +523,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUI.TOOLTIP_OFFSET, ConstUI.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
-    helpTip.addCheckBoxToolTipListener( new CheckBoxToolTipListener() {
+    helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
 
       @Override
       public void checkBoxSelected( boolean enabled ) {
@@ -676,7 +676,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               tii.setDatabaseMeta( pipelineMeta.findDatabase( connectionName ) );
               PluginRegistry registry = PluginRegistry.getInstance();
               String transformID = registry.getPluginId( TransformPluginType.class, tii );
-              PluginInterface transformPlugin = registry.findPluginWithId( TransformPluginType.class, transformID );
+              IPlugin transformPlugin = registry.findPluginWithId( TransformPluginType.class, transformID );
               String transformName = pipelineMeta.getAlternativeTransformName( transformPlugin.getName() );
               transformMeta = new TransformMeta( transformID, transformName, tii );
               if ( pipelineTransformDelegate.editTransform( pipelineMeta, transformMeta ) != null ) {
@@ -894,7 +894,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             transformMeta = (TransformMeta) areaOwner.getOwner();
             currentTransform = transformMeta;
 
-            for ( TransformSelectionListener listener : currentTransformListeners ) {
+            for ( ITransformSelectionListener listener : currentTransformListeners ) {
               listener.onUpdateSelection( currentTransform );
             }
 
@@ -1227,8 +1227,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // In case transform A targets B then we now need to target C
         //
-        TransformIOMetaInterface fromIo = fromTransform.getTransformMetaInterface().getTransformIOMeta();
-        for ( StreamInterface stream : fromIo.getTargetStreams() ) {
+        ITransformIOMeta fromIo = fromTransform.getTransformMetaInterface().getTransformIOMeta();
+        for ( IStream stream : fromIo.getTargetStreams() ) {
           if ( stream.getTransformMeta() != null && stream.getTransformMeta().equals( toTransform ) ) {
             // This target stream was directed to B, now we need to direct it to C
             stream.setTransformMeta( selectedTransform );
@@ -1238,8 +1238,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // In case transform B sources from A then we now need to source from C
         //
-        TransformIOMetaInterface toIo = toTransform.getTransformMetaInterface().getTransformIOMeta();
-        for ( StreamInterface stream : toIo.getInfoStreams() ) {
+        ITransformIOMeta toIo = toTransform.getTransformMetaInterface().getTransformIOMeta();
+        for ( IStream stream : toIo.getInfoStreams() ) {
           if ( stream.getTransformMeta() != null && stream.getTransformMeta().equals( fromTransform ) ) {
             // This info stream was reading from B, now we need to direct it to C
             stream.setTransformMeta( selectedTransform );
@@ -1414,7 +1414,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if ( transformMeta != null
         && ( ( startHopTransform != null && !startHopTransform.equals( transformMeta ) ) || ( endHopTransform != null && !endHopTransform
         .equals( transformMeta ) ) ) ) {
-        TransformIOMetaInterface ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
+        ITransformIOMeta ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
         if ( candidate == null ) {
           // See if the transform accepts input. If not, we can't create a new hop...
           //
@@ -1528,16 +1528,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // - Does the source transform has multiple stream options?
     // - Does the target transform have multiple input stream options?
     //
-    List<StreamInterface> streams = new ArrayList<>();
+    List<IStream> streams = new ArrayList<>();
 
-    TransformIOMetaInterface fromIoMeta = fromTransform.getTransformMetaInterface().getTransformIOMeta();
-    List<StreamInterface> targetStreams = fromIoMeta.getTargetStreams();
+    ITransformIOMeta fromIoMeta = fromTransform.getTransformMetaInterface().getTransformIOMeta();
+    List<IStream> targetStreams = fromIoMeta.getTargetStreams();
     if ( forward ) {
       streams.addAll( targetStreams );
     }
 
-    TransformIOMetaInterface toIoMeta = toTransform.getTransformMetaInterface().getTransformIOMeta();
-    List<StreamInterface> infoStreams = toIoMeta.getInfoStreams();
+    ITransformIOMeta toIoMeta = toTransform.getTransformMetaInterface().getTransformIOMeta();
+    List<IStream> infoStreams = toIoMeta.getInfoStreams();
     if ( !forward ) {
       streams.addAll( infoStreams );
     }
@@ -1578,7 +1578,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Show a pop-up menu with all the possible options...
       //
       Menu menu = new Menu( canvas );
-      for ( final StreamInterface stream : streams ) {
+      for ( final IStream stream : streams ) {
         MenuItem item = new MenuItem( menu, SWT.NONE );
         item.setText( Const.NVL( stream.getDescription(), "" ) );
         item.setImage( getImageFor( stream ) );
@@ -1616,13 +1616,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // redraw();
   }
 
-  private Image getImageFor( StreamInterface stream ) {
+  private Image getImageFor( IStream stream ) {
     Display disp = hopDisplay();
     SwtUniversalImage swtImage = SWTGC.getNativeImage( BasePainter.getStreamIconImage( stream.getStreamIcon() ) );
     return swtImage.getAsBitmapForSize( disp, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
-  protected void addHop( StreamInterface stream ) {
+  protected void addHop( IStream stream ) {
     switch ( stream.getStreamType() ) {
       case ERROR:
         addErrorHop();
@@ -2130,28 +2130,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void setCustomRowDistribution( HopGuiPipelineTransformContext context ) {
     // ask user which row distribution is needed...
     //
-    RowDistributionInterface rowDistribution = askUserForCustomDistributionMethod();
+    IRowDistribution rowDistribution = askUserForCustomDistributionMethod();
     context.getTransformMeta().setDistributes( true );
     context.getTransformMeta().setRowDistribution( rowDistribution );
     redraw();
   }
 
-  public RowDistributionInterface askUserForCustomDistributionMethod() {
-    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class );
+  public IRowDistribution askUserForCustomDistributionMethod() {
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class );
     if ( Utils.isEmpty( plugins ) ) {
       return null;
     }
     List<String> choices = new ArrayList<>();
-    for ( PluginInterface plugin : plugins ) {
+    for ( IPlugin plugin : plugins ) {
       choices.add( plugin.getName() + " : " + plugin.getDescription() );
     }
     EnterSelectionDialog dialog =
       new EnterSelectionDialog( hopShell(), choices.toArray( new String[ choices.size() ] ), "Select distribution method",
         "Please select the row distribution method:" );
     if ( dialog.open() != null ) {
-      PluginInterface plugin = plugins.get( dialog.getSelectionNr() );
+      IPlugin plugin = plugins.get( dialog.getSelectionNr() );
       try {
-        return (RowDistributionInterface) PluginRegistry.getInstance().loadClass( plugin );
+        return (IRowDistribution) PluginRegistry.getInstance().loadClass( plugin );
       } catch ( Exception e ) {
         new ErrorDialog( hopShell(), "Error", "Error loading row distribution plugin class", e );
         return null;
@@ -2586,14 +2586,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
         case TRANSFORM_INFO_HOP_ICON:
           // subjectTransform = (TransformMeta) (areaOwner.getParent());
-          // StreamInterface stream = (StreamInterface) areaOwner.getOwner();
-          TransformIOMetaInterface ioMeta = (TransformIOMetaInterface) areaOwner.getOwner();
+          // IStream stream = (IStream) areaOwner.getOwner();
+          ITransformIOMeta ioMeta = (ITransformIOMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformMetaConnector.Tooltip" ) + Const.CR
             + ioMeta.toString() );
           tipImage = GUIResource.getInstance().getImageHopOutput();
           break;
         case TRANSFORM_TARGET_HOP_ICON:
-          StreamInterface stream = (StreamInterface) areaOwner.getOwner();
+          IStream stream = (IStream) areaOwner.getOwner();
           tip.append( stream.getDescription() );
           tipImage = GUIResource.getInstance().getImageHopOutput();
           break;
@@ -2745,7 +2745,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if ( currentTransform != null && selection.contains( currentTransform ) ) {
       currentTransform = null;
-      for ( TransformSelectionListener listener : currentTransformListeners ) {
+      for ( ITransformSelectionListener listener : currentTransformListeners ) {
         listener.onUpdateSelection( currentTransform );
       }
     }
@@ -2818,7 +2818,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       alreadyThrownError = true;
     }
 
-    RowMetaInterface fields = op.getFields();
+    IRowMeta fields = op.getFields();
 
     if ( fields != null && fields.size() > 0 ) {
       TransformFieldsDialog sfd = new TransformFieldsDialog( hopShell(), pipelineMeta, SWT.NONE, transformMeta.getName(), fields );
@@ -2862,7 +2862,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public Image getPipelineImage( Device device, int x, int y, float magnificationFactor ) {
 
-    GCInterface gc = new SWTGC( device, new Point( x, y ), iconsize );
+    IGC gc = new SWTGC( device, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
@@ -3168,7 +3168,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     iconsize = hopUi.getProps().getIconSize();
   }
 
-  public EngineMetaInterface getMeta() {
+  public IEngineMeta getMeta() {
     return pipelineMeta;
   }
 
@@ -3210,11 +3210,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta.hasChanged();
   }
 
-  public List<CheckResultInterface> getRemarks() {
+  public List<ICheckResult> getRemarks() {
     return remarks;
   }
 
-  public void setRemarks( List<CheckResultInterface> remarks ) {
+  public void setRemarks( List<ICheckResult> remarks ) {
     this.remarks = remarks;
   }
 
@@ -3273,7 +3273,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if ( StringUtils.isEmpty( filename ) ) {
         throw new HopException( "Please give the pipeline a filename" );
       }
-      String xml = pipelineMeta.getXML();
+      String xml = pipelineMeta.getXml();
       OutputStream out = HopVFS.getOutputStream( pipelineMeta.getFilename(), false );
       try {
         out.write( XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
@@ -3591,10 +3591,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           DefaultLogLevel.setLogLevel( executionConfiguration.getLogLevel() );
 
-          pipelineMeta.injectVariables( executionConfiguration.getVariables() );
+          pipelineMeta.injectVariables( executionConfiguration.getVariablesMap() );
 
           // Set the named parameters
-          Map<String, String> paramMap = executionConfiguration.getParams();
+          Map<String, String> paramMap = executionConfiguration.getParametersMap();
           Set<String> keys = paramMap.keySet();
           for ( String key : keys ) {
             pipelineMeta.setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
@@ -3722,10 +3722,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "PipelineLog.Log.DoPreview" ) );
         }
-        pipelineMeta.injectVariables( executionConfiguration.getVariables() );
+        pipelineMeta.injectVariables( executionConfiguration.getVariablesMap() );
 
         // Set the named parameters
-        Map<String, String> paramMap = executionConfiguration.getParams();
+        Map<String, String> paramMap = executionConfiguration.getParametersMap();
         Set<String> keys = paramMap.keySet();
         for ( String key : keys ) {
           pipelineMeta.setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
@@ -3792,7 +3792,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public synchronized void showPreview( final PipelineDebugMeta pipelineDebugMeta, final TransformDebugMeta transformDebugMeta,
-                                        final RowMetaInterface rowBufferMeta, final List<Object[]> rowBuffer ) {
+                                        final IRowMeta rowBufferMeta, final List<Object[]> rowBuffer ) {
     hopDisplay().asyncExec( new Runnable() {
 
       @Override
@@ -4080,7 +4080,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     final List<String> transformnames = new ArrayList<>();
-    final List<RowMetaInterface> rowMetas = new ArrayList<>();
+    final List<IRowMeta> rowMetas = new ArrayList<>();
     final List<List<Object[]>> rowBuffers = new ArrayList<>();
 
     // Assemble the buffers etc in the old style...
@@ -4149,10 +4149,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @Override
-  public HasLogChannelInterface getLogChannelProvider() {
-    return new HasLogChannelInterface() {
+  public IHasLogChannel getLogChannelProvider() {
+    return new IHasLogChannel() {
       @Override
-      public LogChannelInterface getLogChannel() {
+      public ILogChannel getLogChannel() {
         return getPipeline() != null ? getPipeline().getLogChannel() : getPipelineMeta().getLogChannel();
       }
     };
@@ -4210,7 +4210,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  @Override public LogChannelInterface getLogChannel() {
+  @Override public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -4265,7 +4265,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private TransformMeta lastChained = null;
 
-  public void addTransformToChain( PluginInterface transformPlugin, boolean shift ) {
+  public void addTransformToChain( IPlugin transformPlugin, boolean shift ) {
     // Is the lastChained entry still valid?
     //
     if ( lastChained != null && pipelineMeta.findTransform( lastChained.getName() ) == null ) {

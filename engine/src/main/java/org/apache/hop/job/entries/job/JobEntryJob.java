@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.job;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -35,33 +35,33 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
+import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.impl.EntryCurrentDirectoryChangedListener;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.JobEntryRunConfigurableInterface;
+import org.apache.hop.job.entry.IJobEntryRunConfigurable;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.www.SlaveServerJobStatus;
 import org.w3c.dom.Node;
@@ -82,7 +82,7 @@ import java.util.UUID;
  * @author Matt
  * @since 01-10-2003, Rewritten on 18-06-2004
  */
-public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInterface, JobEntryRunConfigurableInterface {
+public class JobEntryJob extends JobEntryBase implements Cloneable, IJobEntry, IJobEntryRunConfigurable {
   private static Class<?> PKG = JobEntryJob.class; // for i18n purposes, needed by Translator!!
   public static final int IS_PENTAHO = 1;
 
@@ -122,7 +122,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
   private Job job;
 
-  private CurrentDirectoryChangedListener dirListener = new EntryCurrentDirectoryChangedListener(
+  private ICurrentDirectoryChangedListener dirListener = new EntryCurrentDirectoryChangedListener(
     this::getDirectory,
     this::setDirectory );
 
@@ -437,7 +437,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           resultRow = null;
         }
 
-        NamedParams namedParam = new NamedParamsDefault();
+        INamedParams namedParam = new NamedParamsDefault();
 
         // First (optionally) copy all the parameter values from the parent job
         //
@@ -671,7 +671,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
           // Inform the parent job we started something here...
           //
-          for ( DelegationListener delegationListener : parentJob.getDelegationListeners() ) {
+          for ( IDelegationListener delegationListener : parentJob.getDelegationListeners() ) {
             // TODO: copy some settings in the job execution configuration, not strictly needed
             // but the execution configuration information is useful in case of a job re-start
             //
@@ -718,7 +718,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           jobExecutionConfiguration.setPreviousResult( result.lightClone() ); // lightClone() because rows are
           // overwritten in next line.
           jobExecutionConfiguration.getPreviousResult().setRows( sourceRows );
-          jobExecutionConfiguration.setVariables( this );
+          jobExecutionConfiguration.setVariablesMap( this );
           jobExecutionConfiguration.setRemoteServer( remoteSlaveServer );
           jobExecutionConfiguration.setLogLevel( jobLogLevel );
           jobExecutionConfiguration.setPassingExport( passingExport );
@@ -726,7 +726,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           for ( String param : namedParam.listParameters() ) {
             String defValue = namedParam.getParameterDefault( param );
             String value = namedParam.getParameterValue( param );
-            jobExecutionConfiguration.getParams().put( param, Const.NVL( value, defValue ) );
+            jobExecutionConfiguration.getParametersMap().put( param, Const.NVL( value, defValue ) );
           }
           if ( parentJob.getJobMeta().isBatchIdPassed() ) {
             jobExecutionConfiguration.setPassedBatchId( parentJob.getBatchId() );
@@ -993,17 +993,17 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   @Override
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
-    this.copyVariablesFrom( space );
-    JobMeta jobMeta = getJobMeta( metaStore, space );
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+    this.copyVariablesFrom( variables );
+    JobMeta jobMeta = getJobMeta( metaStore, variables );
     return jobMeta.getSQLStatements( null );
   }
 
-  public JobMeta getJobMeta( IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public JobMeta getJobMeta( IMetaStore metaStore, IVariables variables ) throws HopException {
     JobMeta jobMeta = null;
     try {
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-      VariableSpace tmpSpace = r.resolveCurrentDirectory( space, parentJob, getFilename() );
+      IVariables tmpSpace = r.resolveCurrentDirectory( variables, parentJob, getFilename() );
 
       String realFilename = tmpSpace.environmentSubstitute( getFilename() );
       jobMeta = new JobMeta( tmpSpace, realFilename, metaStore );
@@ -1048,7 +1048,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space           The variable space to resolve (environment) variables with.
+   * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
@@ -1056,8 +1056,8 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
    * @throws HopException in case something goes wrong during the export
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
     // Try to load the pipeline from file.
     // Modify this recursively too...
     //
@@ -1066,8 +1066,8 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     //
     // First load the job meta data...
     //
-    copyVariablesFrom( space ); // To make sure variables are available.
-    JobMeta jobMeta = getJobMeta( metaStore, space );
+    copyVariablesFrom( variables ); // To make sure variables are available.
+    JobMeta jobMeta = getJobMeta( metaStore, variables );
 
     // Also go down into the job and export the files there. (going down
     // recursively)
@@ -1092,7 +1092,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     if ( setLogfile ) {
       JobEntryValidatorUtils.andValidator().validate( this, "logfile", remarks,
@@ -1159,7 +1159,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   public void setLoggingRemoteWork( boolean loggingRemoteWork ) {
-    // do nothing. for compatibility with JobEntryRunConfigurableInterface
+    // do nothing. for compatibility with IJobEntryRunConfigurable
   }
 
   /**
@@ -1203,13 +1203,13 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore the metaStore
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return getJobMeta( metaStore, space );
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+    return getJobMeta( metaStore, variables );
   }
 
   public boolean isExpandingRemoteJob() {

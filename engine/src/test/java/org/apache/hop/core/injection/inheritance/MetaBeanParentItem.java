@@ -25,12 +25,12 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
-public class MetaBeanParentItem extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
+public class MetaBeanParentItem extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
   @Injection( name = "BASE_ITEM_NAME" )
   public String name;
 
@@ -38,11 +38,11 @@ public class MetaBeanParentItem extends BaseTransformMeta implements TransformMe
   @Override public void setDefault() {
   }
 
-  @Override public TransformInterface createTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return null;
   }
 
-  @Override public TransformDataInterface getTransformData() {
+  @Override public ITransformData getTransformData() {
     return null;
   }
 }

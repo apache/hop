@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.update;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
@@ -33,7 +33,7 @@ import java.sql.PreparedStatement;
  * @author Matt
  * @since 28-feb-2005
  */
-public class UpdateData extends BaseTransformData implements TransformDataInterface {
+public class UpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...
@@ -44,16 +44,16 @@ public class UpdateData extends BaseTransformData implements TransformDataInterf
 
   public String stringFieldnames;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public String schemaTable;
 
   public PreparedStatement prepStatementLookup;
   public PreparedStatement prepStatementUpdate;
 
-  public RowMetaInterface lookupParameterRowMeta;
-  public RowMetaInterface lookupReturnRowMeta;
-  public RowMetaInterface updateParameterRowMeta;
+  public IRowMeta lookupParameterRowMeta;
+  public IRowMeta lookupReturnRowMeta;
+  public IRowMeta updateParameterRowMeta;
 
   public UpdateData() {
     super();

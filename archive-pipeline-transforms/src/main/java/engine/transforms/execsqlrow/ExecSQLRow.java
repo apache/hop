@@ -29,15 +29,15 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -47,41 +47,41 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 10-sep-2005
  */
-public class ExecSQLRow extends BaseTransform implements TransformInterface {
+public class ExecSQLRow extends BaseTransform implements ITransform {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExecSQLRowMeta meta;
   private ExecSQLRowData data;
 
-  public ExecSQLRow( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ExecSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData getResultRow( Result result, String upd, String ins, String del, String read ) {
     RowMetaAndData resultRow = new RowMetaAndData();
 
     if ( upd != null && upd.length() > 0 ) {
-      ValueMetaInterface meta = new ValueMetaInteger( upd );
-      meta.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta meta = new ValueMetaInteger( upd );
+      meta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       resultRow.addValue( meta, new Long( result.getNrLinesUpdated() ) );
     }
 
     if ( ins != null && ins.length() > 0 ) {
-      ValueMetaInterface meta = new ValueMetaInteger( ins );
-      meta.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta meta = new ValueMetaInteger( ins );
+      meta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       resultRow.addValue( meta, new Long( result.getNrLinesOutput() ) );
     }
 
     if ( del != null && del.length() > 0 ) {
-      ValueMetaInterface meta = new ValueMetaInteger( del );
-      meta.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta meta = new ValueMetaInteger( del );
+      meta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       resultRow.addValue( meta, new Long( result.getNrLinesDeleted() ) );
     }
 
     if ( read != null && read.length() > 0 ) {
-      ValueMetaInterface meta = new ValueMetaInteger( read );
-      meta.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta meta = new ValueMetaInteger( read );
+      meta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       resultRow.addValue( meta, new Long( result.getNrLinesRead() ) );
     }
 
@@ -89,7 +89,7 @@ public class ExecSQLRow extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
@@ -193,7 +193,7 @@ public class ExecSQLRow extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
@@ -226,7 +226,7 @@ public class ExecSQLRow extends BaseTransform implements TransformInterface {
    * Stop the running query
    */
   @Override
-  public void stopRunning( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public void stopRunning( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
@@ -236,7 +236,7 @@ public class ExecSQLRow extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 

@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -68,14 +68,14 @@ public class SelectValuesMetaTest {
     selectField.setLength( 2 );
     selectField.setPrecision( 2 );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorTypeMap.put( SelectField[].class.getCanonicalName(), new ArrayLoadSaveValidator<SelectField>(
       new SelectFieldLoadSaveValidator( selectField ), 2 ) );
 
     LoadSaveTester tester =
       new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<>(),
-        new HashMap<>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+        new HashMap<>(), new HashMap<String, IFieldLoadSaveValidator<?>>(),
         fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();
@@ -212,7 +212,7 @@ public class SelectValuesMetaTest {
     assertArrayEquals( new int[ 0 ], selectValuesMeta.getSelectPrecision() );
   }
 
-  public static class SelectFieldLoadSaveValidator implements FieldLoadSaveValidator<SelectField> {
+  public static class SelectFieldLoadSaveValidator implements IFieldLoadSaveValidator<SelectField> {
 
     private final SelectField defaultValue;
 

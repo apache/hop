@@ -7,8 +7,8 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
@@ -56,11 +56,11 @@ public class HopSearchPlugin implements IHopPerspective {
     hopGui.getPerspectiveManager().showPerspective( this.getClass() );
   }
 
-  @Override public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
+  @Override public IHopFileTypeHandler getActiveFileTypeHandler() {
     return null; // Not handling anything really
   }
 
-  @Override public List<HopFileTypeInterface> getSupportedHopFileTypes() {
+  @Override public List<IHopFileType> getSupportedHopFileTypes() {
     return Collections.emptyList();
   }
 
@@ -113,7 +113,7 @@ public class HopSearchPlugin implements IHopPerspective {
     label.setLayoutData( fdLabel );
   }
 
-  @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
+  @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
     return false; // Nothing to do here
   }
 

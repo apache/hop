@@ -26,9 +26,9 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashIndex;
 import org.apache.hop.core.hash.LongHashIndex;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.Map;
  * @author Matt
  * @since 24-jan-2005
  */
-public class StreamLookupData extends BaseTransformData implements TransformDataInterface {
+public class StreamLookupData extends BaseTransformData implements ITransformData {
   /**
    * used to store values in used to look up things
    */
@@ -57,7 +57,7 @@ public class StreamLookupData extends BaseTransformData implements TransformData
   /**
    * The metadata we send out
    */
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   /**
    * default string converted to values...
@@ -73,20 +73,20 @@ public class StreamLookupData extends BaseTransformData implements TransformData
    * Stores the first row of the lookup-values to later determine if the types are the same as the input row lookup
    * values.
    */
-  public RowMetaInterface keyTypes;
+  public IRowMeta keyTypes;
 
-  public RowMetaInterface cacheKeyMeta;
+  public IRowMeta cacheKeyMeta;
 
-  public RowMetaInterface cacheValueMeta;
+  public IRowMeta cacheValueMeta;
 
   public Comparator<KeyValue> comparator;
 
   public ByteArrayHashIndex hashIndex;
   public LongHashIndex longIndex;
 
-  public RowMetaInterface lookupMeta;
+  public IRowMeta lookupMeta;
 
-  public RowMetaInterface infoMeta;
+  public IRowMeta infoMeta;
 
   public int[] lookupColumnIndex;
 

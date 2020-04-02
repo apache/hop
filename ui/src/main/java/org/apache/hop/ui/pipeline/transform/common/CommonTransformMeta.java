@@ -22,13 +22,13 @@
 package org.apache.hop.ui.pipeline.transform.common;
 
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /**
- * A convenience implementation of {@link BaseTransformMeta} that implements {@link TransformMetaInterface}
+ * A convenience implementation of {@link BaseTransformMeta} that implements {@link ITransformMeta}
  */
-public abstract class CommonTransformMeta extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
+public abstract class CommonTransformMeta extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
 }

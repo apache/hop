@@ -25,10 +25,10 @@ package org.apache.hop.pipeline.transforms.syslog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -61,7 +61,7 @@ public class SyslogMessageConcurrentTest {
     countDownLatch = new CountDownLatch( 1 );
     transformMockHelper = new TransformMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
       SyslogMessageData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     when( transformMockHelper.processRowsTransformMetaInterface.getServerName() ).thenReturn( "localhost" );
     when( transformMockHelper.processRowsTransformMetaInterface.getMessageFieldName() ).thenReturn( "message field" );
@@ -93,8 +93,8 @@ public class SyslogMessageConcurrentTest {
 
     SyslogMessageMeta syslogMessageMeta = null;
 
-    public SyslogMessageTask( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsTransformMetaInterface ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    public SyslogMessageTask( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsTransformMetaInterface ) {
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
       syslogMessageMeta = processRowsTransformMetaInterface;
     }
 
@@ -117,7 +117,7 @@ public class SyslogMessageConcurrentTest {
     }
 
     @Override
-    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       Assert.assertNotNull( row );
       Assert.assertTrue( row.length == 1 );
       Assert.assertEquals( testMessage, row[ 0 ] );
@@ -131,7 +131,7 @@ public class SyslogMessageConcurrentTest {
 
   private SyslogMessageTask createSyslogMessageTask() throws Exception {
     SyslogMessageData data = new SyslogMessageData();
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.indexOfValue( any() ) ).thenReturn( 0 );
     when( inputRowMeta.getString( any(), eq( 0 ) ) ).thenReturn( testMessage );
     SyslogMessageTask syslogMessage = new SyslogMessageTask( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta,

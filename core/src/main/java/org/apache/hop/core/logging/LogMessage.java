@@ -31,7 +31,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogMessage implements LogMessageInterface {
+public class LogMessage implements ILogMessage {
   private String logChannelId;
   private String message;
   private String subject;
@@ -77,7 +77,7 @@ public class LogMessage implements LogMessageInterface {
   private void lookupSubject() {
     // Derive the subject from the registry
     //
-    LoggingObjectInterface loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
     boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty( Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
     if ( loggingObject != null ) {
       if ( !detailedLogTurnOn ) {
@@ -93,7 +93,7 @@ public class LogMessage implements LogMessageInterface {
    * @param loggingObject
    * @return
    */
-  private String getDetailedSubject( LoggingObjectInterface loggingObject ) {
+  private String getDetailedSubject( ILoggingObject loggingObject ) {
 
     List<String> subjects = getSubjectTree( loggingObject );
     return subjects.size() > 1 ? formatDetailedSubject( subjects ) : subjects.get( 0 );
@@ -102,7 +102,7 @@ public class LogMessage implements LogMessageInterface {
   /**
    * @param loggingObject
    */
-  private List<String> getSubjectTree( LoggingObjectInterface loggingObject ) {
+  private List<String> getSubjectTree( ILoggingObject loggingObject ) {
     List<String> subjects = new ArrayList<>();
     while ( loggingObject != null ) {
       subjects.add( loggingObject.getObjectName() );

@@ -26,7 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
@@ -58,7 +58,7 @@ public class JobExecutorTest {
   public void setUp() throws Exception {
     executor = TransformMockUtil.getTransform( JobExecutor.class, JobExecutorMeta.class, "PipelineExecutorUnitTest" );
     executor = spy( executor );
-    executor.setInputRowMeta( mock( RowMetaInterface.class ) );
+    executor.setInputRowMeta( mock( IRowMeta.class ) );
 
     doNothing().when( executor ).discardLogLines( any( JobExecutorData.class ) );
 
@@ -98,7 +98,7 @@ public class JobExecutorTest {
     when( executor.getExecutorJob() ).thenReturn( mock( Job.class ) );
     when( executor.getExecutorJob().getJobMeta() ).thenReturn( mock( JobMeta.class ) );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "groupField" ) );
     executor.setInputRowMeta( rowMeta );
 

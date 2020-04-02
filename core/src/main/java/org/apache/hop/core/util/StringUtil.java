@@ -24,7 +24,7 @@ package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -267,7 +267,7 @@ public class StringUtil {
    * @return the string with the substitution applied.
    * @throws HopValueException In case there is a String conversion error
    */
-  public static String substituteField( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public static String substituteField( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     Map<String, String> variables = new HashMap<>();
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       variables.put( rowMeta.getValueMeta( i ).getName(), rowMeta.getString( rowData, i ) );

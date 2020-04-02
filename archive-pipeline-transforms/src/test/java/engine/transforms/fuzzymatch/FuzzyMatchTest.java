@@ -26,12 +26,12 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -84,13 +84,13 @@ public class FuzzyMatchTest {
     private Object[] resultRow = null;
     private RowSet rowset = null;
 
-    public FuzzyMatchHandler( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+    public FuzzyMatchHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @Override
-    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       resultRow = row;
     }
 
@@ -111,7 +111,7 @@ public class FuzzyMatchTest {
   public void setUp() throws Exception {
     mockHelper =
       new TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData>( "Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -125,7 +125,7 @@ public class FuzzyMatchTest {
   @Test
   public void testProcessRow() throws Exception {
     fuzzyMatch =
-      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
     fuzzyMatch.init( mockHelper.initTransformMetaInterface, mockHelper.initTransformDataInterface );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( rows ) );
@@ -149,7 +149,7 @@ public class FuzzyMatchTest {
     meta.setOutputMatchField( "I don't want NPE here!" );
     data.readLookupValues = true;
     fuzzyMatch =
-      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
 
     fuzzyMatch.init( meta, data );
@@ -158,15 +158,15 @@ public class FuzzyMatchTest {
     fuzzyMatch.addRowSetToInputRowSets( lookupRowSet );
     fuzzyMatch.rowset = lookupRowSet;
 
-    RowMetaInterface rowMetaInterface = new RowMeta();
-    ValueMetaInterface valueMeta = new ValueMetaString( "field1" );
+    IRowMeta iRowMeta = new RowMeta();
+    IValueMeta valueMeta = new ValueMetaString( "field1" );
     valueMeta.setStorageMetadata( new ValueMetaString( "field1" ) );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
-    rowMetaInterface.addValueMeta( valueMeta );
-    when( lookupRowSet.getRowMeta() ).thenReturn( rowMetaInterface );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
+    iRowMeta.addValueMeta( valueMeta );
+    when( lookupRowSet.getRowMeta() ).thenReturn( iRowMeta );
     when( meta.getLookupField() ).thenReturn( "field1" );
     when( meta.getMainStreamField() ).thenReturn( "field1" );
-    fuzzyMatch.setInputRowMeta( rowMetaInterface.clone() );
+    fuzzyMatch.setInputRowMeta( iRowMeta.clone() );
 
     when( meta.getAlgorithmType() ).thenReturn( 1 );
     TransformIOMetaInterface transformIOMetaInterface = mock( TransformIOMetaInterface.class );
@@ -179,7 +179,7 @@ public class FuzzyMatchTest {
     when( transformIOMetaInterface.getInfoStreams() ).thenReturn( streamInterfaceList );
 
     fuzzyMatch.processRow( meta, data );
-    Assert.assertEquals( rowMetaInterface.getString( row3B, 0 ),
+    Assert.assertEquals( iRowMeta.getString( row3B, 0 ),
       data.outputRowMeta.getString( fuzzyMatch.resultRow, 1 ) );
   }
 
@@ -189,7 +189,7 @@ public class FuzzyMatchTest {
     FuzzyMatchMeta meta = spy( new FuzzyMatchMeta() );
     data.readLookupValues = false;
     fuzzyMatch =
-      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+      new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
     fuzzyMatch.init( meta, data );
     fuzzyMatch.first = false;
@@ -200,14 +200,14 @@ public class FuzzyMatchTest {
     fuzzyMatch.addRowSetToInputRowSets( lookupRowSet );
     fuzzyMatch.rowset = lookupRowSet;
 
-    RowMetaInterface rowMetaInterface = new RowMeta();
-    ValueMetaInterface valueMeta = new ValueMetaString( "field1" );
+    IRowMeta iRowMeta = new RowMeta();
+    IValueMeta valueMeta = new ValueMetaString( "field1" );
     valueMeta.setStorageMetadata( new ValueMetaString( "field1" ) );
-    valueMeta.setStorageType( ValueMetaInterface.TYPE_STRING );
-    rowMetaInterface.addValueMeta( valueMeta );
-    when( lookupRowSet.getRowMeta() ).thenReturn( rowMetaInterface );
-    fuzzyMatch.setInputRowMeta( rowMetaInterface.clone() );
-    data.outputRowMeta = rowMetaInterface.clone();
+    valueMeta.setStorageType( IValueMeta.TYPE_STRING );
+    iRowMeta.addValueMeta( valueMeta );
+    when( lookupRowSet.getRowMeta() ).thenReturn( iRowMeta );
+    fuzzyMatch.setInputRowMeta( iRowMeta.clone() );
+    data.outputRowMeta = iRowMeta.clone();
 
     fuzzyMatch.processRow( meta, data );
     Assert.assertEquals( inputRow[ 0 ], fuzzyMatch.resultRow[ 0 ] );

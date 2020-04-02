@@ -25,16 +25,16 @@ package org.apache.hop.pipeline.transforms.rowgenerator;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.*;
 
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public class RowGeneratorUnitTest {
   @Before
   public void setUp() throws HopException {
     // add variable to row generator transform
-    TransformMetaInterface transformMetaInterface = spy( new RowGeneratorMeta() );
+    ITransformMeta transformMetaInterface = spy( new RowGeneratorMeta() );
     ( (RowGeneratorMeta) transformMetaInterface ).setRowLimit( "${ROW_LIMIT}" );
     String[] strings = {};
     when( ( (RowGeneratorMeta) transformMetaInterface ).getFieldName() ).thenReturn( strings );
@@ -66,7 +66,7 @@ public class RowGeneratorUnitTest {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setTransformMetaInterface( transformMetaInterface );
     transformMeta.setName( "ROW_TRANSFORM_META" );
-    TransformDataInterface transformDataInterface = transformMeta.getTransformMetaInterface().getTransformData();
+    ITransformData iTransformData = transformMeta.getTransformMetaInterface().getTransformData();
 
     // add variable to pipeline variable space
     Map<String, String> map = new HashMap<>();
@@ -80,9 +80,9 @@ public class RowGeneratorUnitTest {
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
     //prepare row generator, substitutes variable by value from pipeline variable space
-    rowGenerator = spy( new RowGenerator( transformMeta, transformDataInterface, 0, pipelineMeta, pipeline ) );
+    rowGenerator = spy( new RowGenerator( transformMeta, iTransformData, 0, pipelineMeta, pipeline ) );
     rowGenerator.initializeVariablesFrom( pipeline );
-    rowGenerator.init( transformMetaInterface, transformDataInterface );
+    rowGenerator.init( transformMetaInterface, iTransformData );
   }
 
   @Test
@@ -98,7 +98,7 @@ public class RowGeneratorUnitTest {
     Pipeline pipeline = new Pipeline( pipelineMeta );
     pipeline.prepareExecution();
     pipeline.getTransforms().get( 1 ).transform.addRowListener( new RowAdapter() {
-      @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         pipeline.safeStop();
       }
     } );

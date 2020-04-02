@@ -27,12 +27,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -76,7 +76,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryColumnsExistDialog extends JobEntryDialog implements IJobEntryDialog {
   private static final Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
@@ -120,7 +120,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
   private FormData fdbSchema;
   private Button wbSchema;
 
-  public JobEntryColumnsExistDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryColumnsExistDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryColumnsExist) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -129,7 +129,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
   }
 
   @Override
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -470,7 +470,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
         database.shareVariablesWith( jobMeta );
         try {
           database.connect();
-          RowMetaInterface row =
+          IRowMeta row =
             database.getTableFieldsMeta(
               jobMeta.environmentSubstitute( wSchemaname.getText() ),
               jobMeta.environmentSubstitute( wTablename.getText() ) );

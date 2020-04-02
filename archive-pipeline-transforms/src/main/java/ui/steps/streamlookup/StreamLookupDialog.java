@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.streamlookup;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
@@ -66,7 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class StreamLookupDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransform;
@@ -419,7 +419,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements Transform
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
             Map<String, Integer> prevFields = new HashMap<String, Integer>();
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -456,7 +456,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements Transform
         TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
         if ( lookupTransformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getTransformFields( lookupTransformMeta );
+            IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
             Map<String, Integer> lookupFields = new HashMap<String, Integer>();
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -623,7 +623,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements Transform
     }
 
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wKey, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       } else {
@@ -656,7 +656,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements Transform
     try {
       String transformFrom = wTransform.getText();
       if ( !Utils.isEmpty( transformFrom ) ) {
-        RowMetaInterface r = pipelineMeta.getTransformFields( transformFrom );
+        IRowMeta r = pipelineMeta.getTransformFields( transformFrom );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1 }, new int[] { 4 }, -1, -1, null );
         } else {

@@ -34,12 +34,12 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInput;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -120,7 +120,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
   // This is only used for reading, so no concurrency problems.
   // todo: move in the real variables of the transform.
-  // private static VariableSpace variables = Variables.getADefaultVariableSpace();
+  // private static iVariables variables = Variables.getADefaultVariableSpace();
 
   // Functions to Add
   // date2num, num2date,
@@ -272,7 +272,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     if ( ArgList.length == 1 ) {
       try {
         Object scmO = actualObject.get( "_transform_", actualObject );
-        TransformInterface scm = (TransformInterface) Context.jsToJava( scmO, TransformInterface.class );
+        ITransform scm = (ITransform) Context.jsToJava( scmO, ITransform.class );
         String strType = Context.toString( ArgList[ 0 ] ).toLowerCase();
 
         if ( strType.equals( "i" ) ) {
@@ -1605,10 +1605,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           sRC = System.getProperty( sArg1, "" );
         } else {
           Object scmo = actualObject.get( "_transform_", actualObject );
-          Object scmO = Context.jsToJava( scmo, TransformInterface.class );
+          Object scmO = Context.jsToJava( scmo, ITransform.class );
 
-          if ( scmO instanceof TransformInterface ) {
-            TransformInterface scm = (TransformInterface) Context.jsToJava( scmO, TransformInterface.class );
+          if ( scmO instanceof ITransform ) {
+            ITransform scm = (ITransform) Context.jsToJava( scmO, ITransform.class );
             sArg1 = Context.toString( ArgList[ 0 ] );
             sRC = scm.getVariable( sArg1, "" );
           } else {
@@ -1810,9 +1810,9 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       throw Context.reportRuntimeError( "The function call setVariable requires 3 arguments." );
     }
 
-    Object transformObject = Context.jsToJava( actualObject.get( "_transform_", actualObject ), TransformInterface.class );
-    if ( transformObject instanceof TransformInterface ) {
-      TransformInterface transform = (TransformInterface) transformObject;
+    Object transformObject = Context.jsToJava( actualObject.get( "_transform_", actualObject ), ITransform.class );
+    if ( transformObject instanceof ITransform ) {
+      ITransform transform = (ITransform) transformObject;
       Pipeline pipeline = transform.getPipeline();
       final String variableName = Context.toString( arguments[ 0 ] );
       final String variableValue = Context.toString( arguments[ 1 ] );
@@ -1841,7 +1841,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setRootScopeVariable( Pipeline pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    VariableSpace parentSpace = pipeline.getParentVariableSpace();
+    iVariables parentSpace = pipeline.getParentVariableSpace();
     while ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
       parentSpace = parentSpace.getParentVariableSpace();
@@ -1859,7 +1859,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setParentScopeVariable( Pipeline pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    VariableSpace parentSpace = pipeline.getParentVariableSpace();
+    iVariables parentSpace = pipeline.getParentVariableSpace();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
     }
@@ -1868,10 +1868,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setGrandParentScopeVariable( Pipeline pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    VariableSpace parentSpace = pipeline.getParentVariableSpace();
+    iVariables parentSpace = pipeline.getParentVariableSpace();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
-      VariableSpace grandParentSpace = parentSpace.getParentVariableSpace();
+      iVariables grandParentSpace = parentSpace.getParentVariableSpace();
       if ( grandParentSpace != null ) {
         grandParentSpace.setVariable( variableName, variableValue );
       }
@@ -1904,10 +1904,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     if ( ArgList.length == 2 ) {
       try {
         Object scmo = actualObject.get( "_transform_", actualObject );
-        Object scmO = Context.jsToJava( scmo, TransformInterface.class );
+        Object scmO = Context.jsToJava( scmo, ITransform.class );
 
-        if ( scmO instanceof TransformInterface ) {
-          TransformInterface scm = (TransformInterface) Context.jsToJava( scmO, TransformInterface.class );
+        if ( scmO instanceof ITransform ) {
+          ITransform scm = (ITransform) Context.jsToJava( scmO, ITransform.class );
 
           sArg1 = Context.toString( ArgList[ 0 ] );
           sArg2 = Context.toString( ArgList[ 1 ] );
@@ -1927,7 +1927,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Return the output row metadata
-  public static RowMetaInterface getOutputRowMeta( Context actualContext, Scriptable actualObject,
+  public static IRowMeta getOutputRowMeta( Context actualContext, Scriptable actualObject,
                                                    Object[] ArgList, Function FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {
@@ -1949,7 +1949,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Return the input row metadata
-  public static RowMetaInterface getInputRowMeta( Context actualContext, Scriptable actualObject,
+  public static IRowMeta getInputRowMeta( Context actualContext, Scriptable actualObject,
                                                   Object[] ArgList, Function FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {

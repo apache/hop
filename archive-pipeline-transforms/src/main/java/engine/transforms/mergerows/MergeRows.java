@@ -28,13 +28,13 @@ import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -49,7 +49,7 @@ import java.util.List;
  * @author Matt
  * @since 19-dec-2005
  */
-public class MergeRows extends BaseTransform implements TransformInterface {
+public class MergeRows extends BaseTransform implements ITransform {
   private static Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String VALUE_IDENTICAL = "identical";
@@ -61,12 +61,12 @@ public class MergeRows extends BaseTransform implements TransformInterface {
   private MergeRowsData data;
   private boolean useRefWhenIdentical = false;
 
-  public MergeRows( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MergeRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MergeRowsMeta) smi;
     data = (MergeRowsData) sdi;
     if ( first ) {
@@ -145,11 +145,11 @@ public class MergeRows extends BaseTransform implements TransformInterface {
       data.outputRowMeta = new RowMeta();
       if ( data.one != null ) {
         meta.getFields(
-          data.outputRowMeta, getTransformName(), new RowMetaInterface[] { data.oneRowSet.getRowMeta() }, null, this,
+          data.outputRowMeta, getTransformName(), new IRowMeta[] { data.oneRowSet.getRowMeta() }, null, this,
           metaStore );
       } else {
         meta.getFields(
-          data.outputRowMeta, getTransformName(), new RowMetaInterface[] { data.twoRowSet.getRowMeta() }, null, this,
+          data.outputRowMeta, getTransformName(), new IRowMeta[] { data.twoRowSet.getRowMeta() }, null, this,
           metaStore );
       }
     }
@@ -230,9 +230,9 @@ public class MergeRows extends BaseTransform implements TransformInterface {
   }
 
   /**
-   * @see TransformInterface#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MergeRowsMeta) smi;
     data = (MergeRowsData) sdi;
 
@@ -256,7 +256,7 @@ public class MergeRows extends BaseTransform implements TransformInterface {
    * @return true when templates are compatible.
    * @throws HopRowException in case there is a compatibility error.
    */
-  static void checkInputLayoutValid( RowMetaInterface referenceRowMeta, RowMetaInterface compareRowMeta ) throws HopRowException {
+  static void checkInputLayoutValid( IRowMeta referenceRowMeta, IRowMeta compareRowMeta ) throws HopRowException {
     if ( referenceRowMeta != null && compareRowMeta != null ) {
       BaseTransform.safeModeChecking( referenceRowMeta, compareRowMeta );
     }

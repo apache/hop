@@ -28,7 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
@@ -42,15 +42,15 @@ import java.util.List;
  */
 public class MappingOutput
   extends BaseTransform<MappingOutputMeta, MappingOutputData>
-  implements TransformInterface<MappingOutputMeta, MappingOutputData> {
+  implements ITransform<MappingOutputMeta, MappingOutputData> {
   private static Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MappingOutputMeta meta;
   private MappingOutputData data;
 
-  public MappingOutput( TransformMeta transformMeta, MappingOutputData transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MappingOutput( TransformMeta transformMeta, MappingOutputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow( MappingOutputMeta meta, MappingOutputData data ) throws HopException {
@@ -123,12 +123,12 @@ public class MappingOutput
     return false;
   }
 
-  public void setConnectorTransforms( TransformInterface[] targetTransforms, List<MappingValueRename> inputValueRenames,
-                                 List<MappingValueRename> outputValueRenames ) {
+  public void setConnectorTransforms( ITransform[] targetTransforms, List<MappingValueRename> inputValueRenames,
+                                      List<MappingValueRename> outputValueRenames ) {
     for ( int i = 0; i < targetTransforms.length; i++ ) {
 
       // OK, before we leave, make sure there is a rowset that covers the path to this target transform.
-      // We need to create a new RowSet and add it to the Input RowSets of the target transform
+      // We need to create a new IRowSet and add it to the Input RowSets of the target transform
       //
       BlockingRowSet rowSet = new BlockingRowSet( getPipeline().getRowSetSize() );
 

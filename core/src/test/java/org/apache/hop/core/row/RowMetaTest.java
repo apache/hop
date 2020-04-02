@@ -59,14 +59,14 @@ import static org.mockito.Mockito.spy;
 public class RowMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  RowMetaInterface rowMeta = new RowMeta();
-  ValueMetaInterface string;
-  ValueMetaInterface integer;
-  ValueMetaInterface date;
+  IRowMeta rowMeta = new RowMeta();
+  IValueMeta string;
+  IValueMeta integer;
+  IValueMeta date;
 
-  ValueMetaInterface charly;
-  ValueMetaInterface dup;
-  ValueMetaInterface bin;
+  IValueMeta charly;
+  IValueMeta dup;
+  IValueMeta bin;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -79,23 +79,23 @@ public class RowMetaTest {
 
   @Before
   public void setUp() throws Exception {
-    string = ValueMetaFactory.createValueMeta( "string", ValueMetaInterface.TYPE_STRING );
+    string = ValueMetaFactory.createValueMeta( "string", IValueMeta.TYPE_STRING );
     rowMeta.addValueMeta( string );
-    integer = ValueMetaFactory.createValueMeta( "integer", ValueMetaInterface.TYPE_INTEGER );
+    integer = ValueMetaFactory.createValueMeta( "integer", IValueMeta.TYPE_INTEGER );
     rowMeta.addValueMeta( integer );
-    date = ValueMetaFactory.createValueMeta( "date", ValueMetaInterface.TYPE_DATE );
+    date = ValueMetaFactory.createValueMeta( "date", IValueMeta.TYPE_DATE );
     rowMeta.addValueMeta( date );
 
-    charly = ValueMetaFactory.createValueMeta( "charly", ValueMetaInterface.TYPE_SERIALIZABLE );
+    charly = ValueMetaFactory.createValueMeta( "charly", IValueMeta.TYPE_SERIALIZABLE );
 
-    dup = ValueMetaFactory.createValueMeta( "dup", ValueMetaInterface.TYPE_SERIALIZABLE );
-    bin = ValueMetaFactory.createValueMeta( "bin", ValueMetaInterface.TYPE_BINARY );
+    dup = ValueMetaFactory.createValueMeta( "dup", IValueMeta.TYPE_SERIALIZABLE );
+    bin = ValueMetaFactory.createValueMeta( "bin", IValueMeta.TYPE_BINARY );
   }
 
-  private List<ValueMetaInterface> generateVList( String[] names, int[] types ) throws HopPluginException {
-    List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>();
+  private List<IValueMeta> generateVList( String[] names, int[] types ) throws HopPluginException {
+    List<IValueMeta> list = new ArrayList<IValueMeta>();
     for ( int i = 0; i < names.length; i++ ) {
-      ValueMetaInterface vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
+      IValueMeta vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
       vm.setOrigin( "originTransform" );
       list.add( vm );
     }
@@ -111,7 +111,7 @@ public class RowMetaTest {
     Document xmlDoc = XMLHandler.loadXMLString( testXmlNode );
     RowMeta rowMeta = spy( new RowMeta( xmlDoc.getFirstChild() ) );
     assertEquals( 2, rowMeta.getValueMetaList().size() );
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
+    IValueMeta valueMeta = rowMeta.getValueMeta( 0 );
     assertTrue( valueMeta instanceof ValueMetaDate );
     assertEquals( "testDate", valueMeta.getName() );
     assertNull( valueMeta.getConversionMask() );
@@ -123,7 +123,7 @@ public class RowMetaTest {
 
   @Test
   public void testGetValueMetaList() {
-    List<ValueMetaInterface> list = rowMeta.getValueMetaList();
+    List<IValueMeta> list = rowMeta.getValueMetaList();
     assertTrue( list.contains( string ) );
     assertTrue( list.contains( integer ) );
     assertTrue( list.contains( date ) );
@@ -131,7 +131,7 @@ public class RowMetaTest {
 
   @Test
   public void testSetValueMetaList() throws HopPluginException {
-    List<ValueMetaInterface> setList = this.generateVList( new String[] { "alpha", "bravo" }, new int[] { 2, 2 } );
+    List<IValueMeta> setList = this.generateVList( new String[] { "alpha", "bravo" }, new int[] { 2, 2 } );
     rowMeta.setValueMetaList( setList );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "alpha" ) ) );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "bravo" ) ) );
@@ -143,7 +143,7 @@ public class RowMetaTest {
 
   @Test
   public void testSetValueMetaListNullName() throws HopPluginException {
-    List<ValueMetaInterface> setList = this.generateVList( new String[] { "alpha", null }, new int[] { 2, 2 } );
+    List<IValueMeta> setList = this.generateVList( new String[] { "alpha", null }, new int[] { 2, 2 } );
     rowMeta.setValueMetaList( setList );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "alpha" ) ) );
     assertFalse( setList.contains( rowMeta.searchValueMeta( null ) ) );
@@ -177,7 +177,7 @@ public class RowMetaTest {
 
   @Test
   public void testAddValueMetaNullName() throws HopPluginException {
-    ValueMetaInterface vmi = new ValueMetaBase();
+    IValueMeta vmi = new ValueMetaBase();
     rowMeta.addValueMeta( vmi );
     assertTrue( rowMeta.getValueMetaList().contains( vmi ) );
   }
@@ -221,7 +221,7 @@ public class RowMetaTest {
 
   @Test
   public void testSetValueMetaNullName() throws HopPluginException {
-    ValueMetaInterface vmi = new ValueMetaBase();
+    IValueMeta vmi = new ValueMetaBase();
     rowMeta.setValueMeta( 1, vmi );
     assertEquals( 1, rowMeta.getValueMetaList().indexOf( vmi ) );
     assertEquals( "There is still 3 elements:", 3, rowMeta.size() );
@@ -229,7 +229,7 @@ public class RowMetaTest {
 
   @Test
   public void testIndexOfValue() {
-    List<ValueMetaInterface> list = rowMeta.getValueMetaList();
+    List<IValueMeta> list = rowMeta.getValueMetaList();
     assertEquals( 0, list.indexOf( string ) );
     assertEquals( 1, list.indexOf( integer ) );
     assertEquals( 2, list.indexOf( date ) );
@@ -242,7 +242,7 @@ public class RowMetaTest {
 
   @Test
   public void testSearchValueMeta() {
-    ValueMetaInterface vmi = rowMeta.searchValueMeta( "integer" );
+    IValueMeta vmi = rowMeta.searchValueMeta( "integer" );
     assertEquals( integer, vmi );
     vmi = rowMeta.searchValueMeta( "string" );
     assertEquals( string, vmi );
@@ -252,7 +252,7 @@ public class RowMetaTest {
 
   @Test
   public void testAddRowMeta() throws HopPluginException {
-    List<ValueMetaInterface> list =
+    List<IValueMeta> list =
       this.generateVList( new String[] { "alfa", "bravo", "charly", "delta" }, new int[] { 2, 2, 3, 4 } );
     RowMeta added = new RowMeta();
     added.setValueMetaList( list );
@@ -264,7 +264,7 @@ public class RowMetaTest {
 
   @Test
   public void testMergeRowMeta() throws HopPluginException {
-    List<ValueMetaInterface> list =
+    List<IValueMeta> list =
       this.generateVList( new String[] { "phobos", "demos", "mars" }, new int[] { 6, 6, 6 } );
     list.add( 1, integer );
     RowMeta toMerge = new RowMeta();
@@ -275,8 +275,8 @@ public class RowMetaTest {
 
     list = rowMeta.getValueMetaList();
     assertTrue( list.contains( integer ) );
-    ValueMetaInterface found = null;
-    for ( ValueMetaInterface vm : list ) {
+    IValueMeta found = null;
+    for ( IValueMeta vm : list ) {
       if ( vm.getName().equals( "integer_1" ) ) {
         found = vm;
         break;
@@ -322,14 +322,14 @@ public class RowMetaTest {
 
   @Test
   public void testExternalValueMetaModification() {
-    ValueMetaInterface vmi = rowMeta.searchValueMeta( "string" );
+    IValueMeta vmi = rowMeta.searchValueMeta( "string" );
     vmi.setName( "string2" );
     assertNotNull( rowMeta.searchValueMeta( vmi.getName() ) );
   }
 
   @Test
   public void testSwapNames() throws HopPluginException {
-    ValueMetaInterface string2 = ValueMetaFactory.createValueMeta( "string2", ValueMetaInterface.TYPE_STRING );
+    IValueMeta string2 = ValueMetaFactory.createValueMeta( "string2", IValueMeta.TYPE_STRING );
     rowMeta.addValueMeta( string2 );
     assertSame( string, rowMeta.searchValueMeta( "string" ) );
     assertSame( string2, rowMeta.searchValueMeta( "string2" ) );
@@ -387,16 +387,16 @@ public class RowMetaTest {
   public void hasedRowMetaListFasterWhenSearchByName() throws HopPluginException {
     rowMeta.clear();
 
-    ValueMetaInterface searchFor = null;
+    IValueMeta searchFor = null;
     for ( int i = 0; i < 100000; i++ ) {
-      ValueMetaInterface vm =
-        ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), ValueMetaInterface.TYPE_STRING );
+      IValueMeta vm =
+        ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), IValueMeta.TYPE_STRING );
       rowMeta.addValueMeta( vm );
       if ( i == 50000 ) {
         searchFor = vm;
       }
     }
-    List<ValueMetaInterface> vmList = rowMeta.getValueMetaList();
+    List<IValueMeta> vmList = rowMeta.getValueMetaList();
 
     // now see how fast we are.
     long start, stop, time1, time2;
@@ -406,7 +406,7 @@ public class RowMetaTest {
     time1 = stop - start;
 
     start = System.nanoTime();
-    ValueMetaInterface found = rowMeta.searchValueMeta( searchFor.getName() );
+    IValueMeta found = rowMeta.searchValueMeta( searchFor.getName() );
     stop = System.nanoTime();
     assertEquals( searchFor, found );
     time2 = stop - start;
@@ -420,10 +420,10 @@ public class RowMetaTest {
     rowMeta = new RowMeta();
 
     // create pre-existed rom meta list
-    List<ValueMetaInterface> pre = new ArrayList<ValueMetaInterface>( 100000 );
+    List<IValueMeta> pre = new ArrayList<IValueMeta>( 100000 );
     for ( int i = 0; i < 100000; i++ ) {
-      ValueMetaInterface vm =
-        ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), ValueMetaInterface.TYPE_STRING );
+      IValueMeta vm =
+        ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), IValueMeta.TYPE_STRING );
       pre.add( vm );
     }
 
@@ -432,15 +432,15 @@ public class RowMetaTest {
     long start, stop, time1, time2;
     start = System.nanoTime();
     // this is when filling regular array like in prev implementation
-    List<ValueMetaInterface> prev = new ArrayList<ValueMetaInterface>();
-    for ( ValueMetaInterface item : pre ) {
+    List<IValueMeta> prev = new ArrayList<IValueMeta>();
+    for ( IValueMeta item : pre ) {
       prev.add( item );
     }
     stop = System.nanoTime();
     time1 = stop - start;
 
     start = System.nanoTime();
-    for ( ValueMetaInterface item : pre ) {
+    for ( IValueMeta item : pre ) {
       rowMeta.addValueMeta( item );
     }
     stop = System.nanoTime();
@@ -454,7 +454,7 @@ public class RowMetaTest {
   @Test
   public void testMergeRowMetaWithOriginTransform() throws Exception {
 
-    List<ValueMetaInterface> list =
+    List<IValueMeta> list =
       this.generateVList( new String[] { "phobos", "demos", "mars" }, new int[] { 6, 6, 6 } );
     list.add( 1, integer );
     RowMeta toMerge = new RowMeta();
@@ -465,9 +465,9 @@ public class RowMetaTest {
 
     list = rowMeta.getValueMetaList();
     assertTrue( list.contains( integer ) );
-    ValueMetaInterface found = null;
-    ValueMetaInterface other = null;
-    for ( ValueMetaInterface vm : list ) {
+    IValueMeta found = null;
+    IValueMeta other = null;
+    for ( IValueMeta vm : list ) {
       if ( vm.getName().equals( "integer_1" ) ) {
         found = vm;
         break;

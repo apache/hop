@@ -24,12 +24,12 @@ package org.apache.hop.databases.mssql;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class MSSQLServerDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
-  private DatabaseInterface databaseInterface;
+  private IDatabase iDatabase;
 
   @BeforeClass
   public static void setUpOnce() throws HopPluginException, HopException {
@@ -67,8 +67,8 @@ public class MSSQLServerDatabaseMetaTest {
     odbcMeta = new MSSQLServerDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     databaseMeta = new DatabaseMeta();
-    databaseInterface = mock( DatabaseInterface.class );
-    databaseMeta.setDatabaseInterface( databaseInterface );
+    iDatabase = mock( IDatabase.class );
+    databaseMeta.setIDatabase( iDatabase );
   }
 
   @Test
@@ -259,7 +259,7 @@ public class MSSQLServerDatabaseMetaTest {
       "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "
       ; // yes, space at the end like in the dbmeta
     Database db = Mockito.mock( Database.class );
-    RowMetaInterface rm = Mockito.mock( RowMetaInterface.class );
+    IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
     Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
@@ -290,14 +290,14 @@ public class MSSQLServerDatabaseMetaTest {
 
 /*  @Test
   public void databases_WithSameDbConnTypes_AreTheSame() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
   }*/
 
 /*  @Test
   public void databases_WithSameDbConnTypes_AreNotSame_IfPluginIdIsNull() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( null );
     assertFalse(
       databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
@@ -305,9 +305,9 @@ public class MSSQLServerDatabaseMetaTest {
 
 /*  @Test
   public void databases_WithDifferentDbConnTypes_AreDifferent_IfNonOfThemIsSubsetOfAnother() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface oracleDatabaseMeta = new OracleDatabaseMeta();
+    IDatabase oracleDatabaseMeta = new OracleDatabaseMeta();
     oracleDatabaseMeta.setPluginId( "ORACLE" );
 
     assertFalse( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, oracleDatabaseMeta ) );
@@ -323,9 +323,9 @@ public class MSSQLServerDatabaseMetaTest {
       }
     }
 
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
+    IDatabase mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
 
     assertTrue(
       databaseMeta

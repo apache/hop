@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -90,7 +90,7 @@ public class MySQLBulkLoaderTest {
     pipelineMeta.injectVariables( vars );
     MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseInterface( mysql );
+    dbMeta.setIDatabase( mysql );
     dbMeta.setQuoteAllFields( true );
     lmeta = new MySQLBulkLoaderMeta();
     lmeta.setDelimiter( "${delim}" );
@@ -246,7 +246,7 @@ public class MySQLBulkLoaderTest {
     sdi.keynrs = new int[ 1 ];
     sdi.keynrs[ 0 ] = 0;
     sdi.fifoStream = mock( OutputStream.class );
-    sdi.bulkFormatMeta = new ValueMetaInterface[] { vmn };
+    sdi.bulkFormatMeta = new IValueMeta[] { vmn };
 
     loader.init( smi, sdi );
     loader.first = false;

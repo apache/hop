@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
@@ -35,10 +35,10 @@ import java.util.regex.Pattern;
  * @author Daniel Einspanjer
  * @since 27-03-2008
  */
-public class RegexEvalData extends BaseTransformData implements TransformDataInterface {
+public class RegexEvalData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface conversionRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta conversionRowMeta;
   public int indexOfFieldToEvaluate;
   public int indexOfResultField;
 

@@ -131,20 +131,20 @@ public class LogMessageTest {
     System.getProperties().put( Const.HOP_LOG_MARK_MAPPINGS, "N" );
   }
 
-  private static LoggingObjectInterface getTreeLoggingObject() {
-    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
-    LoggingObjectInterface pipelineLogObject =
+  private static ILoggingObject getTreeLoggingObject() {
+    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
+    ILoggingObject pipelineLogObject =
       new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
-    LoggingObjectInterface transformLogObject =
+    ILoggingObject transformLogObject =
       new SimpleLoggingObject( "TRANSFORM_SUBJECT", LoggingObjectType.TRANSFORM, pipelineLogObject );
-    LoggingObjectInterface pipelineChildLogObject =
+    ILoggingObject pipelineChildLogObject =
       new SimpleLoggingObject( "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, transformLogObject );
     return pipelineChildLogObject;
   }
 
-  private static LoggingObjectInterface getLoggingObjectWithOneParent() {
-    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
-    LoggingObjectInterface pipelineLogObject =
+  private static ILoggingObject getLoggingObjectWithOneParent() {
+    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
+    ILoggingObject pipelineLogObject =
       new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
     return pipelineLogObject;
   }

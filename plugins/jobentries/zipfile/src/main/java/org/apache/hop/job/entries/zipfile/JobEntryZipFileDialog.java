@@ -28,8 +28,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -75,7 +75,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryZipFileDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryZipFile.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] {
@@ -238,7 +238,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
 
   private boolean changed;
 
-  public JobEntryZipFileDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryZipFileDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryZipFile) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -247,7 +247,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
 
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

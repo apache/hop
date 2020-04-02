@@ -22,8 +22,8 @@
 package org.apache.hop.job.entries.getpop;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class MailConnectionTest {
   @Before
   public void beforeExec() throws HopException, MessagingException {
     Object subj = new Object();
-    LogChannelInterface log = new LogChannel( subj );
+    ILogChannel log = new LogChannel( subj );
     conn = new Mconn( log );
   }
 
@@ -183,7 +183,7 @@ public class MailConnectionTest {
 
     boolean cCreated = false;
 
-    public Mconn( LogChannelInterface log ) throws HopException, MessagingException {
+    public Mconn( ILogChannel log ) throws HopException, MessagingException {
       super( log, MailConnectionMeta.PROTOCOL_IMAP, "junit", 0, "junit", "junit", false, false, "junit" );
 
       store = Mockito.mock( Store.class );

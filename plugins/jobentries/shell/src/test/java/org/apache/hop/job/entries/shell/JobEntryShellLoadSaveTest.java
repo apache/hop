@@ -26,7 +26,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -61,8 +61,8 @@ public class JobEntryShellLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEn
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createTypeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createTypeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     validators.put( LogLevel.class.getName(), new EnumLoadSaveValidator<LogLevel>( LogLevel.class ) );
     return validators;
   }

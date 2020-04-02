@@ -27,7 +27,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -54,7 +54,7 @@ public class PDI_11152_Test {
   @Before
   public void setUp() {
     smh = new TransformMockHelper<UpdateMeta, UpdateData>( "Update", UpdateMeta.class, UpdateData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -77,7 +77,7 @@ public class PDI_11152_Test {
     storageMetadata.setConversionMask( "yyyy-MM-dd" );
 
     ValueMetaDate valueMeta = new ValueMetaDate( "Date" );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     valueMeta.setStorageMetadata( storageMetadata );
 
     RowMeta inputRowMeta = new RowMeta();
@@ -92,7 +92,7 @@ public class PDI_11152_Test {
     transformData.keynrs2 = new int[] { -1 };
     transformData.updateParameterRowMeta = when( mock( RowMeta.class ).size() ).thenReturn( 2 ).getMock();
 
-    Update transform = new Update( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Update transform = new Update( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.setInputRowMeta( inputRowMeta );
     transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "2013-12-20".getBytes() } ) );
     transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );

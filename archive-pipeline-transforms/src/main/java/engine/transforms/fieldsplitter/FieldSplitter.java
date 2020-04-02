@@ -26,13 +26,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -44,15 +44,15 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @since 31-Okt-2003
  * @since 15-01-2008
  */
-public class FieldSplitter extends BaseTransform implements TransformInterface {
+public class FieldSplitter extends BaseTransform implements ITransform {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 
   private FieldSplitterMeta meta;
   private FieldSplitterData data;
 
-  public FieldSplitter( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public FieldSplitter( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] splitField( Object[] r ) throws HopException {
@@ -81,7 +81,7 @@ public class FieldSplitter extends BaseTransform implements TransformInterface {
 
       // Now create objects to do string to data type conversion...
       //
-      data.conversionMeta = data.outputMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.conversionMeta = data.outputMeta.cloneToType( IValueMeta.TYPE_STRING );
 
       data.delimiter = environmentSubstitute( meta.getDelimiter() );
       data.enclosure = environmentSubstitute( meta.getEnclosure() );
@@ -147,8 +147,8 @@ public class FieldSplitter extends BaseTransform implements TransformInterface {
 
       Object value;
       try {
-        ValueMetaInterface valueMeta = data.outputMeta.getValueMeta( data.fieldnr + i );
-        ValueMetaInterface conversionValueMeta = data.conversionMeta.getValueMeta( data.fieldnr + i );
+        IValueMeta valueMeta = data.outputMeta.getValueMeta( data.fieldnr + i );
+        IValueMeta conversionValueMeta = data.conversionMeta.getValueMeta( data.fieldnr + i );
 
         if ( rawValue != null && valueMeta.isNull( rawValue ) ) {
           rawValue = null;
@@ -166,7 +166,7 @@ public class FieldSplitter extends BaseTransform implements TransformInterface {
     return outputRow;
   }
 
-  public synchronized boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (FieldSplitterMeta) smi;
     data = (FieldSplitterData) sdi;
 
@@ -190,7 +190,7 @@ public class FieldSplitter extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (FieldSplitterMeta) smi;
     data = (FieldSplitterData) sdi;
 

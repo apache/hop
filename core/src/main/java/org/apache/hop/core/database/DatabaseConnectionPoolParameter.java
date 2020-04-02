@@ -23,8 +23,8 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class DatabaseConnectionPoolParameter {
 
   public static final List<RowMetaAndData> getRowList( DatabaseConnectionPoolParameter[] poolParameters,
                                                        String titleParameter, String titleDefaultValue, String titleDescription ) {
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
 
     rowMeta.addValueMeta( new ValueMetaString( titleParameter ) );
     rowMeta.addValueMeta( new ValueMetaString( titleDefaultValue ) );

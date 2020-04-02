@@ -22,21 +22,21 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingKerberosConsumerForClassloaderBridging implements
-  AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> {
+  IAuthenticationConsumer<Object, IKerberosAuthenticationProviderProxy> {
 
-  private AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> delegate;
+  private IAuthenticationConsumer<Object, IKerberosAuthenticationProviderProxy> delegate;
 
   public DelegatingKerberosConsumerForClassloaderBridging(
-    AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> delegate ) {
+    IAuthenticationConsumer<Object, IKerberosAuthenticationProviderProxy> delegate ) {
     this.delegate = delegate;
   }
 
   @Override
-  public Object consume( KerberosAuthenticationProviderProxyInterface authenticationProvider ) throws AuthenticationConsumptionException {
+  public Object consume( IKerberosAuthenticationProviderProxy authenticationProvider ) throws AuthenticationConsumptionException {
     return delegate.consume( authenticationProvider );
   }
 }

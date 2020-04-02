@@ -88,7 +88,7 @@ public class UpdateMetaTest implements InitializerInterface<TransformMetaInterfa
     Pipeline pipeline = new Pipeline( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     mockHelper = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
-    Mockito.when( mockHelper.logChannelInterfaceFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) ).thenReturn( mockHelper.logChannelInterface );
+    Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) ).thenReturn( mockHelper.logChannelInterface );
 
     upd = new Update( transformMeta, ud, 1, pipelineMeta, pipeline );
     upd.copyVariablesFrom( pipelineMeta );

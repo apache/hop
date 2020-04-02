@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author Matt
  * @since 24-jan-2005
  */
-public class TableOutputData extends BaseTransformData implements TransformDataInterface {
+public class TableOutputData extends BaseTransformData implements ITransformData {
   public Database db;
   public int warnings;
   public String tableName;
@@ -70,8 +70,8 @@ public class TableOutputData extends BaseTransformData implements TransformDataI
 
   public List<Object[]> batchBuffer;
   public boolean sendToErrorRow;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface insertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta insertRowMeta;
   public boolean useSafePoints;
   public Savepoint savepoint;
   public boolean releaseSavepoint;

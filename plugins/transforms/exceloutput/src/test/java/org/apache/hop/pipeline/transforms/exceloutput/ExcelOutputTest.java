@@ -26,9 +26,9 @@ import jxl.Workbook;
 import jxl.write.WritableCellFormat;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -63,7 +63,7 @@ public class ExcelOutputTest {
     helper =
       new TransformMockHelper<>( "ExcelOutputTest", ExcelOutputMeta.class,
         ExcelOutputData.class );
-    when( helper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.logChannelInterface );
     when( helper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -91,8 +91,8 @@ public class ExcelOutputTest {
       meta.setTemplateFileName( templateFullPath );
     }
     meta.setAppend( isAppend );
-    ExcelField[] excelFields = { new ExcelField( "f1", ValueMetaInterface.TYPE_NUMBER, null ),
-      new ExcelField( "f2", ValueMetaInterface.TYPE_STRING, null ) };
+    ExcelField[] excelFields = { new ExcelField( "f1", IValueMeta.TYPE_NUMBER, null ),
+      new ExcelField( "f2", IValueMeta.TYPE_STRING, null ) };
     meta.setOutputFields( excelFields );
 
     return meta;
@@ -104,7 +104,7 @@ public class ExcelOutputTest {
    */
   public void testExceptionClosingWorkbook() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -144,7 +144,7 @@ public class ExcelOutputTest {
    */
   public void testClosingFile() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -178,7 +178,7 @@ public class ExcelOutputTest {
   @Test
   public void test_AppendNoTemplate() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -220,7 +220,7 @@ public class ExcelOutputTest {
   @Test
   public void test_NoAppendNoTemplate() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -262,7 +262,7 @@ public class ExcelOutputTest {
   @Test
   public void test_AppendTemplate() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -309,7 +309,7 @@ public class ExcelOutputTest {
   @Test
   public void test_NoAppendTemplate() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -356,7 +356,7 @@ public class ExcelOutputTest {
   @Test
   public void test_AppendTemplateWithSheet1() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };
@@ -404,7 +404,7 @@ public class ExcelOutputTest {
   @Test
   public void test_NoAppendTemplateWithSheet1() throws Exception {
 
-    ValueMetaInterface vmi = new ValueMetaString( "new_row" );
+    IValueMeta vmi = new ValueMetaString( "new_row" );
 
     ExcelOutputData data = new ExcelOutputData();
     data.fieldnrs = new int[] { 0 };

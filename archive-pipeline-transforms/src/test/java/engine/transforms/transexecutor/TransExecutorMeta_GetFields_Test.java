@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -88,24 +88,24 @@ public class PipelineExecutorMeta_GetFields_Test {
 
   @Test
   public void getFieldsForExecutionResults() throws Exception {
-    RowMetaInterface mock = invokeGetFieldsWith( executionResult );
-    verify( mock, times( 3 ) ).addValueMeta( any( ValueMetaInterface.class ) );
+    IRowMeta mock = invokeGetFieldsWith( executionResult );
+    verify( mock, times( 3 ) ).addValueMeta( any( IValueMeta.class ) );
   }
 
   @Test
   public void getFieldsForResultFiles() throws Exception {
-    RowMetaInterface mock = invokeGetFieldsWith( resultFiles );
-    verify( mock ).addValueMeta( any( ValueMetaInterface.class ) );
+    IRowMeta mock = invokeGetFieldsWith( resultFiles );
+    verify( mock ).addValueMeta( any( IValueMeta.class ) );
   }
 
   @Test
   public void getFieldsForInternalPipelineOutputRows() throws Exception {
-    RowMetaInterface mock = invokeGetFieldsWith( outputRows );
-    verify( mock ).addValueMeta( any( ValueMetaInterface.class ) );
+    IRowMeta mock = invokeGetFieldsWith( outputRows );
+    verify( mock ).addValueMeta( any( IValueMeta.class ) );
   }
 
-  private RowMetaInterface invokeGetFieldsWith( TransformMeta transformMeta ) throws Exception {
-    RowMetaInterface rowMeta = mock( RowMetaInterface.class );
+  private IRowMeta invokeGetFieldsWith( TransformMeta transformMeta ) throws Exception {
+    IRowMeta rowMeta = mock( IRowMeta.class );
     meta.getFields( rowMeta, "", null, transformMeta, null, null );
     return rowMeta;
   }

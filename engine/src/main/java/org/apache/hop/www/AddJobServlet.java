@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class AddJobServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = -6850701762586992604L;
 
   public static final String CONTEXT_PATH = "/hop/addJob";
@@ -186,7 +186,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       JobMeta jobMeta = jobConfiguration.getJobMeta();
       JobExecutionConfiguration jobExecutionConfiguration = jobConfiguration.getJobExecutionConfiguration();
       jobMeta.setLogLevel( jobExecutionConfiguration.getLogLevel() );
-      jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
+      jobMeta.injectVariables( jobExecutionConfiguration.getVariablesMap() );
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
@@ -202,7 +202,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       //
       job.initializeVariablesFrom( null );
       job.getJobMeta().setInternalHopVariables( job );
-      job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariables() );
+      job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariablesMap() );
 
       // Also copy the parameters over...
       //
@@ -212,7 +212,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the job entry
         //
-        String thisValue = jobExecutionConfiguration.getParams().get( parameterNames[ idx ] );
+        String thisValue = jobExecutionConfiguration.getParametersMap().get( parameterNames[ idx ] );
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the job entry
           //

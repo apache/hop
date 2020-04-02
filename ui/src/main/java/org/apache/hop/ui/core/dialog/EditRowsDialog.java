@@ -27,11 +27,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -93,9 +93,9 @@ public class EditRowsDialog {
 
   private int hmax, vmax;
 
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   protected int lineNr;
 
@@ -105,10 +105,10 @@ public class EditRowsDialog {
 
   private List<Object[]> outputList;
 
-  private RowMetaInterface stringRowMeta;
+  private IRowMeta stringRowMeta;
 
   public EditRowsDialog( Shell parent, int style,
-                         String title, String message, RowMetaInterface rowMeta, List<Object[]> rowBuffer ) {
+                         String title, String message, IRowMeta rowMeta, List<Object[]> rowBuffer ) {
     this.title = title;
     this.message = message;
     this.rowBuffer = rowBuffer;
@@ -220,7 +220,7 @@ public class EditRowsDialog {
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
     ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( i );
+      IValueMeta v = rowMeta.getValueMeta( i );
       colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
       colinf[ i ].setToolTip( v.toStringMeta() );
       colinf[ i ].setValueMeta( v );
@@ -288,7 +288,7 @@ public class EditRowsDialog {
     item.setText( 0, strNr );
 
     for ( int c = 0; c < rowMeta.size(); c++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( c );
+      IValueMeta v = rowMeta.getValueMeta( c );
       String show;
       try {
         show = v.getString( row[ c ] );
@@ -330,8 +330,8 @@ public class EditRowsDialog {
     try {
       Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
       for ( int i = 0; i < rowMeta.size(); i++ ) {
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
-        ValueMetaInterface stringValueMeta = stringRowMeta.getValueMeta( i );
+        IValueMeta valueMeta = rowMeta.getValueMeta( i );
+        IValueMeta stringValueMeta = stringRowMeta.getValueMeta( i );
 
         int colnr = i + 1;
         if ( isDisplayingNullValue( item, colnr ) ) {
@@ -342,7 +342,7 @@ public class EditRowsDialog {
             string = null;
           }
           row[ i ] = valueMeta.convertDataFromString( string, stringValueMeta,
-            null, null, ValueMetaInterface.TRIM_TYPE_NONE );
+            null, null, IValueMeta.TRIM_TYPE_NONE );
         }
       }
       return row;
@@ -361,9 +361,9 @@ public class EditRowsDialog {
 
     try {
       stringRowMeta = new RowMeta();
-      for ( ValueMetaInterface valueMeta : rowMeta.getValueMetaList() ) {
-        ValueMetaInterface stringValueMeta = ValueMetaFactory.cloneValueMeta( valueMeta,
-          ValueMetaInterface.TYPE_STRING );
+      for ( IValueMeta valueMeta : rowMeta.getValueMetaList() ) {
+        IValueMeta stringValueMeta = ValueMetaFactory.cloneValueMeta( valueMeta,
+          IValueMeta.TYPE_STRING );
         stringRowMeta.addValueMeta( stringValueMeta );
       }
 
@@ -432,12 +432,12 @@ public class EditRowsDialog {
 
 
   @VisibleForTesting
-  void setRowMeta( RowMetaInterface rowMeta ) {
+  void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 
   @VisibleForTesting
-  void setStringRowMeta( RowMetaInterface stringRowMeta ) {
+  void setStringRowMeta( IRowMeta stringRowMeta ) {
     this.stringRowMeta = stringRowMeta;
   }
 }

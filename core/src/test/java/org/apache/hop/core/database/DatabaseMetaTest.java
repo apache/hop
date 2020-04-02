@@ -27,9 +27,9 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -41,7 +41,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +68,7 @@ public class DatabaseMetaTest {
   private static final String DROP_STATEMENT_FALLBACK = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
   private DatabaseMeta databaseMeta;
-  private DatabaseInterface databaseInterface;
+  private IDatabase iDatabase;
 
   @BeforeClass
   public static void setUpOnce() throws HopPluginException, HopException {
@@ -82,8 +81,8 @@ public class DatabaseMetaTest {
   @Before
   public void setUp() {
     databaseMeta = new DatabaseMeta();
-    databaseInterface = mock( DatabaseInterface.class );
-    databaseMeta.setDatabaseInterface( databaseInterface );
+    iDatabase = mock( IDatabase.class );
+    databaseMeta.setIDatabase( iDatabase );
   }
 
   @Test
@@ -106,7 +105,7 @@ public class DatabaseMetaTest {
       public Exception call() throws Exception {
         int i = 0;
         while ( !done.get() ) {
-          assertNotNull( "Got null on try: " + i++, DatabaseMeta.getDatabaseInterfacesMap() );
+          assertNotNull( "Got null on try: " + i++, DatabaseMeta.getIDatabaseMap() );
           if ( i > 30000 ) {
             done.set( true );
           }
@@ -128,48 +127,48 @@ public class DatabaseMetaTest {
     newOptions.put( "type1.new", "newValue" );
     newOptions.put( "type1.existing", "existingDefault" );
 
-    when( databaseInterface.getExtraOptions() ).thenReturn( existingOptions );
-    when( databaseInterface.getDefaultOptions() ).thenReturn( newOptions );
+    when( iDatabase.getExtraOptions() ).thenReturn( existingOptions );
+    when( iDatabase.getDefaultOptions() ).thenReturn( newOptions );
 
-    databaseMeta.applyDefaultOptions( databaseInterface );
-    verify( databaseInterface ).addExtraOption( "type1", "new", "newValue" );
-    verify( databaseInterface, never() ).addExtraOption( "type1", "existing", "existingDefault" );
+    databaseMeta.applyDefaultOptions( iDatabase );
+    verify( iDatabase ).addExtraOption( "type1", "new", "newValue" );
+    verify( iDatabase, never() ).addExtraOption( "type1", "existing", "existingDefault" );
   }
 
   @Test
   public void testGetFeatureSummary() throws Exception {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     GenericDatabaseMeta odbm = new GenericDatabaseMeta();
-    doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
+    doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta ).getFeatureSummary();
     doCallRealMethod().when( databaseMeta ).getAttributes();
-    databaseMeta.setDatabaseInterface( odbm );
+    databaseMeta.setIDatabase( odbm );
     List<RowMetaAndData> result = databaseMeta.getFeatureSummary();
     assertNotNull( result );
     for ( RowMetaAndData rmd : result ) {
       assertEquals( 2, rmd.getRowMeta().size() );
       assertEquals( "Parameter", rmd.getRowMeta().getValueMeta( 0 ).getName() );
-      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 0 ).getType() );
+      assertEquals( IValueMeta.TYPE_STRING, rmd.getRowMeta().getValueMeta( 0 ).getType() );
       assertEquals( "Value", rmd.getRowMeta().getValueMeta( 1 ).getName() );
-      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 1 ).getType() );
+      assertEquals( IValueMeta.TYPE_STRING, rmd.getRowMeta().getValueMeta( 1 ).getType() );
     }
   }
   
   @Test
   public void testQuoteReservedWords() {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    doCallRealMethod().when( databaseMeta ).quoteReservedWords( any( RowMetaInterface.class ) );
+    doCallRealMethod().when( databaseMeta ).quoteReservedWords( any( IRowMeta.class ) );
     doCallRealMethod().when( databaseMeta ).quoteField( anyString() );
-    doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
+    doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
     doReturn( "\"" ).when( databaseMeta ).getStartQuote();
     doReturn( "\"" ).when( databaseMeta ).getEndQuote();
-    final DatabaseInterface databaseInterface = mock( DatabaseInterface.class );
-    doReturn( true ).when( databaseInterface ).isQuoteAllFields();
-    databaseMeta.setDatabaseInterface( databaseInterface );
+    final IDatabase iDatabase = mock( IDatabase.class );
+    doReturn( true ).when( iDatabase ).isQuoteAllFields();
+    databaseMeta.setIDatabase( iDatabase );
 
     final RowMeta fields = new RowMeta();
     for ( int i = 0; i < 10; i++ ) {
-      final ValueMetaInterface valueMeta = new ValueMetaNone( "test_" + i );
+      final IValueMeta valueMeta = new ValueMetaNone( "test_" + i );
       fields.addValueMeta( valueMeta );
     }
 
@@ -191,10 +190,10 @@ public class DatabaseMetaTest {
   public void testModifyingName() throws Exception {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     GenericDatabaseMeta odbm = new GenericDatabaseMeta();
-    doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
+    doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta ).setName( anyString() );
     doCallRealMethod().when( databaseMeta ).getName();
-    databaseMeta.setDatabaseInterface( odbm );
+    databaseMeta.setIDatabase( odbm );
     databaseMeta.setName( "test" );
 
     List<DatabaseMeta> list = new ArrayList<DatabaseMeta>();
@@ -202,11 +201,11 @@ public class DatabaseMetaTest {
 
     DatabaseMeta databaseMeta2 = mock( DatabaseMeta.class );
     GenericDatabaseMeta odbm2 = new GenericDatabaseMeta();
-    doCallRealMethod().when( databaseMeta2 ).setDatabaseInterface( any( DatabaseInterface.class ) );
+    doCallRealMethod().when( databaseMeta2 ).setIDatabase( any( IDatabase.class ) );
     doCallRealMethod().when( databaseMeta2 ).setName( anyString() );
     doCallRealMethod().when( databaseMeta2 ).getName();
     doCallRealMethod().when( databaseMeta2 ).verifyAndModifyDatabaseName( any( ArrayList.class ), anyString() );
-    databaseMeta2.setDatabaseInterface( odbm2 );
+    databaseMeta2.setIDatabase( odbm2 );
     databaseMeta2.setName( "test" );
 
     databaseMeta2.verifyAndModifyDatabaseName( list, null );
@@ -237,15 +236,15 @@ public class DatabaseMetaTest {
   }
 
   /**
-   * Given that the {@link DatabaseInterface} object is of a new extended type.
+   * Given that the {@link IDatabase} object is of a new extended type.
    * <br/>
    * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then the underlying new method of {@link DatabaseInterface} should be used.
+   * then the underlying new method of {@link IDatabase} should be used.
    */
   @Test
   public void shouldCallNewMethodWhenDatabaseInterfaceIsOfANewType() {
-    DatabaseInterface databaseInterfaceNew = mock( DatabaseInterface.class );
-    databaseMeta.setDatabaseInterface( databaseInterfaceNew );
+    IDatabase databaseInterfaceNew = mock( IDatabase.class );
+    databaseMeta.setIDatabase( databaseInterfaceNew );
     when( databaseInterfaceNew.getDropTableIfExistsStatement( TABLE_NAME ) ).thenReturn( DROP_STATEMENT );
 
     String statement = databaseMeta.getDropTableIfExistsStatement( TABLE_NAME );
@@ -256,9 +255,9 @@ public class DatabaseMetaTest {
   @Test
   public void testCheckParameters() {
     DatabaseMeta meta = mock( DatabaseMeta.class );
-    BaseDatabaseMeta databaseInterface = mock( BaseDatabaseMeta.class );
-    when( databaseInterface.requiresName() ).thenReturn( true );
-    when( meta.getDatabaseInterface() ).thenReturn( databaseInterface );
+    BaseDatabaseMeta iDatabase = mock( BaseDatabaseMeta.class );
+    when( iDatabase.requiresName() ).thenReturn( true );
+    when( meta.getIDatabase() ).thenReturn( iDatabase );
     when( meta.getName() ).thenReturn( null );
     when( meta.checkParameters() ).thenCallRealMethod();
     assertEquals( 2, meta.checkParameters().length );

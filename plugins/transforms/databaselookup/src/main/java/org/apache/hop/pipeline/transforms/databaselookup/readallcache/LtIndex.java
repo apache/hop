@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
@@ -31,24 +31,24 @@ import java.util.BitSet;
  */
 class LtIndex extends Index {
 
-  static Index greaterOrEqualCache( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  static Index greaterOrEqualCache( int column, IValueMeta valueMeta, int rowsAmount ) {
     return new LtIndex( column, valueMeta, rowsAmount, true );
   }
 
 
   private final boolean isMatchingGreaterOrEqual;
 
-  LtIndex( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  LtIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
     this( column, valueMeta, rowsAmount, false );
   }
 
-  private LtIndex( int column, ValueMetaInterface valueMeta, int rowsAmount, boolean isMatchingGreaterOrEqual ) {
+  private LtIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingGreaterOrEqual ) {
     super( column, valueMeta, rowsAmount );
     this.isMatchingGreaterOrEqual = isMatchingGreaterOrEqual;
   }
 
   @Override
-  void doApply( SearchingContext context, ValueMetaInterface lookupMeta, Object lookupValue ) {
+  void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
     int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, -1 ) );
     if ( firstValue == 0 ) {
       // everything is greater than lookupValue

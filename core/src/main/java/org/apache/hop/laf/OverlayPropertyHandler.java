@@ -31,10 +31,10 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class OverlayPropertyHandler implements PropertyHandler {
+public class OverlayPropertyHandler implements IPropertyHandler {
   protected static final String propFile = "ui/laf.properties";
 
-  private static PropertyHandler instance = null;
+  private static IPropertyHandler instance = null;
 
   private LinkedList<OverlayProperties> propList = new LinkedList<OverlayProperties>();
 
@@ -42,7 +42,7 @@ public class OverlayPropertyHandler implements PropertyHandler {
     initProps();
   }
 
-  public static PropertyHandler getInstance() {
+  public static IPropertyHandler getInstance() {
     if ( instance == null ) {
       instance = new OverlayPropertyHandler();
     }

@@ -38,145 +38,145 @@ public class ExcelOutputMetaInjectionTest extends BaseMetadataInjectionTest<Exce
 
   @Test
   public void test() throws Exception {
-    check( "HEADER_FONT_SIZE", new StringGetter() {
+    check( "HEADER_FONT_SIZE", new IStringGetter() {
       public String get() {
         return meta.getHeaderFontSize();
       }
     } );
-    check( "HEADER_FONT_BOLD", new BooleanGetter() {
+    check( "HEADER_FONT_BOLD", new IBooleanGetter() {
       public boolean get() {
         return meta.isHeaderFontBold();
       }
     } );
-    check( "HEADER_FONT_ITALIC", new BooleanGetter() {
+    check( "HEADER_FONT_ITALIC", new IBooleanGetter() {
       public boolean get() {
         return meta.isHeaderFontItalic();
       }
     } );
-    check( "HEADER_FONT_COLOR", new IntGetter() {
+    check( "HEADER_FONT_COLOR", new IIntGetter() {
       public int get() {
         return meta.getHeaderFontColor();
       }
     } );
-    check( "HEADER_BACKGROUND_COLOR", new IntGetter() {
+    check( "HEADER_BACKGROUND_COLOR", new IIntGetter() {
       public int get() {
         return meta.getHeaderBackGroundColor();
       }
     } );
-    check( "HEADER_ROW_HEIGHT", new IntGetter() {
+    check( "HEADER_ROW_HEIGHT", new IIntGetter() {
       public int get() {
         return Integer.parseInt( meta.getHeaderRowHeight() );
       }
     } );
-    check( "HEADER_IMAGE", new StringGetter() {
+    check( "HEADER_IMAGE", new IStringGetter() {
       public String get() {
         return meta.getHeaderImage();
       }
     } );
-    check( "ROW_FONT_SIZE", new StringGetter() {
+    check( "ROW_FONT_SIZE", new IStringGetter() {
       public String get() {
         return meta.getRowFontSize();
       }
     } );
-    check( "ROW_FONT_COLOR", new IntGetter() {
+    check( "ROW_FONT_COLOR", new IIntGetter() {
       public int get() {
         return meta.getRowFontColor();
       }
     } );
-    check( "ROW_BACKGROUND_COLOR", new IntGetter() {
+    check( "ROW_BACKGROUND_COLOR", new IIntGetter() {
       public int get() {
         return meta.getRowBackGroundColor();
       }
     } );
 
-    check( "FILENAME", new StringGetter() {
+    check( "FILENAME", new IStringGetter() {
       public String get() {
         return meta.getFileName();
       }
     } );
-    check( "EXTENSION", new StringGetter() {
+    check( "EXTENSION", new IStringGetter() {
       public String get() {
         return meta.getExtension();
       }
     } );
-    check( "PASSWORD", new StringGetter() {
+    check( "PASSWORD", new IStringGetter() {
       public String get() {
         return meta.getPassword();
       }
     } );
 
-    check( "HEADER_ENABLED", new BooleanGetter() {
+    check( "HEADER_ENABLED", new IBooleanGetter() {
       public boolean get() {
         return meta.isHeaderEnabled();
       }
     } );
-    check( "FOOTER_ENABLED", new BooleanGetter() {
+    check( "FOOTER_ENABLED", new IBooleanGetter() {
       public boolean get() {
         return meta.isFooterEnabled();
       }
     } );
-    check( "SPLIT_EVERY", new IntGetter() {
+    check( "SPLIT_EVERY", new IIntGetter() {
       public int get() {
         return meta.getSplitEvery();
       }
     } );
-    check( "TRANSFORM_NR_IN_FILENAME", new BooleanGetter() {
+    check( "TRANSFORM_NR_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isTransformNrInFilename();
       }
     } );
-    check( "DATE_IN_FILENAME", new BooleanGetter() {
+    check( "DATE_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isDateInFilename();
       }
     } );
-    check( "FILENAME_TO_RESULT", new BooleanGetter() {
+    check( "FILENAME_TO_RESULT", new IBooleanGetter() {
       public boolean get() {
         return meta.isAddToResultFiles();
       }
     } );
-    check( "PROTECT", new BooleanGetter() {
+    check( "PROTECT", new IBooleanGetter() {
       public boolean get() {
         return meta.isSheetProtected();
       }
     } );
-    check( "TIME_IN_FILENAME", new BooleanGetter() {
+    check( "TIME_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isTimeInFilename();
       }
     } );
-    check( "TEMPLATE", new BooleanGetter() {
+    check( "TEMPLATE", new IBooleanGetter() {
       public boolean get() {
         return meta.isTemplateEnabled();
       }
     } );
-    check( "TEMPLATE_FILENAME", new StringGetter() {
+    check( "TEMPLATE_FILENAME", new IStringGetter() {
       public String get() {
         return meta.getTemplateFileName();
       }
     } );
-    check( "TEMPLATE_APPEND", new BooleanGetter() {
+    check( "TEMPLATE_APPEND", new IBooleanGetter() {
       public boolean get() {
         return meta.isTemplateAppend();
       }
     } );
-    check( "SHEET_NAME", new StringGetter() {
+    check( "SHEET_NAME", new IStringGetter() {
       public String get() {
         return meta.getSheetname();
       }
     } );
-    check( "USE_TEMPFILES", new BooleanGetter() {
+    check( "USE_TEMPFILES", new IBooleanGetter() {
       public boolean get() {
         return meta.isUseTempFiles();
       }
     } );
-    check( "TEMPDIR", new StringGetter() {
+    check( "TEMPDIR", new IStringGetter() {
       public String get() {
         return meta.getTempDirectory();
       }
     } );
 
-    check( "NAME", new StringGetter() {
+    check( "NAME", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getName();
       }
@@ -184,83 +184,83 @@ public class ExcelOutputMetaInjectionTest extends BaseMetadataInjectionTest<Exce
     // TODO check field type plugins
     skipPropertyTest( "TYPE" );
 
-    check( "FORMAT", new StringGetter() {
+    check( "FORMAT", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getFormat();
       }
     } );
 
-    check( "ENCODING", new StringGetter() {
+    check( "ENCODING", new IStringGetter() {
       public String get() {
         return meta.getEncoding();
       }
     } );
-    check( "NEWLINE", new StringGetter() {
+    check( "NEWLINE", new IStringGetter() {
       public String get() {
         return meta.getNewline();
       }
     } );
-    check( "APPEND", new BooleanGetter() {
+    check( "APPEND", new IBooleanGetter() {
       public boolean get() {
         return meta.isAppend();
       }
     } );
-    check( "DONT_OPEN_NEW_FILE", new BooleanGetter() {
+    check( "DONT_OPEN_NEW_FILE", new IBooleanGetter() {
       public boolean get() {
         return meta.isDoNotOpenNewFileInit();
       }
     } );
-    check( "CREATE_PARENT_FOLDER", new BooleanGetter() {
+    check( "CREATE_PARENT_FOLDER", new IBooleanGetter() {
       public boolean get() {
         return meta.isCreateParentFolder();
       }
     } );
-    check( "DATE_FORMAT_SPECIFIED", new BooleanGetter() {
+    check( "DATE_FORMAT_SPECIFIED", new IBooleanGetter() {
       public boolean get() {
         return meta.isSpecifyFormat();
       }
     } );
-    check( "DATE_FORMAT", new StringGetter() {
+    check( "DATE_FORMAT", new IStringGetter() {
       public String get() {
         return meta.getDateTimeFormat();
       }
     } );
-    check( "AUTOSIZE_COLUMNS", new BooleanGetter() {
+    check( "AUTOSIZE_COLUMNS", new IBooleanGetter() {
       public boolean get() {
         return meta.isAutoSizeColums();
       }
     } );
-    check( "NULL_AS_BLANK", new BooleanGetter() {
+    check( "NULL_AS_BLANK", new IBooleanGetter() {
       public boolean get() {
         return meta.isNullBlank();
       }
     } );
 
-    checkStringToInt( "HEADER_FONT_NAME", new IntGetter() {
+    checkStringToInt( "HEADER_FONT_NAME", new IIntGetter() {
       public int get() {
         return meta.getHeaderFontName();
       }
     }, new String[] { "arial", "courier", "tahoma", "times" }, new int[] { 0, 1, 2, 3 } );
 
-    checkStringToInt( "ROW_FONT_NAME", new IntGetter() {
+    checkStringToInt( "ROW_FONT_NAME", new IIntGetter() {
       public int get() {
         return meta.getRowFontName();
       }
     }, new String[] { "arial", "courier", "tahoma", "times" }, new int[] { 0, 1, 2, 3 } );
 
-    checkStringToInt( "HEADER_FONT_UNDERLINE", new IntGetter() {
+    checkStringToInt( "HEADER_FONT_UNDERLINE", new IIntGetter() {
       public int get() {
         return meta.getHeaderFontUnderline();
       }
     }, new String[] { "no", "single", "single_accounting", "double", "double_accounting" }, new int[] { 0, 1, 2, 3,
       4 } );
-    checkStringToInt( "HEADER_FONT_ORIENTATION", new IntGetter() {
+    checkStringToInt( "HEADER_FONT_ORIENTATION", new IIntGetter() {
       public int get() {
         return meta.getHeaderFontOrientation();
       }
     }, new String[] { "horizontal", "minus_45", "minus_90", "plus_45", "plus_90", "stacked", "vertical" }, new int[] {
       0, 1, 2, 3, 4, 5, 6 } );
-    checkStringToInt( "HEADER_ALIGNMENT", new IntGetter() {
+    checkStringToInt( "HEADER_ALIGNMENT", new IIntGetter() {
       public int get() {
         return meta.getHeaderAlignment();
       }

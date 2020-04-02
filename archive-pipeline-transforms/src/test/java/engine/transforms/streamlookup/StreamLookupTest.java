@@ -29,10 +29,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -65,7 +65,7 @@ public class StreamLookupTest {
     smh =
       new TransformMockHelper<StreamLookupMeta, StreamLookupData>( "StreamLookup", StreamLookupMeta.class,
         StreamLookupData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -84,7 +84,7 @@ public class StreamLookupTest {
   }
 
   private RowSet mockLookupRowSet( boolean binary ) {
-    final int storageType = binary ? ValueMetaInterface.STORAGE_TYPE_BINARY_STRING : ValueMetaInterface.STORAGE_TYPE_NORMAL;
+    final int storageType = binary ? IValueMeta.STORAGE_TYPE_BINARY_STRING : IValueMeta.STORAGE_TYPE_NORMAL;
     Object[][] data = { { "Value1", "1" }, { "Value2", "2" } };
 
     if ( binary ) {
@@ -112,7 +112,7 @@ public class StreamLookupTest {
   }
 
   private RowSet mockDataRowSet( boolean binary ) {
-    final int storageType = binary ? ValueMetaInterface.STORAGE_TYPE_BINARY_STRING : ValueMetaInterface.STORAGE_TYPE_NORMAL;
+    final int storageType = binary ? IValueMeta.STORAGE_TYPE_BINARY_STRING : IValueMeta.STORAGE_TYPE_NORMAL;
     Object[][] data = { { "Name1", "1" }, { "Name2", "2" } };
 
     if ( binary ) {
@@ -156,14 +156,14 @@ public class StreamLookupTest {
     doReturn( new String[] { "" } ).when( meta ).getValueDefault();
     doReturn( new String[] { "Value" } ).when( meta ).getValueName();
     doReturn( new String[] { "Value" } ).when( meta ).getValue();
-    doCallRealMethod().when( meta ).getFields( any( RowMetaInterface.class ), anyString(), any( RowMetaInterface[].class ), any( TransformMeta.class ),
-      any( VariableSpace.class ), any( IMetaStore.class ) );
+    doCallRealMethod().when( meta ).getFields( any( IRowMeta.class ), anyString(), any( IRowMeta[].class ), any( TransformMeta.class ),
+      any( iVariables.class ), any( IMetaStore.class ) );
 
     return meta;
   }
 
   private void doTest( boolean memoryPreservationActive, boolean binaryLookupStream, boolean binaryDataStream ) throws HopException {
-    StreamLookup transform = new StreamLookup( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    StreamLookup transform = new StreamLookup( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
     transform.addRowSetToInputRowSets( mockLookupRowSet( binaryLookupStream ) );
     transform.addRowSetToInputRowSets( mockDataRowSet( binaryDataStream ) );
@@ -181,7 +181,7 @@ public class StreamLookupTest {
     while ( transform.processRow( meta, data ) ) {
       Object[] rowData = outputRowSet.getRow();
       if ( rowData != null ) {
-        RowMetaInterface rowMeta = outputRowSet.getRowMeta();
+        IRowMeta rowMeta = outputRowSet.getRowMeta();
         Assert.assertEquals( "Output row is of wrong size", 3, rowMeta.size() );
         rowNumber++;
         // Verify output

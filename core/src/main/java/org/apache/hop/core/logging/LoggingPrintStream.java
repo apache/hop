@@ -28,7 +28,7 @@ import java.io.PrintStream;
 
 public class LoggingPrintStream extends PrintStream {
 
-  private static LogChannelInterface log = LogChannel.GENERAL;
+  private static ILogChannel log = LogChannel.GENERAL;
 
   public LoggingPrintStream( PrintStream printStream ) {
     super( printStream );

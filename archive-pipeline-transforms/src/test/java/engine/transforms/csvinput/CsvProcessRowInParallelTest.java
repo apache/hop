@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -66,7 +66,7 @@ import static org.junit.Assert.assertEquals;
  * - file ends with new line or not
  */
 public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
-  private TransformMockHelper<CsvInputMeta, TransformDataInterface> transformMockHelper;
+  private TransformMockHelper<CsvInputMeta, ITransformData> transformMockHelper;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -286,7 +286,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     csvInput.addRowListener( new RowAdapter() {
       @Override
-      public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         writtenRows[ 0 ]++;
       }
     } );
@@ -302,7 +302,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   private CsvInput createCsvInput() {
-    return new CsvInput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0,
+    return new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0,
       transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
   }
 

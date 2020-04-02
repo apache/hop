@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -36,9 +36,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( JobDialogPluginInterface.class )
+@PluginMainClassType( IJobDialogPlugin.class )
 @PluginAnnotationType( JobDialogPlugin.class )
-public class JobDialogPluginType extends BasePluginType implements PluginTypeInterface {
+public class JobDialogPluginType extends BasePluginType implements IPluginType {
   // private static Class<?> PKG = JobDialogPluginType.class; // for i18n purposes, needed by Translator!!
 
   private static JobDialogPluginType pluginType;

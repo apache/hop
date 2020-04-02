@@ -26,19 +26,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.file.InputFileMetaInterface;
+import org.apache.hop.core.file.IInputFileMeta;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.fileinput.*;
 import org.apache.hop.utils.TestUtils;
 import org.junit.BeforeClass;
@@ -149,7 +149,7 @@ public class TextFileInputTest {
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col2" ) );
 
-    data.dataErrorLineHandler = Mockito.mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
     data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
     data.separator = ";";
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ] );
@@ -189,7 +189,7 @@ public class TextFileInputTest {
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col2" ) );
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col3" ) );
 
-    data.dataErrorLineHandler = Mockito.mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
     data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
     data.separator = ",";
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ] );
@@ -227,7 +227,7 @@ public class TextFileInputTest {
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col2" ) );
 
-    data.dataErrorLineHandler = Mockito.mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
     data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
     data.separator = ",";
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ] );
@@ -277,10 +277,10 @@ public class TextFileInputTest {
    */
   @Test
   public void convertLineToRowTest() throws Exception {
-    LogChannelInterface log = Mockito.mock( LogChannelInterface.class );
+    ILogChannel log = Mockito.mock( ILogChannel.class );
     TextFileLine textFileLine = Mockito.mock( TextFileLine.class );
     textFileLine.line = "testData1;testData2;testData3";
-    InputFileMetaInterface info = Mockito.mock( InputFileMetaInterface.class );
+    IInputFileMeta info = Mockito.mock( IInputFileMeta.class );
     TextFileInputField[] textFileInputFields = { new TextFileInputField(), new TextFileInputField(), new TextFileInputField() };
     Mockito.doReturn( textFileInputFields ).when( info ).getInputFields();
     Mockito.doReturn( "CSV" ).when( info ).getFileType();
@@ -288,17 +288,17 @@ public class TextFileInputTest {
     Mockito.doReturn( true ).when( info ).isErrorIgnored();
     Mockito.doReturn( true ).when( info ).isErrorLineSkipped();
 
-    RowMetaInterface outputRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta outputRowMeta = Mockito.mock( IRowMeta.class );
     Mockito.doReturn( 15 ).when( outputRowMeta ).size();
 
-    ValueMetaInterface valueMetaWithError = Mockito.mock( ValueMetaInterface.class );
+    IValueMeta valueMetaWithError = Mockito.mock( IValueMeta.class );
     Mockito.doThrow( new HopValueException( "Error converting" ) ).when( valueMetaWithError ).convertDataFromString( Mockito.anyString(),
-      Mockito.any( ValueMetaInterface.class ), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
+      Mockito.any( IValueMeta.class ), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
     Mockito.doReturn( valueMetaWithError ).when( outputRowMeta ).getValueMeta( Mockito.anyInt() );
 
     //it should run without NPE
     TextFileInput.convertLineToRow( log, textFileLine, info, new Object[ 3 ], 1, outputRowMeta,
-      Mockito.mock( RowMetaInterface.class ), null, 1L, ";", null, "/", Mockito.mock( FileErrorHandler.class ),
+      Mockito.mock( IRowMeta.class ), null, 1L, ";", null, "/", Mockito.mock( IFileErrorHandler.class ),
       false, false, false, false, false, false, false, false, null, null, false, new Date(), null, null, null, 1L );
   }
 

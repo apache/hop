@@ -33,13 +33,13 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.FieldnameLineage;
@@ -47,8 +47,8 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -301,8 +301,8 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
     allocate( 0, 0, 0 );
   }
 
-  public void getSelectFields( RowMetaInterface inputRowMeta, String name ) throws HopTransformException {
-    RowMetaInterface row;
+  public void getSelectFields( IRowMeta inputRowMeta, String name ) throws HopTransformException {
+    IRowMeta row;
 
     if ( selectFields != null && selectFields.length > 0 ) { // SELECT values
 
@@ -314,7 +314,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
 
       row = new RowMeta();
       for ( int i = 0; i < selectFields.length; i++ ) {
-        ValueMetaInterface v = inputRowMeta.searchValueMeta( selectFields[ i ].getName() );
+        IValueMeta v = inputRowMeta.searchValueMeta( selectFields[ i ].getName() );
 
         if ( v != null ) { // We found the value
 
@@ -353,7 +353,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
         }
         Collections.sort( extra );
         for ( String fieldName : extra ) {
-          ValueMetaInterface extraValue = inputRowMeta.searchValueMeta( fieldName );
+          IValueMeta extraValue = inputRowMeta.searchValueMeta( fieldName );
           row.addValueMeta( extraValue );
         }
       }
@@ -364,7 +364,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public void getDeleteFields( RowMetaInterface inputRowMeta ) throws HopTransformException {
+  public void getDeleteFields( IRowMeta inputRowMeta ) throws HopTransformException {
     if ( deleteName != null && deleteName.length > 0 ) { // DESELECT values from the stream...
       for ( int i = 0; i < deleteName.length; i++ ) {
         try {
@@ -376,13 +376,13 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  // Not called anywhere else in Hitachi Vantara. It's important to call the method below passing in the VariableSpace
+  // Not called anywhere else in Hitachi Vantara. It's important to call the method below passing in the iVariables
   @Deprecated
-  public void getMetadataFields( RowMetaInterface inputRowMeta, String name ) throws HopPluginException {
+  public void getMetadataFields( IRowMeta inputRowMeta, String name ) throws HopPluginException {
     getMetadataFields( inputRowMeta, name, null );
   }
 
-  public void getMetadataFields( RowMetaInterface inputRowMeta, String name, VariableSpace space ) throws HopPluginException {
+  public void getMetadataFields( IRowMeta inputRowMeta, String name, iVariables variables ) throws HopPluginException {
     if ( meta != null && meta.length > 0 ) {
       // METADATA mode: change the meta-data of the values mentioned...
 
@@ -391,14 +391,14 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
 
         int idx = inputRowMeta.indexOfValue( metaChange.getName() );
         boolean metaTypeChangeUsesNewTypeDefaults = false; // Normal behavior as of 5.x or so
-        if ( space != null ) {
+        if ( variables != null ) {
           metaTypeChangeUsesNewTypeDefaults = ValueMetaBase.convertStringToBoolean(
-            space.getVariable( Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "N" ) );
+            variables.getVariable( Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "N" ) );
         }
         if ( idx >= 0 ) { // We found the value
 
           // This is the value we need to change:
-          ValueMetaInterface v = inputRowMeta.getValueMeta( idx );
+          IValueMeta v = inputRowMeta.getValueMeta( idx );
 
           // Do we need to rename ?
           if ( !v.getName().equals( metaChange.getRename() ) && !Utils.isEmpty( metaChange.getRename() ) ) {
@@ -406,7 +406,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
             v.setOrigin( name );
           }
           // Change the type?
-          if ( metaChange.getType() != ValueMetaInterface.TYPE_NONE && v.getType() != metaChange.getType() ) {
+          if ( metaChange.getType() != IValueMeta.TYPE_NONE && v.getType() != metaChange.getType() ) {
             // Fix for PDI-16388 - clone copies over the conversion mask instead of using the default for the new type
             if ( !metaTypeChangeUsesNewTypeDefaults ) {
               v = ValueMetaFactory.cloneValueMeta( v, metaChange.getType() );
@@ -420,7 +420,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
 
             // This also moves the data to normal storage type
             //
-            v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+            v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
           }
           if ( metaChange.getLength() != UNDEFINED ) {
             v.setLength( metaChange.getLength() );
@@ -466,10 +466,10 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
-      RowMetaInterface rowMeta = inputRowMeta.clone();
+      IRowMeta rowMeta = inputRowMeta.clone();
       inputRowMeta.clear();
       inputRowMeta.addRowMeta( rowMeta );
 
@@ -520,8 +520,8 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -562,7 +562,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
       if ( this.selectFields.length > 0 ) {
         // Starting from prev...
         for ( int i = 0; i < prev.size(); i++ ) {
-          ValueMetaInterface pv = prev.getValueMeta( i );
+          IValueMeta pv = prev.getValueMeta( i );
           int idx = Const.indexOfString( pv.getName(), getSelectName() );
           if ( idx < 0 ) {
             error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
@@ -693,13 +693,13 @@ public class SelectValuesMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new SelectValues( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new SelectValues( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new SelectValuesData();
   }
 

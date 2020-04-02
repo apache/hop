@@ -28,11 +28,11 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.sqlfileoutput.SQLFileOutputMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -73,7 +73,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SQLFileOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SQLFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -1029,7 +1029,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements Transfor
     try {
       SQLFileOutputMeta info = new SQLFileOutputMeta();
       getInfo( info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
 

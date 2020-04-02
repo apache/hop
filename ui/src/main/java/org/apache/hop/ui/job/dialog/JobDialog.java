@@ -32,18 +32,18 @@ import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.logging.LogTablePluginInterface;
+import org.apache.hop.core.logging.ILogTable;
+import org.apache.hop.core.logging.ILogTablePlugin;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -52,7 +52,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.FieldDisabledListener;
+import org.apache.hop.ui.core.widget.IFieldDisabledListener;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -200,12 +200,12 @@ public class JobDialog extends Dialog {
 
   private TextVar wLogInterval;
 
-  private java.util.List<LogTableInterface> logTables;
-  private java.util.List<LogTableUserInterface> logTableUserInterfaces;
+  private java.util.List<ILogTable> logTables;
+  private java.util.List<ILogTableUser> logTableUserInterfaces;
 
   private DatabaseDialog databaseDialog;
 
-  private ArrayList<JobDialogPluginInterface> extraTabs;
+  private ArrayList<IJobDialogPlugin> extraTabs;
 
   public JobDialog( Shell parent, int style, JobMeta jobMeta ) {
     super( parent, style );
@@ -214,10 +214,10 @@ public class JobDialog extends Dialog {
 
     directoryChangeAllowed = true;
 
-    logTables = new ArrayList<LogTableInterface>();
-    logTableUserInterfaces = new ArrayList<LogTableUserInterface>();
-    for ( LogTableInterface logTable : jobMeta.getLogTables() ) {
-      logTables.add( (LogTableInterface) logTable.clone() );
+    logTables = new ArrayList<ILogTable>();
+    logTableUserInterfaces = new ArrayList<ILogTableUser>();
+    for ( ILogTable logTable : jobMeta.getLogTables() ) {
+      logTables.add( (ILogTable) logTable.clone() );
     }
   }
 
@@ -250,7 +250,7 @@ public class JobDialog extends Dialog {
 
     // Get the UI interfaces for the log table plugins...
     //
-    for ( LogTableInterface logTable : logTables ) {
+    for ( ILogTable logTable : logTables ) {
       logTableUserInterfaces.add( getLogTableUserInterface( logTable, jobMeta, lsMod ) ); // can be null
     }
 
@@ -260,13 +260,13 @@ public class JobDialog extends Dialog {
     addLogTab();
 
     // See if there are any other tabs to be added...
-    extraTabs = new ArrayList<JobDialogPluginInterface>();
-    java.util.List<PluginInterface> jobDialogPlugins =
+    extraTabs = new ArrayList<IJobDialogPlugin>();
+    java.util.List<IPlugin> jobDialogPlugins =
       PluginRegistry.getInstance().getPlugins( JobDialogPluginType.class );
-    for ( PluginInterface jobDialogPlugin : jobDialogPlugins ) {
+    for ( IPlugin jobDialogPlugin : jobDialogPlugins ) {
       try {
-        JobDialogPluginInterface extraTab =
-          (JobDialogPluginInterface) PluginRegistry.getInstance().loadClass( jobDialogPlugin );
+        IJobDialogPlugin extraTab =
+          (IJobDialogPlugin) PluginRegistry.getInstance().loadClass( jobDialogPlugin );
         extraTab.addTab( jobMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
@@ -675,7 +675,7 @@ public class JobDialog extends Dialog {
     wLogTypeList = new List( wLogComp, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER );
     props.setLook( wLogTypeList );
 
-    for ( LogTableInterface logTable : logTables ) {
+    for ( ILogTable logTable : logTables ) {
       wLogTypeList.add( logTable.getLogTableType() );
     }
 
@@ -738,8 +738,8 @@ public class JobDialog extends Dialog {
 
       previousLogTableIndex = index;
 
-      LogTableInterface logTable = logTables.get( index );
-      LogTableUserInterface logTableUserInterface = logTableUserInterfaces.get( index );
+      ILogTable logTable = logTables.get( index );
+      ILogTableUser logTableUserInterface = logTableUserInterfaces.get( index );
 
       if ( logTableUserInterface != null ) {
         logTableUserInterface.showLogTableOptions( wLogOptionsComposite, logTable );
@@ -766,8 +766,8 @@ public class JobDialog extends Dialog {
     }
     // Remember the that was entered data...
     //
-    LogTableInterface modifiedLogTable = logTables.get( previousLogTableIndex );
-    LogTableUserInterface logTableUserInterface = logTableUserInterfaces.get( previousLogTableIndex );
+    ILogTable modifiedLogTable = logTables.get( previousLogTableIndex );
+    ILogTableUser logTableUserInterface = logTableUserInterfaces.get( previousLogTableIndex );
 
     if ( logTableUserInterface != null ) {
       logTableUserInterface.retrieveLogTableOptions( modifiedLogTable );
@@ -803,7 +803,7 @@ public class JobDialog extends Dialog {
     }
   }
 
-  private Control addDBSchemaTableLogOptions( LogTableInterface logTable ) {
+  private Control addDBSchemaTableLogOptions( ILogTable logTable ) {
 
     wLogConnection = new MetaSelectionLine<DatabaseMeta>( jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
       BaseMessages.getString( PKG, "JobDialog.LogConnection.Label" ),
@@ -1050,7 +1050,7 @@ public class JobDialog extends Dialog {
           BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1162,7 +1162,7 @@ public class JobDialog extends Dialog {
           BaseMessages.getString( PKG, "JobDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1316,7 +1316,7 @@ public class JobDialog extends Dialog {
     wParamFields.setRowNums();
     wParamFields.optWidth( true );
 
-    for ( JobDialogPluginInterface extraTab : extraTabs ) {
+    for ( IJobDialogPlugin extraTab : extraTabs ) {
       extraTab.getData( jobMeta );
     }
   }
@@ -1364,7 +1364,7 @@ public class JobDialog extends Dialog {
 
     jobMeta.setBatchIdPassed( wBatchPipeline.getSelection() );
 
-    for ( JobDialogPluginInterface extraTab : extraTabs ) {
+    for ( IJobDialogPlugin extraTab : extraTabs ) {
       extraTab.ok( jobMeta );
     }
 
@@ -1383,7 +1383,7 @@ public class JobDialog extends Dialog {
 
     try {
 
-      for ( LogTableInterface logTable : logTables ) {
+      for ( ILogTable logTable : logTables ) {
         if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
           // OK, we have something to work with!
           //
@@ -1395,7 +1395,7 @@ public class JobDialog extends Dialog {
 
             StringBuilder ddl = new StringBuilder();
 
-            RowMetaInterface fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
+            IRowMeta fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
             String tableName = db.environmentSubstitute( logTable.getTableName() );
             String schemaTable =
               logTable.getDatabaseMeta().getQuotedSchemaTableCombination(
@@ -1409,9 +1409,9 @@ public class JobDialog extends Dialog {
               ddl.append( createTable ).append( Const.CR );
             }
 
-            java.util.List<RowMetaInterface> indexes = logTable.getRecommendedIndexes();
+            java.util.List<IRowMeta> indexes = logTable.getRecommendedIndexes();
             for ( int i = 0; i < indexes.size(); i++ ) {
-              RowMetaInterface index = indexes.get( i );
+              IRowMeta index = indexes.get( i );
               if ( !index.isEmpty() ) {
                 String createIndex =
                   db.getCreateIndexStatement( schemaTable, "IDX_" + tableName + "_" + ( i + 1 ), index
@@ -1449,10 +1449,10 @@ public class JobDialog extends Dialog {
     }
   }
 
-  public static final Button setShellImage( Shell shell, JobEntryInterface jobEntryInterface ) {
+  public static final Button setShellImage( Shell shell, IJobEntry jobEntry ) {
     Button helpButton = null;
     try {
-      final PluginInterface plugin = getPlugin( jobEntryInterface );
+      final IPlugin plugin = getPlugin( jobEntry );
 
       if ( plugin.getCategory().equals( BaseMessages.getString( PKGBASE, "JobCategory.Category.Deprecated" ) ) ) {
 
@@ -1491,11 +1491,11 @@ public class JobDialog extends Dialog {
     } );
   }
 
-  public static PluginInterface getPlugin( JobEntryInterface jobEntryInterface ) {
-    return PluginRegistry.getInstance().getPlugin( JobEntryPluginType.class, jobEntryInterface );
+  public static IPlugin getPlugin( IJobEntry jobEntry ) {
+    return PluginRegistry.getInstance().getPlugin( JobEntryPluginType.class, jobEntry );
   }
 
-  public static Image getImage( Shell shell, PluginInterface plugin ) {
+  public static Image getImage( Shell shell, IPlugin plugin ) {
     String id = plugin.getIds()[ 0 ];
     if ( id != null ) {
       return GUIResource.getInstance().getImagesJobentries().get( id ).getAsBitmapForSize(
@@ -1508,13 +1508,13 @@ public class JobDialog extends Dialog {
     this.directoryChangeAllowed = directoryChangeAllowed;
   }
 
-  private LogTableUserInterface getLogTableUserInterface( LogTableInterface logTable, JobMeta jobMeta,
-                                                          ModifyListener lsMod ) {
+  private ILogTableUser getLogTableUserInterface( ILogTable logTable, JobMeta jobMeta,
+                                                  ModifyListener lsMod ) {
 
-    if ( !( logTable instanceof LogTablePluginInterface ) ) {
+    if ( !( logTable instanceof ILogTablePlugin ) ) {
       return null;
     }
-    LogTablePluginInterface pluginInterface = (LogTablePluginInterface) logTable;
+    ILogTablePlugin pluginInterface = (ILogTablePlugin) logTable;
 
     String uiClassName = pluginInterface.getLogTablePluginUIClassname();
 
@@ -1525,7 +1525,7 @@ public class JobDialog extends Dialog {
     try {
       uiClass = pluginInterface.getClass().getClassLoader().loadClass( uiClassName );
       uiConstructor = uiClass.getConstructor( paramClasses );
-      return (LogTableUserInterface) uiConstructor.newInstance( paramArgs );
+      return (ILogTableUser) uiConstructor.newInstance( paramArgs );
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Unable to load UI interface class: " + uiClassName, e );
       return null;

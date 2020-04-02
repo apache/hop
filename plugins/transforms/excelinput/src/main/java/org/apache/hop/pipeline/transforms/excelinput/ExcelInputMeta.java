@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -37,13 +37,13 @@ import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -51,7 +51,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
 
@@ -70,7 +70,7 @@ import java.util.Map;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
-public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaInterface<ExcelInput, ExcelInputData> {
+public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<ExcelInput, ExcelInputData> {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
@@ -890,15 +890,15 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < field.length; i++ ) {
       int type = field[ i ].getType();
-      if ( type == ValueMetaInterface.TYPE_NONE ) {
-        type = ValueMetaInterface.TYPE_STRING;
+      if ( type == IValueMeta.TYPE_NONE ) {
+        type = IValueMeta.TYPE_STRING;
       }
       try {
-        ValueMetaInterface v = ValueMetaFactory.createValueMeta( field[ i ].getName(), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( field[ i ].getName(), type );
         v.setLength( field[ i ].getLength() );
         v.setPrecision( field[ i ].getPrecision() );
         v.setOrigin( name );
@@ -912,28 +912,28 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
       }
     }
     if ( fileField != null && fileField.length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaString( fileField );
+      IValueMeta v = new ValueMetaString( fileField );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( sheetField != null && sheetField.length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaString( sheetField );
+      IValueMeta v = new ValueMetaString( sheetField );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( sheetRowNumberField != null && sheetRowNumberField.length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaInteger( sheetRowNumberField );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( sheetRowNumberField );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( rowNumberField != null && rowNumberField.length() > 0 ) {
-      ValueMetaInterface v = new ValueMetaInteger( rowNumberField );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( rowNumberField );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -941,58 +941,58 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
     // Add additional fields
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getShortFileNameField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getExtensionField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getPathField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( getSizeField() ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaBoolean( space.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v =
+        new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
-      ValueMetaInterface v =
+      IValueMeta v =
         new ValueMetaDate(
-          space.environmentSubstitute( getLastModificationDateField() ) );
+          variables.environmentSubstitute( getLastModificationDateField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getUriField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( getRootUriField() ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -1144,16 +1144,16 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
     return type_trim_desc[ i ];
   }
 
-  public String[] getFilePaths( VariableSpace space ) {
+  public String[] getFilePaths( IVariables variables ) {
     normilizeAllocation();
     return FileInputList.createFilePathList(
-      space, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
+      variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
   }
 
-  public FileInputList getFileList( VariableSpace space ) {
+  public FileInputList getFileList( IVariables variables ) {
     normilizeAllocation();
     return FileInputList.createFileList(
-      space, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
+      variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
   }
 
   private boolean[] includeSubFolderBoolean() {
@@ -1183,8 +1183,8 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -1192,18 +1192,18 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
     if ( input.length > 0 ) {
       if ( !isAcceptingFilenames() ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "ExcelInputMeta.CheckResult.NoInputError" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ExcelInputMeta.CheckResult.AcceptFilenamesOk" ), transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ExcelInputMeta.CheckResult.NoInputOk" ), transformMeta );
       remarks.add( cr );
     }
@@ -1212,24 +1212,24 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
     if ( fileList.nrOfFiles() == 0 ) {
       if ( !isAcceptingFilenames() ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "ExcelInputMeta.CheckResult.ExpectedFilesError" ), transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ExcelInputMeta.CheckResult.ExpectedFilesOk", StringUtil.EMPTY_STRING + fileList.nrOfFiles() ),
           transformMeta );
       remarks.add( cr );
     }
   }
 
-  public RowMetaInterface getEmptyFields() {
-    RowMetaInterface row = new RowMeta();
+  public IRowMeta getEmptyFields() {
+    IRowMeta row = new RowMeta();
     if ( field != null ) {
       for ( int i = 0; i < field.length; i++ ) {
-        ValueMetaInterface v;
+        IValueMeta v;
         try {
           v = ValueMetaFactory.createValueMeta( field[ i ].getName(), field[ i ].getType() );
         } catch ( HopPluginException e ) {
@@ -1243,9 +1243,9 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public ExcelInput createTransform( TransformMeta transformMeta, ExcelInputData transformDataInterface, int cnr,
+  public ExcelInput createTransform( TransformMeta transformMeta, ExcelInputData iTransformData, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelInput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ExcelInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -1430,15 +1430,15 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   /**
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming,
                                  IMetaStore metaStore ) throws HopException {
     try {
       normilizeAllocation();
@@ -1451,8 +1451,8 @@ public class ExcelInputMeta extends BaseTransformMeta implements TransformMetaIn
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
-          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName[ i ] ), variables );
+          fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

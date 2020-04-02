@@ -24,16 +24,16 @@ package org.apache.hop.ui.pipeline.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.PartitionerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.ModPartitioner;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.Arrays;
 
-public class ModPartitionerDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ModPartitionerDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PipelineDialog.class; // for i18n purposes, needed by Translator!!
 
   private TransformPartitioningMeta partitioningMeta;
@@ -124,7 +124,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements Transfo
     fdFieldname.right = new FormAttachment( 100, 0 );
     wFieldname.setLayoutData( fdFieldname );
     try {
-      RowMetaInterface inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
       if ( inputFields != null ) {
         String[] fieldNames = inputFields.getFieldNames();
         Arrays.sort( fieldNames );
@@ -218,7 +218,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements Transfo
   }
 
   private void setShellImage( Shell shell ) {
-    PluginInterface plugin = PluginRegistry.getInstance().getPlugin( PartitionerPluginType.class, partitioner.getId() );
+    IPlugin plugin = PluginRegistry.getInstance().getPlugin( PartitionerPluginType.class, partitioner.getId() );
     if ( !Utils.isEmpty( plugin.getDocumentationUrl() ) ) {
       createHelpButton( shell, transformMeta, plugin );
     }

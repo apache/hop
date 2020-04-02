@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -113,7 +113,7 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "none" ), "f" );
     assertEquals( 0, meta.getFieldTrimType()[ 0 ] );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "left" ), "f" );

@@ -23,18 +23,18 @@
 package org.apache.hop.pipeline.transforms.tablecompare;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 19-11-2009
  */
-public class TableCompareData extends BaseTransformData implements TransformDataInterface {
+public class TableCompareData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
 
   public int refSchemaIndex;
   public int refTableIndex;
@@ -45,7 +45,7 @@ public class TableCompareData extends BaseTransformData implements TransformData
 
   public Database referenceDb;
   public Database compareDb;
-  public RowMetaInterface errorRowMeta;
+  public IRowMeta errorRowMeta;
 
   public int keyDescIndex;
   public int valueReferenceIndex;

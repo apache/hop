@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
@@ -50,15 +50,15 @@ public class DenormaliserMetaInjection implements TransformMetaInjectionInterfac
     List<TransformInjectionMetaEntry> all = new ArrayList<TransformInjectionMetaEntry>();
 
     TransformInjectionMetaEntry fieldsEntry =
-      new TransformInjectionMetaEntry( "FIELDS", ValueMetaInterface.TYPE_NONE, "All the fields on the spreadsheets" );
+      new TransformInjectionMetaEntry( "FIELDS", IValueMeta.TYPE_NONE, "All the fields on the spreadsheets" );
     all.add( fieldsEntry );
 
     TransformInjectionMetaEntry fieldEntry =
-      new TransformInjectionMetaEntry( "FIELD", ValueMetaInterface.TYPE_NONE, "All the fields on the spreadsheets" );
+      new TransformInjectionMetaEntry( "FIELD", IValueMeta.TYPE_NONE, "All the fields on the spreadsheets" );
     fieldsEntry.getDetails().add( fieldEntry );
 
     for ( Entry entry : Entry.values() ) {
-      if ( entry.getValueType() != ValueMetaInterface.TYPE_NONE ) {
+      if ( entry.getValueType() != IValueMeta.TYPE_NONE ) {
         TransformInjectionMetaEntry metaEntry =
           new TransformInjectionMetaEntry( entry.name(), entry.getValueType(), entry.getDescription() );
         fieldEntry.getDetails().add( metaEntry );
@@ -159,21 +159,21 @@ public class DenormaliserMetaInjection implements TransformMetaInjectionInterfac
 
   private enum Entry {
 
-    FIELDS( ValueMetaInterface.TYPE_NONE, "All the fields" ),
-    FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
+    FIELDS( IValueMeta.TYPE_NONE, "All the fields" ),
+    FIELD( IValueMeta.TYPE_NONE, "One field" ),
 
-    TARGET_NAME( ValueMetaInterface.TYPE_STRING, "Target field name" ),
-    NAME( ValueMetaInterface.TYPE_STRING, "Value field name" ),
-    KEY_VALUE( ValueMetaInterface.TYPE_STRING, "Key value" ),
-    TARGET_TYPE( ValueMetaInterface.TYPE_STRING, "Target field type" ),
-    TARGET_LENGTH( ValueMetaInterface.TYPE_STRING, "Target field length" ),
-    TARGET_PRECISION( ValueMetaInterface.TYPE_STRING, "Target field precision" ),
-    TARGET_CURRENCY( ValueMetaInterface.TYPE_STRING, "Target field currency symbol" ),
-    TARGET_DECIMAL( ValueMetaInterface.TYPE_STRING, "Target field decimal symbol" ),
-    TARGET_GROUP( ValueMetaInterface.TYPE_STRING, "Target field group symbol" ),
-    TARGET_FORMAT( ValueMetaInterface.TYPE_STRING, "Target field format" ),
+    TARGET_NAME( IValueMeta.TYPE_STRING, "Target field name" ),
+    NAME( IValueMeta.TYPE_STRING, "Value field name" ),
+    KEY_VALUE( IValueMeta.TYPE_STRING, "Key value" ),
+    TARGET_TYPE( IValueMeta.TYPE_STRING, "Target field type" ),
+    TARGET_LENGTH( IValueMeta.TYPE_STRING, "Target field length" ),
+    TARGET_PRECISION( IValueMeta.TYPE_STRING, "Target field precision" ),
+    TARGET_CURRENCY( IValueMeta.TYPE_STRING, "Target field currency symbol" ),
+    TARGET_DECIMAL( IValueMeta.TYPE_STRING, "Target field decimal symbol" ),
+    TARGET_GROUP( IValueMeta.TYPE_STRING, "Target field group symbol" ),
+    TARGET_FORMAT( IValueMeta.TYPE_STRING, "Target field format" ),
     TARGET_AGGREGATION(
-      ValueMetaInterface.TYPE_STRING, "Target aggregation (-, SUM, AVERAGE, MIN, MAX, COUNT_ALL, CONCAT_COMMA)" );
+      IValueMeta.TYPE_STRING, "Target aggregation (-, SUM, AVERAGE, MIN, MAX, COUNT_ALL, CONCAT_COMMA)" );
 
     private int valueType;
     private String description;

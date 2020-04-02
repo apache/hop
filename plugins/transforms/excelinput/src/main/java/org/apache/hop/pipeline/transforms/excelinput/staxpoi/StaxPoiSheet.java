@@ -28,9 +28,9 @@ package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
@@ -53,7 +53,7 @@ import java.util.TimeZone;
  * Streaming reader for XLSX sheets.<br>
  * Rows should only be accessed sequentially: random access will severely impact performance.<br>
  */
-public class StaxPoiSheet implements KSheet {
+public class StaxPoiSheet implements IKSheet {
 
   // set to UTC for coherence with PoiSheet;
   private static final TimeZone DATE_TZ = TimeZone.getTimeZone( "UTC" );
@@ -73,7 +73,7 @@ public class StaxPoiSheet implements KSheet {
   private boolean maxColsNumberDefined = true;
   // 1-based first non-empty row
   private int firstRow;
-  private KCell[] currentRowCells;
+  private IKCell[] currentRowCells;
 
   // full shared strings table
   private SharedStringsTable sst;
@@ -164,16 +164,16 @@ public class StaxPoiSheet implements KSheet {
   }
 
   @Override
-  public KCell[] getRow( int rownr ) {
-    // xlsx raw row numbers are 1-based index, KSheet is 0-based
+  public IKCell[] getRow( int rownr ) {
+    // xlsx raw row numbers are 1-based index, IKSheet is 0-based
 
     if ( rownr < 0 || rownr >= numRows ) {
-      // KSheet requires out of bounds here
+      // IKSheet requires out of bounds here
       throw new ArrayIndexOutOfBoundsException( rownr );
     }
     if ( rownr + 1 < firstRow ) {
       // before first non-empty row
-      return new KCell[ 0 ];
+      return new IKCell[ 0 ];
     }
     if ( rownr > 0 && currentRow == rownr + 1 ) {
       if ( currentRowCells != null ) {
@@ -181,7 +181,7 @@ public class StaxPoiSheet implements KSheet {
       }
       // The case when the table contains the empty row(s) before the header
       // but at the same time user wants to read starting from 0 row
-      return new KCell[ 0 ];
+      return new IKCell[ 0 ];
     }
     try {
       if ( currentRow >= rownr + 1 ) {
@@ -204,10 +204,10 @@ public class StaxPoiSheet implements KSheet {
       throw new RuntimeException( e );
     }
     numRows = currentRow;
-    return new KCell[] {};
+    return new IKCell[] {};
   }
 
-  private KCell[] parseRow() throws XMLStreamException {
+  private IKCell[] parseRow() throws XMLStreamException {
     List<StaxPoiCell> cells;
     if ( isMaxColsNumberDefined() ) {
       cells = new ArrayList<StaxPoiCell>( numCols );
@@ -296,13 +296,13 @@ public class StaxPoiSheet implements KSheet {
   }
 
   @Override
-  public KCell getCell( int colnr, int rownr ) {
+  public IKCell getCell( int colnr, int rownr ) {
     if ( rownr == 0 && colnr < headerRow.size() ) {
       // only possible to return header
       return new StaxPoiCell( headerRow.get( colnr ), rownr );
     }
     // if random access this will be very expensive
-    KCell[] row = getRow( rownr );
+    IKCell[] row = getRow( rownr );
     if ( row != null && rownr < row.length ) {
       return row[ colnr ];
     }

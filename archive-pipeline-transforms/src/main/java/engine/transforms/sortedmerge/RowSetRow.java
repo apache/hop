@@ -23,18 +23,18 @@
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 public class RowSetRow {
   private RowSet rowSet;
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
   private Object[] rowData;
 
   /**
    * @param rowSet
    * @param rowData
    */
-  public RowSetRow( RowSet rowSet, RowMetaInterface rowMeta, Object[] rowData ) {
+  public RowSetRow( RowSet rowSet, IRowMeta rowMeta, Object[] rowData ) {
     super();
     this.rowSet = rowSet;
     this.rowMeta = rowMeta;
@@ -72,14 +72,14 @@ public class RowSetRow {
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
   /**
    * @param rowMeta the rowMeta to set
    */
-  public void setRowMeta( RowMetaInterface rowMeta ) {
+  public void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 }

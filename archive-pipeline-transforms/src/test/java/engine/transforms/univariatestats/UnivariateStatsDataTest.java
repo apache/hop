@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.univariatestats;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.test.util.GetterSetterTester;
 import org.apache.test.util.ObjectTesterBuilder;
 import org.junit.Test;
@@ -37,13 +37,13 @@ public class UnivariateStatsDataTest {
 
     getterSetterTester.addObjectTester( "fieldIndexes", new ObjectTesterBuilder<FieldIndex[]>().addObject( null )
       .addObject( new FieldIndex[] {} ).useEqualsEquals().build() );
-    RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
 
-    getterSetterTester.addObjectTester( "inputRowMeta", new ObjectTesterBuilder<RowMetaInterface>().addObject( null )
+    getterSetterTester.addObjectTester( "inputRowMeta", new ObjectTesterBuilder<IRowMeta>().addObject( null )
       .addObject( mockRowMetaInterface ).useEqualsEquals().build() );
-    mockRowMetaInterface = mock( RowMetaInterface.class );
+    mockRowMetaInterface = mock( IRowMeta.class );
 
-    getterSetterTester.addObjectTester( "outputRowMeta", new ObjectTesterBuilder<RowMetaInterface>().addObject( null )
+    getterSetterTester.addObjectTester( "outputRowMeta", new ObjectTesterBuilder<IRowMeta>().addObject( null )
       .addObject( mockRowMetaInterface ).useEqualsEquals().build() );
     getterSetterTester.test( new UnivariateStatsData() );
   }

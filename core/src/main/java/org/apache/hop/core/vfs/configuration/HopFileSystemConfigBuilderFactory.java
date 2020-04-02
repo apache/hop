@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
- * This class supports overriding of config builders by supplying a VariableSpace containing a variable in the format of
+ * This class supports overriding of config builders by supplying a IVariables containing a variable in the format of
  * vfs.[scheme].config.parser where [scheme] is one of the VFS schemes (file, http, sftp, etc...)
  *
  * @author cboyden
@@ -49,7 +49,7 @@ public class HopFileSystemConfigBuilderFactory {
    * @throws IOException
    * @see org.apache.commons.vfs.FileSystemConfigBuilder
    */
-  public static IHopFileSystemConfigBuilder getConfigBuilder( VariableSpace varSpace, String scheme ) throws IOException {
+  public static IHopFileSystemConfigBuilder getConfigBuilder( IVariables varSpace, String scheme ) throws IOException {
     IHopFileSystemConfigBuilder result = null;
 
     // Attempt to load the Config Builder from a variable: vfs.config.parser = class

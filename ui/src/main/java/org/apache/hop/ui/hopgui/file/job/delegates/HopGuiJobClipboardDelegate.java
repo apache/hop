@@ -4,7 +4,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobHopMeta;
@@ -32,7 +32,7 @@ public class HopGuiJobClipboardDelegate {
 
   private HopGui hopGui;
   private HopGuiJobGraph jobGraph;
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   public HopGuiJobClipboardDelegate( HopGui hopGui, HopGuiJobGraph jobGraph ) {
     this.hopGui = hopGui;
@@ -182,7 +182,7 @@ public class HopGuiJobClipboardDelegate {
 
       xml.append( XMLHandler.openTag( XML_TAG_ENTRIES ) ).append( Const.CR );
       for ( JobEntryCopy entry : entries ) {
-        xml.append( entry.getXML() );
+        xml.append( entry.getXml() );
       }
       xml.append( XMLHandler.closeTag( XML_TAG_ENTRIES ) ).append( Const.CR );
 
@@ -194,7 +194,7 @@ public class HopGuiJobClipboardDelegate {
             JobHopMeta hop = jobMeta.findJobHop( transform1, transform2, true );
             if ( hop != null ) {
               // Ok, we found one...
-              xml.append( hop.getXML() ).append( Const.CR );
+              xml.append( hop.getXml() ).append( Const.CR );
             }
           }
         }
@@ -204,7 +204,7 @@ public class HopGuiJobClipboardDelegate {
       xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( NotePadMeta note : notes ) {
-          xml.append( note.getXML() );
+          xml.append( note.getXml() );
         }
       }
       xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
@@ -226,7 +226,7 @@ public class HopGuiJobClipboardDelegate {
     xml.append( XMLHandler.openTag( XML_TAG_JOB_JOB_ENTRIES ) ).append( Const.CR );
 
     for ( JobEntryCopy aJec : jec ) {
-      xml.append( aJec.getXML() );
+      xml.append( aJec.getXml() );
     }
 
     xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG_JOB_JOB_ENTRIES ) ).append( Const.CR );
@@ -272,14 +272,14 @@ public class HopGuiJobClipboardDelegate {
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 }

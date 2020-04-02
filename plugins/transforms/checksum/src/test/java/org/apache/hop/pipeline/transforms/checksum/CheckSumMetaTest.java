@@ -25,9 +25,9 @@ package org.apache.hop.pipeline.transforms.checksum;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class CheckSumMetaTest implements InitializerInterface<CheckSumMeta> {
+public class CheckSumMetaTest implements IInitializerInterface<CheckSumMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -73,15 +73,15 @@ public class CheckSumMetaTest implements InitializerInterface<CheckSumMeta> {
     Map<String, String> setterMap = new HashMap<>();
     getterMap.put( "CheckSumType", "getTypeByDesc" );
 
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "FieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "CheckSumType", new IntLoadSaveValidator( CheckSumMeta.checksumtypeCodes.length ) );
     attrValidatorMap.put( "ResultType", new IntLoadSaveValidator( CheckSumMeta.resultTypeCode.length ) );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     LoadSaveTester<CheckSumMeta> loadSaveTester =
       new LoadSaveTester<>( CheckSumMeta.class, attributes, getterMap, setterMap,

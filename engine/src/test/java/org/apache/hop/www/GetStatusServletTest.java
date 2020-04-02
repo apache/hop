@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
@@ -78,7 +78,7 @@ public class GetStatusServletTest {
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Pipeline mockPipeline = mock( Pipeline.class );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    LogChannelInterface mockChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockChannelInterface = mock( ILogChannel.class );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
 

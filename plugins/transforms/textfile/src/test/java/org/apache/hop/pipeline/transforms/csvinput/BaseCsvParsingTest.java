@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 //import org.apache.hop.pipeline.transforms.fileinput.BaseParsingTest;
@@ -75,7 +75,7 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
   protected void setFields( TextFileInputField... fields ) throws Exception {
     meta.setInputFields( fields );
     meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
-    data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+    data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
   }
 
   /**

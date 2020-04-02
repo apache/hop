@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.file;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class BaseFileInputTransformData extends BaseTransformData {
 
-  public FileErrorHandler dataErrorLineHandler;
+  public IFileErrorHandler dataErrorLineHandler;
 
   /**
    * Files for process.
@@ -58,7 +58,7 @@ public class BaseFileInputTransformData extends BaseTransformData {
    */
   public IBaseFileInputReader reader;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public HashMap<String, Object[]> passThruFields;
 
@@ -66,7 +66,7 @@ public class BaseFileInputTransformData extends BaseTransformData {
 
   public int nrPassThruFields;
 
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta convertRowMeta;
 
   public int nr_repeats;
   // public boolean isLastFile;

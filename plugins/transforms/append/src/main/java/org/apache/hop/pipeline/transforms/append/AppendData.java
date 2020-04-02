@@ -22,22 +22,22 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Sven Boden
  * @since 3-june-2007
  */
-public class AppendData extends BaseTransformData implements TransformDataInterface {
+public class AppendData extends BaseTransformData implements ITransformData {
   public boolean processHead;
   public boolean processTail;
   public boolean firstTail;
-  public RowSet headRowSet;
-  public RowSet tailRowSet;
-  public RowMetaInterface outputRowMeta;
+  public IRowSet headRowSet;
+  public IRowSet tailRowSet;
+  public IRowMeta outputRowMeta;
 
   /**
    * Default constructor.

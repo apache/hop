@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -108,9 +108,9 @@ public class ZipFileMetaTest {
     zipFileMeta.setDefault();
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     TransformMeta transformInfo = mock( TransformMeta.class );
-    RowMetaInterface prev = mock( RowMetaInterface.class );
+    IRowMeta prev = mock( IRowMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
-    RowMetaInterface info = mock( RowMetaInterface.class );
+    IRowMeta info = mock( IRowMeta.class );
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
 
     zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
@@ -133,7 +133,7 @@ public class ZipFileMetaTest {
   public void testGetTransform() throws Exception {
     TransformMeta transformInfo = mock( TransformMeta.class );
     when( transformInfo.getName() ).thenReturn( "Zip Transform Name" );
-    TransformDataInterface transformData = mock( TransformDataInterface.class );
+    ITransformData transformData = mock( ITransformData.class );
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformInfo );
     Pipeline pipeline = mock( Pipeline.class );

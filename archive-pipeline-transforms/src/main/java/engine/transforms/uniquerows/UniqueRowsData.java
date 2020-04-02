@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 22-jan-2005
  */
-public class UniqueRowsData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface compareRowMeta;
-  public RowMetaInterface inputRowMeta;
+public class UniqueRowsData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
+  public IRowMeta compareRowMeta;
+  public IRowMeta inputRowMeta;
   public long counter;
   public Object[] previous;
   public int[] fieldnrs;

@@ -25,8 +25,8 @@ package org.apache.hop.core.dnd;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -39,7 +39,7 @@ import java.io.UnsupportedEncodingException;
  * @author matt
  * @since 2006-04-16
  */
-public class DragAndDropContainer implements XMLInterface {
+public class DragAndDropContainer implements IXml {
   public static final int TYPE_TRANSFORM = 1;
   public static final int TYPE_BASE_TRANSFORM_TYPE = 2;
   public static final int TYPE_DATABASE_CONNECTION = 3;
@@ -129,7 +129,7 @@ public class DragAndDropContainer implements XMLInterface {
     return 0;
   }
 
-  public String getXML() {
+  public String getXml() {
     try {
       StringBuilder xml = new StringBuilder( 100 );
 

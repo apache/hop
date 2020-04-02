@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.injector;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Data class to allow a java program to inject rows of data into a pipeline. This transform can be used as a starting
@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  *
  * @since 22-jun-2006
  */
-public class InjectorData extends BaseTransformData implements TransformDataInterface {
+public class InjectorData extends BaseTransformData implements ITransformData {
   /**
    * Default constructor.
    */

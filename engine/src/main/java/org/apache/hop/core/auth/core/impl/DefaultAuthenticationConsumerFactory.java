@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
-import org.apache.hop.core.auth.core.AuthenticationConsumerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class DefaultAuthenticationConsumerFactory implements AuthenticationConsumerFactory<Object, Object, Object> {
+public class DefaultAuthenticationConsumerFactory implements IAuthenticationConsumerFactory<Object, Object, Object> {
   private static final Class<?> PKG = DefaultAuthenticationConsumerFactory.class;
   private final Constructor<?> constructor;
   private final Class<Object> consumedType;
@@ -92,9 +92,9 @@ public class DefaultAuthenticationConsumerFactory implements AuthenticationConsu
 
   @SuppressWarnings( "unchecked" )
   @Override
-  public AuthenticationConsumer<Object, Object> create( Object createArg ) {
+  public IAuthenticationConsumer<Object, Object> create( Object createArg ) {
     try {
-      return (AuthenticationConsumer<Object, Object>) constructor.newInstance( createArg );
+      return (IAuthenticationConsumer<Object, Object>) constructor.newInstance( createArg );
     } catch ( Exception e ) {
       throw new RuntimeException( e );
     }

@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transforms.mapping.MappingParameters;
 import java.util.Random;
 import java.util.UUID;
 
-public class MappingParametersLoadSaveValidator implements FieldLoadSaveValidator<MappingParameters> {
+public class MappingParametersLoadSaveValidator implements IFieldLoadSaveValidator<MappingParameters> {
   final Random rand = new Random();
 
   @Override

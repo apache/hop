@@ -29,11 +29,11 @@ import org.junit.ClassRule;
 import java.util.Arrays;
 import java.util.List;
 
-public class JobEntryCheckFilesLockedLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryCheckFilesLocked> {
+public class JobEntryCheckFilesLockedLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryICheckFilesLocked> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<JobEntryCheckFilesLocked> getJobEntryClass() {
-    return JobEntryCheckFilesLocked.class;
+  @Override protected Class<JobEntryICheckFilesLocked> getJobEntryClass() {
+    return JobEntryICheckFilesLocked.class;
   }
 
   @Override protected List<String> listCommonAttributes() {

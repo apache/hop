@@ -25,12 +25,12 @@ package org.apache.hop.ui.pipeline.transforms.tablecompare;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.tablecompare.TableCompare;
 import org.apache.hop.pipeline.transforms.tablecompare.TableCompareMeta;
 import org.apache.hop.ui.core.widget.LabelCombo;
@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 
-public class TableCompareDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
 
   private TableCompareMeta input;
@@ -69,7 +69,7 @@ public class TableCompareDialog extends BaseTransformDialog implements Transform
   /**
    * all fields from the previous transforms
    */
-  private RowMetaInterface prevFields = null;
+  private IRowMeta prevFields = null;
 
   private LabelCombo wReferenceDB;
   private LabelCombo wReferenceSchema;

@@ -33,20 +33,20 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -989,7 +989,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
     }
   }
 
-  public String[] getFiles( VariableSpace space ) {
+  public String[] getFiles( iVariables variables ) {
     int copies = 1;
     int splits = 1;
 
@@ -1011,7 +1011,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[ i ] = buildFilename( space, copy, split );
+        retval[ i ] = buildFilename( variables, copy, split );
         i++;
       }
     }
@@ -1022,12 +1022,12 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
     return retval;
   }
 
-  public String buildFilename( VariableSpace space, int transformnr, int splitnr ) {
+  public String buildFilename( iVariables variables, int transformnr, int splitnr ) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = space.environmentSubstitute( fileName );
-    String realextension = space.environmentSubstitute( extension );
+    String retval = variables.environmentSubstitute( fileName );
+    String realextension = variables.environmentSubstitute( extension );
 
     Date now = new Date();
 
@@ -1062,8 +1062,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -1185,7 +1185,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -1239,22 +1239,22 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   /**
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName ), space );
-        fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 
       return null;
@@ -1264,13 +1264,13 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelOutput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ExcelOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new ExcelOutputData();
   }
 

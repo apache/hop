@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -36,9 +36,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( RowDistributionInterface.class )
+@PluginMainClassType( IRowDistribution.class )
 @PluginAnnotationType( RowDistributionPlugin.class )
-public class RowDistributionPluginType extends BasePluginType implements PluginTypeInterface {
+public class RowDistributionPluginType extends BasePluginType implements IPluginType {
   private static RowDistributionPluginType pluginType;
 
   private RowDistributionPluginType() {

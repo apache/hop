@@ -24,14 +24,14 @@ package org.apache.hop.core.gui;
 
 public class GUIFactory {
 
-  private static HopUiInterface hopGuiInstance;
-  private static ThreadDialogs threadDialogs = new RuntimeThreadDialogs(); // default to the runtime one
+  private static IHopUi hopGuiInstance;
+  private static IThreadDialogs threadDialogs = new RuntimeThreadDialogs(); // default to the runtime one
 
-  public static HopUiInterface getInstance() {
+  public static IHopUi getInstance() {
     return hopGuiInstance;
   }
 
-  public static ThreadDialogs getThreadDialogs() {
+  public static IThreadDialogs getThreadDialogs() {
     return threadDialogs;
   }
 

@@ -33,17 +33,17 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -78,15 +78,15 @@ public class LoadFileInputTest {
   private Pipeline pipeline;
 
   private LoadFileInputMeta transformMetaInterface;
-  private TransformDataInterface transformDataInterface;
+  private ITransformData iTransformData;
   private TransformMeta transformMeta;
   private FileInputList transformInputFiles;
   private int transformCopyNr;
 
   private LoadFileInput transformLoadFileInput;
 
-  private TransformMetaInterface runtimeSMI;
-  private TransformDataInterface runtimeSDI;
+  private ITransformMeta runtimeSMI;
+  private ITransformData runtimeSDI;
   private LoadFileInputField inputField;
   private static String wasEncoding;
 
@@ -131,16 +131,16 @@ public class LoadFileInputTest {
 
     transformMetaInterface = spy( new LoadFileInputMeta() );
     transformInputFiles = new FileInputList();
-    Mockito.doReturn( transformInputFiles ).when( transformMetaInterface ).getFiles( any( VariableSpace.class ) );
+    Mockito.doReturn( transformInputFiles ).when( transformMetaInterface ).getFiles( any( IVariables.class ) );
     String transformId = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, transformMetaInterface );
     transformMeta = new TransformMeta( transformId, "Load File Input", transformMetaInterface );
     pipelineMeta.addTransform( transformMeta );
 
-    transformDataInterface = new LoadFileInputData();
+    iTransformData = new LoadFileInputData();
 
     transformCopyNr = 0;
 
-    transformLoadFileInput = new LoadFileInput( transformMeta, transformDataInterface, transformCopyNr, pipelineMeta, pipeline );
+    transformLoadFileInput = new LoadFileInput( transformMeta, iTransformData, transformCopyNr, pipelineMeta, pipeline );
 
     assertSame( transformMetaInterface, transformMeta.getTransformMetaInterface() );
 
@@ -331,7 +331,7 @@ public class LoadFileInputTest {
   @Test
   public void testUTF8TrimLeft() throws HopException {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
-    inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    inputField.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     transformInputFiles.addFile( getFile( "UTF-8.txt" ) );
     assertEquals( "UTF-8 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[ 0 ] );
   }
@@ -339,7 +339,7 @@ public class LoadFileInputTest {
   @Test
   public void testUTF8TrimRight() throws HopException {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
-    inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    inputField.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     transformInputFiles.addFile( getFile( "UTF-8.txt" ) );
     assertEquals( " UTF-8 string ÕÕÕ€", transformLoadFileInput.getOneRow()[ 0 ] );
   }
@@ -347,7 +347,7 @@ public class LoadFileInputTest {
   @Test
   public void testUTF8Trim() throws HopException {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
-    inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    inputField.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     transformInputFiles.addFile( getFile( "UTF-8.txt" ) );
     assertEquals( "UTF-8 string ÕÕÕ€", transformLoadFileInput.getOneRow()[ 0 ] );
   }
@@ -355,7 +355,7 @@ public class LoadFileInputTest {
   @Test
   public void testWindowsEncoding() throws HopException {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "Windows-1252" );
-    inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    inputField.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     transformInputFiles.addFile( getFile( "Windows-1252.txt" ) );
     assertEquals( " Windows-1252 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[ 0 ] );
   }
@@ -371,7 +371,7 @@ public class LoadFileInputTest {
 
   @Test
   public void testByteArray() throws Exception {
-    RowMetaInterface mockedRowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta mockedRowMetaInterface = mock( IRowMeta.class );
     transformLoadFileInput.data.outputRowMeta = mockedRowMetaInterface;
     transformLoadFileInput.data.convertRowMeta = mockedRowMetaInterface;
     Mockito.doReturn( new ValueMetaString() ).when( mockedRowMetaInterface ).getValueMeta( anyInt() );
@@ -381,7 +381,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
     transformInputFiles.addFile( getFile( "pentaho_splash.png" ) );
     inputField = new LoadFileInputField();
-    inputField.setType( ValueMetaInterface.TYPE_BINARY );
+    inputField.setType( IValueMeta.TYPE_BINARY );
     ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
 
     assertNotNull( transformLoadFileInput.getOneRow() );

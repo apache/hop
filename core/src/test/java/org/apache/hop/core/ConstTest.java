@@ -24,7 +24,7 @@ package org.apache.hop.core;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -2095,10 +2095,10 @@ public class ConstTest {
   @Test
   public void testTrimToType() {
     final String source = " trim me hard ";
-    assertEquals( "trim me hard", Const.trimToType( source, ValueMetaInterface.TRIM_TYPE_BOTH ) );
-    assertEquals( "trim me hard ", Const.trimToType( source, ValueMetaInterface.TRIM_TYPE_LEFT ) );
-    assertEquals( " trim me hard", Const.trimToType( source, ValueMetaInterface.TRIM_TYPE_RIGHT ) );
-    assertEquals( source, Const.trimToType( source, ValueMetaInterface.TRIM_TYPE_NONE ) );
+    assertEquals( "trim me hard", Const.trimToType( source, IValueMeta.TRIM_TYPE_BOTH ) );
+    assertEquals( "trim me hard ", Const.trimToType( source, IValueMeta.TRIM_TYPE_LEFT ) );
+    assertEquals( " trim me hard", Const.trimToType( source, IValueMeta.TRIM_TYPE_RIGHT ) );
+    assertEquals( source, Const.trimToType( source, IValueMeta.TRIM_TYPE_NONE ) );
   }
 
   @Test

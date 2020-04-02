@@ -26,12 +26,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ObjectUsageCount;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GUIOption;
-import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.core.gui.IGUIOption;
+import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.LifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.laf.BasePropertyHandler;
@@ -103,7 +103,7 @@ public class PropsUI extends Props {
 
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
 
-  private static List<GUIOption<Object>> editables;
+  private static List<IGUIOption<Object>> editables;
 
   /**
    * Initialize the properties: load from disk.
@@ -199,22 +199,22 @@ public class PropsUI extends Props {
     resetRecentSearches();
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = registry.getPlugins( LifecyclePluginType.class );
-    List<GUIOption<Object>> leditables = new ArrayList<GUIOption<Object>>();
-    for ( PluginInterface plugin : plugins ) {
-      if ( !plugin.getClassMap().keySet().contains( GUIOption.class ) ) {
+    List<IPlugin> plugins = registry.getPlugins( LifecyclePluginType.class );
+    List<IGUIOption<Object>> leditables = new ArrayList<IGUIOption<Object>>();
+    for ( IPlugin plugin : plugins ) {
+      if ( !plugin.getClassMap().keySet().contains( IGUIOption.class ) ) {
         continue;
       }
 
       try {
-        GUIOption<Object> loaded = registry.loadClass( plugin, GUIOption.class );
+        IGUIOption<Object> loaded = registry.loadClass( plugin, IGUIOption.class );
         if ( loaded != null ) {
           leditables.add( loaded );
         }
       } catch ( ClassCastException cce ) {
-        // Not all Lifecycle plugins implement GUIOption, keep calm and carry on
+        // Not all Lifecycle plugins implement IGUIOption, keep calm and carry on
         LogChannel.GENERAL.logDebug( "Plugin " + plugin.getIds()[ 0 ]
-          + " does not implement GUIOption, it will not be editable" );
+          + " does not implement IGUIOption, it will not be editable" );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Unexpected error loading class for plugin " + plugin.getName(), e );
       }
@@ -940,7 +940,7 @@ public class PropsUI extends Props {
     properties.setProperty( SHOW_TOOL_TIPS, show ? YES : NO );
   }
 
-  public List<GUIOption<Object>> getRegisteredEditableComponents() {
+  public List<IGUIOption<Object>> getRegisteredEditableComponents() {
     return editables;
   }
 
@@ -983,7 +983,7 @@ public class PropsUI extends Props {
     return "Y".equalsIgnoreCase( properties.getProperty( LEGACY_PERSPECTIVE_MODE, "N" ) );
   }
 
-  public static void setLocation( GUIPositionInterface guiElement, int x, int y ) {
+  public static void setLocation( IGUIPosition guiElement, int x, int y ) {
     if ( x < 0 ) {
       x = 0;
     }

@@ -26,14 +26,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
 public class JobEntryEvalTableContentTest {
   private static final Map<Class<?>, String> dbMap = new HashMap<Class<?>, String>();
   JobEntryEvalTableContent entry;
-  private static PluginInterface mockDbPlugin;
+  private static IPlugin mockDbPlugin;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -76,7 +76,7 @@ public class JobEntryEvalTableContentTest {
     }
 
     @Override
-    public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
+    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
                                       boolean add_fieldname, boolean add_cr ) {
       // TODO Auto-generated method stub
       return null;
@@ -93,14 +93,14 @@ public class JobEntryEvalTableContentTest {
     }
 
     @Override
-    public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+    public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                          String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
+    public String getModifyColumnStatement( String tablename, IValueMeta v, String tk,
                                             boolean use_autoinc, String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
@@ -119,17 +119,17 @@ public class JobEntryEvalTableContentTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
-    dbMap.put( DatabaseInterface.class, DBMockIface.class.getName() );
+    dbMap.put( IDatabase.class, DBMockIface.class.getName() );
 
     PluginRegistry preg = PluginRegistry.getInstance();
 
-    mockDbPlugin = mock( PluginInterface.class );
+    mockDbPlugin = mock( IPlugin.class );
     when( mockDbPlugin.matches( anyString() ) ).thenReturn( true );
     when( mockDbPlugin.isNativePlugin() ).thenReturn( true );
-    when( mockDbPlugin.getMainType() ).thenAnswer( (Answer<Class<?>>) invocation -> DatabaseInterface.class );
+    when( mockDbPlugin.getMainType() ).thenAnswer( (Answer<Class<?>>) invocation -> IDatabase.class );
 
     when( mockDbPlugin.getPluginType() ).thenAnswer(
-      (Answer<Class<? extends PluginTypeInterface>>) invocation -> DatabasePluginType.class );
+      (Answer<Class<? extends IPluginType>>) invocation -> DatabasePluginType.class );
 
     when( mockDbPlugin.getIds() ).thenReturn( new String[] { "Oracle", "mock-db-id" } );
     when( mockDbPlugin.getName() ).thenReturn( "mock-db-name" );

@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -60,7 +60,7 @@ public class MappingInputMetaCloningTest {
   public void clonesCorrectly() throws Exception {
     MappingInputMeta meta = new MappingInputMeta();
     meta.setFieldName( new String[] { "f1", "f2" } );
-    meta.setFieldType( new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_STRING } );
+    meta.setFieldType( new int[] { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING } );
     meta.setFieldLength( new int[] { 1, 2 } );
     meta.setFieldPrecision( new int[] { 3, 4 } );
     meta.setChanged();

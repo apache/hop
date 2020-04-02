@@ -25,8 +25,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-public class MissingPipelineDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class MissingPipelineDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = MissingPipelineDialog.class;
 
@@ -59,7 +59,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements Transf
   public static final int MISSING_PIPELINE_TRANSFORMS = 1;
   public static final int MISSING_PIPELINE_TRANSFORM_ID = 2;
 
-  public MissingPipelineDialog( Shell parent, List<Missing> missingPipeline, TransformMetaInterface baseTransformMeta,
+  public MissingPipelineDialog( Shell parent, List<Missing> missingPipeline, ITransformMeta baseTransformMeta,
                                 PipelineMeta pipelineMeta, String transformName ) {
     super( parent, baseTransformMeta, pipelineMeta, transformName );
     this.shellParent = parent;

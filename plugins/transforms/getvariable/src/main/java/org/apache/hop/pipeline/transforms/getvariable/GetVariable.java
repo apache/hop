@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.getvariable;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.List;
 
@@ -42,16 +42,16 @@ import java.util.List;
  * @author Matt
  * @since 4-aug-2003
  */
-public class GetVariable extends BaseTransform implements TransformInterface {
+public class GetVariable extends BaseTransform implements ITransform {
   private GetVariableMeta meta;
   private GetVariableData data;
 
-  public GetVariable( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public GetVariable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     Object[] rowData;
 
     if ( data.readsRows ) {
@@ -81,7 +81,7 @@ public class GetVariable extends BaseTransform implements TransformInterface {
 
       // Create a copy of the output row metadata to do the data conversion...
       //
-      data.conversionMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.conversionMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
       // Add the variables to the row...
       //
@@ -98,8 +98,8 @@ public class GetVariable extends BaseTransform implements TransformInterface {
 
         // Convert the data to the desired data type...
         //
-        ValueMetaInterface targetMeta = data.outputRowMeta.getValueMeta( data.inputRowMeta.size() + i );
-        ValueMetaInterface sourceMeta = data.conversionMeta.getValueMeta( data.inputRowMeta.size() + i ); // String type
+        IValueMeta targetMeta = data.outputRowMeta.getValueMeta( data.inputRowMeta.size() + i );
+        IValueMeta sourceMeta = data.conversionMeta.getValueMeta( data.inputRowMeta.size() + i ); // String type
         // +
         // conversion
         // masks,
@@ -123,7 +123,7 @@ public class GetVariable extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (GetVariableMeta) smi;
     data = (GetVariableData) sdi;
 
@@ -140,7 +140,7 @@ public class GetVariable extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     super.dispose( smi, sdi );
   }
 

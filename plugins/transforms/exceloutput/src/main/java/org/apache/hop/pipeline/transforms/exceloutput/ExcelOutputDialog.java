@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.exceloutput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -41,7 +41,7 @@ import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -58,7 +58,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.*;
 
-public class ExcelOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ExcelOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -1481,7 +1481,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements TransformD
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1918,11 +1918,11 @@ public class ExcelOutputDialog extends BaseTransformDialog implements TransformD
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
           @Override
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             if ( v.isNumber() ) {
               if ( v.getLength() > 0 ) {
                 int le = v.getLength();
@@ -1970,16 +1970,16 @@ public class ExcelOutputDialog extends BaseTransformDialog implements TransformD
 
       int type = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
       switch ( type ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           item.setText( 3, "" );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           item.setText( 3, "0" );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           item.setText( 3, "0.#####" );
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           break;
         default:
           break;

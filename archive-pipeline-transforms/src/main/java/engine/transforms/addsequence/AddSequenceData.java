@@ -24,18 +24,18 @@ package org.apache.hop.pipeline.transforms.addsequence;
 
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class AddSequenceData extends BaseTransformData implements TransformDataInterface {
+public class AddSequenceData extends BaseTransformData implements ITransformData {
   private Database db;
   private String lookup;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public Counter counter;
 
   // The runtime values, in which the environment variables are already resolved

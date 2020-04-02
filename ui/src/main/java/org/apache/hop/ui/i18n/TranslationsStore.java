@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class TranslationsStore {
   private Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences;
   private final BundlesStore bundleStore;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   /**
    *  @param log
@@ -50,7 +50,7 @@ public class TranslationsStore {
    * @param sourcePackageOccurrences
    * @param bundlesStore
    */
-  public TranslationsStore( LogChannelInterface log, List<String> localeList, String mainLocale,
+  public TranslationsStore( ILogChannel log, List<String> localeList, String mainLocale,
                             Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences, BundlesStore bundlesStore ) {
     super();
     this.log = log;
@@ -155,14 +155,14 @@ public class TranslationsStore {
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 }

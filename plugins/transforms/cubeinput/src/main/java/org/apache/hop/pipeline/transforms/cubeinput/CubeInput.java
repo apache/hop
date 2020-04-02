@@ -33,29 +33,29 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.zip.GZIPInputStream;
 
-public class CubeInput extends BaseTransform implements TransformInterface {
+public class CubeInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CubeInputMeta meta;
   private CubeInputData data;
   private int realRowLimit;
 
-  public CubeInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public CubeInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  @Override public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  @Override public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
 
     if ( first ) {
       first = false;
@@ -90,7 +90,7 @@ public class CubeInput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  @Override public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  @Override public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (CubeInputMeta) smi;
     data = (CubeInputData) sdi;
 
@@ -126,7 +126,7 @@ public class CubeInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  @Override public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  @Override public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (CubeInputMeta) smi;
     data = (CubeInputData) sdi;
 

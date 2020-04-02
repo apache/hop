@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.calculator;
 import junit.framework.Assert;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -88,7 +88,7 @@ public class CalculatorUnitTest {
     smh =
       new TransformMockHelper<CalculatorMeta, CalculatorData>( "Calculator", CalculatorMeta.class,
         CalculatorData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -106,10 +106,10 @@ public class CalculatorUnitTest {
 
     String filepath = "missingFile";
     Object[] rows = new Object[] { filepath };
-    RowSet inputRowSet = smh.getMockInputRowSet( rows );
+    IRowSet inputRowSet = smh.getMockInputRowSet( rows );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = spy( new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline ) );
+    Calculator calculator = spy( new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -117,7 +117,7 @@ public class CalculatorUnitTest {
     CalculatorMeta meta = new CalculatorMeta();
     CalculatorMetaFunction[] calculations = new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "result", CalculatorMetaFunction.CALC_MD5, "Path", null, null,
-        ValueMetaInterface.TYPE_STRING, 0, 0, false, "", "", "", "" ) };
+        IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) };
     meta.setCalculation( calculations );
     meta.setFailIfNoFile( true );
 
@@ -139,7 +139,7 @@ public class CalculatorUnitTest {
     ValueMetaInteger secondsMeta = new ValueMetaInteger( "Seconds" );
     inputRowMeta.addValueMeta( secondsMeta );
 
-    RowSet inputRowSet = null;
+    IRowSet inputRowSet = null;
     try {
       inputRowSet = smh.getMockInputRowSet( new Object[][] {
         { new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ).parse( "2014-01-01 00:00:00" ), new Long( 10 ) },
@@ -150,7 +150,7 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -158,12 +158,12 @@ public class CalculatorUnitTest {
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "new_day", CalculatorMetaFunction.CALC_ADD_SECONDS, "Day", "Seconds", null,
-        ValueMetaInterface.TYPE_DATE, 0, 0, false, "", "", "", "" ) } );
+        IValueMeta.TYPE_DATE, 0, 0, false, "", "", "", "" ) } );
 
     //Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
-        @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
           try {
             assertEquals( new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ).parse( "2014-01-01 00:00:10" ), row[ 2 ] );
           } catch ( ParseException pe ) {
@@ -186,10 +186,10 @@ public class CalculatorUnitTest {
     ValueMetaString valueMeta = new ValueMetaString( "Value" );
     inputRowMeta.addValueMeta( valueMeta );
 
-    RowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name1", "qwe123asd456zxc" }, { "name2", null } } );
+    IRowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name1", "qwe123asd456zxc" }, { "name2", null } } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -197,12 +197,12 @@ public class CalculatorUnitTest {
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "digits", CalculatorMetaFunction.CALC_GET_ONLY_DIGITS, "Value", null, null,
-        ValueMetaInterface.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
+        IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
 
     // Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
-        @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
           assertEquals( "123456", row[ 2 ] );
         }
       } );
@@ -219,10 +219,10 @@ public class CalculatorUnitTest {
     ValueMetaInteger valueMeta = new ValueMetaInteger( "Value" );
     inputRowMeta.addValueMeta( valueMeta );
 
-    RowSet inputRowSet = smh.getMockInputRowSet( new Object[] { -1L } );
+    IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { -1L } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -230,7 +230,7 @@ public class CalculatorUnitTest {
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "test", CalculatorMetaFunction.CALC_ABS, "Value", null, null,
-        ValueMetaInterface.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
+        IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
 
     CalculatorData data = new CalculatorData();
     data = spy( data );
@@ -578,15 +578,15 @@ public class CalculatorUnitTest {
     final List<Object> inputValues = new ArrayList<Object>( 3 );
 
     final String fieldValue = "Value";
-    final ValueMetaInterface valueMeta;
+    final IValueMeta valueMeta;
     switch ( valueDataType ) {
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         valueMeta = new ValueMetaBigNumber( fieldValue );
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         valueMeta = new ValueMetaNumber( fieldValue );
         break;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         valueMeta = new ValueMetaInteger( fieldValue );
         break;
       default:
@@ -620,7 +620,7 @@ public class CalculatorUnitTest {
       inputValues.add( roundingMode );
     }
 
-    RowSet inputRowSet = smh.getMockInputRowSet( inputValues.toArray() );
+    IRowSet inputRowSet = smh.getMockInputRowSet( inputValues.toArray() );
     inputRowSet.setRowMeta( inputRowMeta );
     final String fieldA = inputRowMeta.size() > 0 ? inputRowMeta.getValueMetaList().get( 0 ).getName() : null;
     final String fieldB = inputRowMeta.size() > 1 ? inputRowMeta.getValueMetaList().get( 1 ).getName() : null;
@@ -631,7 +631,7 @@ public class CalculatorUnitTest {
     final String fieldResult = "test";
     final int expectedResultRowSize = inputRowMeta.size() + 1;
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -644,7 +644,7 @@ public class CalculatorUnitTest {
     try {
       calculator.addRowListener( new RowAdapter() {
         @Override
-        public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+        public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
           assertEquals( msg + " resultRowSize", expectedResultRowSize, rowMeta.size() );
           final int fieldResultIndex = rowMeta.size() - 1;
           assertEquals( msg + " fieldResult", fieldResult, rowMeta.getValueMeta( fieldResultIndex ).getName() );
@@ -675,36 +675,36 @@ public class CalculatorUnitTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final double resultValue = expectedResult.doubleValue();
-      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-        ValueMetaInterface.TYPE_NUMBER );
+      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, IValueMeta.TYPE_NUMBER,
+        IValueMeta.TYPE_NUMBER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_NUMBER );
+        precision, roundingMode, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER );
       if ( isInt( value ) ) {
-        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-          ValueMetaInterface.TYPE_NUMBER );
+        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, IValueMeta.TYPE_INTEGER,
+          IValueMeta.TYPE_NUMBER );
       }
     }
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final BigDecimal resultValue = BigDecimal.valueOf( expectedResult.doubleValue() );
-      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-        ValueMetaInterface.TYPE_BIGNUMBER );
+      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, IValueMeta.TYPE_NUMBER,
+        IValueMeta.TYPE_BIGNUMBER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_BIGNUMBER );
+        precision, roundingMode, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_BIGNUMBER );
       if ( isInt( value ) ) {
-        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-          ValueMetaInterface.TYPE_BIGNUMBER );
+        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, IValueMeta.TYPE_INTEGER,
+          IValueMeta.TYPE_BIGNUMBER );
       }
     }
     if ( isInt( expectedResult ) ) {
       final Long resultValue = expectedResult.longValue();
-      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-        ValueMetaInterface.TYPE_INTEGER );
+      assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, IValueMeta.TYPE_NUMBER,
+        IValueMeta.TYPE_INTEGER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_INTEGER );
+        precision, roundingMode, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_INTEGER );
       if ( isInt( value ) ) {
-        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-          ValueMetaInterface.TYPE_INTEGER );
+        assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, IValueMeta.TYPE_INTEGER,
+          IValueMeta.TYPE_INTEGER );
       }
     }
   }
@@ -767,13 +767,13 @@ public class CalculatorUnitTest {
   private String getHopTypeName( int kettleNumberDataType ) {
     final String kettleNumberDataTypeName;
     switch ( kettleNumberDataType ) {
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         kettleNumberDataTypeName = "BigNumber(" + kettleNumberDataType + ")";
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         kettleNumberDataTypeName = "Number(" + kettleNumberDataType + ")";
         break;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         kettleNumberDataTypeName = "Integer(" + kettleNumberDataType + ")";
         break;
       default:
@@ -799,26 +799,26 @@ public class CalculatorUnitTest {
   @Test
   public void calculatorReminder() throws Exception {
     assertCalculatorReminder( new Double( "0.10000000000000053" ), new Object[] { new Long( "10" ), new Double( "3.3" ) },
-      new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
+      new int[] { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER } );
     assertCalculatorReminder( new Double( "1.0" ), new Object[] { new Long( "10" ), new Double( "4.5" ) },
-      new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
+      new int[] { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER } );
     assertCalculatorReminder( new Double( "4.0" ), new Object[] { new Double( "12.5" ), new Double( "4.25" ) },
-      new int[] { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
+      new int[] { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NUMBER } );
     assertCalculatorReminder( new Double( "2.6000000000000005" ), new Object[] { new Double( "12.5" ), new Double( "3.3" ) },
-      new int[] { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
+      new int[] { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NUMBER } );
   }
 
   private void assertCalculatorReminder( final Object expectedResult, final Object[] values, final int[] types ) throws Exception {
     RowMeta inputRowMeta = new RowMeta();
     for ( int i = 0; i < types.length; i++ ) {
       switch ( types[ i ] ) {
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           inputRowMeta.addValueMeta( new ValueMetaBigNumber( "f" + i ) );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           inputRowMeta.addValueMeta( new ValueMetaNumber( "f" + i ) );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           inputRowMeta.addValueMeta( new ValueMetaInteger( "f" + i ) );
           break;
         default:
@@ -827,7 +827,7 @@ public class CalculatorUnitTest {
       }
     }
 
-    RowSet inputRowSet = null;
+    IRowSet inputRowSet = null;
     try {
       inputRowSet = smh.getMockInputRowSet( new Object[][] {
         { values[ 0 ], values[ 1 ] } } );
@@ -837,7 +837,7 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
     calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
@@ -845,12 +845,12 @@ public class CalculatorUnitTest {
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "res", CalculatorMetaFunction.CALC_REMAINDER, "f0", "f1", null,
-        ValueMetaInterface.TYPE_NUMBER, 0, 0, false, "", "", "", "" ) } );
+        IValueMeta.TYPE_NUMBER, 0, 0, false, "", "", "", "" ) } );
 
     //Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
-        @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
           try {
             assertEquals( expectedResult, row[ 2 ] );
           } catch ( Exception pe ) {

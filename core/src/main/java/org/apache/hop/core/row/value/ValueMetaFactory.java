@@ -23,9 +23,9 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -45,31 +45,31 @@ public class ValueMetaFactory {
 	
   public static PluginRegistry pluginRegistry = PluginRegistry.getInstance();
 
-  public static ValueMetaInterface createValueMeta( String name, int type, int length, int precision ) throws HopPluginException {
-    PluginInterface stringPlugin = pluginRegistry.getPlugin( ValueMetaPluginType.class, String.valueOf( type ) );
+  public static IValueMeta createValueMeta( String name, int type, int length, int precision ) throws HopPluginException {
+    IPlugin stringPlugin = pluginRegistry.getPlugin( ValueMetaPluginType.class, String.valueOf( type ) );
     if ( stringPlugin == null ) {
       throw new HopPluginException( "Unable to locate value meta plugin of type (id) " + type );
     }
-    ValueMetaInterface valueMeta = pluginRegistry.loadClass( stringPlugin, ValueMetaInterface.class );
+    IValueMeta valueMeta = pluginRegistry.loadClass( stringPlugin, IValueMeta.class );
     valueMeta.setName( name );
     valueMeta.setLength( length, precision );
     return valueMeta;
   }
 
-  public static ValueMetaInterface createValueMeta( String name, int type ) throws HopPluginException {
+  public static IValueMeta createValueMeta( String name, int type ) throws HopPluginException {
     return createValueMeta( name, type, -1, -1 );
   }
 
-  public static ValueMetaInterface createValueMeta( int type ) throws HopPluginException {
+  public static IValueMeta createValueMeta( int type ) throws HopPluginException {
     return createValueMeta( null, type, -1, -1 );
   }
 
-  public static ValueMetaInterface cloneValueMeta( ValueMetaInterface source ) throws HopPluginException {
+  public static IValueMeta cloneValueMeta( IValueMeta source ) throws HopPluginException {
     return cloneValueMeta( source, source.getType() );
   }
 
-  public static ValueMetaInterface cloneValueMeta( ValueMetaInterface source, int targetType ) throws HopPluginException {
-    ValueMetaInterface target = null;
+  public static IValueMeta cloneValueMeta( IValueMeta source, int targetType ) throws HopPluginException {
+    IValueMeta target = null;
 
     // If we're Cloneable and not changing types, call clone()
     if ( source.getType() == targetType ) {
@@ -83,7 +83,7 @@ public class ValueMetaFactory {
     return target;
   }
 
-  public static void cloneInfo( ValueMetaInterface source, ValueMetaInterface target ) throws HopPluginException {
+  public static void cloneInfo( IValueMeta source, IValueMeta target ) throws HopPluginException {
     target.setConversionMask( source.getConversionMask() );
     target.setDecimalSymbol( source.getDecimalSymbol() );
     target.setGroupingSymbol( source.getGroupingSymbol() );
@@ -118,10 +118,10 @@ public class ValueMetaFactory {
 
   public static String[] getValueMetaNames() {
     List<String> strings = new ArrayList<>();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
+    for ( IPlugin plugin : plugins ) {
       int id = Integer.valueOf( plugin.getIds()[ 0 ] );
-      if ( id > 0 && id != ValueMetaInterface.TYPE_SERIALIZABLE ) {
+      if ( id > 0 && id != IValueMeta.TYPE_SERIALIZABLE ) {
         strings.add( plugin.getName() );
       }
     }
@@ -130,8 +130,8 @@ public class ValueMetaFactory {
 
   public static String[] getAllValueMetaNames() {
     List<String> strings = new ArrayList<>();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
+    for ( IPlugin plugin : plugins ) {
       String id = plugin.getIds()[ 0 ];
       if ( !( "0".equals( id ) ) ) {
         strings.add( plugin.getName() );
@@ -141,7 +141,7 @@ public class ValueMetaFactory {
   }
 
   public static String getValueMetaName( int type ) {
-    for ( PluginInterface plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
+    for ( IPlugin plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
       if ( Integer.toString( type ).equals( plugin.getIds()[ 0 ] ) ) {
         return plugin.getName();
       }
@@ -150,22 +150,22 @@ public class ValueMetaFactory {
   }
 
   public static int getIdForValueMeta( String valueMetaName ) {
-    for ( PluginInterface plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
+    for ( IPlugin plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
       if ( valueMetaName != null && valueMetaName.equalsIgnoreCase( plugin.getName() ) ) {
         return Integer.valueOf( plugin.getIds()[ 0 ] );
       }
     }
-    return ValueMetaInterface.TYPE_NONE;
+    return IValueMeta.TYPE_NONE;
   }
 
-  public static List<ValueMetaInterface> getValueMetaPluginClasses() throws HopPluginException {
+  public static List<IValueMeta> getValueMetaPluginClasses() throws HopPluginException {
 
-    List<ValueMetaInterface> list = new ArrayList<>();
+    List<IValueMeta> list = new ArrayList<>();
 
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
-    for ( PluginInterface plugin : plugins ) {
-      ValueMetaInterface valueMetaInterface = (ValueMetaInterface) pluginRegistry.loadClass( plugin );
-      list.add( valueMetaInterface );
+    List<IPlugin> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
+    for ( IPlugin plugin : plugins ) {
+      IValueMeta iValueMeta = (IValueMeta) pluginRegistry.loadClass( plugin );
+      list.add( iValueMeta );
     }
 
     return list;
@@ -179,8 +179,8 @@ public class ValueMetaFactory {
    * <p>As an example - we have target value meta Number (which is java Double under the hood)
    * and value as a BigDecimal.<br />
    * This BigDecimal can be converted to a Double value.<br />
-   * we have {@link ValueMetaInterface#convertData(ValueMetaInterface, Object)} call for this
-   * where is ValueMetaInterface object is our target value meta, Object is a BigDecimal - so
+   * we have {@link IValueMeta#convertData(IValueMeta, Object)} call for this
+   * where is IValueMeta object is our target value meta, Object is a BigDecimal - so
    * we need to pass ValueMetaBigNumber as a first parameter, value Object as a second and
    * as the result we will have target Double (ValueMetaNumber) value so we can safely
    * put it into output rowset.</p>
@@ -191,11 +191,11 @@ public class ValueMetaFactory {
    * <p>Currently this method does not have support for plugin value meta. Hope if this approach
    * will be found usable this may be implemented later.</p>
    *
-   * @param object object to guess applicable ValueMetaInterface.
+   * @param object object to guess applicable IValueMeta.
    * @return
-   * @see ValueMetaInterface if the kettle value meta is recognized, null otherwise.
+   * @see IValueMeta if the kettle value meta is recognized, null otherwise.
    */
-  public static ValueMetaInterface guessValueMetaInterface( Object object ) {
+  public static IValueMeta guessValueMetaInterface( Object object ) {
     if ( object instanceof Number ) {
       // this is numeric object
       if ( object instanceof BigDecimal ) {

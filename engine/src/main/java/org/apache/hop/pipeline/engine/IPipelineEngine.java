@@ -2,9 +2,9 @@ package org.apache.hop.pipeline.engine;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 
@@ -186,7 +186,7 @@ public interface IPipelineEngine<T> {
    *
    * @return the log channel
    */
-  LogChannelInterface getLogChannel();
+  ILogChannel getLogChannel();
 
   /**
    * The log channel ID if there is any
@@ -199,7 +199,7 @@ public interface IPipelineEngine<T> {
    *
    * @param parent the new parent
    */
-  void setParent( LoggingObjectInterface parent );
+  void setParent( ILoggingObject parent );
 
   /**
    * Get the result of the execution after it's done, a resume

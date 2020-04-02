@@ -28,9 +28,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -40,8 +40,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
@@ -58,7 +58,7 @@ import java.util.TreeSet;
  * @author Matt
  * @since 2-jun-2003
  */
-public class MemoryGroupBy extends BaseTransform implements TransformInterface {
+public class MemoryGroupBy extends BaseTransform implements ITransform {
   private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   private MemoryGroupByMeta meta;
@@ -69,16 +69,16 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
   private boolean minNullIsValued = false;
   private boolean compatibilityMode = false;
 
-  public MemoryGroupBy( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MemoryGroupBy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (MemoryGroupByMeta) getTransformMeta().getTransformMetaInterface();
-    data = (MemoryGroupByData) transformDataInterface;
+    data = (MemoryGroupByData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MemoryGroupByMeta) smi;
     data = (MemoryGroupByData) sdi;
 
@@ -264,9 +264,9 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
       Object subj = r[ data.subjectnrs[ i ] ];
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
+      IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object value = aggregate.agg[ i ];
-      ValueMetaInterface valueMeta = data.aggMeta.getValueMeta( i );
+      IValueMeta valueMeta = data.aggMeta.getValueMeta( i );
 
       switch ( meta.getAggregateType()[ i ] ) {
         case MemoryGroupByMeta.TYPE_GROUP_SUM:
@@ -417,9 +417,9 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
     }
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
+      IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object v = null;
-      ValueMetaInterface vMeta = null;
+      IValueMeta vMeta = null;
       switch ( meta.getAggregateType()[ i ] ) {
         case MemoryGroupByMeta.TYPE_GROUP_MEDIAN:
         case MemoryGroupByMeta.TYPE_GROUP_PERCENTILE:
@@ -474,16 +474,16 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
     }
   }
 
-  private void initGroupMeta( RowMetaInterface previousRowMeta ) throws HopValueException {
+  private void initGroupMeta( IRowMeta previousRowMeta ) throws HopValueException {
     data.groupMeta = new RowMeta();
     data.entryMeta = new RowMeta();
 
     for ( int i = 0; i < data.groupnrs.length; i++ ) {
-      ValueMetaInterface valueMeta = previousRowMeta.getValueMeta( data.groupnrs[ i ] );
+      IValueMeta valueMeta = previousRowMeta.getValueMeta( data.groupnrs[ i ] );
       data.groupMeta.addValueMeta( valueMeta );
 
-      ValueMetaInterface normalMeta = valueMeta.clone();
-      normalMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      IValueMeta normalMeta = valueMeta.clone();
+      normalMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     }
 
     return;
@@ -547,7 +547,7 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
         }
         if ( ag == null && allNullsAreZero ) {
           // PDI-11530 seems all rows for min function was nulls...
-          ValueMetaInterface vm = data.aggMeta.getValueMeta( i );
+          IValueMeta vm = data.aggMeta.getValueMeta( i );
           ag = ValueDataUtil.getZeroForValueMetaType( vm );
         }
         result[ i ] = ag;
@@ -559,7 +559,7 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MemoryGroupByMeta) smi;
     data = (MemoryGroupByData) sdi;
 
@@ -571,7 +571,7 @@ public class MemoryGroupBy extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     super.dispose( smi, sdi );
     ( (MemoryGroupByData) sdi ).clear();
   }

@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 
-public class RemoveJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class RemoveJobServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static Class<?> PKG = RemoveJobServlet.class; // for i18n purposes, needed by Translator!!
   private static final long serialVersionUID = -2051906998698124039L;

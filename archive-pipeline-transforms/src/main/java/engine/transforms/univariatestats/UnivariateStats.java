@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.univariatestats;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -50,7 +50,7 @@ import java.util.Arrays;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class UnivariateStats extends BaseTransform implements TransformInterface {
+public class UnivariateStats extends BaseTransform implements ITransform {
 
   private UnivariateStatsMeta m_meta;
   private UnivariateStatsData m_data;
@@ -64,26 +64,26 @@ public class UnivariateStats extends BaseTransform implements TransformInterface
    * Creates a new <code>UnivariateStats</code> instance.
    *
    * @param transformMeta          holds the transform's meta data
-   * @param transformDataInterface holds the transform's temporary data
+   * @param iTransformData holds the transform's temporary data
    * @param copyNr            the number assigned to the transform
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
    */
-  public UnivariateStats( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public UnivariateStats( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Process an incoming row of data.
    *
    * @param smi a <code>TransformMetaInterface</code> value
-   * @param sdi a <code>TransformDataInterface</code> value
+   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
   @SuppressWarnings( { "unchecked" } )
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     m_meta = (UnivariateStatsMeta) smi;
     m_data = (UnivariateStatsData) sdi;
@@ -108,7 +108,7 @@ public class UnivariateStats extends BaseTransform implements TransformInterface
       first = false;
       // Don't want to clone and add to the input meta data - want
       // to create a new row meta data for derived calculations
-      RowMetaInterface outputMeta = new RowMeta();
+      IRowMeta outputMeta = new RowMeta();
 
       m_data.setInputRowMeta( getInputRowMeta() );
       m_data.setOutputRowMeta( outputMeta );
@@ -145,7 +145,7 @@ public class UnivariateStats extends BaseTransform implements TransformInterface
 
           tempData.m_columnIndex = fieldIndex;
 
-          ValueMetaInterface inputFieldMeta = m_data.getInputRowMeta().getValueMeta( fieldIndex );
+          IValueMeta inputFieldMeta = m_data.getInputRowMeta().getValueMeta( fieldIndex );
 
           // check the type of the input field
           if ( !inputFieldMeta.isNumeric() ) {
@@ -174,7 +174,7 @@ public class UnivariateStats extends BaseTransform implements TransformInterface
       if ( !Utils.isEmpty( usmf.getSourceFieldName() ) ) {
         FieldIndex tempData = m_data.getFieldIndexes()[ i ];
 
-        ValueMetaInterface metaI = getInputRowMeta().getValueMeta( tempData.m_columnIndex );
+        IValueMeta metaI = getInputRowMeta().getValueMeta( tempData.m_columnIndex );
 
         Number input = null;
         try {
@@ -254,10 +254,10 @@ public class UnivariateStats extends BaseTransform implements TransformInterface
    * Initialize the transform.
    *
    * @param smi a <code>TransformMetaInterface</code> value
-   * @param sdi a <code>TransformDataInterface</code> value
+   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     m_meta = (UnivariateStatsMeta) smi;
     m_data = (UnivariateStatsData) sdi;
 

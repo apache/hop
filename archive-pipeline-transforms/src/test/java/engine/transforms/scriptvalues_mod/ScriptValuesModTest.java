@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.scriptvalues_mod;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -66,7 +66,7 @@ public class ScriptValuesModTest {
     meta.setCompatible( false );
     meta.allocate( 2 );
     meta.setFieldname( new String[] { "value_int", "value_double" } );
-    meta.setType( new int[] { ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_BIGNUMBER } );
+    meta.setType( new int[] { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_BIGNUMBER } );
     meta.setReplace( new boolean[] { true, true } );
 
     meta.setJSScripts( new ScriptValuesScript[] {
@@ -97,7 +97,7 @@ public class ScriptValuesModTest {
     meta.setCompatible( false );
     meta.allocate( 1 );
     meta.setFieldname( new String[] { "str" } );
-    meta.setType( new int[] { ValueMetaInterface.TYPE_STRING } );
+    meta.setType( new int[] { IValueMeta.TYPE_STRING } );
     meta.setReplace( new boolean[] { true } );
 
     meta.setJSScripts( new ScriptValuesScript[] {

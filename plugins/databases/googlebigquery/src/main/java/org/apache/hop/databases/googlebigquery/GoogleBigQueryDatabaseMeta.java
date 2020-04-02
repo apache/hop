@@ -23,11 +23,11 @@ package org.apache.hop.databases.googlebigquery;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -36,7 +36,7 @@ import org.apache.hop.i18n.BaseMessages;
   typeDescription = "Google BigQuery"
 )
 @GuiPlugin( id = "GUI-GoogleBigQueryDatabaseMeta" )
-public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
 
@@ -58,7 +58,7 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
     return "https://cloud.google.com/bigquery/partners/simba-drivers/";
   }
 
-  @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                               boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -71,21 +71,21 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_TIMESTAMP:
         retval += "TIMESTAMP";
         break;
 
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         retval += "DATE";
         break;
 
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         retval += "BOOL";
         break;
 
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( precision == 0 ) {
           retval += "INT64";
         } else {
@@ -97,11 +97,11 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
         }
         break;
 
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         retval += "STRING";
         break;
 
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         retval += "BYTES";
         break;
 
@@ -118,7 +118,7 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
   }
 
   @Override public String getAddColumnStatement(
-    String tablename, ValueMetaInterface v, String tk,
+    String tablename, IValueMeta v, String tk,
     boolean useAutoinc, String pk, boolean semicolon ) {
     // BigQuery does not support DDL through JDBC.
     // https://cloud.google.com/bigquery/partners/simba-drivers/#do_the_drivers_provide_the_ability_to_manage_tables_create_table
@@ -126,7 +126,7 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
   }
 
   @Override public String getModifyColumnStatement(
-    String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+    String tablename, IValueMeta v, String tk, boolean useAutoinc,
     String pk, boolean semicolon ) {
     // BigQuery does not support DDL through JDBC.
     // https://cloud.google.com/bigquery/partners/simba-drivers/#do_the_drivers_provide_the_ability_to_manage_tables_create_table

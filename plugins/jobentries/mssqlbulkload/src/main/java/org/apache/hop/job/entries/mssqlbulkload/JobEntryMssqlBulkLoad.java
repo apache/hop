@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.mssqlbulkload;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -36,13 +36,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
@@ -72,7 +72,7 @@ import java.util.List;
 	  image = "MssqlBulkLoad.svg",
 	  categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.BulkLoading"
 )
-public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryMssqlBulkLoad.class; // for i18n purposes, needed by Translator!!
 
   private String schemaname;
@@ -329,7 +329,7 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
 
             if ( !"MSSQL".equals(db.getDatabaseMeta().getPluginId()) ) {
 
-           // if ( !( db.getDatabaseMeta().getDatabaseInterface() instanceof MSSQLServerDatabaseMeta ) ) {
+           // if ( !( db.getDatabaseMeta().getIDatabase() instanceof MSSQLServerDatabaseMeta ) ) {
             	
               logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.DbNotMSSQL", connection
                 .getDatabaseName() ) );
@@ -751,7 +751,7 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );

@@ -23,14 +23,14 @@
 package org.apache.hop.ui.job.entry;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * The JobEntryDialog class is responsible for constructing and opening the settings dialog for the job entry. Whenever
- * the user opens the job entry settings in HopGui, it will instantiate the dialog class passing in the JobEntryInterface
+ * the user opens the job entry settings in HopGui, it will instantiate the dialog class passing in the IJobEntry
  * object and call the
  *
  * <pre>
@@ -58,18 +58,18 @@ public class JobEntryDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static Class<?> PKG = TransformInterface.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The loggingObject for the dialog
    */
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Job entry dialog", LoggingObjectType.JOBENTRYDIALOG, null );
 
   /**
    * A reference to the job entry interface
    */
-  protected JobEntryInterface jobEntryInt;
+  protected IJobEntry jobEntryInt;
 
   /**
    * the MetaStore
@@ -108,7 +108,7 @@ public class JobEntryDialog extends Dialog {
    * @param jobEntry the job entry interface
    * @param jobMeta  the job metadata object
    */
-  public JobEntryDialog( Shell parent, JobEntryInterface jobEntry, JobMeta jobMeta ) {
+  public JobEntryDialog( Shell parent, IJobEntry jobEntry, JobMeta jobMeta ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
 

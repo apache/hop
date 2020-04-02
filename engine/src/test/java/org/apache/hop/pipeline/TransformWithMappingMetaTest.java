@@ -23,7 +23,7 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
@@ -69,7 +69,7 @@ public class TransformWithMappingMetaTest {
     Path parentFolder = Paths.get( getClass().getResource( "subpipeline-executor-sub.hpl)" ).toURI() ).getParent();
 
     //we have pipeline
-    VariableSpace variables = new Variables();
+    IVariables variables = new Variables();
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, parentFolder.toString() );
     PipelineMeta parentPipelineMeta = new PipelineMeta( variables );
 
@@ -90,7 +90,7 @@ public class TransformWithMappingMetaTest {
      * we need to remove "/" at the end of expected string because during load the pipeline from file
      * internal variables will be replaced by uri from kettle vfs
      * check the follow points
-     * {@link PipelineMeta#setInternalFilenameHopVariables(VariableSpace)}
+     * {@link PipelineMeta#setInternalFilenameHopVariables(IVariables)}
      *
      */
     Assert.assertEquals( expected.deleteCharAt( expected.length() - 1 ).toString(), pipelineMeta.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
@@ -106,7 +106,7 @@ public class TransformWithMappingMetaTest {
     String parentValue = "parentValue";
     String transformValue = "transformValue";
 
-    VariableSpace parent = new Variables();
+    IVariables parent = new Variables();
     parent.setVariable( paramOverwrite, parentValue );
 
     PipelineMeta childVariableSpace = new PipelineMeta();
@@ -132,7 +132,7 @@ public class TransformWithMappingMetaTest {
     String transformValue = "transformValue";
     String parentAndChildParameter = "parentAndChildParameter";
 
-    VariableSpace parent = new Variables();
+    IVariables parent = new Variables();
     parent.setVariable( paramOverwrite, parentValue );
     parent.setVariable( parentAndChildParameter, parentValue );
 
@@ -163,7 +163,7 @@ public class TransformWithMappingMetaTest {
     String transformValue = "transformValue";
     String parentAndChildParameter = "parentAndChildParameter";
 
-    VariableSpace parent = new Variables();
+    IVariables parent = new Variables();
     parent.setVariable( paramOverwrite, parentValue );
     parent.setVariable( parentAndChildParameter, parentValue );
 
@@ -211,8 +211,8 @@ public class TransformWithMappingMetaTest {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
     String[] jobVariables = Const.INTERNAL_JOB_VARIABLES;
-    VariableSpace ChildVariables = new Variables();
-    VariableSpace replaceByParentVariables = new Variables();
+    IVariables ChildVariables = new Variables();
+    IVariables replaceByParentVariables = new Variables();
 
     for ( String internalVariable : jobVariables ) {
       ChildVariables.setVariable( internalVariable, "childValue" );
@@ -239,8 +239,8 @@ public class TransformWithMappingMetaTest {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
     String[] jobVariables = Const.INTERNAL_PIPELINE_VARIABLES;
-    VariableSpace ChildVariables = new Variables();
-    VariableSpace replaceByParentVariables = new Variables();
+    IVariables ChildVariables = new Variables();
+    IVariables replaceByParentVariables = new Variables();
 
     for ( String internalVariable : jobVariables ) {
       ChildVariables.setVariable( internalVariable, "childValue" );

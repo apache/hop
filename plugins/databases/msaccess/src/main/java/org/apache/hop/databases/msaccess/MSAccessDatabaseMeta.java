@@ -25,14 +25,14 @@ package org.apache.hop.databases.msaccess;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.sql.ResultSet;
 
@@ -47,7 +47,7 @@ import java.sql.ResultSet;
   typeDescription = "MS Access"
 )
 @GuiPlugin( id = "GUI-MSAccessDatabaseMeta" )
-public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @GuiWidgetElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
   protected String hostname;
@@ -68,7 +68,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   }
 
   /**
-   * @see DatabaseInterface#getNotFoundTK(boolean)
+   * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override
   public int getNotFoundTK( boolean useAutoinc ) {
@@ -171,7 +171,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -188,7 +188,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
@@ -205,14 +205,14 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -226,20 +226,20 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "DATETIME";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BIT";
         } else {
           retval += "CHAR(1)";
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -264,7 +264,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length > 0 ) {
           if ( length < 256 ) {
             retval += "TEXT(" + length + ")";
@@ -275,7 +275,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
           retval += "TEXT";
         }
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         retval += " LONGBINARY";
         break;
       default:
@@ -293,7 +293,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getReservedWords()
+   * @see org.apache.hop.core.database.IDatabase#getReservedWords()
    */
   @Override
   public String[] getReservedWords() {

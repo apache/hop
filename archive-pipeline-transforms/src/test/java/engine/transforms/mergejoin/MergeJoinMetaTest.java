@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
@@ -132,33 +132,33 @@ public class MergeJoinMetaTest {
     TransformMeta transformMeta = new TransformMeta( "Merge", meta );
 
     meta.getFields( outputRowMeta, "Merge Join",
-      new RowMetaInterface[] { inputRow1, inputRow2 }, transformMeta, new Variables(), null );
+      new IRowMeta[] { inputRow1, inputRow2 }, transformMeta, new Variables(), null );
 
     assertNotNull( outputRowMeta );
     assertFalse( outputRowMeta.isEmpty() );
     assertEquals( 4, outputRowMeta.size() );
-    List<ValueMetaInterface> vmi = outputRowMeta.getValueMetaList();
+    List<IValueMeta> vmi = outputRowMeta.getValueMetaList();
     assertNotNull( vmi );
     // Proceed in order
-    ValueMetaInterface field1 = outputRowMeta.getValueMeta( 0 );
+    IValueMeta field1 = outputRowMeta.getValueMeta( 0 );
     assertNotNull( field1 );
     assertEquals( "field1", field1.getName() );
     assertTrue( field1 instanceof ValueMetaInteger );
     assertEquals( "inputTransform1", field1.getOrigin() );
 
-    ValueMetaInterface field2 = outputRowMeta.getValueMeta( 1 );
+    IValueMeta field2 = outputRowMeta.getValueMeta( 1 );
     assertNotNull( field2 );
     assertEquals( "field2", field2.getName() );
     assertTrue( field2 instanceof ValueMetaString );
     assertEquals( "inputTransform1", field2.getOrigin() );
 
-    ValueMetaInterface field1_1 = outputRowMeta.getValueMeta( 2 );
+    IValueMeta field1_1 = outputRowMeta.getValueMeta( 2 );
     assertNotNull( field1_1 );
     assertEquals( "field1_1", field1_1.getName() );
     assertTrue( field1_1 instanceof ValueMetaString );
     assertEquals( "Merge Join", field1_1.getOrigin() );
 
-    ValueMetaInterface field3 = outputRowMeta.getValueMeta( 3 );
+    IValueMeta field3 = outputRowMeta.getValueMeta( 3 );
     assertNotNull( field3 );
     assertEquals( "field3", field3.getName() );
     assertTrue( field3 instanceof ValueMetaString );

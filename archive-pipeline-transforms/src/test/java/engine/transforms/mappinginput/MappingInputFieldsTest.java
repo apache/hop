@@ -29,8 +29,8 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -69,15 +69,15 @@ public class MappingInputFieldsTest {
     PluginRegistry.getInstance().registerPluginType( ValueMetaPluginType.class );
 
     Map<Class<?>, String> classes = new HashMap<Class<?>, String>();
-    classes.put( ValueMetaInterface.class, "org.apache.hop.core.row.value.ValueMetaString" );
+    classes.put( IValueMeta.class, "org.apache.hop.core.row.value.ValueMetaString" );
     p1 =
-      new Plugin( new String[] { "2" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
+      new Plugin( new String[] { "2" }, ValueMetaPluginType.class, IValueMeta.class, "", "", "", "", false,
         true, classes, null, null, null );
 
     classes = new HashMap<Class<?>, String>();
-    classes.put( ValueMetaInterface.class, "org.apache.hop.core.row.value.ValueMetaInteger" );
+    classes.put( IValueMeta.class, "org.apache.hop.core.row.value.ValueMetaInteger" );
     p2 =
-      new Plugin( new String[] { "5" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
+      new Plugin( new String[] { "5" }, ValueMetaPluginType.class, IValueMeta.class, "", "", "", "", false,
         true, classes, null, null, null );
 
     PluginRegistry.getInstance().registerPlugin( ValueMetaPluginType.class, p1 );
@@ -98,7 +98,7 @@ public class MappingInputFieldsTest {
   public void setUp() throws Exception {
     meta = new MappingInputMeta();
     meta.setFieldName( new String[] { "n2", "n4" } );
-    meta.setFieldType( new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_INTEGER } );
+    meta.setFieldType( new int[] { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_INTEGER } );
     meta.setFieldLength( new int[] { 0, 0 } );
     meta.setFieldPrecision( new int[] { 0, 0 } );
 
@@ -157,32 +157,32 @@ public class MappingInputFieldsTest {
 
     Object[] outRowData = out.getRow();
 
-    RowMetaInterface outMeta = out.getRowMeta();
+    IRowMeta outMeta = out.getRowMeta();
 
     assertEquals( "All fields are expected.", 7, outMeta.size() );
 
     int i = 0;
 
     // Check if row-meta is formed according to the transform specification
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n2", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n4", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number1", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number3", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
@@ -205,25 +205,25 @@ public class MappingInputFieldsTest {
     i = 0;
 
     // Check if row-meta is formed according to the transform specification
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n2", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n4", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number1", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number3", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
@@ -279,32 +279,32 @@ public class MappingInputFieldsTest {
 
     Object[] outRowData = out.getRow();
 
-    RowMetaInterface outMeta = out.getRowMeta();
+    IRowMeta outMeta = out.getRowMeta();
 
     assertEquals( "All fields are expected.", 7, outMeta.size() );
 
     int i = 0;
 
     // Check if row-meta is formed according to the transform specification
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number1", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n2", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number3", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n4", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
@@ -327,25 +327,25 @@ public class MappingInputFieldsTest {
     i = 0;
 
     // Check if row-meta is formed according to the transform specification
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_STRING, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number1", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n2", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number3", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "n4", outMeta.getValueMeta( i++ ).getName() );
 
-    assertEquals( "the field type-meta mismatch.", ValueMetaInterface.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
+    assertEquals( "the field type-meta mismatch.", IValueMeta.TYPE_INTEGER, outMeta.getValueMeta( i ).getType() );
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta

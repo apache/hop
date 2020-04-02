@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-public class OverlayProperties extends Properties implements PropertyHandler {
+public class OverlayProperties extends Properties implements IPropertyHandler {
 
   private static final long serialVersionUID = 1L;
   private String name = null;

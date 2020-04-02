@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class RowGeneratorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlLimit;

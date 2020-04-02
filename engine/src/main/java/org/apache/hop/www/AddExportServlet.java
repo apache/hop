@@ -59,7 +59,7 @@ import java.util.UUID;
  *
  * @author matt
  */
-public class AddExportServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugin {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
 
@@ -256,11 +256,11 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
           // Apply the execution configuration...
           //
           log.setLogLevel( jobExecutionConfiguration.getLogLevel() );
-          jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
+          jobMeta.injectVariables( jobExecutionConfiguration.getVariablesMap() );
 
           // Also copy the parameters over...
           //
-          Map<String, String> params = jobExecutionConfiguration.getParams();
+          Map<String, String> params = jobExecutionConfiguration.getParametersMap();
           for ( String param : params.keySet() ) {
             String value = params.get( param );
             jobMeta.setParameterValue( param, value );

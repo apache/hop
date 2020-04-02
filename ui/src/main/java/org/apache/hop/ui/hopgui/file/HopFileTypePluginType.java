@@ -25,16 +25,16 @@ package org.apache.hop.ui.hopgui.file;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
 
 import java.lang.annotation.Annotation;
 
-@PluginMainClassType( HopFileTypeInterface.class )
+@PluginMainClassType( IHopFileType.class )
 @PluginAnnotationType( HopFileTypePlugin.class )
-public class HopFileTypePluginType extends BasePluginType implements PluginTypeInterface {
+public class HopFileTypePluginType extends BasePluginType implements IPluginType {
 
   private HopFileTypePluginType() {
     super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type Plugins" );

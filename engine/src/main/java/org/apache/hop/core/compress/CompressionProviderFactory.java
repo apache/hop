@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.compress;
 
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class CompressionProviderFactory implements CompressionProviderFactoryInterface {
+public class CompressionProviderFactory implements ICompressionProviderFactory {
 
   protected static CompressionProviderFactory INSTANCE = new CompressionProviderFactory();
 
@@ -41,16 +41,16 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
   }
 
   @Override
-  public CompressionProvider createCompressionProviderInstance( String name ) {
+  public ICompressionProvider createCompressionProviderInstance( String name ) {
 
-    CompressionProvider provider = null;
+    ICompressionProvider provider = null;
 
-    List<PluginInterface> providers = getPlugins();
+    List<IPlugin> providers = getPlugins();
     if ( providers != null ) {
-      for ( PluginInterface plugin : providers ) {
+      for ( IPlugin plugin : providers ) {
         if ( name != null && name.equalsIgnoreCase( plugin.getName() ) ) {
           try {
-            return PluginRegistry.getInstance().loadClass( plugin, CompressionProvider.class );
+            return PluginRegistry.getInstance().loadClass( plugin, ICompressionProvider.class );
           } catch ( Exception e ) {
             provider = null;
           }
@@ -62,14 +62,14 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
   }
 
   @Override
-  public Collection<CompressionProvider> getCompressionProviders() {
-    Collection<CompressionProvider> providerClasses = new ArrayList<CompressionProvider>();
+  public Collection<ICompressionProvider> getCompressionProviders() {
+    Collection<ICompressionProvider> providerClasses = new ArrayList<ICompressionProvider>();
 
-    List<PluginInterface> providers = getPlugins();
+    List<IPlugin> providers = getPlugins();
     if ( providers != null ) {
-      for ( PluginInterface plugin : providers ) {
+      for ( IPlugin plugin : providers ) {
         try {
-          providerClasses.add( PluginRegistry.getInstance().loadClass( plugin, CompressionProvider.class ) );
+          providerClasses.add( PluginRegistry.getInstance().loadClass( plugin, ICompressionProvider.class ) );
         } catch ( Exception e ) {
           // Do nothing here, if we can't load the provider, don't add it to the list
         }
@@ -82,11 +82,11 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
   public String[] getCompressionProviderNames() {
     ArrayList<String> providerNames = new ArrayList<>();
 
-    List<PluginInterface> providers = getPlugins();
+    List<IPlugin> providers = getPlugins();
     if ( providers != null ) {
-      for ( PluginInterface plugin : providers ) {
+      for ( IPlugin plugin : providers ) {
         try {
-          CompressionProvider provider = PluginRegistry.getInstance().loadClass( plugin, CompressionProvider.class );
+          ICompressionProvider provider = PluginRegistry.getInstance().loadClass( plugin, ICompressionProvider.class );
           if ( provider != null ) {
             providerNames.add( provider.getName() );
           }
@@ -99,16 +99,16 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
   }
 
   @Override
-  public CompressionProvider getCompressionProviderByName( String name ) {
+  public ICompressionProvider getCompressionProviderByName( String name ) {
     if ( name == null ) {
       return null;
     }
-    CompressionProvider foundProvider = null;
-    List<PluginInterface> providers = getPlugins();
+    ICompressionProvider foundProvider = null;
+    List<IPlugin> providers = getPlugins();
     if ( providers != null ) {
-      for ( PluginInterface plugin : providers ) {
+      for ( IPlugin plugin : providers ) {
         try {
-          CompressionProvider provider = PluginRegistry.getInstance().loadClass( plugin, CompressionProvider.class );
+          ICompressionProvider provider = PluginRegistry.getInstance().loadClass( plugin, ICompressionProvider.class );
           if ( provider != null && name.equals( provider.getName() ) ) {
             foundProvider = provider;
           }
@@ -120,7 +120,7 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
     return foundProvider;
   }
 
-  protected List<PluginInterface> getPlugins() {
+  protected List<IPlugin> getPlugins() {
     return PluginRegistry.getInstance().getPlugins( CompressionPluginType.class );
   }
 }

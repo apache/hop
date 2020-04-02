@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.getvariable.GetVariableMeta;
 import org.apache.hop.pipeline.transforms.getvariable.GetVariableMeta.FieldDefinition;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class GetVariableDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class GetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;

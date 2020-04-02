@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 21-06-2007
  */
-public class YamlInputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class YamlInputData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
 
   public int nrInputFields;
   public Object[] readrow;
@@ -53,7 +53,7 @@ public class YamlInputData extends BaseTransformData implements TransformDataInt
 
   public YamlReader yaml;
 
-  public RowMetaInterface rowMeta;
+  public IRowMeta rowMeta;
 
   public YamlInputData() {
     super();

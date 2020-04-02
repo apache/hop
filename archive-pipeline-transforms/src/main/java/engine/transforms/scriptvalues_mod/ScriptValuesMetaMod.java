@@ -39,19 +39,19 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.NullNumberConverter;
 import org.apache.hop.core.plugins.HopURLClassLoader;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
@@ -377,7 +377,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
     for ( int i = 0; i < nrFields; i++ ) {
       fieldname[ i ] = "newvalue";
       rename[ i ] = "newvalue";
-      type[ i ] = ValueMetaInterface.TYPE_NUMBER;
+      type[ i ] = IValueMeta.TYPE_NUMBER;
       length[ i ] = -1;
       precision[ i ] = -1;
       replace[ i ] = false;
@@ -387,13 +387,13 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
     optimizationLevel = OPTIMIZATION_LEVEL_DEFAULT;
   }
 
-  public void getFields( RowMetaInterface row, String originTransformName, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
       for ( int i = 0; i < fieldname.length; i++ ) {
         if ( !Utils.isEmpty( fieldname[ i ] ) ) {
           int valueIndex = -1;
-          ValueMetaInterface v;
+          IValueMeta v;
           if ( replace[ i ] ) {
             valueIndex = row.indexOfValue( fieldname[ i ] );
             if ( valueIndex < 0 ) {
@@ -418,7 +418,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
 
             // Change the data type to match what's specified...
             //
-            ValueMetaInterface source = row.getValueMeta( valueIndex );
+            IValueMeta source = row.getValueMeta( valueIndex );
             v = ValueMetaFactory.cloneValueMeta( source, type[ i ] );
             row.setValueMeta( valueIndex, v );
           } else {
@@ -477,7 +477,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     boolean error_found = false;
     String error_message = "";
@@ -586,7 +586,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
         Scriptable jsRowMeta = Context.toObject( prev, jsscope );
         jsscope.put( "rowMeta", jsscope, jsRowMeta );
         for ( int i = 0; i < prev.size(); i++ ) {
-          ValueMetaInterface valueMeta = prev.getValueMeta( i );
+          IValueMeta valueMeta = prev.getValueMeta( i );
           Object valueData = null;
 
           // Set date and string values to something to simulate real thing
@@ -783,7 +783,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
           String classname = result.getClass().getName();
 
           switch ( type[ i ] ) {
-            case ValueMetaInterface.TYPE_NUMBER:
+            case IValueMeta.TYPE_NUMBER:
               if ( classname.equalsIgnoreCase( "org.mozilla.javascript.Undefined" ) ) {
                 res.setNull();
               } else if ( classname.equalsIgnoreCase( "org.mozilla.javascript.NativeJavaObject" ) ) {
@@ -794,7 +794,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
                 res.setValue( ( (Double) result ).doubleValue() );
               }
               break;
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_INTEGER:
               if ( classname.equalsIgnoreCase( "java.lang.Byte" ) ) {
                 res.setValue( ( (java.lang.Byte) result ).longValue() );
               } else if ( classname.equalsIgnoreCase( "java.lang.Short" ) ) {
@@ -813,7 +813,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
                 res.setValue( Math.round( ( (Double) result ).doubleValue() ) );
               }
               break;
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               if ( classname.equalsIgnoreCase( "org.mozilla.javascript.NativeJavaObject" )
                 || classname.equalsIgnoreCase( "org.mozilla.javascript.Undefined" ) ) {
                 // Is it a java Value class ?
@@ -829,7 +829,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
                 res.setValue( ( (String) result ) );
               }
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               double dbl = 0;
               if ( classname.equalsIgnoreCase( "org.mozilla.javascript.Undefined" ) ) {
                 res.setNull();
@@ -860,7 +860,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
                 res.setValue( dat );
               }
               break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               res.setValue( ( (Boolean) result ).booleanValue() );
               break;
             default:
@@ -888,12 +888,12 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
     return error_found;
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ScriptValuesMod( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ScriptValuesMod( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new ScriptValuesModData();
   }
 

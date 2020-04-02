@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -67,7 +67,7 @@ import java.util.Map;
 public abstract class ConfigurationDialog extends Dialog {
 
   protected AbstractMeta abstractMeta;
-  protected ExecutionConfiguration configuration;
+  protected IExecutionConfiguration configuration;
   protected TableView wVariables;
   protected boolean retval;
   protected Shell shell;
@@ -100,7 +100,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected HopGui hopGui;
 
-  public ConfigurationDialog( Shell parent, ExecutionConfiguration configuration, AbstractMeta meta ) {
+  public ConfigurationDialog( Shell parent, IExecutionConfiguration configuration, AbstractMeta meta ) {
     super( parent );
     this.parent = parent;
     this.configuration = configuration;
@@ -109,7 +109,7 @@ public abstract class ConfigurationDialog extends Dialog {
     this.hopGui = HopGui.getInstance();
 
     // Fill the parameters, maybe do this in another place?
-    Map<String, String> params = configuration.getParams();
+    Map<String, String> params = configuration.getParametersMap();
     params.clear();
     String[] paramNames = meta.listParameters();
     for ( String name : paramNames ) {
@@ -132,7 +132,7 @@ public abstract class ConfigurationDialog extends Dialog {
         map.put( varName, varValue );
       }
     }
-    configuration.setVariables( map );
+    configuration.setVariablesMap( map );
   }
 
   /**
@@ -153,7 +153,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
       map.put( paramName, paramValue );
     }
-    configuration.setParams( map );
+    configuration.setParametersMap( map );
   }
 
   protected void ok() {
@@ -182,12 +182,12 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected void getParamsData() {
     wParams.clearAll( false );
-    ArrayList<String> paramNames = new ArrayList<>( configuration.getParams().keySet() );
+    ArrayList<String> paramNames = new ArrayList<>( configuration.getParametersMap().keySet() );
     Collections.sort( paramNames );
 
     for ( int i = 0; i < paramNames.size(); i++ ) {
       String paramName = paramNames.get( i );
-      String paramValue = configuration.getParams().get( paramName );
+      String paramValue = configuration.getParametersMap().get( paramName );
       String defaultValue;
       try {
         defaultValue = abstractMeta.getParameterDefault( paramName );
@@ -216,7 +216,7 @@ public abstract class ConfigurationDialog extends Dialog {
   /**
    * @param configuration the configuration to set
    */
-  public void setConfiguration( ExecutionConfiguration configuration ) {
+  public void setConfiguration( IExecutionConfiguration configuration ) {
     this.configuration = configuration;
   }
 
@@ -307,7 +307,7 @@ public abstract class ConfigurationDialog extends Dialog {
         ColumnInfo.COLUMN_TYPE_TEXT, false, false, 300 ), // Preview size
     };
 
-    int nrVariables = configuration.getVariables() != null ? configuration.getVariables().size() : 0;
+    int nrVariables = configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
     wVariables =
       new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
         nrVariables, false, null, props, false );

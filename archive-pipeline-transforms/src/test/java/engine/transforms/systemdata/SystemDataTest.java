@@ -26,10 +26,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -53,9 +53,9 @@ public class SystemDataTest {
     Object[] row = new Object[] { "anyData" };
     Object[] outputRow;
 
-    public SystemDataHandler( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+    public SystemDataHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @SuppressWarnings( "unused" )
@@ -81,7 +81,7 @@ public class SystemDataTest {
      * @throws org.apache.hop.core.exception.HopTransformException
      */
     @Override
-    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       outputRow = row;
     }
 
@@ -98,7 +98,7 @@ public class SystemDataTest {
     transformMockHelper =
       new TransformMockHelper<SystemDataMeta, SystemDataData>( "SYSTEM_DATA TEST", SystemDataMeta.class,
         SystemDataData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
     verify( transformMockHelper.pipeline, never() ).stopAll();
@@ -121,10 +121,10 @@ public class SystemDataTest {
     types[ 0 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription() );
     types[ 1 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription() );
     SystemDataHandler systemData =
-      new SystemDataHandler( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new SystemDataHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     Object[] expectedRow = new Object[] { Const.getHostname(), Const.getHostnameReal() };
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
     when( inputRowMeta.size() ).thenReturn( 2 );
     systemDataData.outputRowMeta = inputRowMeta;

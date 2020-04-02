@@ -65,7 +65,7 @@ public class CompressionInputStreamTest {
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    CompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
     ByteArrayInputStream in = createTestInputStream();
     inStream = new DummyCompressionIS( in, provider );
   }
@@ -81,7 +81,7 @@ public class CompressionInputStreamTest {
 
   @Test
   public void getCompressionProvider() {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 
@@ -92,7 +92,7 @@ public class CompressionInputStreamTest {
 
   @Test
   public void testClose() throws IOException {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
     inStream = new DummyCompressionIS( in, provider );
     inStream.close();
@@ -100,7 +100,7 @@ public class CompressionInputStreamTest {
 
   @Test
   public void testRead() throws IOException {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
     inStream = new DummyCompressionIS( in, provider );
     assertEquals( inStream.available(), inStream.read( new byte[ 100 ], 0, inStream.available() ) );
@@ -130,7 +130,7 @@ public class CompressionInputStreamTest {
   }
 
   private static class DummyCompressionIS extends CompressionInputStream {
-    public DummyCompressionIS( InputStream in, CompressionProvider provider ) {
+    public DummyCompressionIS( InputStream in, ICompressionProvider provider ) {
       super( in, provider );
     }
   }

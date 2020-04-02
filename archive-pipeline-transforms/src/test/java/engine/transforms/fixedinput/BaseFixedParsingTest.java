@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fixedinput;
 
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.fileinput.BaseParsingTest;
@@ -64,7 +64,7 @@ public class BaseFixedParsingTest extends BaseParsingTest<FixedInputMeta, FixedI
   protected void setFields( FixedFileInputField... fields ) throws Exception {
     meta.setFieldDefinition( fields );
     meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
-    data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+    data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
   }
 
   /**

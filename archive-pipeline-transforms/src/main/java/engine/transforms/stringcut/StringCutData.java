@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline.transforms.stringcut;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar Hassan
  * @since 30 September 2008
  */
-public class StringCutData extends BaseTransformData implements TransformDataInterface {
+public class StringCutData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs;
 
@@ -40,7 +40,7 @@ public class StringCutData extends BaseTransformData implements TransformDataInt
 
   public int[] cutTo;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public int inputFieldsNr;
 

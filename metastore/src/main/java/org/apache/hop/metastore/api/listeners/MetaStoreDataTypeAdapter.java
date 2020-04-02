@@ -24,7 +24,7 @@ import org.apache.hop.metastore.api.IMetaStoreElementType;
  *
  * @author matt
  */
-public class MetaStoreDataTypeAdapter implements MetaStoreElementTypeListener {
+public class MetaStoreDataTypeAdapter implements IMetaStoreElementTypeListener {
 
   @Override
   public void dataTypeCreated( String namespace, IMetaStoreElementType dataType ) {

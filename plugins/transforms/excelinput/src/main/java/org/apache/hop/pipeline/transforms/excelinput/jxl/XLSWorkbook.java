@@ -26,14 +26,14 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.IKSheet;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.InputStream;
 
-public class XLSWorkbook implements KWorkbook {
+public class XLSWorkbook implements IKWorkbook {
 
   private Workbook workbook;
   private String filename;
@@ -75,7 +75,7 @@ public class XLSWorkbook implements KWorkbook {
   }
 
   @Override
-  public KSheet getSheet( String sheetName ) {
+  public IKSheet getSheet( String sheetName ) {
     Sheet sheet = workbook.getSheet( sheetName );
     if ( sheet == null ) {
       return null;
@@ -99,7 +99,7 @@ public class XLSWorkbook implements KWorkbook {
     return workbook.getNumberOfSheets();
   }
 
-  public KSheet getSheet( int sheetNr ) {
+  public IKSheet getSheet( int sheetNr ) {
     Sheet sheet = workbook.getSheet( sheetNr );
     if ( sheet == null ) {
       return null;

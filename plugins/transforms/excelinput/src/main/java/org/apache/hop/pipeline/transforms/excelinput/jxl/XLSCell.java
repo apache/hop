@@ -28,10 +28,10 @@ import jxl.CellType;
 import jxl.DateCell;
 import jxl.LabelCell;
 import jxl.NumberCell;
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 
-public class XLSCell implements KCell {
+public class XLSCell implements IKCell {
 
   private Cell cell;
 

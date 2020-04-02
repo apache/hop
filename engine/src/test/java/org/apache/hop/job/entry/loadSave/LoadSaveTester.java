@@ -25,9 +25,9 @@ package org.apache.hop.job.entry.loadSave;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.JobEntryInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -36,13 +36,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T> {
+public class LoadSaveTester<T extends IJobEntry> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                          JobEntryInitializer<T> jobEntryInitializer ) {
     super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
@@ -51,16 +51,16 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, Arrays.<String>asList(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
@@ -69,16 +69,16 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
                          List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, Arrays.<String>asList(), getterMap, setterMap,
-      new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
-  protected void validateLoadedMeta( List<String> attributes, Map<String, FieldLoadSaveValidator<?>> validatorMap,
+  protected void validateLoadedMeta( List<String> attributes, Map<String, IFieldLoadSaveValidator<?>> validatorMap,
                                      T metaSaved, T metaLoaded ) {
     super.validateLoadedMeta( attributes, validatorMap, metaSaved, metaLoaded );
   }
@@ -94,7 +94,7 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
     if ( initializer != null ) {
       initializer.modify( metaToSave );
     }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXML() + "</transform>";
@@ -109,7 +109,7 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
     if ( initializer != null ) {
       initializer.modify( metaToSave );
     }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     @SuppressWarnings( "unchecked" )

@@ -29,9 +29,9 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
 import java.sql.PreparedStatement;
@@ -53,7 +53,7 @@ import java.util.Properties;
  * @author Matt
  * @since 11-mrt-2005
  */
-public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
+public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /**
    * The SQL to execute at connect time (right after connecting)
@@ -755,7 +755,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP " + v.getName() + Const.CR;
   }
@@ -1786,8 +1786,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    * the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
    */
   @Override
-  public String getDataTablespaceDDL( VariableSpace variables, DatabaseMeta databaseMeta ) {
-    return getTablespaceDDL( variables, databaseMeta, databaseMeta.getDatabaseInterface().getDataTablespace() );
+  public String getDataTablespaceDDL( IVariables variables, DatabaseMeta databaseMeta ) {
+    return getTablespaceDDL( variables, databaseMeta, databaseMeta.getIDatabase().getDataTablespace() );
   }
 
   /**
@@ -1800,8 +1800,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    * the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
    */
   @Override
-  public String getIndexTablespaceDDL( VariableSpace variables, DatabaseMeta databaseMeta ) {
-    return getTablespaceDDL( variables, databaseMeta, databaseMeta.getDatabaseInterface().getIndexTablespace() );
+  public String getIndexTablespaceDDL( IVariables variables, DatabaseMeta databaseMeta ) {
+    return getTablespaceDDL( variables, databaseMeta, databaseMeta.getIDatabase().getIndexTablespace() );
   }
 
   /**
@@ -1815,7 +1815,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    * @param tablespaceName tablespaceName name of the tablespace.
    * @return String an empty String as most databases do not use tablespaces.
    */
-  public String getTablespaceDDL( VariableSpace variables, DatabaseMeta databaseMeta, String tablespaceName ) {
+  public String getTablespaceDDL( IVariables variables, DatabaseMeta databaseMeta, String tablespaceName ) {
     return "";
   }
 
@@ -1829,7 +1829,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    * @throws HopDatabaseException
    */
   @Override
-  public Object getValueFromResultSet( ResultSet rs, ValueMetaInterface val, int i ) throws HopDatabaseException {
+  public Object getValueFromResultSet( ResultSet rs, IValueMeta val, int i ) throws HopDatabaseException {
 
     return val.getValueFromResultSet( this, rs, i );
 
@@ -1854,7 +1854,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   }
 
   @Override
-  public String getSQLValue( ValueMetaInterface valueMeta, Object valueData, String dateFormat ) throws HopValueException {
+  public String getSQLValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws HopValueException {
 
     StringBuilder ins = new StringBuilder();
 
@@ -1864,8 +1864,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
       // Normal cases...
       //
       switch ( valueMeta.getType() ) {
-        case ValueMetaInterface.TYPE_BOOLEAN:
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_STRING:
           String string = valueMeta.getString( valueData );
           // Have the database dialect do the quoting.
           // This also adds the single quotes around the string (thanks to PostgreSQL)
@@ -1873,7 +1873,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
           string = quoteSQLString( string );
           ins.append( string );
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           Date date = valueMeta.getDate( valueData );
 
           if ( Utils.isEmpty( dateFormat ) ) {
@@ -1972,21 +1972,21 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
 
 
   /**
-   * Customizes the ValueMetaInterface defined in the base
+   * Customizes the IValueMeta defined in the base
    *
-   * @param v     the determined valueMetaInterface
+   * @param v     the determined iValueMeta
    * @param rm    the sql result
    * @param index the index to the column
-   * @return ValueMetaInterface customized with the data base specific types
+   * @return IValueMeta customized with the data base specific types
    */
   @Override
-  public ValueMetaInterface customizeValueFromSQLType( ValueMetaInterface v, java.sql.ResultSetMetaData rm, int index )
+  public IValueMeta customizeValueFromSQLType( IValueMeta v, java.sql.ResultSetMetaData rm, int index )
     throws SQLException {
     return null;
   }
 
   /**
-   * Customizes the ValueMetaInterface defined in the base
+   * Customizes the IValueMeta defined in the base
    *
    * @return String the create table statement
    */

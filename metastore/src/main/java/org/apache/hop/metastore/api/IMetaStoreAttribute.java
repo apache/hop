@@ -30,54 +30,54 @@ public interface IMetaStoreAttribute {
    *
    * @return The ID or key of the metastore attribute
    */
-  public String getId();
+  String getId();
 
   /**
    * Sets the identifier/key for this attribute.
    *
    * @param id The ID or key of the attribute to set.
    */
-  public void setId( String id );
+  void setId( String id );
 
   /**
    * Gets the value object for this attribute.
    *
    * @return The value of the attribute
    */
-  public Object getValue();
+  Object getValue();
 
   /**
    * Sets the value object for this attribute.
    *
    * @param value The attribute value to set.
    */
-  public void setValue( Object value );
+  void setValue( Object value );
 
   /**
    * Gets the child attributes of this attribute.
    *
    * @return A list of the child attributes
    */
-  public List<IMetaStoreAttribute> getChildren();
+  List<IMetaStoreAttribute> getChildren();
 
   /**
    * Adds a child attribute to this attribute.
    *
    * @param attribute The attribute to add
    */
-  public void addChild( IMetaStoreAttribute attribute );
+  void addChild( IMetaStoreAttribute attribute );
 
   /**
    * Deletes the specified child attribute from this attribute.
    *
    * @param attributeId The ID or key of the attribute to delete
    */
-  public void deleteChild( String attributeId );
+  void deleteChild( String attributeId );
 
   /**
    * Removes all child attributes.
    */
-  public void clearChildren();
+  void clearChildren();
 
   /**
    * Retrieves the child attribute with the specified identifier/key.
@@ -85,5 +85,5 @@ public interface IMetaStoreAttribute {
    * @param id The id of the child attribute to retrieve
    * @return The attribute value or null if the attribute doesn't exist.
    */
-  public IMetaStoreAttribute getChild( String id );
+  IMetaStoreAttribute getChild( String id );
 }

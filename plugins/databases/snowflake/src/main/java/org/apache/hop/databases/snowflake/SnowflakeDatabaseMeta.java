@@ -19,13 +19,13 @@ package org.apache.hop.databases.snowflake;
 import org.apache.commons.lang.Validate;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
@@ -40,7 +40,7 @@ import java.util.Map;
  */
 @DatabaseMetaPlugin(type = "SNOWFLAKE", typeDescription = "Snowflake")
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
-public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
 	// TODO: Manage all attributes in plugin when HOP-67 is fixed
 	@MetaStoreAttribute
@@ -121,14 +121,14 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 	}
 
 	@Override
-	public String getAddColumnStatement(String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
-			String pk, boolean semicolon) {
+	public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+                                       String pk, boolean semicolon) {
 		return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
 	}
 
 	@Override
-	public String getDropColumnStatement(String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
-			String pk, boolean semicolon) {
+	public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+                                        String pk, boolean semicolon) {
 		return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
 	}
 
@@ -153,14 +153,14 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 	}
 		
 	@Override
-	public String getModifyColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
-			String pk, boolean semicolon) {
+	public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
+                                          String pk, boolean semicolon) {
 		return "ALTER TABLE " + tableName + " MODIFY COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
 	}
 
 	@Override
-	public String getFieldDefinition(ValueMetaInterface v, String surrogateKey, String primaryKey, boolean useAutoinc,
-			boolean addFieldName, boolean addCr) {
+	public String getFieldDefinition( IValueMeta v, String surrogateKey, String primaryKey, boolean useAutoinc,
+                                    boolean addFieldName, boolean addCr) {
 		String fieldDefinitionDdl = "";
 
 		String newline = addCr ? Const.CR : "";
@@ -176,36 +176,36 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 			fieldDefinitionDdl += fieldname + " ";
 		}
 		if (isKeyField) {
-			Validate.isTrue(type == ValueMetaInterface.TYPE_NUMBER || type == ValueMetaInterface.TYPE_INTEGER
-					|| type == ValueMetaInterface.TYPE_BIGNUMBER);
+			Validate.isTrue(type == IValueMeta.TYPE_NUMBER || type == IValueMeta.TYPE_INTEGER
+					|| type == IValueMeta.TYPE_BIGNUMBER);
 			return ddlForPrimaryKey(useAutoinc) + newline;
 		}
 		switch (type) {
-		case ValueMetaInterface.TYPE_TIMESTAMP:
-		case ValueMetaInterface.TYPE_DATE:
+		case IValueMeta.TYPE_TIMESTAMP:
+		case IValueMeta.TYPE_DATE:
 			// timestamp w/ local timezone
 			fieldDefinitionDdl += "TIMESTAMP_LTZ";
 			break;
-		case ValueMetaInterface.TYPE_BOOLEAN:
+		case IValueMeta.TYPE_BOOLEAN:
 			fieldDefinitionDdl += ddlForBooleanValue();
 			break;
-		case ValueMetaInterface.TYPE_NUMBER:
-		case ValueMetaInterface.TYPE_INTEGER:
-		case ValueMetaInterface.TYPE_BIGNUMBER:
+		case IValueMeta.TYPE_NUMBER:
+		case IValueMeta.TYPE_INTEGER:
+		case IValueMeta.TYPE_BIGNUMBER:
 			if (precision == 0) {
 				fieldDefinitionDdl += ddlForIntegerValue(length);
 			} else {
 				fieldDefinitionDdl += ddlForFloatValue(length, precision);
 			}
 			break;
-		case ValueMetaInterface.TYPE_STRING:
+		case IValueMeta.TYPE_STRING:
 			if (length <= 0) {
 				fieldDefinitionDdl += "VARCHAR";
 			} else {
 				fieldDefinitionDdl += "VARCHAR(" + length + ")";
 			}
 			break;
-		case ValueMetaInterface.TYPE_BINARY:
+		case IValueMeta.TYPE_BINARY:
 			fieldDefinitionDdl += "VARIANT";
 			break;
 		default:

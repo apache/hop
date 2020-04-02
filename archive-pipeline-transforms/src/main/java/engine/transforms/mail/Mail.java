@@ -36,8 +36,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -71,17 +71,17 @@ import java.util.zip.ZipOutputStream;
  * @since 28-07-2008
  */
 
-public class Mail extends BaseTransform implements TransformInterface {
+public class Mail extends BaseTransform implements ITransform {
   private static Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!
 
   private MailMeta meta;
   private MailData data;
 
-  public Mail( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+  public Mail( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MailMeta) smi;
     data = (MailData) sdi;
 
@@ -987,7 +987,7 @@ public class Mail extends BaseTransform implements TransformInterface {
     return getIt;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MailMeta) smi;
     data = (MailData) sdi;
 
@@ -998,7 +998,7 @@ public class Mail extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MailMeta) smi;
     data = (MailData) sdi;
 

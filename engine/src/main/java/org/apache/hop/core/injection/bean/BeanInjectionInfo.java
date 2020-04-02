@@ -26,9 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -43,8 +43,8 @@ import java.util.Set;
 /**
  * Storage for bean annotations info for Metadata Injection and Load/Save.
  */
-public class BeanInjectionInfo<Meta extends TransformMetaInterface> {
-  private static LogChannelInterface LOG = HopLogStore.getLogChannelInterfaceFactory().create( BeanInjectionInfo.class );
+public class BeanInjectionInfo<Meta extends ITransformMeta> {
+  private static ILogChannel LOG = HopLogStore.getLogChannelFactory().create( BeanInjectionInfo.class );
 
   protected final Class<Meta> clazz;
   private final InjectionSupported clazzAnnotation;
@@ -56,7 +56,7 @@ public class BeanInjectionInfo<Meta extends TransformMetaInterface> {
   private Map<String, Group> groupsMap = new HashMap<>();
   private Set<String> hideProperties = new HashSet<>();
 
-  public  static <Meta extends TransformMetaInterface> boolean isInjectionSupported( Class<Meta> clazz ) {
+  public  static <Meta extends ITransformMeta> boolean isInjectionSupported( Class<Meta> clazz ) {
     InjectionSupported annotation = clazz.getAnnotation( InjectionSupported.class );
     return annotation != null;
   }

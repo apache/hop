@@ -32,7 +32,7 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileNameParser;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystem;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +64,7 @@ import java.io.IOException;
 public class HopSftpFileSystemConfigBuilder extends HopGenericFileSystemConfigBuilder {
 
   private static final HopSftpFileSystemConfigBuilder builder = new HopSftpFileSystemConfigBuilder();
-  private static final LogChannelInterface log = new LogChannel( "cfgbuilder" );
+  private static final ILogChannel log = new LogChannel( "cfgbuilder" );
   private static final String IDENTITY_KEY = SftpFileSystemConfigBuilder.class.getName() + ".IDENTITIES";
 
   public static HopSftpFileSystemConfigBuilder getInstance() {

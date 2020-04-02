@@ -166,7 +166,7 @@ public class ValueDataUtil {
    * string (s) and the target string (t). The distance is the number of deletions, insertions, or substitutions
    * required to transform s into t.
    */
-  public static Long getLevenshtein_Distance( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
+  public static Long getLevenshtein_Distance( IValueMeta metaA, Object dataA, IValueMeta metaB,
                                               Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
@@ -179,8 +179,8 @@ public class ValueDataUtil {
    * source string (s) and the target string (t). The distance is the number of deletions, insertions, or substitutions
    * required to transform s into t.
    */
-  public static Long getDamerauLevenshtein_Distance( ValueMetaInterface metaA, Object dataA,
-                                                     ValueMetaInterface metaB, Object dataB ) {
+  public static Long getDamerauLevenshtein_Distance( IValueMeta metaA, Object dataA,
+                                                     IValueMeta metaB, Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -192,7 +192,7 @@ public class ValueDataUtil {
    * Jaro similitude is a measure of the similarity between two strings, which we will refer to as the source string (s)
    * and the target string (t).
    */
-  public static Double getJaro_Similitude( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
+  public static Double getJaro_Similitude( IValueMeta metaA, Object dataA, IValueMeta metaB,
                                            Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
@@ -206,8 +206,8 @@ public class ValueDataUtil {
    * JaroWinkler similitude is a measure of the similarity between two strings, which we will refer to as the source
    * string (s) and the target string (t).
    */
-  public static Double getJaroWinkler_Similitude( ValueMetaInterface metaA, Object dataA,
-                                                  ValueMetaInterface metaB, Object dataB ) {
+  public static Double getJaroWinkler_Similitude( IValueMeta metaA, Object dataA,
+                                                  IValueMeta metaB, Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -216,91 +216,91 @@ public class ValueDataUtil {
     return pjwd.getJaroWinklerDistance();
   }
 
-  public static String get_Metaphone( ValueMetaInterface metaA, Object dataA ) {
+  public static String get_Metaphone( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return ( new Metaphone() ).metaphone( dataA.toString() );
   }
 
-  public static String get_Double_Metaphone( ValueMetaInterface metaA, Object dataA ) {
+  public static String get_Double_Metaphone( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return ( new DoubleMetaphone() ).doubleMetaphone( dataA.toString() );
   }
 
-  public static String get_SoundEx( ValueMetaInterface metaA, Object dataA ) {
+  public static String get_SoundEx( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return ( new Soundex() ).encode( dataA.toString() );
   }
 
-  public static String get_RefinedSoundEx( ValueMetaInterface metaA, Object dataA ) {
+  public static String get_RefinedSoundEx( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return ( new RefinedSoundex() ).encode( dataA.toString() );
   }
 
-  public static String initCap( ValueMetaInterface metaA, Object dataA ) {
+  public static String initCap( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.initCap( dataA.toString() );
   }
 
-  public static String upperCase( ValueMetaInterface metaA, Object dataA ) {
+  public static String upperCase( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return dataA.toString().toUpperCase();
   }
 
-  public static String lowerCase( ValueMetaInterface metaA, Object dataA ) {
+  public static String lowerCase( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return dataA.toString().toLowerCase();
   }
 
-  public static String escapeXML( ValueMetaInterface metaA, Object dataA ) {
+  public static String escapeXML( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.escapeXML( dataA.toString() );
   }
 
-  public static String unEscapeXML( ValueMetaInterface metaA, Object dataA ) {
+  public static String unEscapeXML( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.unEscapeXml( dataA.toString() );
   }
 
-  public static String escapeHTML( ValueMetaInterface metaA, Object dataA ) {
+  public static String escapeHTML( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.escapeHtml( dataA.toString() );
   }
 
-  public static String unEscapeHTML( ValueMetaInterface metaA, Object dataA ) {
+  public static String unEscapeHTML( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.unEscapeHtml( dataA.toString() );
   }
 
-  public static String escapeSQL( ValueMetaInterface metaA, Object dataA ) {
+  public static String escapeSQL( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.escapeSQL( dataA.toString() );
   }
 
-  public static String useCDATA( ValueMetaInterface metaA, Object dataA ) {
+  public static String useCDATA( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
@@ -308,49 +308,49 @@ public class ValueDataUtil {
 
   }
 
-  public static String removeCR( ValueMetaInterface metaA, Object dataA ) {
+  public static String removeCR( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.removeCR( dataA.toString() );
   }
 
-  public static String removeLF( ValueMetaInterface metaA, Object dataA ) {
+  public static String removeLF( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.removeLF( dataA.toString() );
   }
 
-  public static String removeCRLF( ValueMetaInterface metaA, Object dataA ) {
+  public static String removeCRLF( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.removeCRLF( dataA.toString() );
   }
 
-  public static String removeTAB( ValueMetaInterface metaA, Object dataA ) {
+  public static String removeTAB( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.removeTAB( dataA.toString() );
   }
 
-  public static String getDigits( ValueMetaInterface metaA, Object dataA ) {
+  public static String getDigits( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.getDigitsOnly( dataA.toString() );
   }
 
-  public static String removeDigits( ValueMetaInterface metaA, Object dataA ) {
+  public static String removeDigits( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.removeDigits( dataA.toString() );
   }
 
-  public static long stringLen( ValueMetaInterface metaA, Object dataA ) {
+  public static long stringLen( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return 0;
     }
@@ -358,10 +358,10 @@ public class ValueDataUtil {
   }
 
   /**
-   * @deprecated Use {@link ValueDataUtil#createChecksum(ValueMetaInterface, Object, String, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#createChecksum(IValueMeta, Object, String, boolean)} instead
    */
   @Deprecated
-  public static String createChecksum( ValueMetaInterface metaA, Object dataA, String type ) {
+  public static String createChecksum( IValueMeta metaA, Object dataA, String type ) {
     String checksum = null;
     try {
       checksum = createChecksum( metaA, dataA, type, false );
@@ -372,14 +372,14 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        Filename
    * @param type         Algorithm to be used when computing the checksum (MD5 or SHA-1)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's checksum
    * @throws HopFileNotFoundException
    */
-  public static String createChecksum( ValueMetaInterface metaA, Object dataA, String type, boolean failIfNoFile )
+  public static String createChecksum( IValueMeta metaA, Object dataA, String type, boolean failIfNoFile )
     throws HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
@@ -420,10 +420,10 @@ public class ValueDataUtil {
   }
 
   /**
-   * @deprecated Use {@link ValueDataUtil#checksumCRC32(ValueMetaInterface, Object, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#checksumCRC32(IValueMeta, Object, boolean)} instead
    */
   @Deprecated
-  public static Long ChecksumCRC32( ValueMetaInterface metaA, Object dataA ) {
+  public static Long ChecksumCRC32( IValueMeta metaA, Object dataA ) {
     long checksum = 0;
     try {
       checksum = checksumCRC32( metaA, dataA, false );
@@ -434,13 +434,13 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's CRC32 checksum
    * @throws HopFileNotFoundException
    */
-  public static Long checksumCRC32( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
+  public static Long checksumCRC32( IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopFileNotFoundException {
     long checksum = 0;
 
@@ -480,10 +480,10 @@ public class ValueDataUtil {
   }
 
   /**
-   * @deprecated Use {@link ValueDataUtil#checksumAdler32(ValueMetaInterface, Object, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#checksumAdler32(IValueMeta, Object, boolean)} instead
    */
   @Deprecated
-  public static Long ChecksumAdler32( ValueMetaInterface metaA, Object dataA ) {
+  public static Long ChecksumAdler32( IValueMeta metaA, Object dataA ) {
     long checksum = 0;
     try {
       checksum = checksumAdler32( metaA, dataA, false );
@@ -494,13 +494,13 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's Adler32 checksum
    * @throws HopFileNotFoundException
    */
-  public static Long checksumAdler32( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
+  public static Long checksumAdler32( IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopFileNotFoundException {
     long checksum = 0;
 
@@ -539,15 +539,15 @@ public class ValueDataUtil {
     return checksum;
   }
 
-  public static Object plus( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object plus( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         return metaA.getString( dataA ) + metaB.getString( dataB );
-      case ValueMetaInterface.TYPE_NUMBER: {
+      case IValueMeta.TYPE_NUMBER: {
         Double valueA = metaA.getNumber( dataA );
         Double valueB = metaB.getNumber( dataB );
         if ( valueB == null ) {
@@ -558,7 +558,7 @@ public class ValueDataUtil {
           return new Double( valueA.doubleValue() + valueB.doubleValue() );
         }
       }
-      case ValueMetaInterface.TYPE_INTEGER: {
+      case IValueMeta.TYPE_INTEGER: {
         Long valueA = metaA.getInteger( dataA );
         Long valueB = metaB.getInteger( dataB );
         if ( valueB == null ) {
@@ -569,7 +569,7 @@ public class ValueDataUtil {
           return new Long( valueA.longValue() + valueB.longValue() );
         }
       }
-      case ValueMetaInterface.TYPE_BOOLEAN: {
+      case IValueMeta.TYPE_BOOLEAN: {
         Boolean valueA = metaA.getBoolean( dataA );
         Boolean valueB = metaB.getBoolean( dataB );
         if ( valueB == null ) {
@@ -580,7 +580,7 @@ public class ValueDataUtil {
           return Boolean.valueOf( valueA.booleanValue() || valueB.booleanValue() );
         }
       }
-      case ValueMetaInterface.TYPE_BIGNUMBER: {
+      case IValueMeta.TYPE_BIGNUMBER: {
         BigDecimal valueA = metaA.getBigNumber( dataA );
         BigDecimal valueB = metaB.getBigNumber( dataB );
         if ( valueB == null ) {
@@ -596,25 +596,25 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object plus3( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-                              ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+  public static Object plus3( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB,
+                              IValueMeta metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         return metaA.getString( dataA ) + metaB.getString( dataB ) + metaC.getString( dataC );
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue()
           + metaB.getNumber( dataB ).doubleValue() + metaC.getNumber( dataC ).doubleValue() );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ).longValue()
           + metaB.getInteger( dataB ).longValue() + metaC.getInteger( dataC ).longValue() );
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         return Boolean.valueOf( metaA.getBoolean( dataA ).booleanValue()
           || metaB.getBoolean( dataB ).booleanValue() || metaB.getBoolean( dataC ).booleanValue() );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber( dataA ).add( metaB.getBigNumber( dataB ).add( metaC.getBigNumber( dataC ) ) );
 
       default:
@@ -622,13 +622,13 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object sum( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object sum( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null && dataB == null ) {
       return null;
     }
     if ( dataA == null && dataB != null ) {
       Object value = metaA.convertData( metaB, dataB );
-      metaA.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      metaA.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       return value;
     }
     if ( dataA != null && dataB == null ) {
@@ -639,10 +639,10 @@ public class ValueDataUtil {
   }
 
   /**
-   * @deprecated Use {@link ValueDataUtil#loadFileContentInBinary(ValueMetaInterface, Object, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#loadFileContentInBinary(IValueMeta, Object, boolean)} instead
    */
   @Deprecated
-  public static Object loadFileContentInBinary( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object loadFileContentInBinary( IValueMeta metaA, Object dataA ) throws HopValueException {
     Object content = null;
     try {
       content = loadFileContentInBinary( metaA, dataA, true );
@@ -653,14 +653,14 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's content in binary
    * @throws HopValueException
    * @throws HopFileNotFoundException
    */
-  public static byte[] loadFileContentInBinary( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
+  public static byte[] loadFileContentInBinary( IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopValueException, HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
@@ -691,24 +691,24 @@ public class ValueDataUtil {
     return content;
   }
 
-  public static Object minus( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object minus( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue() - metaB.getNumber( dataB ).doubleValue() );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ).longValue() - metaB.getInteger( dataB ).longValue() );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber( dataA ).subtract( metaB.getBigNumber( dataB ) );
       default:
         return new Long( metaA.getInteger( dataA ).longValue() - metaB.getInteger( dataB ).longValue() );
     }
   }
 
-  public static Object multiply( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object multiply( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -720,14 +720,14 @@ public class ValueDataUtil {
     return multiplyNumeric( metaA, dataA, metaB, dataB );
   }
 
-  protected static Object multiplyNumeric( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
+  protected static Object multiplyNumeric( IValueMeta metaA, Object dataA, IValueMeta metaB,
                                            Object dataB ) throws HopValueException {
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return multiplyDoubles( metaA.getNumber( dataA ), metaB.getNumber( dataB ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return multiplyLongs( metaA.getInteger( dataA ), metaB.getInteger( dataB ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return multiplyBigDecimals( metaA.getBigNumber( dataA ), metaB.getBigNumber( dataB ), null );
 
       default:
@@ -771,7 +771,7 @@ public class ValueDataUtil {
     return removeTrailingZeroFractionOrScale( a.multiply( b, mc ), getMaxScale( a, b ) );
   }
 
-  protected static Object multiplyString( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
+  protected static Object multiplyString( IValueMeta metaA, Object dataA, IValueMeta metaB,
                                           Object dataB ) throws HopValueException {
     StringBuffer s;
     String append = "";
@@ -797,17 +797,17 @@ public class ValueDataUtil {
     return s.toString();
   }
 
-  public static Object divide( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object divide( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return divideDoubles( metaA.getNumber( dataA ), metaB.getNumber( dataB ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return divideLongs( metaA.getInteger( dataA ), metaB.getInteger( dataB ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return divideBigDecimals( metaA.getBigNumber( dataA ), metaB.getBigNumber( dataB ), null );
 
       default:
@@ -832,17 +832,17 @@ public class ValueDataUtil {
     return removeTrailingZeroFractionOrScale( result, result.scale() );
   }
 
-  public static Object sqrt( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object sqrt( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.sqrt( metaA.getNumber( dataA ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( Math.round( Math.sqrt( metaA.getNumber( dataA ).doubleValue() ) ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return BigDecimal.valueOf( Math.sqrt( metaA.getNumber( dataA ).doubleValue() ) );
 
       default:
@@ -860,17 +860,17 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static Object percent1( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object percent1( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return divideDoubles( multiplyDoubles( 100.0D, metaA.getNumber( dataA ) ), metaB.getNumber( dataB ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return divideLongs( multiplyLongs( 100L, metaA.getInteger( dataA ) ), metaB.getInteger( dataB ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return divideBigDecimals(
           multiplyBigDecimals( metaA.getBigNumber( dataA ), new BigDecimal( 100 ), null ), metaB
             .getBigNumber( dataB ), null );
@@ -890,19 +890,19 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static Object percent2( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object percent2( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue()
           - divideDoubles( multiplyDoubles( metaA.getNumber( dataA ), metaB.getNumber( dataB ) ), 100.0D ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ).longValue()
           - divideLongs( multiplyLongs( metaA.getInteger( dataA ), metaB.getInteger( dataB ) ), 100L ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber( dataA ).subtract(
           divideBigDecimals( multiplyBigDecimals(
             metaB.getBigNumber( dataB ), metaA.getBigNumber( dataA ), null ), new BigDecimal( 100 ), null ) );
@@ -921,19 +921,19 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static Object percent3( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object percent3( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue()
           + divideDoubles( multiplyDoubles( metaA.getNumber( dataA ), metaB.getNumber( dataB ) ), 100.0D ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ).longValue()
           + divideLongs( multiplyLongs( metaA.getInteger( dataA ), metaB.getInteger( dataB ) ), 100L ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber( dataA ).add(
           divideBigDecimals( multiplyBigDecimals(
             metaB.getBigNumber( dataB ), metaA.getBigNumber( dataA ), null ), new BigDecimal( 100 ), null ) );
@@ -952,20 +952,20 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static Object combination1( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-                                     Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+  public static Object combination1( IValueMeta metaA, Object dataA, IValueMeta metaB,
+                                     Object dataB, IValueMeta metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue()
           + ( metaB.getNumber( dataB ).doubleValue() * metaC.getNumber( dataC ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ).longValue()
           + ( metaB.getInteger( dataB ).longValue() * metaC.getInteger( dataC ).longValue() ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber( dataA ).add(
           multiplyBigDecimals( metaB.getBigNumber( dataB ), metaC.getBigNumber( dataC ), null ) );
 
@@ -984,23 +984,23 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static Object combination2( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object combination2( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.sqrt( metaA.getNumber( dataA ).doubleValue()
           * metaA.getNumber( dataA ).doubleValue() + metaB.getNumber( dataB ).doubleValue()
           * metaB.getNumber( dataB ).doubleValue() ) );
 
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( Math.round( Math.sqrt( metaA.getInteger( dataA ).longValue()
           * metaA.getInteger( dataA ).longValue() + metaB.getInteger( dataB ).longValue()
           / metaB.getInteger( dataB ).longValue() ) ) );
 
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return BigDecimal.valueOf( Math.sqrt( metaA.getNumber( dataA ).doubleValue()
           * metaA.getNumber( dataA ).doubleValue() + metaB.getNumber( dataB ).doubleValue()
           * metaB.getNumber( dataB ).doubleValue() ) );
@@ -1018,17 +1018,17 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
-  public static Object round( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object round( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.round( metaA.getNumber( dataA ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger( dataA );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return new BigDecimal( Math.round( metaA.getNumber( dataA ).doubleValue() ) );
 
       default:
@@ -1045,18 +1045,18 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
-  public static Object round( ValueMetaInterface metaA, Object dataA, int roundingMode ) throws HopValueException {
+  public static Object round( IValueMeta metaA, Object dataA, int roundingMode ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
       // Use overloaded Const.round(value, precision, mode)
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Const.round( metaA.getNumber( dataA ), 0, roundingMode ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( Const.round( metaA.getInteger( dataA ), 0, roundingMode ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return Const.round( metaA.getBigNumber( dataA ), 0, roundingMode );
       default:
         throw new HopValueException( "The 'round' function only works on numeric data" );
@@ -1073,7 +1073,7 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
-  public static Object round( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB )
+  public static Object round( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB )
     throws HopValueException {
     final Object r = round( metaA, dataA, metaB, dataB, ROUND_2_MODE );
     return r;
@@ -1090,20 +1090,20 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
-  public static Object round( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
+  public static Object round( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB,
                               int roundingMode ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Const.round( metaA.getNumber( dataA ).doubleValue(), metaB.getInteger( dataB ).intValue(),
           roundingMode ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( Const.round( metaA.getInteger( dataA ).longValue(), metaB.getInteger( dataB ).intValue(),
           roundingMode ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return Const.round( metaA.getBigNumber( dataA ), metaB.getInteger( dataB ).intValue(), roundingMode );
       default:
         throw new HopValueException( "The 'round' function only works on numeric data" );
@@ -1122,8 +1122,8 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
-  public static Object round( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-                              ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+  public static Object round( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB,
+                              IValueMeta metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
@@ -1135,16 +1135,16 @@ public class ValueDataUtil {
     return round( metaA, dataA, metaB, dataB, roundingMode );
   }
 
-  public static Object ceil( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object ceil( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.ceil( metaA.getNumber( dataA ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger( dataA );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return new BigDecimal( Math.ceil( metaA.getNumber( dataA ).doubleValue() ) );
 
       default:
@@ -1152,16 +1152,16 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object floor( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object floor( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.floor( metaA.getNumber( dataA ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger( dataA );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return new BigDecimal( Math.floor( metaA.getNumber( dataA ).doubleValue() ) );
 
       default:
@@ -1169,17 +1169,17 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object abs( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object abs( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( Math.abs( metaA.getNumber( dataA ).doubleValue() ) );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger( Math.abs( metaA.getNumber( dataA ).longValue() ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return new BigDecimal( Math.abs( metaA.getNumber( dataA ).doubleValue() ) );
 
       default:
@@ -1197,17 +1197,17 @@ public class ValueDataUtil {
    * @return The remainder
    * @throws HopValueException
    */
-  public static Object remainder( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object remainder( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
 
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return new Double( metaA.getNumber( dataA ).doubleValue() % metaB.getNumber( dataB ).doubleValue() );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return new Long( metaA.getInteger( dataA ) % metaB.getInteger( dataB ) );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         BigDecimal aValue = metaA.getBigNumber( dataA );
         BigDecimal bValue = metaA.getBigNumber( dataB );
         BigDecimal result = aValue.remainder( bValue, new MathContext( getMaxPrecision( aValue, bValue ), RoundingMode.HALF_EVEN ) );
@@ -1217,51 +1217,51 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object nvl( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object nvl( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
     switch ( metaA.getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( dataA == null ) {
           return metaB.getString( dataB );
         } else {
           return metaA.getString( dataA );
         }
 
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         if ( dataA == null ) {
           return metaB.getNumber( dataB );
         } else {
           return metaA.getNumber( dataA );
         }
 
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         if ( dataA == null ) {
           return metaB.getInteger( dataB );
         } else {
           return metaA.getInteger( dataA );
         }
 
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( dataA == null ) {
           return metaB.getBigNumber( dataB );
         } else {
           return metaA.getBigNumber( dataA );
         }
 
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         if ( dataA == null ) {
           return metaB.getDate( dataB );
         } else {
           return metaA.getDate( dataA );
         }
 
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( dataA == null ) {
           return metaB.getBoolean( dataB );
         } else {
           return metaA.getBoolean( dataA );
         }
 
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         if ( dataA == null ) {
           return metaB.getBinary( dataB );
         } else {
@@ -1277,7 +1277,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object removeTimeFromDate( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object removeTimeFromDate( IValueMeta metaA, Object dataA ) throws HopValueException {
     Calendar cal = Calendar.getInstance();
     Date date = metaA.getDate( dataA );
     if ( date != null ) {
@@ -1288,8 +1288,8 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object addTimeToDate( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-                                      Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+  public static Object addTimeToDate( IValueMeta metaA, Object dataA, IValueMeta metaB,
+                                      Object dataB, IValueMeta metaC, Object dataC ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1305,7 +1305,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object addDays( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object addDays( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime( metaA.getDate( dataA ) );
@@ -1314,7 +1314,7 @@ public class ValueDataUtil {
     return cal.getTime();
   }
 
-  public static Object addHours( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object addHours( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime( metaA.getDate( dataA ) );
@@ -1323,7 +1323,7 @@ public class ValueDataUtil {
     return cal.getTime();
   }
 
-  public static Object addMinutes( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object addMinutes( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime( metaA.getDate( dataA ) );
@@ -1332,7 +1332,7 @@ public class ValueDataUtil {
     return cal.getTime();
   }
 
-  public static Object addSeconds( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object addSeconds( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime( metaA.getDate( dataA ) );
@@ -1341,7 +1341,7 @@ public class ValueDataUtil {
     return cal.getTime();
   }
 
-  public static Object addMonths( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB ) throws HopValueException {
+  public static Object addMonths( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB ) throws HopValueException {
 
     if ( dataA != null && dataB != null ) {
       Calendar cal = Calendar.getInstance();
@@ -1382,7 +1382,7 @@ public class ValueDataUtil {
    * @throws HopValueException
    */
 
-  public static Object DateDiff( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
+  public static Object DateDiff( IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB,
                                  String resultType ) throws HopValueException {
 
     if ( dataA != null && dataB != null ) {
@@ -1418,7 +1418,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object DateWorkingDiff( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
+  public static Object DateWorkingDiff( IValueMeta metaA, Object dataA, IValueMeta metaB,
                                         Object dataB ) throws HopValueException {
     if ( dataA != null && dataB != null ) {
       Date fromDate = metaB.getDate( dataB );
@@ -1449,7 +1449,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object yearOfDate( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object yearOfDate( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1460,7 +1460,7 @@ public class ValueDataUtil {
 
   }
 
-  public static Object monthOfDate( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object monthOfDate( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1471,7 +1471,7 @@ public class ValueDataUtil {
 
   }
 
-  public static Object quarterOfDate( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object quarterOfDate( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1481,7 +1481,7 @@ public class ValueDataUtil {
     return new Long( ( calendar.get( Calendar.MONTH ) + 3 ) / 3 );
   }
 
-  public static Object dayOfYear( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object dayOfYear( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1491,7 +1491,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.DAY_OF_YEAR ) );
   }
 
-  public static Object dayOfMonth( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object dayOfMonth( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1501,7 +1501,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.DAY_OF_MONTH ) );
   }
 
-  public static Object hourOfDay( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object hourOfDay( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1518,7 +1518,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.HOUR_OF_DAY ) );
   }
 
-  public static Object minuteOfHour( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object minuteOfHour( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1528,7 +1528,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.MINUTE ) );
   }
 
-  public static Object secondOfMinute( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object secondOfMinute( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1538,7 +1538,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.SECOND ) );
   }
 
-  public static Object dayOfWeek( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object dayOfWeek( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1548,7 +1548,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.DAY_OF_WEEK ) );
   }
 
-  public static Object weekOfYear( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object weekOfYear( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1558,7 +1558,7 @@ public class ValueDataUtil {
     return new Long( calendar.get( Calendar.WEEK_OF_YEAR ) );
   }
 
-  public static Object weekOfYearISO8601( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object weekOfYearISO8601( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1571,7 +1571,7 @@ public class ValueDataUtil {
 
   }
 
-  public static Object yearOfDateISO8601( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static Object yearOfDateISO8601( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1605,7 +1605,7 @@ public class ValueDataUtil {
    * @return Value itself
    * @throws HopValueException
    */
-  public static String hexToByteDecode( ValueMetaInterface meta, Object data ) throws HopValueException {
+  public static String hexToByteDecode( IValueMeta meta, Object data ) throws HopValueException {
     if ( meta.isNull( data ) ) {
       return null;
     }
@@ -1660,7 +1660,7 @@ public class ValueDataUtil {
    * @return
    * @throws HopValueException
    */
-  public static String byteToHexEncode( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static String byteToHexEncode( IValueMeta metaA, Object dataA ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1693,7 +1693,7 @@ public class ValueDataUtil {
    * @return A string with Hex code
    * @throws HopValueException In case of a data conversion problem.
    */
-  public static String charToHexEncode( ValueMetaInterface meta, Object data ) throws HopValueException {
+  public static String charToHexEncode( IValueMeta meta, Object data ) throws HopValueException {
     final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     if ( meta.isNull( data ) ) {
@@ -1725,7 +1725,7 @@ public class ValueDataUtil {
    * @return A hex-to-char decoded String
    * @throws HopValueException
    */
-  public static String hexToCharDecode( ValueMetaInterface meta, Object data ) throws HopValueException {
+  public static String hexToCharDecode( IValueMeta meta, Object data ) throws HopValueException {
     if ( meta.isNull( data ) ) {
       return null;
     }
@@ -1892,13 +1892,13 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA The ValueMetaInterface
+   * @param metaA The IValueMeta
    * @param dataA The value (filename)
    * @return true if the file is well formed.
-   * @deprecated Use {@link ValueDataUtil#isXMLFileWellFormed(ValueMetaInterface, Object, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#isXMLFileWellFormed(IValueMeta, Object, boolean)} instead
    */
   @Deprecated
-  public static boolean isXMLFileWellFormed( ValueMetaInterface metaA, Object dataA ) {
+  public static boolean isXMLFileWellFormed( IValueMeta metaA, Object dataA ) {
     boolean xmlWellFormed = false;
     try {
       xmlWellFormed = isXMLFileWellFormed( metaA, dataA, false );
@@ -1911,13 +1911,13 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        The value (filename)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return true if the file is well formed.
    * @throws HopFileNotFoundException
    */
-  public static boolean isXMLFileWellFormed( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
+  public static boolean isXMLFileWellFormed( IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopFileNotFoundException {
     if ( dataA == null ) {
       return false;
@@ -1945,11 +1945,11 @@ public class ValueDataUtil {
   /**
    * Checks an xml string is well formed.
    *
-   * @param metaA The ValueMetaInterface
+   * @param metaA The IValueMeta
    * @param dataA The value (filename)
    * @return true if the file is well formed.
    */
-  public static boolean isXMLWellFormed( ValueMetaInterface metaA, Object dataA ) {
+  public static boolean isXMLWellFormed( IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return false;
     }
@@ -1964,13 +1964,13 @@ public class ValueDataUtil {
   /**
    * Get file encoding.
    *
-   * @param metaA The ValueMetaInterface
+   * @param metaA The IValueMeta
    * @param dataA The value (filename)
    * @return file encoding.
-   * @deprecated Use {@link ValueDataUtil#getFileEncoding(ValueMetaInterface, Object, boolean)} instead
+   * @deprecated Use {@link ValueDataUtil#getFileEncoding(IValueMeta, Object, boolean)} instead
    */
   @Deprecated
-  public static String getFileEncoding( ValueMetaInterface metaA, Object dataA ) throws HopValueException {
+  public static String getFileEncoding( IValueMeta metaA, Object dataA ) throws HopValueException {
     String encoding = null;
     try {
       encoding = getFileEncoding( metaA, dataA, true );
@@ -1983,14 +1983,14 @@ public class ValueDataUtil {
   /**
    * Get file encoding.
    *
-   * @param metaA        The ValueMetaInterface
+   * @param metaA        The IValueMeta
    * @param dataA        The value (filename)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return file encoding.
    * @throws HopFileNotFoundException
    * @throws HopValueException
    */
-  public static String getFileEncoding( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
+  public static String getFileEncoding( IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopValueException, HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
@@ -2016,29 +2016,29 @@ public class ValueDataUtil {
   }
 
   /**
-   * Default utility method to get exact zero value according to ValueMetaInterface. Using
+   * Default utility method to get exact zero value according to IValueMeta. Using
    * this utility method saves from ClassCastExceptions later.
    *
    * @param type
    * @return
    * @throws HopValueException
    */
-  public static Object getZeroForValueMetaType( ValueMetaInterface type ) throws HopValueException {
+  public static Object getZeroForValueMetaType( IValueMeta type ) throws HopValueException {
     if ( type == null ) {
-      throw new HopValueException( "API error. ValueMetaInterface can't be null!" );
+      throw new HopValueException( "API error. IValueMeta can't be null!" );
     }
 
     switch ( type.getType() ) {
-      case ( ValueMetaInterface.TYPE_INTEGER ): {
+      case ( IValueMeta.TYPE_INTEGER ): {
         return new Long( 0 );
       }
-      case ( ValueMetaInterface.TYPE_NUMBER ): {
+      case ( IValueMeta.TYPE_NUMBER ): {
         return new Double( 0 );
       }
-      case ( ValueMetaInterface.TYPE_BIGNUMBER ): {
+      case ( IValueMeta.TYPE_BIGNUMBER ): {
         return new BigDecimal( 0 );
       }
-      case ( ValueMetaInterface.TYPE_STRING ): {
+      case ( IValueMeta.TYPE_STRING ): {
         return "";
       }
       default: {

@@ -20,7 +20,7 @@
 
 package org.apache.hop.core.extension;
 
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -41,21 +41,21 @@ public class ExtensionPointHandlerTest {
 
   @Test
   public void callExtensionPointTest() throws Exception {
-    PluginMockInterface pluginInterface = mock( PluginMockInterface.class );
+    IPluginMock pluginInterface = mock( IPluginMock.class );
     when( pluginInterface.getName() ).thenReturn( TEST_NAME );
-    when( pluginInterface.getMainType() ).thenReturn( (Class) ExtensionPointInterface.class );
+    when( pluginInterface.getMainType() ).thenReturn( (Class) IExtensionPoint.class );
     when( pluginInterface.getIds() ).thenReturn( new String[] { "testID" } );
 
-    ExtensionPointInterface extensionPoint = mock( ExtensionPointInterface.class );
-    when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );
+    IExtensionPoint extensionPoint = mock( IExtensionPoint.class );
+    when( pluginInterface.loadClass( IExtensionPoint.class ) ).thenReturn( extensionPoint );
 
     PluginRegistry.addPluginType( ExtensionPointPluginType.getInstance() );
     PluginRegistry.getInstance().registerPlugin( ExtensionPointPluginType.class, pluginInterface );
 
-    final LogChannelInterface log = mock( LogChannelInterface.class );
+    final ILogChannel log = mock( ILogChannel.class );
 
     ExtensionPointHandler.callExtensionPoint( log, "noPoint", null );
-    verify( extensionPoint, never() ).callExtensionPoint( any( LogChannelInterface.class ), any() );
+    verify( extensionPoint, never() ).callExtensionPoint( any( ILogChannel.class ), any() );
 
     ExtensionPointHandler.callExtensionPoint( log, TEST_NAME, null );
     verify( extensionPoint, times( 1 ) ).callExtensionPoint( eq( log ), isNull() );

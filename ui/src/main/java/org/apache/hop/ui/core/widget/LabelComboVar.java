@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -47,11 +47,11 @@ public class LabelComboVar extends Composite {
   private Label wLabel;
   private ComboVar wCombo;
 
-  public LabelComboVar( VariableSpace space, Composite composite, String labelText, String toolTipText ) {
-    this( space, composite, SWT.NONE, labelText, toolTipText );
+  public LabelComboVar( IVariables variables, Composite composite, String labelText, String toolTipText ) {
+    this( variables, composite, SWT.NONE, labelText, toolTipText );
   }
 
-  public LabelComboVar( VariableSpace space, Composite composite, int flags, String labelText, String toolTipText ) {
+  public LabelComboVar( IVariables variables, Composite composite, int flags, String labelText, String toolTipText ) {
     super( composite, SWT.NONE );
     props.setLook( this );
 
@@ -71,7 +71,7 @@ public class LabelComboVar extends Composite {
       textFlags = flags;
     }
 
-    wCombo = new ComboVar( space, this, textFlags, toolTipText );
+    wCombo = new ComboVar( variables, this, textFlags, toolTipText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( middle, margin );
     fdText.right = new FormAttachment( 100, 0 );

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-public class TransformMetaDataCombi<Main extends TransformInterface, Meta extends TransformMetaInterface, Data extends TransformDataInterface> {
+public class TransformMetaDataCombi<Main extends ITransform, Meta extends ITransformMeta, Data extends ITransformData> {
 
   public TransformMeta transformMeta;
   public String transformName;

@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.sql;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
@@ -34,15 +34,15 @@ import java.util.List;
  * @author Matt
  * @since 20-jan-2005
  */
-public class ExecSQLData extends BaseTransformData implements TransformDataInterface {
+public class ExecSQLData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;
   public int[] argumentIndexes;
   public List<Integer> markerPositions;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public String sql;
   public boolean isCanceled;
-  public RowMetaInterface paramsMeta;
+  public IRowMeta paramsMeta;
 
   public ExecSQLData() {
     super();

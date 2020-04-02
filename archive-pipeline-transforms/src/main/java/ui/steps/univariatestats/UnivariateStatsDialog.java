@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.univariatestats;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.univariatestats.UnivariateStatsMeta;
 import org.apache.hop.pipeline.transforms.univariatestats.UnivariateStatsMetaFunction;
@@ -69,7 +69,7 @@ import java.util.Set;
  * @author Mark Hall (mhall{[at]}pentaho.org
  * @version 1.0
  */
-public class UnivariateStatsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class UnivariateStatsDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -220,11 +220,11 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements Transf
 
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
-              ValueMetaInterface field = row.getValueMeta( i );
+              IValueMeta field = row.getValueMeta( i );
               // limit the choices to only numeric input fields
               if ( field.isNumeric() ) {
                 m_inputFields.put( field.getName(), Integer.valueOf( i ) );

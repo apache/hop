@@ -28,8 +28,8 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -73,7 +73,7 @@ public class SelectValuesTest {
   private final Object[] inputRow = new Object[] { "a string" };
 
   private SelectValues transform;
-  private TransformMockHelper<SelectValuesMeta, TransformDataInterface> helper;
+  private TransformMockHelper<SelectValuesMeta, ITransformData> helper;
 
   @BeforeClass
   public static void initHop() throws Exception {
@@ -85,11 +85,11 @@ public class SelectValuesTest {
     helper = TransformMockUtil.getTransformMockHelper( SelectValuesMeta.class, "SelectValuesTest" );
     when( helper.transformMeta.isDoingErrorHandling() ).thenReturn( true );
 
-    transform = new SelectValues( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform = new SelectValues( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform = spy( transform );
     doReturn( inputRow ).when( transform ).getRow();
     doNothing().when( transform )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     RowMeta inputRowMeta = new RowMeta();
@@ -112,15 +112,15 @@ public class SelectValuesTest {
     RowMeta inputRowMeta = null;
     SelectValuesMeta transformMeta = null;
     SelectValuesData transformData = null;
-    ValueMetaInterface vmi = null;
+    IValueMeta vmi = null;
     // First, test current behavior (it's worked this way since 5.x or so)
     //
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2 = spy( transform2 );
     inputRow2 = new Object[] { new BigDecimal( "589" ) }; // Starting with a BigDecimal (no places)
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -131,8 +131,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_INTEGER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -144,11 +144,11 @@ public class SelectValuesTest {
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_BIG_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
 
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2 = spy( transform2 );
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -159,8 +159,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_NUMBER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_NUMBER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -173,12 +173,12 @@ public class SelectValuesTest {
     assertEquals( ValueMetaBase.DEFAULT_BIG_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
 
 
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2 = spy( transform2 );
     inputRow2 = new Object[] { new Long( "589" ) }; // Starting with a Long
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -190,8 +190,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     // no specified conversion type so should have default conversion mask for BigNumber
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_BIGNUMBER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_BIGNUMBER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -204,13 +204,13 @@ public class SelectValuesTest {
     assertEquals( ValueMetaBase.DEFAULT_INTEGER_FORMAT_MASK, vmi.getConversionMask() );
 
     // Now, test that setting the variable results in getting the default conversion mask
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2.setVariable( Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "Y" );
     transform2 = spy( transform2 );
     inputRow2 = new Object[] { new BigDecimal( "589" ) }; // Starting with a BigDecimal (no places)
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -221,8 +221,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_INTEGER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -234,12 +234,12 @@ public class SelectValuesTest {
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_INTEGER_FORMAT_MASK, vmi.getConversionMask() );
 
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2.setVariable( Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "Y" );
     transform2 = spy( transform2 );
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -250,8 +250,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_NUMBER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_NUMBER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -264,13 +264,13 @@ public class SelectValuesTest {
     assertEquals( ValueMetaBase.DEFAULT_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
 
 
-    transform2 = new SelectValuesHandler( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform2 = new SelectValuesHandler( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform2.setVariable( Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "Y" );
     transform2 = spy( transform2 );
     inputRow2 = new Object[] { new Long( "589" ) }; // Starting with a Long
     doReturn( inputRow2 ).when( transform2 ).getRow();
     doNothing().when( transform2 )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
         anyString() );
 
     inputRowMeta = new RowMeta();
@@ -282,8 +282,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     // no specified conversion type so should have default conversion mask for BigNumber
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_BIGNUMBER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_BIGNUMBER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -304,8 +304,8 @@ public class SelectValuesTest {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
+      new SelectMetadataChange( transformMeta, SELECTED_FIELD, null, IValueMeta.TYPE_INTEGER, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
 
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;
@@ -316,7 +316,7 @@ public class SelectValuesTest {
     transform.processRow( transformMeta, transformData );
 
     verify( transform )
-      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), eq( SELECTED_FIELD ),
+      .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), eq( SELECTED_FIELD ),
         anyString() );
 
 
@@ -332,16 +332,16 @@ public class SelectValuesTest {
 
   public class SelectValuesHandler extends SelectValues {
     private Object[] resultRow;
-    private RowMetaInterface rowMeta;
+    private IRowMeta rowMeta;
     private RowSet rowset;
 
-    public SelectValuesHandler( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+    public SelectValuesHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @Override
-    public void putRow( RowMetaInterface rm, Object[] row ) throws HopTransformException {
+    public void putRow( IRowMeta rm, Object[] row ) throws HopTransformException {
       resultRow = row;
       rowMeta = rm;
     }

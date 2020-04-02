@@ -22,28 +22,28 @@
 
 package org.apache.hop.pipeline;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SingleThreadedPipelineExecutor {
 
-  private final List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms;
+  private final List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
   private Pipeline pipeline;
   private boolean[] done;
   private int nrDone;
-  private List<List<StreamInterface>> transformInfoStreams;
-  private List<List<RowSet>> transformInfoRowSets;
-  private LogChannelInterface log;
+  private List<List<IStream>> transformInfoStreams;
+  private List<List<IRowSet>> transformInfoRowSets;
+  private ILogChannel log;
 
   public SingleThreadedPipelineExecutor( final Pipeline pipeline ) {
     this.pipeline = pipeline;
@@ -62,14 +62,14 @@ public class SingleThreadedPipelineExecutor {
     done = new boolean[ transforms.size() ];
     nrDone = 0;
 
-    transformInfoStreams = new ArrayList<List<StreamInterface>>();
-    transformInfoRowSets = new ArrayList<List<RowSet>>();
+    transformInfoStreams = new ArrayList<List<IStream>>();
+    transformInfoRowSets = new ArrayList<List<IRowSet>>();
     for ( TransformMetaDataCombi combi : transforms ) {
-      List<StreamInterface> infoStreams = combi.transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = combi.transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoStreams();
       transformInfoStreams.add( infoStreams );
-      List<RowSet> infoRowSets = new ArrayList<RowSet>();
-      for ( StreamInterface infoStream : infoStreams ) {
-        RowSet infoRowSet = pipeline.findRowSet( infoStream.getTransformName(), 0, combi.transformName, 0 );
+      List<IRowSet> infoRowSets = new ArrayList<IRowSet>();
+      for ( IStream infoStream : infoStreams ) {
+        IRowSet infoRowSet = pipeline.findRowSet( infoStream.getTransformName(), 0, combi.transformName, 0 );
         if ( infoRowSet != null ) {
           infoRowSets.add( infoRowSet );
         }
@@ -298,11 +298,11 @@ public class SingleThreadedPipelineExecutor {
         boolean transformDone = false;
         // For every input row we call the processRow() method of the transform.
         //
-        List<RowSet> infoRowSets = transformInfoRowSets.get( s );
+        List<IRowSet> infoRowSets = transformInfoRowSets.get( s );
 
         // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and so on.
         //
-        for ( RowSet rowSet : infoRowSets ) {
+        for ( IRowSet rowSet : infoRowSets ) {
           boolean once = true;
           while ( once || ( rowSet.size() > 0 && !transformDone ) ) {
             once = false;
@@ -315,7 +315,7 @@ public class SingleThreadedPipelineExecutor {
 
         // Do normal processing of input rows...
         //
-        List<RowSet> rowSets = combi.transform.getInputRowSets();
+        List<IRowSet> rowSets = combi.transform.getInputRowSets();
 
         // If there are no input row sets, we read all rows until finish.
         // This applies to transforms like "Table Input", "Text File Input" and so on.
@@ -334,7 +334,7 @@ public class SingleThreadedPipelineExecutor {
           // we simply count the total nr of rows on input. The transforms will find the rows in either row set.
           //
           int nrRows = 0;
-          for ( RowSet rowSet : rowSets ) {
+          for ( IRowSet rowSet : rowSets ) {
             nrRows += rowSet.size();
           }
 
@@ -362,9 +362,9 @@ public class SingleThreadedPipelineExecutor {
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
 
-  protected int getTotalRows( List<RowSet> rowSets ) {
+  protected int getTotalRows( List<IRowSet> rowSets ) {
     int total = 0;
-    for ( RowSet rowSet : rowSets ) {
+    for ( IRowSet rowSet : rowSets ) {
       total += rowSet.size();
     }
     return total;

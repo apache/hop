@@ -29,14 +29,14 @@ import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
@@ -47,7 +47,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -66,7 +66,7 @@ import java.util.*;
 /**
  * Dialog for the Dimension Lookup/Update transform.
  */
-public class DimensionLookupDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DimensionLookupMeta.class; // for
   // i18n
   // purposes,
@@ -578,7 +578,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1510,11 +1510,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
    */
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wUpIns, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, new TableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          r, wUpIns, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, new ITableItemInsertListener() {
+            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
               tableItem
                 .setText( 3, BaseMessages.getString( PKG, "DimensionLookupDialog.TableItem.Insert.Label" ) );
 
@@ -1557,7 +1557,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
               try {
                 db.connect();
 
-                RowMetaInterface r =
+                IRowMeta r =
                   db.getTableFieldsMeta(
                     pipelineMeta.environmentSubstitute( schemaName ),
                     pipelineMeta.environmentSubstitute( tableName ) );
@@ -1605,11 +1605,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
       db.shareVariablesWith( pipelineMeta );
       try {
         db.connect();
-        RowMetaInterface r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
+        IRowMeta r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious(
-            r, wUpIns, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new TableItemInsertListener() {
-              public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+            r, wUpIns, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new ITableItemInsertListener() {
+              public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
                 int idx = wKey.indexOfString( v.getName(), 2 );
                 return idx < 0
                   && !v.getName().equalsIgnoreCase( wTk.getText() )
@@ -1635,7 +1635,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
     if ( !gotPreviousFields ) {
       try {
         String field = wDatefield.getText();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wDatefield.setItems( r.getFieldNames() );
 
@@ -1660,7 +1660,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
           Database db = new Database( loggingObject, ci );
           try {
             db.connect();
-            RowMetaInterface r =
+            IRowMeta r =
               db.getTableFieldsMeta(
                 pipelineMeta.environmentSubstitute( wSchema.getText() ),
                 pipelineMeta.environmentSubstitute( wTable.getText() ) );
@@ -1716,11 +1716,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
    */
   private void getKeys() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wKey, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new TableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          r, wKey, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new ITableItemInsertListener() {
+            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
               int idx = wKey.indexOfString( v.getName(), 2 );
               return idx < 0
                 && !v.getName().equalsIgnoreCase( wTk.getText() )
@@ -1732,7 +1732,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
 
         Table table = wKey.table;
         for ( int i = 0; i < r.size(); i++ ) {
-          ValueMetaInterface v = r.getValueMeta( i );
+          IValueMeta v = r.getValueMeta( i );
           int idx = wKey.indexOfString( v.getName(), 2 );
           int idy = wUpIns.indexOfString( v.getName(), 2 );
           if ( idx < 0
@@ -1758,7 +1758,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
   }
 
   @Override
-  protected Button createHelpButton( Shell shell, TransformMeta transformMeta, PluginInterface plugin ) {
+  protected Button createHelpButton( Shell shell, TransformMeta transformMeta, IPlugin plugin ) {
     return HelpUtils.createHelpButton( helpComp, HelpUtils.getHelpDialogTitle( plugin ), plugin );
   }
 
@@ -1774,7 +1774,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements Transf
       // transforms!
       TransformMeta transforminfo =
         new TransformMeta( BaseMessages.getString( PKG, "DimensionLookupDialog.Transforminfo.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       String message = null;
       if ( Utils.isEmpty( info.getKeyField() ) ) {

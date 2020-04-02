@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.randomccnumber.RandomCCNumberGeneratorMeta;
 import org.apache.hop.pipeline.transforms.randomccnumber.RandomCreditCardNumberGenerator;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class RandomCCNumberGeneratorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class RandomCCNumberGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RandomCCNumberGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;

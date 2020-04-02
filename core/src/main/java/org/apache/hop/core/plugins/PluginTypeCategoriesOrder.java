@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation when applied to a PluginTypeInterface instance describes an ordered list of categories. The
+ * This annotation when applied to a IPluginType instance describes an ordered list of categories. The
  * categories are internationalized when applied using the Messages located in the package where i18nPackageClass is
  * located.
  *

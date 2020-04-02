@@ -53,7 +53,7 @@ public class SyslogMessageTest {
     transformMockHelper =
       new TransformMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
         SyslogMessageData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
 
   }
@@ -88,7 +88,7 @@ public class SyslogMessageTest {
     } ).when( syslog ).shutdown();
     SyslogMessageMeta meta = new SyslogMessageMeta();
     SyslogMessage syslogMessage =
-      new SyslogMessage( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new SyslogMessage( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     SyslogMessage sysLogMessageSpy = spy( syslogMessage );
     when( sysLogMessageSpy.getSyslog() ).thenReturn( syslog );

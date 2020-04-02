@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.parallelgzipcsv;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
@@ -43,34 +43,34 @@ public class ParGzipCsvInputMetaInjection implements TransformMetaInjectionInter
 
   private enum Entry {
 
-    FILENAME( ValueMetaInterface.TYPE_STRING, "The file name to read" ), FILENAME_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The filename field (if the transform reads file names)" ),
-    INCLUDING_FILENAMES( ValueMetaInterface.TYPE_STRING, "Include file name in output? (Y/N)" ),
+    FILENAME( IValueMeta.TYPE_STRING, "The file name to read" ), FILENAME_FIELD(
+      IValueMeta.TYPE_STRING, "The filename field (if the transform reads file names)" ),
+    INCLUDING_FILENAMES( IValueMeta.TYPE_STRING, "Include file name in output? (Y/N)" ),
     ROW_NUMBER_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The row number field" ), HEADER_PRESENT(
-      ValueMetaInterface.TYPE_STRING, "Is there a header row? (Y/N)" ), DELIMITER(
-      ValueMetaInterface.TYPE_STRING, "The field delimiter" ), ENCLOSURE(
-      ValueMetaInterface.TYPE_STRING, "The field enclosure" ), BUFFER_SIZE(
-      ValueMetaInterface.TYPE_STRING, "I/O buffer size" ), LAZY_CONVERSION(
-      ValueMetaInterface.TYPE_STRING, "Use lazy conversion? (Y/N)" ), ADD_FILES_TO_RESULT(
-      ValueMetaInterface.TYPE_STRING, "Add files to result? (Y/N)" ), RUN_IN_PARALLEL(
-      ValueMetaInterface.TYPE_STRING, "Run in parallel? (Y/N)" ), ENCODING(
-      ValueMetaInterface.TYPE_STRING, "The file encoding" ),
+      IValueMeta.TYPE_STRING, "The row number field" ), HEADER_PRESENT(
+      IValueMeta.TYPE_STRING, "Is there a header row? (Y/N)" ), DELIMITER(
+      IValueMeta.TYPE_STRING, "The field delimiter" ), ENCLOSURE(
+      IValueMeta.TYPE_STRING, "The field enclosure" ), BUFFER_SIZE(
+      IValueMeta.TYPE_STRING, "I/O buffer size" ), LAZY_CONVERSION(
+      IValueMeta.TYPE_STRING, "Use lazy conversion? (Y/N)" ), ADD_FILES_TO_RESULT(
+      IValueMeta.TYPE_STRING, "Add files to result? (Y/N)" ), RUN_IN_PARALLEL(
+      IValueMeta.TYPE_STRING, "Run in parallel? (Y/N)" ), ENCODING(
+      IValueMeta.TYPE_STRING, "The file encoding" ),
 
-    FIELDS( ValueMetaInterface.TYPE_NONE, "The fields" ), FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
-    FIELD_NAME( ValueMetaInterface.TYPE_STRING, "Name" ), FIELD_POSITION(
-      ValueMetaInterface.TYPE_STRING, "Position" ), FIELD_LENGTH( ValueMetaInterface.TYPE_STRING, "Length" ),
-    FIELD_TYPE( ValueMetaInterface.TYPE_STRING, "Data type (String, Number, ...)" ), FIELD_IGNORE(
-      ValueMetaInterface.TYPE_STRING, "Ignore? (Y/N)" ),
-    FIELD_FORMAT( ValueMetaInterface.TYPE_STRING, "Format" ), FIELD_TRIM_TYPE(
-      ValueMetaInterface.TYPE_STRING, "Trim type (none, left, right, both)" ), FIELD_PRECISION(
-      ValueMetaInterface.TYPE_STRING, "Precision" ), FIELD_DECIMAL(
-      ValueMetaInterface.TYPE_STRING, "Decimal symbol" ), FIELD_GROUP(
-      ValueMetaInterface.TYPE_STRING, "Grouping symbol" ), FIELD_CURRENCY(
-      ValueMetaInterface.TYPE_STRING, "Currency symbol" ), FIELD_REPEAT(
-      ValueMetaInterface.TYPE_STRING, "Repeat values? (Y/N)" ), FIELD_NULL_STRING(
-      ValueMetaInterface.TYPE_STRING, "The null string" ), FIELD_IF_NULL(
-      ValueMetaInterface.TYPE_STRING, "The default value if null" );
+    FIELDS( IValueMeta.TYPE_NONE, "The fields" ), FIELD( IValueMeta.TYPE_NONE, "One field" ),
+    FIELD_NAME( IValueMeta.TYPE_STRING, "Name" ), FIELD_POSITION(
+      IValueMeta.TYPE_STRING, "Position" ), FIELD_LENGTH( IValueMeta.TYPE_STRING, "Length" ),
+    FIELD_TYPE( IValueMeta.TYPE_STRING, "Data type (String, Number, ...)" ), FIELD_IGNORE(
+      IValueMeta.TYPE_STRING, "Ignore? (Y/N)" ),
+    FIELD_FORMAT( IValueMeta.TYPE_STRING, "Format" ), FIELD_TRIM_TYPE(
+      IValueMeta.TYPE_STRING, "Trim type (none, left, right, both)" ), FIELD_PRECISION(
+      IValueMeta.TYPE_STRING, "Precision" ), FIELD_DECIMAL(
+      IValueMeta.TYPE_STRING, "Decimal symbol" ), FIELD_GROUP(
+      IValueMeta.TYPE_STRING, "Grouping symbol" ), FIELD_CURRENCY(
+      IValueMeta.TYPE_STRING, "Currency symbol" ), FIELD_REPEAT(
+      IValueMeta.TYPE_STRING, "Repeat values? (Y/N)" ), FIELD_NULL_STRING(
+      IValueMeta.TYPE_STRING, "The null string" ), FIELD_IF_NULL(
+      IValueMeta.TYPE_STRING, "The default value if null" );
 
     private int valueType;
     private String description;
@@ -121,10 +121,10 @@ public class ParGzipCsvInputMetaInjection implements TransformMetaInjectionInter
     // The fields...
     //
     TransformInjectionMetaEntry fieldsEntry =
-      new TransformInjectionMetaEntry( Entry.FIELDS.name(), ValueMetaInterface.TYPE_NONE, Entry.FIELDS.description );
+      new TransformInjectionMetaEntry( Entry.FIELDS.name(), IValueMeta.TYPE_NONE, Entry.FIELDS.description );
     all.add( fieldsEntry );
     TransformInjectionMetaEntry fieldEntry =
-      new TransformInjectionMetaEntry( Entry.FIELD.name(), ValueMetaInterface.TYPE_NONE, Entry.FIELD.description );
+      new TransformInjectionMetaEntry( Entry.FIELD.name(), IValueMeta.TYPE_NONE, Entry.FIELD.description );
     fieldsEntry.getDetails().add( fieldEntry );
 
     Entry[] aggEntries =

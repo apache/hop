@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 @HopServerServlet( id = "StopHopServerServlet", name = "StopHopServerServlet" )
-public class StopHopServerServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class StopHopServerServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static Class<?> PKG = StopHopServerServlet.class;
 

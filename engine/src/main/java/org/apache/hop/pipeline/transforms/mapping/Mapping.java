@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.PipelineLogTable;
@@ -37,12 +37,12 @@ import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
@@ -56,14 +56,14 @@ import java.util.List;
  * @author Matt
  * @since 22-nov-2005
  */
-public class Mapping extends BaseTransform implements TransformInterface {
+public class Mapping extends BaseTransform implements ITransform {
   private static Class<?> PKG = MappingMeta.class; // for i18n purposes, needed by Translator!!
 
   private MappingMeta meta;
   private MappingData data;
 
-  public Mapping( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+  public Mapping( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,7 +71,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the Mapping.
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     try {
       meta = (MappingMeta) smi;
       setData( (MappingData) sdi );
@@ -85,19 +85,19 @@ public class Mapping extends BaseTransform implements TransformInterface {
 
           // Before we start, let's see if there are loose ends to tie up...
           //
-          List<RowSet> inputRowSets = getInputRowSets();
+          List<IRowSet> inputRowSets = getInputRowSets();
           if ( !inputRowSets.isEmpty() ) {
-            for ( RowSet rowSet : inputRowSets ) {
+            for ( IRowSet rowSet : inputRowSets ) {
               // Pass this rowset down to a mapping input transform in the
               // sub-pipeline...
               //
               if ( mappingInputs.length == 1 ) {
-                // Simple case: only one input mapping. Move the RowSet over
+                // Simple case: only one input mapping. Move the IRowSet over
                 //
                 mappingInputs[ 0 ].addRowSetToInputRowSets( rowSet );
               } else {
                 // Difficult to see what's going on here.
-                // TODO: figure out where this RowSet needs to go and where it
+                // TODO: figure out where this IRowSet needs to go and where it
                 // comes from.
                 //
                 throw new HopException(
@@ -111,19 +111,19 @@ public class Mapping extends BaseTransform implements TransformInterface {
 
           // Do the same thing for output row sets
           //
-          List<RowSet> outputRowSets = getOutputRowSets();
+          List<IRowSet> outputRowSets = getOutputRowSets();
           if ( !outputRowSets.isEmpty() ) {
-            for ( RowSet rowSet : outputRowSets ) {
+            for ( IRowSet rowSet : outputRowSets ) {
               // Pass this rowset down to a mapping input transform in the
               // sub-pipeline...
               //
               if ( mappingOutputs.length == 1 ) {
-                // Simple case: only one output mapping. Move the RowSet over
+                // Simple case: only one output mapping. Move the IRowSet over
                 //
                 mappingOutputs[ 0 ].addRowSetToOutputRowSets( rowSet );
               } else {
                 // Difficult to see what's going on here.
-                // TODO: figure out where this RowSet needs to go and where it
+                // TODO: figure out where this IRowSet needs to go and where it
                 // comes from.
                 //
                 throw new HopException(
@@ -168,7 +168,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
           }
 
           // Object[] row = getRow();
-          // RowMetaInterface rowMeta = getInputRowMeta();
+          // IRowMeta rowMeta = getInputRowMeta();
 
           // for (int count=0;count<(data.mappingPipelineMeta.getSizeRowset()/2) && row!=null;count++) {
           // // Pass each row over to the mapping input transform, fill the buffer...
@@ -179,7 +179,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
           // }
 
           if ( ( log != null ) && log.isDebug() ) {
-            List<RowSet> mappingInputRowSets = mappingInputs[ 0 ].getInputRowSets();
+            List<IRowSet> mappingInputRowSets = mappingInputs[ 0 ].getInputRowSets();
             log.logDebug( "# of input buffers: " + mappingInputRowSets.size() );
             if ( mappingInputRowSets.size() > 0 ) {
               log.logDebug( "Input buffer 0 size: " + mappingInputRowSets.get( 0 ).size() );
@@ -275,17 +275,17 @@ public class Mapping extends BaseTransform implements TransformInterface {
     // OK, check the input mapping definitions and look up the transforms to read
     // from.
     //
-    TransformInterface[] sourceTransforms;
+    ITransform[] sourceTransforms;
     for ( MappingIODefinition inputDefinition : meta.getInputMappings() ) {
       // If we have a single transform to read from, we use this
       //
       if ( !Utils.isEmpty( inputDefinition.getInputTransformName() ) ) {
-        TransformInterface sourceTransform = getPipeline().findRunThread( inputDefinition.getInputTransformName() );
+        ITransform sourceTransform = getPipeline().findRunThread( inputDefinition.getInputTransformName() );
         if ( sourceTransform == null ) {
           throw new HopException( BaseMessages.getString( PKG, "MappingDialog.Exception.TransformNameNotFound",
             inputDefinition.getInputTransformName() ) );
         }
-        sourceTransforms = new TransformInterface[] { sourceTransform, };
+        sourceTransforms = new ITransform[] { sourceTransform, };
       } else {
         // We have no defined source transform.
         // That means that we're reading from all input transforms that this mapping
@@ -300,7 +300,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
         // The origin is the previous transform
         // The target is the Mapping Input transform.
         //
-        sourceTransforms = new TransformInterface[ prevTransforms.size() ];
+        sourceTransforms = new ITransform[ prevTransforms.size() ];
         for ( int s = 0; s < sourceTransforms.length; s++ ) {
           sourceTransforms[ s ] = getPipeline().findRunThread( prevTransforms.get( s ).getName() );
         }
@@ -384,7 +384,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
 
       // To what transforms in this pipeline are we writing to?
       //
-      TransformInterface[] targetTransforms = pickupTargetTransformsFor( outputDefinition );
+      ITransform[] targetTransforms = pickupTargetTransformsFor( outputDefinition );
 
       // Now tell the mapping output transform where to look...
       // Also explain the mapping output transforms how to rename the values back...
@@ -404,9 +404,9 @@ public class Mapping extends BaseTransform implements TransformInterface {
     getPipeline().addActiveSubPipeline( getTransformName(), getData().getMappingPipeline() );
   }
 
-  @VisibleForTesting TransformInterface[] pickupTargetTransformsFor( MappingIODefinition outputDefinition )
+  @VisibleForTesting ITransform[] pickupTargetTransformsFor( MappingIODefinition outputDefinition )
     throws HopException {
-    List<TransformInterface> result;
+    List<ITransform> result;
     if ( !Utils.isEmpty( outputDefinition.getOutputTransformName() ) ) {
       // If we have a target transform specification for the output of the mapping,
       // we need to send it over there...
@@ -429,13 +429,13 @@ public class Mapping extends BaseTransform implements TransformInterface {
       result = new ArrayList<>();
       for ( TransformMeta nextTransform : nextTransforms ) {
         // need to take into the account different copies of the transform
-        List<TransformInterface> copies = getPipeline().findTransformInterfaces( nextTransform.getName() );
+        List<ITransform> copies = getPipeline().findTransformInterfaces( nextTransform.getName() );
         if ( copies != null ) {
           result.addAll( copies );
         }
       }
     }
-    return result.toArray( new TransformInterface[ result.size() ] );
+    return result.toArray( new ITransform[ result.size() ] );
   }
 
   void initPipelineFromMeta() throws HopException {
@@ -490,7 +490,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (MappingMeta) smi;
     setData( (MappingData) sdi );
     MappingData mappingData = getData();
@@ -509,7 +509,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
       }
 
       // OK, now prepare the execution of the mapping.
-      // This includes the allocation of RowSet buffers, the creation of the
+      // This includes the allocation of IRowSet buffers, the creation of the
       // sub- pipeline threads, etc.
       //
       prepareMappingExecution();
@@ -524,7 +524,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
     }
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     // Close the running pipeline
     if ( getData().wasStarted ) {
       if ( !getData().mappingPipeline.isFinished() ) {
@@ -544,7 +544,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
     super.dispose( smi, sdi );
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface )
+  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData )
     throws HopException {
     if ( getData().getMappingPipeline() != null ) {
       getData().getMappingPipeline().stopAll();
@@ -564,7 +564,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
   private void lookupStatusTransformNumbers() {
     MappingData mappingData = getData();
     if ( mappingData.getMappingPipeline() != null ) {
-      List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms = mappingData.getMappingPipeline().getTransforms();
+      List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms = mappingData.getMappingPipeline().getTransforms();
       for ( int i = 0; i < transforms.size(); i++ ) {
         TransformMetaDataCombi sid = transforms.get( i );
         BaseTransform rt = (BaseTransform) sid.transform;
@@ -648,7 +648,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
   public int rowsetInputSize() {
     int size = 0;
     for ( MappingInput input : getData().getMappingPipeline().findMappingInput() ) {
-      for ( RowSet rowSet : input.getInputRowSets() ) {
+      for ( IRowSet rowSet : input.getInputRowSets() ) {
         size += rowSet.size();
       }
     }
@@ -659,7 +659,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
   public int rowsetOutputSize() {
     int size = 0;
     for ( MappingOutput output : getData().getMappingPipeline().findMappingOutput() ) {
-      for ( RowSet rowSet : output.getOutputRowSets() ) {
+      for ( IRowSet rowSet : output.getOutputRowSets() ) {
         size += rowSet.size();
       }
     }
@@ -673,7 +673,7 @@ public class Mapping extends BaseTransform implements TransformInterface {
   /**
    * For preview of the main data path, make sure we pass the row listener down to the Mapping Output transform...
    */
-  public void addRowListener( RowListener rowListener ) {
+  public void addRowListener( IRowListener rowListener ) {
     MappingOutput[] mappingOutputs = getData().getMappingPipeline().findMappingOutput();
     if ( mappingOutputs == null || mappingOutputs.length == 0 ) {
       return; // Nothing to do here...

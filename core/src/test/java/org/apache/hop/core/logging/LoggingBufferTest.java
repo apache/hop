@@ -40,7 +40,7 @@ public class LoggingBufferTest {
 
     final AtomicBoolean done = new AtomicBoolean( false );
 
-    final HopLoggingEventListener lsnr = new HopLoggingEventListener() {
+    final IHopLoggingEventListener lsnr = new IHopLoggingEventListener() {
       @Override public void eventAdded( HopLoggingEvent event ) {
         //stub
       }

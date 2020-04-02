@@ -24,8 +24,8 @@ package org.apache.hop.job.entry.loadSave;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author Andrey Khayrutdinov
  */
 @Ignore
-public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
+public abstract class JobEntryLoadSaveTestSupport<T extends IJobEntry> {
 
   private LoadSaveTester<T> tester;
 
@@ -57,8 +57,8 @@ public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
     List<String> xmlAttributes = listXmlAttributes();
     Map<String, String> getters = createGettersMap();
     Map<String, String> setters = createSettersMap();
-    Map<String, FieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
-    Map<String, FieldLoadSaveValidator<?>> typeValidators = createTypeValidatorsMap();
+    Map<String, IFieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = createTypeValidatorsMap();
 
     assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
 
@@ -88,11 +88,11 @@ public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
     return Collections.emptyMap();
   }
 
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     return Collections.emptyMap();
   }
 
-  protected Map<String, FieldLoadSaveValidator<?>> createTypeValidatorsMap() {
+  protected Map<String, IFieldLoadSaveValidator<?>> createTypeValidatorsMap() {
     return Collections.emptyMap();
   }
 

@@ -26,17 +26,17 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.NonZeroIntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DatabaseLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DatabaseLookupMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DatabaseLookupMeta> testMetaClass = DatabaseLookupMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -73,10 +73,10 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "streamKeyField1", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "streamKeyField2", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
@@ -89,7 +89,7 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
 
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -98,7 +98,7 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof DatabaseLookupMeta ) {
       ( (DatabaseLookupMeta) someMeta ).allocate( 5, 5 );
     }
@@ -117,19 +117,19 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
     databaseLookupMeta.setReturnValueField( new String[] { "match", "match", "mismatch" } );
     databaseLookupMeta.setReturnValueNewName( new String[] { "v1", "v2", "v3" } );
 
-    ValueMetaInterface v1 = new ValueMetaString( "match" );
-    ValueMetaInterface v2 = new ValueMetaString( "match1" );
-    RowMetaInterface[] info = new RowMetaInterface[ 1 ];
+    IValueMeta v1 = new ValueMetaString( "match" );
+    IValueMeta v2 = new ValueMetaString( "match1" );
+    IRowMeta[] info = new IRowMeta[ 1 ];
     info[ 0 ] = new RowMeta();
     info[ 0 ].setValueMetaList( Arrays.asList( v1, v2 ) );
 
-    ValueMetaInterface r1 = new ValueMetaString( "value" );
-    RowMetaInterface row = new RowMeta();
-    row.setValueMetaList( new ArrayList<ValueMetaInterface>( Arrays.asList( r1 ) ) );
+    IValueMeta r1 = new ValueMetaString( "value" );
+    IRowMeta row = new RowMeta();
+    row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
 
     databaseLookupMeta.getFields( row, "", info, null, null, null );
 
-    List<ValueMetaInterface> expectedRow = Arrays.asList( new ValueMetaInterface[] { new ValueMetaString( "value" ),
+    List<IValueMeta> expectedRow = Arrays.asList( new IValueMeta[] { new ValueMetaString( "value" ),
       new ValueMetaString( "v1" ), new ValueMetaString( "v2" ), } );
     assertEquals( 3, row.getValueMetaList().size() );
     for ( int i = 0; i < 3; i++ ) {

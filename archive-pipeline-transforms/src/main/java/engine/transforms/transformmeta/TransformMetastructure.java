@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.transformmeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -42,16 +42,16 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @since 22-april-2008
  */
 
-public class TransformMetastructure extends BaseTransform implements TransformInterface {
+public class TransformMetastructure extends BaseTransform implements ITransform {
   private TransformMetastructureMeta meta;
   private TransformMetastructureData data;
 
-  public TransformMetastructure( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public TransformMetastructure( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                  PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TransformMetastructureMeta) smi;
     data = (TransformMetastructureData) sdi;
 
@@ -63,7 +63,7 @@ public class TransformMetastructure extends BaseTransform implements TransformIn
     return false;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     Object[] metastructureRow = null;
@@ -87,13 +87,13 @@ public class TransformMetastructure extends BaseTransform implements TransformIn
     if ( r == null ) {
       metastructureRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
 
-      RowMetaInterface row = getInputRowMeta().clone();
+      IRowMeta row = getInputRowMeta().clone();
 
       for ( int i = 0; i < row.size(); i++ ) {
 
-        ValueMetaInterface v = row.getValueMeta( i );
+        IValueMeta v = row.getValueMeta( i );
 
-        ValueMetaInterface v_position = data.outputRowMeta.getValueMeta( 0 );
+        IValueMeta v_position = data.outputRowMeta.getValueMeta( 0 );
         metastructureRow =
           RowDataUtil.addValueData( metastructureRow, 0, v_position.convertDataCompatible( v_position, new Long(
             i + 1 ) ) );
@@ -102,12 +102,12 @@ public class TransformMetastructure extends BaseTransform implements TransformIn
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 2, v.getComments() );
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 3, v.getTypeDesc() );
 
-        ValueMetaInterface v_length = data.outputRowMeta.getValueMeta( 4 );
+        IValueMeta v_length = data.outputRowMeta.getValueMeta( 4 );
         metastructureRow =
           RowDataUtil.addValueData( metastructureRow, 4, v_length.convertDataCompatible( v_length, new Long( v
             .getLength() ) ) );
 
-        ValueMetaInterface v_precision = data.outputRowMeta.getValueMeta( 5 );
+        IValueMeta v_precision = data.outputRowMeta.getValueMeta( 5 );
         metastructureRow =
           RowDataUtil.addValueData( metastructureRow, 5, v_precision.convertDataCompatible(
             v_precision, new Long( v.getPrecision() ) ) );
@@ -115,7 +115,7 @@ public class TransformMetastructure extends BaseTransform implements TransformIn
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 6, v.getOrigin() );
 
         if ( meta.isOutputRowcount() ) {
-          ValueMetaInterface v_rowCount = data.outputRowMeta.getValueMeta( 7 );
+          IValueMeta v_rowCount = data.outputRowMeta.getValueMeta( 7 );
           metastructureRow =
             RowDataUtil.addValueData( metastructureRow, 7, v_rowCount.convertDataCompatible(
               v_rowCount, new Long( data.rowCount ) ) );

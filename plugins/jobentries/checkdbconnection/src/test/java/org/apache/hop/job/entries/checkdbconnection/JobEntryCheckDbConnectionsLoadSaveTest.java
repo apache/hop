@@ -27,7 +27,7 @@ import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -39,12 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class JobEntryCheckDbConnectionsLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryCheckDbConnections> {
+public class JobEntryCheckDbConnectionsLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryICheckDbConnections> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<JobEntryCheckDbConnections> getJobEntryClass() {
-    return JobEntryCheckDbConnections.class;
+  protected Class<JobEntryICheckDbConnections> getJobEntryClass() {
+    return JobEntryICheckDbConnections.class;
   }
 
   @Override
@@ -53,15 +53,15 @@ public class JobEntryCheckDbConnectionsLoadSaveTest extends JobEntryLoadSaveTest
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     int entries = new Random().nextInt( 10 ) + 1;
     validators.put( "connections", new ArrayLoadSaveValidator<DatabaseMeta>(
       new DatabaseMetaLoadSaveValidator(), entries ) );
     validators.put( "waitfors", new ArrayLoadSaveValidator<String>(
       new StringLoadSaveValidator(), entries ) );
     validators.put( "waittimes", new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator( JobEntryCheckDbConnections.unitTimeCode.length ), entries ) );
+      new IntLoadSaveValidator( JobEntryICheckDbConnections.unitTimeCode.length ), entries ) );
     return validators;
   }
 }

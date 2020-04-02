@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-public class BooleanLoadSaveValidator implements FieldLoadSaveValidator<Boolean> {
+public class BooleanLoadSaveValidator implements IFieldLoadSaveValidator<Boolean> {
   private final Boolean value = new Random().nextBoolean();
 
   @Override

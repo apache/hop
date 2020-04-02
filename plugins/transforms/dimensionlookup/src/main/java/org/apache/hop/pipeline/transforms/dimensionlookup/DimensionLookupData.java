@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.hash.ByteArrayHashMap;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.util.Date;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class DimensionLookupData extends BaseTransformData implements TransformDataInterface {
+public class DimensionLookupData extends BaseTransformData implements ITransformData {
   public Date valueDateNow;
 
   public Database db;
@@ -54,10 +54,10 @@ public class DimensionLookupData extends BaseTransformData implements TransformD
 
   public Long notFoundTk;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
-  public RowMetaInterface lookupRowMeta;
-  public RowMetaInterface returnRowMeta;
+  public IRowMeta lookupRowMeta;
+  public IRowMeta returnRowMeta;
 
   public PreparedStatement prepStatementLookup;
   public PreparedStatement prepStatementInsert;
@@ -65,13 +65,13 @@ public class DimensionLookupData extends BaseTransformData implements TransformD
   public PreparedStatement prepStatementDimensionUpdate;
   public PreparedStatement prepStatementPunchThrough;
 
-  public RowMetaInterface insertRowMeta;
-  public RowMetaInterface updateRowMeta;
-  public RowMetaInterface dimensionUpdateRowMeta;
-  public RowMetaInterface punchThroughRowMeta;
+  public IRowMeta insertRowMeta;
+  public IRowMeta updateRowMeta;
+  public IRowMeta dimensionUpdateRowMeta;
+  public IRowMeta punchThroughRowMeta;
 
-  public RowMetaInterface cacheKeyRowMeta;
-  public RowMetaInterface cacheValueRowMeta;
+  public IRowMeta cacheKeyRowMeta;
+  public IRowMeta cacheValueRowMeta;
 
   public String schemaTable;
 
@@ -96,7 +96,7 @@ public class DimensionLookupData extends BaseTransformData implements TransformD
   /**
    * The input row metadata, but converted to normal storage type
    */
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public DimensionLookupData() {
     super();

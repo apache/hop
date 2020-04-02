@@ -78,7 +78,7 @@ public class ErrorDialog extends Dialog {
   private boolean cancelled;
   private Function<String, String> exMsgFunction = Function.identity();
 
-  // private LogChannelInterface log;
+  // private ILogChannel log;
 
   public ErrorDialog( Shell parent, String title, String message, Throwable throwable ) {
     this( parent, title, message, throwable, Function.identity() );

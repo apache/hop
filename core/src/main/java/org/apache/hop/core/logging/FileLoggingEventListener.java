@@ -30,7 +30,7 @@ import org.apache.hop.core.vfs.HopVFS;
 import java.io.OutputStream;
 import java.util.List;
 
-public class FileLoggingEventListener implements HopLoggingEventListener {
+public class FileLoggingEventListener implements IHopLoggingEventListener {
 
   private String filename;
   private FileObject file;

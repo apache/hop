@@ -27,10 +27,10 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
@@ -44,7 +44,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,7 +59,7 @@ public class GreenplumValueMetaBaseTest {
   // Get PKG from class under test
   private Class<?> PKG = ValueMetaBase.PKG;
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
+  private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
     private List<HopLoggingEvent> events = new ArrayList<>();
 
@@ -114,7 +113,7 @@ public class GreenplumValueMetaBaseTest {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -127,8 +126,8 @@ public class GreenplumValueMetaBaseTest {
     doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( -1, valueMeta.getPrecision() );
     assertEquals( -1, valueMeta.getLength() );
@@ -140,14 +139,14 @@ public class GreenplumValueMetaBaseTest {
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
     doReturn( false ).when( dbMeta ).supportsTimestampDataType();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( !valueMeta.isDate() );
   }
 
   @Test
   public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
   }
 
@@ -155,30 +154,30 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
   public void testMetdataPreviewSqlBitToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
   public void testMetdataPreviewSqlBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
 
   @Test
   public void testMetdataPreviewSqlBlobToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
     assertTrue( valueMeta.isBinary() );
   }
@@ -186,8 +185,8 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
 }

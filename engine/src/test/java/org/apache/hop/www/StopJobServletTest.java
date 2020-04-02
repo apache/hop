@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.junit.Before;
@@ -90,7 +90,7 @@ public class StopJobServletTest {
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Job mockJob = mock( Job.class );
     JobMeta mockJobMeta = mock( JobMeta.class );
-    LogChannelInterface mockLogChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
     mockJob.setName( ServletTestUtils.BAD_STRING_TO_TEST );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );

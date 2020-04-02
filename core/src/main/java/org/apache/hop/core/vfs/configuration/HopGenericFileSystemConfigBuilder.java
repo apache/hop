@@ -27,8 +27,8 @@ import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.util.DelegatingFileSystemOptionsBuilder;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder i
   IHopFileSystemConfigBuilder {
 
   private static final HopGenericFileSystemConfigBuilder builder = new HopGenericFileSystemConfigBuilder();
-  private static final LogChannelInterface log = new LogChannel( "cfgbuilder" );
+  private static final ILogChannel log = new LogChannel( "cfgbuilder" );
 
   @Override
   public String parseParameterName( String parameter, String scheme ) {

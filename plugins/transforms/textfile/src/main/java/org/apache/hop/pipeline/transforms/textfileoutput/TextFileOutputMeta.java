@@ -25,29 +25,27 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.AliasedFileObject;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
@@ -72,7 +70,7 @@ import java.util.Map;
 @InjectionSupported( localizationPrefix = "TextFileOutput.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class TextFileOutputMeta
   extends BaseTransformMeta
-  implements TransformMetaInterface<TextFileOutput, TextFileOutputData> {
+  implements ITransformMeta<TextFileOutput, TextFileOutputData> {
 
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -489,7 +487,7 @@ public class TextFileOutputMeta
 
   /**
    * @return Returns the splitEvery.
-   * @deprecated use {@link #getSplitEvery(VariableSpace)} or {@link #getSplitEveryRows()}
+   * @deprecated use {@link #getSplitEvery(IVariables)} or {@link #getSplitEveryRows()}
    */
   public int getSplitEvery() {
     return Const.toInt( splitEveryRows, 0 );
@@ -499,7 +497,7 @@ public class TextFileOutputMeta
    * @param varSpace for variable substitution
    * @return At how many rows to split into another file.
    */
-  public int getSplitEvery( VariableSpace varSpace ) {
+  public int getSplitEvery( IVariables varSpace ) {
     return Const.toInt( varSpace == null ? splitEveryRows : varSpace.environmentSubstitute( splitEveryRows ), 0 );
   }
 
@@ -815,25 +813,25 @@ public class TextFileOutputMeta
   }
 
 
-  public String buildFilename( String filename, String extension, VariableSpace space, int transformnr, String partnr,
+  public String buildFilename( String filename, String extension, IVariables variables, int transformnr, String partnr,
                                int splitnr, boolean ziparchive, TextFileOutputMeta meta ) {
 
-    final String realFileName = space.environmentSubstitute( filename );
-    final String realExtension = space.environmentSubstitute( extension );
-    return buildFilename( space, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
+    final String realFileName = variables.environmentSubstitute( filename );
+    final String realExtension = variables.environmentSubstitute( extension );
+    return buildFilename( variables, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
       .toString( splitnr ), new Date(), ziparchive, true, meta );
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // No values are added to the row in this type of transform
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
     for ( int i = 0; i < outputFields.length; i++ ) {
       TextFileField field = outputFields[ i ];
-      ValueMetaInterface v = row.searchValueMeta( field.getName() );
+      IValueMeta v = row.searchValueMeta( field.getName() );
       if ( v != null ) {
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
@@ -921,15 +919,15 @@ public class TextFileOutputMeta
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
     if ( prev != null && prev.size() > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "TextFileOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
@@ -946,11 +944,11 @@ public class TextFileOutputMeta
       }
       if ( error_found ) {
         error_message = BaseMessages.getString( PKG, "TextFileOutputMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
             "TextFileOutputMeta.CheckResult.AllFieldsFound" ), transformMeta );
         remarks.add( cr );
       }
@@ -959,25 +957,25 @@ public class TextFileOutputMeta
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "TextFileOutputMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "TextFileOutputMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
 
     cr =
-      new CheckResult( CheckResultInterface.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
+      new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
         "TextFileOutputMeta.CheckResult.FilesNotChecked" ), transformMeta );
     remarks.add( cr );
   }
 
   @Override
-  public TextFileOutput createTransform( TransformMeta transformMeta, TextFileOutputData transformDataInterface, int cnr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TextFileOutput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+  public TextFileOutput createTransform( TransformMeta transformMeta, TextFileOutputData iTransformData, int cnr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new TextFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -989,15 +987,15 @@ public class TextFileOutputMeta
    * Since the exported pipeline that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
@@ -1007,8 +1005,8 @@ public class TextFileOutputMeta
       if ( !fileNameInField ) {
 
         if ( !Utils.isEmpty( fileName ) ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName ), space );
-          fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+          fileName = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }
 
@@ -1108,14 +1106,14 @@ public class TextFileOutputMeta
   }
 
 
-  public String[] getFiles( final VariableSpace space ) {
-    return getFiles( space, true );
+  public String[] getFiles( final IVariables variables ) {
+    return getFiles( variables, true );
   }
 
-  private String[] getFiles( final VariableSpace space, final boolean showSamples ) {
+  private String[] getFiles( final IVariables variables, final boolean showSamples ) {
 
-    String realFileName = space.environmentSubstitute( fileName );
-    String realExtension = space.environmentSubstitute( extension );
+    String realFileName = variables.environmentSubstitute( fileName );
+    String realExtension = variables.environmentSubstitute( extension );
 
     return getFiles( realFileName, realExtension, showSamples );
   }
@@ -1174,17 +1172,17 @@ public class TextFileOutputMeta
   }
 
   public String buildFilename(
-    final VariableSpace space, final String transformnr, final String partnr, final String splitnr,
+    final IVariables variables, final String transformnr, final String partnr, final String splitnr,
     final boolean ziparchive ) {
-    return buildFilename( space, transformnr, partnr, splitnr, ziparchive, true );
+    return buildFilename( variables, transformnr, partnr, splitnr, ziparchive, true );
   }
 
   public String buildFilename(
-    final VariableSpace space, final String transformnr, final String partnr, final String splitnr,
+    final IVariables variables, final String transformnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
-    String realFileName = space.environmentSubstitute( fileName );
-    String realExtension = space.environmentSubstitute( extension );
+    String realFileName = variables.environmentSubstitute( fileName );
+    String realExtension = variables.environmentSubstitute( extension );
 
     return buildFilename( realFileName, realExtension, transformnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }
@@ -1206,7 +1204,7 @@ public class TextFileOutputMeta
   }
 
   protected String buildFilename(
-    final VariableSpace space, final String realFileName, final String realExtension, final String transformnr,
+    final IVariables variables, final String realFileName, final String realExtension, final String transformnr,
     final String partnr, final String splitnr, final Date date, final boolean ziparchive, final boolean showSamples,
     final TextFileOutputMeta meta ) {
 
@@ -1251,7 +1249,7 @@ public class TextFileOutputMeta
     if ( meta.isPartNrInFilename() ) {
       retval += "_" + partnr;
     }
-    if ( meta.getSplitEvery( space ) > 0 ) {
+    if ( meta.getSplitEvery( variables ) > 0 ) {
       retval += "_" + splitnr;
     }
 

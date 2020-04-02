@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingMeta;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
  * @author Mark Hall (mhall{[at]}pentaho.org
  * @version 1.0
  */
-public class ReservoirSamplingDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = ReservoirSamplingMeta.class; // for i18n purposes, needed by Translator!!
 

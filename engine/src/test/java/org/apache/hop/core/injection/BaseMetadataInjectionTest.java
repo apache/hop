@@ -27,18 +27,15 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.After;
 import org.junit.Ignore;
 
@@ -55,7 +52,7 @@ import static org.junit.Assert.fail;
  * Base class for test metadata injection.
  */
 @Ignore
-public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterface<?, ?>> {
+public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?>> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;
   protected Meta meta;
@@ -77,7 +74,7 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
     assertTrue( "Some properties where not tested: " + nonTestedProperties, nonTestedProperties.isEmpty() );
   }
 
-  protected List<RowMetaAndData> setValue( ValueMetaInterface valueMeta, Object... values ) {
+  protected List<RowMetaAndData> setValue( IValueMeta valueMeta, Object... values ) {
     RowMeta rowsMeta = new RowMeta();
     rowsMeta.addValueMeta( valueMeta );
     List<RowMetaAndData> rows = new ArrayList<>();
@@ -96,8 +93,8 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check boolean property.
    */
-  protected void check( String propertyName, BooleanGetter getter ) throws HopException {
-    ValueMetaInterface valueMetaString = new ValueMetaString( "f" );
+  protected void check( String propertyName, IBooleanGetter getter ) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "Y" ), "f" );
     assertEquals( true, getter.get() );
@@ -105,7 +102,7 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "N" ), "f" );
     assertEquals( false, getter.get() );
 
-    ValueMetaInterface valueMetaBoolean = new ValueMetaBoolean( "f" );
+    IValueMeta valueMetaBoolean = new ValueMetaBoolean( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaBoolean, true ), "f" );
     assertEquals( true, getter.get() );
@@ -119,8 +116,8 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check string property.
    */
-  protected void check( String propertyName, StringGetter getter, String... values ) throws HopException {
-    ValueMetaInterface valueMeta = new ValueMetaString( "f" );
+  protected void check( String propertyName, IStringGetter getter, String... values ) throws HopException {
+    IValueMeta valueMeta = new ValueMetaString( "f" );
 
     if ( values.length == 0 ) {
       values = new String[] { "v", "v2", null };
@@ -142,8 +139,8 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check enum property.
    */
-  protected void check( String propertyName, EnumGetter getter, Class<?> enumType ) throws HopException {
-    ValueMetaInterface valueMeta = new ValueMetaString( "f" );
+  protected void check( String propertyName, IEnumGetter getter, Class<?> enumType ) throws HopException {
+    IValueMeta valueMeta = new ValueMetaString( "f" );
 
     Object[] values = enumType.getEnumConstants();
 
@@ -164,8 +161,8 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check int property.
    */
-  protected void check( String propertyName, IntGetter getter ) throws HopException {
-    ValueMetaInterface valueMetaString = new ValueMetaString( "f" );
+  protected void check( String propertyName, IIntGetter getter ) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "1" ), "f" );
     assertEquals( 1, getter.get() );
@@ -173,7 +170,7 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "45" ), "f" );
     assertEquals( 45, getter.get() );
 
-    ValueMetaInterface valueMetaInteger = new ValueMetaInteger( "f" );
+    IValueMeta valueMetaInteger = new ValueMetaInteger( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaInteger, 1234L ), "f" );
     assertEquals( 1234, getter.get() );
@@ -187,12 +184,12 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check string-to-int property.
    */
-  protected void checkStringToInt( String propertyName, IntGetter getter, String[] codes, int[] ids )
+  protected void checkStringToInt( String propertyName, IIntGetter getter, String[] codes, int[] ids )
     throws HopException {
     if ( codes.length != ids.length ) {
       throw new RuntimeException( "Wrong codes/ids sizes" );
     }
-    ValueMetaInterface valueMetaString = new ValueMetaString( "f" );
+    IValueMeta valueMetaString = new ValueMetaString( "f" );
 
     for ( int i = 0; i < codes.length; i++ ) {
       injector.setProperty( meta, propertyName, setValue( valueMetaString, codes[ i ] ), "f" );
@@ -205,8 +202,8 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
   /**
    * Check long property.
    */
-  protected void check( String propertyName, LongGetter getter ) throws HopException {
-    ValueMetaInterface valueMetaString = new ValueMetaString( "f" );
+  protected void check( String propertyName, ILongGetter getter ) throws HopException {
+    IValueMeta valueMetaString = new ValueMetaString( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "1" ), "f" );
     assertEquals( 1, getter.get() );
@@ -214,7 +211,7 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
     injector.setProperty( meta, propertyName, setValue( valueMetaString, "45" ), "f" );
     assertEquals( 45, getter.get() );
 
-    ValueMetaInterface valueMetaInteger = new ValueMetaInteger( "f" );
+    IValueMeta valueMetaInteger = new ValueMetaInteger( "f" );
 
     injector.setProperty( meta, propertyName, setValue( valueMetaInteger, 1234L ), "f" );
     assertEquals( 1234, getter.get() );
@@ -233,23 +230,23 @@ public abstract class BaseMetadataInjectionTest<Meta extends TransformMetaInterf
     return typeCodes;
   }
 
-  public interface BooleanGetter {
+  public interface IBooleanGetter {
     boolean get();
   }
 
-  public interface StringGetter {
+  public interface IStringGetter {
     String get();
   }
 
-  public interface EnumGetter {
+  public interface IEnumGetter {
     Enum<?> get();
   }
 
-  public interface IntGetter {
+  public interface IIntGetter {
     int get();
   }
 
-  public interface LongGetter {
+  public interface ILongGetter {
     long get();
   }
 }

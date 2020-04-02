@@ -33,15 +33,15 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.utils.TestUtils;
@@ -97,9 +97,9 @@ public class TextFileOutputTest {
     public List<Throwable> errors = new ArrayList<>();
     private Object[] row;
 
-    TextFileOutputTestHandler( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+    TextFileOutputTestHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     public void setRow( Object[] row ) {
@@ -116,7 +116,7 @@ public class TextFileOutputTest {
     }
 
     @Override
-    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
 
     }
 
@@ -191,7 +191,7 @@ public class TextFileOutputTest {
   public void setUp() throws Exception {
     transformMockHelper =
       new TransformMockHelper<>( "TEXT FILE OUTPUT TEST", TextFileOutputMeta.class, TextFileOutputData.class );
-    Mockito.when( transformMockHelper.logChannelInterfaceFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) ).thenReturn(
+    Mockito.when( transformMockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     Mockito.verify( transformMockHelper.logChannelInterface, Mockito.never() ).logError( Mockito.anyString() );
     Mockito.verify( transformMockHelper.logChannelInterface, Mockito.never() ).logError( Mockito.anyString(), Mockito.any( Object[].class ) );
@@ -212,7 +212,7 @@ public class TextFileOutputTest {
   @Test
   public void testCloseFileDataOutIsNullCase() {
     textFileOutput =
-      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     textFileOutput.data = Mockito.mock( TextFileOutputData.class );
 
@@ -223,7 +223,7 @@ public class TextFileOutputTest {
   @Test
   public void testCloseFileDataOutIsNotNullCase() {
     textFileOutput =
-      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     textFileOutput.data = Mockito.mock( TextFileOutputData.class );
     textFileOutput.data.out = Mockito.mock( CompressionOutputStream.class );
@@ -304,7 +304,7 @@ public class TextFileOutputTest {
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.getOutputFields() ).thenReturn( textFileFields );
 
     textFileOutput =
-      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     TextFileOutput textFileOutputSpy = Mockito.spy( textFileOutput );
     Mockito.doReturn( false ).when( textFileOutputSpy ).isWriteHeader( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
@@ -314,7 +314,7 @@ public class TextFileOutputTest {
     textFileOutputSpy.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
 
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.buildFilename( Mockito.anyString(), Mockito.anyString(),
-      Mockito.any( VariableSpace.class ), Mockito.anyInt(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(),
+      Mockito.any( iVariables.class ), Mockito.anyInt(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(),
       Mockito.any( TextFileOutputMeta.class ) ) ).
       thenReturn( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
 
@@ -375,7 +375,7 @@ public class TextFileOutputTest {
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.isHeaderEnabled() ).thenReturn( isHeaderEnabled );
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.getFileName() ).thenReturn( pathToFile );
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.buildFilename( Mockito.anyString(), Mockito.anyString(),
-      Mockito.any( VariableSpace.class ), Mockito.anyInt(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(),
+      Mockito.any( iVariables.class ), Mockito.anyInt(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(),
       Mockito.any( TextFileOutputMeta.class ) ) ).thenReturn( pathToFile );
 
     Mockito.when( transformMockHelper.processRowsTransformMetaInterface.getOutputFields() ).thenReturn( textFileField );
@@ -385,7 +385,7 @@ public class TextFileOutputTest {
     // Process rows
 
     RowSet rowSet = transformMockHelper.getMockInputRowSet( rows );
-    RowMetaInterface inputRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = Mockito.mock( IRowMeta.class );
     textFileOutput.setInputRowMeta( inputRowMeta );
 
     Mockito.when( rowSet.getRowWait( Mockito.anyInt(), Mockito.any( TimeUnit.class ) ) )
@@ -450,7 +450,7 @@ public class TextFileOutputTest {
 
   private void assertNotInvokedTwice( TextFileField field ) {
     TextFileOutput transform =
-      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 1, transformMockHelper.pipelineMeta,
+      new TextFileOutput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 1, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
 
     TextFileOutputMeta meta = new TextFileOutputMeta();
@@ -508,14 +508,14 @@ public class TextFileOutputTest {
 
     Object[] rowData = new Object[] { "data text" };
     textFileOutput =
-      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     ( (TextFileOutputTestHandler) textFileOutput ).setRow( rowData );
-    RowMetaInterface inputRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = Mockito.mock( IRowMeta.class );
 
-    ValueMetaInterface valueMetaInterface = Mockito.mock( ValueMetaInterface.class );
-    Mockito.when( valueMetaInterface.getString( Mockito.anyObject() ) ).thenReturn( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
-    Mockito.when( inputRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( valueMetaInterface );
+    IValueMeta iValueMeta = Mockito.mock( IValueMeta.class );
+    Mockito.when( iValueMeta.getString( Mockito.anyObject() ) ).thenReturn( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
+    Mockito.when( inputRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( iValueMeta );
     Mockito.when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
 
     textFileOutput.setInputRowMeta( inputRowMeta );
@@ -565,14 +565,14 @@ public class TextFileOutputTest {
 
     Object[] rowData = new Object[] { "data text" };
     textFileOutput =
-      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     ( (TextFileOutputTestHandler) textFileOutput ).setRow( rowData );
-    RowMetaInterface inputRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = Mockito.mock( IRowMeta.class );
 
-    ValueMetaInterface valueMetaInterface = Mockito.mock( ValueMetaInterface.class );
-    Mockito.when( valueMetaInterface.getString( Mockito.anyObject() ) ).thenReturn( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
-    Mockito.when( inputRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( valueMetaInterface );
+    IValueMeta iValueMeta = Mockito.mock( IValueMeta.class );
+    Mockito.when( iValueMeta.getString( Mockito.anyObject() ) ).thenReturn( TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION );
+    Mockito.when( inputRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( iValueMeta );
     Mockito.when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
 
     textFileOutput.setInputRowMeta( inputRowMeta );
@@ -600,7 +600,7 @@ public class TextFileOutputTest {
   public void testFastDumpDisableStreamEncodeTest() throws Exception {
 
     textFileOutput =
-      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new TextFileOutputTestHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     textFileOutput.meta = transformMockHelper.processRowsTransformMetaInterface;
 
@@ -609,10 +609,10 @@ public class TextFileOutputTest {
     String outputEncode = "Windows-1252";
     Object[] rows = { testString.getBytes( inputEncode ) };
 
-    ValueMetaBase valueMetaInterface = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
-    valueMetaInterface.setStringEncoding( inputEncode );
-    valueMetaInterface.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
-    valueMetaInterface.setStorageMetadata( new ValueMetaString() );
+    ValueMetaBase iValueMeta = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
+    iValueMeta.setStringEncoding( inputEncode );
+    iValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
+    iValueMeta.setStorageMetadata( new ValueMetaString() );
 
     TextFileOutputData data = new TextFileOutputData();
     data.binarySeparator = " ".getBytes();
@@ -621,7 +621,7 @@ public class TextFileOutputTest {
     textFileOutput.data = data;
 
     RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta( valueMetaInterface );
+    rowMeta.addValueMeta( iValueMeta );
 
     Mockito.doReturn( outputEncode ).when( transformMockHelper.processRowsTransformMetaInterface ).getEncoding();
     textFileOutput.data.writer = Mockito.mock( BufferedOutputStream.class );

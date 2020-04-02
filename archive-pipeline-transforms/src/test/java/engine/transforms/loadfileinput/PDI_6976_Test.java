@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 import junit.framework.TestCase;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -58,7 +58,7 @@ public class PDI_6976_Test {
     FileInputList fileInputList = mock( FileInputList.class );
     List<FileObject> files = when( mock( List.class ).size() ).thenReturn( 1 ).getMock();
     doReturn( files ).when( fileInputList ).getFiles();
-    doReturn( fileInputList ).when( spy ).getFiles( any( VariableSpace.class ) );
+    doReturn( fileInputList ).when( spy ).getFiles( any( iVariables.class ) );
 
     @SuppressWarnings( "unchecked" )
     List<CheckResultInterface> validationResults = mock( List.class );
@@ -75,8 +75,8 @@ public class PDI_6976_Test {
       }
     } ).when( validationResults ).add( any( CheckResultInterface.class ) );
 
-    spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( RowMetaInterface.class ),
-      new String[] {}, new String[] { "File content", "File size" }, mock( RowMetaInterface.class ),
-      mock( VariableSpace.class ), mock( IMetaStore.class ) );
+    spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( IRowMeta.class ),
+      new String[] {}, new String[] { "File content", "File size" }, mock( IRowMeta.class ),
+      mock( iVariables.class ), mock( IMetaStore.class ) );
   }
 }

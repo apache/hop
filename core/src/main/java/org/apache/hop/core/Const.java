@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -1068,7 +1068,7 @@ public class Const {
   public static final String HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT = "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT";
 
   /**
-   * Compatibility settings for {@link org.apache.hop.core.row.ValueDataUtil#hourOfDay(ValueMetaInterface, Object)}.
+   * Compatibility settings for {@link org.apache.hop.core.row.ValueDataUtil#hourOfDay(IValueMeta, Object)}.
    * <p>
    * Switches off the fix for calculation of timezone decomposition.
    */
@@ -2945,13 +2945,13 @@ public class Const {
    */
   public static String trimToType( String string, int trimType ) {
     switch ( trimType ) {
-      case ValueMetaInterface.TRIM_TYPE_BOTH:
+      case IValueMeta.TRIM_TYPE_BOTH:
         return trim( string );
-      case ValueMetaInterface.TRIM_TYPE_LEFT:
+      case IValueMeta.TRIM_TYPE_LEFT:
         return ltrim( string );
-      case ValueMetaInterface.TRIM_TYPE_RIGHT:
+      case IValueMeta.TRIM_TYPE_RIGHT:
         return rtrim( string );
-      case ValueMetaInterface.TRIM_TYPE_NONE:
+      case IValueMeta.TRIM_TYPE_NONE:
       default:
         return string;
     }

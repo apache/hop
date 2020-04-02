@@ -27,8 +27,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
@@ -133,7 +133,7 @@ public class YamlReader {
   }
 
   @SuppressWarnings( "unchecked" )
-  public Object[] getRow( RowMetaInterface rowMeta ) throws HopException {
+  public Object[] getRow( IRowMeta rowMeta ) throws HopException {
 
     Object[] retval = null;
 
@@ -142,7 +142,7 @@ public class YamlReader {
         Map<Object, Object> map = (Map<Object, Object>) getDocument();
         retval = new Object[ rowMeta.size() ];
         for ( int i = 0; i < rowMeta.size(); i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+          IValueMeta valueMeta = rowMeta.getValueMeta( i );
           Object o = null;
           if ( Utils.isEmpty( valueMeta.getName() ) ) {
             o = getDocument().toString();
@@ -164,7 +164,7 @@ public class YamlReader {
             Map<Object, Object> map = (Map<Object, Object>) value;
             retval = new Object[ rowMeta.size() ];
             for ( int i = 0; i < rowMeta.size(); i++ ) {
-              ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+              IValueMeta valueMeta = rowMeta.getValueMeta( i );
               Object o = null;
               if ( Utils.isEmpty( valueMeta.getName() ) ) {
                 o = getDocument().toString();
@@ -175,7 +175,7 @@ public class YamlReader {
             }
           } else {
 
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
+            IValueMeta valueMeta = rowMeta.getValueMeta( 0 );
             retval = new Object[ 1 ];
 
             retval[ 0 ] = getValue( dataList, valueMeta );
@@ -202,7 +202,7 @@ public class YamlReader {
     return retval;
   }
 
-  private Object getValue( Object value, ValueMetaInterface valueMeta ) {
+  private Object getValue( Object value, IValueMeta valueMeta ) {
 
     if ( value == null ) {
       return null;
@@ -214,7 +214,7 @@ public class YamlReader {
     }
 
     switch ( valueMeta.getType() ) {
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         if ( value instanceof Integer ) {
           o = new Long( (Integer) value );
         } else if ( value instanceof BigInteger ) {
@@ -225,7 +225,7 @@ public class YamlReader {
           o = new Long( value.toString() );
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         if ( value instanceof Integer ) {
           o = new Double( (Integer) value );
         } else if ( value instanceof BigInteger ) {
@@ -238,7 +238,7 @@ public class YamlReader {
           o = new Double( (String) value );
         }
         break;
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( value instanceof Integer ) {
           o = new BigDecimal( (Integer) value );
         } else if ( value instanceof BigInteger ) {
@@ -249,13 +249,13 @@ public class YamlReader {
           o = new BigDecimal( (Double) value );
         }
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         o = value;
         break;
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         o = value;
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         o = value;
         break;
       default:
@@ -336,7 +336,7 @@ public class YamlReader {
         while ( it.hasNext() ) {
           Map.Entry pairs = (Map.Entry) it.next();
           String valueName = pairs.getKey().toString();
-          ValueMetaInterface valueMeta;
+          IValueMeta valueMeta;
           try {
             valueMeta = ValueMetaFactory.createValueMeta( valueName, getType( pairs.getValue() ) );
           } catch ( HopPluginException e ) {
@@ -358,7 +358,7 @@ public class YamlReader {
           while ( its.hasNext() ) {
             Map.Entry pairs = (Map.Entry) its.next();
             String valueName = pairs.getKey().toString();
-            ValueMetaInterface valueMeta;
+            IValueMeta valueMeta;
             try {
               valueMeta = ValueMetaFactory.createValueMeta( valueName, getType( pairs.getValue() ) );
             } catch ( HopPluginException e ) {
@@ -367,7 +367,7 @@ public class YamlReader {
             rowMeta.addValueMeta( valueMeta );
           }
         } else {
-          ValueMetaInterface valueMeta;
+          IValueMeta valueMeta;
           try {
             valueMeta = ValueMetaFactory.createValueMeta( DEFAULT_LIST_VALUE_NAME, getType( value ) );
           } catch ( HopPluginException e ) {
@@ -384,28 +384,28 @@ public class YamlReader {
   private int getType( Object value ) {
 
     if ( value instanceof Integer ) {
-      return ValueMetaInterface.TYPE_INTEGER;
+      return IValueMeta.TYPE_INTEGER;
     }
     if ( value instanceof Double ) {
-      return ValueMetaInterface.TYPE_NUMBER;
+      return IValueMeta.TYPE_NUMBER;
     } else if ( value instanceof Long ) {
-      return ValueMetaInterface.TYPE_INTEGER;
+      return IValueMeta.TYPE_INTEGER;
     } else if ( value instanceof Date ) {
-      return ValueMetaInterface.TYPE_DATE;
+      return IValueMeta.TYPE_DATE;
     } else if ( value instanceof java.sql.Date ) {
-      return ValueMetaInterface.TYPE_DATE;
+      return IValueMeta.TYPE_DATE;
     } else if ( value instanceof Timestamp ) {
-      return ValueMetaInterface.TYPE_DATE;
+      return IValueMeta.TYPE_DATE;
     } else if ( value instanceof Boolean ) {
-      return ValueMetaInterface.TYPE_BOOLEAN;
+      return IValueMeta.TYPE_BOOLEAN;
     } else if ( value instanceof BigInteger ) {
-      return ValueMetaInterface.TYPE_BIGNUMBER;
+      return IValueMeta.TYPE_BIGNUMBER;
     } else if ( value instanceof BigDecimal ) {
-      return ValueMetaInterface.TYPE_BIGNUMBER;
+      return IValueMeta.TYPE_BIGNUMBER;
     } else if ( value instanceof Byte ) {
-      return ValueMetaInterface.TYPE_BINARY;
+      return IValueMeta.TYPE_BINARY;
     }
-    return ValueMetaInterface.TYPE_STRING;
+    return IValueMeta.TYPE_STRING;
   }
 
   private Object getDocument() {

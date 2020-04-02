@@ -25,12 +25,12 @@ package org.apache.hop.job.entry.validator;
 import org.apache.commons.validator.GenericTypeValidator;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 
 import java.util.List;
 
-public class LongValidator implements JobEntryValidator {
+public class LongValidator implements IJobEntryValidator {
 
   public static final LongValidator INSTANCE = new LongValidator();
 
@@ -40,8 +40,8 @@ public class LongValidator implements JobEntryValidator {
     return VALIDATOR_NAME;
   }
 
-  public boolean validate( CheckResultSourceInterface source, String propertyName,
-                           List<CheckResultInterface> remarks, ValidatorContext context ) {
+  public boolean validate( ICheckResultSource source, String propertyName,
+                           List<ICheckResult> remarks, ValidatorContext context ) {
     Object result = null;
     String value = null;
 

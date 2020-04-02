@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -43,7 +43,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   private TransformMeta transformMeta;
   private boolean before;
   private PipelineMeta pipelineMeta;
-  private RowMetaInterface fields;
+  private IRowMeta fields;
 
   public SearchFieldsProgressDialog( PipelineMeta pipelineMeta, TransformMeta transformMeta, boolean before ) {
     this.pipelineMeta = pipelineMeta;
@@ -96,14 +96,14 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   /**
    * @return Returns the fields.
    */
-  public RowMetaInterface getFields() {
+  public IRowMeta getFields() {
     return fields;
   }
 
   /**
    * @param fields The fields to set.
    */
-  public void setFields( RowMetaInterface fields ) {
+  public void setFields( IRowMeta fields ) {
     this.fields = fields;
   }
 

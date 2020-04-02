@@ -6,10 +6,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -24,12 +24,12 @@ import java.util.Map;
  */
 public class GuiMenuWidgets {
 
-  private VariableSpace space;
+  private IVariables variables;
   private Map<String, MenuItem> menuItemMap;
   private Map<String, KeyboardShortcut> shortcutMap;
 
-  public GuiMenuWidgets( VariableSpace space ) {
-    this.space = space;
+  public GuiMenuWidgets( IVariables variables ) {
+    this.variables = variables;
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
   }
@@ -263,7 +263,7 @@ public class GuiMenuWidgets {
    * @param permission
    * @return The menu item or null if nothing is found
    */
-  public MenuItem enableMenuItem( HopFileTypeInterface fileType, String id, String permission ) {
+  public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission ) {
     MenuItem menuItem = menuItemMap.get( id );
     if ( menuItem == null ) {
       return null;
@@ -278,15 +278,15 @@ public class GuiMenuWidgets {
    *
    * @return value of space
    */
-  public VariableSpace getSpace() {
-    return space;
+  public IVariables getSpace() {
+    return variables;
   }
 
   /**
-   * @param space The space to set
+   * @param variables The space to set
    */
-  public void setSpace( VariableSpace space ) {
-    this.space = space;
+  public void setSpace( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**

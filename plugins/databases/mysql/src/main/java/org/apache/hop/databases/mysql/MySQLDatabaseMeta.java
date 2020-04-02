@@ -25,14 +25,14 @@ package org.apache.hop.databases.mysql;
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -51,7 +51,7 @@ import java.util.Set;
   typeDescription = "MySQL"
 )
 @GuiPlugin( id = "GUI-MySQLDatabaseMeta" )
-public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
   @GuiWidgetElement(
@@ -125,7 +125,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @see org.apache.hop.core.database.DatabaseInterface#getNotFoundTK(boolean)
+   * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override public int getNotFoundTK( boolean use_autoinc ) {
     if ( supportsAutoInc() && use_autoinc ) {
@@ -204,7 +204,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
-  @Override public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  @Override public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                                  String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -220,12 +220,12 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
-  @Override public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
+  @Override public String getModifyColumnStatement( String tablename, IValueMeta v, String tk,
                                                     boolean useAutoinc, String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
-  @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                               boolean addFieldname, boolean addCR ) {
     String retval = "";
 
@@ -242,11 +242,11 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "DATETIME";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BOOLEAN";
         } else {
@@ -254,9 +254,9 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
         }
         break;
 
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -295,7 +295,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length > 0 ) {
           if ( length == 1 ) {
             retval += "CHAR(1)";
@@ -312,7 +312,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
           retval += "TINYTEXT";
         }
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         retval += "LONGBLOB";
         break;
       default:
@@ -330,7 +330,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getReservedWords()
+   * @see org.apache.hop.core.database.IDatabase#getReservedWords()
    */
   @Override public String[] getReservedWords() {
     return new String[] { "ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ASENSITIVE", "BEFORE", "BETWEEN",
@@ -360,7 +360,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getStartQuote()
+   * @see org.apache.hop.core.database.IDatabase#getStartQuote()
    */
   @Override public String getStartQuote() {
     return "`";
@@ -369,7 +369,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Simply add an underscore in the case of MySQL!
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getEndQuote()
+   * @see IDatabase#getEndQuote()
    */
   @Override public String getEndQuote() {
     return "`";

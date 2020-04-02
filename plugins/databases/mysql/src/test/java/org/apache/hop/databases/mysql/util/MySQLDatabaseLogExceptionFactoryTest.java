@@ -27,16 +27,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
-import org.apache.hop.core.database.util.LogExceptionBehaviourInterface;
+import org.apache.hop.core.database.util.ILogExceptionBehaviour;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
@@ -50,7 +48,7 @@ import com.mysql.jdbc.PacketTooBigException;
 
 public class MySQLDatabaseLogExceptionFactoryTest {
 
-  private LogTableCoreInterface logTable;  
+  private ILogTableCore logTable;
   private static final String THROWABLE = "org.apache.hop.core.database.util.DatabaseLogExceptionFactory$ThrowableBehaviour";
   private static final String SUPPRESSABLE_WITH_SHORT_MESSAGE = "org.apache.hop.core.database.util.DatabaseLogExceptionFactory$SuppressableWithShortMessage";
   private static final String PROPERTY_VALUE_TRUE = "Y";
@@ -65,7 +63,7 @@ public class MySQLDatabaseLogExceptionFactoryTest {
   }
   
   @Before public void setUp() {
-    logTable = mock( LogTableCoreInterface.class );
+    logTable = mock( ILogTableCore.class );
     System.clearProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME );
   }
 
@@ -80,12 +78,12 @@ public class MySQLDatabaseLogExceptionFactoryTest {
   @Test
   public void testExceptionStrategyWithPacketTooBigException() {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setDatabaseInterface(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
     PacketTooBigException e = new PacketTooBigException();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
 
-    LogExceptionBehaviourInterface
+    ILogExceptionBehaviour
       exceptionStrategy =
       DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
@@ -98,13 +96,13 @@ public class MySQLDatabaseLogExceptionFactoryTest {
    */
   @Test public void testExceptionStrategyWithMysqlDataTruncationException() {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setDatabaseInterface(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
     MysqlDataTruncation e = new MysqlDataTruncation();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
 
 
-    LogExceptionBehaviourInterface
+    ILogExceptionBehaviour
       exceptionStrategy =
       DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
@@ -118,13 +116,13 @@ public class MySQLDatabaseLogExceptionFactoryTest {
     System.setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME, PROPERTY_VALUE_TRUE );
 
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setDatabaseInterface(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
     PacketTooBigException e = new PacketTooBigException();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
 
 
-    LogExceptionBehaviourInterface
+    ILogExceptionBehaviour
       exceptionStrategy =
       DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();

@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationProvider;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
-public class NoAuthenticationAuthenticationProvider implements AuthenticationProvider {
+public class NoAuthenticationAuthenticationProvider implements IAuthenticationProvider {
   public static final String NO_AUTH_ID = "NO_AUTH";
 
   @Override

@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -93,7 +93,7 @@ public class HopGuiPipelineRunDelegate {
     pipelinePreviewMetaMap = new HashMap<>();
   }
 
-  public PipelineExecutionConfiguration executePipeline( final LogChannelInterface log, final PipelineMeta pipelineMeta, final boolean local, final boolean remote,
+  public PipelineExecutionConfiguration executePipeline( final ILogChannel log, final PipelineMeta pipelineMeta, final boolean local, final boolean remote,
                                                          final boolean preview, final boolean debug, final boolean safe, LogLevel logLevel ) throws HopException {
 
     if ( pipelineMeta == null ) {
@@ -185,9 +185,9 @@ public class HopGuiPipelineRunDelegate {
     }
 
     Map<String, String> variableMap = new HashMap<>();
-    variableMap.putAll( executionConfiguration.getVariables() ); // the default
+    variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
 
-    executionConfiguration.setVariables( variableMap );
+    executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( pipelineMeta );
 
     executionConfiguration.setLogLevel( logLevel );
@@ -209,7 +209,7 @@ public class HopGuiPipelineRunDelegate {
       pipelineGraph.extraViewTabFolder.setSelection( 0 );
 
       // Set the named parameters
-      Map<String, String> paramMap = executionConfiguration.getParams();
+      Map<String, String> paramMap = executionConfiguration.getParametersMap();
       for ( String key : paramMap.keySet() ) {
         pipelineMeta.setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
       }

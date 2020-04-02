@@ -27,10 +27,10 @@ import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -65,7 +65,7 @@ import java.util.List;
 public class SQLStatementsDialog extends Dialog {
   private static Class<?> PKG = SQLStatementsDialog.class; // for i18n purposes, needed by Translator!!
 
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Statements Dialog", LoggingObjectType.HOPUI, null );
 
   private List<SQLStatement> stats;
@@ -84,13 +84,13 @@ public class SQLStatementsDialog extends Dialog {
 
   private String transformName;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
-  public SQLStatementsDialog( Shell parent, VariableSpace space, int style, List<SQLStatement> stats ) {
+  public SQLStatementsDialog( Shell parent, IVariables variables, int style, List<SQLStatement> stats ) {
     super( parent, style );
     this.stats = stats;
     this.props = PropsUI.getInstance();
-    this.variables = space;
+    this.variables = variables;
 
     this.transformName = null;
   }

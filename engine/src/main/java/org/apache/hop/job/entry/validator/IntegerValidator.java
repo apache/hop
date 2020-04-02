@@ -25,22 +25,22 @@ package org.apache.hop.job.entry.validator;
 import org.apache.commons.validator.GenericTypeValidator;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 
 import java.util.List;
 
 /**
  * Fails if a field's value is not an integer.
  */
-public class IntegerValidator implements JobEntryValidator {
+public class IntegerValidator implements IJobEntryValidator {
 
   public static final IntegerValidator INSTANCE = new IntegerValidator();
 
   private String VALIDATOR_NAME = "integer";
 
-  public boolean validate( CheckResultSourceInterface source, String propertyName,
-                           List<CheckResultInterface> remarks, ValidatorContext context ) {
+  public boolean validate( ICheckResultSource source, String propertyName,
+                           List<ICheckResult> remarks, ValidatorContext context ) {
 
     Object result = null;
     String value = null;

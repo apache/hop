@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.database.util;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -33,9 +33,9 @@ public class DatabaseLogExceptionFactory {
 
   public static final String HOP_GLOBAL_PROP_NAME = "HOP_FAIL_ON_LOGGING_ERROR";
 
-  private static final LogExceptionBehaviourInterface throwable = new ThrowableBehaviour();
-  private static final LogExceptionBehaviourInterface suppressable = new SuppressBehaviour();
-  private static final LogExceptionBehaviourInterface suppressableWithShortMessage = new SuppressableWithShortMessage();
+  private static final ILogExceptionBehaviour throwable = new ThrowableBehaviour();
+  private static final ILogExceptionBehaviour suppressable = new SuppressBehaviour();
+  private static final ILogExceptionBehaviour suppressableWithShortMessage = new SuppressableWithShortMessage();
 
   /**
    * <p>
@@ -53,12 +53,12 @@ public class DatabaseLogExceptionFactory {
    * be used.
    * </p>
    *
-   * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
+   * @param table logging table that participated in exception. Must be instance of {@link ILogTableCore}, otherwise
    *              default suppress exception behavior will be used.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
    */
-  public static LogExceptionBehaviourInterface getExceptionStrategy( LogTableCoreInterface table ) {
+  public static ILogExceptionBehaviour getExceptionStrategy( ILogTableCore table ) {
     return getExceptionStrategy( table, null );
   }
 
@@ -78,18 +78,18 @@ public class DatabaseLogExceptionFactory {
    * with short message can be chosen, otherwise throwable behavior will be used
    * </p>
    *
-   * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
+   * @param table logging table that participated in exception. Must be instance of {@link ILogTableCore}, otherwise
    *              default suppress exception behavior will be used.
    * @param e     if key-value pair is not defined or value is set to FALSE/N, e will be checked and suppressable strategy
    *              with short message can be chosen.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
    */
-  public static LogExceptionBehaviourInterface getExceptionStrategy( LogTableCoreInterface table, Exception e ) {
-    DatabaseInterface databaseInterface = extractDatabase( table );
-    LogExceptionBehaviourInterface suppressableResult = suppressable;
+  public static ILogExceptionBehaviour getExceptionStrategy( ILogTableCore table, Exception e ) {
+    IDatabase iDatabase = extractDatabase( table );
+    ILogExceptionBehaviour suppressableResult = suppressable;
 
-    if ( databaseInterface != null && !databaseInterface.fullExceptionLog( e ) ) {
+    if ( iDatabase != null && !iDatabase.fullExceptionLog( e ) ) {
       suppressableResult = suppressableWithShortMessage;
     }
 
@@ -103,10 +103,10 @@ public class DatabaseLogExceptionFactory {
     return ValueMetaBase.convertStringToBoolean( val ) ? throwable : suppressableResult;
   }
 
-  private static DatabaseInterface extractDatabase( LogTableCoreInterface table ) {
-    DatabaseInterface result = null;
+  private static IDatabase extractDatabase( ILogTableCore table ) {
+    IDatabase result = null;
     if ( table != null && table.getDatabaseMeta() != null ) {
-      return table.getDatabaseMeta().getDatabaseInterface();
+      return table.getDatabaseMeta().getIDatabase();
     }
     return result;
   }
@@ -114,15 +114,15 @@ public class DatabaseLogExceptionFactory {
   /**
    * Throw exception back to caller, this will be logged somewhere else.
    */
-  private static class ThrowableBehaviour implements LogExceptionBehaviourInterface {
+  private static class ThrowableBehaviour implements ILogExceptionBehaviour {
 
     @Override
-    public void registerException( LogChannelInterface log, Class<?> packageClass, String key, String... parameters )
+    public void registerException( ILogChannel log, Class<?> packageClass, String key, String... parameters )
       throws HopDatabaseException {
       throw new HopDatabaseException( BaseMessages.getString( packageClass, key, parameters ) );
     }
 
-    @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
+    @Override public void registerException( ILogChannel log, Exception e, Class<?> packageClass, String key,
                                              String... parameters ) throws HopDatabaseException {
       throw new HopDatabaseException( BaseMessages.getString( packageClass, key, parameters ), e );
     }
@@ -131,14 +131,14 @@ public class DatabaseLogExceptionFactory {
   /**
    * Suppress exception, but still add a log record about it
    */
-  private static class SuppressBehaviour implements LogExceptionBehaviourInterface {
+  private static class SuppressBehaviour implements ILogExceptionBehaviour {
 
     @Override
-    public void registerException( LogChannelInterface log, Class<?> packageClass, String key, String... parameters ) {
+    public void registerException( ILogChannel log, Class<?> packageClass, String key, String... parameters ) {
       log.logError( BaseMessages.getString( packageClass, key, parameters ) );
     }
 
-    @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
+    @Override public void registerException( ILogChannel log, Exception e, Class<?> packageClass, String key,
                                              String... parameters ) throws HopDatabaseException {
       log.logError( BaseMessages.getString( packageClass, key, parameters ), e );
     }
@@ -149,7 +149,7 @@ public class DatabaseLogExceptionFactory {
    */
   private static class SuppressableWithShortMessage extends SuppressBehaviour {
 
-    @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
+    @Override public void registerException( ILogChannel log, Exception e, Class<?> packageClass, String key,
                                              String... parameters ) throws HopDatabaseException {
       registerException( log, packageClass, key, parameters );
       log.logError( e.getMessage() );

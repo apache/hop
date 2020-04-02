@@ -24,10 +24,10 @@ package org.apache.hop.pipeline.transforms.simplemapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
@@ -70,7 +70,7 @@ public class SimpleMappingTest {
     transformMockHelper =
       new TransformMockHelper<SimpleMappingMeta, SimpleMappingData>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
         SimpleMappingData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
 
@@ -84,12 +84,12 @@ public class SimpleMappingTest {
 
     // Mock for RowDataInputMapper
     RowDataInputMapper rdInputMpMock = mock( RowDataInputMapper.class );
-    RowMetaInterface rwMetaInMock = mock( RowMeta.class );
+    IRowMeta rwMetaInMock = mock( RowMeta.class );
     doReturn( Boolean.TRUE ).when( rdInputMpMock ).putRow( rwMetaInMock, new Object[] {} );
 
     // Mock for RowProducer
     RowProducer rProducerMock = mock( RowProducer.class );
-    when( rProducerMock.putRow( any( RowMetaInterface.class ), any( Object[].class ), anyBoolean() ) )
+    when( rProducerMock.putRow( any( IRowMeta.class ), any( Object[].class ), anyBoolean() ) )
       .thenReturn( true );
 
     // Mock for MappingIODefinition
@@ -115,7 +115,7 @@ public class SimpleMappingTest {
   public void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
     smp =
-      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     smp.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
     smp.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
@@ -139,7 +139,7 @@ public class SimpleMappingTest {
     simpleMpData.wasStarted = true;
 
     smp =
-      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     smp.init( transformMockHelper.initTransformMetaInterface, simpleMpData );
 
@@ -162,14 +162,14 @@ public class SimpleMappingTest {
     transformMockHelper.processRowsTransformDataInterface.mappingInput = mappingInput;
 
     RowProducer rowProducer = mock( RowProducer.class );
-    when( rowProducer.putRow( any( RowMetaInterface.class ), any( Object[].class ), anyBoolean() ) )
+    when( rowProducer.putRow( any( IRowMeta.class ), any( Object[].class ), anyBoolean() ) )
       .thenReturn( true );
 
-    TransformInterface transformInterface = mock( TransformInterface.class );
+    ITransform iTransform = mock( ITransform.class );
 
     Pipeline mappingPipeline = mock( Pipeline.class );
     when( mappingPipeline.addRowProducer( anyString(), anyInt() ) ).thenReturn( rowProducer );
-    when( mappingPipeline.findTransformInterface( anyString(), anyInt() ) ).thenReturn( transformInterface );
+    when( mappingPipeline.findTransformInterface( anyString(), anyInt() ) ).thenReturn( iTransform );
     when( mappingPipeline.isFinishedOrStopped() ).thenReturn( Boolean.FALSE ).thenReturn( Boolean.TRUE );
     transformMockHelper.processRowsTransformDataInterface.mappingPipeline = mappingPipeline;
 
@@ -178,7 +178,7 @@ public class SimpleMappingTest {
     transformMockHelper.processRowsTransformDataInterface.mappingOutput = mappingOutput;
 
 
-    smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+    smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
     smp.init( transformMockHelper.initTransformMetaInterface, simpleMpData );
     smp.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
@@ -208,7 +208,7 @@ public class SimpleMappingTest {
     simpleMpData.wasStarted = true;
 
     smp =
-      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     smp.init( transformMockHelper.initTransformMetaInterface, simpleMpData );
 

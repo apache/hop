@@ -48,7 +48,7 @@ public class LDAPInputTest {
     transformMockHelper =
       new TransformMockHelper<LDAPInputMeta, LDAPInputData>(
         "LDAP INPUT TEST", LDAPInputMeta.class, LDAPInputData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -67,7 +67,7 @@ public class LDAPInputTest {
   public void testRowProcessing() throws Exception {
     //Setup transform
     LDAPInput ldapInput = new LDAPInput(
-      transformMockHelper.transformMeta, transformMockHelper.transformDataInterface,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformData,
       0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
     LDAPInputData data = new LDAPInputData();
     LDAPInputMeta meta = mockMeta();

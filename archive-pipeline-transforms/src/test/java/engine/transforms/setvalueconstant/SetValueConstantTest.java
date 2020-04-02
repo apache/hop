@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 import junit.framework.Assert;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class SetValueConstantTest {
     smh =
       new TransformMockHelper<SetValueConstantMeta, SetValueConstantData>( "SetValueConstant", SetValueConstantMeta.class,
         SetValueConstantData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
   }
 
@@ -64,10 +64,10 @@ public class SetValueConstantTest {
 
   @Test
   public void testUpdateField() throws Exception {
-    SetValueConstant transform = new SetValueConstant( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    SetValueConstant transform = new SetValueConstant( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
 
-    ValueMetaInterface valueMeta = new ValueMetaString( "Field1" );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta valueMeta = new ValueMetaString( "Field1" );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( valueMeta );

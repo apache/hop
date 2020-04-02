@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.groupby;
 
 import junit.framework.Assert;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
@@ -57,7 +57,7 @@ public class GroupByNewAggregateTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper = new TransformMockHelper<GroupByMeta, GroupByData>( "Group By", GroupByMeta.class, GroupByData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
@@ -101,9 +101,9 @@ public class GroupByNewAggregateTest {
     meta.setAggregateType( arr );
     meta.setAggregateField( arrF );
 
-    ValueMetaInterface vmi = new ValueMetaInteger();
+    IValueMeta vmi = new ValueMetaInteger();
     when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
-    RowMetaInterface rmi = Mockito.mock( RowMetaInterface.class );
+    IRowMeta rmi = Mockito.mock( IRowMeta.class );
     data.inputRowMeta = rmi;
     when( rmi.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     data.aggMeta = rmi;

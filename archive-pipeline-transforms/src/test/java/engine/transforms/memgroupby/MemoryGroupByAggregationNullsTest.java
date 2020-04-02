@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.memgroupby;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
@@ -53,8 +53,8 @@ public class MemoryGroupByAggregationNullsTest {
   static int def = 113;
 
   Aggregate aggregate;
-  private ValueMetaInterface vmi;
-  private RowMetaInterface rmi;
+  private IValueMeta vmi;
+  private IRowMeta rmi;
   private MemoryGroupByMeta meta;
 
   @BeforeClass
@@ -62,7 +62,7 @@ public class MemoryGroupByAggregationNullsTest {
     mockHelper =
       new TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
         MemoryGroupByData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -81,7 +81,7 @@ public class MemoryGroupByAggregationNullsTest {
     meta.setAggregateField( new String[] { "x" } );
     vmi = new ValueMetaInteger();
     when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
-    rmi = Mockito.mock( RowMetaInterface.class );
+    rmi = Mockito.mock( IRowMeta.class );
     data.inputRowMeta = rmi;
     data.outputRowMeta = rmi;
     data.groupMeta = rmi;
@@ -168,7 +168,7 @@ public class MemoryGroupByAggregationNullsTest {
 
   @Test
   public void addToAggregateLazyConversionMinTest() throws Exception {
-    vmi.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    vmi.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     vmi.setStorageMetadata( new ValueMetaString() );
     aggregate.agg = new Object[] { new byte[ 0 ] };
     byte[] bytes = { 51 };
@@ -183,7 +183,7 @@ public class MemoryGroupByAggregationNullsTest {
     MemoryGroupByMeta memoryGroupByMeta = Mockito.spy( meta );
     memoryGroupByMeta.setAggregateType( new int[] { MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT } );
     when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( memoryGroupByMeta );
-    vmi.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    vmi.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     vmi.setStorageMetadata( new ValueMetaString() );
     aggregate.counts = new long[] { 0L };
     Mockito.doReturn( new String[] { "test" } ).when( memoryGroupByMeta ).getSubjectField();

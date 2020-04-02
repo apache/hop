@@ -24,7 +24,7 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -58,9 +58,9 @@ public class BaseLogTableTest {
     when( HopLogStore.getAppender() ).thenReturn( lb );
 
     BaseLogTable baseLogTable = mock( BaseLogTable.class );
-    doCallRealMethod().when( baseLogTable ).getLogBuffer( any( VariableSpace.class ), anyString(), any( LogStatus.class ), anyString() );
+    doCallRealMethod().when( baseLogTable ).getLogBuffer( any( IVariables.class ), anyString(), any( LogStatus.class ), anyString() );
 
-    VariableSpace vs = mock( VariableSpace.class );
+    IVariables vs = mock( IVariables.class );
 
     String s1 = baseLogTable.getLogBuffer( vs, "1", LogStatus.START, null );
     String s2 = baseLogTable.getLogBuffer( vs, "1", LogStatus.END, null );
@@ -83,9 +83,9 @@ public class BaseLogTableTest {
     when( HopLogStore.getAppender() ).thenReturn( lb );
 
     BaseLogTable baseLogTable = mock( BaseLogTable.class );
-    doCallRealMethod().when( baseLogTable ).getLogBuffer( any( VariableSpace.class ), anyString(), any( LogStatus.class ), anyString() );
+    doCallRealMethod().when( baseLogTable ).getLogBuffer( any( IVariables.class ), anyString(), any( LogStatus.class ), anyString() );
 
-    VariableSpace vs = mock( VariableSpace.class );
+    IVariables vs = mock( IVariables.class );
 
     String s1 = baseLogTable.getLogBuffer( vs, "1", LogStatus.START, null );
     String s2 = baseLogTable.getLogBuffer( vs, "1", LogStatus.END, null );

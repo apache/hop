@@ -22,19 +22,19 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
 import org.apache.hop.core.auth.core.AuthenticationConsumerInvocationHandler;
-import org.apache.hop.core.auth.core.AuthenticationPerformer;
-import org.apache.hop.core.auth.core.AuthenticationPerformerFactory;
-import org.apache.hop.core.auth.core.AuthenticationProvider;
+import org.apache.hop.core.auth.core.IAuthenticationPerformer;
+import org.apache.hop.core.auth.core.IAuthenticationPerformerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
-public class DefaultAuthenticationPerformerFactory implements AuthenticationPerformerFactory {
+public class DefaultAuthenticationPerformerFactory implements IAuthenticationPerformerFactory {
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
-  public <ReturnType, CreateArgType, ConsumedType> AuthenticationPerformer<ReturnType, CreateArgType> create(
-    AuthenticationProvider authenticationProvider,
-    AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
+  public <ReturnType, CreateArgType, ConsumedType> IAuthenticationPerformer<ReturnType, CreateArgType> create(
+    IAuthenticationProvider authenticationProvider,
+    IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
     if ( authenticationConsumerFactory.getConsumedType().isInstance( authenticationProvider ) ) {
       return new DefaultAuthenticationPerformer( authenticationProvider, authenticationConsumerFactory );
     } else if ( AuthenticationConsumerInvocationHandler.isCompatible( authenticationConsumerFactory.getConsumedType(),

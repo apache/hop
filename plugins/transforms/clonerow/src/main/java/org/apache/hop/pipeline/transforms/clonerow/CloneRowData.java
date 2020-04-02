@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.clonerow;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 27-06-2008
  */
-public class CloneRowData extends BaseTransformData implements TransformDataInterface {
+public class CloneRowData extends BaseTransformData implements ITransformData {
 
   public long nrclones;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int indexOfNrCloneField;
   public boolean addInfosToRow;
   public int NrPrevFields;

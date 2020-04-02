@@ -19,12 +19,12 @@ package org.apache.hop.metastore.api.security;
 
 public interface IMetaStoreElementOwner {
 
-  public String getName();
+  String getName();
 
-  public void setName( String name );
+  void setName( String name );
 
-  public MetaStoreElementOwnerType getOwnerType();
+  MetaStoreElementOwnerType getOwnerType();
 
-  public void setOwnerType( MetaStoreElementOwnerType type );
+  void setOwnerType( MetaStoreElementOwnerType type );
 
 }

@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputField;
@@ -44,13 +44,13 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private CsvInput csvInput;
-  private TransformMockHelper<CsvInputMeta, TransformDataInterface> transformMockHelper;
+  private TransformMockHelper<CsvInputMeta, ITransformData> transformMockHelper;
 
   @Before
   public void setUp() throws Exception {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, "CsvInputRowNumberTest" );
     csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 

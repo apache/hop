@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.execsqlrow;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,7 +95,7 @@ public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
     DatabaseMeta.createFactory( metaStore ).saveElement( dbMeta );
     meta.setMetaStore( metaStore );
 
-    ValueMetaInterface valueMeta = new ValueMetaString( "DBMETA" );
+    IValueMeta valueMeta = new ValueMetaString( "DBMETA" );
     injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );
     assertEquals( "testDBMeta", meta.getDatabaseMeta().getName() );
   }

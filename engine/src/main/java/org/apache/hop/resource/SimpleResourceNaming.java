@@ -24,12 +24,12 @@ package org.apache.hop.resource;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleResourceNaming implements ResourceNamingInterface {
+public class SimpleResourceNaming implements IResourceNaming {
 
   private final Map<String, String> namedResources = new HashMap<>();
 
@@ -57,7 +57,7 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
     this.fileSystemPrefix = fileSystemPrefix;
   }
 
-  public String nameResource( FileObject fileObject, VariableSpace space, boolean includeFileName ) throws FileSystemException {
+  public String nameResource( FileObject fileObject, IVariables variables, boolean includeFileName ) throws FileSystemException {
     if ( includeFileName ) {
       return handleDataFile( fileObject.getName().getBaseName(), fileObject.getParent().getURL().toString(), "" );
     } else {

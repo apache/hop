@@ -28,10 +28,10 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
@@ -46,40 +46,40 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.logging.LogTablePluginInterface;
-import org.apache.hop.core.logging.LogTablePluginInterface.TableType;
+import org.apache.hop.core.logging.ILogTable;
+import org.apache.hop.core.logging.ILogTablePlugin;
+import org.apache.hop.core.logging.ILogTablePlugin.TableType;
 import org.apache.hop.core.logging.LogTablePluginType;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLFormatter;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.missing.MissingEntry;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceExportInterface;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceExport;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -101,7 +101,7 @@ import java.util.Map;
  * @since 11-08-2003
  */
 public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMeta>,
-  XMLInterface, ResourceExportInterface, LoggingObjectInterface, IHasFilename {
+  IXml, IResourceExport, ILoggingObject, IHasFilename {
 
   private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -127,7 +127,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
 
   protected JobEntryLogTable jobEntryLogTable;
 
-  protected List<LogTableInterface> extraLogTables;
+  protected List<ILogTable> extraLogTables;
 
   protected String startCopyName;
 
@@ -136,7 +136,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * The log channel interface.
    */
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   /**
    * Constant = "SPECIAL"
@@ -197,12 +197,12 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
 
     jobLogTable = JobLogTable.getDefault( this, metaStore );
     jobEntryLogTable = JobEntryLogTable.getDefault( this, metaStore );
-    extraLogTables = new ArrayList<LogTableInterface>();
+    extraLogTables = new ArrayList<ILogTable>();
 
-    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( LogTablePluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( LogTablePluginType.class );
+    for ( IPlugin plugin : plugins ) {
       try {
-        LogTablePluginInterface logTablePluginInterface = (LogTablePluginInterface) PluginRegistry.getInstance()
+        ILogTablePlugin logTablePluginInterface = (ILogTablePlugin) PluginRegistry.getInstance()
           .loadClass( plugin );
         if ( logTablePluginInterface.getType() == TableType.JOB ) {
           logTablePluginInterface.setContext( this, metaStore );
@@ -459,9 +459,9 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.xml.XMLInterface#getXML()
+   * @see org.apache.hop.core.xml.IXml#getXML()
    */
-  public String getXML() {
+  public String getXml() {
 
     Props props = null;
     if ( Props.isInitialized() ) {
@@ -506,7 +506,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
 
     // Append the job logging information...
     //
-    for ( LogTableInterface logTable : getLogTables() ) {
+    for ( ILogTable logTable : getLogTables() ) {
       retval.append( logTable.getXML() );
     }
 
@@ -515,21 +515,21 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     retval.append( "  " ).append( XMLHandler.openTag( "entries" ) ).append( Const.CR );
     for ( int i = 0; i < nrJobEntries(); i++ ) {
       JobEntryCopy jge = getJobEntry( i );
-      retval.append( jge.getXML() );
+      retval.append( jge.getXml() );
     }
     retval.append( "  " ).append( XMLHandler.closeTag( "entries" ) ).append( Const.CR );
 
     retval.append( "  " ).append( XMLHandler.openTag( "hops" ) ).append( Const.CR );
     for ( JobHopMeta hi : jobhops ) {
       // Look at all the hops
-      retval.append( hi.getXML() );
+      retval.append( hi.getXml() );
     }
     retval.append( "  " ).append( XMLHandler.closeTag( "hops" ) ).append( Const.CR );
 
     retval.append( "  " ).append( XMLHandler.openTag( "notepads" ) ).append( Const.CR );
     for ( int i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
-      retval.append( ni.getXML() );
+      retval.append( ni.getXml() );
     }
     retval.append( "  " ).append( XMLHandler.closeTag( "notepads" ) ).append( Const.CR );
 
@@ -560,7 +560,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param metaStore
    * @throws HopXMLException
    */
-  public JobMeta( VariableSpace parentSpace, String fname, IMetaStore metaStore ) throws HopXMLException {
+  public JobMeta( IVariables parentSpace, String fname, IMetaStore metaStore ) throws HopXMLException {
     this.initializeVariablesFrom( parentSpace );
     this.metaStore = metaStore;
     try {
@@ -708,7 +708,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       }
       jobEntryLogTable.loadXML( jobnode, null );
 
-      for ( LogTableInterface extraLogTable : extraLogTables ) {
+      for ( ILogTable extraLogTable : extraLogTables ) {
         extraLogTable.loadXML( jobnode, null );
       }
 
@@ -993,7 +993,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     int i;
     for ( i = 0; i < nrJobEntries(); i++ ) {
       JobEntryCopy jec = getJobEntry( i );
-      JobEntryInterface je = jec.getEntry();
+      IJobEntry je = jec.getEntry();
       if ( je.toString().equalsIgnoreCase( full_name_nr ) ) {
         return jec;
       }
@@ -1403,7 +1403,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     return hops.toArray( new JobHopMeta[ hops.size() ] );
   }
 
-  public boolean isPathExist( JobEntryInterface from, JobEntryInterface to ) {
+  public boolean isPathExist( IJobEntry from, IJobEntry to ) {
     for ( JobHopMeta hi : jobhops ) {
       if ( hi.getFromEntry() != null && hi.getToEntry() != null ) {
         if ( hi.getFromEntry().getName().equalsIgnoreCase( from.getName() ) ) {
@@ -1643,7 +1643,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     this.batchIdPassed = batchIdPassed;
   }
 
-  public List<SQLStatement> getSQLStatements( ProgressMonitorListener monitor )
+  public List<SQLStatement> getSQLStatements( IProgressMonitor monitor )
     throws HopException {
     return getSQLStatements( null, monitor );
   }
@@ -1654,7 +1654,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @return An ArrayList of SQLStatement objects.
    */
   public List<SQLStatement> getSQLStatements( IMetaStore metaStore,
-                                              ProgressMonitorListener monitor ) throws HopException {
+                                              IProgressMonitor monitor ) throws HopException {
     if ( monitor != null ) {
       monitor
         .beginTask( BaseMessages.getString( PKG, "JobMeta.Monitor.GettingSQLNeededForThisJob" ), nrJobEntries() + 1 );
@@ -1680,7 +1680,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       Database db = new Database( this, jobLogTable.getDatabaseMeta() );
       try {
         db.connect();
-        RowMetaInterface fields = jobLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
+        IRowMeta fields = jobLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
         String sql = db.getDDL( jobLogTable.getTableName(), fields );
         if ( sql != null && sql.length() > 0 ) {
           SQLStatement stat = new SQLStatement( BaseMessages.getString( PKG, "JobMeta.SQLFeedback.ThisJob" ),
@@ -1748,7 +1748,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
           stringList.add( new StringSearchResult( entryMeta.getDescription(), entryMeta, this,
             BaseMessages.getString( PKG, "JobMeta.SearchMetadata.JobEntryDescription" ) ) );
         }
-        JobEntryInterface metaInterface = entryMeta.getEntry();
+        IJobEntry metaInterface = entryMeta.getEntry();
         StringSearcher.findMetaData( metaInterface, 1, stringList, entryMeta, this );
       }
     }
@@ -1906,7 +1906,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * This method sets various internal kettle variables that can be used by the pipeline.
    */
   @Override
-  public void setInternalHopVariables( VariableSpace var ) {
+  public void setInternalHopVariables( IVariables var ) {
     setInternalFilenameHopVariables( var );
     setInternalNameHopVariable( var );
 
@@ -1932,7 +1932,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param var the new internal name kettle variable
    */
   @Override
-  protected void setInternalNameHopVariable( VariableSpace var ) {
+  protected void setInternalNameHopVariable( IVariables var ) {
     // The name of the job
     variables.setVariable( Const.INTERNAL_VARIABLE_JOB_NAME, Const.NVL( name, "" ) );
   }
@@ -1943,7 +1943,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param var the new internal filename kettle variables
    */
   @Override
-  protected void setInternalFilenameHopVariables( VariableSpace var ) {
+  protected void setInternalFilenameHopVariables( IVariables var ) {
     if ( filename != null ) {
       // we have a filename that's defined.
       try {
@@ -1977,8 +1977,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   }
 
   @Deprecated
-  public void checkJobEntries( List<CheckResultInterface> remarks, boolean only_selected,
-                               ProgressMonitorListener monitor ) {
+  public void checkJobEntries( List<ICheckResult> remarks, boolean only_selected,
+                               IProgressMonitor monitor ) {
     checkJobEntries( remarks, only_selected, monitor, this, null );
   }
 
@@ -1989,8 +1989,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param only_selected true if you only want to check the selected jobs
    * @param monitor       Progress monitor (not presently in use)
    */
-  public void checkJobEntries( List<CheckResultInterface> remarks, boolean only_selected,
-                               ProgressMonitorListener monitor, VariableSpace space, IMetaStore metaStore ) {
+  public void checkJobEntries( List<ICheckResult> remarks, boolean only_selected,
+                               IProgressMonitor monitor, IVariables variables, IMetaStore metaStore ) {
     remarks.clear(); // Empty remarks
     if ( monitor != null ) {
       monitor.beginTask( BaseMessages.getString( PKG, "JobMeta.Monitor.VerifyingThisJobEntryTask.Title" ),
@@ -2000,13 +2000,13 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     for ( int i = 0; i < jobcopies.size() && !stop_checking; i++ ) {
       JobEntryCopy copy = jobcopies.get( i ); // get the job entry copy
       if ( ( !only_selected ) || ( only_selected && copy.isSelected() ) ) {
-        JobEntryInterface entry = copy.getEntry();
+        IJobEntry entry = copy.getEntry();
         if ( entry != null ) {
           if ( monitor != null ) {
             monitor
               .subTask( BaseMessages.getString( PKG, "JobMeta.Monitor.VerifyingJobEntry.Title", entry.getName() ) );
           }
-          entry.check( remarks, this, space, metaStore );
+          entry.check( remarks, this, variables, metaStore );
           if ( monitor != null ) {
             monitor.worked( 1 ); // progress bar...
             if ( monitor.isCanceled() ) {
@@ -2032,7 +2032,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   public List<ResourceReference> getResourceDependencies() {
     List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
     JobEntryCopy copy = null;
-    JobEntryInterface entry = null;
+    IJobEntry entry = null;
     for ( int i = 0; i < jobcopies.size(); i++ ) {
       copy = jobcopies.get( i ); // get the job entry copy
       entry = copy.getEntry();
@@ -2042,8 +2042,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     return resourceReferences;
   }
 
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
     String resourceName = null;
     try {
       // Handle naming for XML bases resources...
@@ -2053,12 +2053,12 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       String fullname;
       String extension = "kjb";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( getFilename() ), space );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
         originalPath = fileObject.getParent().getName().getPath();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getName().getPath();
 
-        resourceName = namingInterface.nameResource( baseName, originalPath, extension, ResourceNamingInterface.FileNamingType.JOB );
+        resourceName = namingInterface.nameResource( baseName, originalPath, extension, IResourceNaming.FileNamingType.JOB );
         ResourceDefinition definition = definitions.get( resourceName );
         if ( definition == null ) {
           // If we do this once, it will be plenty :-)
@@ -2089,7 +2089,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
 
           // At the end, add ourselves to the map...
           //
-          String jobMetaContent = jobMeta.getXML();
+          String jobMetaContent = jobMeta.getXml();
 
           definition = new ResourceDefinition( resourceName, jobMetaContent );
 
@@ -2173,7 +2173,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    *
    * @return the log channel
    */
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -2182,8 +2182,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    *
    * @return
    */
-  public List<JobEntryInterface> composeJobEntryInterfaceList() {
-    List<JobEntryInterface> list = new ArrayList<JobEntryInterface>();
+  public List<IJobEntry> composeJobEntryList() {
+    List<IJobEntry> list = new ArrayList<IJobEntry>();
 
     for ( JobEntryCopy copy : jobcopies ) {
       if ( !list.contains( copy.getEntry() ) ) {
@@ -2197,7 +2197,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogChannelId()
+   * @see org.apache.hop.core.logging.ILoggingObject#getLogChannelId()
    */
   public String getLogChannelId() {
     return null;
@@ -2206,7 +2206,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectType()
    */
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.JOB_META;
@@ -2235,8 +2235,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    *
    * @return the log tables
    */
-  public List<LogTableInterface> getLogTables() {
-    List<LogTableInterface> logTables = new ArrayList<LogTableInterface>();
+  public List<ILogTable> getLogTables() {
+    List<ILogTable> logTables = new ArrayList<ILogTable>();
     logTables.add( jobLogTable );
     logTables.add( jobEntryLogTable );
     logTables.add( channelLogTable );
@@ -2270,11 +2270,11 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {
   }
 
-  public List<LogTableInterface> getExtraLogTables() {
+  public List<ILogTable> getExtraLogTables() {
     return extraLogTables;
   }
 
-  public void setExtraLogTables( List<LogTableInterface> extraLogTables ) {
+  public void setExtraLogTables( List<ILogTable> extraLogTables ) {
     this.extraLogTables = extraLogTables;
   }
 

@@ -30,8 +30,8 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -75,7 +75,7 @@ import java.util.Arrays;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryTruncateTablesDialog extends JobEntryDialog implements IJobEntryDialog {
   private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator!!
 
   private Button wbTable;
@@ -96,7 +96,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
   private Button wbdTablename;
   private Button wPrevious;
 
-  public JobEntryTruncateTablesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryTruncateTablesDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryTruncateTables) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -105,7 +105,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
   }
 
   @Override
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

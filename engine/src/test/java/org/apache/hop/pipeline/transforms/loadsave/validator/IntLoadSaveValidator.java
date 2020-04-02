@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * @author Andrey Khayrutdinov
  */
-public class IntLoadSaveValidator implements FieldLoadSaveValidator<Integer> {
+public class IntLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
   private final Integer maxValue;
 
   /**

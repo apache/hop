@@ -28,20 +28,20 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -410,29 +410,29 @@ public class RestMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( resultCodeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( responseTimeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = space.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
-      ValueMetaInterface v =
+      IValueMeta v =
         new ValueMetaString( headerFieldName );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
@@ -557,7 +557,7 @@ public class RestMeta extends BaseTransformMeta implements TransformMetaInterfac
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -626,13 +626,13 @@ public class RestMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Rest( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new Rest( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new RestData();
   }
 

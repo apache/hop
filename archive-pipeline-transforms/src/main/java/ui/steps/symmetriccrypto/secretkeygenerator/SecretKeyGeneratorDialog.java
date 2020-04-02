@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.secretkeygenerator.SecretKeyGeneratorMeta;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 01-4-2011
  */
 
-public class SecretKeyGeneratorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SecretKeyGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;

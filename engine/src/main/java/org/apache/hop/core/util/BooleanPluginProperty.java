@@ -30,7 +30,7 @@ import java.util.prefs.Preferences;
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
-public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginProperty {
+public class BooleanPluginProperty extends KeyValue<Boolean> implements IPluginProperty {
 
   /**
    * Serial version UID.

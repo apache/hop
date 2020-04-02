@@ -33,18 +33,19 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
@@ -84,7 +85,7 @@ import java.util.concurrent.Future;
   description = "A relational database connection",
   iconImage = "ui/images/CNC.svg"
 )
-public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
+public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement<DatabaseMeta> {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "connection";
@@ -99,9 +100,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   private String name;
 
   @MetaStoreAttribute( key = "rdbms" )
-  private DatabaseInterface databaseInterface;
+  private IDatabase iDatabase;
 
-  private static volatile Future<Map<String, DatabaseInterface>> allDatabaseInterfaces;
+  private static volatile Future<Map<String, IDatabase>> allDatabaseInterfaces;
 
   static {
     init();
@@ -109,7 +110,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   public static void init() {
     PluginRegistry.getInstance().addPluginListener( DatabasePluginType.class,
-      new org.apache.hop.core.plugins.PluginTypeListener() {
+      new IPluginTypeListener() {
         @Override public void pluginAdded( Object serviceObject ) {
           clearDatabaseInterfacesMap();
         }
@@ -125,7 +126,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
       } );
   }
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   private boolean readOnly = false;
 
@@ -172,8 +173,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param user   The username
    * @param pass   The password
    */
-  public DatabaseMeta( String name, String type, String access, String host, String db, String port, String user,
-                       String pass ) {
+  public DatabaseMeta( String name, String type, String access, String host, String db, String port, String user, String pass ) {
     setValues( name, type, access, host, db, port, user, pass );
     addOptions();
   }
@@ -218,7 +218,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * Add a list of common options for some databases.
    */
   public void addOptions() {
-    databaseInterface.addDefaultOptions();
+    iDatabase.addDefaultOptions();
     setSupportsBooleanDataType( true );
     setSupportsTimestampDataType( true );
   }
@@ -231,45 +231,45 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   /**
    * @return the system dependend database interface for this database metadata definition
    */
-  public DatabaseInterface getDatabaseInterface() {
-    return databaseInterface;
+  public IDatabase getIDatabase() {
+    return iDatabase;
   }
 
   /**
    * Set the system dependend database interface for this database metadata definition
    *
-   * @param databaseInterface the system dependend database interface
+   * @param iDatabase the system dependend database interface
    */
-  public void setDatabaseInterface( DatabaseInterface databaseInterface ) {
-    this.databaseInterface = databaseInterface;
+  public void setIDatabase( IDatabase iDatabase ) {
+    this.iDatabase = iDatabase;
   }
 
   /**
-   * Search for the right type of DatabaseInterface object and clone it.
+   * Search for the right type of IDatabase object and clone it.
    *
-   * @param databaseType the type of DatabaseInterface to look for (description)
-   * @return The requested DatabaseInterface
+   * @param databaseType the type of IDatabase to look for (description)
+   * @return The requested IDatabase
    * @throws HopDatabaseException when the type could not be found or referenced.
    */
-  public static final DatabaseInterface getDatabaseInterface( String databaseType ) throws HopDatabaseException {
-    DatabaseInterface di = findDatabaseInterface( databaseType );
+  public static final IDatabase getIDatabase( String databaseType ) throws HopDatabaseException {
+    IDatabase di = findIDatabase( databaseType );
     if ( di == null ) {
       throw new HopDatabaseException( BaseMessages.getString(
         PKG, "DatabaseMeta.Error.DatabaseInterfaceNotFound", databaseType ) );
     }
-    return (DatabaseInterface) di.clone();
+    return (IDatabase) di.clone();
   }
 
   /**
-   * Search for the right type of DatabaseInterface object and return it.
+   * Search for the right type of IDatabase object and return it.
    *
-   * @param databaseTypeDesc the type of DatabaseInterface to look for (id or description)
-   * @return The requested DatabaseInterface
+   * @param databaseTypeDesc the type of IDatabase to look for (id or description)
+   * @return The requested IDatabase
    * @throws HopDatabaseException when the type could not be found or referenced.
    */
-  private static final DatabaseInterface findDatabaseInterface( String databaseTypeDesc ) throws HopDatabaseException {
+  private static final IDatabase findIDatabase( String databaseTypeDesc ) throws HopDatabaseException {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.getPlugin( DatabasePluginType.class, databaseTypeDesc );
+    IPlugin plugin = registry.getPlugin( DatabasePluginType.class, databaseTypeDesc );
     if ( plugin == null ) {
       plugin = registry.findPluginWithName( DatabasePluginType.class, databaseTypeDesc );
     }
@@ -279,7 +279,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         + databaseTypeDesc + "] couldn't be found!" );
     }
 
-    return getDatabaseInterfacesMap().get( plugin.getIds()[ 0 ] );
+    return getIDatabaseMap().get( plugin.getIds()[ 0 ] );
   }
 
   @Override
@@ -296,15 +296,14 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     this.setDataTablespace( databaseMeta.getDataTablespace() );
     this.setIndexTablespace( databaseMeta.getIndexTablespace() );
 
-    this.databaseInterface = (DatabaseInterface) databaseMeta.databaseInterface.clone();
+    this.iDatabase = (IDatabase) databaseMeta.iDatabase.clone();
 
     this.setChanged();
   }
 
-  public void setValues( String name, String type, String access, String host, String db, String port,
-                         String user, String pass ) {
+  public void setValues( String name, String type, String access, String host, String db, String port, String user, String pass ) {
     try {
-      databaseInterface = getDatabaseInterface( type );
+      iDatabase = getIDatabase( type );
     } catch ( HopDatabaseException kde ) {
       throw new RuntimeException( "Database type not found!", kde );
     }
@@ -321,10 +320,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public void setDatabaseType( String type ) {
-    DatabaseInterface oldInterface = databaseInterface;
+    IDatabase oldInterface = iDatabase;
 
     try {
-      databaseInterface = getDatabaseInterface( type );
+      iDatabase = getIDatabase( type );
     } catch ( HopDatabaseException kde ) {
       throw new RuntimeException( "Database type [" + type + "] not found!", kde );
     }
@@ -342,7 +341,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public void setValues( DatabaseMeta info ) {
-    databaseInterface = (DatabaseInterface) info.databaseInterface.clone();
+    iDatabase = (IDatabase) info.iDatabase.clone();
   }
 
   /**
@@ -365,20 +364,20 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The plugin ID of the database interface
    */
   public String getPluginId() {
-    return databaseInterface.getPluginId();
+    return iDatabase.getPluginId();
   }
 
   /**
    * @return The name of the database plugin type
    */
   public String getPluginName() {
-    return databaseInterface.getPluginName();
+    return iDatabase.getPluginName();
   }
 
   /*
    * Sets the type of database.
    *
-   * @param db_type The database type public void setDatabaseType(int db_type) { databaseInterface this.databaseType =
+   * @param db_type The database type public void setDatabaseType(int db_type) { iDatabase this.databaseType =
    * db_type; }
    */
 
@@ -395,7 +394,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The type of database access.
    */
   public int getAccessType() {
-    return databaseInterface.getAccessType();
+    return iDatabase.getAccessType();
   }
 
   /**
@@ -404,7 +403,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param access_type The access type.
    */
   public void setAccessType( int access_type ) {
-    databaseInterface.setAccessType( access_type );
+    iDatabase.setAccessType( access_type );
   }
 
   /**
@@ -433,7 +432,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The hostname of the database.
    */
   public String getHostname() {
-    return databaseInterface.getHostname();
+    return iDatabase.getHostname();
   }
 
   /**
@@ -442,7 +441,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param hostname The hostname of the machine on which the database runs.
    */
   public void setHostname( String hostname ) {
-    databaseInterface.setHostname( hostname );
+    iDatabase.setHostname( hostname );
   }
 
   /**
@@ -451,7 +450,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The database port.
    */
   public String getPort() {
-    return databaseInterface.getPort();
+    return iDatabase.getPort();
   }
 
   /**
@@ -460,7 +459,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param port The port number on which the database listens
    */
   public void setPort( String port ) {
-    databaseInterface.setPort( port );
+    iDatabase.setPort( port );
   }
 
   /**
@@ -469,7 +468,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The database name.
    */
   public String getDatabaseName() {
-    return databaseInterface.getDatabaseName();
+    return iDatabase.getDatabaseName();
   }
 
   /**
@@ -478,7 +477,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param databaseName The new name of the database
    */
   public void setDBName( String databaseName ) {
-    databaseInterface.setDatabaseName( databaseName );
+    iDatabase.setDatabaseName( databaseName );
   }
 
   /**
@@ -487,7 +486,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The username to log into the database on this connection.
    */
   public String getUsername() {
-    return databaseInterface.getUsername();
+    return iDatabase.getUsername();
   }
 
   /**
@@ -496,7 +495,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param username The username
    */
   public void setUsername( String username ) {
-    databaseInterface.setUsername( username );
+    iDatabase.setUsername( username );
   }
 
   /**
@@ -505,7 +504,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return the password to log into the database on this connection.
    */
   public String getPassword() {
-    return databaseInterface.getPassword();
+    return iDatabase.getPassword();
   }
 
   /**
@@ -514,37 +513,37 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param password the password to log into the database on this connection.
    */
   public void setPassword( String password ) {
-    databaseInterface.setPassword( password );
+    iDatabase.setPassword( password );
   }
 
   /**
    * @param servername the Informix servername
    */
   public void setServername( String servername ) {
-    databaseInterface.setServername( servername );
+    iDatabase.setServername( servername );
   }
 
   /**
    * @return the Informix servername
    */
   public String getServername() {
-    return databaseInterface.getServername();
+    return iDatabase.getServername();
   }
 
   public String getDataTablespace() {
-    return databaseInterface.getDataTablespace();
+    return iDatabase.getDataTablespace();
   }
 
   public void setDataTablespace( String data_tablespace ) {
-    databaseInterface.setDataTablespace( data_tablespace );
+    iDatabase.setDataTablespace( data_tablespace );
   }
 
   public String getIndexTablespace() {
-    return databaseInterface.getIndexTablespace();
+    return iDatabase.getIndexTablespace();
   }
 
   public void setIndexTablespace( String index_tablespace ) {
-    databaseInterface.setIndexTablespace( index_tablespace );
+    iDatabase.setIndexTablespace( index_tablespace );
   }
 
   public void setChanged() {
@@ -552,22 +551,22 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public void setChanged( boolean ch ) {
-    databaseInterface.setChanged( ch );
+    iDatabase.setChanged( ch );
   }
 
   public boolean hasChanged() {
-    return databaseInterface.isChanged();
+    return iDatabase.isChanged();
   }
 
   public void clearChanged() {
-    databaseInterface.setChanged( false );
+    iDatabase.setChanged( false );
   }
 
   /**
    * @param odbcDsn
    */
   public void setOdbcDsn( String odbcDsn ) {
-    databaseInterface.setOdbcDsn( odbcDsn );
+    iDatabase.setOdbcDsn( odbcDsn );
   }
 
   /**
@@ -576,21 +575,21 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return value of odbcDsn
    */
   public String getOdbcDsn() {
-    return databaseInterface.getOdbcDsn();
+    return iDatabase.getOdbcDsn();
   }
 
   /**
    * @return A manually entered URL which will be used over the internally generated one
    */
   public String getManualUrl() {
-    return databaseInterface.getManualUrl();
+    return iDatabase.getManualUrl();
   }
 
   /**
    * @param manualUrl A manually entered URL which will be used over the internally generated one
    */
   public void setManualUrl( String manualUrl ) {
-    databaseInterface.setManualUrl( manualUrl );
+    iDatabase.setManualUrl( manualUrl );
   }
 
   @Override
@@ -602,7 +601,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The extra attributes for this database connection
    */
   public Properties getAttributes() {
-    return databaseInterface.getAttributes();
+    return iDatabase.getAttributes();
   }
 
   /**
@@ -611,7 +610,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param attributes The extra attributes to set on this database connection.
    */
   public void setAttributes( Properties attributes ) {
-    databaseInterface.setAttributes( attributes );
+    iDatabase.setAttributes( attributes );
   }
 
   @Override
@@ -638,10 +637,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     String port = environmentSubstitute( getPort() );
     String databaseName = environmentSubstitute( getDatabaseName() );
 
-    String baseUrl = databaseInterface.getURL( environmentSubstitute( hostname ), environmentSubstitute( port ), environmentSubstitute( databaseName ) );
+    String baseUrl = iDatabase.getURL( environmentSubstitute( hostname ), environmentSubstitute( port ), environmentSubstitute( databaseName ) );
     String url = environmentSubstitute( baseUrl );
 
-    if ( databaseInterface.supportsOptionsInURL() ) {
+    if ( iDatabase.supportsOptionsInURL() ) {
       url = appendExtraOptions( url, getExtraOptions() );
     }
     // else {
@@ -686,11 +685,11 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
       // connection settings for one database is valid for another
       boolean dbForBothDbInterfacesIsSame = false;
       try {
-        DatabaseInterface primaryDb = getDbInterface( typeCode );
-        dbForBothDbInterfacesIsSame = databaseForBothDbInterfacesIsTheSame( primaryDb, getDatabaseInterface() );
+        IDatabase primaryDb = getDbInterface( typeCode );
+        dbForBothDbInterfacesIsSame = databaseForBothDbInterfacesIsTheSame( primaryDb, getIDatabase() );
       } catch ( HopDatabaseException e ) {
         getGeneralLogger().logError(
-          "DatabaseInterface with " + typeCode + " database type is not found! Parameter " + parameter
+          "IDatabase with " + typeCode + " database type is not found! Parameter " + parameter
             + "won't be appended to URL" );
       }
       if ( dbForBothDbInterfacesIsSame ) {
@@ -714,9 +713,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * 1. plugin id of {@code primary} is the same as plugin id of {@code secondary}
    * 2. {@code secondary} is a descendant {@code primary} (with any deepness).
    */
-  protected boolean databaseForBothDbInterfacesIsTheSame( DatabaseInterface primary, DatabaseInterface secondary ) {
+  protected boolean databaseForBothDbInterfacesIsTheSame( IDatabase primary, IDatabase secondary ) {
     if ( primary == null || secondary == null ) {
-      throw new IllegalArgumentException( "DatabaseInterface shouldn't be null!" );
+      throw new IllegalArgumentException( "IDatabase shouldn't be null!" );
     }
 
     if ( primary.getPluginId() == null || secondary.getPluginId() == null ) {
@@ -749,21 +748,21 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public String getExtraOptionIndicator() {
-    return getDatabaseInterface().getExtraOptionIndicator();
+    return getIDatabase().getExtraOptionIndicator();
   }
 
   /**
    * @return The extra option separator in database URL for this platform (usually this is semicolon ; )
    */
   public String getExtraOptionSeparator() {
-    return getDatabaseInterface().getExtraOptionSeparator();
+    return getIDatabase().getExtraOptionSeparator();
   }
 
   /**
    * @return The extra option value separator in database URL for this platform (usually this is the equal sign = )
    */
   public String getExtraOptionValueSeparator() {
-    return getDatabaseInterface().getExtraOptionValueSeparator();
+    return getIDatabase().getExtraOptionValueSeparator();
   }
 
   /**
@@ -785,7 +784,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
           // Only add to the URL if it's the same database type code...
           //
-          if ( databaseInterface.getPluginId().equals( typeCode ) ) {
+          if ( iDatabase.getPluginId().equals( typeCode ) ) {
             if ( value != null && value.equals( EMPTY_OPTIONS_STRING ) ) {
               value = "";
             }
@@ -806,13 +805,13 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param value            The value of the option
    */
   public void addExtraOption( String databaseTypeCode, String option, String value ) {
-    databaseInterface.addExtraOption( databaseTypeCode, option, value );
+    iDatabase.addExtraOption( databaseTypeCode, option, value );
   }
 
-  public void applyDefaultOptions( DatabaseInterface databaseInterface ) {
+  public void applyDefaultOptions( IDatabase iDatabase ) {
     final Map<String, String> extraOptions = getExtraOptions();
 
-    final Map<String, String> defaultOptions = databaseInterface.getDefaultOptions();
+    final Map<String, String> defaultOptions = iDatabase.getDefaultOptions();
     for ( String option : defaultOptions.keySet() ) {
       String value = defaultOptions.get( option );
       String[] split = option.split( "[.]", 2 );
@@ -829,41 +828,41 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    */
   @Deprecated
   public boolean supportsTransactions() {
-    return databaseInterface.supportsTransactions();
+    return iDatabase.supportsTransactions();
   }
 
   public boolean supportsAutoinc() {
-    return databaseInterface.supportsAutoInc();
+    return iDatabase.supportsAutoInc();
   }
 
   public boolean supportsSequences() {
-    return databaseInterface.supportsSequences();
+    return iDatabase.supportsSequences();
   }
 
   public String getSQLSequenceExists( String sequenceName ) {
-    return databaseInterface.getSQLSequenceExists( sequenceName );
+    return iDatabase.getSQLSequenceExists( sequenceName );
   }
 
   public boolean supportsBitmapIndex() {
-    return databaseInterface.supportsBitmapIndex();
+    return iDatabase.supportsBitmapIndex();
   }
 
   public boolean supportsSetLong() {
-    return databaseInterface.supportsSetLong();
+    return iDatabase.supportsSetLong();
   }
 
   /**
    * @return true if the database supports schemas
    */
   public boolean supportsSchemas() {
-    return databaseInterface.supportsSchemas();
+    return iDatabase.supportsSchemas();
   }
 
   /**
    * @return true if the database supports catalogs
    */
   public boolean supportsCatalogs() {
-    return databaseInterface.supportsCatalogs();
+    return iDatabase.supportsCatalogs();
   }
 
   /**
@@ -871,7 +870,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * database type!)
    */
   public boolean supportsEmptyTransactions() {
-    return databaseInterface.supportsEmptyTransactions();
+    return iDatabase.supportsEmptyTransactions();
   }
 
   /**
@@ -880,7 +879,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return true if we can set a Stream on a field in a PreparedStatement. False if not.
    */
   public boolean supportsSetCharacterStream() {
-    return databaseInterface.supportsSetCharacterStream();
+    return iDatabase.supportsSetCharacterStream();
   }
 
   /**
@@ -890,7 +889,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The maximum text field length for this database type. (mostly CLOB_LENGTH)
    */
   public int getMaxTextFieldLength() {
-    return databaseInterface.getMaxTextFieldLength();
+    return iDatabase.getMaxTextFieldLength();
   }
 
   public static final int getAccessType( String dbaccess ) {
@@ -936,9 +935,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return dbAccessTypeDesc[ dbaccess ];
   }
 
-  public static final DatabaseInterface[] getDatabaseInterfaces() {
-    List<DatabaseInterface> list = new ArrayList<>( getDatabaseInterfacesMap().values() );
-    return list.toArray( new DatabaseInterface[ list.size() ] );
+  public static final IDatabase[] getDatabaseInterfaces() {
+    List<IDatabase> list = new ArrayList<>( getIDatabaseMap().values() );
+    return list.toArray( new IDatabase[ list.size() ] );
   }
 
   /**
@@ -950,20 +949,20 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     allDatabaseInterfaces = null;
   }
 
-  private static final Future<Map<String, DatabaseInterface>> createDatabaseInterfacesMap() {
-    return ExecutorUtil.getExecutor().submit( new Callable<Map<String, DatabaseInterface>>() {
-      private Map<String, DatabaseInterface> doCreate() {
-        LogChannelInterface log = LogChannel.GENERAL;
+  private static final Future<Map<String, IDatabase>> createDatabaseInterfacesMap() {
+    return ExecutorUtil.getExecutor().submit( new Callable<Map<String, IDatabase>>() {
+      private Map<String, IDatabase> doCreate() {
+        ILogChannel log = LogChannel.GENERAL;
         PluginRegistry registry = PluginRegistry.getInstance();
 
-        List<PluginInterface> plugins = registry.getPlugins( DatabasePluginType.class );
-        HashMap<String, DatabaseInterface> tmpAllDatabaseInterfaces = new HashMap<>();
-        for ( PluginInterface plugin : plugins ) {
+        List<IPlugin> plugins = registry.getPlugins( DatabasePluginType.class );
+        HashMap<String, IDatabase> tmpAllDatabaseInterfaces = new HashMap<>();
+        for ( IPlugin plugin : plugins ) {
           try {
-            DatabaseInterface databaseInterface = (DatabaseInterface) registry.loadClass( plugin );
-            databaseInterface.setPluginId( plugin.getIds()[ 0 ] );
-            databaseInterface.setPluginName( plugin.getName() );
-            tmpAllDatabaseInterfaces.put( plugin.getIds()[ 0 ], databaseInterface );
+            IDatabase iDatabase = (IDatabase) registry.loadClass( plugin );
+            iDatabase.setPluginId( plugin.getIds()[ 0 ] );
+            iDatabase.setPluginName( plugin.getName() );
+            tmpAllDatabaseInterfaces.put( plugin.getIds()[ 0 ], iDatabase );
           } catch ( HopPluginException cnfe ) {
             log.logError( "Could not create connection entry for "
               + plugin.getName() + ".  " + cnfe.getCause().getClass().getName() );
@@ -977,14 +976,14 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         return Collections.unmodifiableMap( tmpAllDatabaseInterfaces );
       }
 
-      @Override public Map<String, DatabaseInterface> call() throws Exception {
+      @Override public Map<String, IDatabase> call() throws Exception {
         return doCreate();
       }
     } );
   }
 
-  public static final Map<String, DatabaseInterface> getDatabaseInterfacesMap() {
-    Future<Map<String, DatabaseInterface>> allDatabaseInterfaces = DatabaseMeta.allDatabaseInterfaces;
+  public static final Map<String, IDatabase> getIDatabaseMap() {
+    Future<Map<String, IDatabase>> allDatabaseInterfaces = DatabaseMeta.allDatabaseInterfaces;
     while ( allDatabaseInterfaces == null ) {
       DatabaseMeta.allDatabaseInterfaces = createDatabaseInterfacesMap();
       allDatabaseInterfaces = DatabaseMeta.allDatabaseInterfaces;
@@ -1004,7 +1003,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   public static final int[] getAccessTypeList( String dbTypeDesc ) {
     try {
-      DatabaseInterface di = findDatabaseInterface( dbTypeDesc );
+      IDatabase di = findIDatabase( dbTypeDesc );
       return di.getAccessTypeList();
     } catch ( HopDatabaseException kde ) {
       return null;
@@ -1013,7 +1012,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   public static final int getPortForDBType( String strtype, String straccess ) {
     try {
-      DatabaseInterface di = getDatabaseInterface( strtype );
+      IDatabase di = getIDatabase( strtype );
       di.setAccessType( getAccessType( straccess ) );
       return di.getDefaultDatabasePort();
     } catch ( HopDatabaseException kde ) {
@@ -1022,18 +1021,18 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public int getDefaultDatabasePort() {
-    return databaseInterface.getDefaultDatabasePort();
+    return iDatabase.getDefaultDatabasePort();
   }
 
   public int getNotFoundTK( boolean use_autoinc ) {
-    return databaseInterface.getNotFoundTK( use_autoinc );
+    return iDatabase.getNotFoundTK( use_autoinc );
   }
 
   public String getDriverClass() {
     if ( getAccessType() == TYPE_ACCESS_ODBC ) {
       return "sun.jdbc.odbc.JdbcOdbcDriver";
     } else {
-      return environmentSubstitute( databaseInterface.getDriverClass() );
+      return environmentSubstitute( iDatabase.getDriverClass() );
     }
   }
 
@@ -1073,15 +1072,15 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public String getSeqNextvalSQL( String sequenceName ) {
-    return databaseInterface.getSQLNextSequenceValue( sequenceName );
+    return iDatabase.getSQLNextSequenceValue( sequenceName );
   }
 
   public String getSQLCurrentSequenceValue( String sequenceName ) {
-    return databaseInterface.getSQLCurrentSequenceValue( sequenceName );
+    return iDatabase.getSQLCurrentSequenceValue( sequenceName );
   }
 
   public boolean isFetchSizeSupported() {
-    return databaseInterface.isFetchSizeSupported();
+    return iDatabase.isFetchSizeSupported();
   }
 
   /**
@@ -1090,27 +1089,27 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return true if we need a placeholder for auto increment fields in insert statements.
    */
   public boolean needsPlaceHolder() {
-    return databaseInterface.needsPlaceHolder();
+    return iDatabase.needsPlaceHolder();
   }
 
   public String getFunctionSum() {
-    return databaseInterface.getFunctionSum();
+    return iDatabase.getFunctionSum();
   }
 
   public String getFunctionAverage() {
-    return databaseInterface.getFunctionAverage();
+    return iDatabase.getFunctionAverage();
   }
 
   public String getFunctionMaximum() {
-    return databaseInterface.getFunctionMaximum();
+    return iDatabase.getFunctionMaximum();
   }
 
   public String getFunctionMinimum() {
-    return databaseInterface.getFunctionMinimum();
+    return iDatabase.getFunctionMinimum();
   }
 
   public String getFunctionCount() {
-    return databaseInterface.getFunctionCount();
+    return iDatabase.getFunctionCount();
   }
 
   /**
@@ -1121,7 +1120,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   public String[] checkParameters() {
     ArrayList<String> remarks = new ArrayList<>();
 
-    if ( getDatabaseInterface() == null ) {
+    if ( getIDatabase() == null ) {
       remarks.add( BaseMessages.getString( PKG, "DatabaseMeta.BadInterface" ) );
     }
 
@@ -1129,8 +1128,8 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
       remarks.add( BaseMessages.getString( PKG, "DatabaseMeta.BadConnectionName" ) );
     }
 
-    if ( ( ( (BaseDatabaseMeta) getDatabaseInterface() ).requiresName()
-      && !( getDatabaseInterface() instanceof GenericDatabaseMeta ) ) ) {
+    if ( ( ( (BaseDatabaseMeta) getIDatabase() ).requiresName()
+      && !( getIDatabase() instanceof GenericDatabaseMeta ) ) ) {
       if ( getDatabaseName() == null || getDatabaseName().length() == 0 ) {
         remarks.add( BaseMessages.getString( PKG, "DatabaseMeta.BadDatabaseName" ) );
       }
@@ -1164,17 +1163,17 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
       if ( Utils.isEmpty( getPreferredSchemaName() ) ) {
         return quoteField( environmentSubstitute( tableName ) ); // no need to look further
       } else {
-        return databaseInterface.getSchemaTableCombination(
+        return iDatabase.getSchemaTableCombination(
           quoteField( environmentSubstitute( getPreferredSchemaName() ) ),
           quoteField( environmentSubstitute( tableName ) ) );
       }
     } else {
-      return databaseInterface.getSchemaTableCombination(
+      return iDatabase.getSchemaTableCombination(
         quoteField( environmentSubstitute( schemaName ) ), quoteField( environmentSubstitute( tableName ) ) );
     }
   }
 
-  public boolean isClob( ValueMetaInterface v ) {
+  public boolean isClob( IValueMeta v ) {
     boolean retval = true;
 
     if ( v == null || v.getLength() < DatabaseMeta.CLOB_LENGTH ) {
@@ -1185,24 +1184,24 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return retval;
   }
 
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc ) {
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc ) {
     return getFieldDefinition( v, tk, pk, use_autoinc, true, true );
   }
 
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
                                     boolean add_fieldname, boolean add_cr ) {
 
     String definition =
-      v.getDatabaseColumnTypeDefinition( databaseInterface, tk, pk, use_autoinc, add_fieldname, add_cr );
+      v.getDatabaseColumnTypeDefinition( iDatabase, tk, pk, use_autoinc, add_fieldname, add_cr );
     if ( !Utils.isEmpty( definition ) ) {
       return definition;
     }
 
-    return databaseInterface.getFieldDefinition( v, tk, pk, use_autoinc, add_fieldname, add_cr );
+    return iDatabase.getFieldDefinition( v, tk, pk, use_autoinc, add_fieldname, add_cr );
   }
 
   public String getLimitClause( int nrRows ) {
-    return databaseInterface.getLimitClause( nrRows );
+    return iDatabase.getLimitClause( nrRows );
   }
 
   /**
@@ -1210,12 +1209,12 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return the SQL for to get the fields of this table.
    */
   public String getSQLQueryFields( String tableName ) {
-    return databaseInterface.getSQLQueryFields( tableName );
+    return iDatabase.getSQLQueryFields( tableName );
   }
 
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                        String pk, boolean semicolon ) {
-    String retval = databaseInterface.getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1223,9 +1222,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return retval;
   }
 
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                         String pk, boolean semicolon ) {
-    String retval = databaseInterface.getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1233,9 +1232,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return retval;
   }
 
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                           String pk, boolean semicolon ) {
-    String retval = databaseInterface.getModifyColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getModifyColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1248,28 +1247,28 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return an array of reserved words for the database type...
    */
   public String[] getReservedWords() {
-    return databaseInterface.getReservedWords();
+    return iDatabase.getReservedWords();
   }
 
   /**
    * @return true if reserved words need to be double quoted ("password", "select", ...)
    */
   public boolean quoteReservedWords() {
-    return databaseInterface.quoteReservedWords();
+    return iDatabase.quoteReservedWords();
   }
 
   /**
    * @return The start quote sequence, mostly just double quote, but sometimes [, ...
    */
   public String getStartQuote() {
-    return databaseInterface.getStartQuote();
+    return iDatabase.getStartQuote();
   }
 
   /**
    * @return The end quote sequence, mostly just double quote, but sometimes ], ...
    */
   public String getEndQuote() {
-    return databaseInterface.getEndQuote();
+    return iDatabase.getEndQuote();
   }
 
   /**
@@ -1297,7 +1296,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     if ( isReservedWord( field ) && quoteReservedWords() ) {
       return handleCase( getStartQuote() + field + getEndQuote() );
     } else {
-      if ( databaseInterface.isQuoteAllFields()
+      if ( iDatabase.isQuoteAllFields()
         || hasSpacesInField( field ) || hasSpecialCharInField( field ) || hasDotInField( field ) ) {
         return getStartQuote() + field + getEndQuote();
       } else {
@@ -1310,7 +1309,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     if ( preserveReservedCase() ) {
       return field;
     } else {
-      if ( databaseInterface.isDefaultingToUppercase() ) {
+      if ( iDatabase.isDefaultingToUppercase() ) {
         return field.toUpperCase();
       } else {
         return field.toLowerCase();
@@ -1431,10 +1430,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param fields the list of fields to check
    * @return true if one or more values have a name that is a reserved word on this database type.
    */
-  public boolean replaceReservedWords( RowMetaInterface fields ) {
+  public boolean replaceReservedWords( IRowMeta fields ) {
     boolean hasReservedWords = false;
     for ( int i = 0; i < fields.size(); i++ ) {
-      ValueMetaInterface v = fields.getValueMeta( i );
+      IValueMeta v = fields.getValueMeta( i );
       if ( isReservedWord( v.getName() ) ) {
         hasReservedWords = true;
         v.setName( quoteField( v.getName() ) );
@@ -1449,10 +1448,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @param fields the list of fields to check
    * @return The nr of reserved words for this database.
    */
-  public int getNrReservedWords( RowMetaInterface fields ) {
+  public int getNrReservedWords( IRowMeta fields ) {
     int nrReservedWords = 0;
     for ( int i = 0; i < fields.size(); i++ ) {
-      ValueMetaInterface v = fields.getValueMeta( i );
+      IValueMeta v = fields.getValueMeta( i );
       if ( isReservedWord( v.getName() ) ) {
         nrReservedWords++;
       }
@@ -1464,49 +1463,49 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return a list of types to get the available tables
    */
   public String[] getTableTypes() {
-    return databaseInterface.getTableTypes();
+    return iDatabase.getTableTypes();
   }
 
   /**
    * @return a list of types to get the available views
    */
   public String[] getViewTypes() {
-    return databaseInterface.getViewTypes();
+    return iDatabase.getViewTypes();
   }
 
   /**
    * @return a list of types to get the available synonyms
    */
   public String[] getSynonymTypes() {
-    return databaseInterface.getSynonymTypes();
+    return iDatabase.getSynonymTypes();
   }
 
   /**
    * @return true if we need to supply the schema-name to getTables in order to get a correct list of items.
    */
   public boolean useSchemaNameForTableList() {
-    return databaseInterface.useSchemaNameForTableList();
+    return iDatabase.useSchemaNameForTableList();
   }
 
   /**
    * @return true if the database supports views
    */
   public boolean supportsViews() {
-    return databaseInterface.supportsViews();
+    return iDatabase.supportsViews();
   }
 
   /**
    * @return true if the database supports synonyms
    */
   public boolean supportsSynonyms() {
-    return databaseInterface.supportsSynonyms();
+    return iDatabase.supportsSynonyms();
   }
 
   /**
    * @return The SQL on this database to get a list of stored procedures.
    */
   public String getSQLListOfProcedures() {
-    return databaseInterface.getSQLListOfProcedures();
+    return iDatabase.getSQLListOfProcedures();
   }
 
   /**
@@ -1514,7 +1513,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return The SQL statement to remove all rows from the specified statement, if possible without using transactions
    */
   public String getTruncateTableStatement( String schema, String tableName ) {
-    return databaseInterface.getTruncateTableStatement( getQuotedSchemaTableCombination( schema, tableName ) );
+    return iDatabase.getTruncateTableStatement( getQuotedSchemaTableCombination( schema, tableName ) );
   }
 
   /**
@@ -1522,7 +1521,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * is number(7,2) the value 12.399999999 is converted into 12.40
    */
   public boolean supportsFloatRoundingOnUpdate() {
-    return databaseInterface.supportsFloatRoundingOnUpdate();
+    return iDatabase.supportsFloatRoundingOnUpdate();
   }
 
   /**
@@ -1531,7 +1530,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * supported on the target database.
    */
   public String getSQLLockTables( String[] tableNames ) {
-    return databaseInterface.getSQLLockTables( tableNames );
+    return iDatabase.getSQLLockTables( tableNames );
   }
 
   /**
@@ -1540,7 +1539,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * target database.
    */
   public String getSQLUnlockTables( String[] tableNames ) {
-    return databaseInterface.getSQLUnlockTables( tableNames );
+    return iDatabase.getSQLUnlockTables( tableNames );
   }
 
   /**
@@ -1552,44 +1551,44 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     final String par = "Parameter";
     final String val = "Value";
 
-    ValueMetaInterface testValue = new ValueMetaString( "FIELD" );
+    IValueMeta testValue = new ValueMetaString( "FIELD" );
     testValue.setLength( 30 );
 
-    if ( databaseInterface != null ) {
+    if ( iDatabase != null ) {
       // Type of database
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Database type" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getPluginId() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Database type" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getPluginId() );
       list.add( r );
       // Type of access
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Access type" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getAccessTypeDesc() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Access type" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getAccessTypeDesc() );
       list.add( r );
       // Name of database
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Database name" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getDatabaseName() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Database name" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getDatabaseName() );
       list.add( r );
       // server host name
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Server hostname" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getHostname() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Server hostname" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getHostname() );
       list.add( r );
       // Port number
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Service port" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getPort() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Service port" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getPort() );
       list.add( r );
       // Username
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Username" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getUsername() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Username" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getUsername() );
       list.add( r );
       // Informix server
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Informix server name" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getServername() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Informix server name" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getServername() );
       list.add( r );
       // Other properties...
       Enumeration<Object> keys = getAttributes().keys();
@@ -1597,15 +1596,15 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         String key = (String) keys.nextElement();
         String value = getAttributes().getProperty( key );
         r = new RowMetaAndData();
-        r.addValue( par, ValueMetaInterface.TYPE_STRING, "Extra attribute [" + key + "]" );
-        r.addValue( val, ValueMetaInterface.TYPE_STRING, value );
+        r.addValue( par, IValueMeta.TYPE_STRING, "Extra attribute [" + key + "]" );
+        r.addValue( val, IValueMeta.TYPE_STRING, value );
         list.add( r );
       }
 
       // driver class
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Driver class" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getDriverClass() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Driver class" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getDriverClass() );
       list.add( r );
       // URL
       String pwd = getPassword();
@@ -1617,76 +1616,76 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         url = "";
       } // SAP etc.
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "URL" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, url );
+      r.addValue( par, IValueMeta.TYPE_STRING, "URL" );
+      r.addValue( val, IValueMeta.TYPE_STRING, url );
       list.add( r );
       setPassword( pwd );
       // SQL: Next sequence value
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "SQL: next sequence value" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getSeqNextvalSQL( "SEQUENCE" ) );
+      r.addValue( par, IValueMeta.TYPE_STRING, "SQL: next sequence value" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getSeqNextvalSQL( "SEQUENCE" ) );
       list.add( r );
       // is set fetch size supported
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supported: set fetch size" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, isFetchSizeSupported() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supported: set fetch size" );
+      r.addValue( val, IValueMeta.TYPE_STRING, isFetchSizeSupported() ? "Y" : "N" );
       list.add( r );
       // needs place holder for auto increment
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "auto increment field needs placeholder" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, needsPlaceHolder() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "auto increment field needs placeholder" );
+      r.addValue( val, IValueMeta.TYPE_STRING, needsPlaceHolder() ? "Y" : "N" );
       list.add( r );
       // Sum function
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "SUM aggregate function" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getFunctionSum() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "SUM aggregate function" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getFunctionSum() );
       list.add( r );
       // Avg function
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "AVG aggregate function" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getFunctionAverage() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "AVG aggregate function" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getFunctionAverage() );
       list.add( r );
       // Minimum function
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "MIN aggregate function" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getFunctionMinimum() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "MIN aggregate function" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getFunctionMinimum() );
       list.add( r );
       // Maximum function
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "MAX aggregate function" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getFunctionMaximum() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "MAX aggregate function" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getFunctionMaximum() );
       list.add( r );
       // Count function
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "COUNT aggregate function" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getFunctionCount() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "COUNT aggregate function" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getFunctionCount() );
       list.add( r );
       // Schema-table combination
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Schema / Table combination" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getQuotedSchemaTableCombination( "SCHEMA", "TABLE" ) );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Schema / Table combination" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getQuotedSchemaTableCombination( "SCHEMA", "TABLE" ) );
       list.add( r );
       // Limit clause
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "LIMIT clause for 100 rows" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getLimitClause( 100 ) );
+      r.addValue( par, IValueMeta.TYPE_STRING, "LIMIT clause for 100 rows" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getLimitClause( 100 ) );
       list.add( r );
       // add column statement
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Add column statement" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getAddColumnStatement(
+      r.addValue( par, IValueMeta.TYPE_STRING, "Add column statement" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getAddColumnStatement(
         "TABLE", testValue, null, false, null, false ) );
       list.add( r );
       // drop column statement
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Drop column statement" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getDropColumnStatement(
+      r.addValue( par, IValueMeta.TYPE_STRING, "Drop column statement" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getDropColumnStatement(
         "TABLE", testValue, null, false, null, false ) );
       list.add( r );
       // Modify column statement
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Modify column statement" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getModifyColumnStatement(
+      r.addValue( par, IValueMeta.TYPE_STRING, "Modify column statement" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getModifyColumnStatement(
         "TABLE", testValue, null, false, null, false ) );
       list.add( r );
 
@@ -1698,24 +1697,24 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         }
       }
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "List of reserved words" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, reserved );
+      r.addValue( par, IValueMeta.TYPE_STRING, "List of reserved words" );
+      r.addValue( val, IValueMeta.TYPE_STRING, reserved );
       list.add( r );
 
       // Quote reserved words?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Quote reserved words?" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, quoteReservedWords() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Quote reserved words?" );
+      r.addValue( val, IValueMeta.TYPE_STRING, quoteReservedWords() ? "Y" : "N" );
       list.add( r );
       // Start Quote
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "Start quote for reserved words" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getStartQuote() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "Start quote for reserved words" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getStartQuote() );
       list.add( r );
       // End Quote
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "End quote for reserved words" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getEndQuote() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "End quote for reserved words" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getEndQuote() );
       list.add( r );
 
       // List of table types
@@ -1727,8 +1726,8 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         }
       }
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "List of JDBC table types" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, types );
+      r.addValue( par, IValueMeta.TYPE_STRING, "List of JDBC table types" );
+      r.addValue( val, IValueMeta.TYPE_STRING, types );
       list.add( r );
 
       // List of view types
@@ -1740,8 +1739,8 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         }
       }
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "List of JDBC view types" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, types );
+      r.addValue( par, IValueMeta.TYPE_STRING, "List of JDBC view types" );
+      r.addValue( val, IValueMeta.TYPE_STRING, types );
       list.add( r );
 
       // List of synonym types
@@ -1753,56 +1752,56 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
         }
       }
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "List of JDBC synonym types" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, types );
+      r.addValue( par, IValueMeta.TYPE_STRING, "List of JDBC synonym types" );
+      r.addValue( val, IValueMeta.TYPE_STRING, types );
       list.add( r );
 
       // Use schema-name to get list of tables?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "use schema name to get table list?" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, useSchemaNameForTableList() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "use schema name to get table list?" );
+      r.addValue( val, IValueMeta.TYPE_STRING, useSchemaNameForTableList() ? "Y" : "N" );
       list.add( r );
       // supports view?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports views?" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsViews() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports views?" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsViews() ? "Y" : "N" );
       list.add( r );
       // supports synonyms?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports synonyms?" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsSynonyms() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports synonyms?" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsSynonyms() ? "Y" : "N" );
       list.add( r );
       // SQL: get list of procedures?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "SQL: list of procedures" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getSQLListOfProcedures() );
+      r.addValue( par, IValueMeta.TYPE_STRING, "SQL: list of procedures" );
+      r.addValue( val, IValueMeta.TYPE_STRING, getSQLListOfProcedures() );
       list.add( r );
       // SQL: get truncate table statement?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "SQL: truncate table" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "SQL: truncate table" );
       String truncateStatement = getTruncateTableStatement( null, "TABLE" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, truncateStatement != null
+      r.addValue( val, IValueMeta.TYPE_STRING, truncateStatement != null
         ? truncateStatement : "Not supported by this database type" );
       list.add( r );
       // supports float rounding on update?
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports floating point rounding on update/insert" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsFloatRoundingOnUpdate() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports floating point rounding on update/insert" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsFloatRoundingOnUpdate() ? "Y" : "N" );
       list.add( r );
       // supports time stamp to date conversion
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports timestamp-date conversion" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsTimeStampToDateConversion() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports timestamp-date conversion" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsTimeStampToDateConversion() ? "Y" : "N" );
       list.add( r );
       // supports batch updates
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports batch updates" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsBatchUpdates() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports batch updates" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsBatchUpdates() ? "Y" : "N" );
       list.add( r );
       // supports boolean values
       r = new RowMetaAndData();
-      r.addValue( par, ValueMetaInterface.TYPE_STRING, "supports boolean data type" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, supportsBooleanDataType() ? "Y" : "N" );
+      r.addValue( par, IValueMeta.TYPE_STRING, "supports boolean data type" );
+      r.addValue( val, IValueMeta.TYPE_STRING, supportsBooleanDataType() ? "Y" : "N" );
       list.add( r );
     }
 
@@ -1813,56 +1812,56 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return true if the database result sets support getTimeStamp() to retrieve date-time. (Date)
    */
   public boolean supportsTimeStampToDateConversion() {
-    return databaseInterface.supportsTimeStampToDateConversion();
+    return iDatabase.supportsTimeStampToDateConversion();
   }
 
   /**
    * @return true if the database JDBC driver supports batch updates For example Interbase doesn't support this!
    */
   public boolean supportsBatchUpdates() {
-    return databaseInterface.supportsBatchUpdates();
+    return iDatabase.supportsBatchUpdates();
   }
 
   /**
    * @return true if the database supports a boolean, bit, logical, ... datatype
    */
   public boolean supportsBooleanDataType() {
-    return databaseInterface.supportsBooleanDataType();
+    return iDatabase.supportsBooleanDataType();
   }
 
   /**
    * @param b Set to true if the database supports a boolean, bit, logical, ... datatype
    */
   public void setSupportsBooleanDataType( boolean b ) {
-    databaseInterface.setSupportsBooleanDataType( b );
+    iDatabase.setSupportsBooleanDataType( b );
   }
 
   /**
    * @return true if the database supports the Timestamp data type (nanosecond precision and all)
    */
   public boolean supportsTimestampDataType() {
-    return databaseInterface.supportsTimestampDataType();
+    return iDatabase.supportsTimestampDataType();
   }
 
   /**
    * @param b Set to true if the database supports the Timestamp data type (nanosecond precision and all)
    */
   public void setSupportsTimestampDataType( boolean b ) {
-    databaseInterface.setSupportsTimestampDataType( b );
+    iDatabase.setSupportsTimestampDataType( b );
   }
 
   /**
    * @return true if reserved words' case should be preserved
    */
   public boolean preserveReservedCase() {
-    return databaseInterface.preserveReservedCase();
+    return iDatabase.preserveReservedCase();
   }
 
   /**
    * @return true if reserved words' case should be preserved
    */
   public void setPreserveReservedCase( boolean b ) {
-    databaseInterface.setPreserveReservedCase( b );
+    iDatabase.setPreserveReservedCase( b );
   }
 
   /**
@@ -1870,9 +1869,9 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    *
    * @param fields The row of fields to change
    */
-  public void quoteReservedWords( RowMetaInterface fields ) {
+  public void quoteReservedWords( IRowMeta fields ) {
     for ( int i = 0; i < fields.size(); i++ ) {
-      ValueMetaInterface v = fields.getValueMeta( i );
+      IValueMeta v = fields.getValueMeta( i );
       v.setName( quoteField( v.getName() ) );
     }
   }
@@ -1881,21 +1880,21 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return a map of all the extra URL options you want to set.
    */
   public Map<String, String> getExtraOptions() {
-    return databaseInterface.getExtraOptions();
+    return iDatabase.getExtraOptions();
   }
 
   /**
    * @return true if the database supports connection options in the URL, false if they are put in a Properties object.
    */
   public boolean supportsOptionsInURL() {
-    return databaseInterface.supportsOptionsInURL();
+    return iDatabase.supportsOptionsInURL();
   }
 
   /**
    * @return extra help text on the supported options on the selected database platform.
    */
   public String getExtraOptionsHelpText() {
-    return databaseInterface.getExtraOptionsHelpText();
+    return iDatabase.getExtraOptionsHelpText();
   }
 
   /**
@@ -1903,28 +1902,28 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * the data.
    */
   public boolean supportsGetBlob() {
-    return databaseInterface.supportsGetBlob();
+    return iDatabase.supportsGetBlob();
   }
 
   /**
    * @return The SQL to execute right after connecting
    */
   public String getConnectSQL() {
-    return databaseInterface.getConnectSQL();
+    return iDatabase.getConnectSQL();
   }
 
   /**
    * @param sql The SQL to execute right after connecting
    */
   public void setConnectSQL( String sql ) {
-    databaseInterface.setConnectSQL( sql );
+    iDatabase.setConnectSQL( sql );
   }
 
   /**
    * @return true if the database supports setting the maximum number of return rows in a resultset.
    */
   public boolean supportsSetMaxRows() {
-    return databaseInterface.supportsSetMaxRows();
+    return iDatabase.supportsSetMaxRows();
   }
 
   /**
@@ -1949,67 +1948,67 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public String getSQLTableExists( String tablename ) {
-    return databaseInterface.getSQLTableExists( tablename );
+    return iDatabase.getSQLTableExists( tablename );
   }
 
   public String getSQLColumnExists( String columnname, String tablename ) {
-    return databaseInterface.getSQLColumnExists( columnname, tablename );
+    return iDatabase.getSQLColumnExists( columnname, tablename );
   }
 
   /**
    * @return true if the database is streaming results (normally this is an option just for MySQL).
    */
   public boolean isStreamingResults() {
-    return databaseInterface.isStreamingResults();
+    return iDatabase.isStreamingResults();
   }
 
   /**
    * @param useStreaming true if we want the database to stream results (normally this is an option just for MySQL).
    */
   public void setStreamingResults( boolean useStreaming ) {
-    databaseInterface.setStreamingResults( useStreaming );
+    iDatabase.setStreamingResults( useStreaming );
   }
 
   /**
    * @return true if all fields should always be quoted in db
    */
   public boolean isQuoteAllFields() {
-    return databaseInterface.isQuoteAllFields();
+    return iDatabase.isQuoteAllFields();
   }
 
   /**
    * @param quoteAllFields true if all fields in DB should be quoted.
    */
   public void setQuoteAllFields( boolean quoteAllFields ) {
-    databaseInterface.setQuoteAllFields( quoteAllFields );
+    iDatabase.setQuoteAllFields( quoteAllFields );
   }
 
   /**
    * @return true if all identifiers should be forced to lower case
    */
   public boolean isForcingIdentifiersToLowerCase() {
-    return databaseInterface.isForcingIdentifiersToLowerCase();
+    return iDatabase.isForcingIdentifiersToLowerCase();
   }
 
   /**
    * @param forceLowerCase true if all identifiers should be forced to lower case
    */
   public void setForcingIdentifiersToLowerCase( boolean forceLowerCase ) {
-    databaseInterface.setForcingIdentifiersToLowerCase( forceLowerCase );
+    iDatabase.setForcingIdentifiersToLowerCase( forceLowerCase );
   }
 
   /**
    * @return true if all identifiers should be forced to upper case
    */
   public boolean isForcingIdentifiersToUpperCase() {
-    return databaseInterface.isForcingIdentifiersToUpperCase();
+    return iDatabase.isForcingIdentifiersToUpperCase();
   }
 
   /**
    * @param forceUpperCase true if all identifiers should be forced to upper case
    */
   public void setForcingIdentifiersToUpperCase( boolean forceUpperCase ) {
-    databaseInterface.setForcingIdentifiersToUpperCase( forceUpperCase );
+    iDatabase.setForcingIdentifiersToUpperCase( forceUpperCase );
   }
 
   /**
@@ -2049,8 +2048,8 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   @Override
@@ -2064,17 +2063,17 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -2100,7 +2099,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -2115,8 +2114,8 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   @Override
@@ -2153,21 +2152,21 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return true if the Microsoft SQL server uses two decimals (..) to separate schema and table (default==false).
    */
   public boolean isUsingDoubleDecimalAsSchemaTableSeparator() {
-    return databaseInterface.isUsingDoubleDecimalAsSchemaTableSeparator();
+    return iDatabase.isUsingDoubleDecimalAsSchemaTableSeparator();
   }
 
   /**
    * @param useDoubleDecimalSeparator true if we want the database to stream results (normally this is an option just for MySQL).
    */
   public void setUsingDoubleDecimalAsSchemaTableSeparator( boolean useDoubleDecimalSeparator ) {
-    databaseInterface.setUsingDoubleDecimalAsSchemaTableSeparator( useDoubleDecimalSeparator );
+    iDatabase.setUsingDoubleDecimalAsSchemaTableSeparator( useDoubleDecimalSeparator );
   }
 
   /**
    * @return true if this database needs a transaction to perform a query (auto-commit turned off).
    */
   public boolean isRequiringTransactionsOnQueries() {
-    return databaseInterface.isRequiringTransactionsOnQueries();
+    return iDatabase.isRequiringTransactionsOnQueries();
   }
 
 
@@ -2176,10 +2175,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
     StringBuilder report = new StringBuilder();
 
-    // If the plug-in needs to provide connection information, we ask the DatabaseInterface...
+    // If the plug-in needs to provide connection information, we ask the IDatabase...
     //
     try {
-      DatabaseFactoryInterface factory = getDatabaseFactory();
+      IDatabaseFactory factory = getDatabaseFactory();
       return factory.getConnectionTestReport( this );
     } catch ( ClassNotFoundException e ) {
       report
@@ -2201,10 +2200,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     StringBuilder report = new StringBuilder();
     DatabaseTestResults databaseTestResults = new DatabaseTestResults();
 
-    // If the plug-in needs to provide connection information, we ask the DatabaseInterface...
+    // If the plug-in needs to provide connection information, we ask the IDatabase...
     //
     try {
-      DatabaseFactoryInterface factory = getDatabaseFactory();
+      IDatabaseFactory factory = getDatabaseFactory();
       databaseTestResults = factory.getConnectionTestResults( this );
     } catch ( ClassNotFoundException e ) {
       report
@@ -2225,66 +2224,66 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return databaseTestResults;
   }
 
-  public DatabaseFactoryInterface getDatabaseFactory() throws Exception {
+  public IDatabaseFactory getDatabaseFactory() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.getPlugin( DatabasePluginType.class, databaseInterface.getPluginId() );
+    IPlugin plugin = registry.getPlugin( DatabasePluginType.class, iDatabase.getPluginId() );
     if ( plugin == null ) {
       throw new HopDatabaseException( "database type with plugin id ["
-        + databaseInterface.getPluginId() + "] couldn't be found!" );
+        + iDatabase.getPluginId() + "] couldn't be found!" );
     }
 
     ClassLoader loader = registry.getClassLoader( plugin );
 
-    Class<?> clazz = Class.forName( databaseInterface.getDatabaseFactoryName(), true, loader );
-    return (DatabaseFactoryInterface) clazz.newInstance();
+    Class<?> clazz = Class.forName( iDatabase.getDatabaseFactoryName(), true, loader );
+    return (IDatabaseFactory) clazz.newInstance();
   }
 
   public String getPreferredSchemaName() {
-    return databaseInterface.getPreferredSchemaName();
+    return iDatabase.getPreferredSchemaName();
   }
 
   public void setPreferredSchemaName( String preferredSchemaName ) {
-    databaseInterface.setPreferredSchemaName( preferredSchemaName );
+    iDatabase.setPreferredSchemaName( preferredSchemaName );
   }
 
   public boolean supportsSequenceNoMaxValueOption() {
-    return databaseInterface.supportsSequenceNoMaxValueOption();
+    return iDatabase.supportsSequenceNoMaxValueOption();
   }
 
   public boolean requiresCreateTablePrimaryKeyAppend() {
-    return databaseInterface.requiresCreateTablePrimaryKeyAppend();
+    return iDatabase.requiresCreateTablePrimaryKeyAppend();
   }
 
   public boolean requiresCastToVariousForIsNull() {
-    return databaseInterface.requiresCastToVariousForIsNull();
+    return iDatabase.requiresCastToVariousForIsNull();
   }
 
   public boolean isDisplaySizeTwiceThePrecision() {
-    return databaseInterface.isDisplaySizeTwiceThePrecision();
+    return iDatabase.isDisplaySizeTwiceThePrecision();
   }
 
   public boolean supportsPreparedStatementMetadataRetrieval() {
-    return databaseInterface.supportsPreparedStatementMetadataRetrieval();
+    return iDatabase.supportsPreparedStatementMetadataRetrieval();
   }
 
   public boolean isSystemTable( String tableName ) {
-    return databaseInterface.isSystemTable( tableName );
+    return iDatabase.isSystemTable( tableName );
   }
 
   private boolean supportsNewLinesInSQL() {
-    return databaseInterface.supportsNewLinesInSQL();
+    return iDatabase.supportsNewLinesInSQL();
   }
 
   public String getSQLListOfSchemas() {
-    return databaseInterface.getSQLListOfSchemas();
+    return iDatabase.getSQLListOfSchemas();
   }
 
   public int getMaxColumnsInIndex() {
-    return databaseInterface.getMaxColumnsInIndex();
+    return iDatabase.getMaxColumnsInIndex();
   }
 
   public boolean supportsErrorHandlingOnBatchUpdates() {
-    return databaseInterface.supportsErrorHandlingOnBatchUpdates();
+    return iDatabase.supportsErrorHandlingOnBatchUpdates();
   }
 
   /**
@@ -2296,44 +2295,44 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @return the SQL to insert the unknown record into the SCD.
    */
   public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
-    return databaseInterface.getSQLInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
+    return iDatabase.getSQLInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
   }
 
   /**
    * @return true if this is a relational database you can explore. Return false for SAP, PALO, etc.
    */
   public boolean isExplorable() {
-    return databaseInterface.isExplorable();
+    return iDatabase.isExplorable();
   }
 
   /**
    * @return The SQL on this database to get a list of sequences.
    */
   public String getSQLListOfSequences() {
-    return databaseInterface.getSQLListOfSequences();
+    return iDatabase.getSQLListOfSequences();
   }
 
   public String quoteSQLString( String string ) {
-    return databaseInterface.quoteSQLString( string );
+    return iDatabase.quoteSQLString( string );
   }
 
   /**
-   * @see DatabaseInterface#generateColumnAlias(int, String)
+   * @see IDatabase#generateColumnAlias(int, String)
    */
   public String generateColumnAlias( int columnIndex, String suggestedName ) {
-    return databaseInterface.generateColumnAlias( columnIndex, suggestedName );
+    return iDatabase.generateColumnAlias( columnIndex, suggestedName );
   }
 
   public boolean isMySQLVariant() {
-    return databaseInterface.isMySQLVariant();
+    return iDatabase.isMySQLVariant();
   }
 
   public Long getNextBatchId( Database ldb, String schemaName, String tableName, String fieldName ) throws HopDatabaseException {
-    return databaseInterface.getNextBatchId( this, ldb, schemaName, tableName, fieldName );
+    return iDatabase.getNextBatchId( this, ldb, schemaName, tableName, fieldName );
   }
 
-  public Object getValueFromResultSet( ResultSet rs, ValueMetaInterface val, int i ) throws HopDatabaseException {
-    return databaseInterface.getValueFromResultSet( rs, val, i );
+  public Object getValueFromResultSet( ResultSet rs, IValueMeta val, int i ) throws HopDatabaseException {
+    return iDatabase.getValueFromResultSet( rs, val, i );
   }
 
   /**
@@ -2357,24 +2356,24 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   public String getSequenceNoMaxValueOption() {
-    return databaseInterface.getSequenceNoMaxValueOption();
+    return iDatabase.getSequenceNoMaxValueOption();
   }
 
   /**
    * @return true if the database supports autoGeneratedKeys
    */
   public boolean supportsAutoGeneratedKeys() {
-    return databaseInterface.supportsAutoGeneratedKeys();
+    return iDatabase.supportsAutoGeneratedKeys();
   }
 
 
   /**
-   * Customizes the ValueMetaInterface defined in the base
+   * Customizes the IValueMeta defined in the base
    *
    * @return String the create table statement
    */
   public String getCreateTableStatement() {
-    return databaseInterface.getCreateTableStatement();
+    return iDatabase.getCreateTableStatement();
   }
 
   /**
@@ -2385,20 +2384,20 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
    * @see <a href="http://jira.pentaho.com/browse/BISERVER-13024">BISERVER-13024</a>
    */
   public String getDropTableIfExistsStatement( String tableName ) {
-    return databaseInterface.getDropTableIfExistsStatement( tableName );
+    return iDatabase.getDropTableIfExistsStatement( tableName );
   }
 
   /**
    * For testing
    */
-  protected LogChannelInterface getGeneralLogger() {
+  protected ILogChannel getGeneralLogger() {
     return LogChannel.GENERAL;
   }
 
   /**
    * For testing
    */
-  protected DatabaseInterface getDbInterface( String typeCode ) throws HopDatabaseException {
-    return getDatabaseInterface( typeCode );
+  protected IDatabase getDbInterface( String typeCode ) throws HopDatabaseException {
+    return getIDatabase( typeCode );
   }
 }

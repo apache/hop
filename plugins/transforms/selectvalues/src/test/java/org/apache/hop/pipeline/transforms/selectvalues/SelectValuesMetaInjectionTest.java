@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.selectvalues;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -42,103 +42,103 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
 
   @Test
   public void test() throws Exception {
-    check( "SELECT_UNSPECIFIED", new BooleanGetter() {
+    check( "SELECT_UNSPECIFIED", new IBooleanGetter() {
       public boolean get() {
         return meta.isSelectingAndSortingUnspecifiedFields();
       }
     } );
-    check( "FIELD_NAME", new StringGetter() {
+    check( "FIELD_NAME", new IStringGetter() {
       public String get() {
         return meta.getSelectFields()[ 0 ].getName();
       }
     } );
-    check( "FIELD_RENAME", new StringGetter() {
+    check( "FIELD_RENAME", new IStringGetter() {
       public String get() {
         return meta.getSelectFields()[ 0 ].getRename();
       }
     } );
-    check( "FIELD_LENGTH", new IntGetter() {
+    check( "FIELD_LENGTH", new IIntGetter() {
       public int get() {
         return meta.getSelectFields()[ 0 ].getLength();
       }
     } );
-    check( "FIELD_PRECISION", new IntGetter() {
+    check( "FIELD_PRECISION", new IIntGetter() {
       public int get() {
         return meta.getSelectFields()[ 0 ].getPrecision();
       }
     } );
-    check( "REMOVE_NAME", new StringGetter() {
+    check( "REMOVE_NAME", new IStringGetter() {
       public String get() {
         return meta.getDeleteName()[ 0 ];
       }
     } );
-    check( "META_NAME", new StringGetter() {
+    check( "META_NAME", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getName();
       }
     } );
-    check( "META_RENAME", new StringGetter() {
+    check( "META_RENAME", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getRename();
       }
     } );
-    check( "META_LENGTH", new IntGetter() {
+    check( "META_LENGTH", new IIntGetter() {
       public int get() {
         return meta.getMeta()[ 0 ].getLength();
       }
     } );
-    check( "META_PRECISION", new IntGetter() {
+    check( "META_PRECISION", new IIntGetter() {
       public int get() {
         return meta.getMeta()[ 0 ].getPrecision();
       }
     } );
-    check( "META_CONVERSION_MASK", new StringGetter() {
+    check( "META_CONVERSION_MASK", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getConversionMask();
       }
     } );
-    check( "META_DATE_FORMAT_LENIENT", new BooleanGetter() {
+    check( "META_DATE_FORMAT_LENIENT", new IBooleanGetter() {
       public boolean get() {
         return meta.getMeta()[ 0 ].isDateFormatLenient();
       }
     } );
-    check( "META_DATE_FORMAT_LOCALE", new StringGetter() {
+    check( "META_DATE_FORMAT_LOCALE", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getDateFormatLocale();
       }
     } );
-    check( "META_DATE_FORMAT_TIMEZONE", new StringGetter() {
+    check( "META_DATE_FORMAT_TIMEZONE", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getDateFormatTimeZone();
       }
     } );
-    check( "META_LENIENT_STRING_TO_NUMBER", new BooleanGetter() {
+    check( "META_LENIENT_STRING_TO_NUMBER", new IBooleanGetter() {
       public boolean get() {
         return meta.getMeta()[ 0 ].isLenientStringToNumber();
       }
     } );
-    check( "META_DECIMAL", new StringGetter() {
+    check( "META_DECIMAL", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getDecimalSymbol();
       }
     } );
-    check( "META_GROUPING", new StringGetter() {
+    check( "META_GROUPING", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getGroupingSymbol();
       }
     } );
-    check( "META_CURRENCY", new StringGetter() {
+    check( "META_CURRENCY", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getCurrencySymbol();
       }
     } );
-    check( "META_ENCODING", new StringGetter() {
+    check( "META_ENCODING", new IStringGetter() {
       public String get() {
         return meta.getMeta()[ 0 ].getEncoding();
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "META_STORAGE_TYPE", setValue( mftt, "normal" ), "f" );
     assertEquals( 0, meta.getMeta()[ 0 ].getStorageType() );
     injector.setProperty( meta, "META_STORAGE_TYPE", setValue( mftt, "binary-string" ), "f" );
@@ -154,7 +154,7 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
   //PDI-16932 test default values length and precision after injection
   @Test
   public void testDefaultValue() throws Exception {
-    ValueMetaInterface valueMeta = new ValueMetaString( "f" );
+    IValueMeta valueMeta = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_NAME", setValue( valueMeta, "testValue" ), "f" );
     nonTestedProperties.clear(); // we don't need to test other properties
     assertEquals( SelectValuesMeta.UNDEFINED, meta.getSelectFields()[ 0 ].getLength() );

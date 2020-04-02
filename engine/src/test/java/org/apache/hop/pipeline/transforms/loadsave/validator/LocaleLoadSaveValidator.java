@@ -30,7 +30,7 @@ import java.util.Random;
 /**
  * @author Andrey Khayrutdinov
  */
-public class LocaleLoadSaveValidator implements FieldLoadSaveValidator<Locale> {
+public class LocaleLoadSaveValidator implements IFieldLoadSaveValidator<Locale> {
   @Override public Locale getTestObject() {
     Locale[] availableLocales = Locale.getAvailableLocales();
 

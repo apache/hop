@@ -29,11 +29,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,13 +41,13 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -179,13 +179,13 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
       for ( int i = 0; i < fieldDefinition.length; i++ ) {
         FixedFileInputField field = fieldDefinition[ i ];
 
-        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
+        IValueMeta valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
         valueMeta.setConversionMask( field.getFormat() );
         valueMeta.setTrimType( field.getTrimType() );
         valueMeta.setLength( field.getLength() );
@@ -194,16 +194,16 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
         valueMeta.setDecimalSymbol( field.getDecimal() );
         valueMeta.setGroupingSymbol( field.getGrouping() );
         valueMeta.setCurrencySymbol( field.getCurrency() );
-        valueMeta.setStringEncoding( space.environmentSubstitute( encoding ) );
+        valueMeta.setStringEncoding( variables.environmentSubstitute( encoding ) );
         if ( lazyConversionActive ) {
-          valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+          valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
         }
 
         // In case we want to convert Strings...
         //
-        ValueMetaInterface storageMetadata =
-          ValueMetaFactory.cloneValueMeta( valueMeta, ValueMetaInterface.TYPE_STRING );
-        storageMetadata.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        IValueMeta storageMetadata =
+          ValueMetaFactory.cloneValueMeta( valueMeta, IValueMeta.TYPE_STRING );
+        storageMetadata.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
         valueMeta.setStorageMetadata( storageMetadata );
 
@@ -217,7 +217,7 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
@@ -246,12 +246,12 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new FixedInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new FixedInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new FixedInputData();
   }
 
@@ -472,14 +472,14 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   /**
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -487,14 +487,14 @@ public class FixedInputMeta extends BaseTransformMeta implements TransformMetaIn
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.txt
       // To : /home/matt/test/files/foo/bar.txt
       //
-      FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( filename ), space );
+      FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
 
       // If the file doesn't exist, forget about this effort too!
       //
       if ( fileObject.exists() ) {
         // Convert to an absolute path...
         //
-        filename = resourceNamingInterface.nameResource( fileObject, space, true );
+        filename = iResourceNaming.nameResource( fileObject, variables, true );
 
         return filename;
       }

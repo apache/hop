@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformInjectionUtil;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionEntryInterface;
@@ -41,30 +41,30 @@ public class TableOutputMetaInjection implements TransformMetaInjectionInterface
 
   public enum Entry implements TransformMetaInjectionEntryInterface {
 
-    TARGET_SCHEMA( ValueMetaInterface.TYPE_STRING, "The target schema" ),
-    TARGET_TABLE( ValueMetaInterface.TYPE_STRING, "The target table" ),
-    COMMIT_SIZE( ValueMetaInterface.TYPE_STRING, "The commit size" ),
-    TRUNCATE_TABLE( ValueMetaInterface.TYPE_STRING, "Truncate table? (Y/N)" ),
-    SPECIFY_DATABASE_FIELDS( ValueMetaInterface.TYPE_STRING, "Specify database fields? (Y/N)" ),
-    IGNORE_INSERT_ERRORS( ValueMetaInterface.TYPE_STRING, "Ignore insert errors? (Y/N)" ),
-    USE_BATCH_UPDATE( ValueMetaInterface.TYPE_STRING, "Use batch update for inserts? (Y/N)" ),
+    TARGET_SCHEMA( IValueMeta.TYPE_STRING, "The target schema" ),
+    TARGET_TABLE( IValueMeta.TYPE_STRING, "The target table" ),
+    COMMIT_SIZE( IValueMeta.TYPE_STRING, "The commit size" ),
+    TRUNCATE_TABLE( IValueMeta.TYPE_STRING, "Truncate table? (Y/N)" ),
+    SPECIFY_DATABASE_FIELDS( IValueMeta.TYPE_STRING, "Specify database fields? (Y/N)" ),
+    IGNORE_INSERT_ERRORS( IValueMeta.TYPE_STRING, "Ignore insert errors? (Y/N)" ),
+    USE_BATCH_UPDATE( IValueMeta.TYPE_STRING, "Use batch update for inserts? (Y/N)" ),
 
-    PARTITION_OVER_TABLES( ValueMetaInterface.TYPE_STRING, "Partition data over tables? (Y/N)" ),
-    PARTITIONING_FIELD( ValueMetaInterface.TYPE_STRING, "Partitioning field" ),
-    PARTITION_DATA_PER( ValueMetaInterface.TYPE_STRING, "Partition data per (month/day)" ),
+    PARTITION_OVER_TABLES( IValueMeta.TYPE_STRING, "Partition data over tables? (Y/N)" ),
+    PARTITIONING_FIELD( IValueMeta.TYPE_STRING, "Partitioning field" ),
+    PARTITION_DATA_PER( IValueMeta.TYPE_STRING, "Partition data per (month/day)" ),
 
-    TABLE_NAME_DEFINED_IN_FIELD( ValueMetaInterface.TYPE_STRING,
+    TABLE_NAME_DEFINED_IN_FIELD( IValueMeta.TYPE_STRING,
       "Is the name of the table defined in a field? (Y/N)" ),
-    TABLE_NAME_FIELD( ValueMetaInterface.TYPE_STRING, "Field that contains the name of table" ),
-    STORE_TABLE_NAME( ValueMetaInterface.TYPE_STRING, "Store the tablename field? (Y/N)" ),
+    TABLE_NAME_FIELD( IValueMeta.TYPE_STRING, "Field that contains the name of table" ),
+    STORE_TABLE_NAME( IValueMeta.TYPE_STRING, "Store the tablename field? (Y/N)" ),
 
-    RETURN_AUTO_GENERATED_KEY( ValueMetaInterface.TYPE_STRING, "Return auto-generated key? (Y/N)" ),
-    AUTO_GENERATED_KEY_FIELD( ValueMetaInterface.TYPE_STRING, "Name of auto-generated key field" ),
+    RETURN_AUTO_GENERATED_KEY( IValueMeta.TYPE_STRING, "Return auto-generated key? (Y/N)" ),
+    AUTO_GENERATED_KEY_FIELD( IValueMeta.TYPE_STRING, "Name of auto-generated key field" ),
 
-    DATABASE_FIELDS( ValueMetaInterface.TYPE_NONE, "The database fields" ),
-    DATABASE_FIELD( ValueMetaInterface.TYPE_NONE, "One database field" ),
-    DATABASE_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Table field" ),
-    STREAM_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Stream field" );
+    DATABASE_FIELDS( IValueMeta.TYPE_NONE, "The database fields" ),
+    DATABASE_FIELD( IValueMeta.TYPE_NONE, "One database field" ),
+    DATABASE_FIELDNAME( IValueMeta.TYPE_STRING, "Table field" ),
+    STREAM_FIELDNAME( IValueMeta.TYPE_STRING, "Stream field" );
 
     private int valueType;
     private String description;
@@ -118,11 +118,11 @@ public class TableOutputMetaInjection implements TransformMetaInjectionInterface
     //
     TransformInjectionMetaEntry fieldsEntry =
       new TransformInjectionMetaEntry(
-        Entry.DATABASE_FIELDS.name(), ValueMetaInterface.TYPE_NONE, Entry.DATABASE_FIELDS.description );
+        Entry.DATABASE_FIELDS.name(), IValueMeta.TYPE_NONE, Entry.DATABASE_FIELDS.description );
     all.add( fieldsEntry );
     TransformInjectionMetaEntry fieldEntry =
       new TransformInjectionMetaEntry(
-        Entry.DATABASE_FIELD.name(), ValueMetaInterface.TYPE_NONE, Entry.DATABASE_FIELD.description );
+        Entry.DATABASE_FIELD.name(), IValueMeta.TYPE_NONE, Entry.DATABASE_FIELD.description );
     fieldsEntry.getDetails().add( fieldEntry );
 
     Entry[] fieldsEntries = new Entry[] { Entry.DATABASE_FIELDNAME, Entry.STREAM_FIELDNAME, };

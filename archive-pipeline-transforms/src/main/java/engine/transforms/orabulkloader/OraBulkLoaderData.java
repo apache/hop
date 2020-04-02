@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.orabulkloader;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Stores data for the OraBulkLoader transform.
@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Sven Boden
  * @since 20-feb-2005
  */
-public class OraBulkLoaderData extends BaseTransformData implements TransformDataInterface {
+public class OraBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...

@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.hadoopsnappy;
 
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 
 public class HadoopSnappyCompressionInputStream extends CompressionInputStream {
 
-  public HadoopSnappyCompressionInputStream( InputStream in, CompressionProvider provider ) throws IOException {
+  public HadoopSnappyCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
     super( getDelegate( in ), provider );
   }
 

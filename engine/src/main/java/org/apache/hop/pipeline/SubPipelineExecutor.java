@@ -25,16 +25,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -95,7 +95,7 @@ public class SubPipelineExecutor {
       .filter( c -> c.transform.getTransformName().equalsIgnoreCase( subTransform ) )
       .findFirst()
       .ifPresent( c -> c.transform.addRowListener( new RowAdapter() {
-        @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) {
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
           rowMetaAndData.add( new RowMetaAndData( rowMeta, row ) );
         }
       } ) );
@@ -111,7 +111,7 @@ public class SubPipelineExecutor {
   }
 
   private synchronized void updateStatuses( Pipeline subPipeline ) {
-    List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms =
+    List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms =
       subPipeline.getTransforms();
     for ( TransformMetaDataCombi combi : transforms ) {
       TransformStatus transformStatus;

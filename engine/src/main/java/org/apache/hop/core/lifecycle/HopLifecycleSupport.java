@@ -29,9 +29,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.util.Set;
@@ -46,25 +46,25 @@ public class HopLifecycleSupport {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
   @VisibleForTesting protected static PluginRegistry registry = PluginRegistry.getInstance();
 
-  private ConcurrentMap<HopLifecycleListener, Boolean> kettleLifecycleListeners;
+  private ConcurrentMap<IHopLifecycleListener, Boolean> kettleLifecycleListeners;
   private AtomicBoolean initialized = new AtomicBoolean( false );
 
   public HopLifecycleSupport() {
-    Set<HopLifecycleListener> listeners =
-      LifecycleSupport.loadPlugins( HopLifecyclePluginType.class, HopLifecycleListener.class );
-    kettleLifecycleListeners = new ConcurrentHashMap<HopLifecycleListener, Boolean>();
+    Set<IHopLifecycleListener> listeners =
+      LifecycleSupport.loadPlugins( HopLifecyclePluginType.class, IHopLifecycleListener.class );
+    kettleLifecycleListeners = new ConcurrentHashMap<IHopLifecycleListener, Boolean>();
 
-    for ( HopLifecycleListener kll : listeners ) {
+    for ( IHopLifecycleListener kll : listeners ) {
       kettleLifecycleListeners.put( kll, false );
     }
 
-    registry.addPluginListener( HopLifecyclePluginType.class, new PluginTypeListener() {
+    registry.addPluginListener( HopLifecyclePluginType.class, new IPluginTypeListener() {
 
       @Override
       public void pluginAdded( Object serviceObject ) {
-        HopLifecycleListener listener = null;
+        IHopLifecycleListener listener = null;
         try {
-          listener = (HopLifecycleListener) registry.loadClass( (PluginInterface) serviceObject );
+          listener = (IHopLifecycleListener) registry.loadClass( (IPlugin) serviceObject );
         } catch ( HopPluginException e ) {
           e.printStackTrace();
           return;
@@ -101,13 +101,13 @@ public class HopLifecycleSupport {
   public void onEnvironmentInit() throws HopException {
     // Execute only once
     if ( initialized.compareAndSet( false, true ) ) {
-      for ( HopLifecycleListener listener : kettleLifecycleListeners.keySet() ) {
+      for ( IHopLifecycleListener listener : kettleLifecycleListeners.keySet() ) {
         onEnvironmentInit( listener );
       }
     }
   }
 
-  private void onEnvironmentInit( HopLifecycleListener listener ) throws HopException {
+  private void onEnvironmentInit( IHopLifecycleListener listener ) throws HopException {
     // Run only once per listener
     if ( kettleLifecycleListeners.replace( listener, false, true ) ) {
       try {
@@ -128,7 +128,7 @@ public class HopLifecycleSupport {
   }
 
   public void onEnvironmentShutdown() {
-    for ( HopLifecycleListener listener : kettleLifecycleListeners.keySet() ) {
+    for ( IHopLifecycleListener listener : kettleLifecycleListeners.keySet() ) {
       try {
         listener.onEnvironmentShutdown();
       } catch ( Throwable t ) {

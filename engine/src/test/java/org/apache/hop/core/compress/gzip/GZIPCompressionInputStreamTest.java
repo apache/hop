@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.gzip;
 
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -51,7 +51,7 @@ public class GZIPCompressionInputStreamTest {
 
   protected CompressionProviderFactory factory = null;
   protected GZIPCompressionInputStream inStream = null;
-  protected CompressionProvider provider = null;
+  protected ICompressionProvider provider = null;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -82,7 +82,7 @@ public class GZIPCompressionInputStreamTest {
 
   @Test
   public void getZIPCompressionProvider() {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 

@@ -4,15 +4,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.w3c.dom.Document;
@@ -26,7 +26,7 @@ import java.util.Properties;
   id = "HopFile-Job-Plugin",
   description = "The job file information for the Hop GUI"
 )
-public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implements HopFileTypeInterface<T> {
+public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
   public HopJobFileType() {
   }
@@ -45,25 +45,25 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
 
   public Properties getCapabilities() {
     Properties capabilities = new Properties();
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_NEW, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_START, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_STOP, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PAUSE, "false" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PREVIEW, "false" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_DEBUG, "false" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_NEW, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_START, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_STOP, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_SAVE, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_PAUSE, "false" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_PREVIEW, "false" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_DEBUG, "false" );
 
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_COPY, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PASTE, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_CUT, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_DELETE, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_COPY, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_PASTE, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_CUT, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_DELETE, "true" );
 
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_FILE_HISTORY, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_FILE_HISTORY, "true" );
 
     return capabilities;
   }
 
-  @Override public HopFileTypeHandlerInterface openFile( HopGui hopGui, String filename, VariableSpace parentVariableSpace ) throws HopException {
+  @Override public IHopFileTypeHandler openFile( HopGui hopGui, String filename, IVariables parentVariableSpace ) throws HopException {
     try {
       // This file is opened in the data orchestration perspective
       //
@@ -86,7 +86,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
     }
   }
 
-  @Override public HopFileTypeHandlerInterface newFile( HopGui hopGui, VariableSpace parentVariableSpace ) throws HopException {
+  @Override public IHopFileTypeHandler newFile( HopGui hopGui, IVariables parentVariableSpace ) throws HopException {
     try {
       // This file is created in the data orchestration perspective
       //

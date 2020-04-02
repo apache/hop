@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class PluginFolder implements PluginFolderInterface {
+public class PluginFolder implements IPluginFolder {
 
   private String folder;
   private boolean pluginXmlFolder;
@@ -83,8 +83,8 @@ public class PluginFolder implements PluginFolderInterface {
    * @param xmlSubfolder the sub-folder to consider for XML plugin files or null if it's not applicable.
    * @return The list of plugin folders found
    */
-  public static List<PluginFolderInterface> populateFolders( String xmlSubfolder ) {
-    List<PluginFolderInterface> pluginFolders = new ArrayList<>();
+  public static List<IPluginFolder> populateFolders( String xmlSubfolder ) {
+    List<IPluginFolder> pluginFolders = new ArrayList<>();
     String folderPaths = EnvUtil.getSystemProperty( "HOP_PLUGIN_BASE_FOLDERS" );
     if ( folderPaths == null ) {
       folderPaths = Const.DEFAULT_PLUGIN_BASE_FOLDERS;

@@ -24,10 +24,10 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,10 +93,10 @@ public class SniffTransformServletTest {
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Pipeline mockPipeline = mock( Pipeline.class );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    TransformInterface mockTransformInterface = mock( TransformInterface.class );
-    List<TransformInterface> transformInterfaces = new ArrayList<TransformInterface>();
+    ITransform mockTransformInterface = mock( ITransform.class );
+    List<ITransform> transformInterfaces = new ArrayList<ITransform>();
     transformInterfaces.add( mockTransformInterface );
-    LogChannelInterface mockChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockChannelInterface = mock( ILogChannel.class );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
 

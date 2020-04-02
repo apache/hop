@@ -30,8 +30,8 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.KCell;
@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.excelinput.ExcelInputField;
 import org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta;
@@ -99,7 +99,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExcelInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -585,7 +585,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
     wlAccField.setLayoutData( fdlAccField );
 
     wAccField = new CCombo( gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    RowMetaInterface previousFields;
+    IRowMeta previousFields;
     try {
       previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
     } catch ( HopTransformException e ) {
@@ -1958,7 +1958,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
    * Get the list of fields in the Excel workbook and put the result in the fields table view.
    */
   public void getFields() {
-    RowMetaInterface fields = new RowMeta();
+    IRowMeta fields = new RowMeta();
 
     ExcelInputMeta info = new ExcelInputMeta();
     getInfo( info );
@@ -1994,7 +1994,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
         wFields.clearAll( false );
       }
       for ( int j = 0; j < fields.size(); j++ ) {
-        ValueMetaInterface field = fields.getValueMeta( j );
+        IValueMeta field = fields.getValueMeta( j );
         wFields.add( new String[] { field.getName(), field.getTypeDesc(), "", "", "none", "N" } );
       }
       wFields.removeEmptyRows();
@@ -2012,12 +2012,12 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
   /**
    * Processing excel workbook, filling fields
    *
-   * @param fields   RowMetaInterface for filling fields
+   * @param fields   IRowMeta for filling fields
    * @param info     ExcelInputMeta
    * @param workbook excel workbook for processing
    * @throws HopPluginException
    */
-  private void processingWorkbook( RowMetaInterface fields, ExcelInputMeta info, KWorkbook workbook ) throws HopPluginException {
+  private void processingWorkbook( IRowMeta fields, ExcelInputMeta info, KWorkbook workbook ) throws HopPluginException {
     int nrSheets = workbook.getNumberOfSheets();
     for ( int j = 0; j < nrSheets; j++ ) {
       KSheet sheet = workbook.getSheet( j );
@@ -2051,7 +2051,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
         for ( int colnr = startcol; !stop; colnr++ ) {
           try {
             String fieldname = null;
-            int fieldtype = ValueMetaInterface.TYPE_NONE;
+            int fieldtype = IValueMeta.TYPE_NONE;
 
             KCell cell = sheet.getCell( colnr, rownr );
             if ( cell == null ) {
@@ -2066,25 +2066,25 @@ public class ExcelInputDialog extends BaseTransformDialog implements TransformDi
 
               if ( below != null ) {
                 if ( below.getType() == KCellType.BOOLEAN ) {
-                  fieldtype = ValueMetaInterface.TYPE_BOOLEAN;
+                  fieldtype = IValueMeta.TYPE_BOOLEAN;
                 } else if ( below.getType() == KCellType.DATE ) {
-                  fieldtype = ValueMetaInterface.TYPE_DATE;
+                  fieldtype = IValueMeta.TYPE_DATE;
                 } else if ( below.getType() == KCellType.LABEL ) {
-                  fieldtype = ValueMetaInterface.TYPE_STRING;
+                  fieldtype = IValueMeta.TYPE_STRING;
                 } else if ( below.getType() == KCellType.NUMBER ) {
-                  fieldtype = ValueMetaInterface.TYPE_NUMBER;
+                  fieldtype = IValueMeta.TYPE_NUMBER;
                 } else {
-                  fieldtype = ValueMetaInterface.TYPE_STRING;
+                  fieldtype = IValueMeta.TYPE_STRING;
                 }
               } else {
-                fieldtype = ValueMetaInterface.TYPE_STRING;
+                fieldtype = IValueMeta.TYPE_STRING;
               }
 
               if ( Utils.isEmpty( fieldname ) ) {
                 stop = true;
               } else {
-                if ( fieldtype != ValueMetaInterface.TYPE_NONE ) {
-                  ValueMetaInterface field = ValueMetaFactory.createValueMeta( fieldname, fieldtype );
+                if ( fieldtype != IValueMeta.TYPE_NONE ) {
+                  IValueMeta field = ValueMetaFactory.createValueMeta( fieldname, fieldtype );
                   fields.addValueMeta( field );
                 }
               }

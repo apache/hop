@@ -26,11 +26,11 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class ExcelOutputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class ExcelOutputMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<ExcelOutputMeta> testMetaClass = ExcelOutputMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -72,7 +72,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<TransformMetaIn
       }
     };
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "outputFields",
       new ArrayLoadSaveValidator<ExcelField>( new ExcelFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "headerFontName", new IntLoadSaveValidator( ExcelOutputMeta.font_name_code.length ) );
@@ -85,7 +85,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<TransformMetaIn
     attrValidatorMap.put( "rowFontName", new IntLoadSaveValidator( ExcelOutputMeta.font_name_code.length ) );
     attrValidatorMap.put( "rowFontColor", new IntLoadSaveValidator( ExcelOutputMeta.font_color_code.length ) );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -94,7 +94,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<TransformMetaIn
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof ExcelOutputMeta ) {
       ( (ExcelOutputMeta) someMeta ).allocate( 5 );
     }
@@ -105,7 +105,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<TransformMetaIn
     loadSaveTester.testSerialization();
   }
 
-  public class ExcelFieldLoadSaveValidator implements FieldLoadSaveValidator<ExcelField> {
+  public class ExcelFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelField> {
     final Random rand = new Random();
 
     @Override

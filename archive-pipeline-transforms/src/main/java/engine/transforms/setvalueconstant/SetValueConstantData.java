@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 16-06-2008
  */
-public class SetValueConstantData extends BaseTransformData implements TransformDataInterface {
+public class SetValueConstantData extends BaseTransformData implements ITransformData {
 
-  private RowMetaInterface outputRowMeta;
-  private RowMetaInterface convertRowMeta;
+  private IRowMeta outputRowMeta;
+  private IRowMeta convertRowMeta;
 
   private String[] realReplaceByValues;
   private int[] fieldnrs;
@@ -43,19 +43,19 @@ public class SetValueConstantData extends BaseTransformData implements Transform
     super();
   }
 
-  RowMetaInterface getOutputRowMeta() {
+  IRowMeta getOutputRowMeta() {
     return outputRowMeta;
   }
 
-  void setOutputRowMeta( RowMetaInterface outputRowMeta ) {
+  void setOutputRowMeta( IRowMeta outputRowMeta ) {
     this.outputRowMeta = outputRowMeta;
   }
 
-  RowMetaInterface getConvertRowMeta() {
+  IRowMeta getConvertRowMeta() {
     return convertRowMeta;
   }
 
-  void setConvertRowMeta( RowMetaInterface convertRowMeta ) {
+  void setConvertRowMeta( IRowMeta convertRowMeta ) {
     this.convertRowMeta = convertRowMeta;
   }
 

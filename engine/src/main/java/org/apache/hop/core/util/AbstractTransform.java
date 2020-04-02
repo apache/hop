@@ -25,7 +25,7 @@ package org.apache.hop.core.util;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -44,14 +44,14 @@ public abstract class AbstractTransform extends BaseTransform {
    * Constructor.
    *
    * @param transformMeta          the transformMeta.
-   * @param transformDataInterface the transformDataInterface.
+   * @param iTransformData the iTransformData.
    * @param copyNr            the copyNr.
    * @param pipelineMeta         the pipelineMeta.
    * @param pipeline             the transaction.
    */
-  public AbstractTransform( final TransformMeta transformMeta, final TransformDataInterface transformDataInterface, final int copyNr,
+  public AbstractTransform( final TransformMeta transformMeta, final ITransformData iTransformData, final int copyNr,
                             final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**

@@ -24,13 +24,13 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class PipelinePreviewFactory {
-  public static final PipelineMeta generatePreviewPipeline( VariableSpace parent, TransformMetaInterface oneMeta,
+  public static final PipelineMeta generatePreviewPipeline( IVariables parent, ITransformMeta oneMeta,
                                                             String oneTransformName ) {
     PluginRegistry registry = PluginRegistry.getInstance();
 

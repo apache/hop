@@ -29,17 +29,17 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformListener;
@@ -130,7 +130,7 @@ public abstract class TransformClassBase {
     return parent.decrementLinesWrittenImpl();
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     parent.disposeImpl( smi, sdi );
   }
 
@@ -158,7 +158,7 @@ public abstract class TransformClassBase {
     return parent.getCopyImpl();
   }
 
-  public RowMetaInterface getErrorRowMeta() {
+  public IRowMeta getErrorRowMeta() {
     return parent.getErrorRowMetaImpl();
   }
 
@@ -166,7 +166,7 @@ public abstract class TransformClassBase {
     return parent.getErrorsImpl();
   }
 
-  public RowMetaInterface getInputRowMeta() {
+  public IRowMeta getInputRowMeta() {
     return parent.getInputRowMetaImpl();
   }
 
@@ -231,7 +231,7 @@ public abstract class TransformClassBase {
 
     if ( updateRowMeta ) {
       // Update data.inputRowMeta and data.outputRowMeta
-      RowMetaInterface inputRowMeta = parent.getInputRowMeta();
+      IRowMeta inputRowMeta = parent.getInputRowMeta();
       data.inputRowMeta = inputRowMeta;
       data.outputRowMeta =
         inputRowMeta == null ? null : getPipelineMeta().getThisTransformFields(
@@ -270,7 +270,7 @@ public abstract class TransformClassBase {
     return parent.getStatusDescriptionImpl();
   }
 
-  public TransformDataInterface getTransformDataInterface() {
+  public ITransformData getTransformDataInterface() {
     return parent.getTransformDataInterfaceImpl();
   }
 
@@ -346,8 +346,8 @@ public abstract class TransformClassBase {
     return parent.incrementLinesWrittenImpl();
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) {
-    return parent.initImpl( transformMetaInterface, transformDataInterface );
+  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+    return parent.initImpl( transformMetaInterface, iTransformData );
   }
 
   public void initBeforeStart() throws HopTransformException {
@@ -430,18 +430,18 @@ public abstract class TransformClassBase {
     return parent.outputIsDoneImpl();
   }
 
-  public abstract boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException;
+  public abstract boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException;
 
-  public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+  public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
     parent.putErrorImpl( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
   }
 
-  public void putRow( RowMetaInterface row, Object[] data ) throws HopTransformException {
+  public void putRow( IRowMeta row, Object[] data ) throws HopTransformException {
     parent.putRowImpl( row, data );
   }
 
-  public void putRowTo( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void putRowTo( IRowMeta rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
     parent.putRowToImpl( rowMeta, row, rowSet );
   }
 
@@ -457,7 +457,7 @@ public abstract class TransformClassBase {
     return parent.rowsetOutputSizeImpl();
   }
 
-  public void safeModeChecking( RowMetaInterface row ) throws HopRowException {
+  public void safeModeChecking( IRowMeta row ) throws HopRowException {
     parent.safeModeCheckingImpl( row );
   }
 
@@ -465,7 +465,7 @@ public abstract class TransformClassBase {
     parent.setErrorsImpl( errors );
   }
 
-  public void setInputRowMeta( RowMetaInterface rowMeta ) {
+  public void setInputRowMeta( IRowMeta rowMeta ) {
     parent.setInputRowMetaImpl( rowMeta );
   }
 
@@ -521,8 +521,8 @@ public abstract class TransformClassBase {
     parent.stopAllImpl();
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
-    parent.stopRunningImpl( transformMetaInterface, transformDataInterface );
+  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+    parent.stopRunningImpl( transformMetaInterface, iTransformData );
   }
 
   public String toString() {
@@ -534,14 +534,14 @@ public abstract class TransformClassBase {
   }
 
   @SuppressWarnings( "unchecked" )
-  public static void getFields( boolean clearResultFields, RowMetaInterface row, String originTransformName,
-                                RowMetaInterface[] info, TransformMeta nextTransform, VariableSpace space, List<?> fields ) throws HopTransformException {
+  public static void getFields( boolean clearResultFields, IRowMeta row, String originTransformName,
+                                IRowMeta[] info, TransformMeta nextTransform, iVariables variables, List<?> fields ) throws HopTransformException {
     if ( clearResultFields ) {
       row.clear();
     }
     for ( FieldInfo fi : (List<FieldInfo>) fields ) {
       try {
-        ValueMetaInterface v = ValueMetaFactory.createValueMeta( fi.name, fi.type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( fi.name, fi.type );
         v.setLength( fi.length );
         v.setPrecision( fi.precision );
         v.setOrigin( originTransformName );
@@ -646,7 +646,7 @@ public abstract class TransformClassBase {
       case Info:
         fh = infoFieldHelpers.get( name );
         if ( fh == null ) {
-          RowMetaInterface rmi = getPipelineMeta().getPrevInfoFields( getTransformName() );
+          IRowMeta rmi = getPipelineMeta().getPrevInfoFields( getTransformName() );
           try {
             fh = new FieldHelper( rmi, name );
           } catch ( IllegalArgumentException e ) {

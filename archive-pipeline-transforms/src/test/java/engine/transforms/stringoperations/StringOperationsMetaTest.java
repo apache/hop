@@ -26,10 +26,10 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -117,16 +117,16 @@ public class StringOperationsMetaTest implements InitializerInterface<TransformM
     meta.allocate( 1 );
     meta.setFieldInStream( new String[] { "field1" } );
 
-    RowMetaInterface rowMetaInterface = new RowMeta();
-    ValueMetaInterface valueMeta = new ValueMetaString( "field1" );
+    IRowMeta iRowMeta = new RowMeta();
+    IValueMeta valueMeta = new ValueMetaString( "field1" );
     valueMeta.setStorageMetadata( new ValueMetaString( "field1" ) );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
-    rowMetaInterface.addValueMeta( valueMeta );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
+    iRowMeta.addValueMeta( valueMeta );
 
-    VariableSpace space = mock( VariableSpace.class );
-    meta.getFields( rowMetaInterface, "STRING_OPERATIONS", null, null, space, null );
-    RowMetaInterface expectedRowMeta = new RowMeta();
+    iVariables variables = mock( iVariables.class );
+    meta.getFields( iRowMeta, "STRING_OPERATIONS", null, null, variables, null );
+    IRowMeta expectedRowMeta = new RowMeta();
     expectedRowMeta.addValueMeta( new ValueMetaString( "field1" ) );
-    assertEquals( expectedRowMeta.toString(), rowMetaInterface.toString() );
+    assertEquals( expectedRowMeta.toString(), iRowMeta.toString() );
   }
 }

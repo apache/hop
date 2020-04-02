@@ -24,12 +24,12 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
@@ -50,7 +50,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
   private final IBaseFileInputTransformControl transform;
   private final TextFileInputMeta meta;
   private final TextFileInputData data;
-  private final LogChannelInterface log;
+  private final ILogChannel log;
 
   private final CompressionInputStream in;
 
@@ -63,13 +63,13 @@ public class TextFileInputReader implements IBaseFileInputReader {
   protected long lineNumberInFile;
 
   public TextFileInputReader( IBaseFileInputTransformControl transform, TextFileInputMeta meta, TextFileInputData data,
-                              FileObject file, LogChannelInterface log ) throws Exception {
+                              FileObject file, ILogChannel log ) throws Exception {
     this.transform = transform;
     this.meta = meta;
     this.data = data;
     this.log = log;
 
-    CompressionProvider provider =
+    ICompressionProvider provider =
       CompressionProviderFactory.getInstance().getCompressionProviderByName( meta.content.fileCompression );
 
     if ( log.isDetailed() ) {

@@ -29,10 +29,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -45,18 +45,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 30-06-2008
  */
 
-public class BlockUntilTransformsFinish extends BaseTransform implements TransformInterface {
+public class BlockUntilTransformsFinish extends BaseTransform implements ITransform {
   private static Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
 
   private BlockUntilTransformsFinishMeta meta;
   private BlockUntilTransformsFinishData data;
 
-  public BlockUntilTransformsFinish( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public BlockUntilTransformsFinish( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (BlockUntilTransformsFinishMeta) smi;
     data = (BlockUntilTransformsFinishData) sdi;
 
@@ -73,7 +73,7 @@ public class BlockUntilTransformsFinish extends BaseTransform implements Transfo
       // Get target transformnames
       String[] targetTransforms = getPipelineMeta().getNextTransformNames( getTransformMeta() );
 
-      data.transformInterfaces = new ConcurrentHashMap<Integer, TransformInterface>();
+      data.transformInterfaces = new ConcurrentHashMap<Integer, ITransform>();
       for ( int i = 0; i < transformnrs; i++ ) {
         // We can not get metrics from current transform
         if ( transformnames[ i ].equals( getTransformName() ) ) {
@@ -89,7 +89,7 @@ public class BlockUntilTransformsFinish extends BaseTransform implements Transfo
         }
 
         int CopyNr = Const.toInt( meta.getTransformCopyNr()[ i ], 0 );
-        TransformInterface transform = getDispatcher().findBaseTransforms( transformnames[ i ] ).get( CopyNr );
+        ITransform transform = getDispatcher().findBaseTransforms( transformnames[ i ] ).get( CopyNr );
         if ( transform == null ) {
           throw new HopException( "Erreur finding transform [" + transformnames[ i ] + "] nr copy=" + CopyNr + "!" );
         }
@@ -101,10 +101,10 @@ public class BlockUntilTransformsFinish extends BaseTransform implements Transfo
     // Wait until all specified transforms have finished!
     while ( data.continueLoop && !isStopped() ) {
       data.continueLoop = false;
-      Iterator<Entry<Integer, TransformInterface>> it = data.transformInterfaces.entrySet().iterator();
+      Iterator<Entry<Integer, ITransform>> it = data.transformInterfaces.entrySet().iterator();
       while ( it.hasNext() ) {
-        Entry<Integer, TransformInterface> e = it.next();
-        TransformInterface transform = e.getValue();
+        Entry<Integer, ITransform> e = it.next();
+        ITransform transform = e.getValue();
         if ( transform.getStatus() != BaseTransformData.TransformExecutionStatus.STATUS_FINISHED ) {
           // This transform is still running...
           data.continueLoop = true;
@@ -142,7 +142,7 @@ public class BlockUntilTransformsFinish extends BaseTransform implements Transfo
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (BlockUntilTransformsFinishMeta) smi;
     data = (BlockUntilTransformsFinishData) sdi;
 

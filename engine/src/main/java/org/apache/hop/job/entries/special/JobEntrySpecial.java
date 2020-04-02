@@ -22,17 +22,17 @@
 
 package org.apache.hop.job.entries.special;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopJobException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -46,7 +46,7 @@ import java.util.List;
  * @since 05-11-2003
  */
 
-public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntrySpecial extends JobEntryBase implements Cloneable, IJobEntry {
   public static final int NOSCHEDULING = 0;
   public static final int INTERVAL = 1;
   public static final int DAILY = 2;
@@ -320,7 +320,7 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
 
   }

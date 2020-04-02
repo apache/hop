@@ -25,9 +25,9 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -72,19 +72,19 @@ public class SelectRowDialog extends Dialog {
   private String title;
 
   private RowMetaAndData selection;
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   /**
    * @param parent
    * @param style
    * @param buf
    */
-  public SelectRowDialog( Shell parent, VariableSpace space, int style, List<RowMetaAndData> buffer ) {
+  public SelectRowDialog( Shell parent, IVariables variables, int style, List<RowMetaAndData> buffer ) {
     super( parent, style );
     this.buffer = buffer;
-    this.variables = space;
+    this.variables = variables;
     props = PropsUI.getInstance();
 
     selection = null;
@@ -127,7 +127,7 @@ public class SelectRowDialog extends Dialog {
 
     ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( i );
+      IValueMeta v = rowMeta.getValueMeta( i );
       colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false );
       colinf[ i ].setToolTip( v.toStringMeta() );
       colinf[ i ].setReadOnly( true );
@@ -198,11 +198,11 @@ public class SelectRowDialog extends Dialog {
   private void getData() {
     for ( int i = 0; i < buffer.size(); i++ ) {
       RowMetaAndData rowMetaAndData = buffer.get( i );
-      RowMetaInterface rowMeta = rowMetaAndData.getRowMeta();
+      IRowMeta rowMeta = rowMetaAndData.getRowMeta();
       Object[] rowData = rowMetaAndData.getData();
 
       for ( int c = 0; c < rowMeta.size(); c++ ) {
-        ValueMetaInterface v = rowMeta.getValueMeta( c );
+        IValueMeta v = rowMeta.getValueMeta( c );
         String show;
 
         try {

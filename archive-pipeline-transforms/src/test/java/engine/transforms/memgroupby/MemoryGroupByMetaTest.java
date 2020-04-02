@@ -26,8 +26,8 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -101,8 +101,8 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     loadSaveTester.testSerialization();
   }
 
-  private RowMetaInterface getInputRowMeta() {
-    RowMetaInterface rm = new RowMeta();
+  private IRowMeta getInputRowMeta() {
+    IRowMeta rm = new RowMeta();
     rm.addValueMeta( new ValueMetaString( "myGroupField2" ) );
     rm.addValueMeta( new ValueMetaString( "myGroupField1" ) );
     rm.addValueMeta( new ValueMetaString( "myString" ) );
@@ -125,7 +125,7 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     meta.allocate( 1, 17 );
 
     // Declare input fields
-    RowMetaInterface rm = getInputRowMeta();
+    IRowMeta rm = getInputRowMeta();
 
     String[] groupFields = new String[ 2 ];
     groupFields[ 0 ] = "myGroupField1";
@@ -267,58 +267,58 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     assertNotNull( rm );
     assertEquals( 26, rm.size() );
     assertTrue( rm.indexOfValue( "myGroupField1" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "myGroupField1" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "myGroupField1" ) ).getType() );
     assertTrue( rm.indexOfValue( "myGroupField2" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "myGroupField2" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "myGroupField2" ) ).getType() );
     assertTrue( rm.indexOfValue( "myGroupField2" ) > rm.indexOfValue( "myGroupField1" ) );
     assertTrue( rm.indexOfValue( "ConcatComma" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "ConcatComma" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "ConcatComma" ) ).getType() );
     assertTrue( rm.indexOfValue( "ConcatString" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "ConcatString" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "ConcatString" ) ).getType() );
     assertTrue( rm.indexOfValue( "CountAll" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountAll" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountAll" ) ).getType() );
     assertTrue( rm.indexOfValue( "CountAny" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountAny" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountAny" ) ).getType() );
     assertTrue( rm.indexOfValue( "CountDistinct" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountDistinct" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "CountDistinct" ) ).getType() );
     assertTrue( rm.indexOfValue( "First(String)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "First(String)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "First(String)" ) ).getType() );
     assertTrue( rm.indexOfValue( "First(Integer)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "First(Integer)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "First(Integer)" ) ).getType() );
     assertTrue( rm.indexOfValue( "FirstInclNull(Number)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "FirstInclNull(Number)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "FirstInclNull(Number)" ) ).getType() );
     assertTrue( rm.indexOfValue( "FirstInclNull(BigNumber)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_BIGNUMBER, rm.getValueMeta( rm.indexOfValue( "FirstInclNull(BigNumber)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_BIGNUMBER, rm.getValueMeta( rm.indexOfValue( "FirstInclNull(BigNumber)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Last(Binary)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, rm.getValueMeta( rm.indexOfValue( "Last(Binary)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_BINARY, rm.getValueMeta( rm.indexOfValue( "Last(Binary)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Last(Boolean)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_BOOLEAN, rm.getValueMeta( rm.indexOfValue( "Last(Boolean)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_BOOLEAN, rm.getValueMeta( rm.indexOfValue( "Last(Boolean)" ) ).getType() );
     assertTrue( rm.indexOfValue( "LastInclNull(Date)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_DATE, rm.getValueMeta( rm.indexOfValue( "LastInclNull(Date)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_DATE, rm.getValueMeta( rm.indexOfValue( "LastInclNull(Date)" ) ).getType() );
     assertTrue( rm.indexOfValue( "LastInclNull(Timestamp)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_TIMESTAMP, rm.getValueMeta( rm.indexOfValue( "LastInclNull(Timestamp)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_TIMESTAMP, rm.getValueMeta( rm.indexOfValue( "LastInclNull(Timestamp)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Max(InternetAddress)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INET, rm.getValueMeta( rm.indexOfValue( "Max(InternetAddress)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INET, rm.getValueMeta( rm.indexOfValue( "Max(InternetAddress)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Max(String)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "Max(String)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( rm.indexOfValue( "Max(String)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Median(Integer)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Median(Integer)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Median(Integer)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Min(Number)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Min(Number)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Min(Number)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Min(BigNumber)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_BIGNUMBER, rm.getValueMeta( rm.indexOfValue( "Min(BigNumber)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_BIGNUMBER, rm.getValueMeta( rm.indexOfValue( "Min(BigNumber)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Percentile(Binary)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Percentile(Binary)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Percentile(Binary)" ) ).getType() );
     assertTrue( rm.indexOfValue( "StandardDeviation(Boolean)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "StandardDeviation(Boolean)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "StandardDeviation(Boolean)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Sum(Date)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Sum(Date)" ) ).getType() ); // Force changed to Numeric
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Sum(Date)" ) ).getType() ); // Force changed to Numeric
     assertTrue( rm.indexOfValue( "Sum(Integer)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "Sum(Integer)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "Sum(Integer)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Average(Integer)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "Average(Integer)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, rm.getValueMeta( rm.indexOfValue( "Average(Integer)" ) ).getType() );
     assertTrue( rm.indexOfValue( "Average(Date)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Average(Date)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Average(Date)" ) ).getType() );
 
     // Test Compatibility
     rm = getInputRowMeta();
@@ -327,7 +327,7 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     assertNotNull( rm );
     assertEquals( 26, rm.size() );
     assertTrue( rm.indexOfValue( "Average(Integer)" ) >= 0 );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Average(Integer)" ) ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, rm.getValueMeta( rm.indexOfValue( "Average(Integer)" ) ).getType() );
   }
 
   @Test

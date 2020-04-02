@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingUsernamePasswordConsumer implements
-  AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
-  private AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate;
+  IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
+  private IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate;
 
   public DelegatingUsernamePasswordConsumer(
-    AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate ) {
+    IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate ) {
     this.delegate = delegate;
   }
 

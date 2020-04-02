@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.ldapinput.LDAPConnection;
 
 /**
  * @author Samatar Hassan
  * @since 21-09-2007
  */
-public class LDAPOutputData extends BaseTransformData implements TransformDataInterface {
+public class LDAPOutputData extends BaseTransformData implements ITransformData {
   public LDAPConnection connection;
   public int indexOfDNField;
   public int[] fieldStream;

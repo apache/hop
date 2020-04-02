@@ -25,12 +25,12 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
@@ -48,7 +48,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
 
-public class DataGridMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DataGridMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DataGridMeta> testMetaClass = DataGridMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -67,10 +67,10 @@ public class DataGridMetaTest implements InitializerInterface<TransformMetaInter
         put( "setEmptyString", "setEmptyString" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "currency", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "decimal", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "group", stringArrayLoadSaveValidator );
@@ -85,7 +85,7 @@ public class DataGridMetaTest implements InitializerInterface<TransformMetaInter
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 3 ) );
     attrValidatorMap.put( "dataLines", new DataGridLinesLoadSaveValidator() );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -94,7 +94,7 @@ public class DataGridMetaTest implements InitializerInterface<TransformMetaInter
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof DataGridMeta ) {
       ( (DataGridMeta) someMeta ).allocate( 3 );
     }
@@ -105,7 +105,7 @@ public class DataGridMetaTest implements InitializerInterface<TransformMetaInter
     loadSaveTester.testSerialization();
   }
 
-  public class DataGridLinesLoadSaveValidator implements FieldLoadSaveValidator<List<List<String>>> {
+  public class DataGridLinesLoadSaveValidator implements IFieldLoadSaveValidator<List<List<String>>> {
     final Random rand = new Random();
 
     @Override

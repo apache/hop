@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
@@ -59,38 +59,38 @@ public class ComboVar extends Composite {
 
   private ControlDecoration controlDecoration;
 
-  private GetCaretPositionInterface getCaretPositionInterface;
+  private IGetCaretPosition getCaretPositionInterface;
 
-  private InsertTextInterface insertTextInterface;
+  private IInsertText insertTextInterface;
 
   private ControlSpaceKeyAdapter controlSpaceKeyAdapter;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   private CCombo wCombo;
 
   private ModifyListener modifyListenerTooltipText;
 
-  public ComboVar( VariableSpace space, Composite composite, int flags ) {
-    this( space, composite, flags, null, null, null );
+  public ComboVar( IVariables variables, Composite composite, int flags ) {
+    this( variables, composite, flags, null, null, null );
   }
 
-  public ComboVar( VariableSpace space, Composite composite, int flags, String toolTipText ) {
-    this( space, composite, flags, toolTipText, null, null );
+  public ComboVar( IVariables variables, Composite composite, int flags, String toolTipText ) {
+    this( variables, composite, flags, toolTipText, null, null );
   }
 
-  public ComboVar( VariableSpace space, Composite composite, int flags,
-                   GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    this( space, composite, flags, null, getCaretPositionInterface, insertTextInterface );
+  public ComboVar( IVariables variables, Composite composite, int flags,
+                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
+    this( variables, composite, flags, null, getCaretPositionInterface, insertTextInterface );
   }
 
-  public ComboVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-                   GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+  public ComboVar( IVariables variables, Composite composite, int flags, String toolTipText,
+                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
     super( composite, SWT.NONE );
     this.toolTipText = toolTipText;
     this.getCaretPositionInterface = getCaretPositionInterface;
     this.insertTextInterface = insertTextInterface;
-    this.variables = space;
+    this.variables = variables;
 
     // props.setLook(this);
 
@@ -135,28 +135,28 @@ public class ComboVar extends Composite {
   /**
    * @return the getCaretPositionInterface
    */
-  public GetCaretPositionInterface getGetCaretPositionInterface() {
+  public IGetCaretPosition getGetCaretPositionInterface() {
     return getCaretPositionInterface;
   }
 
   /**
    * @param getCaretPositionInterface the getCaretPositionInterface to set
    */
-  public void setGetCaretPositionInterface( GetCaretPositionInterface getCaretPositionInterface ) {
+  public void setGetCaretPositionInterface( IGetCaretPosition getCaretPositionInterface ) {
     this.getCaretPositionInterface = getCaretPositionInterface;
   }
 
   /**
    * @return the insertTextInterface
    */
-  public InsertTextInterface getInsertTextInterface() {
+  public IInsertText getInsertTextInterface() {
     return insertTextInterface;
   }
 
   /**
    * @param insertTextInterface the insertTextInterface to set
    */
-  public void setInsertTextInterface( InsertTextInterface insertTextInterface ) {
+  public void setInsertTextInterface( IInsertText insertTextInterface ) {
     this.insertTextInterface = insertTextInterface;
   }
 
@@ -242,7 +242,7 @@ public class ComboVar extends Composite {
     wCombo.setEditable( editable );
   }
 
-  public void setVariables( VariableSpace vars ) {
+  public void setVariables( IVariables vars ) {
     variables = vars;
     controlSpaceKeyAdapter.setVariables( variables );
     modifyListenerTooltipText.modifyText( null );

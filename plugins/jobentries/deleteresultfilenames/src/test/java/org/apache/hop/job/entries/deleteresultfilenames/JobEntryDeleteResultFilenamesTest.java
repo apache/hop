@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class JobEntryDeleteResultFilenamesTest extends JobEntryLoadSaveTestSupport<JobEntryDeleteResultFilenames> {
+public class JobEntryDeleteResultFilenamesTest extends JobEntryLoadSaveTestSupport<JobEntryDeleteResultFilenamesI> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<JobEntryDeleteResultFilenames> getJobEntryClass() {
-    return JobEntryDeleteResultFilenames.class;
+  protected Class<JobEntryDeleteResultFilenamesI> getJobEntryClass() {
+    return JobEntryDeleteResultFilenamesI.class;
   }
 
   @Override

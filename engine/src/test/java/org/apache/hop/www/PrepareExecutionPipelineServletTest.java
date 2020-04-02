@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -95,7 +95,7 @@ public class PrepareExecutionPipelineServletTest {
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     PipelineExecutionConfiguration mockPipelineExecutionConf = mock( PipelineExecutionConfiguration.class );
 
-    LogChannelInterface mockChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockChannelInterface = mock( ILogChannel.class );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
 

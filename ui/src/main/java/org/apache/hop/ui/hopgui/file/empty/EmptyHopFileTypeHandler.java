@@ -2,15 +2,15 @@ package org.apache.hop.ui.hopgui.file.empty;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmptyHopFileTypeHandler implements HopFileTypeHandlerInterface {
+public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
 
-  private HopFileTypeInterface emptyFileType;
+  private IHopFileType emptyFileType;
 
   public EmptyHopFileTypeHandler() {
     emptyFileType = new EmptyFileType();
@@ -23,7 +23,7 @@ public class EmptyHopFileTypeHandler implements HopFileTypeHandlerInterface {
   @Override public void setName( String name ) {
   }
 
-  @Override public HopFileTypeInterface getFileType() {
+  @Override public IHopFileType getFileType() {
     return emptyFileType;
   }
 

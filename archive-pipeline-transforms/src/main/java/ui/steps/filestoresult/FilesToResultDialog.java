@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.filestoresult;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.filestoresult.FilesToResultMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class FilesToResultDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FilesToResultDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFilenameField;
@@ -144,7 +144,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements Transfor
     Runnable runnable = new Runnable() {
       public void run() {
         try {
-          RowMetaInterface inputfields = pipelineMeta.getPrevTransformFields( transformName );
+          IRowMeta inputfields = pipelineMeta.getPrevTransformFields( transformName );
           if ( inputfields != null ) {
             for ( int i = 0; i < inputfields.size(); i++ ) {
               wFilenameField.add( inputfields.getValueMeta( i ).getName() );

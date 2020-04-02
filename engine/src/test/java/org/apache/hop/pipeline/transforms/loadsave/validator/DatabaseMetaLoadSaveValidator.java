@@ -27,7 +27,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import java.util.Random;
 import java.util.UUID;
 
-public class DatabaseMetaLoadSaveValidator implements FieldLoadSaveValidator<DatabaseMeta> {
+public class DatabaseMetaLoadSaveValidator implements IFieldLoadSaveValidator<DatabaseMeta> {
 
   private static final Random rand = new Random();
 

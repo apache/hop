@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -55,7 +55,7 @@ public class LeIndexTest extends IndexTestBase<GtIndex> {
   }
 
   @Override
-  GtIndex createIndexInstance( int column, ValueMetaInterface meta, int rowsAmount ) throws Exception {
+  GtIndex createIndexInstance( int column, IValueMeta meta, int rowsAmount ) throws Exception {
     return (GtIndex) GtIndex.lessOrEqualCache( column, meta, rowsAmount );
   }
 

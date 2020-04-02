@@ -36,20 +36,20 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
@@ -75,7 +75,7 @@ import java.util.Map;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public class TextFileInput extends BaseTransform implements TransformInterface {
+public class TextFileInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
@@ -86,9 +86,9 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
 
   private long lineNumberInFile;
 
-  public TextFileInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public static final String getLine( LogChannelInterface log, InputStreamReader reader, int formatNr,
@@ -175,7 +175,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
       .getEnclosure() ), StringUtil.substituteHex( inf.getEscapeCharacter() ) );
   }
 
-  public static final String[] guessStringsFromLine( VariableSpace space, LogChannelInterface log, String line,
+  public static final String[] guessStringsFromLine( iVariables variables, LogChannelInterface log, String line,
                                                      TextFileInputMeta inf, String delimiter, String enclosure, String escapeCharacter ) throws HopException {
     List<String> strings = new ArrayList<>();
 
@@ -610,14 +610,14 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
 
   /**
    * @deprecated Use {@link #convertLineToRow(LogChannelInterface, TextFileLine,
-   * InputFileMetaInterface, Object[], int, RowMetaInterface, RowMetaInterface,
+   * InputFileMetaInterface, Object[], int, IRowMeta, IRowMeta,
    * String, long, String, String, String, FileErrorHandler, boolean, boolean,
    * boolean, boolean, boolean, boolean, boolean, boolean, String, String, boolean,
    * Date, String, String, String, long)} instead.
    */
   @Deprecated
   public static final Object[] convertLineToRow( LogChannelInterface log, TextFileLine textFileLine,
-                                                 InputFileMetaInterface info, RowMetaInterface outputRowMeta, RowMetaInterface convertRowMeta, String fname,
+                                                 InputFileMetaInterface info, IRowMeta outputRowMeta, IRowMeta convertRowMeta, String fname,
                                                  long rowNr, String delimiter, FileErrorHandler errorHandler, boolean addShortFilename, boolean addExtension,
                                                  boolean addPath, boolean addSize, boolean addIsHidden, boolean addLastModificationDate, boolean addUri,
                                                  boolean addRootUri, String shortFilename, String path, boolean hidden, Date modificationDateTime, String uri,
@@ -630,8 +630,8 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
 
 
   public static Object[] convertLineToRow( LogChannelInterface log, TextFileLine textFileLine,
-                                           InputFileMetaInterface info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
-                                           RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
+                                           InputFileMetaInterface info, Object[] passThruFields, int nrPassThruFields, IRowMeta outputRowMeta,
+                                           IRowMeta convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
                                            String escapeCharacter, FileErrorHandler errorHandler, boolean addShortFilename, boolean addExtension,
                                            boolean addPath, boolean addSize, boolean addIsHidden, boolean addLastModificationDate, boolean addUri,
                                            boolean addRootUri, String shortFilename, String path, boolean hidden, Date modificationDateTime, String uri,
@@ -643,8 +643,8 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
   }
 
   public static Object[] convertLineToRow( LogChannelInterface log, TextFileLine textFileLine,
-                                           InputFileMetaInterface info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
-                                           RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
+                                           InputFileMetaInterface info, Object[] passThruFields, int nrPassThruFields, IRowMeta outputRowMeta,
+                                           IRowMeta convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
                                            String escapeCharacter, FileErrorHandler errorHandler, boolean addShortFilename, boolean addExtension,
                                            boolean addPath, boolean addSize, boolean addIsHidden, boolean addLastModificationDate, boolean addUri,
                                            boolean addRootUri, String shortFilename, String path, boolean hidden, Date modificationDateTime, String uri,
@@ -678,14 +678,14 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
       for ( fieldnr = 0; fieldnr < nrFields; fieldnr++ ) {
         TextFileInputField f = info.getInputFields()[ fieldnr ];
         int valuenr = shiftFields + fieldnr;
-        ValueMetaInterface valueMeta = outputRowMeta.getValueMeta( valuenr );
-        ValueMetaInterface convertMeta = convertRowMeta.getValueMeta( valuenr );
+        IValueMeta valueMeta = outputRowMeta.getValueMeta( valuenr );
+        IValueMeta convertMeta = convertRowMeta.getValueMeta( valuenr );
 
         Object value = null;
 
         String nullif = fieldnr < nrFields ? f.getNullString() : "";
         String ifnull = fieldnr < nrFields ? f.getIfNullValue() : "";
-        int trim_type = fieldnr < nrFields ? f.getTrimType() : ValueMetaInterface.TRIM_TYPE_NONE;
+        int trim_type = fieldnr < nrFields ? f.getTrimType() : IValueMeta.TRIM_TYPE_NONE;
 
         if ( fieldnr < strings.length ) {
           String pol = strings[ fieldnr ];
@@ -848,7 +848,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     data = (TextFileInputData) sdi;
     meta = (TextFileInputMeta) smi;
     Object[] r = null;
@@ -860,7 +860,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
       first = false;
 
       data.outputRowMeta = new RowMeta();
-      RowMetaInterface[] infoTransform = null;
+      IRowMeta[] infoTransform = null;
 
       if ( meta.isAcceptingFilenames() ) {
         // Read the files from the specified input stream...
@@ -872,11 +872,11 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
 
         Object[] fileRow = getRowFrom( data.rowSet );
         while ( fileRow != null ) {
-          RowMetaInterface prevInfoFields = data.rowSet.getRowMeta();
+          IRowMeta prevInfoFields = data.rowSet.getRowMeta();
           if ( idx < 0 ) {
             if ( meta.isPassingThruFields() ) {
               data.passThruFields = new HashMap<FileObject, Object[]>();
-              infoTransform = new RowMetaInterface[] { prevInfoFields };
+              infoTransform = new IRowMeta[] { prevInfoFields };
               data.nrPassThruFields = prevInfoFields.size();
             }
             idx = prevInfoFields.indexOfValue( meta.getAcceptingField() );
@@ -916,7 +916,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
       meta.getFields( data.outputRowMeta, getTransformName(), infoTransform, null, this, metaStore );
       // Create convert meta-data objects that will contain Date & Number formatters
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
       handleMissingFiles();
 
@@ -1195,7 +1195,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
   private void rejectCurrentFile( String errorMsg ) {
     if ( StringUtils.isNotBlank( meta.getFileErrorField() )
       || StringUtils.isNotBlank( meta.getFileErrorMessageField() ) ) {
-      RowMetaInterface rowMeta = getInputRowMeta();
+      IRowMeta rowMeta = getInputRowMeta();
       if ( rowMeta == null ) {
         rowMeta = new RowMeta();
       }
@@ -1235,8 +1235,8 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
    * @param fieldName
    * @return Index in row meta of value meta with <code>fieldName</code>
    */
-  private int addValueMeta( RowMetaInterface rowMeta, String fieldName ) {
-    ValueMetaInterface valueMeta = new ValueMetaString( fieldName );
+  private int addValueMeta( IRowMeta rowMeta, String fieldName ) {
+    IValueMeta valueMeta = new ValueMetaString( fieldName );
     valueMeta.setOrigin( getTransformName() );
     // add if doesn't exist
     int index = -1;
@@ -1517,7 +1517,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TextFileInputMeta) smi;
     data = (TextFileInputData) sdi;
 
@@ -1618,7 +1618,7 @@ public class TextFileInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TextFileInputMeta) smi;
     data = (TextFileInputData) sdi;
 

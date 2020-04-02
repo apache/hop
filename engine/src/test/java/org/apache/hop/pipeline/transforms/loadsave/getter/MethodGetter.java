@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave.getter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-public class MethodGetter<T> implements Getter<T> {
+public class MethodGetter<T> implements IGetter<T> {
   private final Method method;
 
   public MethodGetter( Method method ) {

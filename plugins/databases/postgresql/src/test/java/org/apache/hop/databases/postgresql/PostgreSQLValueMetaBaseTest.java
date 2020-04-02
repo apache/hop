@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -76,7 +76,7 @@ public class PostgreSQLValueMetaBaseTest {
   private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
-  private ValueMetaInterface valueMetaBase;
+  private IValueMeta valueMetaBase;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -91,7 +91,7 @@ public class PostgreSQLValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
 
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
@@ -105,36 +105,36 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testDefaultCtor() throws HopPluginException {
-    ValueMetaInterface base = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    IValueMeta base = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
     assertNotNull( base );
     assertNull( base.getName() );
-    assertEquals( ValueMetaInterface.TYPE_NONE, base.getType() );
+    assertEquals( IValueMeta.TYPE_NONE, base.getType() );
   }
 
   @Test
   public void testCtorName() throws HopPluginException {
-    ValueMetaInterface base = ValueMetaFactory.createValueMeta( "myValueMeta", ValueMetaInterface.TYPE_NONE );
+    IValueMeta base = ValueMetaFactory.createValueMeta( "myValueMeta", IValueMeta.TYPE_NONE );
     assertEquals( "myValueMeta", base.getName() );
-    assertEquals(ValueMetaInterface.TYPE_NONE, base.getType());
+    assertEquals( IValueMeta.TYPE_NONE, base.getType());
     assertNotNull( base.getTypeDesc() );
   }
 
   @Test
   public void testCtorNameAndType() throws HopPluginException {
-    ValueMetaInterface base = ValueMetaFactory.createValueMeta( "myStringType", ValueMetaInterface.TYPE_STRING );
+    IValueMeta base = ValueMetaFactory.createValueMeta( "myStringType", IValueMeta.TYPE_STRING );
     assertEquals( "myStringType", base.getName() );
-    assertEquals(ValueMetaInterface.TYPE_STRING, base.getType() );
+    assertEquals( IValueMeta.TYPE_STRING, base.getType() );
     assertEquals( "String", base.getTypeDesc() );
   }
 
   @Test
   public void test4ArgCtor() throws HopPluginException {
-    ValueMetaInterface base = ValueMetaFactory.createValueMeta( "Hello, is it me you're looking for?", ValueMetaInterface.TYPE_BOOLEAN, 4, 9 );
+    IValueMeta base = ValueMetaFactory.createValueMeta( "Hello, is it me you're looking for?", IValueMeta.TYPE_BOOLEAN, 4, 9 );
     assertEquals( "Hello, is it me you're looking for?" , base.getName() );
-    assertEquals( ValueMetaInterface.TYPE_BOOLEAN , base.getType() );
+    assertEquals( IValueMeta.TYPE_BOOLEAN , base.getType() );
     assertEquals( 4, base.getLength() );
     assertEquals( -1, base.getPrecision() );
-    assertEquals( ValueMetaInterface.STORAGE_TYPE_NORMAL, base.getStorageType() );
+    assertEquals( IValueMeta.STORAGE_TYPE_NORMAL, base.getStorageType() );
   }
 
   //TODO fix timestamp conversion
@@ -142,54 +142,54 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testGetDataXML() throws IOException, HopPluginException {
     BigDecimal bigDecimal = BigDecimal.ONE;
-    ValueMetaInterface valueDoubleMetaBase = ValueMetaFactory.createValueMeta(
-      String.valueOf( bigDecimal ), ValueMetaInterface.TYPE_BIGNUMBER );
+    IValueMeta valueDoubleMetaBase = ValueMetaFactory.createValueMeta(
+      String.valueOf( bigDecimal ), IValueMeta.TYPE_BIGNUMBER );
     assertEquals(
       "<value-data>" + Encode.forXml( String.valueOf( bigDecimal ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       valueDoubleMetaBase.getDataXML( bigDecimal ) );
 
     boolean valueBoolean = Boolean.TRUE;
-    ValueMetaInterface valueBooleanMetaBase = ValueMetaFactory.createValueMeta(
-      String.valueOf( valueBoolean ), ValueMetaInterface.TYPE_BOOLEAN );
+    IValueMeta valueBooleanMetaBase = ValueMetaFactory.createValueMeta(
+      String.valueOf( valueBoolean ), IValueMeta.TYPE_BOOLEAN );
     assertEquals(
       "<value-data>" + Encode.forXml( String.valueOf( valueBoolean ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       valueBooleanMetaBase.getDataXML( valueBoolean ) );
 
     Date date = new Date( 0 );
-    ValueMetaInterface dateMetaBase = ValueMetaFactory.createValueMeta(
-      date.toString(), ValueMetaInterface.TYPE_DATE );
+    IValueMeta dateMetaBase = ValueMetaFactory.createValueMeta(
+      date.toString(), IValueMeta.TYPE_DATE );
     SimpleDateFormat formaterData = new SimpleDateFormat( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
     assertEquals(
       "<value-data>" + Encode.forXml( formaterData.format( date ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       dateMetaBase.getDataXML( date ) );
 
     InetAddress inetAddress = InetAddress.getByName( "127.0.0.1" );
-    ValueMetaInterface inetAddressMetaBase = ValueMetaFactory.createValueMeta(
-      inetAddress.toString(), ValueMetaInterface.TYPE_INET );
+    IValueMeta inetAddressMetaBase = ValueMetaFactory.createValueMeta(
+      inetAddress.toString(), IValueMeta.TYPE_INET );
     assertEquals( "<value-data>" + Encode.forXml( inetAddress.toString() ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       inetAddressMetaBase.getDataXML( inetAddress ) );
 
     long value = Long.MAX_VALUE;
-    ValueMetaInterface integerMetaBase = ValueMetaFactory.createValueMeta(
-      String.valueOf( value ), ValueMetaInterface.TYPE_INTEGER );
+    IValueMeta integerMetaBase = ValueMetaFactory.createValueMeta(
+      String.valueOf( value ), IValueMeta.TYPE_INTEGER );
     assertEquals( "<value-data>" + Encode.forXml( String.valueOf( value ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       integerMetaBase.getDataXML( value ) );
 
     String stringValue = "TEST_STRING";
-    ValueMetaInterface valueMetaBase = ValueMetaFactory.createValueMeta( stringValue, ValueMetaInterface.TYPE_STRING );
+    IValueMeta valueMetaBase = ValueMetaFactory.createValueMeta( stringValue, IValueMeta.TYPE_STRING );
     assertEquals( "<value-data>" + Encode.forXml( stringValue ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       valueMetaBase.getDataXML( stringValue ) );
 
     Timestamp timestamp = new Timestamp( 0 );
-    ValueMetaInterface valueMetaBaseTimeStamp = ValueMetaFactory.createValueMeta( timestamp.toString(), ValueMetaInterface.TYPE_TIMESTAMP );
+    IValueMeta valueMetaBaseTimeStamp = ValueMetaFactory.createValueMeta( timestamp.toString(), IValueMeta.TYPE_TIMESTAMP );
     SimpleDateFormat formater = new SimpleDateFormat( ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK );
     assertEquals(
       "<value-data>" + Encode.forXml( formater.format( timestamp ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       valueMetaBaseTimeStamp.getDataXML( timestamp ) );
 
     byte[] byteTestValues = { 0, 1, 2, 3 };
-    ValueMetaInterface valueMetaBaseByteArray = ValueMetaFactory.createValueMeta( byteTestValues.toString(), ValueMetaInterface.TYPE_STRING );
-    valueMetaBaseByteArray.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta valueMetaBaseByteArray = ValueMetaFactory.createValueMeta( byteTestValues.toString(), IValueMeta.TYPE_STRING );
+    valueMetaBaseByteArray.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     assertEquals(
       "<value-data><binary-string>" + Encode.forXml( XMLHandler.encodeBinaryData( byteTestValues ) )
         + "</binary-string>" + Const.CR + "</value-data>",
@@ -203,13 +203,13 @@ public class PostgreSQLValueMetaBaseTest {
     ValueMetaBase valueMetaBase = new ValueMetaBase(),
       valueMetaBaseSpy = spy( valueMetaBase );
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    DatabaseInterface databaseInterface = mock( DatabaseInterface.class );
-    doReturn( databaseInterface ).when( dbMeta ).getDatabaseInterface();
+    IDatabase iDatabase = mock( IDatabase.class );
+    doReturn( iDatabase ).when( dbMeta ).getIDatabase();
 
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
     valueMetaBaseSpy.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
 
-    verify( databaseInterface, times( 1 ) ).customizeValueFromSQLType( any( ValueMetaInterface.class ),
+    verify( iDatabase, times( 1 ) ).customizeValueFromSQLType( any( IValueMeta.class ),
       any( ResultSetMetaData.class ), anyInt() );
   }
 
@@ -288,12 +288,12 @@ public class PostgreSQLValueMetaBaseTest {
   public void testConvertDataFromStringForNullMeta() throws HopValueException {
     ValueMetaBase valueMetaBase = new ValueMetaBase();
     String inputValueEmptyString = StringUtils.EMPTY;
-    ValueMetaInterface valueMetaInterface = null;
+    IValueMeta iValueMeta = null;
     String nullIf = null;
     String ifNull = null;
     int trim_type = 0;
 
-    valueMetaBase.convertDataFromString( inputValueEmptyString, valueMetaInterface, nullIf, ifNull, trim_type );
+    valueMetaBase.convertDataFromString( inputValueEmptyString, iValueMeta, nullIf, ifNull, trim_type );
   }
 
   @Test( expected = HopValueException.class )
@@ -316,12 +316,12 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testIsNumeric() {
-    int[] numTypes = { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_BIGNUMBER };
+    int[] numTypes = { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER };
     for ( int type : numTypes ) {
       assertTrue( Integer.toString( type ), ValueMetaBase.isNumeric( type ) );
     }
 
-    int[] notNumTypes = { ValueMetaInterface.TYPE_INET, ValueMetaInterface.TYPE_BOOLEAN, ValueMetaInterface.TYPE_BINARY, ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_STRING };
+    int[] notNumTypes = { IValueMeta.TYPE_INET, IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_BINARY, IValueMeta.TYPE_DATE, IValueMeta.TYPE_STRING };
     for ( int type : notNumTypes ) {
       assertFalse( Integer.toString( type ), ValueMetaBase.isNumeric( type ) );
     }
@@ -334,43 +334,43 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testGetTrimTypeByCode() {
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE,ValueMetaBase.getTrimTypeByCode( "none" ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByCode( "left" ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByCode( "right" ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_BOTH, ValueMetaBase.getTrimTypeByCode( "both" ));
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode( null ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode( "" ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE,ValueMetaBase.getTrimTypeByCode( "fake" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE,ValueMetaBase.getTrimTypeByCode( "none" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByCode( "left" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByCode( "right" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_BOTH, ValueMetaBase.getTrimTypeByCode( "both" ));
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode( null ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode( "" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE,ValueMetaBase.getTrimTypeByCode( "fake" ) );
   }
 
   @Test
   public void testGetTrimTypeCode() {
-    assertEquals( "none", ValueMetaBase.getTrimTypeCode( ValueMetaInterface.TRIM_TYPE_NONE ) );
-    assertEquals( "left", ValueMetaBase.getTrimTypeCode( ValueMetaInterface.TRIM_TYPE_LEFT ) );
-    assertEquals( "right", ValueMetaBase.getTrimTypeCode( ValueMetaInterface.TRIM_TYPE_RIGHT ) );
-    assertEquals( "both", ValueMetaBase.getTrimTypeCode( ValueMetaInterface.TRIM_TYPE_BOTH ) );
+    assertEquals( "none", ValueMetaBase.getTrimTypeCode( IValueMeta.TRIM_TYPE_NONE ) );
+    assertEquals( "left", ValueMetaBase.getTrimTypeCode( IValueMeta.TRIM_TYPE_LEFT ) );
+    assertEquals( "right", ValueMetaBase.getTrimTypeCode( IValueMeta.TRIM_TYPE_RIGHT ) );
+    assertEquals( "both", ValueMetaBase.getTrimTypeCode( IValueMeta.TRIM_TYPE_BOTH ) );
   }
 
   @Test
   public void testGetTrimTypeByDesc() {
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.None" ) ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Left" ) ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Right" ) ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_BOTH, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Both" ) ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( null ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( "" ) );
-    assertEquals( ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( "fake" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.None" ) ) );
+    assertEquals( IValueMeta.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Left" ) ) );
+    assertEquals( IValueMeta.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Right" ) ) );
+    assertEquals( IValueMeta.TRIM_TYPE_BOTH, ValueMetaBase.getTrimTypeByDesc( BaseMessages.getString( PKG, "ValueMeta.TrimType.Both" ) ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( null ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( "" ) );
+    assertEquals( IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc( "fake" ) );
   }
 
   @Test
   public void testGetTrimTypeDesc() {
-    assertEquals( ValueMetaBase.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_NONE ), BaseMessages.getString( PKG,
+    assertEquals( ValueMetaBase.getTrimTypeDesc( IValueMeta.TRIM_TYPE_NONE ), BaseMessages.getString( PKG,
       "ValueMeta.TrimType.None" ) );
-    assertEquals( ValueMetaBase.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_LEFT ), BaseMessages.getString( PKG,
+    assertEquals( ValueMetaBase.getTrimTypeDesc( IValueMeta.TRIM_TYPE_LEFT ), BaseMessages.getString( PKG,
       "ValueMeta.TrimType.Left" ) );
-    assertEquals( ValueMetaBase.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_RIGHT ), BaseMessages.getString( PKG,
+    assertEquals( ValueMetaBase.getTrimTypeDesc( IValueMeta.TRIM_TYPE_RIGHT ), BaseMessages.getString( PKG,
       "ValueMeta.TrimType.Right" ) );
-    assertEquals( ValueMetaBase.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_BOTH ), BaseMessages.getString( PKG,
+    assertEquals( ValueMetaBase.getTrimTypeDesc( IValueMeta.TRIM_TYPE_BOTH ), BaseMessages.getString( PKG,
       "ValueMeta.TrimType.Both" ) );
     assertEquals( ValueMetaBase.getTrimTypeDesc( -1 ), BaseMessages.getString( PKG, "ValueMeta.TrimType.None" ) );
     assertEquals( ValueMetaBase.getTrimTypeDesc( 10000 ), BaseMessages.getString( PKG, "ValueMeta.TrimType.None" ) );
@@ -419,7 +419,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testCompareIntegers() throws HopValueException {
-    ValueMetaBase intMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_INTEGER );
+    ValueMetaBase intMeta = new ValueMetaBase( "int", IValueMeta.TYPE_INTEGER );
     Long int1 = new Long( 6223372036854775804L );
     Long int2 = new Long( -6223372036854775804L );
     assertEquals( 1, intMeta.compare( int1, int2 ) );
@@ -456,16 +456,16 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testCompareIntegerToDouble() throws HopValueException {
-    ValueMetaBase intMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_INTEGER );
+    ValueMetaBase intMeta = new ValueMetaBase( "int", IValueMeta.TYPE_INTEGER );
     Long int1 = new Long( 2L );
-    ValueMetaBase numberMeta = new ValueMetaBase( "number", ValueMetaInterface.TYPE_NUMBER );
+    ValueMetaBase numberMeta = new ValueMetaBase( "number", IValueMeta.TYPE_NUMBER );
     Double double2 = new Double( 1.5 );
     assertEquals( 1, intMeta.compare( int1, numberMeta, double2 ) );
   }
 
   @Test
   public void testCompareDate() throws HopValueException {
-    ValueMetaBase dateMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_DATE );
+    ValueMetaBase dateMeta = new ValueMetaBase( "int", IValueMeta.TYPE_DATE );
     Date date1 = new Date( 6223372036854775804L );
     Date date2 = new Date( -6223372036854775804L );
     assertEquals( 1, dateMeta.compare( date1, date2 ) );
@@ -475,18 +475,18 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testCompareDateWithStorageMask() throws HopValueException {
-    ValueMetaBase storageMeta = new ValueMetaBase( "string", ValueMetaInterface.TYPE_STRING );
-    storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    ValueMetaBase storageMeta = new ValueMetaBase( "string", IValueMeta.TYPE_STRING );
+    storageMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( "MM/dd/yyyy HH:mm" );
 
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
-    dateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    ValueMetaBase dateMeta = new ValueMetaBase( "date", IValueMeta.TYPE_DATE );
+    dateMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     dateMeta.setStorageMetadata( storageMeta );
     dateMeta.setConversionMask( "yyyy-MM-dd" );
 
-    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", IValueMeta.TYPE_DATE );
     targetDateMeta.setConversionMask( "yyyy-MM-dd" );
-    targetDateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    targetDateMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     String date = "2/24/2017 0:00";
 
@@ -502,19 +502,19 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testCompareDateNoStorageMask() throws HopValueException {
-    ValueMetaBase storageMeta = new ValueMetaBase( "string", ValueMetaInterface.TYPE_STRING );
-    storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    ValueMetaBase storageMeta = new ValueMetaBase( "string", IValueMeta.TYPE_STRING );
+    storageMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( null ); // explicit set to null, to make sure test condition are met
 
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
-    dateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    ValueMetaBase dateMeta = new ValueMetaBase( "date", IValueMeta.TYPE_DATE );
+    dateMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     dateMeta.setStorageMetadata( storageMeta );
     dateMeta.setConversionMask( "yyyy-MM-dd" );
 
-    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", IValueMeta.TYPE_DATE );
     //targetDateMeta.setConversionMask( "yyyy-MM-dd" ); by not setting a maks, the default one is used
     //and since this is a date of normal storage it should work
-    targetDateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    targetDateMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     String date = "2017/02/24 00:00:00.000";
 
@@ -530,7 +530,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testCompareBinary() throws HopValueException {
-    ValueMetaBase dateMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_BINARY );
+    ValueMetaBase dateMeta = new ValueMetaBase( "int", IValueMeta.TYPE_BINARY );
     byte[] value1 = new byte[] { 0, 1, 0, 0, 0, 1 };
     byte[] value2 = new byte[] { 0, 1, 0, 0, 0, 0 };
     assertEquals( 1, dateMeta.compare( value1, value2 ) );
@@ -540,7 +540,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testDateParsing8601() throws Exception {
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaBase dateMeta = new ValueMetaBase( "date", IValueMeta.TYPE_DATE );
     dateMeta.setDateFormatLenient( false );
 
     // try to convert date by 'start-of-date' make - old behavior
@@ -571,7 +571,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testSetPreparedStatementStringValueDontLogTruncated() throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase( "LOG_FIELD", ValueMetaInterface.TYPE_STRING, LOG_FIELD.length(), 0 );
+    ValueMetaBase valueMetaString = new ValueMetaBase( "LOG_FIELD", IValueMeta.TYPE_STRING, LOG_FIELD.length(), 0 );
 
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     PreparedStatement preparedStatement = mock( PreparedStatement.class );
@@ -594,7 +594,7 @@ public class PostgreSQLValueMetaBaseTest {
     try {
       assertEquals( LoggingRegistry.getInstance().findExistingLoggingSource( new LoggingObject( "ValueMetaBase" ) )
           .getLogChannelId(),
-        ( (LogChannelInterface) log.get( null ) ).getLogChannelId() );
+        ( (ILogChannel) log.get( null ) ).getLogChannelId() );
     } finally {
       log.setAccessible( false );
     }
@@ -615,7 +615,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testGetNativeDataTypeClass() {
-    ValueMetaInterface base = new ValueMetaBase();
+    IValueMeta base = new ValueMetaBase();
     Class<?> clazz = null;
     try {
       clazz = base.getNativeDataTypeClass();
@@ -628,7 +628,7 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testConvertDataUsingConversionMetaDataForCustomMeta() {
-    ValueMetaBase baseMeta = new ValueMetaBase( "CUSTOM_VALUEMETA_STRING", ValueMetaInterface.TYPE_STRING );
+    ValueMetaBase baseMeta = new ValueMetaBase( "CUSTOM_VALUEMETA_STRING", IValueMeta.TYPE_STRING );
     baseMeta.setConversionMetadata( new ValueMetaBase( "CUSTOM", 999 ) );
     Object customData = new Object();
     try {
@@ -661,7 +661,7 @@ public class PostgreSQLValueMetaBaseTest {
     double convertedNumberData = (double) base.convertDataUsingConversionMetaData( defaultNumberData );
     assertEquals( 1.999, convertedNumberData, DELTA );
 
-    ValueMetaInterface dateConversionMeta = new ValueMetaDate( "DATE" );
+    IValueMeta dateConversionMeta = new ValueMetaDate( "DATE" );
     dateConversionMeta.setDateFormatTimeZone( TimeZone.getTimeZone( "CST" ) );
     base.setConversionMetadata( dateConversionMeta );
     Object defaultDateData = "1990/02/18 00:00:00.000";
@@ -724,7 +724,7 @@ public class PostgreSQLValueMetaBaseTest {
     assertArrayEquals( expected, actual );
   }
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
+  private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
     private List<HopLoggingEvent> events = new ArrayList<>();
 
@@ -754,48 +754,48 @@ public class PostgreSQLValueMetaBaseTest {
     ValueMetaBase valueMetaBase = null;
     Node xmlNode = null;
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
     xmlNode = XMLHandler.loadXMLString( "<value-data>String val</value-data>" ).getFirstChild();
     assertEquals( "String val", valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NUMBER );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
     xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NUMBER );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
     xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_INTEGER );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_INTEGER );
     xmlNode = XMLHandler.loadXMLString( "<value-data>68933</value-data>" ).getFirstChild();
     assertEquals( 68933l, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_DATE );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_DATE );
     xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
     assertEquals( XMLHandler.stringToDate( "2017/11/27 08:47:10.000" ), valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_TIMESTAMP );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_TIMESTAMP );
     xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
     assertEquals( XMLHandler.stringToTimestamp( "2017/11/27 08:47:10.123456789" ), valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_BOOLEAN );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BOOLEAN );
     xmlNode = XMLHandler.loadXMLString( "<value-data>Y</value-data>" ).getFirstChild();
     assertEquals( true, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_BINARY );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BINARY );
     byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     String s = XMLHandler.encodeBinaryData( bytes );
     xmlNode = XMLHandler.loadXMLString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
     assertArrayEquals( bytes, (byte[]) valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
+    valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
     xmlNode = XMLHandler.loadXMLString( "<value-data></value-data>" ).getFirstChild();
     assertNull( valueMetaBase.getValue( xmlNode ) );
   }
 
   @Test( expected = HopException.class )
   public void testGetValueUnknownType() throws Exception {
-    ValueMetaBase valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NONE );
+    ValueMetaBase valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NONE );
     valueMetaBase.getValue( XMLHandler.loadXMLString( "<value-data>not empty</value-data>" ).getFirstChild() );
   }
 
@@ -843,13 +843,13 @@ public class PostgreSQLValueMetaBaseTest {
     List<HopLoggingEvent> events = listener.getEvents();
     assertEquals( 0, events.size() );
 
-    databaseMetaSpy.setDatabaseInterface( new PostgreSQLDatabaseMeta() );
+    databaseMetaSpy.setIDatabase( new PostgreSQLDatabaseMeta() );
     doReturn( 1024 ).when( databaseMetaSpy ).getMaxTextFieldLength();
     doReturn( false ).when( databaseMetaSpy ).supportsSetCharacterStream();
 
     String data = StringUtils.repeat( "*", 2048 );
 
-    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, ValueMetaInterface.TYPE_STRING, 2048, 0 );
+    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, IValueMeta.TYPE_STRING, 2048, 0 );
     valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
 
     verify( preparedStatementMock, never() ).setString( 0, data );
@@ -862,8 +862,8 @@ public class PostgreSQLValueMetaBaseTest {
   }
 
   private void initValueMeta( BaseDatabaseMeta dbMeta, int length, Object data ) throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, ValueMetaInterface.TYPE_STRING, length, 0 );
-    databaseMetaSpy.setDatabaseInterface( dbMeta );
+    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, IValueMeta.TYPE_STRING, length, 0 );
+    databaseMetaSpy.setIDatabase( dbMeta );
     valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
   }
 
@@ -873,7 +873,7 @@ public class PostgreSQLValueMetaBaseTest {
     Number numberToTest = Double.valueOf( "123.123" );
 
     ValueMetaBase base = new ValueMetaNumber( "ValueMetaNumber" );
-    base.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    base.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     ValueMetaString valueMetaString = new ValueMetaString( "ValueMetaString" );
     base.setConversionMetadata( valueMetaString );
@@ -884,119 +884,119 @@ public class PostgreSQLValueMetaBaseTest {
 
   @Test
   public void testNullHashCodes() throws Exception {
-    ValueMetaInterface valueMetaString;
+    IValueMeta valueMetaString;
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BOOLEAN );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BOOLEAN );
     assertEquals( 0 ^ 1, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_DATE );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_DATE );
     assertEquals( 0 ^ 2, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NUMBER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NUMBER );
     assertEquals( 0 ^ 4, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_STRING );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_STRING );
     assertEquals( 0 ^ 8, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INTEGER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_INTEGER );
     assertEquals( 0 ^ 16, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BIGNUMBER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BIGNUMBER );
     assertEquals( 0 ^ 32, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BINARY );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BINARY );
     assertEquals( 0 ^ 64, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_TIMESTAMP );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_TIMESTAMP );
     assertEquals( 0 ^ 128, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INET );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_INET );
     assertEquals( 0 ^ 256, valueMetaString.hashCode( null ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
     assertEquals( 0, valueMetaString.hashCode( null ) );
   }
 
   @Test
   public void testHashCodes() throws Exception {
-    ValueMetaInterface valueMetaString;
+    IValueMeta valueMetaString;
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BOOLEAN );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BOOLEAN );
     assertEquals( 1231, valueMetaString.hashCode( true ) );
 
     SimpleDateFormat sdf = new SimpleDateFormat( "dd/M/yyyy" );
     String dateInString = "1/1/2018";
     Date dateObj = sdf.parse( dateInString );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_DATE );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_DATE );
     assertEquals( -1358655136, valueMetaString.hashCode( dateObj ) );
 
     Double numberObj = Double.valueOf( 5.1 );
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NUMBER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NUMBER );
     assertEquals( 645005312, valueMetaString.hashCode( numberObj) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_STRING );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_STRING );
     assertEquals( 3556498, valueMetaString.hashCode( "test" ) );
 
     Long longObj = 123L;
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INTEGER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_INTEGER );
     assertEquals( 123, valueMetaString.hashCode( longObj ) );
 
     BigDecimal bDecimalObj = new BigDecimal( 123.1 );
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BIGNUMBER );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BIGNUMBER );
     assertEquals( 465045870, valueMetaString.hashCode( bDecimalObj ) );
 
     byte[] bBinary = new byte[ 2 ];
     bBinary[ 0 ] = 1;
     bBinary[ 1 ] = 0;
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BINARY );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_BINARY );
     assertEquals( 992,valueMetaString.hashCode( bBinary ) );
 
     Timestamp timestampObj = Timestamp.valueOf( "2018-01-01 10:10:10.000000000" );
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_TIMESTAMP );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_TIMESTAMP );
     assertEquals( -1322045776, valueMetaString.hashCode( timestampObj ) );
 
     byte[] ipAddr = new byte[] { 127, 0, 0, 1 };
     InetAddress addrObj = InetAddress.getByAddress( ipAddr );
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INET );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_INET );
     assertEquals( 2130706433, valueMetaString.hashCode( addrObj ) );
 
-    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    valueMetaString = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
     assertEquals( 0, valueMetaString.hashCode( "any" ) );
   }
 
   @Test
   public void testMetdataPreviewSqlCharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.VARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlNVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlLongVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.LONGVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
     assertEquals( DatabaseMeta.CLOB_LENGTH, valueMeta.getLength() );
     assertTrue( valueMeta.isLargeTextField() );
@@ -1005,7 +1005,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlNClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NCLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
     assertEquals( DatabaseMeta.CLOB_LENGTH, valueMeta.getLength() );
     assertTrue( valueMeta.isLargeTextField() );
@@ -1014,7 +1014,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBigIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.BIGINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 15, valueMeta.getLength() );
@@ -1023,7 +1023,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlIntegerToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.INTEGER ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 9, valueMeta.getLength() );
@@ -1032,7 +1032,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlSmallIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.SMALLINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 4, valueMeta.getLength() );
@@ -1041,7 +1041,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlTinyIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.TINYINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 2, valueMeta.getLength() );
@@ -1053,7 +1053,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 5 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( 5, valueMeta.getPrecision() );
     assertEquals( 20, valueMeta.getLength() );
@@ -1074,7 +1074,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 2 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 2, valueMeta.getLength() );
@@ -1086,7 +1086,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1098,7 +1098,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( -1, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1110,8 +1110,8 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 18 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertFalse( valueMeta.isNumber() ); // We get BigNumber, TODO: VALIDATE!
     assertEquals( 18, valueMeta.getPrecision() ); // TODO: Validate
     assertEquals( 20, valueMeta.getLength() ); // TODO: VALIDATE
@@ -1124,7 +1124,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 15 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( 15, valueMeta.getPrecision() );
     assertEquals( 20, valueMeta.getLength() );
@@ -1136,7 +1136,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1148,7 +1148,7 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1160,8 +1160,8 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertFalse( valueMeta.isBigNumber() ); // TODO: VALIDATE!
     assertEquals( 0, valueMeta.getPrecision() ); // TODO: VALIDATE!
     assertEquals( 0, valueMeta.getLength() );// TODO: VALIDATE!
@@ -1174,44 +1174,44 @@ public class PostgreSQLValueMetaBaseTest {
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
     doReturn( false ).when( dbMeta ).supportsTimestampDataType();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( !valueMeta.isDate() );
   }
 
   @Test
   public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
   }
 
   @Test
   public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
   public void testMetdataPreviewSqlBitToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
   public void testMetdataPreviewSqlBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
 
   @Test
   public void testMetdataPreviewSqlBlobToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
     assertTrue( valueMeta.isBinary() );
   }
@@ -1219,16 +1219,16 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
 
   @Test
   public void testMetdataPreviewSqlLongVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
 }

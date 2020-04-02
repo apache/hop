@@ -22,24 +22,11 @@
 
 package org.apache.hop.databases.mssql;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * This test is designed to check that jdbc url (with no extra parameters)
@@ -56,7 +43,7 @@ public class DatabaseMeta_AppendExtraParamsTest {
   private static final String STRING_DEFAULT = "<def>";
 
   private DatabaseMeta meta;
-  private DatabaseInterface mssqlServerDatabaseMeta;
+  private IDatabase mssqlServerDatabaseMeta;
   private Variables variables;
 
   private final String CONN_URL_NO_EXTRA_OPTIONS = "jdbc:sqlserver://127.0.0.1:1433";
@@ -72,15 +59,15 @@ public class DatabaseMeta_AppendExtraParamsTest {
         return variables.environmentSubstitute( (String) invocation.getArguments()[ 0 ] );
       }
     } ).when( meta ).environmentSubstitute( anyString() );
-    doReturn( mssqlServerDatabaseMeta ).when( meta ).getDatabaseInterface();
+    doReturn( mssqlServerDatabaseMeta ).when( meta ).getIDatabase();
 
     doCallRealMethod().when( meta ).appendExtraOptions( anyString(), anyMapOf( String.class, String.class ) );
     doCallRealMethod().when( meta )
-      .databaseForBothDbInterfacesIsTheSame( any( DatabaseInterface.class ), any( DatabaseInterface.class ) );
+      .databaseForBothDbInterfacesIsTheSame( any( IDatabase.class ), any( IDatabase.class ) );
     doCallRealMethod().when( meta ).getExtraOptionIndicator();
     doCallRealMethod().when( meta ).getExtraOptionSeparator();
     doCallRealMethod().when( meta ).getExtraOptionValueSeparator();
-    doReturn( mock( LogChannelInterface.class ) ).when( meta ).getGeneralLogger();
+    doReturn( mock( ILogChannel.class ) ).when( meta ).getGeneralLogger();
     doReturn( mssqlServerDatabaseMeta ).when( meta ).getDbInterface( CONN_TYPE_MSSQL );
 
   }*/

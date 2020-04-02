@@ -26,8 +26,8 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -81,10 +81,10 @@ public class OraBulkLoaderTest {
   public void setUp() throws Exception {
     transformMockHelper = new TransformMockHelper<OraBulkLoaderMeta, OraBulkLoaderData>( "TEST_CREATE_COMMANDLINE",
       OraBulkLoaderMeta.class, OraBulkLoaderData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-    oraBulkLoader = spy( new OraBulkLoader( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0,
+    oraBulkLoader = spy( new OraBulkLoader( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0,
       transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );
 
     tempControlFile = TempFile.createTempFile( "control", "test" );
@@ -109,10 +109,10 @@ public class OraBulkLoaderTest {
     String[] dateMask = { "", "" };
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     Object[] rowData = { 1, "rowdata", new Date() };
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta iRowMeta = mock( IRowMeta.class );
     PipelineMeta pipelineMeta = spy( new PipelineMeta() );
-    ValueMetaInterface idVmi = new ValueMetaNumber( "id" );
-    ValueMetaInterface nameVmi = new ValueMetaString( "name", 20, -1 );
+    IValueMeta idVmi = new ValueMetaNumber( "id" );
+    IValueMeta nameVmi = new ValueMetaString( "name", 20, -1 );
 
     OraBulkLoaderMeta oraBulkLoaderMeta = spy( new OraBulkLoaderMeta() );
     oraBulkLoaderMeta.setDatabaseMeta( databaseMeta );
@@ -123,13 +123,13 @@ public class OraBulkLoaderTest {
     doReturn( streamFields ).when( oraBulkLoaderMeta ).getFieldStream();
     doReturn( streamTable ).when( oraBulkLoaderMeta ).getFieldTable();
     doReturn( dateMask ).when( oraBulkLoaderMeta ).getDateMask();
-    doReturn( 0 ).when( rowMetaInterface ).indexOfValue( "id" );
-    doReturn( idVmi ).when( rowMetaInterface ).getValueMeta( 0 );
-    doReturn( 1 ).when( rowMetaInterface ).indexOfValue( "name" );
-    doReturn( nameVmi ).when( rowMetaInterface ).getValueMeta( 1 );
+    doReturn( 0 ).when( iRowMeta ).indexOfValue( "id" );
+    doReturn( idVmi ).when( iRowMeta ).getValueMeta( 0 );
+    doReturn( 1 ).when( iRowMeta ).indexOfValue( "name" );
+    doReturn( nameVmi ).when( iRowMeta ).getValueMeta( 1 );
 
     String expectedDataContents = expectedDataContents1 + tempDataFilepath + expectedDataContents2;
-    String actualDataContents = oraBulkLoader.getControlFileContents( oraBulkLoaderMeta, rowMetaInterface, rowData );
+    String actualDataContents = oraBulkLoader.getControlFileContents( oraBulkLoaderMeta, iRowMeta, rowData );
     assertEquals( "The Expected Control File Contents do not match Actual Contents", expectedDataContents,
       actualDataContents );
   }
@@ -140,11 +140,11 @@ public class OraBulkLoaderTest {
     String tempTrueControlFilepath = tempControlFile.getAbsolutePath() + "A.txt";
     String expectedControlContents = "test";
     OraBulkLoaderMeta oraBulkLoaderMeta = mock( OraBulkLoaderMeta.class );
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta iRowMeta = mock( IRowMeta.class );
     Object[] objectRow = {};
 
-    doReturn( rowMetaInterface ).when( oraBulkLoader ).getInputRowMeta();
-    doReturn( expectedControlContents ).when( oraBulkLoader ).getControlFileContents( oraBulkLoaderMeta, rowMetaInterface, objectRow );
+    doReturn( iRowMeta ).when( oraBulkLoader ).getInputRowMeta();
+    doReturn( expectedControlContents ).when( oraBulkLoader ).getControlFileContents( oraBulkLoaderMeta, iRowMeta, objectRow );
     oraBulkLoader.createControlFile( tempTrueControlFilepath, objectRow, oraBulkLoaderMeta );
 
     assertTrue( Files.exists( Paths.get( tempTrueControlFilepath ) ) );

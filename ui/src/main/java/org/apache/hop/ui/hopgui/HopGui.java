@@ -7,7 +7,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.UndoInterface;
+import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
@@ -16,15 +16,15 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.ChangeAction;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
@@ -47,8 +47,8 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
@@ -143,14 +143,14 @@ public class HopGui implements IActionContextHandlersProvider {
   private DelegatingMetaStore metaStore;
   private MetaStoreContext metaStoreContext;
 
-  private LoggingObjectInterface loggingObject;
+  private ILoggingObject loggingObject;
 
   private Shell shell;
   private Display display;
   private List<String> commandLineArguments;
-  private VariableSpace variableSpace;
+  private IVariables variables;
   private PropsUI props;
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private Menu mainMenu;
   private GuiMenuWidgets mainMenuWidgets;
@@ -179,7 +179,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private HopGui( Display display ) {
     this.display = display;
     commandLineArguments = new ArrayList<>();
-    variableSpace = Variables.getADefaultVariableSpace();
+    variables = Variables.getADefaultVariableSpace();
     props = PropsUI.getInstance();
 
     loggingObject = new LoggingObject( APP_NAME );
@@ -202,9 +202,9 @@ public class HopGui implements IActionContextHandlersProvider {
       new ErrorDialog( shell, "Error opening Hop Metastore", "Unable to open the local Hop Metastore", e );
     }
 
-    databaseMetaManager = new MetaStoreManager<>( variableSpace, metaStore, DatabaseMeta.class );
-    slaveServerManager = new MetaStoreManager<>( variableSpace, metaStore, SlaveServer.class );
-    partitionManager = new MetaStoreManager<>( variableSpace, metaStore, PartitionSchema.class );
+    databaseMetaManager = new MetaStoreManager<>( variables, metaStore, DatabaseMeta.class );
+    slaveServerManager = new MetaStoreManager<>( variables, metaStore, SlaveServer.class );
+    partitionManager = new MetaStoreManager<>( variables, metaStore, PartitionSchema.class );
 
     metaStoreContext = new MetaStoreContext( this, metaStore );
   }
@@ -362,7 +362,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private void addMainMenu() {
     mainMenu = new Menu( shell, SWT.BAR );
 
-    mainMenuWidgets = new GuiMenuWidgets( variableSpace );
+    mainMenuWidgets = new GuiMenuWidgets( variables );
     mainMenuWidgets.createMenuWidgets( this, shell, mainMenu, ID_MAIN_MENU );
 
     shell.setMenuBar( mainMenu );
@@ -548,7 +548,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainToolbar.setLayoutData( fdToolBar );
     props.setLook( mainToolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    mainToolbarWidgets = new GuiCompositeWidgets( variableSpace );
+    mainToolbarWidgets = new GuiCompositeWidgets( variables );
     mainToolbarWidgets.createCompositeWidgets( this, null, mainToolbar, ID_MAIN_TOOLBAR, null );
     mainToolbar.pack();
   }
@@ -574,7 +574,7 @@ public class HopGui implements IActionContextHandlersProvider {
     fdToolBar.bottom = new FormAttachment( 100, 0 );
     perspectivesToolbar.setLayoutData( fdToolBar );
 
-    perspectivesToolbarWidgets = new GuiCompositeWidgets( variableSpace );
+    perspectivesToolbarWidgets = new GuiCompositeWidgets( variables );
     perspectivesToolbarWidgets.createCompositeWidgets( this, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, perspectivesToolbar, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, null );
     perspectivesToolbar.pack();
   }
@@ -594,7 +594,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainPerspectivesComposite.setLayoutData( fdMain );
   }
 
-  public void setUndoMenu( UndoInterface undoInterface ) {
+  public void setUndoMenu( IUndo undoInterface ) {
     // Grab the undo and redo menu items...
     //
     MenuItem undoItem = mainMenuWidgets.findMenuItem( ID_MAIN_MENU_EDIT_UNDO );
@@ -635,38 +635,38 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   /**
-   * We're given a bunch of capabilities from {@link HopFileTypeInterface}
+   * We're given a bunch of capabilities from {@link IHopFileType}
    * In this method we'll enable/disable menu and toolbar items
    *
-   * @param fileType The type of file to handle giving you its capabilities to take into account from {@link HopFileTypeInterface} or set by a plugin
+   * @param fileType The type of file to handle giving you its capabilities to take into account from {@link IHopFileType} or set by a plugin
    */
-  public void handleFileCapabilities( HopFileTypeInterface fileType ) {
+  public void handleFileCapabilities( IHopFileType fileType ) {
 
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE, HopFileTypeInterface.CAPABILITY_SAVE );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, HopFileTypeInterface.CAPABILITY_SAVE );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_CLOSE, HopFileTypeInterface.CAPABILITY_CLOSE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_CLOSE, IHopFileType.CAPABILITY_CLOSE );
 
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, HopFileTypeInterface.CAPABILITY_SELECT );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_UNSELECT_ALL, HopFileTypeInterface.CAPABILITY_SELECT );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, IHopFileType.CAPABILITY_SELECT );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_UNSELECT_ALL, IHopFileType.CAPABILITY_SELECT );
 
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_COPY, HopFileTypeInterface.CAPABILITY_COPY );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_PASTE, HopFileTypeInterface.CAPABILITY_PASTE );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_CUT, HopFileTypeInterface.CAPABILITY_CUT );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_DELETE, HopFileTypeInterface.CAPABILITY_DELETE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_COPY, IHopFileType.CAPABILITY_COPY );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_PASTE, IHopFileType.CAPABILITY_PASTE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_CUT, IHopFileType.CAPABILITY_CUT );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_DELETE, IHopFileType.CAPABILITY_DELETE );
 
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, HopFileTypeInterface.CAPABILITY_START );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, HopFileTypeInterface.CAPABILITY_STOP );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, HopFileTypeInterface.CAPABILITY_PAUSE );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, HopFileTypeInterface.CAPABILITY_PREVIEW );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, HopFileTypeInterface.CAPABILITY_DEBUG );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG );
 
-    MenuItem navPrevItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_PREV, HopFileTypeInterface.CAPABILITY_FILE_HISTORY );
+    MenuItem navPrevItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_PREV, IHopFileType.CAPABILITY_FILE_HISTORY );
     navPrevItem.setEnabled( getActivePerspective().hasNavigationPreviousFile() );
-    MenuItem navNextItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, HopFileTypeInterface.CAPABILITY_FILE_HISTORY );
+    MenuItem navNextItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, IHopFileType.CAPABILITY_FILE_HISTORY );
     navNextItem.setEnabled( getActivePerspective().hasNavigationNextFile() );
   }
 
-  public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
+  public IHopFileTypeHandler getActiveFileTypeHandler() {
     return getActivePerspective().getActiveFileTypeHandler();
   }
 
@@ -782,15 +782,15 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of space
    */
-  public VariableSpace getVariableSpace() {
-    return variableSpace;
+  public IVariables getVariableSpace() {
+    return variables;
   }
 
   /**
-   * @param variableSpace The space to set
+   * @param variables The space to set
    */
-  public void setVariableSpace( VariableSpace variableSpace ) {
-    this.variableSpace = variableSpace;
+  public void setVariableSpace( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**
@@ -814,14 +814,14 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 
@@ -912,8 +912,8 @@ public class HopGui implements IActionContextHandlersProvider {
     // Get all the file context handlers
     //
     HopFileTypeRegistry registry = HopFileTypeRegistry.getInstance();
-    List<HopFileTypeInterface> hopFileTypes = registry.getFileTypes();
-    for ( HopFileTypeInterface hopFileType : hopFileTypes ) {
+    List<IHopFileType> hopFileTypes = registry.getFileTypes();
+    for ( IHopFileType hopFileType : hopFileTypes ) {
       contextHandlers.addAll( hopFileType.getContextHandlers() );
     }
 
@@ -924,11 +924,11 @@ public class HopGui implements IActionContextHandlersProvider {
     return contextHandlers;
   }
 
-  public void setParametersAsVariablesInUI( NamedParams namedParameters, VariableSpace space ) {
+  public void setParametersAsVariablesInUI( INamedParams namedParameters, IVariables variables ) {
     for ( String param : namedParameters.listParameters() ) {
       try {
-        space.setVariable( param, Const.NVL( namedParameters.getParameterValue( param ), Const.NVL(
-          namedParameters.getParameterDefault( param ), Const.NVL( space.getVariable( param ), "" ) ) ) );
+        variables.setVariable( param, Const.NVL( namedParameters.getParameterValue( param ), Const.NVL(
+          namedParameters.getParameterDefault( param ), Const.NVL( variables.getVariable( param ), "" ) ) ) );
       } catch ( Exception e ) {
         // ignore this
       }
@@ -1022,7 +1022,7 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of loggingObject
    */
-  public LoggingObjectInterface getLoggingObject() {
+  public ILoggingObject getLoggingObject() {
     return loggingObject;
   }
 }

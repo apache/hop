@@ -23,21 +23,21 @@
 package org.apache.hop.pipeline.transforms.prioritizestreams;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 16-06-2008
  */
-public class PrioritizeStreamsData extends BaseTransformData implements TransformDataInterface {
+public class PrioritizeStreamsData extends BaseTransformData implements ITransformData {
 
   public RowSet[] rowSets;
   public int transformnrs;
   public int transformnr;
   public RowSet currentRowSet;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public PrioritizeStreamsData() {
     super();

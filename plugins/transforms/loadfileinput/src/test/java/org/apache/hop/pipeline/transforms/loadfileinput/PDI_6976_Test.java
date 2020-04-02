@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import junit.framework.TestCase;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -58,25 +58,25 @@ public class PDI_6976_Test {
     FileInputList fileInputList = mock( FileInputList.class );
     List<FileObject> files = when( mock( List.class ).size() ).thenReturn( 1 ).getMock();
     doReturn( files ).when( fileInputList ).getFiles();
-    doReturn( fileInputList ).when( spy ).getFiles( any( VariableSpace.class ) );
+    doReturn( fileInputList ).when( spy ).getFiles( any( IVariables.class ) );
 
     @SuppressWarnings( "unchecked" )
-    List<CheckResultInterface> validationResults = mock( List.class );
+    List<ICheckResult> validationResults = mock( List.class );
 
     // Check we do not get validation errors
     doAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        if ( ( (CheckResultInterface) invocation.getArguments()[ 0 ] ).getType() != CheckResultInterface.TYPE_RESULT_OK ) {
+        if ( ( (ICheckResult) invocation.getArguments()[ 0 ] ).getType() != ICheckResult.TYPE_RESULT_OK ) {
           TestCase.fail( "We've got validation error" );
         }
 
         return null;
       }
-    } ).when( validationResults ).add( any( CheckResultInterface.class ) );
+    } ).when( validationResults ).add( any( ICheckResult.class ) );
 
-    spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( RowMetaInterface.class ),
-      new String[] {}, new String[] { "File content", "File size" }, mock( RowMetaInterface.class ),
-      mock( VariableSpace.class ), mock( IMetaStore.class ) );
+    spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( IRowMeta.class ),
+      new String[] {}, new String[] { "File content", "File size" }, mock( IRowMeta.class ),
+      mock( IVariables.class ), mock( IMetaStore.class ) );
   }
 }

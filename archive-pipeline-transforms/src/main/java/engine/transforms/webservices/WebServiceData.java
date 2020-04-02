@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class WebServiceData extends BaseTransformData implements TransformDataInterface {
+public class WebServiceData extends BaseTransformData implements ITransformData {
   public String realUrl;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public Map<String, Integer> indexMap;
 

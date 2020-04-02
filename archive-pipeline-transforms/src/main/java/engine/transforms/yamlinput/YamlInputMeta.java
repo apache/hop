@@ -31,23 +31,23 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -578,18 +578,18 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       YamlInputField field = inputFields[ i ];
 
       int type = field.getType();
-      if ( type == ValueMetaInterface.TYPE_NONE ) {
-        type = ValueMetaInterface.TYPE_STRING;
+      if ( type == IValueMeta.TYPE_NONE ) {
+        type = IValueMeta.TYPE_STRING;
       }
-      String valueName = space.environmentSubstitute( field.getName() );
-      ValueMetaInterface v;
+      String valueName = variables.environmentSubstitute( field.getName() );
+      IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( valueName, type );
       } catch ( HopPluginException e ) {
@@ -606,7 +606,7 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
     }
 
     if ( includeFilename ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -614,15 +614,15 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
     }
 
     if ( includeRowNumber ) {
-      ValueMetaInterface v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
   }
 
-  public FileInputList getFiles( VariableSpace space ) {
-    return FileInputList.createFileList( space, fileName, fileMask, fileRequired, includeSubFolderBoolean() );
+  public FileInputList getFiles( iVariables variables ) {
+    return FileInputList.createFileList( variables, fileName, fileMask, fileRequired, includeSubFolderBoolean() );
   }
 
   private boolean[] includeSubFolderBoolean() {
@@ -636,7 +636,7 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -690,13 +690,13 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new YamlInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new YamlInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new YamlInputData();
   }
 
@@ -711,15 +711,15 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -728,7 +728,7 @@ public class YamlInputMeta extends BaseTransformMeta implements TransformMetaInt
       List<String> newFilenames = new ArrayList<>();
 
       if ( !isInFields() ) {
-        FileInputList fileList = getFiles( space );
+        FileInputList fileList = getFiles( variables );
         if ( fileList.getFiles().size() > 0 ) {
           for ( FileObject fileObject : fileList.getFiles() ) {
             // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.xml

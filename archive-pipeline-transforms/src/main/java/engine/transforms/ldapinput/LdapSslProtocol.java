@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
 
 import java.util.Collection;
@@ -39,16 +39,16 @@ public class LdapSslProtocol extends LdapProtocol {
 
   private final String trustStorePassword;
 
-  public LdapSslProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
+  public LdapSslProtocol( LogChannelInterface log, iVariables variables, LdapMeta meta,
                           Collection<String> binaryAttributes ) {
-    super( log, variableSpace, meta, binaryAttributes );
+    super( log, variables, meta, binaryAttributes );
     String trustStorePath = null;
     String trustStorePassword = null;
     boolean trustAllCertificates = false;
 
     if ( meta.isUseCertificate() ) {
-      trustStorePath = variableSpace.environmentSubstitute( meta.getTrustStorePath() );
-      trustStorePassword = Utils.resolvePassword( variableSpace,
+      trustStorePath = variables.environmentSubstitute( meta.getTrustStorePath() );
+      trustStorePassword = Utils.resolvePassword( variables,
         meta.getTrustStorePassword() );
       trustAllCertificates = meta.isTrustAllCertificates();
     }

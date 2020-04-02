@@ -137,7 +137,7 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
     return str_fr + " --> " + str_to + " (" + ( enabled ? "enabled" : "disabled" ) + ")";
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
     if ( this.from != null && this.to != null ) {

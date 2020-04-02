@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.regexeval;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class RegexEvalUnitTest {
     transformMockHelper =
       new TransformMockHelper<RegexEvalMeta, RegexEvalData>(
         "REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -60,7 +60,7 @@ public class RegexEvalUnitTest {
   public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds() throws HopException {
     RegexEval regexEval =
       new RegexEval(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     when( transformMockHelper.processRowsTransformMetaInterface.isAllowCaptureGroupsFlagSet() ).thenReturn( true );
     String[] outFields = new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" };
@@ -69,8 +69,8 @@ public class RegexEvalUnitTest {
     transformMockHelper.processRowsTransformDataInterface.pattern = Pattern.compile( "(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)" );
     Object[] inputRow = new Object[] {};
     RowSet inputRowSet = transformMockHelper.getMockInputRowSet( inputRow );
-    RowMetaInterface mockInputRowMeta = mock( RowMetaInterface.class );
-    RowMetaInterface mockOutputRoMeta = mock( RowMetaInterface.class );
+    IRowMeta mockInputRowMeta = mock( IRowMeta.class );
+    IRowMeta mockOutputRoMeta = mock( IRowMeta.class );
     when( mockOutputRoMeta.size() ).thenReturn( outFields.length );
     when( mockInputRowMeta.size() ).thenReturn( 0 );
     when( inputRowSet.getRowMeta() ).thenReturn( mockInputRowMeta );

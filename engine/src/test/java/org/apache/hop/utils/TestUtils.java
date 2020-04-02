@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 
@@ -72,13 +72,13 @@ public class TestUtils {
     return createRamFile( path, null );
   }
 
-  public static String createRamFile( String path, VariableSpace space ) {
-    if ( space == null ) {
-      space = new Variables();
-      space.initializeVariablesFrom( null );
+  public static String createRamFile( String path, IVariables variables ) {
+    if ( variables == null ) {
+      variables = new Variables();
+      variables.initializeVariablesFrom( null );
     }
     try {
-      FileObject file = HopVFS.getFileObject( "ram://" + path, space );
+      FileObject file = HopVFS.getFileObject( "ram://" + path, variables );
       file.createFile();
       return file.getName().getURI();
     } catch ( FileSystemException | HopFileException e ) {
@@ -90,13 +90,13 @@ public class TestUtils {
     return getFileObject( vfsPath, null );
   }
 
-  public static FileObject getFileObject( String vfsPath, VariableSpace space ) {
-    if ( space == null ) {
-      space = new Variables();
-      space.initializeVariablesFrom( null );
+  public static FileObject getFileObject( String vfsPath, IVariables variables ) {
+    if ( variables == null ) {
+      variables = new Variables();
+      variables.initializeVariablesFrom( null );
     }
     try {
-      return HopVFS.getFileObject( vfsPath, space );
+      return HopVFS.getFileObject( vfsPath, variables );
     } catch ( HopFileException e ) {
       throw new RuntimeException( e );
     }

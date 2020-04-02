@@ -27,16 +27,16 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -161,9 +161,9 @@ public class UnivariateStatsMetaTest {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     UnivariateStatsMetaFunction[] functions = univariateFunctionArrayFieldLoadSaveValidator.getTestObject();
     meta.setInputFieldMetaFunctions( functions );
-    RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
     final AtomicBoolean clearCalled = new AtomicBoolean( false );
-    final List<ValueMetaInterface> valueMetaInterfaces = new ArrayList<ValueMetaInterface>();
+    final List<IValueMeta> valueMetaInterfaces = new ArrayList<IValueMeta>();
     doAnswer( new Answer<Void>() {
 
       @Override
@@ -179,40 +179,40 @@ public class UnivariateStatsMetaTest {
         if ( !clearCalled.get() ) {
           throw new RuntimeException( "Clear not called before adding value metas" );
         }
-        valueMetaInterfaces.add( (ValueMetaInterface) invocation.getArguments()[ 0 ] );
+        valueMetaInterfaces.add( (IValueMeta) invocation.getArguments()[ 0 ] );
         return null;
       }
-    } ).when( mockRowMetaInterface ).addValueMeta( any( ValueMetaInterface.class ) );
+    } ).when( mockRowMetaInterface ).addValueMeta( any( IValueMeta.class ) );
     meta.getFields( mockRowMetaInterface, null, null, null, null, null );
     Map<String, Integer> valueMetas = new HashMap<String, Integer>();
-    for ( ValueMetaInterface vmi : valueMetaInterfaces ) {
+    for ( IValueMeta vmi : valueMetaInterfaces ) {
       valueMetas.put( vmi.getName(), vmi.getType() );
     }
     for ( UnivariateStatsMetaFunction function : functions ) {
       if ( function.getCalcN() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(N)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(N)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcMean() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(mean)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(mean)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcStdDev() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(stdDev)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(stdDev)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcMin() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(min)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(min)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcMax() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(max)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(max)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcMedian() ) {
-        assertContains( valueMetas, function.getSourceFieldName() + "(median)", ValueMetaInterface.TYPE_NUMBER );
+        assertContains( valueMetas, function.getSourceFieldName() + "(median)", IValueMeta.TYPE_NUMBER );
       }
       if ( function.getCalcPercentile() >= 0 ) {
         NumberFormat pF = NumberFormat.getInstance();
         pF.setMaximumFractionDigits( 2 );
         String res = pF.format( function.getCalcPercentile() * 100 );
         assertContains( valueMetas, function.getSourceFieldName() + "(" + res + "th percentile)",
-          ValueMetaInterface.TYPE_NUMBER );
+          IValueMeta.TYPE_NUMBER );
       }
     }
   }
@@ -229,7 +229,7 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testCheckEmptyPrev() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
     when( mockRowMetaInterface.size() ).thenReturn( 0 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
     meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
@@ -240,7 +240,7 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testCheckGoodPrev() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
     when( mockRowMetaInterface.size() ).thenReturn( 500 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
     meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
@@ -270,12 +270,12 @@ public class UnivariateStatsMetaTest {
   public void testGetTransform() {
     TransformMeta mockTransformMeta = mock( TransformMeta.class );
     when( mockTransformMeta.getName() ).thenReturn( "testName" );
-    TransformDataInterface mockTransformDataInterface = mock( TransformDataInterface.class );
+    ITransformData mockTransformDataInterface = mock( ITransformData.class );
     int cnr = 10;
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     Pipeline mockPipeline = mock( Pipeline.class );
     when( mockPipelineMeta.findTransform( "testName" ) ).thenReturn( mockTransformMeta );
-    TransformInterface transform =
+    ITransform transform =
       new UnivariateStatsMeta().getTransform( mockTransformMeta, mockTransformDataInterface, cnr, mockPipelineMeta, mockPipeline );
     assertTrue( "Expected Transform to be instanceof " + UnivariateStats.class, transform instanceof UnivariateStats );
   }

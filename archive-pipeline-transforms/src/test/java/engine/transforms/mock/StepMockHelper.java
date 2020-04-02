@@ -26,13 +26,13 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogChannelInterfaceFactory;
+import org.apache.hop.core.logging.LogChannelFactory;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessageInterface;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.mockito.Mockito;
@@ -54,9 +54,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class TransformMockHelper<Meta extends TransformMetaInterface, Data extends TransformDataInterface> {
+public class TransformMockHelper<Meta extends TransformMetaInterface, Data extends ITransformData> {
   public final TransformMeta transformMeta;
-  public final Data transformDataInterface;
+  public final Data iTransformData;
   public final PipelineMeta pipelineMeta;
   public final Pipeline pipeline;
   public final Meta initTransformMetaInterface;
@@ -64,17 +64,17 @@ public class TransformMockHelper<Meta extends TransformMetaInterface, Data exten
   public final Meta processRowsTransformMetaInterface;
   public final Data processRowsTransformDataInterface;
   public final LogChannelInterface logChannelInterface;
-  public final LogChannelInterfaceFactory logChannelInterfaceFactory;
-  public final LogChannelInterfaceFactory originalLogChannelInterfaceFactory;
+  public final LogChannelFactory logChannelFactory;
+  public final LogChannelFactory originalLogChannelFactory;
 
   public TransformMockHelper( String transformName, Class<Meta> transformMetaClass, Class<Data> transformDataClass ) {
-    originalLogChannelInterfaceFactory = HopLogStore.getLogChannelInterfaceFactory();
-    logChannelInterfaceFactory = mock( LogChannelInterfaceFactory.class );
+    originalLogChannelFactory = HopLogStore.getLogChannelFactory();
+    logChannelFactory = mock( LogChannelFactory.class );
     logChannelInterface = mock( LogChannelInterface.class );
-    HopLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
+    HopLogStore.setLogChannelFactory( logChannelFactory );
     transformMeta = mock( TransformMeta.class );
     when( transformMeta.getName() ).thenReturn( transformName );
-    transformDataInterface = mock( transformDataClass );
+    iTransformData = mock( transformDataClass );
     pipelineMeta = mock( PipelineMeta.class );
     when( pipelineMeta.findTransform( transformName ) ).thenReturn( transformMeta );
     pipeline = mock( Pipeline.class );
@@ -117,7 +117,7 @@ public class TransformMockHelper<Meta extends TransformMetaInterface, Data exten
   }
 
   public void cleanUp() {
-    HopLogStore.setLogChannelInterfaceFactory( originalLogChannelInterfaceFactory );
+    HopLogStore.setLogChannelFactory( originalLogChannelFactory );
   }
 
   /**
@@ -130,7 +130,7 @@ public class TransformMockHelper<Meta extends TransformMetaInterface, Data exten
   public void redirectLog( final OutputStream out, LogLevel channelLogLevel ) {
     final LogChannel log = spy( new LogChannel( this.getClass().getName(), true ) );
     log.setLogLevel( channelLogLevel );
-    when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( log );
+    when( logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( log );
     doAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {

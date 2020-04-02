@@ -27,7 +27,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -117,8 +117,8 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
 
   private Map<String, IPipelineEngineRunConfiguration> populateMetaMap() {
     metaMap = new HashMap<>();
-    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( PipelineEnginePluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( PipelineEnginePluginType.class );
+    for ( IPlugin plugin : plugins ) {
       try {
         IPipelineEngine engine = PluginRegistry.getInstance().loadClass( plugin, IPipelineEngine.class );
 
@@ -382,7 +382,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
 
   private String[] getPluginTypes() {
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = registry.getPlugins( PipelineEnginePluginType.class );
+    List<IPlugin> plugins = registry.getPlugins( PipelineEnginePluginType.class );
     String[] types = new String[ plugins.size() ];
     for ( int i = 0; i < types.length; i++ ) {
       types[ i ] = plugins.get( i ).getName();

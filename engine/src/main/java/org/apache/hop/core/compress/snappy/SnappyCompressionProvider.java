@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.compress.snappy;
 
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SnappyCompressionProvider implements CompressionProvider {
+public class SnappyCompressionProvider implements ICompressionProvider {
 
   @Override
   public SnappyCompressionInputStream createInputStream( InputStream in ) throws IOException {

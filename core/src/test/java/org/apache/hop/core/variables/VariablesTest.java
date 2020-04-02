@@ -64,7 +64,7 @@ public class VariablesTest {
   @Test
   public void testinItializeVariablesFrom() {
     final Variables variablesMock = mock( Variables.class );
-    doCallRealMethod().when( variablesMock ).initializeVariablesFrom( any( VariableSpace.class ) );
+    doCallRealMethod().when( variablesMock ).initializeVariablesFrom( any( IVariables.class ) );
 
     @SuppressWarnings( "unchecked" ) final Map<String, String> propertiesMock = mock( Map.class );
     when( variablesMock.getProperties() ).thenReturn( propertiesMock );

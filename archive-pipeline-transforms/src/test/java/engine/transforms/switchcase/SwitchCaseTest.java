@@ -29,8 +29,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -82,7 +82,7 @@ public class SwitchCaseTest {
     mockHelper =
       new TransformMockHelper<SwitchCaseMeta, SwitchCaseData>(
         "Switch Case", SwitchCaseMeta.class, SwitchCaseData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -415,7 +415,7 @@ public class SwitchCaseTest {
   private static class SwitchCaseCustom extends SwitchCase {
 
     Queue<Object[]> input = new LinkedList<Object[]>();
-    RowMetaInterface rowMetaInterface;
+    IRowMeta iRowMeta;
 
     // we will use real data and meta.
     SwitchCaseData data = new SwitchCaseData();
@@ -424,13 +424,13 @@ public class SwitchCaseTest {
     Map<String, RowSet> map = new HashMap<String, RowSet>();
 
     SwitchCaseCustom( TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper ) throws HopValueException {
-      super( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      super( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
       // this.mockHelper = mockHelper;
       init( meta, data );
 
       // call to convert value will returns same value.
-      data.valueMeta = mock( ValueMetaInterface.class );
-      when( data.valueMeta.convertData( any( ValueMetaInterface.class ), any() ) ).thenAnswer(
+      data.valueMeta = mock( IValueMeta.class );
+      when( data.valueMeta.convertData( any( IValueMeta.class ), any() ) ).thenAnswer(
         new Answer<Object>() {
           @Override
           public Object answer( InvocationOnMock invocation ) throws Throwable {
@@ -439,7 +439,7 @@ public class SwitchCaseTest {
           }
         } );
       // same when call to convertDataFromString
-      when( data.valueMeta.convertDataFromString( Mockito.anyString(), any( ValueMetaInterface.class ),
+      when( data.valueMeta.convertDataFromString( Mockito.anyString(), any( IValueMeta.class ),
         Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() ) ).thenAnswer(
         //CHECKSTYLE:Indentation:OFF
         new Answer<Object>() {
@@ -532,15 +532,15 @@ public class SwitchCaseTest {
     }
 
     @Override
-    public RowMetaInterface getInputRowMeta() {
-      if ( rowMetaInterface == null ) {
-        rowMetaInterface = getDynamicRowMetaInterface();
+    public IRowMeta getInputRowMeta() {
+      if ( iRowMeta == null ) {
+        iRowMeta = getDynamicRowMetaInterface();
       }
-      return rowMetaInterface;
+      return iRowMeta;
     }
 
-    private RowMetaInterface getDynamicRowMetaInterface() {
-      RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    private IRowMeta getDynamicRowMetaInterface() {
+      IRowMeta inputRowMeta = mock( IRowMeta.class );
       return inputRowMeta;
     }
   }

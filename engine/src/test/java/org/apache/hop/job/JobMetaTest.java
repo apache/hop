@@ -27,10 +27,10 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.listeners.ContentChangedListener;
+import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.job.entries.empty.JobEntryEmpty;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,13 +57,13 @@ public class JobMetaTest {
   private static final String JOB_META_NAME = "jobName";
 
   private JobMeta jobMeta;
-  private ContentChangedListener listener;
+  private IContentChangedListener listener;
 
   @Before
   public void setUp() {
     jobMeta = new JobMeta();
     // prepare
-    listener = mock( ContentChangedListener.class );
+    listener = mock( IContentChangedListener.class );
     jobMeta.addContentChangedListener( listener );
     jobMeta.setName( JOB_META_NAME );
   }
@@ -276,7 +276,7 @@ public class JobMetaTest {
   }
 
   private JobEntryCopy createJobEntryCopy( String name ) {
-    JobEntryInterface jobEntry = mock( JobEntryInterface.class );
+    IJobEntry jobEntry = mock( IJobEntry.class );
     JobEntryCopy jobEntryCopy = new JobEntryCopy( jobEntry );
     when( jobEntryCopy.getName() ).thenReturn( name );
     jobEntryCopy.setNr( 0 );

@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transforms.javafilter;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -48,18 +48,18 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class JavaFilter extends BaseTransform implements TransformInterface {
+public class JavaFilter extends BaseTransform implements ITransform {
   private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
 
   private JavaFilterMeta meta;
   private JavaFilterData data;
 
-  public JavaFilter( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public JavaFilter( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (JavaFilterMeta) smi;
     data = (JavaFilterData) sdi;
 
@@ -76,7 +76,7 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
 
-      // Cache the position of the RowSet for the output.
+      // ICache the position of the RowSet for the output.
       //
       if ( data.chosesTargetTransforms ) {
         List<StreamInterface> targetStreams = meta.getTransformIOMeta().getTargetStreams();
@@ -128,7 +128,7 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private boolean calcFields( RowMetaInterface rowMeta, Object[] r ) throws HopValueException {
+  private boolean calcFields( IRowMeta rowMeta, Object[] r ) throws HopValueException {
     try {
       // Initialize evaluators etc. Only do it once.
       //
@@ -141,7 +141,7 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
 
         for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
 
-          ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( i );
+          IValueMeta valueMeta = data.outputRowMeta.getValueMeta( i );
 
           // See if the value is being used in a formula...
           //
@@ -151,25 +151,25 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
 
             Class<?> parameterType;
             switch ( valueMeta.getType() ) {
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 parameterType = String.class;
                 break;
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 parameterType = Double.class;
                 break;
-              case ValueMetaInterface.TYPE_INTEGER:
+              case IValueMeta.TYPE_INTEGER:
                 parameterType = Long.class;
                 break;
-              case ValueMetaInterface.TYPE_DATE:
+              case IValueMeta.TYPE_DATE:
                 parameterType = Date.class;
                 break;
-              case ValueMetaInterface.TYPE_BIGNUMBER:
+              case IValueMeta.TYPE_BIGNUMBER:
                 parameterType = BigDecimal.class;
                 break;
-              case ValueMetaInterface.TYPE_BOOLEAN:
+              case IValueMeta.TYPE_BOOLEAN:
                 parameterType = Boolean.class;
                 break;
-              case ValueMetaInterface.TYPE_BINARY:
+              case IValueMeta.TYPE_BINARY:
                 parameterType = byte[].class;
                 break;
               default:
@@ -200,7 +200,7 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
       //
       for ( int x = 0; x < data.argumentIndexes.size(); x++ ) {
         int index = data.argumentIndexes.get( x );
-        ValueMetaInterface outputValueMeta = data.outputRowMeta.getValueMeta( index );
+        IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta( index );
         data.argumentData[ x ] = outputValueMeta.convertToNormalStorageType( r[ index ] );
       }
 
@@ -217,7 +217,7 @@ public class JavaFilter extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (JavaFilterMeta) smi;
     data = (JavaFilterData) sdi;
 

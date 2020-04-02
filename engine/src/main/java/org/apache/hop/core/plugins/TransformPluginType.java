@@ -24,8 +24,8 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -63,10 +63,10 @@ import java.util.Map;
     "BaseTransform.Category.Inline",
     "BaseTransform.Category.Experimental",
     "BaseTransform.Category.Deprecated" },
-  i18nPackageClass = TransformInterface.class )
-@PluginMainClassType( TransformMetaInterface.class )
+  i18nPackageClass = ITransform.class )
+@PluginMainClassType( ITransformMeta.class )
 @PluginAnnotationType( Transform.class )
-public class TransformPluginType extends BasePluginType implements PluginTypeInterface {
+public class TransformPluginType extends BasePluginType implements IPluginType {
 
   private static TransformPluginType transformPluginType;
 

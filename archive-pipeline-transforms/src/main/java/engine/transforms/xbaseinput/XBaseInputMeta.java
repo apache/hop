@@ -31,23 +31,23 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -306,8 +306,8 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
     return null;
   }
 
-  public RowMetaInterface getOutputFields( FileInputList files, String name ) throws HopTransformException {
-    RowMetaInterface rowMeta = new RowMeta();
+  public IRowMeta getOutputFields( FileInputList files, String name ) throws HopTransformException {
+    IRowMeta rowMeta = new RowMeta();
 
     // Take the first file to determine what the layout is...
     //
@@ -316,9 +316,9 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
       xbi = new XBase( getLog(), HopVFS.getInputStream( files.getFile( 0 ) ) );
       xbi.setDbfFile( files.getFile( 0 ).getName().getURI() );
       xbi.open();
-      RowMetaInterface add = xbi.getFields();
+      IRowMeta add = xbi.getFields();
       for ( int i = 0; i < add.size(); i++ ) {
-        ValueMetaInterface v = add.getValueMeta( i );
+        IValueMeta v = add.getValueMeta( i );
         v.setOrigin( name );
       }
       rowMeta.addRowMeta( add );
@@ -332,13 +332,13 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
     }
 
     if ( rowNrAdded && rowNrField != null && rowNrField.length() > 0 ) {
-      ValueMetaInterface rnr = new ValueMetaInteger( rowNrField );
+      IValueMeta rnr = new ValueMetaInteger( rowNrField );
       rnr.setOrigin( name );
       rowMeta.addValueMeta( rnr );
     }
 
     if ( includeFilename ) {
-      ValueMetaInterface v = new ValueMetaString( filenameField );
+      IValueMeta v = new ValueMetaString( filenameField );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       rowMeta.addValueMeta( v );
@@ -347,10 +347,10 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
-    FileInputList fileList = getTextFileList( space );
+    FileInputList fileList = getTextFileList( variables );
     if ( fileList.nrOfFiles() == 0 ) {
       throw new HopTransformException( BaseMessages
         .getString( PKG, "XBaseInputMeta.Exception.NoFilesFoundToProcess" ) );
@@ -385,7 +385,7 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -425,7 +425,7 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
             PKG, "XBaseInputMeta.Remark.FileExistsAndCanBeOpened" ), transformMeta );
         remarks.add( cr );
 
-        RowMetaInterface r = xbi.getFields();
+        IRowMeta r = xbi.getFields();
 
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, r.size()
@@ -444,24 +444,24 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new XBaseInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new XBaseInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new XBaseInputData();
   }
 
-  public String[] getFilePaths( VariableSpace space ) {
+  public String[] getFilePaths( iVariables variables ) {
     return FileInputList.createFilePathList(
-      space, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
+      variables, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
   }
 
-  public FileInputList getTextFileList( VariableSpace space ) {
+  public FileInputList getTextFileList( iVariables variables ) {
     return FileInputList.createFileList(
-      space, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
+      variables, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
   }
 
   /**
@@ -484,15 +484,15 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -502,14 +502,14 @@ public class XBaseInputMeta extends BaseTransformMeta implements TransformMetaIn
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.dbf
         // To : /home/matt/test/files/foo/bar.dbf
         //
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( dbfFileName ), space );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( dbfFileName ), variables );
 
         // If the file doesn't exist, forget about this effort too!
         //
         if ( fileObject.exists() ) {
           // Convert to an absolute path...
           //
-          dbfFileName = resourceNamingInterface.nameResource( fileObject, space, true );
+          dbfFileName = iResourceNaming.nameResource( fileObject, variables, true );
 
           return dbfFileName;
         }

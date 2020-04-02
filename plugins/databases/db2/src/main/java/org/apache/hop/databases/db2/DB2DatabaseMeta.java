@@ -24,11 +24,11 @@ package org.apache.hop.databases.db2;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains DB2 specific information through static final members
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "DB2"
 )
 @GuiPlugin( id = "GUI-DB2DatabaseMeta" )
-public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final String ALTER_TABLE = "ALTER TABLE ";
 
@@ -107,7 +107,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return ALTER_TABLE + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -124,7 +124,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
     return ALTER_TABLE + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
@@ -141,7 +141,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     String retval = "";
     retval += ALTER_TABLE + tablename + " DROP COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
@@ -151,7 +151,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -165,15 +165,15 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         retval += "CHARACTER(1)";
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) && useAutoinc ) { // Technical key: auto increment field!
           retval += "BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";
         } else {
@@ -188,14 +188,14 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
           }
         }
         break;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         if ( fieldname.equalsIgnoreCase( tk ) && useAutoinc ) { // Technical key: auto increment field!
           retval += "INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";
         } else {
           retval += "INTEGER";
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length > getMaxVARCHARLength() || length >= DatabaseMeta.CLOB_LENGTH ) {
           retval += "CLOB";
         } else {
@@ -209,7 +209,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
 
         }
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         if ( length > getMaxVARCHARLength() || length >= DatabaseMeta.CLOB_LENGTH ) {
           retval += "BLOB(" + length + ")";
         } else {
@@ -235,7 +235,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfa
   /*
    * (non-Javadoc)
    *
-   * @see DatabaseInterface#getReservedWords()
+   * @see IDatabase#getReservedWords()
    */
   @Override
   public String[] getReservedWords() {

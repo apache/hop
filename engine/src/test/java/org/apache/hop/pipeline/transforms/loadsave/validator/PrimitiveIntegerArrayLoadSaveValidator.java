@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-public class PrimitiveIntegerArrayLoadSaveValidator implements FieldLoadSaveValidator<int[]> {
+public class PrimitiveIntegerArrayLoadSaveValidator implements IFieldLoadSaveValidator<int[]> {
 
-  private final FieldLoadSaveValidator<Integer> validator;
+  private final IFieldLoadSaveValidator<Integer> validator;
   private final Integer elements;
 
-  public PrimitiveIntegerArrayLoadSaveValidator( FieldLoadSaveValidator<Integer> fieldValidator ) {
+  public PrimitiveIntegerArrayLoadSaveValidator( IFieldLoadSaveValidator<Integer> fieldValidator ) {
     this( fieldValidator, null );
   }
 
-  public PrimitiveIntegerArrayLoadSaveValidator( FieldLoadSaveValidator<Integer> fieldValidator, Integer elements ) {
+  public PrimitiveIntegerArrayLoadSaveValidator( IFieldLoadSaveValidator<Integer> fieldValidator, Integer elements ) {
     validator = fieldValidator;
     this.elements = elements;
   }

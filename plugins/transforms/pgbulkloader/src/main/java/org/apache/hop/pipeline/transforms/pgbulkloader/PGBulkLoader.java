@@ -35,18 +35,18 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.PGCopyOutputStream;
 
@@ -65,7 +65,7 @@ import java.sql.Statement;
  * @author matt
  * @since 28-mar-2008
  */
-public class PGBulkLoader extends BaseTransform implements TransformInterface {
+public class PGBulkLoader extends BaseTransform implements ITransform {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private Charset clientEncoding = Charset.defaultCharset();
@@ -73,9 +73,9 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
   private PGBulkLoaderData data;
   private PGCopyOutputStream pgCopyOut;
 
-  public PGBulkLoader( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public PGBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -177,7 +177,7 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
   }
 
   @VisibleForTesting
-  Database getDatabase( LoggingObjectInterface parentObject, PGBulkLoaderMeta pgBulkLoaderMeta ) {
+  Database getDatabase( ILoggingObject parentObject, PGBulkLoaderMeta pgBulkLoaderMeta ) {
     DatabaseMeta dbMeta = pgBulkLoaderMeta.getDatabaseMeta();
     // If dbNameOverride is present, clone the origin db meta and override the DB name
     String dbNameOverride = environmentSubstitute( pgBulkLoaderMeta.getDbNameOverride() );
@@ -223,7 +223,7 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (PGBulkLoaderMeta) smi;
     data = (PGBulkLoaderData) sdi;
 
@@ -279,7 +279,7 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
     }
   }
 
-  private void writeRowToPostgres( RowMetaInterface rowMeta, Object[] r ) throws HopException {
+  private void writeRowToPostgres( IRowMeta rowMeta, Object[] r ) throws HopException {
 
     try {
       // So, we have this output stream to which we can write CSV data to.
@@ -295,12 +295,12 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
         }
 
         int index = data.keynrs[ i ];
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( index );
+        IValueMeta valueMeta = rowMeta.getValueMeta( index );
         Object valueData = r[ index ];
 
         if ( valueData != null ) {
           switch ( valueMeta.getType() ) {
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               pgCopyOut.write( data.quote );
 
               // No longer dump the bytes for a Lazy Conversion;
@@ -311,14 +311,14 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
 
               pgCopyOut.write( data.quote );
               break;
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_INTEGER:
               if ( valueMeta.isStorageBinaryString() ) {
                 pgCopyOut.write( (byte[]) valueData );
               } else {
                 pgCopyOut.write( Long.toString( valueMeta.getInteger( valueData ) ).getBytes( clientEncoding ) );
               }
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               // Format the date in the right format.
               //
               switch ( data.dateFormatChoices[ i ] ) {
@@ -357,7 +357,7 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
                   throw new HopException( "PGBulkLoader doesn't know how to handle date (neither passthrough, nor date or datetime for field " + valueMeta.getName() );
               }
               break;
-            case ValueMetaInterface.TYPE_TIMESTAMP:
+            case IValueMeta.TYPE_TIMESTAMP:
               // Format the date in the right format.
               //
               switch ( data.dateFormatChoices[ i ] ) {
@@ -396,21 +396,21 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
                   throw new HopException( "PGBulkLoader doesn't know how to handle timestamp (neither passthrough, nor date or datetime for field " + valueMeta.getName() );
               }
               break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               if ( valueMeta.isStorageBinaryString() ) {
                 pgCopyOut.write( (byte[]) valueData );
               } else {
                 pgCopyOut.write( Double.toString( valueMeta.getNumber( valueData ) ).getBytes( clientEncoding ) );
               }
               break;
-            case ValueMetaInterface.TYPE_NUMBER:
+            case IValueMeta.TYPE_NUMBER:
               if ( valueMeta.isStorageBinaryString() ) {
                 pgCopyOut.write( (byte[]) valueData );
               } else {
                 pgCopyOut.write( Double.toString( valueMeta.getNumber( valueData ) ).getBytes( clientEncoding ) );
               }
               break;
-            case ValueMetaInterface.TYPE_BIGNUMBER:
+            case IValueMeta.TYPE_BIGNUMBER:
               if ( valueMeta.isStorageBinaryString() ) {
                 pgCopyOut.write( (byte[]) valueData );
               } else {
@@ -442,7 +442,7 @@ public class PGBulkLoader extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (PGBulkLoaderMeta) smi;
     data = (PGBulkLoaderData) sdi;
 

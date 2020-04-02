@@ -26,11 +26,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -51,7 +51,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         keywords = { "data","static","grid", "entry" } //TODO : i18n
 )
-public class DataGridMeta extends BaseTransformMeta implements TransformMetaInterface<DataGrid, DataGridData> {
+public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<DataGrid, DataGridData> {
 
   private String[] currency;
   private String[] decimal;
@@ -336,16 +336,16 @@ public class DataGridMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public void getFields( RowMetaInterface rowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < fieldName.length; i++ ) {
       try {
         if ( !Utils.isEmpty( fieldName[ i ] ) ) {
           int type = ValueMetaFactory.getIdForValueMeta( fieldType[ i ] );
-          if ( type == ValueMetaInterface.TYPE_NONE ) {
-            type = ValueMetaInterface.TYPE_STRING;
+          if ( type == IValueMeta.TYPE_NONE ) {
+            type = IValueMeta.TYPE_STRING;
           }
-          ValueMetaInterface v = ValueMetaFactory.createValueMeta( fieldName[ i ], type );
+          IValueMeta v = ValueMetaFactory.createValueMeta( fieldName[ i ], type );
           v.setLength( fieldLength[ i ] );
           v.setPrecision( fieldPrecision[ i ] );
           v.setOrigin( name );
@@ -398,9 +398,9 @@ public class DataGridMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public DataGrid createTransform( TransformMeta transformMeta, DataGridData transformDataInterface, int cnr,
+  public DataGrid createTransform( TransformMeta transformMeta, DataGridData iTransformData, int cnr,
                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DataGrid( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new DataGrid( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -24,15 +24,15 @@ package org.apache.hop.pipeline.transforms.jobexecutor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -40,30 +40,30 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ import java.util.Map;
  * @since 29-AUG-2011
  */
 
-public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaInterface<JobExecutor, JobExecutorData> {
+public class JobExecutorMeta extends BaseTransformMeta implements ITransformMeta<JobExecutor, JobExecutorData> {
 
   private static Class<?> PKG = JobExecutorMeta.class; // for i18n purposes, needed by Translator!!
   private String fileName;
@@ -359,14 +359,14 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     row.clear();
 
     if ( nextTransform != null && resultRowsTargetTransformMeta != null && nextTransform.equals( resultRowsTargetTransformMeta ) ) {
       for ( int i = 0; i < resultRowsField.length; i++ ) {
-        ValueMetaInterface value;
+        IValueMeta value;
         try {
           value = ValueMetaFactory.createValueMeta( resultRowsField[ i ], resultRowsType[ i ],
             resultRowsLength[ i ], resultRowsPrecision[ i ] );
@@ -379,66 +379,66 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
     } else if ( nextTransform != null
       && resultFilesTargetTransformMeta != null && nextTransform.equals( resultFilesTargetTransformMeta ) ) {
       if ( !Utils.isEmpty( resultFilesFileNameField ) ) {
-        ValueMetaInterface value = new ValueMetaString( "filename", 255, 0 );
+        IValueMeta value = new ValueMetaString( "filename", 255, 0 );
         row.addValueMeta( value );
       }
     } else if ( nextTransform != null
       && executionResultTargetTransformMeta != null && nextTransform.equals( executionResultTargetTransformMeta ) ) {
       if ( !Utils.isEmpty( executionTimeField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionTimeField, 15, 0 );
+        IValueMeta value = new ValueMetaInteger( executionTimeField, 15, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionResultField ) ) {
-        ValueMetaInterface value = new ValueMetaBoolean( executionResultField );
+        IValueMeta value = new ValueMetaBoolean( executionResultField );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionNrErrorsField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionNrErrorsField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionNrErrorsField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesReadField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesReadField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesReadField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesWrittenField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesWrittenField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesWrittenField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesInputField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesInputField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesInputField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesOutputField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesOutputField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesOutputField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesRejectedField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesRejectedField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesRejectedField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesUpdatedField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesUpdatedField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesUpdatedField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLinesDeletedField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionLinesDeletedField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionLinesDeletedField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionFilesRetrievedField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionFilesRetrievedField, 9, 0 );
+        IValueMeta value = new ValueMetaInteger( executionFilesRetrievedField, 9, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionExitStatusField ) ) {
-        ValueMetaInterface value = new ValueMetaInteger( executionExitStatusField, 3, 0 );
+        IValueMeta value = new ValueMetaInteger( executionExitStatusField, 3, 0 );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLogTextField ) ) {
-        ValueMetaInterface value = new ValueMetaString( executionLogTextField );
+        IValueMeta value = new ValueMetaString( executionLogTextField );
         value.setLargeTextField( true );
         row.addValueMeta( value );
       }
       if ( !Utils.isEmpty( executionLogChannelIdField ) ) {
-        ValueMetaInterface value = new ValueMetaString( executionLogChannelIdField, 50, 0 );
+        IValueMeta value = new ValueMetaString( executionLogChannelIdField, 50, 0 );
         row.addValueMeta( value );
       }
     }
@@ -468,15 +468,15 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
     return targetTransforms.toArray( new String[ targetTransforms.size() ] );
   }
 
-  public static final synchronized JobMeta loadJobMeta( JobExecutorMeta executorMeta, VariableSpace space ) throws HopException {
-    return loadJobMeta( executorMeta, null, space );
+  public static final synchronized JobMeta loadJobMeta( JobExecutorMeta executorMeta, IVariables variables ) throws HopException {
+    return loadJobMeta( executorMeta, null, variables );
   }
 
-  public static final synchronized JobMeta loadJobMeta( JobExecutorMeta executorMeta, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public static final synchronized JobMeta loadJobMeta( JobExecutorMeta executorMeta, IMetaStore metaStore, IVariables variables ) throws HopException {
     JobMeta mappingJobMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-    VariableSpace tmpSpace = r.resolveCurrentDirectory( space, executorMeta.getParentTransformMeta(), executorMeta.getFileName() );
+    IVariables tmpSpace = r.resolveCurrentDirectory( variables, executorMeta.getParentTransformMeta(), executorMeta.getFileName() );
 
     String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
 
@@ -492,11 +492,11 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
 
     //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
     // parent parameter.
-    TransformWithMappingMeta.replaceVariableValues( mappingJobMeta, space, "Job" );
+    TransformWithMappingMeta.replaceVariableValues( mappingJobMeta, variables, "Job" );
     if ( executorMeta.getParameters().isInheritingAllVariables() ) {
       // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
       // variables from the pipeline?' option is checked)
-      TransformWithMappingMeta.addMissingVariables( mappingJobMeta, space );
+      TransformWithMappingMeta.addMissingVariables( mappingJobMeta, variables );
     }
     mappingJobMeta.setMetaStore( metaStore );
     mappingJobMeta.setFilename( mappingJobMeta.getFilename() );
@@ -505,18 +505,18 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "JobExecutorMeta.CheckResult.NotReceivingAnyFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "JobExecutorMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -524,21 +524,21 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "JobExecutorMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "JobExecutorMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public TransformInterface createTransform( TransformMeta transformMeta, JobExecutorData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new JobExecutor( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, JobExecutorData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new JobExecutor( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
@@ -563,18 +563,18 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
    * without using PowerMock
    *
    * @param executorMeta
-   * @param space
+   * @param variables
    * @return JobMeta
    * @throws HopException
    */
   JobMeta loadJobMetaProxy( JobExecutorMeta executorMeta,
-                            VariableSpace space ) throws HopException {
-    return loadJobMeta( executorMeta, space );
+                            IVariables variables ) throws HopException {
+    return loadJobMeta( executorMeta, variables );
   }
 
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // Try to load the pipeline from a file.
       // Modify this recursively too...
@@ -584,14 +584,14 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
       //
       // First load the executor job metadata...
       //
-      JobMeta executorJobMeta = loadJobMetaProxy( this, space );
+      JobMeta executorJobMeta = loadJobMetaProxy( this, variables );
 
       // Also go down into the mapping pipeline and export the files
       // there. (mapping recursively down)
       //
       String proposedNewFilename =
         executorJobMeta.exportResources(
-          executorJobMeta, definitions, resourceNamingInterface, metaStore );
+          executorJobMeta, definitions, iResourceNaming, metaStore );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -620,8 +620,8 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
 
       ioMeta = new TransformIOMeta( true, true, true, false, true, false );
@@ -643,11 +643,11 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
    * @param stream The optional stream to handle.
    */
   @Override
-  public void handleStreamSelection( StreamInterface stream ) {
+  public void handleStreamSelection( IStream stream ) {
     // This transform targets another transform.
     // Make sure that we don't specify the same transform for more than 1 target...
     //
-    List<StreamInterface> targets = getTransformIOMeta().getTargetStreams();
+    List<IStream> targets = getTransformIOMeta().getTargetStreams();
     int index = targets.indexOf( stream );
     TransformMeta transform = targets.get( index ).getTransformMeta();
     switch ( index ) {
@@ -1146,13 +1146,13 @@ public class JobExecutorMeta extends BaseTransformMeta implements TransformMetaI
    *
    * @param index     the object index to load
    * @param metaStore the metaStore
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadJobMeta( this, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+    return loadJobMeta( this, metaStore, variables );
   }
 
   public void setMetaStore( IMetaStore metaStore ) {

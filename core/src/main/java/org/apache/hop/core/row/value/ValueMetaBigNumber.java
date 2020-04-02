@@ -23,22 +23,22 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.math.BigDecimal;
 
-public class ValueMetaBigNumber extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaBigNumber extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBigNumber() {
     this( null );
   }
 
   public ValueMetaBigNumber( String name ) {
-    super( name, ValueMetaInterface.TYPE_BIGNUMBER );
+    super( name, IValueMeta.TYPE_BIGNUMBER );
   }
 
   public ValueMetaBigNumber( String name, int length, int precision ) {
-    super( name, ValueMetaInterface.TYPE_BIGNUMBER, length, precision );
+    super( name, IValueMeta.TYPE_BIGNUMBER, length, precision );
   }
 
   @Override

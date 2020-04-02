@@ -25,8 +25,8 @@ package org.apache.hop.ui.pipeline.debug;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -93,7 +93,7 @@ public class PipelineDebugDialog extends Dialog {
   private Button wFirstRows;
   private Button wPauseBreakPoint;
   private Condition condition;
-  private RowMetaInterface transformInputFields;
+  private IRowMeta transformInputFields;
   private ConditionEditor wCondition;
   private Label wlCondition;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;

@@ -28,15 +28,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -47,23 +47,23 @@ import java.util.Map;
 /**
  * Dummy class used for test().
  */
-public class ScriptValuesModDummy implements TransformInterface {
-  private RowMetaInterface inputRowMeta;
-  private RowMetaInterface outputRowMeta;
+public class ScriptValuesModDummy implements ITransform {
+  private IRowMeta inputRowMeta;
+  private IRowMeta outputRowMeta;
 
-  public ScriptValuesModDummy( RowMetaInterface inputRowMeta, RowMetaInterface outputRowMeta ) {
+  public ScriptValuesModDummy( IRowMeta inputRowMeta, IRowMeta outputRowMeta ) {
     this.inputRowMeta = inputRowMeta;
     this.outputRowMeta = outputRowMeta;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     return false;
   }
 
   public void addRowListener( RowListener rowListener ) {
   }
 
-  public void dispose( TransformMetaInterface sii, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface sii, ITransformData sdi ) {
   }
 
   public long getErrors() {
@@ -122,7 +122,7 @@ public class ScriptValuesModDummy implements TransformInterface {
     return null;
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) {
+  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
     return false;
   }
 
@@ -144,7 +144,7 @@ public class ScriptValuesModDummy implements TransformInterface {
   public void markStop() {
   }
 
-  public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  public void putRow( IRowMeta rowMeta, Object[] row ) throws HopException {
   }
 
   public void removeRowListener( RowListener rowListener ) {
@@ -168,7 +168,7 @@ public class ScriptValuesModDummy implements TransformInterface {
   public void stopAll() {
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
   }
 
   public void cleanup() {
@@ -180,7 +180,7 @@ public class ScriptValuesModDummy implements TransformInterface {
   public void resumeRunning() {
   }
 
-  public void copyVariablesFrom( VariableSpace space ) {
+  public void copyVariablesFrom( iVariables variables ) {
   }
 
   public String environmentSubstitute( String aString ) {
@@ -191,7 +191,7 @@ public class ScriptValuesModDummy implements TransformInterface {
     return null;
   }
 
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return null;
   }
 
@@ -199,11 +199,11 @@ public class ScriptValuesModDummy implements TransformInterface {
     return false;
   }
 
-  public VariableSpace getParentVariableSpace() {
+  public iVariables getParentVariableSpace() {
     return null;
   }
 
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( iVariables parent ) {
   }
 
   public String getVariable( String variableName, String defaultValue ) {
@@ -214,7 +214,7 @@ public class ScriptValuesModDummy implements TransformInterface {
     return null;
   }
 
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( iVariables parent ) {
   }
 
   public void injectVariables( Map<String, String> prop ) {
@@ -227,14 +227,14 @@ public class ScriptValuesModDummy implements TransformInterface {
   public void setVariable( String variableName, String variableValue ) {
   }
 
-  public void shareVariablesWith( VariableSpace space ) {
+  public void shareVariablesWith( iVariables variables ) {
   }
 
-  public RowMetaInterface getInputRowMeta() {
+  public IRowMeta getInputRowMeta() {
     return inputRowMeta;
   }
 
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return outputRowMeta;
   }
 

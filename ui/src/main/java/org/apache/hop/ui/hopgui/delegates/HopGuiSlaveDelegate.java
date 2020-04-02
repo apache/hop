@@ -1,7 +1,7 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 public class HopGuiSlaveDelegate {
 
@@ -9,9 +9,9 @@ public class HopGuiSlaveDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGui hopUi;
-  private HopFileTypeHandlerInterface handler;
+  private IHopFileTypeHandler handler;
 
-  public HopGuiSlaveDelegate( HopGui hopGui, HopFileTypeHandlerInterface handler ) {
+  public HopGuiSlaveDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
     this.hopUi = hopGui;
     this.handler = handler;
   }

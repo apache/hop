@@ -30,7 +30,7 @@ public class LoggingObjectTest {
 
   @Test
   public void testEquals() throws Exception {
-    LoggingObjectInterface parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.JOB, null ) );
+    ILoggingObject parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.JOB, null ) );
 
     LoggingObject loggingObject1 = new LoggingObject( "test" );
     loggingObject1.setFilename( "fileName" );

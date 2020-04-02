@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.mysqlbulkloader;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.OutputStream;
 
@@ -36,7 +36,7 @@ import java.io.OutputStream;
  * @author Matt
  * @since 14-apr-2009
  */
-public class MySQLBulkLoaderData extends BaseTransformData implements TransformDataInterface {
+public class MySQLBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...
@@ -49,9 +49,9 @@ public class MySQLBulkLoaderData extends BaseTransformData implements TransformD
   public byte[] separator;
   public byte[] newline;
 
-  public ValueMetaInterface bulkTimestampMeta;
-  public ValueMetaInterface bulkDateMeta;
-  public ValueMetaInterface bulkNumberMeta;
+  public IValueMeta bulkTimestampMeta;
+  public IValueMeta bulkDateMeta;
+  public IValueMeta bulkNumberMeta;
   protected String dbDescription;
 
   public String schemaTable;
@@ -62,7 +62,7 @@ public class MySQLBulkLoaderData extends BaseTransformData implements TransformD
 
   public MySQLBulkLoader.SqlRunner sqlRunner;
 
-  public ValueMetaInterface[] bulkFormatMeta;
+  public IValueMeta[] bulkFormatMeta;
 
   public long bulkSize;
 

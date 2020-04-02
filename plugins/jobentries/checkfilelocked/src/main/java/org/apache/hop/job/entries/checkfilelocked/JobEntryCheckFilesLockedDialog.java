@@ -27,8 +27,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -71,8 +71,8 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryCheckFilesLocked.class; // for i18n purposes, needed by Translator!!
+public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements IJobEntryDialog {
+  private static Class<?> PKG = JobEntryICheckFilesLocked.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCheckFilesLocked.Filetype.All" ) };
@@ -93,7 +93,7 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryCheckFilesLocked jobEntry;
+  private JobEntryICheckFilesLocked jobEntry;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -120,17 +120,17 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
   private Button wbaFilename; // Add or change
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
-  public JobEntryCheckFilesLockedDialog( Shell parent, JobEntryInterface jobEntryInt,
+  public JobEntryCheckFilesLockedDialog( Shell parent, IJobEntry jobEntryInt,
                                          JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntryCheckFilesLocked) jobEntryInt;
+    jobEntry = (JobEntryICheckFilesLocked) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobCheckFilesLocked.Name.Default" ) );
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

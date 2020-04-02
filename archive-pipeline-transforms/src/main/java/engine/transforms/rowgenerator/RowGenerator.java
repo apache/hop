@@ -31,8 +31,8 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
@@ -41,8 +41,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -56,24 +56,24 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class RowGenerator extends BaseTransform implements TransformInterface {
+public class RowGenerator extends BaseTransform implements ITransform {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private RowGeneratorMeta meta;
 
   private RowGeneratorData data;
 
-  public RowGenerator( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public RowGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (RowGeneratorMeta) getTransformMeta().getTransformMetaInterface();
-    data = (RowGeneratorData) transformDataInterface;
+    data = (RowGeneratorData) iTransformData;
   }
 
   public static final RowMetaAndData buildRow( RowGeneratorMeta meta, List<CheckResultInterface> remarks,
                                                String origin ) throws HopPluginException {
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     Object[] rowData = RowDataUtil.allocateRowData( meta.getFieldName().length + 2 );
     int index = 0;
 
@@ -92,7 +92,7 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
       int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[ i ] );
       if ( meta.getFieldName()[ i ] != null ) {
-        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype ); // build a
+        IValueMeta valueMeta = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype ); // build a
         // value!
         valueMeta.setLength( meta.getFieldLength()[ i ] );
         valueMeta.setPrecision( meta.getFieldPrecision()[ i ] );
@@ -102,8 +102,8 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
         valueMeta.setDecimalSymbol( meta.getDecimal()[ i ] );
         valueMeta.setOrigin( origin );
 
-        ValueMetaInterface stringMeta =
-          ValueMetaFactory.cloneValueMeta( valueMeta, ValueMetaInterface.TYPE_STRING );
+        IValueMeta stringMeta =
+          ValueMetaFactory.cloneValueMeta( valueMeta, IValueMeta.TYPE_STRING );
 
         if ( meta.isSetEmptyString() != null && meta.isSetEmptyString()[ i ] ) {
           // Set empty string
@@ -115,7 +115,7 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
           if ( Utils.isEmpty( stringValue ) ) {
             rowData[ index ] = null;
 
-            if ( valueMeta.getType() == ValueMetaInterface.TYPE_NONE ) {
+            if ( valueMeta.getType() == IValueMeta.TYPE_NONE ) {
               String message =
                 BaseMessages.getString(
                   PKG, "RowGenerator.CheckResult.SpecifyTypeError", valueMeta.getName(), stringValue );
@@ -128,14 +128,14 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
               rowData[ index ] = valueMeta.convertData( stringMeta, stringValue );
             } catch ( HopValueException e ) {
               switch ( valueMeta.getType() ) {
-                case ValueMetaInterface.TYPE_NUMBER:
+                case IValueMeta.TYPE_NUMBER:
                   String message =
                     BaseMessages.getString( PKG, "RowGenerator.BuildRow.Error.Parsing.Number", valueMeta
                       .getName(), stringValue, e.toString() );
                   remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
                   break;
 
-                case ValueMetaInterface.TYPE_DATE:
+                case IValueMeta.TYPE_DATE:
                   message =
                     BaseMessages.getString(
                       PKG, "RowGenerator.BuildRow.Error.Parsing.Date", valueMeta.getName(), stringValue, e
@@ -143,21 +143,21 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
                   remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
                   break;
 
-                case ValueMetaInterface.TYPE_INTEGER:
+                case IValueMeta.TYPE_INTEGER:
                   message =
                     BaseMessages.getString( PKG, "RowGenerator.BuildRow.Error.Parsing.Integer", valueMeta
                       .getName(), stringValue, e.toString() );
                   remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
                   break;
 
-                case ValueMetaInterface.TYPE_BIGNUMBER:
+                case IValueMeta.TYPE_BIGNUMBER:
                   message =
                     BaseMessages.getString( PKG, "RowGenerator.BuildRow.Error.Parsing.BigNumber", valueMeta
                       .getName(), stringValue, e.toString() );
                   remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
                   break;
 
-                case ValueMetaInterface.TYPE_TIMESTAMP:
+                case IValueMeta.TYPE_TIMESTAMP:
                   message =
                     BaseMessages.getString( PKG, "RowGenerator.BuildRow.Error.Parsing.Timestamp", valueMeta
                       .getName(), stringValue, e.toString() );
@@ -188,7 +188,7 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public synchronized boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (RowGeneratorMeta) smi;
     data = (RowGeneratorData) sdi;
 
@@ -246,7 +246,7 @@ public class RowGenerator extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     try {
       meta = (RowGeneratorMeta) smi;
       data = (RowGeneratorData) sdi;

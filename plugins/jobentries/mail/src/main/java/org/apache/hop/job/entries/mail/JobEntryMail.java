@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.mail;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -34,14 +34,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.JobTracker;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -87,7 +87,7 @@ import java.util.zip.ZipOutputStream;
   image = "Mail.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Mail"
 )
-public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryMail extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator!!
 
   private String server;
@@ -892,7 +892,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
                   MimeBodyPart files = new MimeBodyPart();
                   URLDataSource fds = new URLDataSource( file.getURL() );
 
-                  // get a data Handler to manipulate this file type;
+                  // get a data IHandler to manipulate this file type;
                   files.setDataHandler( new DataHandler( fds ) );
                   // include the file in the data source
                   files.setFileName( file.getName().getBaseName() );
@@ -966,7 +966,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
               // create a data source
               MimeBodyPart files = new MimeBodyPart();
               FileDataSource fds = new FileDataSource( masterZipfile );
-              // get a data Handler to manipulate this file type;
+              // get a data IHandler to manipulate this file type;
               files.setDataHandler( new DataHandler( fds ) );
               // include the file in the data source
               files.setFileName( fds.getName() );
@@ -1208,7 +1208,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
 
     JobEntryValidatorUtils.andValidator().validate( this, "server", remarks,

@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -97,7 +97,7 @@ public class TableOutputTest {
 
   @Test
   public void testWriteToTable() throws Exception {
-    tableOutputSpy.writeToTable( mock( RowMetaInterface.class ), new Object[] {} );
+    tableOutputSpy.writeToTable( mock( IRowMeta.class ), new Object[] {} );
   }
 
   @Test
@@ -171,7 +171,7 @@ public class TableOutputTest {
     Object[] row = new Object[] {};
     doReturn( row ).when( tableOutputSpy ).getRow();
     tableOutputSpy.first = false;
-    doReturn( null ).when( tableOutputSpy ).writeToTable( any( RowMetaInterface.class ), any( row.getClass() ) );
+    doReturn( null ).when( tableOutputSpy ).writeToTable( any( IRowMeta.class ), any( row.getClass() ) );
 
     boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
 
@@ -185,13 +185,13 @@ public class TableOutputTest {
     TableOutputMeta meta = mock( TableOutputMeta.class );
     TableOutputData data = mock( TableOutputData.class );
 
-    DatabaseInterface dbInterface = mock( DatabaseInterface.class );
+    IDatabase dbInterface = mock( IDatabase.class );
 
     doNothing().when( tableOutputSpy ).logError( anyString() );
 
     when( meta.getCommitSize() ).thenReturn( "1" );
     when( meta.getDatabaseMeta() ).thenReturn( databaseMeta );
-    when( databaseMeta.getDatabaseInterface() ).thenReturn( dbInterface );
+    when( databaseMeta.getIDatabase() ).thenReturn( dbInterface );
 
     String unsupportedTableOutputMessage = "unsupported exception";
     when( dbInterface.getUnsupportedTableOutputMessage() ).thenReturn( unsupportedTableOutputMessage );

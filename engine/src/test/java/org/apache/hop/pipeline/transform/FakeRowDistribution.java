@@ -22,12 +22,12 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.gui.PrimitiveGCInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.gui.IPrimitiveGC;
+import org.apache.hop.core.row.IRowMeta;
 
 @RowDistributionPlugin( code = "FakeDistribution", name = "Fake distribution",
   description = "Useful only for unit testing" )
-public class FakeRowDistribution implements RowDistributionInterface {
+public class FakeRowDistribution implements IRowDistribution {
 
   @Override
   public String getCode() {
@@ -40,13 +40,13 @@ public class FakeRowDistribution implements RowDistributionInterface {
   }
 
   @Override
-  public void distributeRow( RowMetaInterface paramRowMetaInterface, Object[] paramArrayOfObject,
-                             TransformInterface paramTransformInterface ) throws HopTransformException {
+  public void distributeRow( IRowMeta paramRowMetaInterface, Object[] paramArrayOfObject,
+                             ITransform paramTransformInterface ) throws HopTransformException {
     // TODO: Implement some distribution for test cases
   }
 
   @Override
-  public PrimitiveGCInterface.EImage getDistributionImage() {
-    return PrimitiveGCInterface.EImage.LOAD_BALANCE;
+  public IPrimitiveGC.EImage getDistributionImage() {
+    return IPrimitiveGC.EImage.LOAD_BALANCE;
   }
 }

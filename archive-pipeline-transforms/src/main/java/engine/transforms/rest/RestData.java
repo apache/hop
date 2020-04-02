@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.ws.rs.core.MediaType;
 
@@ -34,9 +34,9 @@ import javax.ws.rs.core.MediaType;
  * @author Samatar
  * @since 16-jan-2011
  */
-public class RestData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+public class RestData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
 
   /**
    * URL

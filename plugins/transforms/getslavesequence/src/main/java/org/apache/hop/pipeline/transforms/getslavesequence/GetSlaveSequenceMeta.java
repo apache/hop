@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.getslavesequence;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = ""
 )
-public class GetSlaveSequenceMeta extends BaseTransformMeta implements TransformMetaInterface<GetSlaveSequence, GetSlaveSequenceData> {
+public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetSlaveSequence, GetSlaveSequenceData> {
   private static Class<?> PKG = GetSlaveSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private String valuename;
@@ -95,9 +95,9 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements Transform
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
-    ValueMetaInterface v = new ValueMetaInteger( valuename );
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+    IValueMeta v = new ValueMetaInteger( valuename );
     v.setOrigin( name );
     row.addValueMeta( v );
   }
@@ -115,28 +115,28 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements Transform
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "GetSequenceMeta.CheckResult.TransformIsReceving.Title" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "GetSequenceMeta.CheckResult.NoInputReceived.Title" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public GetSlaveSequence createTransform( TransformMeta transformMeta, GetSlaveSequenceData transformDataInterface, int cnr,
+  public GetSlaveSequence createTransform( TransformMeta transformMeta, GetSlaveSequenceData iTransformData, int cnr,
                                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetSlaveSequence( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new GetSlaveSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

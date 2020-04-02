@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * @author nhudak
  */
-public abstract class BaseHopServerPlugin extends BaseHttpServlet implements HopServerPluginInterface, HopServerRequestHandler {
+public abstract class BaseHopServerPlugin extends BaseHttpServlet implements IHopServerPlugin, IHopServerRequestHandler {
   /**
    * @param req  http servlet request
    * @param resp http servlet response
@@ -62,7 +62,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements Hop
     handleRequest( new CarteRequestImpl( req, resp ) );
   }
 
-  @Override public abstract void handleRequest( CarteRequest request ) throws IOException;
+  @Override public abstract void handleRequest( ICarteRequest request ) throws IOException;
 
   @Override public abstract String getContextPath();
 
@@ -80,7 +80,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements Hop
     return FluentIterable.from( list ).filter( String.class );
   }
 
-  private class CarteRequestImpl implements CarteRequest {
+  private class CarteRequestImpl implements ICarteRequest {
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
 
@@ -121,7 +121,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements Hop
       return req.getInputStream();
     }
 
-    @Override public CarteResponse respond( int status ) {
+    @Override public ICarteResponse respond( int status ) {
       if ( status >= 400 ) {
         try {
           resp.sendError( status );
@@ -132,13 +132,13 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements Hop
         resp.setStatus( status );
       }
 
-      return new CarteResponse() {
-        @Override public void with( String contentType, WriterResponse response ) throws IOException {
+      return new ICarteResponse() {
+        @Override public void with( String contentType, IWriterResponse response ) throws IOException {
           resp.setContentType( contentType );
           response.write( resp.getWriter() );
         }
 
-        @Override public void with( String contentType, OutputStreamResponse response ) throws IOException {
+        @Override public void with( String contentType, IOutputStreamResponse response ) throws IOException {
           resp.setContentType( contentType );
           response.write( resp.getOutputStream() );
         }

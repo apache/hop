@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.debug;
 
 import org.apache.hop.core.Condition;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -48,16 +48,16 @@ public class TransformDebugMeta {
 
   private Condition condition;
 
-  private List<BreakPointListener> breakPointListers;
+  private List<IBreakPointListener> breakPointListers;
 
-  private RowMetaInterface rowBufferMeta;
+  private IRowMeta rowBufferMeta;
   private List<Object[]> rowBuffer;
 
   private int numberOfHits;
 
   public TransformDebugMeta() {
     rowBuffer = new ArrayList<Object[]>();
-    breakPointListers = new ArrayList<BreakPointListener>();
+    breakPointListers = new ArrayList<IBreakPointListener>();
     numberOfHits = 0;
     readingFirstRows = true;
   }
@@ -100,7 +100,7 @@ public class TransformDebugMeta {
    *
    * @param breakPointListener the break point listener to add
    */
-  public void addBreakPointListener( BreakPointListener breakPointListener ) {
+  public void addBreakPointListener( IBreakPointListener breakPointListener ) {
     breakPointListers.add( breakPointListener );
   }
 
@@ -109,12 +109,12 @@ public class TransformDebugMeta {
    *
    * @param breakPointListener the break point listener to remove
    */
-  public void removeBreakPointListener( BreakPointListener breakPointListener ) {
+  public void removeBreakPointListener( IBreakPointListener breakPointListener ) {
     breakPointListers.remove( breakPointListener );
   }
 
   public void fireBreakPointListeners( PipelineDebugMeta pipelineDebugMeta ) {
-    for ( BreakPointListener listener : breakPointListers ) {
+    for ( IBreakPointListener listener : breakPointListers ) {
       listener.breakPointHit( pipelineDebugMeta, this, rowBufferMeta, rowBuffer );
     }
     numberOfHits++;
@@ -165,14 +165,14 @@ public class TransformDebugMeta {
   /**
    * @return the rowBufferMeta
    */
-  public RowMetaInterface getRowBufferMeta() {
+  public IRowMeta getRowBufferMeta() {
     return rowBufferMeta;
   }
 
   /**
    * @param rowBufferMeta the rowBufferMeta to set
    */
-  public void setRowBufferMeta( RowMetaInterface rowBufferMeta ) {
+  public void setRowBufferMeta( IRowMeta rowBufferMeta ) {
     this.rowBufferMeta = rowBufferMeta;
   }
 

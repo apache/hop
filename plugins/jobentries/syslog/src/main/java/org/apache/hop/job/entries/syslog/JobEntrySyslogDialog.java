@@ -28,8 +28,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelText;
@@ -77,7 +77,7 @@ import java.net.InetAddress;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntrySyslogDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntrySyslog.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
@@ -155,7 +155,7 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
   private Button wAddHostName;
   private FormData fdAddHostName;
 
-  public JobEntrySyslogDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntrySyslogDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySyslog) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -163,7 +163,7 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

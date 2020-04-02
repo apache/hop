@@ -24,23 +24,23 @@ package org.apache.hop.pipeline.transforms.tableinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,15 +51,15 @@ import java.sql.SQLException;
  * @author Matt
  * @since 8-apr-2003
  */
-public class TableInput extends BaseTransform implements TransformInterface {
+public class TableInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableInputMeta meta;
   private TableInputData data;
 
-  public TableInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TableInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private RowMetaAndData readStartDate() throws HopException {
@@ -67,10 +67,10 @@ public class TableInput extends BaseTransform implements TransformInterface {
       logDetailed( "Reading from transform [" + data.infoStream.getTransformName() + "]" );
     }
 
-    RowMetaInterface parametersMeta = new RowMeta();
+    IRowMeta parametersMeta = new RowMeta();
     Object[] parametersData = new Object[] {};
 
-    RowSet rowSet = findInputRowSet( data.infoStream.getTransformName() );
+    IRowSet rowSet = findInputRowSet( data.infoStream.getTransformName() );
     if ( rowSet != null ) {
       Object[] rowData = getRowFrom( rowSet ); // rows are originating from "lookup_from"
       while ( rowData != null ) {
@@ -94,11 +94,11 @@ public class TableInput extends BaseTransform implements TransformInterface {
     return parameters;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( first ) { // we just got started
 
       Object[] parameters;
-      RowMetaInterface parametersMeta;
+      IRowMeta parametersMeta;
       first = false;
 
       // Make sure we read data from source transforms...
@@ -218,7 +218,7 @@ public class TableInput extends BaseTransform implements TransformInterface {
     }
   }
 
-  private boolean doQuery( RowMetaInterface parametersMeta, Object[] parameters ) throws HopDatabaseException {
+  private boolean doQuery( IRowMeta parametersMeta, Object[] parameters ) throws HopDatabaseException {
     boolean success = true;
 
     // Open the query with the optional parameters received from the source transforms.
@@ -250,7 +250,7 @@ public class TableInput extends BaseTransform implements TransformInterface {
 
       // Set the origin on the row metadata...
       if ( data.rowMeta != null ) {
-        for ( ValueMetaInterface valueMeta : data.rowMeta.getValueMetaList() ) {
+        for ( IValueMeta valueMeta : data.rowMeta.getValueMetaList() ) {
           valueMeta.setOrigin( getTransformName() );
         }
       }
@@ -268,7 +268,7 @@ public class TableInput extends BaseTransform implements TransformInterface {
     return success;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     if ( log.isBasic() ) {
       logBasic( "Finished reading query, closing connection." );
     }
@@ -290,7 +290,7 @@ public class TableInput extends BaseTransform implements TransformInterface {
   /**
    * Stop the running query
    */
-  public synchronized void stopRunning( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public synchronized void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( this.isStopped() || sdi.isDisposed() ) {
       return;
     }
@@ -305,7 +305,7 @@ public class TableInput extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (TableInputMeta) smi;
     data = (TableInputData) sdi;
 

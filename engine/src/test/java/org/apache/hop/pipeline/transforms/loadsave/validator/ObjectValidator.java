@@ -22,8 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
-import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.test.util.JavaBeanManipulator;
 
 import java.lang.reflect.Method;
@@ -32,13 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
-  private final FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
+public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
+  private final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
   private final JavaBeanManipulator<T> manipulator;
   private final Class<T> clazz;
   private final List<String> fieldNames;
 
-  public ObjectValidator( FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
+  public ObjectValidator( IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
                           List<String> fieldNames, Map<String, String> getterMap, Map<String, String> setterMap ) {
     this.fieldLoadSaveValidatorFactory = fieldLoadSaveValidatorFactory;
     manipulator = new JavaBeanManipulator<T>( clazz, fieldNames, getterMap, setterMap );
@@ -46,7 +46,7 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
     this.fieldNames = new ArrayList<>( fieldNames );
   }
 
-  public ObjectValidator( FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
+  public ObjectValidator( IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
                           List<String> fieldNames ) {
     this( fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(),
       new HashMap<>() );
@@ -58,7 +58,7 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
     try {
       T object = clazz.newInstance();
       for ( String attribute : fieldNames ) {
-        Setter setter = manipulator.getSetter( attribute );
+        ISetter setter = manipulator.getSetter( attribute );
         setter.set( object, fieldLoadSaveValidatorFactory.createValidator( manipulator.getGetter( attribute ) )
           .getTestObject() );
       }
@@ -75,8 +75,8 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
     }
     try {
       for ( String attribute : fieldNames ) {
-        Getter<?> getter = manipulator.getGetter( attribute );
-        FieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
+        IGetter<?> getter = manipulator.getGetter( attribute );
+        IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
         Method validatorMethod = null;
         for ( Method method : validator.getClass().getMethods() ) {
           if ( "validateTestObject".equals( method.getName() ) ) {

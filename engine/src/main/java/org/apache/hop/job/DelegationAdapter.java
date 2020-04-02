@@ -25,7 +25,7 @@ package org.apache.hop.job;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 
-public class DelegationAdapter implements DelegationListener {
+public class DelegationAdapter implements IDelegationListener {
 
   @Override
   public void jobDelegationStarted( Job delegatedJob, JobExecutionConfiguration jobExecutionConfiguration ) {

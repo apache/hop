@@ -48,7 +48,7 @@ public final class PluginPropertyHandler {
     public final void execute( final Object property ) throws IllegalArgumentException, FunctorException {
       Assert.assertNotNull( property, "Plugin property cannot be null" );
       try {
-        this.handle( (PluginProperty) property );
+        this.handle( (IPluginProperty) property );
       } catch ( HopException e ) {
         throw new FunctorException( "EXCEPTION: " + this, e );
       }
@@ -60,7 +60,7 @@ public final class PluginPropertyHandler {
      * @param property property.
      * @throws HopException ...
      */
-    protected abstract void handle( final PluginProperty property ) throws HopException;
+    protected abstract void handle( final IPluginProperty property ) throws HopException;
   }
 
   /**
@@ -81,7 +81,7 @@ public final class PluginPropertyHandler {
     public static final Fail INSTANCE = new Fail();
 
     @Override
-    protected void handle( final PluginProperty property ) throws HopException {
+    protected void handle( final IPluginProperty property ) throws HopException {
       throw new HopException( MESSAGE );
     }
 
@@ -95,7 +95,7 @@ public final class PluginPropertyHandler {
     private final StringBuilder builder = new StringBuilder();
 
     @Override
-    protected void handle( final PluginProperty property ) {
+    protected void handle( final IPluginProperty property ) {
       property.appendXml( this.builder );
     }
 
@@ -128,7 +128,7 @@ public final class PluginPropertyHandler {
     }
 
     @Override
-    protected void handle( final PluginProperty property ) {
+    protected void handle( final IPluginProperty property ) {
       property.loadXml( this.node );
     }
 
@@ -154,7 +154,7 @@ public final class PluginPropertyHandler {
     }
 
     @Override
-    protected void handle( final PluginProperty property ) {
+    protected void handle( final IPluginProperty property ) {
       property.saveToPreferences( this.node );
     }
 
@@ -180,7 +180,7 @@ public final class PluginPropertyHandler {
     }
 
     @Override
-    protected void handle( final PluginProperty property ) {
+    protected void handle( final IPluginProperty property ) {
       property.readFromPreferences( this.node );
     }
 

@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
  */
 public class MethodProcessorFactory {
 
-  public static MethodProcessor create( int methodType ) {
+  public static IMethodProcessor create( int methodType ) {
     switch ( methodType ) {
       case TransformPartitioningMeta.PARTITIONING_METHOD_NONE:
         return new NoneMethodProcessor();

@@ -23,19 +23,19 @@
 package org.apache.hop.ui.hopgui.file.shared;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.List;
 
 public class StreamOptions {
-  private List<StreamInterface> options;
+  private List<IStream> options;
   private Point location;
 
   /**
    * @param options
    * @param location
    */
-  public StreamOptions( List<StreamInterface> options, Point location ) {
+  public StreamOptions( List<IStream> options, Point location ) {
     this.options = options;
     this.location = location;
   }
@@ -43,14 +43,14 @@ public class StreamOptions {
   /**
    * @return the options
    */
-  public List<StreamInterface> getOptions() {
+  public List<IStream> getOptions() {
     return options;
   }
 
   /**
    * @param options the options to set
    */
-  public void setOptions( List<StreamInterface> options ) {
+  public void setOptions( List<IStream> options ) {
     this.options = options;
   }
 

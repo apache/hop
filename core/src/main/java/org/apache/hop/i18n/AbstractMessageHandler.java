@@ -26,20 +26,20 @@ import java.util.Locale;
 
 /**
  * Standard Message handler that takes a root package, plus key and resolves that into one/more resultant messages. This
- * Handler is used by all message types to enable flexible look and feel as well as i18n to be implemented in variable
+ * IHandler is used by all message types to enable flexible look and feel as well as i18n to be implemented in variable
  * ways.
  *
  * @author dhushon
  */
-public abstract class AbstractMessageHandler implements MessageHandler {
+public abstract class AbstractMessageHandler implements IMessageHandler {
 
   /**
    * forced override to allow singleton instantiation through dynamic class loader
    *
-   * @return MessageHandler
+   * @return IMessageHandler
    * @see org.apache.hop.i18n.GlobalMessages for sample
    */
-  public static synchronized MessageHandler getInstance() {
+  public static synchronized IMessageHandler getInstance() {
     return null;
   }
 

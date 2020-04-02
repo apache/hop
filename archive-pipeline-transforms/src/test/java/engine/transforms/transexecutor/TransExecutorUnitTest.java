@@ -34,9 +34,9 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -126,7 +126,7 @@ public class PipelineExecutorUnitTest {
 
     executor.init( meta, data );
     when( transParentMock.getLogLevel() ).thenReturn( LogLevel.DEBUG );
-    doNothing().when( transParentMock ).initializeVariablesFrom( any( VariableSpace.class ) );
+    doNothing().when( transParentMock ).initializeVariablesFrom( any( iVariables.class ) );
     when( executor.getLogLevel() ).thenReturn( LogLevel.DEBUG );
     when( executor.createInternalPipeline() ).thenCallRealMethod();
     when( executor.getPipeline() ).thenReturn( transParentMock );
@@ -249,7 +249,7 @@ public class PipelineExecutorUnitTest {
     meta.setGroupField( "groupField" );
     executor.init( meta, data );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "groupField" ) );
     executor.setInputRowMeta( rowMeta );
 
@@ -344,7 +344,7 @@ public class PipelineExecutorUnitTest {
     TransformMeta executionResultTargetTransformMeta = mock( TransformMeta.class );
     meta.setExecutionResultTargetTransformMeta( executionResultTargetTransformMeta );
 
-    RowMetaInterface executionResultsOutputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta executionResultsOutputRowMeta = mock( IRowMeta.class );
     data.setExecutionResultsOutputRowMeta( executionResultsOutputRowMeta );
 
     doNothing().when( executor ).putRowTo( any(), any(), any() );
@@ -366,7 +366,7 @@ public class PipelineExecutorUnitTest {
     TransformMeta resultFilesTargetTransformMeta = mock( TransformMeta.class );
     meta.setResultFilesTargetTransformMeta( resultFilesTargetTransformMeta );
 
-    RowMetaInterface resultFilesOutputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta resultFilesOutputRowMeta = mock( IRowMeta.class );
     data.setResultFilesOutputRowMeta( resultFilesOutputRowMeta );
 
     doNothing().when( executor ).putRowTo( any(), any(), any() );
@@ -459,7 +459,7 @@ public class PipelineExecutorUnitTest {
     executor.setVariable( paramOverwrite, parentValue );
     executor.setVariable( childParam, childValue );
 
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
 
     Mockito.when( executor.getLogLevel() ).thenReturn( LogLevel.NOTHING );
     parent.setLog( new LogChannel( this ) );
@@ -573,7 +573,7 @@ public class PipelineExecutorUnitTest {
     meta.setGroupField( "groupField" );
     executor.init( meta, data );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "groupField" ) );
     executor.setInputRowMeta( rowMeta );
 

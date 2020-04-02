@@ -2,17 +2,17 @@ package org.apache.hop.ui.hopgui.file.empty;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class EmptyFileType implements HopFileTypeInterface {
+public class EmptyFileType implements IHopFileType {
   @Override public String getName() {
     return null;
   }
@@ -33,11 +33,11 @@ public class EmptyFileType implements HopFileTypeInterface {
     return false;
   }
 
-  @Override public HopFileTypeHandlerInterface openFile( HopGui hopGui, String filename, VariableSpace parentVariableSpace ) throws HopException {
+  @Override public IHopFileTypeHandler openFile( HopGui hopGui, String filename, IVariables parentVariableSpace ) throws HopException {
     return new EmptyHopFileTypeHandler();
   }
 
-  @Override public HopFileTypeHandlerInterface newFile( HopGui hopGui, VariableSpace parentVariableSpace ) throws HopException {
+  @Override public IHopFileTypeHandler newFile( HopGui hopGui, IVariables parentVariableSpace ) throws HopException {
     return new EmptyHopFileTypeHandler();
   }
 

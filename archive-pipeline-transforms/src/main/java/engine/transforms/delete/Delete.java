@@ -29,13 +29,13 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -47,18 +47,18 @@ import java.sql.SQLException;
  * @author Tom
  * @since 28-March-2006
  */
-public class Delete extends BaseTransform implements TransformInterface {
+public class Delete extends BaseTransform implements ITransform {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   private DeleteMeta meta;
   private DeleteData data;
 
-  public Delete( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Delete( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private synchronized void deleteValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private synchronized void deleteValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     // OK, now do the lookup.
     // We need the lookupvalues for that.
     Object[] deleteRow = new Object[ data.deleteParameterRowMeta.size() ];
@@ -86,7 +86,7 @@ public class Delete extends BaseTransform implements TransformInterface {
     incrementLinesUpdated();
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 
@@ -176,7 +176,7 @@ public class Delete extends BaseTransform implements TransformInterface {
   }
 
   // Lookup certain fields in a table
-  public void prepareDelete( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public void prepareDelete( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.deleteParameterRowMeta = new RowMeta();
 
@@ -212,7 +212,7 @@ public class Delete extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 
@@ -248,7 +248,7 @@ public class Delete extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 

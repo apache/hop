@@ -28,14 +28,14 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -44,17 +44,17 @@ import org.apache.hop.www.SocketRepository;
 import java.util.List;
 import java.util.Map;
 
-public class UserDefinedJavaClass extends BaseTransform implements TransformInterface {
+public class UserDefinedJavaClass extends BaseTransform implements ITransform {
   private TransformClassBase child;
   protected final UserDefinedJavaClassMeta meta;
   protected final UserDefinedJavaClassData data;
   public static final String HOP_DEFAULT_CLASS_CACHE_SIZE = "HOP_DEFAULT_CLASS_CACHE_SIZE";
 
-  public UserDefinedJavaClass( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public UserDefinedJavaClass( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     meta = (UserDefinedJavaClassMeta) ( transformMeta.getTransformMetaInterface() );
-    data = (UserDefinedJavaClassData) transformDataInterface;
+    data = (UserDefinedJavaClassData) iTransformData;
 
     if ( copyNr == 0 ) {
       meta.cookClasses();
@@ -155,7 +155,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.decrementLinesWritten();
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     if ( child == null ) {
       disposeImpl( smi, sdi );
     } else {
@@ -163,7 +163,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void disposeImpl( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void disposeImpl( TransformMetaInterface smi, ITransformData sdi ) {
     super.dispose( smi, sdi );
   }
 
@@ -231,7 +231,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.getCopy();
   }
 
-  public RowMetaInterface getErrorRowMeta() {
+  public IRowMeta getErrorRowMeta() {
     if ( child == null ) {
       return getErrorRowMetaImpl();
     } else {
@@ -239,7 +239,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public RowMetaInterface getErrorRowMetaImpl() {
+  public IRowMeta getErrorRowMetaImpl() {
     return super.getErrorRowMeta();
   }
 
@@ -255,7 +255,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.getErrors();
   }
 
-  public RowMetaInterface getInputRowMeta() {
+  public IRowMeta getInputRowMeta() {
     if ( child == null ) {
       return getInputRowMetaImpl();
     } else {
@@ -263,7 +263,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public RowMetaInterface getInputRowMetaImpl() {
+  public IRowMeta getInputRowMetaImpl() {
     return super.getInputRowMeta();
   }
 
@@ -531,7 +531,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.getStatus();
   }
 
-  public TransformDataInterface getTransformDataInterface() {
+  public ITransformData getTransformDataInterface() {
     if ( child == null ) {
       return getTransformDataInterfaceImpl();
     } else {
@@ -539,7 +539,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public TransformDataInterface getTransformDataInterfaceImpl() {
+  public ITransformData getTransformDataInterfaceImpl() {
     return super.getTransformDataInterface();
   }
 
@@ -751,7 +751,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.incrementLinesWritten();
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) {
+  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
     if ( meta.cookErrors.size() > 0 ) {
       return false;
     }
@@ -762,9 +762,9 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
 
     if ( child == null ) {
-      return initImpl( transformMetaInterface, transformDataInterface );
+      return initImpl( transformMetaInterface, iTransformData );
     } else {
-      return child.init( transformMetaInterface, transformDataInterface );
+      return child.init( transformMetaInterface, iTransformData );
     }
   }
 
@@ -780,8 +780,8 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     super.initBeforeStart();
   }
 
-  public boolean initImpl( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) {
-    return super.init( transformMetaInterface, transformDataInterface );
+  public boolean initImpl( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+    return super.init( transformMetaInterface, iTransformData );
   }
 
   public boolean isDistributed() {
@@ -1012,7 +1012,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.outputIsDone();
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     if ( child == null ) {
       return false;
     } else {
@@ -1020,7 +1020,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+  public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
     if ( child == null ) {
       putErrorImpl( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
@@ -1029,12 +1029,12 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void putErrorImpl( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+  public void putErrorImpl( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                             String fieldNames, String errorCodes ) throws HopTransformException {
     super.putError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
   }
 
-  public void putRow( RowMetaInterface row, Object[] data ) throws HopTransformException {
+  public void putRow( IRowMeta row, Object[] data ) throws HopTransformException {
     if ( child == null ) {
       putRowImpl( row, data );
     } else {
@@ -1042,11 +1042,11 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void putRowImpl( RowMetaInterface row, Object[] data ) throws HopTransformException {
+  public void putRowImpl( IRowMeta row, Object[] data ) throws HopTransformException {
     super.putRow( row, data );
   }
 
-  public void putRowTo( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void putRowTo( IRowMeta rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
     if ( child == null ) {
       putRowToImpl( rowMeta, row, rowSet );
     } else {
@@ -1054,7 +1054,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void putRowToImpl( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void putRowToImpl( IRowMeta rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
     super.putRowTo( rowMeta, row, rowSet );
   }
 
@@ -1094,7 +1094,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     return super.rowsetOutputSize();
   }
 
-  public void safeModeChecking( RowMetaInterface row ) throws HopRowException {
+  public void safeModeChecking( IRowMeta row ) throws HopRowException {
     if ( child == null ) {
       safeModeCheckingImpl( row );
     } else {
@@ -1102,7 +1102,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void safeModeCheckingImpl( RowMetaInterface row ) throws HopRowException {
+  public void safeModeCheckingImpl( IRowMeta row ) throws HopRowException {
     super.safeModeChecking( row );
   }
 
@@ -1118,7 +1118,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     super.setErrors( errors );
   }
 
-  public void setInputRowMeta( RowMetaInterface rowMeta ) {
+  public void setInputRowMeta( IRowMeta rowMeta ) {
     if ( child == null ) {
       setInputRowMetaImpl( rowMeta );
     } else {
@@ -1126,7 +1126,7 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     }
   }
 
-  public void setInputRowMetaImpl( RowMetaInterface rowMeta ) {
+  public void setInputRowMetaImpl( IRowMeta rowMeta ) {
     super.setInputRowMeta( rowMeta );
   }
 
@@ -1286,16 +1286,16 @@ public class UserDefinedJavaClass extends BaseTransform implements TransformInte
     super.stopAll();
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( child == null ) {
-      stopRunningImpl( transformMetaInterface, transformDataInterface );
+      stopRunningImpl( transformMetaInterface, iTransformData );
     } else {
-      child.stopRunning( transformMetaInterface, transformDataInterface );
+      child.stopRunning( transformMetaInterface, iTransformData );
     }
   }
 
-  public void stopRunningImpl( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
-    super.stopRunning( transformMetaInterface, transformDataInterface );
+  public void stopRunningImpl( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+    super.stopRunning( transformMetaInterface, iTransformData );
   }
 
   public String toString() {

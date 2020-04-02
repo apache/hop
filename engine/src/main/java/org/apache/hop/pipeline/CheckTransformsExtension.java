@@ -22,39 +22,39 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
 public class CheckTransformsExtension {
-  private final List<CheckResultInterface> remarks;
-  private final VariableSpace variableSpace;
+  private final List<ICheckResult> remarks;
+  private final IVariables variables;
   private final PipelineMeta pipelineMeta;
   private final TransformMeta[] transformMetas;
   private final IMetaStore metaStore;
 
   public CheckTransformsExtension(
-    List<CheckResultInterface> remarks,
-    VariableSpace space,
+    List<ICheckResult> remarks,
+    IVariables variables,
     PipelineMeta pipelineMeta,
     TransformMeta[] transformMetas,
     IMetaStore metaStore ) {
     this.remarks = remarks;
-    this.variableSpace = space;
+    this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.transformMetas = transformMetas;
     this.metaStore = metaStore;
   }
 
-  public List<CheckResultInterface> getRemarks() {
+  public List<ICheckResult> getRemarks() {
     return remarks;
   }
 
-  public VariableSpace getVariableSpace() {
-    return variableSpace;
+  public IVariables getVariableSpace() {
+    return variables;
   }
 
   public PipelineMeta getPipelineMeta() {

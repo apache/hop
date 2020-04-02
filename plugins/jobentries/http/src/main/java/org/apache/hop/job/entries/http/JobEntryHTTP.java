@@ -22,7 +22,7 @@
 
 package org.apache.hop.job.entries.http;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -32,13 +32,13 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -78,7 +78,7 @@ import java.util.List;
   image = "HTTP.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement"
 )
-public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryHTTP extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryHTTP.class; // for i18n purposes, needed by Translator!!
 
   private static final String URL_FIELDNAME = "URL";
@@ -705,7 +705,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "targetFilename", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

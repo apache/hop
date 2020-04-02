@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XMLHandler;
@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class NextSequenceValueServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class NextSequenceValueServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = 3634806745372015720L;
 
   public static final String CONTEXT_PATH = "/hop/nextSequence";
@@ -166,7 +166,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements HopServ
         response.sendError( HttpServletResponse.SC_NOT_FOUND );
         out.println( XMLHandler.addTagValue( XML_TAG_ERROR, "Slave sequence '" + name + "' could not be found." ) );
       } else {
-        LoggingObjectInterface loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.CARTE, null );
+        ILoggingObject loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.CARTE, null );
         long nextValue = slaveSequence.getNextValue( loggingObject, increment );
         out.println( XMLHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
         out.println( XMLHandler.addTagValue( XML_TAG_INCREMENT, increment ) );

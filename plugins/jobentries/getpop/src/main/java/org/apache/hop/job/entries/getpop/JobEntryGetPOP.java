@@ -25,7 +25,7 @@ package org.apache.hop.job.entries.getpop;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
@@ -33,13 +33,13 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
   image = "GetPOP.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Mail"
 )
-public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryGetPOP extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator!!
 
   static final int FOLDER_OUTPUT = 0;
@@ -1149,7 +1149,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

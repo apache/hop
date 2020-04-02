@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -58,11 +58,11 @@ public class CheckBoxVar extends Composite {
 
   private TextVar wText;
 
-  public CheckBoxVar( VariableSpace space, Composite composite, int flags ) {
-    this( space, composite, flags, null );
+  public CheckBoxVar( IVariables variables, Composite composite, int flags ) {
+    this( variables, composite, flags, null );
   }
 
-  public CheckBoxVar( final VariableSpace space, final Composite composite, int flags, String variable ) {
+  public CheckBoxVar( final IVariables variables, final Composite composite, int flags, String variable ) {
     super( composite, SWT.NONE );
 
     props.setLook( this );
@@ -78,7 +78,7 @@ public class CheckBoxVar extends Composite {
     // add a text field on it...
     wBox = new Button( this, flags );
     props.setLook( wBox );
-    wText = new TextVar( space, this, flags | SWT.NO_BACKGROUND );
+    wText = new TextVar( variables, this, flags | SWT.NO_BACKGROUND );
     wText.getTextWidget().setForeground( GUIResource.getInstance().getColorRed() ); // Put it in a red color to make it
     // shine...
     wText.getTextWidget().setBackground( composite.getBackground() ); // make it blend in with the rest...
@@ -93,7 +93,7 @@ public class CheckBoxVar extends Composite {
 
       @Override
       public void widgetSelected( SelectionEvent arg0 ) {
-        String variableName = VariableButtonListenerFactory.getVariableName( composite.getShell(), space );
+        String variableName = VariableButtonListenerFactory.getVariableName( composite.getShell(), variables );
         if ( variableName != null ) {
           setVariableOnCheckBox( "${" + variableName + "}" );
         }

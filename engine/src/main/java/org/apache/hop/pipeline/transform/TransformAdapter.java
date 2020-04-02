@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.pipeline.Pipeline;
 
-public class TransformAdapter implements TransformListener {
+public class TransformAdapter implements ITransformListener {
 
   @Override
-  public void transformActive( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+  public void transformActive( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
   }
 
   @Override
-  public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+  public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
   }
 
 }

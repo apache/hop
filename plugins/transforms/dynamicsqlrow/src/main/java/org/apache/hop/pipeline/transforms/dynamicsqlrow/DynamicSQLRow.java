@@ -25,18 +25,18 @@ package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.sql.ResultSet;
 
@@ -46,24 +46,24 @@ import java.sql.ResultSet;
  * @author Samatar
  * @since 13-10-2008
  */
-public class DynamicSQLRow extends BaseTransform implements TransformInterface {
+public class DynamicSQLRow extends BaseTransform implements ITransform {
   private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private DynamicSQLRowMeta meta;
   private DynamicSQLRowData data;
 
-  public DynamicSQLRow( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public DynamicSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private synchronized void lookupValues( RowMetaInterface rowMeta, Object[] rowData ) throws HopException {
+  private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
     boolean loadFromBuffer = true;
     if ( first ) {
       first = false;
       data.outputRowMeta = rowMeta.clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new RowMetaInterface[] { meta.getTableFields(), }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(), }, null, this, metaStore );
 
       loadFromBuffer = false;
     }
@@ -103,7 +103,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
       if ( !data.skipPreviousRow ) {
         Object[] newRow = RowDataUtil.resizeArray( rowData, data.outputRowMeta.size() );
         int newIndex = rowMeta.size();
-        RowMetaInterface addMeta = data.db.getReturnRowMeta();
+        IRowMeta addMeta = data.db.getReturnRowMeta();
 
         // read from Buffer
         for ( int p = 0; p < data.previousrowbuffer.size(); p++ ) {
@@ -124,7 +124,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
 
       // Get a row from the database...
       Object[] add = data.db.getRow( rs );
-      RowMetaInterface addMeta = data.db.getReturnRowMeta();
+      IRowMeta addMeta = data.db.getReturnRowMeta();
 
       // Also validate the data types to make sure we've not place an incorrect template in the dialog...
       //
@@ -136,8 +136,8 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
         }
         StringBuilder typeErrors = new StringBuilder();
         for ( int i = 0; i < addMeta.size(); i++ ) {
-          ValueMetaInterface templateValueMeta = addMeta.getValueMeta( i );
-          ValueMetaInterface outputValueMeta = data.outputRowMeta.getValueMeta( getInputRowMeta().size() + i );
+          IValueMeta templateValueMeta = addMeta.getValueMeta( i );
+          IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta( getInputRowMeta().size() + i );
 
           if ( templateValueMeta.getType() != outputValueMeta.getType() ) {
             if ( typeErrors.length() > 0 ) {
@@ -216,7 +216,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
 
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
@@ -278,7 +278,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
   /**
    * Stop the running query
    */
-  public void stopRunning( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
@@ -291,7 +291,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
@@ -331,7 +331,7 @@ public class DynamicSQLRow extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 

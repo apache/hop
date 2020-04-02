@@ -23,12 +23,12 @@
 package org.apache.hop.core.util.serialization;
 
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import static org.apache.hop.core.util.serialization.MetaXmlSerializer.deserialize;
@@ -41,8 +41,8 @@ import static org.apache.hop.core.util.serialization.TransformMetaProps.from;
  * Uses {@link MetaXmlSerializer} for generically
  * handling child classes meta.
  */
-public abstract class BaseSerializingMeta<Main extends TransformInterface, Data extends TransformDataInterface>
-  extends BaseTransformMeta implements TransformMetaInterface<Main, Data> {
+public abstract class BaseSerializingMeta<Main extends ITransform, Data extends ITransformData>
+  extends BaseTransformMeta implements ITransformMeta<Main, Data> {
 
   @Override public String getXML() {
     return serialize( from( this ) );
@@ -56,11 +56,11 @@ public abstract class BaseSerializingMeta<Main extends TransformInterface, Data 
   /**
    * Creates a copy of this transformMeta with variables globally substituted.
    */
-  public TransformMetaInterface withVariables( VariableSpace variables ) {
+  public ITransformMeta withVariables( IVariables variables ) {
     return TransformMetaProps
       .from( this )
       .withVariables( variables )
-      .to( (TransformMetaInterface) this.copyObject() );
+      .to( (ITransformMeta) this.copyObject() );
   }
 
   /**

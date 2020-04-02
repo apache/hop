@@ -27,13 +27,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -132,7 +132,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
   private String returnValue;
 
-  private Map<Class<? extends DatabaseInterface>, DatabaseInterface> metaMap;
+  private Map<Class<? extends IDatabase>, IDatabase> metaMap;
 
   /**
    * @param parent       The parent shell
@@ -147,23 +147,23 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     this.workingMeta = new DatabaseMeta( databaseMeta );
     props = PropsUI.getInstance();
     metaMap = populateMetaMap();
-    metaMap.put(workingMeta.getDatabaseInterface().getClass(), workingMeta.getDatabaseInterface());
+    metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
     returnValue = null;
   }
 
-  private Map<Class<? extends DatabaseInterface>, DatabaseInterface> populateMetaMap() {
+  private Map<Class<? extends IDatabase>, IDatabase> populateMetaMap() {
     metaMap = new HashMap<>();
-    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
+    for ( IPlugin plugin : plugins ) {
       try {
-        DatabaseInterface databaseInterface = PluginRegistry.getInstance().loadClass( plugin, DatabaseInterface.class );
-        if (databaseInterface.getDefaultDatabasePort()>0) {
-          databaseInterface.setPort(Integer.toString( databaseInterface.getDefaultDatabasePort() ));
+        IDatabase iDatabase = PluginRegistry.getInstance().loadClass( plugin, IDatabase.class );
+        if (iDatabase.getDefaultDatabasePort()>0) {
+          iDatabase.setPort(Integer.toString( iDatabase.getDefaultDatabasePort() ));
         }
-        databaseInterface.setPluginId( plugin.getIds()[ 0 ] );
-        databaseInterface.setPluginName( plugin.getName() );
+        iDatabase.setPluginId( plugin.getIds()[ 0 ] );
+        iDatabase.setPluginName( plugin.getName() );
 
-        metaMap.put(databaseInterface.getClass(), databaseInterface);
+        metaMap.put(iDatabase.getClass(), iDatabase);
       } catch ( Exception e ) {
         HopGui.getInstance().getLog().logError( "Error instantiating database metadata", e );
       }
@@ -401,8 +401,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     // Now add the database plugin specific widgets
     //
     guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta, 8 ); // max 6 lines
-    guiCompositeWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-    // System.out.println( "---- widgets created for : " + workingMeta.getDatabaseInterface().getClass().getName() );
+    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    // System.out.println( "---- widgets created for : " + workingMeta.getIDatabase().getClass().getName() );
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -429,7 +429,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     getInfo( workingMeta );
 
     // Save the state of this type so we can switch back and forth
-    metaMap.put(workingMeta.getDatabaseInterface().getClass(), workingMeta.getDatabaseInterface());
+    metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
 
     // Now change the data type
     //
@@ -437,20 +437,20 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Get possible information from the metadata map (from previous work)
     //
-    workingMeta.setDatabaseInterface( metaMap.get( workingMeta.getDatabaseInterface().getClass() ) );
+    workingMeta.setIDatabase( metaMap.get( workingMeta.getIDatabase().getClass() ) );
 
     // Remove existing children
     //
     for ( Control child : wDatabaseSpecificComp.getChildren() ) {
       child.dispose();
     }
-    // System.out.println( "---- widgets cleared for class: " + workingMeta.getDatabaseInterface().getClass().getName() );
+    // System.out.println( "---- widgets cleared for class: " + workingMeta.getIDatabase().getClass().getName() );
 
     // Re-add the widgets
     //
     guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta );
-    guiCompositeWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-    // System.out.println( "---- widgets created for class: " + workingMeta.getDatabaseInterface().getClass().getName() );
+    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    // System.out.println( "---- widgets created for class: " + workingMeta.getIDatabase().getClass().getName() );
 
     // Put the data back
     //
@@ -700,7 +700,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Also enable/disable the custom native fields
     //
-    guiCompositeWidgets.enableWidgets( workingMeta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
+    guiCompositeWidgets.enableWidgets( workingMeta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
   }
 
   private void ok( Event event ) {
@@ -734,8 +734,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wUsername.setText( Const.NVL( workingMeta.getUsername(), "" ) );
     wPassword.setText( Const.NVL( workingMeta.getPassword(), "" ) );
 
-    guiCompositeWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
-    // System.out.println( "---- widgets populated for class: " + workingMeta.getDatabaseInterface().getClass().getName() );
+    guiCompositeWidgets.setWidgetsContents( workingMeta.getIDatabase(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    // System.out.println( "---- widgets populated for class: " + workingMeta.getIDatabase().getClass().getName() );
 
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
     wSupportsTimestamp.setSelection( workingMeta.supportsTimestampDataType() );
@@ -769,7 +769,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Get the database specific information
     //
-    guiCompositeWidgets.getWidgetsContents( meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     meta.setAccessType( wODBC.getSelection() ? DatabaseMeta.TYPE_ACCESS_ODBC : DatabaseMeta.TYPE_ACCESS_NATIVE );
     meta.setOdbcDsn( wOdbcDsn.getText() );
@@ -835,7 +835,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
   private String[] getConnectionTypes() {
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = registry.getPlugins( DatabasePluginType.class );
+    List<IPlugin> plugins = registry.getPlugins( DatabasePluginType.class );
     String[] types = new String[ plugins.size() ];
     for ( int i = 0; i < types.length; i++ ) {
       types[ i ] = plugins.get( i ).getName();
@@ -867,7 +867,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     // shell.open();
 
     HopClientEnvironment.init();
-    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
     PropsUI.init( display );
     HopEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );

@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopgui.shared;
 
-import org.apache.hop.core.gui.ScrollBarInterface;
+import org.apache.hop.core.gui.IScrollBar;
 import org.eclipse.swt.widgets.ScrollBar;
 
-public class SwtScrollBar implements ScrollBarInterface {
+public class SwtScrollBar implements IScrollBar {
 
   private ScrollBar scrollBar;
 

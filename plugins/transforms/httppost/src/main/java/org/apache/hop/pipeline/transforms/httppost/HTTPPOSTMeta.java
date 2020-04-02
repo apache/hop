@@ -23,26 +23,26 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -61,7 +61,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
         documentationUrl = ""
 )
-public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInterface<HTTPPOST, HTTPPOSTData> {
+public class HTTPPOSTMeta extends BaseTransformMeta implements ITransformMeta<HTTPPOST, HTTPPOSTData> {
   private static Class<?> PKG = HTTPPOSTMeta.class; // for i18n purposes, needed by Translator!!
 
   // the timeout for waiting for data (milliseconds)
@@ -382,26 +382,26 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
     closeIdleConnectionsTime = String.valueOf( DEFAULT_CLOSE_CONNECTIONS_TIME );
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( resultCodeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( responseTimeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = space.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
-      ValueMetaInterface v =
+      IValueMeta v =
         new ValueMetaString( headerFieldName );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
@@ -502,8 +502,8 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -547,9 +547,9 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
 
   }
 
-  public HTTPPOST createTransform( TransformMeta transformMeta, HTTPPOSTData transformDataInterface, int cnr,
+  public HTTPPOST createTransform( TransformMeta transformMeta, HTTPPOSTData iTransformData, int cnr,
                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new HTTPPOST( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new HTTPPOST( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public HTTPPOSTData getTransformData() {
@@ -589,7 +589,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param proxyHost
    */
@@ -598,7 +598,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -607,7 +607,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param proxyPort
    */
@@ -616,7 +616,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -625,7 +625,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param httpLogin
    */
@@ -634,7 +634,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -643,7 +643,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param httpPassword
    */

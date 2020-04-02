@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -40,9 +40,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
@@ -59,7 +59,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.GenerateRows",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
       )
-public class RowGeneratorMeta extends BaseTransformMeta implements TransformMetaInterface<RowGenerator, RowGeneratorData> {
+public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMeta<RowGenerator, RowGeneratorData> {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean neverEnding;
@@ -204,20 +204,20 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
     lastTimeField = "FiveSecondsAgo";
   }
 
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
-      List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+      List<ICheckResult> remarks = new ArrayList<ICheckResult>();
       RowMetaAndData rowMetaAndData = RowGenerator.buildRow( this, remarks, origin );
       if ( !remarks.isEmpty() ) {
         StringBuilder stringRemarks = new StringBuilder();
-        for ( CheckResultInterface remark : remarks ) {
+        for ( ICheckResult remark : remarks ) {
           stringRemarks.append( remark.toString() ).append( Const.CR );
         }
         throw new HopTransformException( stringRemarks.toString() );
       }
 
-      for ( ValueMetaInterface valueMeta : rowMetaAndData.getRowMeta().getValueMetaList() ) {
+      for ( IValueMeta valueMeta : rowMetaAndData.getRowMeta().getValueMetaList() ) {
         valueMeta.setOrigin( origin );
       }
 
@@ -257,30 +257,30 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev != null && prev.size() > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "RowGeneratorMeta.CheckResult.NoInputStreamsError" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "RowGeneratorMeta.CheckResult.NoInputStreamOk" ), transformMeta );
       remarks.add( cr );
 
       String strLimit = pipelineMeta.environmentSubstitute( rowLimit );
       if ( Const.toLong( strLimit, -1L ) <= 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
             PKG, "RowGeneratorMeta.CheckResult.WarnNoRows" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "RowGeneratorMeta.CheckResult.WillReturnRows", strLimit ), transformMeta );
         remarks.add( cr );
       }
@@ -289,20 +289,20 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "RowGeneratorMeta.CheckResult.NoInputError" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "RowGeneratorMeta.CheckResult.NoInputOk" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public RowGenerator createTransform( TransformMeta transformMeta, RowGeneratorData transformDataInterface, int cnr,
+  public RowGenerator createTransform( TransformMeta transformMeta, RowGeneratorData iTransformData, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RowGenerator( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new RowGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public RowGeneratorData getTransformData() {
@@ -312,7 +312,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
   /**
    * Returns the Input/Output metadata for this transform. The generator transform only produces output, does not accept input!
    */
-  public TransformIOMetaInterface getTransformIOMeta() {
+  public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta( false, true, false, false, false, false );
   }
 

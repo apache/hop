@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.mappinginput;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
@@ -148,7 +148,7 @@ public class MappingInputMeta_GetFields_Test {
     meta.setSelectingAndSortingUnspecifiedFields( sortUnspecified );
 
     RowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "origin", new RowMetaInterface[ 0 ], null, null, null );
+    meta.getFields( rowMeta, "origin", new IRowMeta[ 0 ], null, null, null );
 
     assertEquals( Arrays.toString( expectedOutputFields ), expectedOutputFields.length, rowMeta.size() );
     for ( int i = 0; i < rowMeta.size(); i++ ) {

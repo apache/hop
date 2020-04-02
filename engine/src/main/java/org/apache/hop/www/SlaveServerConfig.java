@@ -28,12 +28,12 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.MetaStoreConst;
@@ -136,13 +136,13 @@ public class SlaveServerConfig {
     xml.append( XMLHandler.openTag( XML_TAG ) );
 
     for ( SlaveServer slaveServer : masters ) {
-      xml.append( slaveServer.getXML() );
+      xml.append( slaveServer.getXml() );
     }
 
     XMLHandler.addTagValue( "report_to_masters", reportingToMasters );
 
     if ( slaveServer != null ) {
-      xml.append( slaveServer.getXML() );
+      xml.append( slaveServer.getXml() );
     }
 
     XMLHandler.addTagValue( "joining", joining );
@@ -170,7 +170,7 @@ public class SlaveServerConfig {
     return xml.toString();
   }
 
-  public SlaveServerConfig( LogChannelInterface log, Node node ) throws HopXMLException {
+  public SlaveServerConfig( ILogChannel log, Node node ) throws HopXMLException {
     this();
     Node slaveNode = XMLHandler.getSubNode( node, SlaveServer.XML_TAG );
     if ( slaveNode != null ) {
@@ -271,7 +271,7 @@ public class SlaveServerConfig {
 
     try {
       DatabaseMeta databaseMeta = autoSequence.getDatabaseMeta();
-      LoggingObjectInterface loggingInterface =
+      ILoggingObject loggingInterface =
         new SimpleLoggingObject( "auto-sequence", LoggingObjectType.GENERAL, null );
       database = new Database( loggingInterface, databaseMeta );
       database.connect();
@@ -282,7 +282,7 @@ public class SlaveServerConfig {
 
       String sql = "SELECT " + seqField + ", " + valueField + " FROM " + schemaTable;
       List<Object[]> rows = database.getRows( sql, 0 );
-      RowMetaInterface rowMeta = database.getReturnRowMeta();
+      IRowMeta rowMeta = database.getReturnRowMeta();
       for ( Object[] row : rows ) {
         // Automatically create a new sequence for each sequence found...
         //
@@ -310,7 +310,7 @@ public class SlaveServerConfig {
     }
   }
 
-  private void checkNetworkInterfaceSetting( LogChannelInterface log, Node slaveNode, SlaveServer slaveServer ) {
+  private void checkNetworkInterfaceSetting( ILogChannel log, Node slaveNode, SlaveServer slaveServer ) {
     // See if we need to grab the network interface to use and then override the host name
     //
     String networkInterfaceName = XMLHandler.getTagValue( slaveNode, "network_interface" );

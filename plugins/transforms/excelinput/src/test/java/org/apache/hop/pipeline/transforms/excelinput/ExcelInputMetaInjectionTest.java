@@ -39,17 +39,17 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
 
   @Test
   public void test() throws Exception {
-    check( "NAME", new StringGetter() {
+    check( "NAME", new IStringGetter() {
       public String get() {
         return meta.getField()[ 0 ].getName();
       }
     } );
-    check( "LENGTH", new IntGetter() {
+    check( "LENGTH", new IIntGetter() {
       public int get() {
         return meta.getField()[ 0 ].getLength();
       }
     } );
-    check( "PRECISION", new IntGetter() {
+    check( "PRECISION", new IIntGetter() {
       public int get() {
         return meta.getField()[ 0 ].getPrecision();
       }
@@ -58,32 +58,32 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
     for ( int i = 0; i < trimInts.length; i++ ) {
       trimInts[ i ] = i;
     }
-    checkStringToInt( "TRIM_TYPE", new IntGetter() {
+    checkStringToInt( "TRIM_TYPE", new IIntGetter() {
       public int get() {
         return meta.getField()[ 0 ].getTrimType();
       }
     }, ValueMetaBase.trimTypeCode, trimInts );
-    check( "FORMAT", new StringGetter() {
+    check( "FORMAT", new IStringGetter() {
       public String get() {
         return meta.getField()[ 0 ].getFormat();
       }
     } );
-    check( "CURRENCY", new StringGetter() {
+    check( "CURRENCY", new IStringGetter() {
       public String get() {
         return meta.getField()[ 0 ].getCurrencySymbol();
       }
     } );
-    check( "DECIMAL", new StringGetter() {
+    check( "DECIMAL", new IStringGetter() {
       public String get() {
         return meta.getField()[ 0 ].getDecimalSymbol();
       }
     } );
-    check( "GROUP", new StringGetter() {
+    check( "GROUP", new IStringGetter() {
       public String get() {
         return meta.getField()[ 0 ].getGroupSymbol();
       }
     } );
-    check( "REPEAT", new BooleanGetter() {
+    check( "REPEAT", new IBooleanGetter() {
       public boolean get() {
         return meta.getField()[ 0 ].isRepeated();
       }
@@ -92,47 +92,47 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
     // TODO check field type plugins
     skipPropertyTest( "TYPE" );
 
-    check( "SHEET_NAME", new StringGetter() {
+    check( "SHEET_NAME", new IStringGetter() {
       public String get() {
         return meta.getSheetName()[ 0 ];
       }
     } );
-    check( "SHEET_START_ROW", new IntGetter() {
+    check( "SHEET_START_ROW", new IIntGetter() {
       public int get() {
         return meta.getStartRow()[ 0 ];
       }
     } );
-    check( "SHEET_START_COL", new IntGetter() {
+    check( "SHEET_START_COL", new IIntGetter() {
       public int get() {
         return meta.getStartColumn()[ 0 ];
       }
     } );
-    check( "FILENAME", new StringGetter() {
+    check( "FILENAME", new IStringGetter() {
       public String get() {
         return meta.getFileName()[ 0 ];
       }
     } );
-    check( "FILEMASK", new StringGetter() {
+    check( "FILEMASK", new IStringGetter() {
       public String get() {
         return meta.getFileMask()[ 0 ];
       }
     } );
-    check( "EXCLUDE_FILEMASK", new StringGetter() {
+    check( "EXCLUDE_FILEMASK", new IStringGetter() {
       public String get() {
         return meta.getExludeFileMask()[ 0 ];
       }
     } );
-    check( "FILE_REQUIRED", new StringGetter() {
+    check( "FILE_REQUIRED", new IStringGetter() {
       public String get() {
         return meta.getFileRequired()[ 0 ];
       }
     } );
-    check( "INCLUDE_SUBFOLDERS", new StringGetter() {
+    check( "INCLUDE_SUBFOLDERS", new IStringGetter() {
       public String get() {
         return meta.getIncludeSubFolders()[ 0 ];
       }
     } );
-    check( "SPREADSHEET_TYPE", new EnumGetter() {
+    check( "SPREADSHEET_TYPE", new IEnumGetter() {
       public SpreadSheetType get() {
         return meta.getSpreadSheetType();
       }

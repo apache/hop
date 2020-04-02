@@ -24,10 +24,10 @@ package org.apache.hop.pipeline.transforms.excelinput.jxl;
 
 import jxl.Cell;
 import jxl.Sheet;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKSheet;
 
-public class XLSSheet implements KSheet {
+public class XLSSheet implements IKSheet {
   private Sheet sheet;
 
   public XLSSheet( Sheet sheet ) {
@@ -38,7 +38,7 @@ public class XLSSheet implements KSheet {
     return sheet.getName();
   }
 
-  public KCell[] getRow( int rownr ) {
+  public IKCell[] getRow( int rownr ) {
     Cell[] cells = sheet.getRow( rownr );
     XLSCell[] xlsCells = new XLSCell[ cells.length ];
     for ( int i = 0; i < cells.length; i++ ) {
@@ -53,7 +53,7 @@ public class XLSSheet implements KSheet {
     return sheet.getRows();
   }
 
-  public KCell getCell( int colnr, int rownr ) {
+  public IKCell getCell( int colnr, int rownr ) {
     Cell cell = sheet.getCell( colnr, rownr );
     if ( cell == null ) {
       return null;

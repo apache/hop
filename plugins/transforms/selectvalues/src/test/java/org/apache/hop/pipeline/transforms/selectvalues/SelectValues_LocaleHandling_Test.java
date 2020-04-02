@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
 import org.junit.*;
@@ -55,7 +55,7 @@ public class SelectValues_LocaleHandling_Test {
 
   private SelectValues transform;
   private Locale current;
-  private TransformMockHelper<SelectValuesMeta, TransformDataInterface> helper;
+  private TransformMockHelper<SelectValuesMeta, ITransformData> helper;
 
   @Before
   public void setUp() throws Exception {
@@ -66,7 +66,7 @@ public class SelectValues_LocaleHandling_Test {
       TransformMockUtil.getTransformMockHelper( SelectValuesMeta.class, "SelectValues_LocaleHandling_Test" );
     when( helper.transformMeta.isDoingErrorHandling() ).thenReturn( true );
 
-    transform = new SelectValues( helper.transformMeta, helper.transformDataInterface, 1, helper.pipelineMeta, helper.pipeline );
+    transform = new SelectValues( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
     transform = spy( transform );
 
     // Dec 28, 2015
@@ -117,8 +117,8 @@ public class SelectValues_LocaleHandling_Test {
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( "field" );
     transformMeta.getMeta()[ 0 ] =
-      new SelectMetadataChange( transformMeta, "field", null, ValueMetaInterface.TYPE_STRING, -2, -2,
-        ValueMetaInterface.STORAGE_TYPE_NORMAL, "ww", false, locale, null, false, null, null, null );
+      new SelectMetadataChange( transformMeta, "field", null, IValueMeta.TYPE_STRING, -2, -2,
+        IValueMeta.STORAGE_TYPE_NORMAL, "ww", false, locale, null, false, null, null, null );
 
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;

@@ -31,7 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.ldifinput.LDIFInputField;
 import org.apache.hop.pipeline.transforms.ldifinput.LDIFInputMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -86,7 +86,7 @@ import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.HashSet;
 
-public class LDIFInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class LDIFInputDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -1133,7 +1133,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements TransformDia
         String value = wFilenameField.getText();
         wFilenameField.removeAll();
 
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           r.getFieldNames();
 

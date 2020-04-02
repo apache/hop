@@ -7,8 +7,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
@@ -24,8 +24,8 @@ public class HopGuiFileDelegate {
     this.hopGui = hopGui;
   }
 
-  public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
-    HopFileTypeHandlerInterface typeHandler = hopGui.getActivePerspective().getActiveFileTypeHandler();
+  public IHopFileTypeHandler getActiveFileTypeHandler() {
+    IHopFileTypeHandler typeHandler = hopGui.getActivePerspective().getActiveFileTypeHandler();
     return typeHandler;
   }
 
@@ -66,7 +66,7 @@ public class HopGuiFileDelegate {
   public void fileOpen( String filename ) throws Exception {
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-    HopFileTypeInterface hopFile = fileRegistry.findHopFileType( filename );
+    IHopFileType hopFile = fileRegistry.findHopFileType( filename );
     if ( hopFile == null ) {
       throw new HopException( "We looked at " + fileRegistry.getFileTypes().size() + " different Hop GUI file types but none know how to open file '" + filename + "'" );
     }
@@ -80,13 +80,13 @@ public class HopGuiFileDelegate {
    * To do this we see which is the active perspective.
    * Then we ask the perspective for the shown/active file.
    * We then know the filter extension and name so we can show a dialog.
-   * We can then also have the {@link HopFileTypeInterface to save the file.
+   * We can then also have the {@link IHopFileType to save the file.
    */
   public void fileSaveAs() {
     try {
-      HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      HopFileTypeInterface fileType = typeHandler.getFileType();
-      if ( !fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE ) ) {
+      IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
+      IHopFileType fileType = typeHandler.getFileType();
+      if ( !fileType.hasCapability( IHopFileType.CAPABILITY_SAVE ) ) {
         return;
       }
 
@@ -119,9 +119,9 @@ public class HopGuiFileDelegate {
 
   public void fileSave() {
     try {
-      HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      HopFileTypeInterface fileType = typeHandler.getFileType();
-      if ( fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE ) ) {
+      IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
+      IHopFileType fileType = typeHandler.getFileType();
+      if ( fileType.hasCapability( IHopFileType.CAPABILITY_SAVE ) ) {
         if ( StringUtils.isEmpty( typeHandler.getFilename() ) ) {
           // Ask for the filename: saveAs
           //
@@ -138,9 +138,9 @@ public class HopGuiFileDelegate {
   public boolean fileClose() {
     try {
       IHopPerspective perspective = hopGui.getActivePerspective();
-      HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      HopFileTypeInterface fileType = typeHandler.getFileType();
-      if ( fileType.hasCapability( HopFileTypeInterface.CAPABILITY_CLOSE ) ) {
+      IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
+      IHopFileType fileType = typeHandler.getFileType();
+      if ( fileType.hasCapability( IHopFileType.CAPABILITY_CLOSE ) ) {
         perspective.remove( typeHandler );
       }
     } catch ( Exception e ) {

@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.ifnull;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.ifnull.IfNullMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -64,7 +64,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class IfNullDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class IfNullDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
 
   private IfNullMeta input;
@@ -78,7 +78,7 @@ public class IfNullDialog extends BaseTransformDialog implements TransformDialog
   /**
    * all fields from the previous transforms
    */
-  private RowMetaInterface prevFields = null;
+  private IRowMeta prevFields = null;
 
   /**
    * List of ColumnInfo that should have the previous fields combo box
@@ -299,7 +299,7 @@ public class IfNullDialog extends BaseTransformDialog implements TransformDialog
     colval[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.ValueType.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        ValueMetaInterface.typeCodes );
+        IValueMeta.typeCodes );
     colval[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
@@ -492,10 +492,10 @@ public class IfNullDialog extends BaseTransformDialog implements TransformDialog
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener insertListener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             return true;
           }
         };

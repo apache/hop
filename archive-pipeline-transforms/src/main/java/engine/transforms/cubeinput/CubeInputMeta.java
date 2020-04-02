@@ -31,19 +31,19 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -147,16 +147,16 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
     addfilenameresult = false;
   }
 
-  @Override public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                                   VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  @Override public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                                   iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     GZIPInputStream fis = null;
     DataInputStream dis = null;
     try {
-      InputStream is = HopVFS.getInputStream( space.environmentSubstitute( filename ), space );
+      InputStream is = HopVFS.getInputStream( variables.environmentSubstitute( filename ), variables );
       fis = new GZIPInputStream( is );
       dis = new DataInputStream( fis );
 
-      RowMetaInterface add = new RowMeta( dis );
+      IRowMeta add = new RowMeta( dis );
       for ( int i = 0; i < add.size(); i++ ) {
         add.getValueMeta( i ).setOrigin( name );
       }
@@ -195,7 +195,7 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                               RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                               IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                                IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -205,24 +205,24 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
     remarks.add( cr );
   }
 
-  @Override public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  @Override public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                           Pipeline pipeline ) {
-    return new CubeInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new CubeInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  @Override public TransformDataInterface getTransformData() {
+  @Override public ITransformData getTransformData() {
     return new CubeInputData();
   }
 
   /**
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  @Override public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                           ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  @Override public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                           IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -230,14 +230,14 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( filename ), space );
+      FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
 
       // If the file doesn't exist, forget about this effort too!
       //
       if ( fileObject.exists() ) {
         // Convert to an absolute path...
         //
-        filename = resourceNamingInterface.nameResource( fileObject, space, true );
+        filename = iResourceNaming.nameResource( fileObject, variables, true );
 
         return filename;
       }

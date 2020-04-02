@@ -1,9 +1,9 @@
 package org.apache.hop.pipeline.engines.localsingle;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.parameters.NamedParams;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
@@ -21,11 +21,11 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
     super( pipelineMeta );
   }
 
-  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta, LoggingObjectInterface parent ) {
+  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent ) {
     super( pipelineMeta, parent );
   }
 
-  public <Parent extends VariableSpace & NamedParams> LocalSinglePipelineEngine( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
+  public <Parent extends IVariables & INamedParams> LocalSinglePipelineEngine( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
     super( parent, name, filename, metaStore );
   }
 

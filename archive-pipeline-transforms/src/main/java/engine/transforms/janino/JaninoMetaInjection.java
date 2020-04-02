@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.janino;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformInjectionUtil;
@@ -44,14 +44,14 @@ public class JaninoMetaInjection implements TransformMetaInjectionInterface {
 
   public enum Entry implements TransformMetaInjectionEntryInterface {
 
-    EXPRESSION_FIELDS( ValueMetaInterface.TYPE_NONE, "The formula fields" ),
-    EXPRESSION_FIELD( ValueMetaInterface.TYPE_NONE, "One formula field" ),
-    NEW_FIELDNAME( ValueMetaInterface.TYPE_STRING, "New field" ),
-    JAVA_EXPRESSION( ValueMetaInterface.TYPE_STRING, "Java expression" ),
-    VALUE_TYPE( ValueMetaInterface.TYPE_STRING, "Value type (For valid values go to http://wiki.pentaho.com/display/EAI/User+Defined+Java+Expression)" ),
-    LENGTH( ValueMetaInterface.TYPE_STRING, "Length" ),
-    PRECISION( ValueMetaInterface.TYPE_STRING, "Precision" ),
-    REPLACE_VALUE( ValueMetaInterface.TYPE_STRING, "Replace value" );
+    EXPRESSION_FIELDS( IValueMeta.TYPE_NONE, "The formula fields" ),
+    EXPRESSION_FIELD( IValueMeta.TYPE_NONE, "One formula field" ),
+    NEW_FIELDNAME( IValueMeta.TYPE_STRING, "New field" ),
+    JAVA_EXPRESSION( IValueMeta.TYPE_STRING, "Java expression" ),
+    VALUE_TYPE( IValueMeta.TYPE_STRING, "Value type (For valid values go to http://wiki.pentaho.com/display/EAI/User+Defined+Java+Expression)" ),
+    LENGTH( IValueMeta.TYPE_STRING, "Length" ),
+    PRECISION( IValueMeta.TYPE_STRING, "Precision" ),
+    REPLACE_VALUE( IValueMeta.TYPE_STRING, "Replace value" );
 
     private int valueType;
     private String description;
@@ -94,11 +94,11 @@ public class JaninoMetaInjection implements TransformMetaInjectionInterface {
     //
     TransformInjectionMetaEntry fieldsEntry =
       new TransformInjectionMetaEntry(
-        Entry.EXPRESSION_FIELDS.name(), ValueMetaInterface.TYPE_NONE, Entry.EXPRESSION_FIELDS.description );
+        Entry.EXPRESSION_FIELDS.name(), IValueMeta.TYPE_NONE, Entry.EXPRESSION_FIELDS.description );
     all.add( fieldsEntry );
     TransformInjectionMetaEntry fieldEntry =
       new TransformInjectionMetaEntry(
-        Entry.EXPRESSION_FIELD.name(), ValueMetaInterface.TYPE_NONE, Entry.EXPRESSION_FIELD.description );
+        Entry.EXPRESSION_FIELD.name(), IValueMeta.TYPE_NONE, Entry.EXPRESSION_FIELD.description );
     fieldsEntry.getDetails().add( fieldEntry );
 
     Entry[] fieldsEntries = new Entry[] { Entry.NEW_FIELDNAME, Entry.JAVA_EXPRESSION, Entry.VALUE_TYPE,

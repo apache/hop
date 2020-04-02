@@ -43,7 +43,7 @@ public class NamedFieldsMappingTest {
 
   @Test
   public void fieldMetaIndexWithUnexistingField() {
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex( 4 ) );
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex( 4 ) );
   }
 
   @Test
@@ -71,7 +71,7 @@ public class NamedFieldsMappingTest {
   public void fieldMetaIndexWithUnexistingField_nonUniqueColumnNames() {
     NamedFieldsMapping mapping =
       NamedFieldsMapping.mapping( new String[] { "Object", "Test", "Object" }, new String[] { "Object", "Test" } );
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 2 ) );
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 2 ) );
   }
 
   @Test
@@ -85,7 +85,7 @@ public class NamedFieldsMappingTest {
     mapping =
       NamedFieldsMapping.mapping( new String[] { "A", "B", "A" }, new String[] { "A", "A" } );
     assertEquals( 0, mapping.fieldMetaIndex( 0 ) ); // A -> A
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 1 ) ); // B -> undefined
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 1 ) ); // B -> undefined
     assertEquals( 1, mapping.fieldMetaIndex( 2 ) ); // A -> A
 
     mapping =
@@ -93,7 +93,7 @@ public class NamedFieldsMappingTest {
     assertEquals( 0, mapping.fieldMetaIndex( 0 ) ); // A -> A
     assertEquals( 2, mapping.fieldMetaIndex( 1 ) ); // B -> B
     assertEquals( 1, mapping.fieldMetaIndex( 2 ) ); // A -> X
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 3 ) ); // undefined -> undefined
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 3 ) ); // undefined -> undefined
 
     mapping =
       NamedFieldsMapping.mapping( new String[] { "A", "B", "A" }, new String[] { "A", "A", "C" } );
@@ -109,7 +109,7 @@ public class NamedFieldsMappingTest {
     assertEquals( 3, mapping.fieldMetaIndex( 1 ) ); // B -> B
     assertEquals( 1, mapping.fieldMetaIndex( 2 ) ); // C -> C
     assertEquals( 2, mapping.fieldMetaIndex( 3 ) ); // D -> Y
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 4 ) ); // E -> undefined
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, mapping.fieldMetaIndex( 4 ) ); // E -> undefined
   }
 
 }

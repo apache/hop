@@ -18,19 +18,18 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,7 +46,7 @@ public class MySQLValueMetaBaseTest {
 	private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
 	private ResultSet resultSet;
 	private DatabaseMeta databaseMeta;
-	private ValueMetaInterface valueMetaBase;
+	private IValueMeta valueMetaBase;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws HopException {
@@ -59,14 +58,14 @@ public class MySQLValueMetaBaseTest {
 	
 	@Before
 	public void setUp() throws HopPluginException {
-		valueMetaBase = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_NONE);
+		valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE);
 		databaseMeta = spy(new DatabaseMeta());
 		resultSet = mock(ResultSet.class);
 	}
 
 	protected void initValueMeta(BaseDatabaseMeta dbMeta, int length, Object data) throws HopDatabaseException {
-		ValueMetaInterface valueMetaString = new ValueMetaString(LOG_FIELD, length, 0);
-		databaseMeta.setDatabaseInterface(dbMeta);
+		IValueMeta valueMetaString = new ValueMetaString(LOG_FIELD, length, 0);
+		databaseMeta.setIDatabase(dbMeta);
 		valueMetaString.setPreparedStatementValue(databaseMeta, preparedStatementMock, 0, data);
 	}
 
@@ -85,17 +84,17 @@ public class MySQLValueMetaBaseTest {
 		final int binaryColumnIndex = 1;
 		ValueMetaBase valueMetaBase = new ValueMetaBase();
 		DatabaseMeta dbMeta = spy(new DatabaseMeta());
-		DatabaseInterface databaseInterface = new MySQLDatabaseMeta();
-		dbMeta.setDatabaseInterface(databaseInterface);
+		IDatabase iDatabase = new MySQLDatabaseMeta();
+		dbMeta.setIDatabase(iDatabase);
 
 		ResultSetMetaData metaData = mock(ResultSetMetaData.class);
 
 		when(resultSet.getMetaData()).thenReturn(metaData);
 		when(metaData.getColumnType(binaryColumnIndex)).thenReturn(Types.LONGVARBINARY);
 
-		ValueMetaInterface binaryValueMeta = valueMetaBase.getValueFromSQLType(dbMeta, TEST_NAME, metaData,
+		IValueMeta binaryValueMeta = valueMetaBase.getValueFromSQLType(dbMeta, TEST_NAME, metaData,
 				binaryColumnIndex, false, false);
-		assertEquals(ValueMetaInterface.TYPE_BINARY, binaryValueMeta.getType());
+		assertEquals( IValueMeta.TYPE_BINARY, binaryValueMeta.getType());
 		assertTrue(binaryValueMeta.isBinary());
 	}
 
@@ -106,9 +105,9 @@ public class MySQLValueMetaBaseTest {
 		doReturn(4).when(resultSet).getInt("COLUMN_SIZE");
 		doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
 		doReturn(5).when(resultSet).getInt("DECIMAL_DIGITS");
-		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getDatabaseInterface();
+		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
 		doReturn(true).when(databaseMeta).isMySQLVariant();
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isNumber());
 		assertEquals(-1, valueMeta.getPrecision());
 		assertEquals(-1, valueMeta.getLength());
@@ -117,12 +116,12 @@ public class MySQLValueMetaBaseTest {
 	@Test
 	public void testMetdataPreviewSqlTimeToPentahoIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
 		doReturn(Types.TIME).when(resultSet).getInt("DATA_TYPE");
-		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getDatabaseInterface();
+		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
 		doReturn(true).when(databaseMeta).isMySQLVariant();
 		doReturn(mock(Properties.class)).when(databaseMeta).getConnectionProperties();
 		when(databaseMeta.getConnectionProperties().getProperty("yearIsDateType")).thenReturn("false");
 		doReturn("YEAR").when(resultSet).getString("TYPE_NAME");
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isInteger());
 		assertEquals(0, valueMeta.getPrecision());
 		assertEquals(4, valueMeta.getLength());
@@ -133,9 +132,9 @@ public class MySQLValueMetaBaseTest {
 			throws SQLException, HopDatabaseException {
 		doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
 		doReturn(16).when(resultSet).getInt("COLUMN_SIZE");
-		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getDatabaseInterface();
+		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
 		doReturn(true).when(databaseMeta).isMySQLVariant();
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isBinary());
 		assertEquals(-1, valueMeta.getLength());
 	}
@@ -144,9 +143,9 @@ public class MySQLValueMetaBaseTest {
 	public void testMetdataPreviewSqlDoubleToPentahoNumberUsingMySQL() throws SQLException, HopDatabaseException {
 		doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
 		doReturn(22).when(resultSet).getInt("COLUMN_SIZE");
-		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getDatabaseInterface();
+		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
 		doReturn(true).when(databaseMeta).isMySQLVariant();
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isNumber());
 		assertEquals(-1, valueMeta.getLength());
 	}

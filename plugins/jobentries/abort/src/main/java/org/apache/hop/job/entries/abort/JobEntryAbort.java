@@ -22,16 +22,16 @@
 
 package org.apache.hop.job.entries.abort;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -53,7 +53,7 @@ import java.util.List;
   image = "Abort.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
-public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryAbort extends JobEntryBase implements Cloneable, IJobEntry {
   private static final Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator!!
 
   private String message;
@@ -160,7 +160,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "messageabort", remarks );
   }

@@ -22,7 +22,7 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author matt
  */
-public class QueueRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
+public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
   private LinkedList<Object[]> buffer;
 
@@ -57,14 +57,14 @@ public class QueueRowSet extends BaseRowSet implements Comparable<RowSet>, RowSe
   }
 
   @Override
-  public boolean putRow( RowMetaInterface rowMeta, Object[] rowData ) {
+  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
     this.rowMeta = rowMeta;
     buffer.add( rowData );
     return true;
   }
 
   @Override
-  public boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu ) {
+  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
     return putRow( rowMeta, rowData );
   }
 

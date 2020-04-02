@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -97,7 +97,7 @@ public class GetJobStatusServletTest {
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Job mockJob = PowerMockito.mock( Job.class );
     JobMeta mockJobMeta = mock( JobMeta.class );
-    LogChannelInterface mockLogChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
 
@@ -128,7 +128,7 @@ public class GetJobStatusServletTest {
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Job mockJob = PowerMockito.mock( Job.class );
     JobMeta mockJobMeta = mock( JobMeta.class );
-    LogChannelInterface mockLogChannelInterface = mock( LogChannelInterface.class );
+    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
     ServletOutputStream outMock = mock( ServletOutputStream.class );
 
     String id = "123";

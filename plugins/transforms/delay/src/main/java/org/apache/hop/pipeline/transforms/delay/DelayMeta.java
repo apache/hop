@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.delay;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -54,7 +54,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
         documentationUrl = ""
 )
-public class DelayMeta extends BaseTransformMeta implements TransformMetaInterface<Delay, DelayData> {
+public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
   private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
 
   private String timeout;
@@ -154,32 +154,32 @@ public class DelayMeta extends BaseTransformMeta implements TransformMetaInterfa
     this.timeout = timeout;
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
     if ( Utils.isEmpty( timeout ) ) {
       error_message = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutMissing" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
     } else {
       error_message = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutOk" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
     }
     remarks.add( cr );
 
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "DelayMeta.CheckResult.NotReceivingFields" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DelayMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
     }
     remarks.add( cr );
@@ -187,19 +187,19 @@ public class DelayMeta extends BaseTransformMeta implements TransformMetaInterfa
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DelayMeta.CheckResult.TransformRecevingData2" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "DelayMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
     }
     remarks.add( cr );
   }
 
-  public Delay createTransform( TransformMeta transformMeta, DelayData transformDataInterface, int cnr, PipelineMeta tr,
+  public Delay createTransform( TransformMeta transformMeta, DelayData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new Delay( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Delay( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public DelayData getTransformData() {

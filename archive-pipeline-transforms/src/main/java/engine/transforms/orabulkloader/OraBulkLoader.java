@@ -42,17 +42,17 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -70,7 +70,7 @@ import java.io.UnsupportedEncodingException;
  * @author Sven Boden
  * @since 20-feb-2007
  */
-public class OraBulkLoader extends BaseTransform implements TransformInterface {
+public class OraBulkLoader extends BaseTransform implements ITransform {
   private static Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int EX_SUCC = 0;
@@ -121,9 +121,9 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
 
   }
 
-  public OraBulkLoader( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public OraBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private String substituteRecordTerminator( String terminator ) {
@@ -194,7 +194,7 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
    * @param meta the meta object to model the control file after
    * @return a string containing the control file contents
    */
-  public String getControlFileContents( OraBulkLoaderMeta meta, RowMetaInterface rm, Object[] r ) throws HopException {
+  public String getControlFileContents( OraBulkLoaderMeta meta, IRowMeta rm, Object[] r ) throws HopException {
     DatabaseMeta dm = meta.getDatabaseMeta();
     String inputName = "'" + getFilename( getFileObject( meta.getDataFile(), getPipelineMeta() ) ) + "'";
 
@@ -265,20 +265,20 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
       if ( pos < 0 ) {
         throw new HopException( "Could not find field " + streamFields[ i ] + " in stream" );
       }
-      ValueMetaInterface v = rm.getValueMeta( pos );
+      IValueMeta v = rm.getValueMeta( pos );
       switch ( v.getType() ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           if ( v.getLength() > 255 ) {
             contents.append( " CHAR(" ).append( v.getLength() ).append( ")" );
           } else {
             contents.append( " CHAR" );
           }
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
-        case ValueMetaInterface.TYPE_NUMBER:
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_INTEGER:
+        case IValueMeta.TYPE_NUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           if ( OraBulkLoaderMeta.DATE_MASK_DATE.equals( dateMask[ i ] ) ) {
             contents.append( " DATE 'yyyy-mm-dd'" );
           } else if ( OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( dateMask[ i ] ) ) {
@@ -288,10 +288,10 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
             contents.append( " DATE 'yyyy-mm-dd'" );
           }
           break;
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           contents.append( " ENCLOSED BY '<startlob>' AND '<endlob>'" );
           break;
-        case ValueMetaInterface.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_TIMESTAMP:
           contents.append( " TIMESTAMP 'yyyy-mm-dd hh24:mi:ss.ff'" );
           break;
         default:
@@ -491,7 +491,7 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
@@ -573,7 +573,7 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
@@ -583,7 +583,7 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
     return super.init( smi, sdi );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
@@ -662,7 +662,7 @@ public class OraBulkLoader extends BaseTransform implements TransformInterface {
   }
 
   @VisibleForTesting
-  FileObject getFileObject( String vfsFilename, VariableSpace space ) throws HopFileException {
-    return HopVFS.getFileObject( environmentSubstitute( vfsFilename ), space );
+  FileObject getFileObject( String vfsFilename, iVariables variables ) throws HopFileException {
+    return HopVFS.getFileObject( environmentSubstitute( vfsFilename ), variables );
   }
 }

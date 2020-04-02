@@ -30,14 +30,14 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -80,7 +80,7 @@ import java.util.List;
 public class SQLEditor {
   private static Class<?> PKG = SQLEditor.class; // for i18n purposes, needed by Translator!!
 
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Editor", LoggingObjectType.HOPUI, null );
 
   private PropsUI props;
@@ -100,11 +100,11 @@ public class SQLEditor {
   private Shell shell;
   private DBCache dbcache;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
   private int style = SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
   private Shell parentShell;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   private List<SqlScriptStatement> statements;
 
@@ -114,7 +114,7 @@ public class SQLEditor {
     this( null, parent, style, ci, dbc, sql );
   }
 
-  public SQLEditor( VariableSpace space, Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
+  public SQLEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
     props = PropsUI.getInstance();
     log = new LogChannel( ci );
     input = sql;
@@ -122,7 +122,7 @@ public class SQLEditor {
     dbcache = dbc;
     this.parentShell = parent;
     this.style = ( style != SWT.None ) ? style : this.style;
-    this.variables = space;
+    this.variables = variables;
   }
 
   public void open() {
@@ -350,7 +350,7 @@ public class SQLEditor {
 
       // Multiple statements in the script need to be split into individual
       // executable statements
-      statements = ci.getDatabaseInterface().getSqlScriptStatements( sqlScript + Const.CR );
+      statements = ci.getIDatabase().getSqlScriptStatements( sqlScript + Const.CR );
 
       int nrstats = 0;
       for ( SqlScriptStatement sql : statements ) {
@@ -361,7 +361,7 @@ public class SQLEditor {
           nrstats++;
           try {
             List<Object[]> rows = db.getRows( sql.getStatement(), 1000 );
-            RowMetaInterface rowMeta = db.getReturnRowMeta();
+            IRowMeta rowMeta = db.getReturnRowMeta();
             if ( rows.size() > 0 ) {
               PreviewRowsDialog prd =
                 new PreviewRowsDialog( shell, ci, SWT.NONE, BaseMessages.getString(

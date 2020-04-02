@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.parallelgzipcsv;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +35,9 @@ import java.util.zip.GZIPInputStream;
  * @author Matt
  * @since 3.2
  */
-public class ParGzipCsvInputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface convertRowMeta;
-  public RowMetaInterface outputRowMeta;
+public class ParGzipCsvInputData extends BaseTransformData implements ITransformData {
+  public IRowMeta convertRowMeta;
+  public IRowMeta outputRowMeta;
 
   public String[] filenames;
   public int filenr;

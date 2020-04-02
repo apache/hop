@@ -30,10 +30,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -68,7 +68,7 @@ public class NullIfTest {
   @Before
   public void setUp() {
     smh = new TransformMockHelper<NullIfMeta, NullIfData>( "Field NullIf processor", NullIfMeta.class, NullIfData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -86,8 +86,8 @@ public class NullIfTest {
     NullIfMeta processRowMeta = smh.processRowsTransformMetaInterface;
     Field[] fields = createArrayWithOneField( "nullable-field", "nullable-value" );
     doReturn( fields ).when( processRowMeta ).getFields();
-    doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-      any( RowMetaInterface[].class ), any( TransformMeta.class ), any( VariableSpace.class ),
+    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
+      any( IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ),
       any( IMetaStore.class ) );
 
     return processRowMeta;
@@ -106,8 +106,8 @@ public class NullIfTest {
   public void test() throws HopException {
     HopEnvironment.init();
 
-    NullIf transform = new NullIf( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.transformDataInterface );
+    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
     transform.setInputRowMeta( getInputRowMeta() );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
@@ -161,8 +161,8 @@ public class NullIfTest {
     fields[ 2 ] = createArrayWithOneField( "value3", "20150606" )[ 0 ];
     fields[ 3 ] = createArrayWithOneField( "value4", "2015/06/06 00:00:00.000" )[ 0 ];
     doReturn( fields ).when( processRowMeta ).getFields();
-    doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-      any( RowMetaInterface[].class ), any( TransformMeta.class ), any( VariableSpace.class ),
+    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
+      any( IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ),
       any( IMetaStore.class ) );
 
     return processRowMeta;
@@ -172,8 +172,8 @@ public class NullIfTest {
   public void testDateWithFormat() throws HopException {
     HopEnvironment.init();
 
-    NullIf transform = new NullIf( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.transformDataInterface );
+    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
     transform.setInputRowMeta( getInputRowMeta2() );
     Date d1 = null;
     Date d2 = null;

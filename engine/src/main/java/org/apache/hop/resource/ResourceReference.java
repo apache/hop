@@ -28,20 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourceReference {
-  private ResourceHolderInterface resourceReferenceHolder;
+  private IResourceHolder resourceReferenceHolder;
   private List<ResourceEntry> entries;
 
   /**
    * @param resourceReferenceHolder Where to put the resource references
    * @param entries                 the resource entries list
    */
-  public ResourceReference( ResourceHolderInterface resourceReferenceHolder, List<ResourceEntry> entries ) {
+  public ResourceReference( IResourceHolder resourceReferenceHolder, List<ResourceEntry> entries ) {
     super();
     this.resourceReferenceHolder = resourceReferenceHolder;
     this.entries = entries;
   }
 
-  public ResourceReference( ResourceHolderInterface resourceReferenceHolder ) {
+  public ResourceReference( IResourceHolder resourceReferenceHolder ) {
     this.resourceReferenceHolder = resourceReferenceHolder;
     this.entries = new ArrayList<ResourceEntry>();
   }
@@ -49,14 +49,14 @@ public class ResourceReference {
   /**
    * @return the resource reference holder
    */
-  public ResourceHolderInterface getReferenceHolder() {
+  public IResourceHolder getReferenceHolder() {
     return resourceReferenceHolder;
   }
 
   /**
    * @param resourceReferenceHolder the resource reference holder to set
    */
-  public void setReferenceHolder( ResourceHolderInterface resourceReferenceHolder ) {
+  public void setReferenceHolder( IResourceHolder resourceReferenceHolder ) {
     this.resourceReferenceHolder = resourceReferenceHolder;
   }
 
@@ -78,7 +78,7 @@ public class ResourceReference {
     return toXml( null, 0 );
   }
 
-  public String toXml( ResourceXmlPropertyEmitterInterface injector ) {
+  public String toXml( IResourceXmlPropertyEmitter injector ) {
     return toXml( injector, 0 );
   }
 
@@ -86,7 +86,7 @@ public class ResourceReference {
     return toXml( null, indentLevel );
   }
 
-  public String toXml( ResourceXmlPropertyEmitterInterface injector, int indentLevel ) {
+  public String toXml( IResourceXmlPropertyEmitter injector, int indentLevel ) {
     StringBuilder buff = new StringBuilder();
     addXmlElementWithAttribute( buff, indentLevel, "ActionComponent", "type", resourceReferenceHolder
       .getPluginId() );

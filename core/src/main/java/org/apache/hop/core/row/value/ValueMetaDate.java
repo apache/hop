@@ -23,18 +23,18 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Date;
 
-public class ValueMetaDate extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaDate extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaDate() {
     this( null );
   }
 
   public ValueMetaDate( String name ) {
-    super( name, ValueMetaInterface.TYPE_DATE );
+    super( name, IValueMeta.TYPE_DATE );
   }
 
   public ValueMetaDate( String name, int type ) {
@@ -42,7 +42,7 @@ public class ValueMetaDate extends ValueMetaBase implements ValueMetaInterface {
   }
 
   public ValueMetaDate( String name, int length, int precision ) {
-    super( name, ValueMetaInterface.TYPE_DATE, length, precision );
+    super( name, IValueMeta.TYPE_DATE, length, precision );
   }
 
   @Override

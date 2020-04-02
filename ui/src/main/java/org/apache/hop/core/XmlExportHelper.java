@@ -26,7 +26,7 @@ import org.apache.hop.core.logging.BaseLogTable;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
-import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
@@ -113,15 +113,15 @@ public class XmlExportHelper {
       jobMeta.setChannelLogTable( cloneChannelLogTable );
     }
 
-    List<LogTableInterface> extraLogTables = jobMeta.getExtraLogTables();
+    List<ILogTable> extraLogTables = jobMeta.getExtraLogTables();
     if ( extraLogTables != null ) {
-      List<LogTableInterface> cloneExtraLogTables = new ArrayList<>();
-      for ( LogTableInterface logTable : extraLogTables ) {
+      List<ILogTable> cloneExtraLogTables = new ArrayList<>();
+      for ( ILogTable logTable : extraLogTables ) {
         if ( logTable instanceof BaseLogTable ) {
           if ( logTable instanceof Cloneable ) {
             BaseLogTable cloneExtraLogTable = (BaseLogTable) logTable.clone();
             cloneExtraLogTable.setAllGlobalParametersToNull();
-            cloneExtraLogTables.add( (LogTableInterface) cloneExtraLogTable );
+            cloneExtraLogTables.add( (ILogTable) cloneExtraLogTable );
           }
         }
       }

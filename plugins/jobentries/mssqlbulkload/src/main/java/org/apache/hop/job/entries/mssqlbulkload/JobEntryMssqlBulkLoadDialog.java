@@ -29,12 +29,12 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -82,7 +82,7 @@ import org.eclipse.swt.widgets.Text;
 	  pluginType = PluginDialog.PluginType.JOBENTRY,
 	  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryMssqlBulkLoad.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] {
@@ -242,7 +242,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
   private FormData fdGeneralComp, fdAdvancedComp;
   private FormData fdTabFolder;
 
-  public JobEntryMssqlBulkLoadDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryMssqlBulkLoadDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMssqlBulkLoad) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -250,7 +250,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -1329,7 +1329,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
         database.shareVariablesWith( jobMeta );
         try {
           database.connect();
-          RowMetaInterface row =
+          IRowMeta row =
             database.getTableFieldsMeta( wSchemaname.getText(), wTablename.getText() );
           String[] available = row.getFieldNames();
 

@@ -19,7 +19,7 @@ package org.apache.hop.metastore.stores.xml;
 public class PersistentXmlMetaStoreCacheTest extends XmlMetaStoreCacheTestBase {
 
   @Override
-  protected XmlMetaStoreCache createMetaStoreCache() {
+  protected IXmlMetaStoreCache createMetaStoreCache() {
     return new PersistentXmlMetaStoreCache();
   }
 }

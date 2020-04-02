@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.util.Map;
@@ -35,16 +35,16 @@ import java.util.Map;
  * @author Matt
  * @since 24-jan-2005
  */
-public class CombinationLookupData extends BaseTransformData implements TransformDataInterface {
+public class CombinationLookupData extends BaseTransformData implements ITransformData {
   public Database db;
   public int[] keynrs; // nrs in row of the keys
 
   public Map<RowMetaAndData, Long> cache;
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface lookupRowMeta;
-  public RowMetaInterface insertRowMeta;
-  public RowMetaInterface hashRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta lookupRowMeta;
+  public IRowMeta insertRowMeta;
+  public IRowMeta hashRowMeta;
   public String realTableName;
   public String realSchemaName;
   public boolean[] removeField;

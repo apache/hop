@@ -23,21 +23,21 @@
 package org.apache.hop.pipeline.transforms.columnexists;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class ColumnExistsData extends BaseTransformData implements TransformDataInterface {
+public class ColumnExistsData extends BaseTransformData implements ITransformData {
   public Database db;
   public int indexOfTablename;
   public int indexOfColumnname;
   public String tablename;
   public String schemaname;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public ColumnExistsData() {
     super();

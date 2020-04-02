@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 
 public class NamedParamsDefaultTest {
-  NamedParams namedParams;
+  INamedParams namedParams;
 
   @Before
   public void setUp() throws Exception {
@@ -84,7 +84,7 @@ public class NamedParamsDefaultTest {
     // Test null case
     namedParams.copyParametersFrom( null );
 
-    NamedParams namedParams2 = new NamedParamsDefault();
+    INamedParams namedParams2 = new NamedParamsDefault();
 
     // Test internal params == null case
     ( (NamedParamsDefault) namedParams ).params = null;
@@ -93,7 +93,7 @@ public class NamedParamsDefaultTest {
 
   @Test
   public void testCopyParametersFrom() throws Exception {
-    NamedParams namedParams2 = new NamedParamsDefault();
+    INamedParams namedParams2 = new NamedParamsDefault();
     namedParams2.addParameterDefinition( "key", "default value", "description" );
     namedParams2.setParameterValue( "key", "value" );
     assertNull( namedParams.getParameterValue( "key" ) );
@@ -103,7 +103,7 @@ public class NamedParamsDefaultTest {
 
   @Test
   public void testCopyParametersFromWithException() throws Exception {
-    NamedParams namedParams2 = mock( NamedParams.class );
+    INamedParams namedParams2 = mock( INamedParams.class );
     when( namedParams2.listParameters() ).thenReturn( new String[] { "key" } );
     when( namedParams2.getParameterDescription( anyString() ) ).thenThrow( UnknownParamException.class );
     when( namedParams2.getParameterDefault( anyString() ) ).thenThrow( UnknownParamException.class );
@@ -122,7 +122,7 @@ public class NamedParamsDefaultTest {
 
   @Test
   public void testMergeParametersWith() throws Exception {
-    NamedParams namedParamsTest = new NamedParamsDefault();
+    INamedParams namedParamsTest = new NamedParamsDefault();
     namedParamsTest.addParameterDefinition( "key1", "def1", "desc1" );
     namedParamsTest.addParameterDefinition( "key2", "def2", "desc2" );
     namedParamsTest.addParameterDefinition( "key3", "def3", "desc3" );
@@ -132,7 +132,7 @@ public class NamedParamsDefaultTest {
     namedParamsTest.setParameterValue( "key3", "val3" );
     namedParamsTest.setParameterValue( "key4", "val4" );
 
-    NamedParams namedParamsMerge = new NamedParamsDefault();
+    INamedParams namedParamsMerge = new NamedParamsDefault();
     namedParamsMerge.addParameterDefinition( "key5", "def5", "desc5" );
     namedParamsMerge.addParameterDefinition( "key6", "def6", "desc6" );
     namedParamsMerge.addParameterDefinition( "key3", "def3a", "desc3a" );

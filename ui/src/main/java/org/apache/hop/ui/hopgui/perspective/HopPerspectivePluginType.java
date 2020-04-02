@@ -27,13 +27,13 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 
 @PluginMainClassType( IHopPerspective.class )
 @PluginAnnotationType( HopPerspectivePlugin.class )
-public class HopPerspectivePluginType extends BasePluginType implements PluginTypeInterface {
+public class HopPerspectivePluginType extends BasePluginType implements IPluginType {
 
   private HopPerspectivePluginType() {
     super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective Plugin" );

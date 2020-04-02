@@ -23,7 +23,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -82,7 +82,7 @@ public class WebServerTest {
   private JobMap jbMapMock = mock( JobMap.class );
   private SocketRepository sRepoMock = mock( SocketRepository.class );
   private List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
-  private LogChannelInterface logMock = mock( LogChannelInterface.class );
+  private ILogChannel logMock = mock( ILogChannel.class );
   //  private static final SocketConnector defSocketConnector = new SocketConnector();
   private static ServerConnector defServerConnector;
 

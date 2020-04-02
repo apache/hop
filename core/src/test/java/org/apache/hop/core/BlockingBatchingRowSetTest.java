@@ -22,9 +22,9 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -47,10 +47,10 @@ import static org.junit.Assert.assertTrue;
 public class BlockingBatchingRowSetTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  public RowMetaInterface createRowMetaInterface() {
-    RowMetaInterface rm = new RowMeta();
+  public IRowMeta createRowMetaInterface() {
+    IRowMeta rm = new RowMeta();
 
-    ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
+    IValueMeta[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
       rm.addValueMeta( valuesMeta[ i ] );
@@ -64,7 +64,7 @@ public class BlockingBatchingRowSetTest {
    */
   @Test
   public void testBasicCreation() {
-    RowSet set = new BlockingBatchingRowSet( 10 );
+    IRowSet set = new BlockingBatchingRowSet( 10 );
 
     assertTrue( !set.isDone() );
     assertEquals( 0, set.size() );
@@ -77,7 +77,7 @@ public class BlockingBatchingRowSetTest {
   public void testFuntionality1() {
     BlockingBatchingRowSet set = new BlockingBatchingRowSet( 10 );
 
-    RowMetaInterface rm = createRowMetaInterface();
+    IRowMeta rm = createRowMetaInterface();
 
     List<Object[]> rows = new ArrayList<Object[]>();
     for ( int i = 0; i < 5; i++ ) {

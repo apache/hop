@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.update;
 
 import junit.framework.TestCase;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 import org.junit.Test;
@@ -40,17 +40,17 @@ public class UpdateSQLTest extends TestCase {
     String[] updateLookup = new String[] { "SecondName", "PostAddress", "ZIP" };
     String[] updateStream = new String[] { "SurName", "Address", "ZIP" };
 
-    RowMetaInterface prev = new RowMeta();
+    IRowMeta prev = new RowMeta();
     prev.addValueMeta( new ValueMetaString( keyStream[ 0 ] ) );
     prev.addValueMeta( new ValueMetaString( updateStream[ 0 ] ) );
     prev.addValueMeta( new ValueMetaString( updateStream[ 1 ] ) );
     prev.addValueMeta( new ValueMetaString( updateStream[ 2 ] ) );
 
     try {
-      RowMetaInterface result =
+      IRowMeta result =
         RowMetaUtils.getRowMetaForUpdate( prev, keyLookup, keyStream, updateLookup, updateStream );
 
-      ValueMetaInterface vmi = result.getValueMeta( 0 );
+      IValueMeta vmi = result.getValueMeta( 0 );
       assertEquals( vmi.getName(), keyLookup[ 0 ] );
       assertEquals( prev.getValueMeta( 0 ).getName(), keyStream[ 0 ] );
 

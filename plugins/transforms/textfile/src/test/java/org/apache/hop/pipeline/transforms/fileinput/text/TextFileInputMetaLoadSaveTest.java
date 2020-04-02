@@ -27,7 +27,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -89,9 +89,9 @@ public class TextFileInputMetaLoadSaveTest {
     setters.put( "extensionFieldName", "setExtensionField" );
     setters.put( "sizeFieldName", "setSizeField" );
 
-    Map<String, FieldLoadSaveValidator<?>> attributeValidators = Collections.emptyMap();
+    Map<String, IFieldLoadSaveValidator<?>> attributeValidators = Collections.emptyMap();
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
     typeValidators.put( TextFileFilter[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileFilterValidator() ) );
     typeValidators.put( BaseFileField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileInputFieldValidator() ) );
 
@@ -107,7 +107,7 @@ public class TextFileInputMetaLoadSaveTest {
     tester.testSerialization();
   }
 
-  private static class TextFileInputFieldValidator implements FieldLoadSaveValidator<BaseFileField> {
+  private static class TextFileInputFieldValidator implements IFieldLoadSaveValidator<BaseFileField> {
     @Override public BaseFileField getTestObject() {
       return new BaseFileField( UUID.randomUUID().toString(), new Random().nextInt(), new Random().nextInt() );
     }
@@ -127,7 +127,7 @@ public class TextFileInputMetaLoadSaveTest {
     }
   }
 
-  private static class TextFileFilterValidator implements FieldLoadSaveValidator<TextFileFilter> {
+  private static class TextFileFilterValidator implements IFieldLoadSaveValidator<TextFileFilter> {
     @Override public TextFileFilter getTestObject() {
       TextFileFilter fileFilter = new TextFileFilter();
       fileFilter.setFilterPosition( new Random().nextInt() );

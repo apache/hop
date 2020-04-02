@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class ChangeFileEncodingData extends BaseTransformData implements TransformDataInterface {
+public class ChangeFileEncodingData extends BaseTransformData implements ITransformData {
   public int indexOfFileename;
   public int indexOfTargetFileename;
   public FileObject sourceFile;
@@ -39,7 +39,7 @@ public class ChangeFileEncodingData extends BaseTransformData implements Transfo
   public String sourceEncoding;
   public String targetEncoding;
 
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public ChangeFileEncodingData() {
     super();

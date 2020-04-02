@@ -50,11 +50,11 @@ public class GetTableNamesTest {
   public void setUp() throws Exception {
     mockHelper =
       new TransformMockHelper<>( "Get Table Names", GetTableNamesMeta.class, GetTableNamesData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
-    getTableNamesSpy = Mockito.spy( new GetTableNames( mockHelper.transformMeta, mockHelper.transformDataInterface, 0,
+    getTableNamesSpy = Mockito.spy( new GetTableNames( mockHelper.transformMeta, mockHelper.iTransformData, 0,
       mockHelper.pipelineMeta, mockHelper.pipeline ) );
     database = mock( Database.class );
     getTableNamesMeta = mock( GetTableNamesMeta.class );

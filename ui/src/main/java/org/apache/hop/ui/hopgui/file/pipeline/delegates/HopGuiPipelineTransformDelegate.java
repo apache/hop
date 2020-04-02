@@ -5,19 +5,19 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.PartitionerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Partitioner;
+import org.apache.hop.pipeline.IPartitioner;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
@@ -26,7 +26,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopgui.partition.PartitionMethodSelector;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
-import org.apache.hop.ui.hopgui.partition.processor.MethodProcessor;
+import org.apache.hop.ui.hopgui.partition.processor.IMethodProcessor;
 import org.apache.hop.ui.hopgui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.pipeline.transform.TransformErrorMetaDialog;
 import org.eclipse.swt.SWT;
@@ -55,13 +55,13 @@ public class HopGuiPipelineTransformDelegate {
     this.pipelineGraph = pipelineGraph;
   }
 
-  public TransformDialogInterface getTransformDialog( TransformMetaInterface transformMeta, PipelineMeta pipelineMeta, String transformName ) throws HopException {
+  public ITransformDialog getTransformDialog( ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName ) throws HopException {
     Class<?>[] paramClasses = new Class<?>[] { Shell.class, Object.class, PipelineMeta.class, String.class };
     Object[] paramArgs = new Object[] { hopUi.getShell(), transformMeta, pipelineMeta, transformName };
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
-    String dialogClassName = plugin.getClassMap().get( TransformDialogInterface.class );
+    IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
+    String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
     if ( dialogClassName == null ) {
       // Calculate it from the base meta class...
       //
@@ -73,17 +73,17 @@ public class HopGuiPipelineTransformDelegate {
     }
 
     try {
-      Class<TransformDialogInterface> dialogClass = registry.getClass( plugin, dialogClassName );
-      Constructor<TransformDialogInterface> dialogConstructor = dialogClass.getConstructor( paramClasses );
+      Class<ITransformDialog> dialogClass = registry.getClass( plugin, dialogClassName );
+      Constructor<ITransformDialog> dialogConstructor = dialogClass.getConstructor( paramClasses );
       return dialogConstructor.newInstance( paramArgs );
     } catch ( Exception e ) {
       // try the old way for compatibility
       try {
-        Class<?>[] sig = new Class<?>[] { Shell.class, TransformMetaInterface.class, PipelineMeta.class, String.class };
+        Class<?>[] sig = new Class<?>[] { Shell.class, ITransformMeta.class, PipelineMeta.class, String.class };
         Method method = transformMeta.getClass().getDeclaredMethod( "getDialog", sig );
         if ( method != null ) {
-          hopUi.getLog().logDebug( "Use of TransformMetaInterface#getDialog is deprecated, use PluginDialog annotation instead." );
-          return (TransformDialogInterface) method.invoke( transformMeta, paramArgs );
+          hopUi.getLog().logDebug( "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead." );
+          return (ITransformDialog) method.invoke( transformMeta, paramArgs );
         }
       } catch ( Throwable ignored ) {
       }
@@ -105,7 +105,7 @@ public class HopGuiPipelineTransformDelegate {
       // was...
       //
       TransformMeta before = (TransformMeta) transformMeta.clone();
-      TransformDialogInterface dialog = getTransformDialog( transformMeta.getTransformMetaInterface(), pipelineMeta, name );
+      ITransformDialog dialog = getTransformDialog( transformMeta.getTransformMetaInterface(), pipelineMeta, name );
       if ( dialog != null ) {
         dialog.setMetaStore( hopUi.getMetaStore() );
         transformName = dialog.open();
@@ -203,17 +203,17 @@ public class HopGuiPipelineTransformDelegate {
       }
 
       PluginRegistry registry = PluginRegistry.getInstance();
-      PluginInterface transformPlugin = id != null ? registry.findPluginWithId( TransformPluginType.class, id )
+      IPlugin transformPlugin = id != null ? registry.findPluginWithId( TransformPluginType.class, id )
         : registry.findPluginWithName( TransformPluginType.class, description );
 
       try {
         if ( transformPlugin != null ) {
-          TransformMetaInterface info = (TransformMetaInterface) registry.loadClass( transformPlugin );
+          ITransformMeta info = (ITransformMeta) registry.loadClass( transformPlugin );
 
           info.setDefault();
 
           if ( openit ) {
-            TransformDialogInterface dialog = this.getTransformDialog( info, pipelineMeta, name );
+            ITransformDialog dialog = this.getTransformDialog( info, pipelineMeta, name );
             if ( dialog != null ) {
               name = dialog.open();
             }
@@ -322,7 +322,7 @@ public class HopGuiPipelineTransformDelegate {
 
         /*Prepare settings for Method selection*/
         PluginRegistry registry = PluginRegistry.getInstance();
-        List<PluginInterface> plugins = registry.getPlugins( PartitionerPluginType.class );
+        List<IPlugin> plugins = registry.getPlugins( PartitionerPluginType.class );
         int exactSize = TransformPartitioningMeta.methodDescriptions.length + plugins.size();
         PartitionSettings partitionSettings = new PartitionSettings( exactSize, pipelineMeta, transformMeta, hopUi.partitionManager );
         partitionSettings.fillOptionsAndCodesByPlugins( plugins );
@@ -338,11 +338,11 @@ public class HopGuiPipelineTransformDelegate {
           partitionSettings.updateMethod( method );
 
           /*Schema selection*/
-          MethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
+          IMethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
           methodProcessor.schemaSelection( partitionSettings, hopUi.getShell(), new IPartitionSchemaSelection() {
             @Override public String schemaFieldSelection( Shell shell, PartitionSettings settings ) throws HopException {
               TransformPartitioningMeta partitioningMeta = settings.getTransformMeta().getTransformPartitioningMeta();
-              TransformDialogInterface dialog = getPartitionerDialog( shell, settings.getTransformMeta(), partitioningMeta, settings.getPipelineMeta() );
+              ITransformDialog dialog = getPartitionerDialog( shell, settings.getTransformMeta(), partitioningMeta, settings.getPipelineMeta() );
               return dialog.open();
             }
           } );
@@ -373,9 +373,9 @@ public class HopGuiPipelineTransformDelegate {
     return true;
   }
 
-  public TransformDialogInterface getPartitionerDialog( Shell shell, TransformMeta transformMeta, TransformPartitioningMeta partitioningMeta,
-                                                        PipelineMeta pipelineMeta ) throws HopException {
-    Partitioner partitioner = partitioningMeta.getPartitioner();
+  public ITransformDialog getPartitionerDialog( Shell shell, TransformMeta transformMeta, TransformPartitioningMeta partitioningMeta,
+                                                PipelineMeta pipelineMeta ) throws HopException {
+    IPartitioner partitioner = partitioningMeta.getPartitioner();
     String dialogClassName = partitioner.getDialogClassName();
 
     Class<?> dialogClass;
@@ -385,7 +385,7 @@ public class HopGuiPipelineTransformDelegate {
     try {
       dialogClass = partitioner.getClass().getClassLoader().loadClass( dialogClassName );
       dialogConstructor = dialogClass.getConstructor( paramClasses );
-      return (TransformDialogInterface) dialogConstructor.newInstance( paramArgs );
+      return (ITransformDialog) dialogConstructor.newInstance( paramArgs );
     } catch ( Exception e ) {
       throw new HopException( "Unable to open dialog of partitioning method", e );
     }

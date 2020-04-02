@@ -27,8 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -78,7 +78,7 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     fieldDefinition.setFieldLength( 4 );
     fieldDefinition.setCurrency( null );
     fieldDefinition.setFieldPrecision( 5 );
-    fieldDefinition.setFieldType( ValueMetaInterface.TYPE_NUMBER );
+    fieldDefinition.setFieldType( IValueMeta.TYPE_NUMBER );
     fieldDefinition.setGroup( "group" );
     fieldDefinition.setVariableString( "variableString" );
 
@@ -115,16 +115,16 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     FieldDefinition field = new FieldDefinition();
     field.setFieldName( "outputField" );
     field.setVariableString( String.valueOf( 2000000L ) );
-    field.setFieldType( ValueMetaInterface.TYPE_TIMESTAMP );
+    field.setFieldType( IValueMeta.TYPE_TIMESTAMP );
     meta.setFieldDefinitions( new FieldDefinition[] { field } );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     meta.getFields( rowMeta, "transformName", null, null, new Variables(), null );
 
     assertNotNull( rowMeta );
     assertEquals( 1, rowMeta.size() );
     assertEquals( "outputField", rowMeta.getFieldNames()[ 0 ] );
-    assertEquals( ValueMetaInterface.TYPE_TIMESTAMP, rowMeta.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_TIMESTAMP, rowMeta.getValueMeta( 0 ).getType() );
     assertTrue( rowMeta.getValueMeta( 0 ) instanceof ValueMetaTimestamp );
   }
 

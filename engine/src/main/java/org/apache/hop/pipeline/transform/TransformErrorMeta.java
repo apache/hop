@@ -24,15 +24,15 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.core.xml.IXml;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author Matt
  */
-public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Cloneable {
+public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
   public static final String XML_ERROR_TAG = "error";
   public static final String XML_SOURCE_TRANSFORM_TAG = "source_transform";
   public static final String XML_TARGET_TRANSFORM_TAG = "target_transform";
@@ -98,17 +98,17 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
    */
   private String minPercentRows = "";
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   /**
    * Create a new transform error handling metadata object
    *
    * @param sourceTransform The source transform that can send the error rows
    */
-  public TransformErrorMeta( VariableSpace space, TransformMeta sourceTransform ) {
+  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform ) {
     this.sourceTransform = sourceTransform;
     this.enabled = false;
-    this.variables = space;
+    this.variables = variables;
   }
 
   /**
@@ -117,11 +117,11 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
    * @param sourceTransform The source transform that can send the error rows
    * @param targetTransform The target transform to send the error rows to
    */
-  public TransformErrorMeta( VariableSpace space, TransformMeta sourceTransform, TransformMeta targetTransform ) {
+  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform, TransformMeta targetTransform ) {
     this.sourceTransform = sourceTransform;
     this.targetTransform = targetTransform;
     this.enabled = false;
-    this.variables = space;
+    this.variables = variables;
   }
 
   /**
@@ -135,7 +135,7 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
    *                                   not needed)
    * @param errorCodesValuename        the name of the field value to contain the error code(s) (null or empty means it's not needed)
    */
-  public TransformErrorMeta( VariableSpace space, TransformMeta sourceTransform, TransformMeta targetTransform, String nrErrorsValuename,
+  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform, TransformMeta targetTransform, String nrErrorsValuename,
                              String errorDescriptionsValuename, String errorFieldsValuename, String errorCodesValuename ) {
     this.sourceTransform = sourceTransform;
     this.targetTransform = targetTransform;
@@ -144,7 +144,7 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
     this.errorDescriptionsValuename = errorDescriptionsValuename;
     this.errorFieldsValuename = errorFieldsValuename;
     this.errorCodesValuename = errorCodesValuename;
-    this.variables = space;
+    this.variables = variables;
   }
 
   @Override
@@ -157,7 +157,7 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 300 );
 
     xml.append( "      " ).append( XMLHandler.openTag( TransformErrorMeta.XML_ERROR_TAG ) ).append( Const.CR );
@@ -180,7 +180,7 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
     return xml.toString();
   }
 
-  public TransformErrorMeta( VariableSpace variables, Node node, List<TransformMeta> transforms ) {
+  public TransformErrorMeta( IVariables variables, Node node, List<TransformMeta> transforms ) {
     this.variables = variables;
 
     sourceTransform = TransformMeta.findTransform( transforms, XMLHandler.getTagValue( node, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG ) );
@@ -293,33 +293,33 @@ public class TransformErrorMeta extends ChangedFlag implements XMLInterface, Clo
     this.enabled = enabled;
   }
 
-  public RowMetaInterface getErrorFields() {
+  public IRowMeta getErrorFields() {
     return getErrorRowMeta( 0L, null, null, null );
   }
 
-  public RowMetaInterface getErrorRowMeta( long nrErrors, String errorDescriptions, String fieldNames,
-                                           String errorCodes ) {
-    RowMetaInterface row = new RowMeta();
+  public IRowMeta getErrorRowMeta( long nrErrors, String errorDescriptions, String fieldNames,
+                                   String errorCodes ) {
+    IRowMeta row = new RowMeta();
 
     String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
-      ValueMetaInterface v = new ValueMetaInteger( nrErr );
+      IValueMeta v = new ValueMetaInteger( nrErr );
       v.setLength( 3 );
       row.addValueMeta( v );
     }
     String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
-      ValueMetaInterface v = new ValueMetaString( errDesc );
+      IValueMeta v = new ValueMetaString( errDesc );
       row.addValueMeta( v );
     }
     String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
-      ValueMetaInterface v = new ValueMetaString( errFields );
+      IValueMeta v = new ValueMetaString( errFields );
       row.addValueMeta( v );
     }
     String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
-      ValueMetaInterface v = new ValueMetaString( errCodes );
+      IValueMeta v = new ValueMetaString( errCodes );
       row.addValueMeta( v );
     }
 

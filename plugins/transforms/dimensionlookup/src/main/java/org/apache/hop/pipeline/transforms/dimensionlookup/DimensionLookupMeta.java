@@ -31,15 +31,15 @@ import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.InjectionTypeConverter;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -70,7 +70,7 @@ import java.util.*;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse"
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
-public class DimensionLookupMeta extends BaseTransformMeta implements TransformMetaInterface<DimensionLookup, DimensionLookupData>, ProvidesModelerMeta {
+public class DimensionLookupMeta extends BaseTransformMeta implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {
   private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;
@@ -655,8 +655,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
       return TYPE_UPDATE_DIM_INSERT; // INSERT is the default: don't lose information.
     } else {
       int retval = ValueMetaFactory.getIdForValueMeta( ty );
-      if ( retval == ValueMetaInterface.TYPE_NONE ) {
-        retval = ValueMetaInterface.TYPE_STRING;
+      if ( retval == IValueMeta.TYPE_NONE ) {
+        retval = IValueMeta.TYPE_STRING;
       }
       return retval;
     }
@@ -770,19 +770,19 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Change all the fields to normal storage, this is the fastest way to handle lazy conversion.
     // It doesn't make sense to use it in the SCD context but people try it anyway
     //
-    for ( ValueMetaInterface valueMeta : row.getValueMetaList() ) {
-      valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    for ( IValueMeta valueMeta : row.getValueMetaList() ) {
+      valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
       // Also change the trim type to "None" as this can cause trouble
       // during compare of the data when there are leading/trailing spaces in the target table
       //
-      valueMeta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+      valueMeta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     }
 
     // technical key can't be null
@@ -795,7 +795,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
       throw new HopTransformException( message );
     }
 
-    ValueMetaInterface v = new ValueMetaInteger( keyField );
+    IValueMeta v = new ValueMetaInteger( keyField );
     if ( keyRename != null && keyRename.length() > 0 ) {
       v.setName( keyRename );
     }
@@ -814,7 +814,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         if ( databaseMeta != null ) {
           db = createDatabaseObject();
 
-          RowMetaInterface extraFields = getDatabaseTableFields( db, schemaName, tableName );
+          IRowMeta extraFields = getDatabaseTableFields( db, schemaName, tableName );
 
           for ( int i = 0; i < fieldLookup.length; i++ ) {
             v = extraFields.searchValueMeta( fieldLookup[ i ] );
@@ -1025,8 +1025,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     if ( update ) {
       checkUpdate( remarks, transformMeta, prev );
@@ -1041,7 +1041,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         String error_message =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.ErrorTechKeyCreation" ) + ": "
             + techKeyCreation + "!";
-        CheckResult cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        CheckResult cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       }
     }
@@ -1049,24 +1049,24 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "DimensionLookupMeta.CheckResult.TransformReceiveInfoOK" ), transformMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "DimensionLookupMeta.CheckResult.NoInputReceiveFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  private void checkUpdate( List<CheckResultInterface> remarks, TransformMeta transforminfo, RowMetaInterface prev ) {
+  private void checkUpdate( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     CheckResult cr;
     String error_message = "";
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      // TODO SB: Share VariableSpace
+      // TODO SB: Share IVariables
       try {
         db.connect();
         if ( !Utils.isEmpty( tableName ) ) {
@@ -1074,13 +1074,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           boolean error_found = false;
           error_message = "";
 
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             for ( int i = 0; i < fieldLookup.length; i++ ) {
               String lufield = fieldLookup[ i ];
               logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.CheckLookupField" ) + i + " --> "
                 + lufield + " in lookup table..." );
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -1093,10 +1093,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                   "DimensionLookupMeta.CheckResult.AllLookupFieldFound" ), transforminfo );
             }
             remarks.add( cr );
@@ -1107,18 +1107,18 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyNotFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
             } else {
               error_message =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
             }
 
             if ( versionField != null && versionField.length() > 0 ) {
@@ -1126,18 +1126,18 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldNotFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
             } else {
               error_message =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
             }
 
             if ( dateFrom != null && dateFrom.length() > 0 ) {
@@ -1145,18 +1145,18 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartPointOfDaterangeNotFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartPointOfDaterangeFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
             } else {
               error_message =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
             }
 
             if ( dateTo != null && dateTo.length() > 0 ) {
@@ -1164,22 +1164,22 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndPointOfDaterangeNotFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndPointOfDaterangeFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
             } else {
               error_message =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
             }
           } else {
             error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
             remarks.add( cr );
           }
         }
@@ -1193,7 +1193,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           for ( int i = 0; i < fieldStream.length; i++ ) {
             logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.CheckField", i + " --> "
               + fieldStream[ i ] ) );
-            ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -1205,10 +1205,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                 "DimensionLookupMeta.CheckResult.AllFieldsFound" ), transforminfo );
           }
           remarks.add( cr );
@@ -1216,7 +1216,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           error_message =
             BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
               + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
           remarks.add( cr );
         }
 
@@ -1226,29 +1226,29 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           if ( db.checkSequenceExists( sequenceName ) ) {
             error_message =
               BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.SequenceExists", sequenceName );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
             remarks.add( cr );
           } else {
             error_message +=
               BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.SequenceCouldNotFound", sequenceName );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
             remarks.add( cr );
           }
         }
       } catch ( HopException e ) {
         error_message =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotConectToDB" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
         remarks.add( cr );
       }
     } else {
       error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnectionName" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
       remarks.add( cr );
     }
   }
 
-  private void checkLookup( List<CheckResultInterface> remarks, TransformMeta transforminfo, RowMetaInterface prev ) {
+  private void checkLookup( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     int i;
     boolean error_found = false;
     String error_message = "";
@@ -1262,7 +1262,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         db.connect();
 
         if ( !Utils.isEmpty( tableName ) ) {
-          RowMetaInterface tableFields = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta tableFields = db.getTableFieldsMeta( schemaName, tableName );
           if ( tableFields != null ) {
             if ( prev != null && prev.size() > 0 ) {
               // Start at the top, see if the key fields exist:
@@ -1271,7 +1271,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               for ( i = 0; i < keyStream.length; i++ ) {
                 // Does the field exist in the input stream?
                 String strfield = keyStream[ i ];
-                ValueMetaInterface strvalue = prev.searchValueMeta( strfield ); //
+                IValueMeta strvalue = prev.searchValueMeta( strfield ); //
                 if ( strvalue == null ) {
                   if ( first ) {
                     first = false;
@@ -1285,7 +1285,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 } else {
                   // does the field exist in the dimension table?
                   String dimfield = keyLookup[ i ];
-                  ValueMetaInterface dimvalue = tableFields.searchValueMeta( dimfield );
+                  IValueMeta dimvalue = tableFields.searchValueMeta( dimfield );
                   if ( dimvalue == null ) {
                     if ( first ) {
                       first = false;
@@ -1321,12 +1321,12 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 }
               }
               if ( error_found ) {
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else if ( warning_found ) {
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, error_message, transforminfo );
               } else {
                 cr =
-                  new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+                  new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                     "DimensionLookupMeta.CheckResult.AllKeysFieldsFound" ), transforminfo );
               }
               remarks.add( cr );
@@ -1337,7 +1337,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 String lufield = fieldLookup[ i ];
                 if ( lufield != null && lufield.length() > 0 ) {
                   // Checking compare field: lufield
-                  ValueMetaInterface v = tableFields.searchValueMeta( lufield );
+                  IValueMeta v = tableFields.searchValueMeta( lufield );
                   if ( v == null ) {
                     if ( first ) {
                       first = false;
@@ -1351,10 +1351,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 }
               }
               if ( error_found ) {
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 cr =
-                  new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+                  new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                     "DimensionLookupMeta.CheckResult.AllFieldsToRetrieveFound" ), transforminfo );
               }
               remarks.add( cr );
@@ -1364,12 +1364,12 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyNotFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
 
@@ -1377,12 +1377,12 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldNotFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
 
@@ -1390,12 +1390,12 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartOfDaterangeFieldNotFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartOfDaterangeFieldFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
 
@@ -1403,42 +1403,42 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndOfDaterangeFieldNotFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               } else {
                 error_message =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndOfDaterangeFieldFound", dateTo );
-                cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
               }
               remarks.add( cr );
             } else {
               error_message =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
                   + Const.CR;
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
               remarks.add( cr );
             }
           } else {
             error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
             remarks.add( cr );
           }
         }
       } catch ( HopException e ) {
         error_message =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotConnectDB" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
         remarks.add( cr );
       }
     } else {
       error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transforminfo );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
       remarks.add( cr );
     }
   }
 
   @Override
-  public RowMetaInterface getTableFields() {
-    RowMetaInterface fields = null;
+  public IRowMeta getTableFields() {
+    IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
       try {
@@ -1454,7 +1454,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -1473,28 +1473,28 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
               // How does the table look like?
               //
-              RowMetaInterface fields = new RowMeta();
+              IRowMeta fields = new RowMeta();
 
               // First the technical key
               //
-              ValueMetaInterface vkeyfield = new ValueMetaInteger( keyField );
+              IValueMeta vkeyfield = new ValueMetaInteger( keyField );
               vkeyfield.setLength( 10 );
               fields.addValueMeta( vkeyfield );
 
               // The the version
               //
-              ValueMetaInterface vversion = new ValueMetaInteger( versionField );
+              IValueMeta vversion = new ValueMetaInteger( versionField );
               vversion.setLength( 5 );
               fields.addValueMeta( vversion );
 
               // The date from
               //
-              ValueMetaInterface vdatefrom = new ValueMetaDate( dateFrom );
+              IValueMeta vdatefrom = new ValueMetaDate( dateFrom );
               fields.addValueMeta( vdatefrom );
 
               // The date to
               //
-              ValueMetaInterface vdateto = new ValueMetaDate( dateTo );
+              IValueMeta vdateto = new ValueMetaDate( dateTo );
               fields.addValueMeta( vdateto );
 
               String errors = "";
@@ -1502,9 +1502,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Then the keys
               //
               for ( int i = 0; i < keyLookup.length; i++ ) {
-                ValueMetaInterface vprev = prev.searchValueMeta( keyStream[ i ] );
+                IValueMeta vprev = prev.searchValueMeta( keyStream[ i ] );
                 if ( vprev != null ) {
-                  ValueMetaInterface field = vprev.clone();
+                  IValueMeta field = vprev.clone();
                   field.setName( keyLookup[ i ] );
                   fields.addValueMeta( field );
                 } else {
@@ -1519,9 +1519,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Then the fields to update...
               //
               for ( int i = 0; i < fieldLookup.length; i++ ) {
-                ValueMetaInterface vprev = prev.searchValueMeta( fieldStream[ i ] );
+                IValueMeta vprev = prev.searchValueMeta( fieldStream[ i ] );
                 if ( vprev != null ) {
-                  ValueMetaInterface field = vprev.clone();
+                  IValueMeta field = vprev.clone();
                   field.setName( fieldLookup[ i ] );
                   fields.addValueMeta( field );
                 } else {
@@ -1535,7 +1535,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Finally, the special update fields...
               //
               for ( int i = 0; i < fieldUpdate.length; i++ ) {
-                ValueMetaInterface valueMeta = null;
+                IValueMeta valueMeta = null;
                 switch ( fieldUpdate[ i ] ) {
                   case TYPE_UPDATE_DATE_INSUP:
                   case TYPE_UPDATE_DATE_INSERTED:
@@ -1631,13 +1631,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                             String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore ) {
+  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                             String[] input, String[] output, IRowMeta info, IMetaStore metaStore ) {
     if ( prev != null ) {
       if ( !update ) {
         // Lookup: we do a lookup on the natural keys + the return fields!
         for ( int i = 0; i < keyLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -1648,7 +1648,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
         // Return fields...
         for ( int i = 0; i < fieldLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -1660,7 +1660,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         // Update: insert/update on all specified fields...
         // Lookup: we do a lookup on the natural keys + the return fields!
         for ( int i = 0; i < keyLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
@@ -1671,7 +1671,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
         // Return fields...
         for ( int i = 0; i < fieldLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
@@ -1684,9 +1684,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public DimensionLookup createTransform( TransformMeta transformMeta, DimensionLookupData transformDataInterface, int cnr, PipelineMeta tr,
+  public DimensionLookup createTransform( TransformMeta transformMeta, DimensionLookupData iTransformData, int cnr, PipelineMeta tr,
                                           Pipeline pipeline ) {
-    return new DimensionLookup( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new DimensionLookup( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
@@ -1807,10 +1807,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
     this.useBatchUpdate = useBatchUpdate;
   }
 
-  protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+  protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
     throws HopDatabaseException {
     // First try without connecting to the database... (can be S L O W)
-    RowMetaInterface extraFields = db.getTableFieldsMeta( schemaName, tableName );
+    IRowMeta extraFields = db.getTableFieldsMeta( schemaName, tableName );
     if ( extraFields == null ) { // now we need to connect
       db.connect();
       extraFields = db.getTableFieldsMeta( schemaName, tableName );
@@ -1823,7 +1823,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public RowMeta getRowMeta( final TransformDataInterface transformData ) {
+  public RowMeta getRowMeta( final ITransformData transformData ) {
     try {
       return (RowMeta) getDatabaseTableFields( createDatabaseObject(), schemaName, tableName );
     } catch ( HopDatabaseException e ) {

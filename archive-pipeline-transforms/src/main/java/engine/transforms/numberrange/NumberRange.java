@@ -28,8 +28,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  *
  * @author ronny.roeller@fredhopper.com
  */
-public class NumberRange extends BaseTransform implements TransformInterface {
+public class NumberRange extends BaseTransform implements ITransform {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
 
   private NumberRangeData data;
@@ -50,7 +50,7 @@ public class NumberRange extends BaseTransform implements TransformInterface {
    * Column number where the input value is stored
    */
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Object[] row = getRow();
     if ( row == null ) {
       setOutputDone();
@@ -111,18 +111,18 @@ public class NumberRange extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public NumberRange( TransformMeta s, TransformDataInterface transformDataInterface, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, transformDataInterface, c, t, dis );
+  public NumberRange( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, iTransformData, c, t, dis );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (NumberRangeMeta) smi;
     data = (NumberRangeData) sdi;
 
     return super.init( smi, sdi );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (NumberRangeMeta) smi;
     data = (NumberRangeData) sdi;
 

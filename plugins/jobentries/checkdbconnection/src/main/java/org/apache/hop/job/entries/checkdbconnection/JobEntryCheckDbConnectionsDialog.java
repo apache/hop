@@ -28,8 +28,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -69,13 +69,13 @@ import java.util.List;
   pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/" 
 )
-public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements IJobEntryDialog {
   private static final Class<?> PKG = JobEntryCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
 
 
   private Text wName;
 
-  private JobEntryCheckDbConnections jobEntry;
+  private JobEntryICheckDbConnections jobEntry;
 
   private SelectionAdapter lsDef;
 
@@ -87,16 +87,16 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
 
   private FormData fdbgetConnections;
 
-  public JobEntryCheckDbConnectionsDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryCheckDbConnectionsDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntryCheckDbConnections) jobEntryInt;
+    jobEntry = (JobEntryICheckDbConnections) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
     }
   }
 
   @Override
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -181,7 +181,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitForTime.Label" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntryCheckDbConnections.unitTimeDesc, false ), };
+          ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntryICheckDbConnections.unitTimeDesc, false ), };
 
     colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Column" ) );
     colinf[ 1 ].setUsingVariables( true );
@@ -275,7 +275,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     for ( int i = 0; i < databases.size(); i++ ) {
       DatabaseMeta ci = databases.get( i );
       if ( ci != null ) {
-        wFields.add( new String[] { ci.getName(), "0", JobEntryCheckDbConnections.unitTimeDesc[ 0 ] } );
+        wFields.add( new String[] { ci.getName(), "0", JobEntryICheckDbConnections.unitTimeDesc[ 0 ] } );
       }
     }
     wFields.removeEmptyRows();
@@ -303,7 +303,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
         if ( jobEntry.getConnections()[ i ] != null ) {
           ti.setText( 1, jobEntry.getConnections()[ i ].getName() );
           ti.setText( 2, "" + Const.toInt( jobEntry.getWaitfors()[ i ], 0 ) );
-          ti.setText( 3, JobEntryCheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
+          ti.setText( 3, JobEntryICheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -343,7 +343,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
         connections[ i ] = dbMeta;
         waitfors[ i ] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );
         waittimes[ i ] =
-          JobEntryCheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
+          JobEntryICheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
       }
     }
     jobEntry.setConnections( connections );

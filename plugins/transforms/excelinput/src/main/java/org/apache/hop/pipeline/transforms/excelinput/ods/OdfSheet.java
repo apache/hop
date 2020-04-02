@@ -22,8 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.ods;
 
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKSheet;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
 import org.odftoolkit.odfdom.doc.table.OdfTableRow;
@@ -32,7 +32,7 @@ import org.odftoolkit.odfdom.dom.element.table.TableTableRowElement;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class OdfSheet implements KSheet {
+public class OdfSheet implements IKSheet {
   private OdfTable table;
   private int nrOfRows;
   private int roughNrOfCols;
@@ -119,7 +119,7 @@ public class OdfSheet implements KSheet {
     return table.getTableName();
   }
 
-  public KCell[] getRow( int rownr ) {
+  public IKCell[] getRow( int rownr ) {
     if ( rownr >= nrOfRows ) {
       throw new ArrayIndexOutOfBoundsException( "Read beyond last row: " + rownr );
     }
@@ -139,7 +139,7 @@ public class OdfSheet implements KSheet {
     return nrOfRows;
   }
 
-  public KCell getCell( int colnr, int rownr ) {
+  public IKCell getCell( int colnr, int rownr ) {
     OdfTableCell cell = table.getCellByPosition( colnr, rownr );
     if ( cell == null ) {
       return null;

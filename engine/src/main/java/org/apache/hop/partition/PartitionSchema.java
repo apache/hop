@@ -26,13 +26,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
@@ -60,7 +60,7 @@ import java.util.Map;
   description = "Describes a partition schema",
   iconImage = "ui/images/partition_schema.svg"
 )
-public class PartitionSchema extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<PartitionSchema> {
+public class PartitionSchema extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<PartitionSchema> {
   public static final String XML_TAG = "partitionschema";
 
   private String name;
@@ -74,7 +74,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
   @MetaStoreAttribute
   private String numberOfPartitions;
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   public PartitionSchema() {
     this.dynamicallyDefined = true;
@@ -123,7 +123,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     return name.hashCode();
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
     xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
@@ -170,8 +170,8 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     }
   }
 
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   public String environmentSubstitute( String aString ) {
@@ -182,16 +182,16 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     return variables.environmentSubstitute( aString );
   }
 
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -213,7 +213,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     return defaultValue;
   }
 
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -225,8 +225,8 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, VariableS
     variables.setVariable( variableName, variableValue );
   }
 
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   public void injectVariables( Map<String, String> prop ) {

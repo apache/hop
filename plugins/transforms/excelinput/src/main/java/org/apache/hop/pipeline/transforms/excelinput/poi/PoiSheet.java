@@ -22,13 +22,13 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-public class PoiSheet implements KSheet {
+public class PoiSheet implements IKSheet {
   private Sheet sheet;
 
   public PoiSheet( Sheet sheet ) {
@@ -39,19 +39,19 @@ public class PoiSheet implements KSheet {
     return sheet.getSheetName();
   }
 
-  public KCell[] getRow( int rownr ) {
+  public IKCell[] getRow( int rownr ) {
     if ( rownr < sheet.getFirstRowNum() ) {
-      return new KCell[] {};
+      return new IKCell[] {};
     } else if ( rownr > sheet.getLastRowNum() ) {
       throw new ArrayIndexOutOfBoundsException( "Read beyond last row: " + rownr );
     }
     Row row = sheet.getRow( rownr );
     if ( row == null ) { // read an empty row
-      return new KCell[] {};
+      return new IKCell[] {};
     }
     int cols = row.getLastCellNum();
     if ( cols < 0 ) { // this happens if a row has no cells, POI returns -1 then
-      return new KCell[] {};
+      return new IKCell[] {};
     }
     PoiCell[] xlsCells = new PoiCell[ cols ];
     for ( int i = 0; i < cols; i++ ) {
@@ -67,7 +67,7 @@ public class PoiSheet implements KSheet {
     return sheet.getLastRowNum() + 1;
   }
 
-  public KCell getCell( int colnr, int rownr ) {
+  public IKCell getCell( int colnr, int rownr ) {
     Row row = sheet.getRow( rownr );
     if ( row == null ) {
       return null;

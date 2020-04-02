@@ -29,13 +29,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -43,13 +43,13 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -212,15 +212,15 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
       for ( int i = 0; i < inputFields.length; i++ ) {
         TextFileInputField field = inputFields[ i ];
 
-        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
+        IValueMeta valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
         valueMeta.setConversionMask( field.getFormat() );
         valueMeta.setLength( field.getLength() );
         valueMeta.setPrecision( field.getPrecision() );
@@ -230,18 +230,18 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
         valueMeta.setCurrencySymbol( field.getCurrencySymbol() );
         valueMeta.setTrimType( field.getTrimType() );
         if ( lazyConversionActive ) {
-          valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+          valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
         }
-        valueMeta.setStringEncoding( space.environmentSubstitute( encoding ) );
+        valueMeta.setStringEncoding( variables.environmentSubstitute( encoding ) );
 
         // In case we want to convert Strings...
         // Using a copy of the valueMeta object means that the inner and outer representation format is the same.
         // Preview will show the data the same way as we read it.
         // This layout is then taken further down the road by the metadata through the pipeline.
         //
-        ValueMetaInterface storageMetadata =
-          ValueMetaFactory.cloneValueMeta( valueMeta, ValueMetaInterface.TYPE_STRING );
-        storageMetadata.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        IValueMeta storageMetadata =
+          ValueMetaFactory.cloneValueMeta( valueMeta, IValueMeta.TYPE_STRING );
+        storageMetadata.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         storageMetadata.setLength( -1, -1 ); // we don't really know the lengths of the strings read in advance.
         valueMeta.setStorageMetadata( storageMetadata );
 
@@ -251,17 +251,17 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
       }
 
       if ( !Utils.isEmpty( filenameField ) && includingFilename ) {
-        ValueMetaInterface filenameMeta = new ValueMetaString( filenameField );
+        IValueMeta filenameMeta = new ValueMetaString( filenameField );
         filenameMeta.setOrigin( origin );
         if ( lazyConversionActive ) {
-          filenameMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+          filenameMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
           filenameMeta.setStorageMetadata( new ValueMetaString( filenameField ) );
         }
         rowMeta.addValueMeta( filenameMeta );
       }
 
       if ( !Utils.isEmpty( rowNumField ) ) {
-        ValueMetaInterface rowNumMeta = new ValueMetaInteger( rowNumField );
+        IValueMeta rowNumMeta = new ValueMetaInteger( rowNumField );
         rowNumMeta.setLength( 10 );
         rowNumMeta.setOrigin( origin );
         rowMeta.addValueMeta( rowNumMeta );
@@ -274,7 +274,7 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
@@ -304,13 +304,13 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new ParGzipCsvInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new ParGzipCsvInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new ParGzipCsvInputData();
   }
 
@@ -438,8 +438,8 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public String[] getFilePaths( VariableSpace space ) {
-    return new String[] { space.environmentSubstitute( filename ), };
+  public String[] getFilePaths( iVariables variables ) {
+    return new String[] { variables.environmentSubstitute( filename ), };
   }
 
   @Override
@@ -592,15 +592,15 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -610,14 +610,14 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformM
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( filename ), space );
+        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
 
         // If the file doesn't exist, forget about this effort too!
         //
         if ( fileObject.exists() ) {
           // Convert to an absolute path...
           //
-          filename = resourceNamingInterface.nameResource( fileObject, space, true );
+          filename = iResourceNaming.nameResource( fileObject, variables, true );
           return filename;
         }
       }

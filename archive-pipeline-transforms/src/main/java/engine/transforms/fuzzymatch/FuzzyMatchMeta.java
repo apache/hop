@@ -27,23 +27,23 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
@@ -455,22 +455,22 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
 
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Add match field
-    ValueMetaInterface v =
-      new ValueMetaString( space.environmentSubstitute( getOutputMatchField() ) );
+    IValueMeta v =
+      new ValueMetaString( variables.environmentSubstitute( getOutputMatchField() ) );
     v.setOrigin( name );
-    v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     inputRowMeta.addValueMeta( v );
 
-    String mainField = space.environmentSubstitute( getOutputValueField() );
+    String mainField = variables.environmentSubstitute( getOutputValueField() );
     if ( !Utils.isEmpty( mainField ) && isGetCloserValue() ) {
       switch ( getAlgorithmType() ) {
         case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
         case FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN:
           v = new ValueMetaInteger( mainField );
-          v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH );
+          v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
           break;
         case FuzzyMatchMeta.OPERATION_TYPE_JARO:
         case FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER:
@@ -482,7 +482,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
           v = new ValueMetaString( mainField );
           break;
       }
-      v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
@@ -503,7 +503,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
 
             v.setName( valueName[ i ] );
             v.setOrigin( name );
-            v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL ); // Only normal storage goes into the cache
+            v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL ); // Only normal storage goes into the cache
             inputRowMeta.addValueMeta( v );
           } else {
             throw new HopTransformException( BaseMessages.getString(
@@ -551,7 +551,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -685,12 +685,12 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FuzzyMatch( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FuzzyMatch( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new FuzzyMatchData();
   }
 

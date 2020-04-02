@@ -25,9 +25,9 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
@@ -77,13 +77,13 @@ public class SubjectDataBrowserDialog {
   private Shell shell;
 
   private Map<String, List<Object[]>> dataMap;
-  private Map<String, RowMetaInterface> metaMap;
+  private Map<String, IRowMeta> metaMap;
 
   private PropsUI props;
 
   private String dialogTitle, subjectMessage;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private Shell parentShell;
 
@@ -91,7 +91,7 @@ public class SubjectDataBrowserDialog {
 
   private String[] subjects;
 
-  public SubjectDataBrowserDialog( Shell parent, Map<String, RowMetaInterface> metaMap,
+  public SubjectDataBrowserDialog( Shell parent, Map<String, IRowMeta> metaMap,
                                    Map<String, List<Object[]>> dataMap, String dialogTitle, String subjectMessage ) {
     this.parentShell = parent;
     this.metaMap = metaMap;
@@ -193,7 +193,7 @@ public class SubjectDataBrowserDialog {
       wFields.dispose();
     }
 
-    RowMetaInterface rowMeta = metaMap.get( selectedSubject );
+    IRowMeta rowMeta = metaMap.get( selectedSubject );
     List<Object[]> buffer = dataMap.get( selectedSubject );
 
     // Mmm, if we don't get any rows in the buffer: show a dialog box.
@@ -205,7 +205,7 @@ public class SubjectDataBrowserDialog {
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
     ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( i );
+      IValueMeta v = rowMeta.getValueMeta( i );
       colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
       colinf[ i ].setToolTip( v.toStringMeta() );
       colinf[ i ].setValueMeta( v );
@@ -250,7 +250,7 @@ public class SubjectDataBrowserDialog {
     shell.dispose();
   }
 
-  protected int getDataForRow( TableItem item, RowMetaInterface rowMeta, Object[] row, int lineNr ) {
+  protected int getDataForRow( TableItem item, IRowMeta rowMeta, Object[] row, int lineNr ) {
     int nrErrors = 0;
 
     // Display the correct line item...
@@ -264,7 +264,7 @@ public class SubjectDataBrowserDialog {
     item.setText( 0, strNr );
 
     for ( int c = 0; c < rowMeta.size(); c++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( c );
+      IValueMeta v = rowMeta.getValueMeta( c );
       String show;
       try {
         show = v.getString( row[ c ] );

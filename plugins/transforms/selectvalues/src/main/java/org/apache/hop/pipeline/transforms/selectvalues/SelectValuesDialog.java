@@ -26,18 +26,18 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -61,7 +61,7 @@ import java.util.*;
 /**
  * Dialog for the Select Values transform.
  */
-public class SelectValuesDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -100,7 +100,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
   /**
    * Fields from previous transform
    */
-  private RowMetaInterface prevFields;
+  private IRowMeta prevFields;
 
   /**
    * Previous fields are read asynchonous because this might take some time and the user is able to do other things,
@@ -520,7 +520,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
             prevFields = row;
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -637,7 +637,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
         item.setText( index++, ValueMetaFactory.getValueMetaName( change.getType() ) );
         item.setText( index++, change.getLength() < 0 ? "" : "" + change.getLength() );
         item.setText( index++, change.getPrecision() < 0 ? "" : "" + change.getPrecision() );
-        item.setText( index++, change.getStorageType() == ValueMetaInterface.STORAGE_TYPE_NORMAL ? BaseMessages
+        item.setText( index++, change.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL ? BaseMessages
           .getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
         item.setText( index++, Const.NVL( change.getConversionMask(), "" ) );
         item
@@ -748,7 +748,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
         change.setPrecision( -2 );
       }
       if ( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( index++ ) ) ) {
-        change.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        change.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
       change.setConversionMask( item.getText( index++ ) );
@@ -769,7 +769,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         switch ( wTabFolder.getSelectionIndex() ) {
           case 0:
@@ -829,7 +829,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
       }
     }
 
-    RowMetaInterface nextTransformRequiredFields = null;
+    IRowMeta nextTransformRequiredFields = null;
 
     TransformMeta transformMeta = new TransformMeta( transformName, input );
     List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transformMeta );
@@ -840,7 +840,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
       return;
     }
     TransformMeta outputTransformMeta = nextTransforms.get( 0 );
-    TransformMetaInterface transformMetaInterface = outputTransformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = outputTransformMeta.getTransformMetaInterface();
     try {
       nextTransformRequiredFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {
@@ -850,7 +850,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements Transform
 
     String[] inputNames = new String[ prevFields.size() ];
     for ( int i = 0; i < prevFields.size(); i++ ) {
-      ValueMetaInterface value = prevFields.getValueMeta( i );
+      IValueMeta value = prevFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 

@@ -24,11 +24,11 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -50,9 +50,9 @@ public class HopServerServlet extends HttpServlet {
 
   public static final String STRING_HOP_SERVER_SERVLET = "HopServer Servlet";
 
-  private Map<String, HopServerPluginInterface> hopServerPluginRegistry;
+  private Map<String, IHopServerPlugin> hopServerPluginRegistry;
 
-  private final LogChannelInterface log;
+  private final ILogChannel log;
   private List<SlaveServerDetection> detections;
 
   public HopServerServlet() {
@@ -68,7 +68,7 @@ public class HopServerServlet extends HttpServlet {
     if ( servletPath.endsWith( "/" ) ) {
       servletPath = servletPath.substring( 0, servletPath.length() - 1 );
     }
-    HopServerPluginInterface plugin = hopServerPluginRegistry.get( servletPath );
+    IHopServerPlugin plugin = hopServerPluginRegistry.get( servletPath );
     if ( plugin != null ) {
       try {
         plugin.doGet( req, resp );
@@ -85,7 +85,7 @@ public class HopServerServlet extends HttpServlet {
     }
   }
 
-  private String getServletKey( HopServerPluginInterface servlet ) {
+  private String getServletKey( IHopServerPlugin servlet ) {
     String key = servlet.getContextPath();
     if ( key.startsWith( "/hop" ) ) {
       key = key.substring( "/hop".length() );
@@ -95,14 +95,14 @@ public class HopServerServlet extends HttpServlet {
 
   @Override
   public void init( ServletConfig config ) throws ServletException {
-    hopServerPluginRegistry = new ConcurrentHashMap<String, HopServerPluginInterface>();
+    hopServerPluginRegistry = new ConcurrentHashMap<String, IHopServerPlugin>();
     detections = Collections.synchronizedList( new ArrayList<SlaveServerDetection>() );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
+    List<IPlugin> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
 
     // Initial Registry scan
-    for ( PluginInterface plugin : plugins ) {
+    for ( IPlugin plugin : plugins ) {
       try {
         registerServlet( loadServlet( plugin ) );
       } catch ( HopPluginException e ) {
@@ -119,7 +119,7 @@ public class HopServerServlet extends HttpServlet {
       final Class<?> clazz;
       try {
         clazz = Class.forName( className );
-        registerServlet( (HopServerPluginInterface) clazz.newInstance() );
+        registerServlet( (IHopServerPlugin) clazz.newInstance() );
       } catch ( ClassNotFoundException e ) {
         log.logError( "Unable to find configured " + paramName + " of " + className, e );
       } catch ( InstantiationException e ) {
@@ -128,15 +128,15 @@ public class HopServerServlet extends HttpServlet {
         log.logError( "Unable to access configured " + paramName + " of " + className, e );
       } catch ( ClassCastException e ) {
         log.logError( "Unable to cast configured "
-          + paramName + " of " + className + " to " + HopServerPluginInterface.class, e );
+          + paramName + " of " + className + " to " + IHopServerPlugin.class, e );
       }
     }
 
     // Catch servlets as they become available
-    pluginRegistry.addPluginListener( HopServerPluginType.class, new PluginTypeListener() {
+    pluginRegistry.addPluginListener( HopServerPluginType.class, new IPluginTypeListener() {
       @Override public void pluginAdded( Object serviceObject ) {
         try {
-          registerServlet( loadServlet( (PluginInterface) serviceObject ) );
+          registerServlet( loadServlet( (IPlugin) serviceObject ) );
         } catch ( HopPluginException e ) {
           log.logError( MessageFormat.format( "Unable to load plugin: {0}", serviceObject ), e );
         }
@@ -144,7 +144,7 @@ public class HopServerServlet extends HttpServlet {
 
       @Override public void pluginRemoved( Object serviceObject ) {
         try {
-          String key = getServletKey( loadServlet( (PluginInterface) serviceObject ) );
+          String key = getServletKey( loadServlet( (IPlugin) serviceObject ) );
           hopServerPluginRegistry.remove( key );
         } catch ( HopPluginException e ) {
           log.logError( MessageFormat.format( "Unable to load plugin: {0}", serviceObject ), e );
@@ -157,11 +157,11 @@ public class HopServerServlet extends HttpServlet {
     } );
   }
 
-  private HopServerPluginInterface loadServlet( PluginInterface plugin ) throws HopPluginException {
-    return PluginRegistry.getInstance().loadClass( plugin, HopServerPluginInterface.class );
+  private IHopServerPlugin loadServlet( IPlugin plugin ) throws HopPluginException {
+    return PluginRegistry.getInstance().loadClass( plugin, IHopServerPlugin.class );
   }
 
-  private void registerServlet( HopServerPluginInterface servlet ) {
+  private void registerServlet( IHopServerPlugin servlet ) {
     PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
     JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
     SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();

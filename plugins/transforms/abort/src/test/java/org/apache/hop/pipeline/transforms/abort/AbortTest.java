@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -40,12 +40,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AbortTest {
-  private TransformMockHelper<AbortMeta, TransformDataInterface> transformMockHelper;
+  private TransformMockHelper<AbortMeta, ITransformData> transformMockHelper;
 
   @Before
   public void setup() {
-    transformMockHelper = new TransformMockHelper<>( "ABORT TEST", AbortMeta.class, TransformDataInterface.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    transformMockHelper = new TransformMockHelper<>( "ABORT TEST", AbortMeta.class, ITransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -59,7 +59,7 @@ public class AbortTest {
   public void testAbortDoesntAbortWithoutInputRow() throws HopException {
     Abort abort =
       new Abort(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     abort.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
     abort.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet() );
@@ -73,7 +73,7 @@ public class AbortTest {
   public void testAbortAbortsWithInputRow() throws HopException {
     Abort abort =
       new Abort(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     abort.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
     abort.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
@@ -87,7 +87,7 @@ public class AbortTest {
   public void testSafeStop() throws HopException {
     Abort abort =
       new Abort(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     when( transformMockHelper.processRowsTransformMetaInterface.isSafeStop() ).thenReturn( true );
     abort.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
@@ -100,7 +100,7 @@ public class AbortTest {
   public void testAbortWithError() throws HopException {
     Abort abort =
       new Abort(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     when( transformMockHelper.processRowsTransformMetaInterface.isSafeStop() ).thenReturn( false );
     when( transformMockHelper.processRowsTransformMetaInterface.isAbortWithError() ).thenReturn( true );

@@ -23,23 +23,23 @@
 package org.apache.hop.pipeline.transforms.constant;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -52,33 +52,33 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class Constant extends BaseTransform implements TransformInterface {
+public class Constant extends BaseTransform implements ITransform {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private ConstantMeta meta;
   private ConstantData data;
 
-  public Constant( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Constant( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (ConstantMeta) getTransformMeta().getTransformMetaInterface();
-    data = (ConstantData) transformDataInterface;
+    data = (ConstantData) iTransformData;
   }
 
   public static final RowMetaAndData buildRow( ConstantMeta meta, ConstantData data,
-                                               List<CheckResultInterface> remarks ) {
-    RowMetaInterface rowMeta = new RowMeta();
+                                               List<ICheckResult> remarks ) {
+    IRowMeta rowMeta = new RowMeta();
     Object[] rowData = new Object[ meta.getFieldName().length ];
 
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
       int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[ i ] );
       if ( meta.getFieldName()[ i ] != null ) {
-        ValueMetaInterface value = null;
+        IValueMeta value = null;
         try {
           value = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype );
         } catch ( Exception exception ) {
-          remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, exception.getMessage(), null ) );
+          remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, exception.getMessage(), null ) );
           continue;
         }
         value.setLength( meta.getFieldLength()[ i ] );
@@ -95,15 +95,15 @@ public class Constant extends BaseTransform implements TransformInterface {
           if ( stringValue == null || stringValue.length() == 0 ) {
             rowData[ i ] = null;
 
-            if ( value.getType() == ValueMetaInterface.TYPE_NONE ) {
+            if ( value.getType() == IValueMeta.TYPE_NONE ) {
               String message =
                 BaseMessages.getString(
                   PKG, "Constant.CheckResult.SpecifyTypeError", value.getName(), stringValue );
-              remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
             }
           } else {
             switch ( value.getType() ) {
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 try {
                   if ( meta.getFieldFormat()[ i ] != null
                     || meta.getDecimal()[ i ] != null || meta.getGroup()[ i ] != null
@@ -130,15 +130,15 @@ public class Constant extends BaseTransform implements TransformInterface {
                     BaseMessages.getString(
                       PKG, "Constant.BuildRow.Error.Parsing.Number", value.getName(), stringValue, e
                         .toString() );
-                  remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                  remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
                 }
                 break;
 
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 rowData[ i ] = stringValue;
                 break;
 
-              case ValueMetaInterface.TYPE_DATE:
+              case IValueMeta.TYPE_DATE:
                 try {
                   if ( meta.getFieldFormat()[ i ] != null ) {
                     data.daf.applyPattern( meta.getFieldFormat()[ i ] );
@@ -150,11 +150,11 @@ public class Constant extends BaseTransform implements TransformInterface {
                   String message =
                     BaseMessages.getString(
                       PKG, "Constant.BuildRow.Error.Parsing.Date", value.getName(), stringValue, e.toString() );
-                  remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                  remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
                 }
                 break;
 
-              case ValueMetaInterface.TYPE_INTEGER:
+              case IValueMeta.TYPE_INTEGER:
                 try {
                   rowData[ i ] = new Long( Long.parseLong( stringValue ) );
                 } catch ( Exception e ) {
@@ -162,11 +162,11 @@ public class Constant extends BaseTransform implements TransformInterface {
                     BaseMessages.getString(
                       PKG, "Constant.BuildRow.Error.Parsing.Integer", value.getName(), stringValue, e
                         .toString() );
-                  remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                  remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
                 }
                 break;
 
-              case ValueMetaInterface.TYPE_BIGNUMBER:
+              case IValueMeta.TYPE_BIGNUMBER:
                 try {
                   rowData[ i ] = new BigDecimal( stringValue );
                 } catch ( Exception e ) {
@@ -174,21 +174,21 @@ public class Constant extends BaseTransform implements TransformInterface {
                     BaseMessages.getString(
                       PKG, "Constant.BuildRow.Error.Parsing.BigNumber", value.getName(), stringValue, e
                         .toString() );
-                  remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                  remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
                 }
                 break;
 
-              case ValueMetaInterface.TYPE_BOOLEAN:
+              case IValueMeta.TYPE_BOOLEAN:
                 rowData[ i ] =
                   Boolean
                     .valueOf( "Y".equalsIgnoreCase( stringValue ) || "TRUE".equalsIgnoreCase( stringValue ) );
                 break;
 
-              case ValueMetaInterface.TYPE_BINARY:
+              case IValueMeta.TYPE_BINARY:
                 rowData[ i ] = stringValue.getBytes();
                 break;
 
-              case ValueMetaInterface.TYPE_TIMESTAMP:
+              case IValueMeta.TYPE_TIMESTAMP:
                 try {
                   rowData[ i ] = Timestamp.valueOf( stringValue );
                 } catch ( Exception e ) {
@@ -196,7 +196,7 @@ public class Constant extends BaseTransform implements TransformInterface {
                     BaseMessages.getString(
                       PKG, "Constant.BuildRow.Error.Parsing.Timestamp", value.getName(), stringValue, e
                         .toString() );
-                  remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                  remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
                 }
                 break;
 
@@ -204,7 +204,7 @@ public class Constant extends BaseTransform implements TransformInterface {
                 String message =
                   BaseMessages.getString(
                     PKG, "Constant.CheckResult.SpecifyTypeError", value.getName(), stringValue );
-                remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, message, null ) );
+                remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message, null ) );
             }
           }
         }
@@ -219,7 +219,7 @@ public class Constant extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     Object[] r = null;
     r = getRow();
 
@@ -257,7 +257,7 @@ public class Constant extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (ConstantMeta) smi;
     data = (ConstantData) sdi;
 
@@ -265,13 +265,13 @@ public class Constant extends BaseTransform implements TransformInterface {
 
     if ( super.init( smi, sdi ) ) {
       // Create a row (constants) with all the values in it...
-      List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>(); // stores the errors...
+      List<ICheckResult> remarks = new ArrayList<ICheckResult>(); // stores the errors...
       data.constants = buildRow( meta, data, remarks );
       if ( remarks.isEmpty() ) {
         return true;
       } else {
         for ( int i = 0; i < remarks.size(); i++ ) {
-          CheckResultInterface cr = remarks.get( i );
+          ICheckResult cr = remarks.get( i );
           logError( cr.getText() );
         }
       }

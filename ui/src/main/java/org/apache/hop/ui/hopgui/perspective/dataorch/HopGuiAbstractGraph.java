@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUI;
@@ -137,12 +137,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return area;
   }
 
-  protected <T extends GUIPositionInterface> void doRightClickSelection( T clicked, List<T> selection ) {
+  protected <T extends IGUIPosition> void doRightClickSelection( T clicked, List<T> selection ) {
     if ( selection.contains( clicked ) ) {
       return;
     }
     if ( !selection.isEmpty() ) {
-      for ( GUIPositionInterface selected : selection ) {
+      for ( IGUIPosition selected : selection ) {
         selected.setSelected( false );
       }
       selection.clear();

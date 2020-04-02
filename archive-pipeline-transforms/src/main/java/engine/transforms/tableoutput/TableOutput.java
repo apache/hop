@@ -25,22 +25,22 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -56,18 +56,18 @@ import java.util.List;
  * @author Matt Casters
  * @since 6-apr-2003
  */
-public class TableOutput extends BaseTransform implements TransformInterface {
+public class TableOutput extends BaseTransform implements ITransform {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableOutputMeta meta;
   private TableOutputData data;
 
-  public TableOutput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TableOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (TableOutputMeta) smi;
     data = (TableOutputData) sdi;
 
@@ -96,7 +96,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
         data.insertRowMeta = new RowMeta();
 
         //
-        // Cache the position of the compare fields in Row row
+        // ICache the position of the compare fields in Row row
         //
         data.valuenrs = new int[ meta.getFieldDatabase().length ];
         for ( int i = 0; i < meta.getFieldDatabase().length; i++ ) {
@@ -108,9 +108,9 @@ public class TableOutput extends BaseTransform implements TransformInterface {
         }
 
         for ( int i = 0; i < meta.getFieldDatabase().length; i++ ) {
-          ValueMetaInterface insValue = getInputRowMeta().searchValueMeta( meta.getFieldStream()[ i ] );
+          IValueMeta insValue = getInputRowMeta().searchValueMeta( meta.getFieldStream()[ i ] );
           if ( insValue != null ) {
-            ValueMetaInterface insertValue = insValue.clone();
+            IValueMeta insertValue = insValue.clone();
             insertValue.setName( meta.getFieldDatabase()[ i ] );
             data.insertRowMeta.addValueMeta( insertValue );
           } else {
@@ -144,7 +144,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  protected Object[] writeToTable( RowMetaInterface rowMeta, Object[] r ) throws HopException {
+  protected Object[] writeToTable( IRowMeta rowMeta, Object[] r ) throws HopException {
 
     if ( r == null ) { // Stop: last line or error encountered
       if ( log.isDetailed() ) {
@@ -168,7 +168,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
     Object generatedKey = null;
 
     if ( meta.isTableNameInField() ) {
-      // Cache the position of the table name field
+      // ICache the position of the table name field
       if ( data.indexOfTableNameField < 0 ) {
         String realTablename = environmentSubstitute( meta.getTableNameField() );
         data.indexOfTableNameField = rowMeta.indexOfValue( realTablename );
@@ -209,7 +209,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
         }
       }
 
-      ValueMetaInterface partitioningValue = rowMeta.getValueMeta( data.indexOfPartitioningField );
+      IValueMeta partitioningValue = rowMeta.getValueMeta( data.indexOfPartitioningField );
       if ( !partitioningValue.isDate() || r[ data.indexOfPartitioningField ] == null ) {
         throw new HopTransformException(
           "Sorry, the partitioning field needs to contain a data value and can't be empty!" );
@@ -467,7 +467,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
     data.batchBuffer.clear();
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TableOutputMeta) smi;
     data = (TableOutputData) sdi;
 
@@ -476,14 +476,14 @@ public class TableOutput extends BaseTransform implements TransformInterface {
         data.commitSize = Integer.parseInt( environmentSubstitute( meta.getCommitSize() ) );
 
         data.databaseMeta = meta.getDatabaseMeta();
-        DatabaseInterface dbInterface = data.databaseMeta.getDatabaseInterface();
+        IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes)
         // together with error handling (PDI-366).
         // For these situations we can use savepoints to help out.
         //
         data.useSafePoints =
-          data.databaseMeta.getDatabaseInterface().useSafePoints() && getTransformMeta().isDoingErrorHandling();
+          data.databaseMeta.getIDatabase().useSafePoints() && getTransformMeta().isDoingErrorHandling();
 
         // Get the boolean that indicates whether or not we can/should release
         // savepoints during data load.
@@ -571,7 +571,7 @@ public class TableOutput extends BaseTransform implements TransformInterface {
     }
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TableOutputMeta) smi;
     data = (TableOutputData) sdi;
 

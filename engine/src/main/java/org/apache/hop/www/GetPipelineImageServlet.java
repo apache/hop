@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class GetPipelineImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
 
@@ -198,7 +198,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements HopServe
   }
 
   public String toString() {
-    return "Pipeline Image Handler";
+    return "Pipeline Image IHandler";
   }
 
   public String getService() {

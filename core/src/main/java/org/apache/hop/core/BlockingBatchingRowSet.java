@@ -22,7 +22,7 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * @author Matt
  * @since 04-05-2011
  */
-public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
+public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
   private BlockingQueue<Object[][]> putArray, getArray;
 
   private int putIndex, getIndex;
@@ -74,7 +74,7 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
   }
 
   @Override
-  public boolean putRow( RowMetaInterface rowMeta, Object[] rowData ) {
+  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
 
     return putRowWait( rowMeta, rowData, Const.TIMEOUT_PUT_MILLIS, TimeUnit.MILLISECONDS );
   }
@@ -83,7 +83,7 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
    * We need to wait until
    */
   @Override
-  public boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu ) {
+  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
 
     this.rowMeta = rowMeta;
 

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputField;
 import org.junit.BeforeClass;
 
@@ -68,7 +68,7 @@ public abstract class CsvInputUnitTestBase {
   TextFileInputField createField( String name ) {
     TextFileInputField field = new TextFileInputField();
     field.setName( name );
-    field.setType( ValueMetaInterface.TYPE_STRING );
+    field.setType( IValueMeta.TYPE_STRING );
     return field;
   }
 

@@ -37,7 +37,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 
 
-public class StopJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class StopJobServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = StopJobServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;

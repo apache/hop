@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.sasinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.eobjects.sassy.SasColumnType;
 import org.eobjects.sassy.SasReader;
@@ -44,7 +44,7 @@ import java.io.File;
 public class SasInputHelper {
 
   private String filename;
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
   private SasReader sasReader;
 
@@ -62,22 +62,22 @@ public class SasInputHelper {
       rowMeta = new RowMeta();
       sasReader.read( new SasReaderCallback() {
         public void column( int index, String name, String label, SasColumnType type, int length ) {
-          int kettleType = ValueMetaInterface.TYPE_NONE;
+          int kettleType = IValueMeta.TYPE_NONE;
           int kettleLength;
           switch ( type ) {
             case CHARACTER:
-              kettleType = ValueMetaInterface.TYPE_STRING;
+              kettleType = IValueMeta.TYPE_STRING;
               kettleLength = length;
               break;
             case NUMERIC:
-              kettleType = ValueMetaInterface.TYPE_NUMBER;
+              kettleType = IValueMeta.TYPE_NUMBER;
               kettleLength = -1;
               break;
             default:
               throw new RuntimeException( "Unhandled SAS data type encountered: " + type );
           }
           try {
-            ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( name, kettleType );
+            IValueMeta valueMeta = ValueMetaFactory.createValueMeta( name, kettleType );
             valueMeta.setLength( kettleLength );
             valueMeta.setComments( label );
             rowMeta.addValueMeta( valueMeta );
@@ -115,7 +115,7 @@ public class SasInputHelper {
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 }

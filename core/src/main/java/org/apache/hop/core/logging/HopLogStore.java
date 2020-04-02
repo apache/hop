@@ -45,14 +45,14 @@ public class HopLogStore {
 
   private static AtomicBoolean initialized = new AtomicBoolean( false );
 
-  private static LogChannelInterfaceFactory logChannelInterfaceFactory = new LogChannelFactory();
+  private static ILogChannelFactory logChannelFactory = new LogChannelFactory();
 
-  public static LogChannelInterfaceFactory getLogChannelInterfaceFactory() {
-    return logChannelInterfaceFactory;
+  public static ILogChannelFactory getLogChannelFactory() {
+    return logChannelFactory;
   }
 
-  public static void setLogChannelInterfaceFactory( LogChannelInterfaceFactory logChannelInterfaceFactory ) {
-    HopLogStore.logChannelInterfaceFactory = logChannelInterfaceFactory;
+  public static void setLogChannelFactory( ILogChannelFactory logChannelFactory ) {
+    HopLogStore.logChannelFactory = logChannelFactory;
   }
 
   /**

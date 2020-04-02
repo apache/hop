@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.edi2xml;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -50,7 +50,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
         documentationUrl = ""
 )
-public class Edi2XmlMeta extends BaseTransformMeta implements TransformMetaInterface<Edi2Xml, Edi2XmlData> {
+public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
 
   private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
@@ -100,30 +100,30 @@ public class Edi2XmlMeta extends BaseTransformMeta implements TransformMetaInter
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) {
 
-    ValueMetaInterface extra = null;
+    IValueMeta extra = null;
 
     if ( !Utils.isEmpty( getOutputField() ) ) {
-      extra = new ValueMetaString( space.environmentSubstitute( getOutputField() ) );
+      extra = new ValueMetaString( variables.environmentSubstitute( getOutputField() ) );
       extra.setOrigin( origin );
       r.addValueMeta( extra );
     } else {
       if ( !Utils.isEmpty( getInputField() ) ) {
-        extra = r.searchValueMeta( space.environmentSubstitute( getInputField() ) );
+        extra = r.searchValueMeta( variables.environmentSubstitute( getInputField() ) );
       }
     }
 
     if ( extra != null ) {
-      extra.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      extra.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     }
 
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -175,9 +175,9 @@ public class Edi2XmlMeta extends BaseTransformMeta implements TransformMetaInter
   }
 
   @Override
-  public Edi2Xml createTransform( TransformMeta transformMeta, Edi2XmlData transformDataInterface, int cnr,
+  public Edi2Xml createTransform( TransformMeta transformMeta, Edi2XmlData iTransformData, int cnr,
                                   PipelineMeta pipelineMeta, Pipeline disp ) {
-    return new Edi2Xml( transformMeta, transformDataInterface, cnr, pipelineMeta, disp );
+    return new Edi2Xml( transformMeta, iTransformData, cnr, pipelineMeta, disp );
   }
 
   @Override

@@ -28,13 +28,13 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterfaceFactory;
+import org.apache.hop.core.logging.ILogChannelFactory;
 import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
@@ -69,13 +69,13 @@ import static org.mockito.Mockito.verify;
 
 @RunWith( MockitoJUnitRunner.class )
 public class SubPipelineExecutorTest {
-  @Mock private LogChannelInterfaceFactory logChannelFactory;
+  @Mock private ILogChannelFactory logChannelFactory;
   @Mock private LogChannel logChannel;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setUp() throws Exception {
-    HopLogStore.setLogChannelInterfaceFactory( this.logChannelFactory );
+    HopLogStore.setLogChannelFactory( this.logChannelFactory );
     Mockito.when( this.logChannelFactory.create( any(), any() ) ).thenReturn( this.logChannel );
   }
 
@@ -103,11 +103,11 @@ public class SubPipelineExecutorTest {
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
-    LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
+    ILoggingObject loggingObject = new LoggingObject( "anything" );
     Pipeline parentPipeline = spy( new Pipeline( parentMeta, loggingObject ) );
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "subpipelinename", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "Group By" );
-    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
+    IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),
@@ -154,12 +154,12 @@ public class SubPipelineExecutorTest {
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
-    LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
+    ILoggingObject loggingObject = new LoggingObject( "anything" );
     Pipeline parentPipeline = new Pipeline( parentMeta, loggingObject );
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
     subPipelineExecutor.running = Mockito.spy( subPipelineExecutor.running );
-    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
+    IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),
@@ -179,11 +179,11 @@ public class SubPipelineExecutorTest {
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
-    LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
+    ILoggingObject loggingObject = new LoggingObject( "anything" );
     Pipeline parentPipeline = new Pipeline( parentMeta, loggingObject );
     SubPipelineExecutor subPipelineExecutor =
       new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
-    RowMetaInterface rowMeta = parentMeta.getTransformFields( "Data Grid" );
+    IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
       new RowMetaAndData( rowMeta, "Hop", 2L ),

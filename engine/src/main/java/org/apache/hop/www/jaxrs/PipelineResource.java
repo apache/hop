@@ -24,7 +24,7 @@ package org.apache.hop.www.jaxrs;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.pipeline.Pipeline;
@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
@@ -86,7 +86,7 @@ public class PipelineResource {
     status.setStatus( pipeline.getStatus() );
 
     for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-      TransformInterface transform = pipeline.getRunThread( i );
+      ITransform transform = pipeline.getRunThread( i );
       if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
         TransformStatus transformStatus = new TransformStatus( transform );
         status.addTransformStatus( transformStatus );
@@ -132,7 +132,7 @@ public class PipelineResource {
       PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       // Set the appropriate logging, variables, arguments, replay date, ...
       // etc.
-      pipeline.injectVariables( executionConfiguration.getVariables() );
+      pipeline.injectVariables( executionConfiguration.getVariablesMap() );
       pipeline.setPreviousResult( executionConfiguration.getPreviousResult() );
 
       pipeline.prepareExecution();
@@ -209,15 +209,15 @@ public class PipelineResource {
       PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
-      LogChannelInterface log = HopServerSingleton.getInstance().getLog();
+      ILogChannel log = HopServerSingleton.getInstance().getLog();
       if ( log.isDetailed() ) {
         log.logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
-      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariables() );
+      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
 
       // Also copy the parameters over...
       //
-      Map<String, String> params = pipelineExecutionConfiguration.getParams();
+      Map<String, String> params = pipelineExecutionConfiguration.getParametersMap();
       for ( String param : params.keySet() ) {
         String value = params.get( param );
         pipelineMeta.setParameterValue( param, value );

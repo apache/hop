@@ -30,7 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @author Matt
  * @since 11-01-04
  */
-public class CheckResult implements CheckResultInterface {
+public class CheckResult implements ICheckResult {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] typeDesc = {
@@ -43,21 +43,21 @@ public class CheckResult implements CheckResultInterface {
 
   // MB - Support both JobEntry and Transform Checking
   // 6/26/07
-  private CheckResultSourceInterface sourceMeta;
+  private ICheckResultSource sourceMeta;
 
   private String errorCode;
 
   public CheckResult() {
-    this( CheckResultInterface.TYPE_RESULT_NONE, "", null );
+    this( ICheckResult.TYPE_RESULT_NONE, "", null );
   }
 
-  public CheckResult( int t, String s, CheckResultSourceInterface sourceMeta ) {
+  public CheckResult( int t, String s, ICheckResultSource sourceMeta ) {
     type = t;
     text = s;
     this.sourceMeta = sourceMeta;
   }
 
-  public CheckResult( int t, String errorCode, String s, CheckResultSourceInterface sourceMeta ) {
+  public CheckResult( int t, String errorCode, String s, ICheckResultSource sourceMeta ) {
     this( t, s, sourceMeta );
     this.errorCode = errorCode;
   }
@@ -78,7 +78,7 @@ public class CheckResult implements CheckResultInterface {
   }
 
   @Override
-  public CheckResultSourceInterface getSourceInfo() {
+  public ICheckResultSource getSourceInfo() {
     return sourceMeta;
   }
 

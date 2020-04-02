@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class FilesFromResultDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FilesFromResultDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilesFromResultMeta.class; // for i18n purposes, needed by Translator!!
 
   private FilesFromResultMeta input;

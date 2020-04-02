@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.replacestring;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -68,7 +68,7 @@ public class ReplaceStringTest {
     transformMockHelper =
       new TransformMockHelper<ReplaceStringMeta, ReplaceStringData>( "REPLACE STRING TEST", ReplaceStringMeta.class,
         ReplaceStringData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString() );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
@@ -87,7 +87,7 @@ public class ReplaceStringTest {
 
     ReplaceString replaceString =
       new ReplaceString( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
-    RowMetaInterface inputRowMeta = new RowMeta();
+    IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "SomeDataMeta" ) );
     inputRowMeta.addValueMeta( 1, new ValueMetaString( "AnotherDataMeta" ) );
     replaceString.init( transformMockHelper.processRowsTransformMetaInterface, data );
@@ -179,7 +179,7 @@ public class ReplaceStringTest {
 
     ReplaceString replaceString = Mockito.spy(
       new ReplaceString( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );
-    RowMetaInterface inputRowMeta = new RowMeta();
+    IRowMeta inputRowMeta = new RowMeta();
     byte[] array = { 0, 97, 0, 65, -1, 65, -1, 33 };
     byte[] matcharray = { -1, 33 };
     String match = new String( matcharray, "UTF-16BE" );

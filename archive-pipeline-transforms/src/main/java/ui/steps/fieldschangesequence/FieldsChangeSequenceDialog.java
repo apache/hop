@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.fieldschangesequence;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fieldschangesequence.FieldsChangeSequenceMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -68,7 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FieldsChangeSequenceDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FieldsChangeSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private FieldsChangeSequenceMeta input;
@@ -284,7 +284,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements T
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
             if ( row != null ) {
               // Remember these fields...
               for ( int i = 0; i < row.size(); i++ ) {
@@ -349,10 +349,10 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements T
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener insertListener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
             return true;
           }

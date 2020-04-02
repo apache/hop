@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.fileexists;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -57,7 +57,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
         documentationUrl = ""
 )
-public class FileExistsMeta extends BaseTransformMeta implements TransformMetaInterface<FileExists, FileExistsData> {
+public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<FileExists, FileExistsData> {
   private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean addresultfilenames;
@@ -155,19 +155,19 @@ public class FileExistsMeta extends BaseTransformMeta implements TransformMetaIn
     addresultfilenames = false;
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
-      ValueMetaInterface v =
-        new ValueMetaBoolean( space.environmentSubstitute( resultfieldname ) );
+      IValueMeta v =
+        new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( includefiletype && !Utils.isEmpty( filetypefieldname ) ) {
-      ValueMetaInterface v =
-        new ValueMetaString( space.environmentSubstitute( filetypefieldname ) );
+      IValueMeta v =
+        new ValueMetaString( variables.environmentSubstitute( filetypefieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
@@ -197,8 +197,8 @@ public class FileExistsMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -236,9 +236,9 @@ public class FileExistsMeta extends BaseTransformMeta implements TransformMetaIn
 
   }
 
-  public FileExists createTransform( TransformMeta transformMeta, FileExistsData transformDataInterface, int cnr,
+  public FileExists createTransform( TransformMeta transformMeta, FileExistsData iTransformData, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FileExists( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FileExists( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public FileExistsData getTransformData() {

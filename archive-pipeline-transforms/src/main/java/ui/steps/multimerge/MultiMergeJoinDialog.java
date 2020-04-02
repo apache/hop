@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.multimerge;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
@@ -70,7 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MultiMergeJoinDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MultiMergeJoinSortWarning";
@@ -80,7 +80,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements Transfo
   private Text[] keyValTextBox;
 
   private Map<String, Integer> inputFields;
-  private RowMetaInterface prev;
+  private IRowMeta prev;
   private ColumnInfo[] ciKeys;
 
   private static final int margin = props.getMargin();
@@ -121,7 +121,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements Transfo
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformDialogInterface#open()
+   * @see org.apache.hop.pipeline.transform.ITransformDialog#open()
    */
   public String open() {
     Shell parent = getParent();

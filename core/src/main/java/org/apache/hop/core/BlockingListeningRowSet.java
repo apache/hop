@@ -22,7 +22,7 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -33,12 +33,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is synchronized to allow
  * concurrent use of multiple Threads.
  * <p>
- * This class also monitors the idle state of a RowSet
+ * This class also monitors the idle state of a IRowSet
  *
  * @author Matt
  * @since 23-12-2010
  */
-public class BlockingListeningRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
+public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
   private BlockingQueue<Object[]> queArray;
 
   private AtomicBoolean blocking;
@@ -59,21 +59,21 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<Ro
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.RowMetaInterface, java.lang.Object[])
+   * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.IRowMeta, java.lang.Object[])
    */
   @Override
-  public boolean putRow( RowMetaInterface rowMeta, Object[] rowData ) {
+  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
     return putRowWait( rowMeta, rowData, 100, TimeUnit.NANOSECONDS );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#putRowWait(org.apache.hop.core.row.RowMetaInterface, java.lang.Object[],
+   * @see org.apache.hop.core.RowSetInterface#putRowWait(org.apache.hop.core.row.IRowMeta, java.lang.Object[],
    * long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu ) {
+  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
     this.rowMeta = rowMeta;
     try {
       blocking.set( true );

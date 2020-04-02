@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -45,14 +45,14 @@ public class ValueMetaBaseSerializationTest {
 
   @Test
   public void restoresMetaData_storageTypeNormal() throws Exception {
-    ValueMetaBase vmb = createTestObject( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    ValueMetaBase vmb = createTestObject( IValueMeta.STORAGE_TYPE_NORMAL );
 
     checkRestoring( vmb );
   }
 
   @Test
   public void restoresMetaData_storageTypeIndexed() throws Exception {
-    ValueMetaBase vmb = createTestObject( ValueMetaInterface.STORAGE_TYPE_INDEXED );
+    ValueMetaBase vmb = createTestObject( IValueMeta.STORAGE_TYPE_INDEXED );
     vmb.setIndex( new Object[] { "qwerty", "asdfg" } );
 
     checkRestoring( vmb );
@@ -60,14 +60,14 @@ public class ValueMetaBaseSerializationTest {
 
   @Test
   public void restoresMetaData_storageTypeBinaryString() throws Exception {
-    ValueMetaBase vmb = createTestObject( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
-    vmb.setStorageMetadata( new ValueMetaBase( "storageMetadataInstance", ValueMetaInterface.TYPE_STRING ) );
+    ValueMetaBase vmb = createTestObject( IValueMeta.STORAGE_TYPE_BINARY_STRING );
+    vmb.setStorageMetadata( new ValueMetaBase( "storageMetadataInstance", IValueMeta.TYPE_STRING ) );
 
     checkRestoring( vmb );
   }
 
   private static ValueMetaBase createTestObject( int storageType ) {
-    ValueMetaBase vmb = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
+    ValueMetaBase vmb = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
     vmb.setStorageType( storageType );
     vmb.setLength( 10, 5 );
     vmb.setOrigin( "origin" );
@@ -76,7 +76,7 @@ public class ValueMetaBaseSerializationTest {
     vmb.setDecimalSymbol( "decimalSymbol" );
     vmb.setGroupingSymbol( "groupingSymbol" );
     vmb.setCurrencySymbol( "currencySymbol" );
-    vmb.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    vmb.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     vmb.setCaseInsensitive( true );
     vmb.setSortedDescending( true );
     vmb.setOutputPaddingEnabled( true );
@@ -108,7 +108,7 @@ public class ValueMetaBaseSerializationTest {
     assertMetaDataAreEqual( initial, restored );
   }
 
-  private static void assertMetaDataAreEqual( ValueMetaInterface expected, ValueMetaInterface actual ) {
+  private static void assertMetaDataAreEqual( IValueMeta expected, IValueMeta actual ) {
     assertEquals( "storageType", expected.getStorageType(), actual.getStorageType() );
 
     if ( expected.getIndex() == null ) {

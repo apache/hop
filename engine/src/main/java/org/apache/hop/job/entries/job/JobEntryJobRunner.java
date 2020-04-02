@@ -26,7 +26,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 
@@ -39,14 +39,14 @@ public class JobEntryJobRunner implements Runnable {
 
   private Job job;
   private Result result;
-  private LogChannelInterface log;
+  private ILogChannel log;
   private int entryNr;
   private boolean finished;
 
   /**
    *
    */
-  public JobEntryJobRunner( Job job, Result result, int entryNr, LogChannelInterface log ) {
+  public JobEntryJobRunner( Job job, Result result, int entryNr, ILogChannel log ) {
     this.job = job;
     this.result = result;
     this.log = log;
@@ -107,14 +107,14 @@ public class JobEntryJobRunner implements Runnable {
   /**
    * @return Returns the log.
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set.
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 

@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -42,15 +40,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Properties;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 @RunWith( PowerMockRunner.class )
@@ -193,7 +188,7 @@ public class GenericDatabaseMetaTest {
   @PrepareForTest( DatabaseMeta.class )
   public void testSettingDialect() {
     String dialect = "testDialect";
-    DatabaseInterface[] dbInterfaces = new DatabaseInterface[] { mockedMeta };
+    IDatabase[] dbInterfaces = new IDatabase[] { mockedMeta };
     PowerMockito.mockStatic( DatabaseMeta.class );
     PowerMockito.when( DatabaseMeta.getDatabaseInterfaces() ).thenReturn( dbInterfaces );
     Mockito.when( mockedMeta.getPluginName() ).thenReturn( dialect );
@@ -207,9 +202,9 @@ public class GenericDatabaseMetaTest {
   public void testSequence() {
     final String sequenceName = "sequence_name";
     
-    DatabaseInterface databaseInterface = new GenericDatabaseMeta();
-    assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
+    IDatabase iDatabase = new GenericDatabaseMeta();
+    assertEquals( "", iDatabase.getSQLNextSequenceValue( sequenceName ) );
+    assertEquals( "", iDatabase.getSQLCurrentSequenceValue( sequenceName ) );
   }
   
   @Test

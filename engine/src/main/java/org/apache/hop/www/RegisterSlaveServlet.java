@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-public class RegisterSlaveServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class RegisterSlaveServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = 8513820270964866132L;
 
   public static final String CONTEXT_PATH = "/hop/registerSlave";

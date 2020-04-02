@@ -30,15 +30,15 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -51,18 +51,18 @@ import java.util.ArrayList;
  * @author Matt
  * @since 26-apr-2003
  */
-public class Update extends BaseTransform implements TransformInterface {
+public class Update extends BaseTransform implements ITransform {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private UpdateMeta meta;
   private UpdateData data;
 
-  public Update( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Update( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private synchronized Object[] lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private synchronized Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     Object[] outputRow = row;
     Object[] add;
 
@@ -91,7 +91,7 @@ public class Update extends BaseTransform implements TransformInterface {
         lookupIndex++;
       }
     }
-    RowMetaInterface returnRowMeta = null;
+    IRowMeta returnRowMeta = null;
     if ( !meta.isSkipLookup() ) {
       data.db.setValues( data.lookupParameterRowMeta, lookupRow, data.prepStatementLookup );
       if ( log.isDebug() ) {
@@ -160,9 +160,9 @@ public class Update extends BaseTransform implements TransformInterface {
         update = true;
       } else {
         for ( int i = 0; i < data.valuenrs.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.valuenrs[ i ] );
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.valuenrs[ i ] );
           Object rowvalue = row[ data.valuenrs[ i ] ];
-          ValueMetaInterface returnValueMeta = returnRowMeta.getValueMeta( i );
+          IValueMeta returnValueMeta = returnRowMeta.getValueMeta( i );
           Object retvalue = add[ i ];
 
           if ( returnValueMeta.compare( retvalue, valueMeta, rowvalue ) != 0 ) {
@@ -202,7 +202,7 @@ public class Update extends BaseTransform implements TransformInterface {
     return outputRow;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (UpdateMeta) smi;
     data = (UpdateData) sdi;
 
@@ -271,7 +271,7 @@ public class Update extends BaseTransform implements TransformInterface {
       data.keynrs = ArrayUtils.toPrimitive( keynrs.toArray( new Integer[ 0 ] ) );
       data.keynrs2 = ArrayUtils.toPrimitive( keynrs2.toArray( new Integer[ 0 ] ) );
 
-      // Cache the position of the compare fields in Row row
+      // ICache the position of the compare fields in Row row
       //
       data.valuenrs = new int[ meta.getUpdateLookup().length ];
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
@@ -346,7 +346,7 @@ public class Update extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public void setLookup( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public void setLookup( IRowMeta rowMeta ) throws HopDatabaseException {
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
@@ -415,7 +415,7 @@ public class Update extends BaseTransform implements TransformInterface {
   }
 
   // Lookup certain fields in a table
-  public void prepareUpdate( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public void prepareUpdate( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.updateParameterRowMeta = new RowMeta();
 
@@ -477,7 +477,7 @@ public class Update extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (UpdateMeta) smi;
     data = (UpdateData) sdi;
 
@@ -513,7 +513,7 @@ public class Update extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (UpdateMeta) smi;
     data = (UpdateData) sdi;
 

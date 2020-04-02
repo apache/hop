@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -154,7 +154,7 @@ public class TextFileOutputMetaTest {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
     meta.setSplitEveryRows( "${splitVar}" );
-    VariableSpace varSpace = new Variables();
+    iVariables varSpace = new Variables();
     assertEquals( 0, meta.getSplitEvery( varSpace ) );
     String fileName = meta.buildFilename( "foo", "txt2", varSpace, 0, null, 3, false, meta );
     assertEquals( "foo.txt2", fileName );

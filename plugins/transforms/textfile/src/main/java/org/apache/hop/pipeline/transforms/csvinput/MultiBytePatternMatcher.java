@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-public class MultiBytePatternMatcher implements PatternMatcherInterface {
+public class MultiBytePatternMatcher implements IPatternMatcher {
 
   public boolean matchesPattern( byte[] source, int location, byte[] pattern ) {
     int start = location;

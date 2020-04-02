@@ -24,10 +24,10 @@ package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -38,9 +38,9 @@ import java.util.Map;
  * @author matt
  */
 
-@PluginMainClassType( ValueMetaInterface.class )
+@PluginMainClassType( IValueMeta.class )
 @PluginAnnotationType( ValueMetaPlugin.class )
-public class ValueMetaPluginType extends BasePluginType implements PluginTypeInterface {
+public class ValueMetaPluginType extends BasePluginType implements IPluginType {
 
   private static ValueMetaPluginType valueMetaPluginType;
 

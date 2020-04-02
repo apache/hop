@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.FieldsChangeSequence",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
-public class FieldsChangeSequenceMeta extends BaseTransformMeta implements TransformMetaInterface<FieldsChangeSequence, FieldsChangeSequenceData> {
+public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -191,19 +191,19 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) {
     if ( !Utils.isEmpty( resultfieldName ) ) {
-      ValueMetaInterface v = new ValueMetaInteger( resultfieldName );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( resultfieldName );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -276,9 +276,9 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public FieldsChangeSequence createTransform( TransformMeta transformMeta, FieldsChangeSequenceData transformDataInterface, int cnr,
+  public FieldsChangeSequence createTransform( TransformMeta transformMeta, FieldsChangeSequenceData iTransformData, int cnr,
                                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldsChangeSequence( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FieldsChangeSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

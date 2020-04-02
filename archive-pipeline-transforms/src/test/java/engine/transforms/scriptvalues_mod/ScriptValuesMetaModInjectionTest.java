@@ -24,7 +24,7 @@
 package org.apache.hop.pipeline.transforms.scriptvalues_mod;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -84,13 +84,13 @@ public class ScriptValuesMetaModInjectionTest extends BaseMetadataInjectionTest<
 
     // field type requires special handling, since it's stored as an array of ints, but injected as strings
     skipPropertyTest( "FIELD_TYPE" );
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "String" ), "f" );
-    assertEquals( ValueMetaInterface.TYPE_STRING, meta.getType()[ 0 ] );
+    assertEquals( IValueMeta.TYPE_STRING, meta.getType()[ 0 ] );
     // reset the types array, so we can set it again
     meta.setType( new int[] {} );
     injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "Integer" ), "f" );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, meta.getType()[ 0 ] );
+    assertEquals( IValueMeta.TYPE_INTEGER, meta.getType()[ 0 ] );
 
     // length and precision fields also need special handing, to ensure that we get -1 when the injected string value
     // is empty or null

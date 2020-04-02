@@ -22,21 +22,21 @@
 
 package org.apache.hop.databases.greenplum;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
 public class ReleaseSavePointTest {
 
-  DatabaseInterface[] support = new DatabaseInterface[] {
+  IDatabase[] support = new IDatabase[] {
     new GreenplumDatabaseMeta(),
   };
 
   @Test
   public void testReleaseSavePointBooleans() {
     try {
-      for ( DatabaseInterface db : support ) {
+      for ( IDatabase db : support ) {
         assertTrue( db.releaseSavepoint() );
       }
     } catch ( Exception e ) {

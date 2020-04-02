@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.WriterOutputStream;
 import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.zip.ZIPCompressionProvider;
 import org.apache.hop.core.exception.HopException;
@@ -35,19 +35,19 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.CharsetToolkit;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -64,9 +64,9 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class TextFileOutput<Meta extends TransformMetaInterface, Data extends TransformDataInterface>
+public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransformData>
   extends BaseTransform<Meta, Data>
-  implements TransformInterface<Meta, Data> {
+  implements ITransform<Meta, Data> {
 
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -79,12 +79,12 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
 
   public TextFileOutputData data;
 
-  public TextFileOutput( TransformMeta transformMeta, Data transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileOutput( TransformMeta transformMeta, Data iTransformData, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private void initFieldNumbers( RowMetaInterface outputRowMeta, TextFileField[] outputFields ) throws HopException {
+  private void initFieldNumbers( IRowMeta outputRowMeta, TextFileField[] outputFields ) throws HopException {
     data.fieldnrs = new int[ outputFields.length ];
     for ( int i = 0; i < outputFields.length; i++ ) {
       data.fieldnrs[ i ] = outputRowMeta.indexOfValue( outputFields[ i ].getName() );
@@ -103,12 +103,12 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     }
   }
 
-  private CompressionProvider getCompressionProvider() throws HopException {
+  private ICompressionProvider getCompressionProvider() throws HopException {
     String compressionType = meta.getFileCompression();
     if ( Utils.isEmpty( compressionType ) ) {
       compressionType = FILE_COMPRESSION_TYPE_NONE;
     }
-    CompressionProvider compressionProvider = CompressionProviderFactory.getInstance().getCompressionProviderByName( compressionType );
+    ICompressionProvider compressionProvider = CompressionProviderFactory.getInstance().getCompressionProviderByName( compressionType );
 
     if ( compressionProvider == null ) {
       throw new HopException( "No compression provider found with name = " + compressionType );
@@ -161,7 +161,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
             addResultFile( resultFile );
           }
 
-          CompressionProvider compressionProvider = getCompressionProvider();
+          ICompressionProvider compressionProvider = getCompressionProvider();
           boolean isZipFile = compressionProvider instanceof ZIPCompressionProvider;
           boolean createParentDirIfNotExists = meta.isCreateParentFolder();
           boolean appendToExistingFile = meta.isFileAppended();
@@ -220,7 +220,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
           }
 
           OutputStream fileOutputStream = getOutputStream( filename, getPipelineMeta(), true );
-          CompressionProvider compressionProvider = getCompressionProvider();
+          ICompressionProvider compressionProvider = getCompressionProvider();
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
           compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( compressionOutputStream, 5000 );
@@ -436,7 +436,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     data.getFileStreamsCollection().flushOpenFiles( true );
   }
 
-  public synchronized boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public synchronized boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (TextFileOutputMeta) smi;
     data = (TextFileOutputData) sdi;
 
@@ -470,7 +470,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     }
   }
 
-  public void writeRow( RowMetaInterface rowMeta, Object[] r ) throws HopTransformException {
+  public void writeRow( IRowMeta rowMeta, Object[] r ) throws HopTransformException {
     try {
       if ( meta.getOutputFields() == null || meta.getOutputFields().length == 0 ) {
         /*
@@ -480,7 +480,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
           if ( i > 0 && data.binarySeparator.length > 0 ) {
             data.writer.write( data.binarySeparator );
           }
-          ValueMetaInterface v = rowMeta.getValueMeta( i );
+          IValueMeta v = rowMeta.getValueMeta( i );
           Object valueData = r[ i ];
 
           // no special null value default was specified since no fields are specified at all
@@ -498,7 +498,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
             data.writer.write( data.binarySeparator );
           }
 
-          ValueMetaInterface v = rowMeta.getValueMeta( data.fieldnrs[ i ] );
+          IValueMeta v = rowMeta.getValueMeta( data.fieldnrs[ i ] );
           Object valueData = r[ data.fieldnrs[ i ] ];
           writeField( v, valueData, data.binaryNullValue[ i ] );
         }
@@ -512,9 +512,9 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     }
   }
 
-  private byte[] formatField( ValueMetaInterface v, Object valueData ) throws HopValueException {
+  private byte[] formatField( IValueMeta v, Object valueData ) throws HopValueException {
     if ( v.isString() ) {
-      if ( v.isStorageBinaryString() && v.getTrimType() == ValueMetaInterface.TRIM_TYPE_NONE && v.getLength() < 0
+      if ( v.isStorageBinaryString() && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE && v.getLength() < 0
         && Utils.isEmpty( v.getStringEncoding() ) ) {
         return (byte[]) valueData;
       } else {
@@ -526,7 +526,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     }
   }
 
-  private byte[] convertStringToBinaryString( ValueMetaInterface v, String string ) throws HopValueException {
+  private byte[] convertStringToBinaryString( IValueMeta v, String string ) throws HopValueException {
     int length = v.getLength();
 
     if ( string == null ) {
@@ -607,7 +607,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     }
   }
 
-  private void writeField( ValueMetaInterface v, Object valueData, byte[] nullString ) throws HopTransformException {
+  private void writeField( IValueMeta v, Object valueData, byte[] nullString ) throws HopTransformException {
     try {
       byte[] str;
 
@@ -716,14 +716,14 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
 
   protected boolean writeHeader() {
     boolean retval = false;
-    RowMetaInterface r = data.outputRowMeta;
+    IRowMeta r = data.outputRowMeta;
 
     try {
       // If we have fields specified: list them in this order!
       if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
           String fieldName = meta.getOutputFields()[ i ].getName();
-          ValueMetaInterface v = r.searchValueMeta( fieldName );
+          IValueMeta v = r.searchValueMeta( fieldName );
 
           if ( i > 0 && data.binarySeparator.length > 0 ) {
             data.writer.write( data.binarySeparator );
@@ -749,7 +749,7 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
           if ( i > 0 && data.binarySeparator.length > 0 ) {
             data.writer.write( data.binarySeparator );
           }
-          ValueMetaInterface v = r.getValueMeta( i );
+          IValueMeta v = r.getValueMeta( i );
 
           boolean writeEnclosure =
             ( meta.isEnclosureForced() && data.binaryEnclosure.length > 0 && v != null && v.isString() )
@@ -1023,12 +1023,12 @@ public class TextFileOutput<Meta extends TransformMetaInterface, Data extends Tr
     return HopVFS.getFileObject( vfsFilename );
   }
 
-  protected FileObject getFileObject( String vfsFilename, VariableSpace space ) throws HopFileException {
-    return HopVFS.getFileObject( vfsFilename, space );
+  protected FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
+    return HopVFS.getFileObject( vfsFilename, variables );
   }
 
-  protected OutputStream getOutputStream( String vfsFilename, VariableSpace space, boolean append ) throws HopFileException {
-    return HopVFS.getOutputStream( vfsFilename, space, append );
+  protected OutputStream getOutputStream( String vfsFilename, IVariables variables, boolean append ) throws HopFileException {
+    return HopVFS.getOutputStream( vfsFilename, variables, append );
   }
 
 }

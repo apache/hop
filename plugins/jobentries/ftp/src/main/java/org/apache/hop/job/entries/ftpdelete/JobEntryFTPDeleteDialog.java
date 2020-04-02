@@ -35,8 +35,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -83,7 +83,7 @@ import java.net.InetAddress;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryFTPDeleteDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
@@ -245,7 +245,7 @@ public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryD
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.Pem" ),
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.All" ) };
 
-  public JobEntryFTPDeleteDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryFTPDeleteDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTPDelete) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -253,7 +253,7 @@ public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryD
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

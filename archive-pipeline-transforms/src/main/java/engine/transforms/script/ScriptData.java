@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.script;
 
 import org.apache.hop.compatibility.Value;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -35,7 +35,7 @@ import javax.script.ScriptEngine;
  * @author Matt
  * @since 24-jan-2005
  */
-public class ScriptData extends BaseTransformData implements TransformDataInterface {
+public class ScriptData extends BaseTransformData implements ITransformData {
   public ScriptEngine cx;
   public Bindings scope;
   public CompiledScript script;
@@ -43,7 +43,7 @@ public class ScriptData extends BaseTransformData implements TransformDataInterf
   public int[] fields_used;
   public Value[] values_used;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int[] replaceIndex;
 
   public ScriptData() {

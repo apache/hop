@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.append;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -38,14 +38,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -58,7 +58,7 @@ import java.util.List;
   name = "Append.Name", description = "Append.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
 @InjectionSupported( localizationPrefix = "AppendMeta.Injection." )
-public class AppendMeta extends BaseTransformMeta implements TransformMetaInterface<Append, AppendData> {
+public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 
   private static final Class<?> PKG = Append.class; // for i18n purposes, needed by Translator!!
 
@@ -86,7 +86,7 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
   public String getXML() {
     StringBuilder retval = new StringBuilder();
 
-    List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     retval.append( XMLHandler.addTagValue( "head_name", infoStreams.get( 0 ).getTransformName() ) );
     retval.append( XMLHandler.addTagValue( "tail_name", infoStreams.get( 1 ).getTransformName() ) );
 
@@ -95,9 +95,9 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
 
   private void readData( Node transformNode ) throws HopXMLException {
     try {
-      List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
-      StreamInterface headStream = infoStreams.get( 0 );
-      StreamInterface tailStream = infoStreams.get( 1 );
+      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+      IStream headStream = infoStreams.get( 0 );
+      IStream tailStream = infoStreams.get( 1 );
       headStream.setSubject( XMLHandler.getTagValue( transformNode, "head_name" ) );
       tailStream.setSubject( XMLHandler.getTagValue( transformNode, "tail_name" ) );
     } catch ( Exception e ) {
@@ -110,9 +110,9 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
 
   @Override
   public void searchInfoAndTargetTransforms( List<TransformMeta> transforms ) {
-    TransformIOMetaInterface ioMeta = getTransformIOMeta();
-    List<StreamInterface> infoStreams = ioMeta.getInfoStreams();
-    for ( StreamInterface stream : infoStreams ) {
+    ITransformIOMeta ioMeta = getTransformIOMeta();
+    List<IStream> infoStreams = ioMeta.getInfoStreams();
+    for ( IStream stream : infoStreams ) {
       stream.setTransformMeta( TransformMeta.findTransform( transforms, (String) stream.getSubject() ) );
     }
   }
@@ -125,8 +125,8 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
     return null;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just take the info fields.
     //
@@ -138,37 +138,37 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
-    List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
-    StreamInterface headStream = infoStreams.get( 0 );
-    StreamInterface tailStream = infoStreams.get( 1 );
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    IStream headStream = infoStreams.get( 0 );
+    IStream tailStream = infoStreams.get( 1 );
 
     if ( headStream.getTransformName() != null && tailStream.getTransformName() != null ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "AppendMeta.CheckResult.SourceTransformsOK" ), transformMeta );
       remarks.add( cr );
     } else if ( headStream.getTransformName() == null && tailStream.getTransformName() == null ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "AppendMeta.CheckResult.SourceTransformsMissing" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "AppendMeta.CheckResult.OneSourceTransformMissing" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public Append createTransform( TransformMeta transformMeta, AppendData transformDataInterface, int cnr, PipelineMeta tr,
+  public Append createTransform( TransformMeta transformMeta, AppendData iTransformData, int cnr, PipelineMeta tr,
                                  Pipeline pipeline ) {
-    return new Append( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Append( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
@@ -180,8 +180,8 @@ public class AppendMeta extends BaseTransformMeta implements TransformMetaInterf
    * Returns the Input/Output metadata for this transform.
    */
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
 
       ioMeta = new TransformIOMeta( true, true, false, false, false, false );

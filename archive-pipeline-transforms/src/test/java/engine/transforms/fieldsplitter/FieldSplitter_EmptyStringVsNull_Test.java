@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.fieldsplitter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith( PowerMockRunner.class )
 public class FieldSplitter_EmptyStringVsNull_Test {
-  private TransformMockHelper<FieldSplitterMeta, TransformDataInterface> helper;
+  private TransformMockHelper<FieldSplitterMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -97,7 +97,7 @@ public class FieldSplitter_EmptyStringVsNull_Test {
     FieldSplitterMeta meta = new FieldSplitterMeta();
     meta.allocate( 3 );
     meta.setFieldName( new String[] { "s1", "s2", "s3" } );
-    meta.setFieldType( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } );
+    meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
     meta.setSplitField( "string" );
     meta.setDelimiter( "," );
 

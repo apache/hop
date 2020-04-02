@@ -23,19 +23,19 @@
 package org.apache.hop.pipeline.transforms.mappingoutput;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import java.util.List;
  *
  */
 
-public class MappingOutputMeta extends BaseTransformMeta implements TransformMetaInterface<MappingOutput, MappingOutputData> {
+public class MappingOutputMeta extends BaseTransformMeta implements ITransformMeta<MappingOutput, MappingOutputData> {
 
   private static Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -74,15 +74,15 @@ public class MappingOutputMeta extends BaseTransformMeta implements TransformMet
     allocate( nrFields );
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // It's best that this method doesn't change anything by itself.
     // Eventually it's the Mapping transform that's going to tell this transform how to behave meta-data wise.
     // It is the mapping transform that tells the mapping output transform what fields to rename.
     //
     if ( inputValueRenames != null ) {
       for ( MappingValueRename valueRename : inputValueRenames ) {
-        ValueMetaInterface valueMeta = r.searchValueMeta( valueRename.getTargetValueName() );
+        IValueMeta valueMeta = r.searchValueMeta( valueRename.getTargetValueName() );
         if ( valueMeta != null ) {
           valueMeta.setName( valueRename.getSourceValueName() );
         }
@@ -95,7 +95,7 @@ public class MappingOutputMeta extends BaseTransformMeta implements TransformMet
       for ( MappingValueRename valueRename : outputValueRenames ) {
         int valueMetaRenameIndex = r.indexOfValue( valueRename.getSourceValueName() );
         if ( valueMetaRenameIndex >= 0 ) {
-          ValueMetaInterface valueMetaRename = r.getValueMeta( valueMetaRenameIndex ).clone();
+          IValueMeta valueMetaRename = r.getValueMeta( valueMetaRenameIndex ).clone();
           valueMetaRename.setName( valueRename.getTargetValueName() );
           // must maintain the same columns order. Noticed when implementing the Mapping transform in AEL (BACKLOG-23372)
           r.removeValueMeta( valueMetaRenameIndex );
@@ -105,18 +105,18 @@ public class MappingOutputMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "MappingOutputMeta.CheckResult.NotReceivingFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingOutputMeta.CheckResult.TransformReceivingDatasOK", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -124,20 +124,20 @@ public class MappingOutputMeta extends BaseTransformMeta implements TransformMet
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingOutputMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "MappingOutputMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, MappingOutputData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new MappingOutput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, MappingOutputData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new MappingOutput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public MappingOutputData getTransformData() {

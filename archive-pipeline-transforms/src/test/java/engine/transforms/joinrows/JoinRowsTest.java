@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.RowTransformCollector;
 import org.apache.hop.pipeline.Pipeline;
@@ -160,9 +160,9 @@ public class JoinRowsTest {
     BlockingRowSet blockingRowSet = new BlockingRowSet( size );
     RowMeta rowMeta = new RowMeta();
 
-    ValueMetaInterface valueMetaString = new ValueMetaString( dataPrefix + " first value name" );
-    ValueMetaInterface valueMetaInteger = new ValueMetaString( dataPrefix + " second value name" );
-    ValueMetaInterface valueMetaBoolean = new ValueMetaString( dataPrefix + " third value name" );
+    IValueMeta valueMetaString = new ValueMetaString( dataPrefix + " first value name" );
+    IValueMeta valueMetaInteger = new ValueMetaString( dataPrefix + " second value name" );
+    IValueMeta valueMetaBoolean = new ValueMetaString( dataPrefix + " third value name" );
 
     rowMeta.addValueMeta( valueMetaString );
     rowMeta.addValueMeta( valueMetaInteger );

@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -131,8 +131,8 @@ public class ExcelWriterTransformMetaTest {
     setterMap.put( "sheetname", "setTemplateSheetName" );
     setterMap.put( "outputfields", "setOutputFields" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     fieldLoadSaveValidatorTypeMap.put( ExcelWriterTransformField[].class.getCanonicalName(),
       new ArrayLoadSaveValidator<>( new ExcelWriterFieldLoadSaveValidator() ) );
@@ -144,7 +144,7 @@ public class ExcelWriterTransformMetaTest {
     loadSaveTester.testSerialization();
   }
 
-  public class ExcelWriterFieldLoadSaveValidator implements FieldLoadSaveValidator<ExcelWriterTransformField> {
+  public class ExcelWriterFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelWriterTransformField> {
     @Override
     public boolean validateTestObject( ExcelWriterTransformField testObject, Object actual ) {
       //Perform more-extensive test, as equals() method does check on "name" only

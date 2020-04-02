@@ -4,11 +4,11 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.core.xml.IXml;
 
 import java.util.Properties;
 
-public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFileTypeInterface<T> {
+public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T> {
   @Override
   public abstract Properties getCapabilities();
 

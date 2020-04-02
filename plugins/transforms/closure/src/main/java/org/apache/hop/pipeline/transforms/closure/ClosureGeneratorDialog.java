@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.closure;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog( id = "ClosureGenerator", image = "ClosureGenerator.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Closure+Generator" )
-public class ClosureGeneratorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ClosureGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ClosureGeneratorDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlRootZero;
@@ -76,7 +76,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements Trans
 
   private ClosureGeneratorMeta input;
 
-  private RowMetaInterface inputFields;
+  private IRowMeta inputFields;
 
   public ClosureGeneratorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );

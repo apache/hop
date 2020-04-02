@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.MetricsPainter;
 import org.apache.hop.core.logging.MetricsPainter.MetricsDrawArea;
@@ -246,7 +246,7 @@ public class HopGuiPipelineMetricsDelegate {
             if ( duration == null ) {
               continue;
             }
-            LoggingObjectInterface loggingObject =
+            ILoggingObject loggingObject =
               LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
             if ( loggingObject == null ) {
               continue;

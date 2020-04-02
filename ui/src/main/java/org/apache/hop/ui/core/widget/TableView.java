@@ -28,15 +28,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
@@ -111,7 +111,7 @@ import java.util.Set;
  */
 public class TableView extends Composite {
 
-  public interface TableViewModifyListener {
+  public interface ITableViewModifyListener {
     void moveRow( int position1, int position2 );
 
     void insertRow( int rowIndex );
@@ -189,14 +189,14 @@ public class TableView extends Composite {
   private ColumnInfo numberColumn;
   protected int textWidgetCaretPosition;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   private boolean showingBlueNullValues;
   private boolean showingConversionErrorsInline;
   private boolean isTextButton = false;
   private boolean addIndexColumn = true;
 
-  private TableViewModifyListener tableViewModifyListener = new TableViewModifyListener() {
+  private ITableViewModifyListener tableViewModifyListener = new ITableViewModifyListener() {
     @Override
     public void moveRow( int position1, int position2 ) {
 
@@ -218,22 +218,22 @@ public class TableView extends Composite {
     }
   };
 
-  public TableView( VariableSpace space, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
+  public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
                     ModifyListener lsm, PropsUI pr ) {
-    this( space, parent, style, columnInfo, nrRows, false, lsm, pr );
+    this( variables, parent, style, columnInfo, nrRows, false, lsm, pr );
   }
 
-  public TableView( VariableSpace space, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
+  public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
                     boolean readOnly, ModifyListener lsm, PropsUI pr ) {
-    this( space, parent, style, columnInfo, nrRows, readOnly, lsm, pr, true );
+    this( variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, true );
   }
 
-  public TableView( VariableSpace space, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
+  public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
                     boolean readOnly, ModifyListener lsm, PropsUI pr, final boolean addIndexColumn ) {
-    this( space, parent, style, columnInfo, nrRows, readOnly, lsm, pr, addIndexColumn, null );
+    this( variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, addIndexColumn, null );
   }
 
-  public TableView( VariableSpace space, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
+  public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
                     boolean readOnly, ModifyListener lsm, PropsUI pr, final boolean addIndexColumn, Listener lsnr ) {
     super( parent, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP );
     this.parent = parent;
@@ -242,7 +242,7 @@ public class TableView extends Composite {
     this.props = pr;
     this.readonly = readOnly;
     this.clipboard = null;
-    this.variables = space;
+    this.variables = variables;
     this.addIndexColumn = addIndexColumn;
     this.lsFocusInTabItem = lsnr;
 
@@ -265,7 +265,7 @@ public class TableView extends Composite {
     clearUndo();
 
     numberColumn = new ColumnInfo( "#", ColumnInfo.COLUMN_TYPE_TEXT, true, true );
-    ValueMetaInterface numberColumnValueMeta = new ValueMetaNumber( "#" );
+    IValueMeta numberColumnValueMeta = new ValueMetaNumber( "#" );
     numberColumnValueMeta.setConversionMask( "####0.###" );
     numberColumn.setValueMeta( numberColumnValueMeta );
 
@@ -322,7 +322,7 @@ public class TableView extends Composite {
       if ( columns[ i ].getToolTip() != null ) {
         tablecolumn[ i + 1 ].setToolTipText( ( columns[ i ].getToolTip() ) );
       }
-      ValueMetaInterface valueMeta = columns[ i ].getValueMeta();
+      IValueMeta valueMeta = columns[ i ].getValueMeta();
       if ( valueMeta != null && valueMeta.isNumeric() ) {
         tablecolumn[ i + 1 ].setAlignment( SWT.RIGHT );
       }
@@ -1355,7 +1355,7 @@ public class TableView extends Composite {
 
       // First create the row metadata for the grid
       //
-      final RowMetaInterface rowMeta = new RowMeta();
+      final IRowMeta rowMeta = new RowMeta();
 
       // First values are the color name + value!
       rowMeta.addValueMeta( new ValueMetaString( "colorname" ) );
@@ -1368,7 +1368,7 @@ public class TableView extends Composite {
           colInfo = numberColumn;
         }
 
-        ValueMetaInterface valueMeta = colInfo.getValueMeta();
+        IValueMeta valueMeta = colInfo.getValueMeta();
         if ( j == sortField ) {
           valueMeta.setSortedDescending( sortingDescending );
         }
@@ -1376,19 +1376,19 @@ public class TableView extends Composite {
         rowMeta.addValueMeta( valueMeta );
       }
 
-      final RowMetaInterface sourceRowMeta = rowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
-      final RowMetaInterface conversionRowMeta = rowMeta.clone();
+      final IRowMeta sourceRowMeta = rowMeta.cloneToType( IValueMeta.TYPE_STRING );
+      final IRowMeta conversionRowMeta = rowMeta.clone();
 
       // Set it all to string...
       // Also set the storage value metadata: this will allow us to convert back
       // and forth without a problem.
       //
       for ( int i = 0; i < sourceRowMeta.size(); i++ ) {
-        ValueMetaInterface sourceValueMeta = sourceRowMeta.getValueMeta( i );
-        sourceValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta( i );
+        sourceValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
-        ValueMetaInterface conversionMetaData = conversionRowMeta.getValueMeta( i );
-        conversionMetaData.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        IValueMeta conversionMetaData = conversionRowMeta.getValueMeta( i );
+        conversionMetaData.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
         // Meaning: this string comes from an Integer/Number/Date/etc.
         //
@@ -1416,7 +1416,7 @@ public class TableView extends Composite {
           if ( GUIResource.getInstance().getColorBlue().equals( item.getForeground( j ) ) ) {
             data = null;
           }
-          ValueMetaInterface sourceValueMeta = sourceRowMeta.getValueMeta( j + 2 );
+          IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta( j + 2 );
           try {
             r[ j + 2 ] = sourceValueMeta.convertDataUsingConversionMetaData( data );
           } catch ( Exception e ) {
@@ -2168,7 +2168,7 @@ public class TableView extends Composite {
     };
 
     if ( useVariables ) {
-      GetCaretPositionInterface getCaretPositionInterface = new GetCaretPositionInterface() {
+      IGetCaretPosition getCaretPositionInterface = new IGetCaretPosition() {
         @Override
         public int getCaretPosition() {
           return ( (TextVar) text ).getTextWidget().getCaretPosition();
@@ -2178,7 +2178,7 @@ public class TableView extends Composite {
       // The text widget will be disposed when we get here
       // So we need to write to the table row
       //
-      InsertTextInterface insertTextInterface = new InsertTextInterface() {
+      IInsertText insertTextInterface = new IInsertText() {
         @Override
         public void insertText( String string, int position ) {
           StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
@@ -2306,13 +2306,13 @@ public class TableView extends Composite {
     if ( colinfo.getType() == ColumnInfo.COLUMN_TYPE_FORMAT ) {
       int type = ValueMetaFactory.getIdForValueMeta( row.getText( colinfo.getFieldTypeColumn() ) );
       switch ( type ) {
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return Const.getDateFormats();
-        case ValueMetaInterface.TYPE_INTEGER:
-        case ValueMetaInterface.TYPE_BIGNUMBER:
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_INTEGER:
+        case IValueMeta.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_NUMBER:
           return Const.getNumberFormats();
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return Const.getConversionFormats();
         default:
           return new String[ 0 ];
@@ -2344,7 +2344,7 @@ public class TableView extends Composite {
 
     final boolean useVariables = colinfo.isUsingVariables();
     if ( useVariables ) {
-      GetCaretPositionInterface getCaretPositionInterface = new GetCaretPositionInterface() {
+      IGetCaretPosition getCaretPositionInterface = new IGetCaretPosition() {
         @Override
         public int getCaretPosition() {
           return 0;
@@ -2354,7 +2354,7 @@ public class TableView extends Composite {
       // Widget will be disposed when we get here
       // So we need to write to the table row
       //
-      InsertTextInterface insertTextInterface = new InsertTextInterface() {
+      IInsertText insertTextInterface = new IInsertText() {
         @Override
         public void insertText( String string, int position ) {
           StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
@@ -3021,7 +3021,7 @@ public class TableView extends Composite {
     if ( condition == null ) {
       condition = new Condition();
     }
-    RowMetaInterface f = getRowWithoutValues();
+    IRowMeta f = getRowWithoutValues();
     EnterConditionDialog ecd = new EnterConditionDialog( parent.getShell(), SWT.NONE, f, condition );
     Condition cond = ecd.open();
     if ( cond != null ) {
@@ -3046,8 +3046,8 @@ public class TableView extends Composite {
     }
   }
 
-  public RowMetaInterface getRowWithoutValues() {
-    RowMetaInterface f = new RowMeta();
+  public IRowMeta getRowWithoutValues() {
+    IRowMeta f = new RowMeta();
     f.addValueMeta( new ValueMetaInteger( "#" ) );
     for ( int i = 0; i < columns.length; i++ ) {
       f.addValueMeta( new ValueMetaString( columns[ i ].getName() ) );
@@ -3057,7 +3057,7 @@ public class TableView extends Composite {
 
   public RowMetaAndData getRow( int nr ) {
     TableItem ti = table.getItem( nr );
-    RowMetaInterface rowMeta = getRowWithoutValues();
+    IRowMeta rowMeta = getRowWithoutValues();
     Object[] rowData = new Object[ rowMeta.size() ];
 
     rowData[ 0 ] = new Long( nr );
@@ -3310,7 +3310,7 @@ public class TableView extends Composite {
     return activeTableColumn;
   }
 
-  public void setTableViewModifyListener( TableViewModifyListener tableViewModifyListener ) {
+  public void setTableViewModifyListener( ITableViewModifyListener tableViewModifyListener ) {
     this.tableViewModifyListener = tableViewModifyListener;
   }
 

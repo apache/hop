@@ -23,19 +23,19 @@
 package org.apache.hop.core.gui;
 
 import org.apache.hop.base.BaseHopMeta;
-import org.apache.hop.base.BaseMeta;
+import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
-import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
+import org.apache.hop.core.gui.IPrimitiveGC.EColor;
+import org.apache.hop.core.gui.IPrimitiveGC.EImage;
+import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
 import java.util.List;
 
-public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseMeta> {
+public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBaseMeta> {
 
   public final double theta = Math.toRadians( 11 ); // arrowhead sharpness
 
@@ -56,7 +56,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
 
   protected Point area;
 
-  protected ScrollBarInterface hori, vert;
+  protected IScrollBar hori, vert;
 
   protected List<AreaOwner> areaOwners;
 
@@ -73,7 +73,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
 
   protected Object subject;
 
-  protected GCInterface gc;
+  protected IGC gc;
 
   protected int shadowSize;
 
@@ -83,8 +83,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
 
   protected Hop candidate;
 
-  public BasePainter( GCInterface gc, Object subject, Point area, ScrollBarInterface hori,
-                      ScrollBarInterface vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
+  public BasePainter( IGC gc, Object subject, Point area, IScrollBar hori,
+                      IScrollBar vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
                       int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
     this.subject = subject;
@@ -332,19 +332,19 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
     this.area = area;
   }
 
-  public ScrollBarInterface getHori() {
+  public IScrollBar getHori() {
     return hori;
   }
 
-  public void setHori( ScrollBarInterface hori ) {
+  public void setHori( IScrollBar hori ) {
     this.hori = hori;
   }
 
-  public ScrollBarInterface getVert() {
+  public IScrollBar getVert() {
     return vert;
   }
 
-  public void setVert( ScrollBarInterface vert ) {
+  public void setVert( IScrollBar vert ) {
     this.vert = vert;
   }
 
@@ -436,11 +436,11 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
     this.subject = subject;
   }
 
-  public GCInterface getGc() {
+  public IGC getGc() {
     return gc;
   }
 
-  public void setGc( GCInterface gc ) {
+  public void setGc( IGC gc ) {
     this.gc = gc;
   }
 

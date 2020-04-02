@@ -24,11 +24,11 @@ package org.apache.hop.ui.pipeline.dialog;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.debug.BreakPointListener;
+import org.apache.hop.pipeline.debug.IBreakPointListener;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -183,9 +183,9 @@ public class PipelinePreviewProgressDialog {
     // We add a break-point that is called every time we have a transform with a full preview row buffer
     // That makes it easy and fast to see if we have all the rows we need
     //
-    pipelineDebugMeta.addBreakPointListers( new BreakPointListener() {
+    pipelineDebugMeta.addBreakPointListers( new IBreakPointListener() {
       public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, TransformDebugMeta transformDebugMeta,
-                                 RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
+                                 IRowMeta rowBufferMeta, List<Object[]> rowBuffer ) {
         String transformName = transformDebugMeta.getTransformMeta().getName();
         previewComplete.add( transformName );
         progressMonitor.subTask( BaseMessages.getString(
@@ -277,7 +277,7 @@ public class PipelinePreviewProgressDialog {
    * @param transformName the name of the transform to get the preview rows for
    * @return A description of the row (metadata)
    */
-  public RowMetaInterface getPreviewRowsMeta( String transformName ) {
+  public IRowMeta getPreviewRowsMeta( String transformName ) {
     if ( pipelineDebugMeta == null ) {
       return null;
     }

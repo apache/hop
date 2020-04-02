@@ -28,20 +28,20 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -198,8 +198,8 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
     lastTimeField = "FiveSecondsAgo";
   }
 
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     try {
       List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
       RowMetaAndData rowMetaAndData = RowGenerator.buildRow( this, remarks, origin );
@@ -211,7 +211,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
         throw new HopTransformException( stringRemarks.toString() );
       }
 
-      for ( ValueMetaInterface valueMeta : rowMetaAndData.getRowMeta().getValueMetaList() ) {
+      for ( IValueMeta valueMeta : rowMetaAndData.getRowMeta().getValueMetaList() ) {
         valueMeta.setOrigin( origin );
       }
 
@@ -252,7 +252,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev != null && prev.size() > 0 ) {
@@ -294,12 +294,12 @@ public class RowGeneratorMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RowGenerator( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new RowGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new RowGeneratorData();
   }
 

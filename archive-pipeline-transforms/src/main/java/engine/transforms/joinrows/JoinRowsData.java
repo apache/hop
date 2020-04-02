@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.joinrows;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -38,11 +38,11 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class JoinRowsData extends BaseTransformData implements TransformDataInterface {
+public class JoinRowsData extends BaseTransformData implements ITransformData {
   public File[] file;
   public FileInputStream[] fileInputStream;
   public DataInputStream[] dataInputStream;
-  public RowMetaInterface[] fileRowMeta;
+  public IRowMeta[] fileRowMeta;
 
   public int[] size;
   public int[] position;
@@ -62,7 +62,7 @@ public class JoinRowsData extends BaseTransformData implements TransformDataInte
    */
   public int filenr;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public JoinRowsData() {
     super();

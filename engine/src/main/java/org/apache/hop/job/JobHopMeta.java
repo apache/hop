@@ -123,7 +123,7 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
     if ( ( null != this.from ) && ( null != this.to ) ) {
       retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );

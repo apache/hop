@@ -35,15 +35,15 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.fileinput.text.BOMDetector;
@@ -67,18 +67,18 @@ import java.util.List;
  * @author Matt
  * @since 2007-07-05
  */
-public class CsvInput extends BaseTransform implements TransformInterface {
+public class CsvInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private CsvInputMeta meta;
   private CsvInputData data;
 
-  public CsvInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public CsvInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (CsvInputMeta) smi;
     data = (CsvInputData) sdi;
 
@@ -103,8 +103,8 @@ public class CsvInput extends BaseTransform implements TransformInterface {
       // Pretend it's a lazy conversion object anyway and get the native type during conversion.
       //
       data.convertRowMeta = data.outputRowMeta.clone();
-      for ( ValueMetaInterface valueMeta : data.convertRowMeta.getValueMetaList() ) {
-        valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      for ( IValueMeta valueMeta : data.convertRowMeta.getValueMetaList() ) {
+        valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
       }
 
       // Calculate the indexes for the filename and row number fields
@@ -294,7 +294,7 @@ public class CsvInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     try {
       // Close the previous file...
       //
@@ -569,7 +569,7 @@ public class CsvInput extends BaseTransform implements TransformInterface {
       boolean newLineFound = false;
       boolean endOfBuffer = false;
       List<Exception> conversionExceptions = null;
-      List<ValueMetaInterface> exceptionFields = null;
+      List<IValueMeta> exceptionFields = null;
 
       // The strategy is as follows...
       // We read a block of byte[] from the file.
@@ -733,7 +733,7 @@ public class CsvInput extends BaseTransform implements TransformInterface {
               // The convert object uses binary storage as such we just have to ask the native type from it.
               // That will do the actual conversion.
               //
-              ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( actualFieldIndex );
+              IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( actualFieldIndex );
               try {
                 outputRowData[ actualFieldIndex ] = sourceValueMeta.convertBinaryStringToNativeType( field );
               } catch ( HopValueException e ) {
@@ -743,7 +743,7 @@ public class CsvInput extends BaseTransform implements TransformInterface {
 
                 if ( conversionExceptions == null ) {
                   conversionExceptions = new ArrayList<Exception>();
-                  exceptionFields = new ArrayList<ValueMetaInterface>();
+                  exceptionFields = new ArrayList<IValueMeta>();
                 }
 
                 conversionExceptions.add( e );
@@ -841,7 +841,7 @@ public class CsvInput extends BaseTransform implements TransformInterface {
   }
 
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (CsvInputMeta) smi;
     data = (CsvInputData) sdi;
 

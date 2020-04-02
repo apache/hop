@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 import javax.naming.Context;
@@ -63,11 +63,11 @@ public class LdapProtocol {
     return ctx;
   }
 
-  public LdapProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
+  public LdapProtocol( LogChannelInterface log, iVariables variables, LdapMeta meta,
                        Collection<String> binaryAttributes ) {
     this.log = log;
-    hostname = variableSpace.environmentSubstitute( meta.getHost() );
-    port = Const.toInt( variableSpace.environmentSubstitute( meta.getPort() ), LDAPConnection.DEFAULT_PORT );
+    hostname = variables.environmentSubstitute( meta.getHost() );
+    port = Const.toInt( variables.environmentSubstitute( meta.getPort() ), LDAPConnection.DEFAULT_PORT );
     derefAliases = meta.getDerefAliases();
     referral = meta.getReferrals();
 

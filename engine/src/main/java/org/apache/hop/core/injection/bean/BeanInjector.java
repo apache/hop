@@ -25,7 +25,7 @@ package org.apache.hop.core.injection.bean;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -44,7 +44,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Engine for get/set metadata injection properties from bean.
  */
-public class BeanInjector<Meta extends TransformMetaInterface> {
+public class BeanInjector<Meta extends ITransformMeta> {
   private final BeanInjectionInfo<Meta> info;
 
   public BeanInjector( BeanInjectionInfo<Meta> info ) {

@@ -22,20 +22,20 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 16-06-2008
  */
-public class FieldsChangeSequenceData extends BaseTransformData implements TransformDataInterface {
+public class FieldsChangeSequenceData extends BaseTransformData implements ITransformData {
 
-  public ValueMetaInterface[] fieldnrsMeta;
-  public RowMetaInterface previousMeta;
-  public RowMetaInterface outputRowMeta;
+  public IValueMeta[] fieldnrsMeta;
+  public IRowMeta previousMeta;
+  public IRowMeta outputRowMeta;
 
   public int[] fieldnrs;
   public Object[] previousValues;

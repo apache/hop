@@ -28,16 +28,16 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.JavaScriptUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -53,7 +53,7 @@ import javax.script.ScriptException;
  * @author Matt
  * @since 5-April-2003
  */
-public class Script extends BaseTransform implements TransformInterface {
+public class Script extends BaseTransform implements ITransform {
   private static Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
 
   private ScriptMeta meta;
@@ -88,12 +88,12 @@ public class Script extends BaseTransform implements TransformInterface {
 
   // public String script; //TODO AKRETION should be compiled script actually
 
-  public Script( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Script( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private void determineUsedFields( RowMetaInterface row ) {
+  private void determineUsedFields( IRowMeta row ) {
     int nr = 0;
     // Count the occurrences of the values.
     // Perhaps we find values in comments, but we take no risk!
@@ -132,7 +132,7 @@ public class Script extends BaseTransform implements TransformInterface {
     }
   }
 
-  private boolean addValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private boolean addValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     if ( first ) {
       first = false;
 
@@ -196,7 +196,7 @@ public class Script extends BaseTransform implements TransformInterface {
         // Add the used fields...
         //
         for ( int i = 0; i < data.fields_used.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
           Object valueData = row[ data.fields_used[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
@@ -293,7 +293,7 @@ public class Script extends BaseTransform implements TransformInterface {
         data.scope.put( "row", row );
 
         for ( int i = 0; i < data.fields_used.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
           Object valueData = row[ data.fields_used[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
@@ -406,11 +406,11 @@ public class Script extends BaseTransform implements TransformInterface {
     }
   }
 
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return data.outputRowMeta;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     meta = (ScriptMeta) smi;
     data = (ScriptData) sdi;
@@ -474,7 +474,7 @@ public class Script extends BaseTransform implements TransformInterface {
     return bRC;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ScriptMeta) smi;
     data = (ScriptData) sdi;
 
@@ -503,7 +503,7 @@ public class Script extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     try {
       if ( data.cx != null ) {
         return;

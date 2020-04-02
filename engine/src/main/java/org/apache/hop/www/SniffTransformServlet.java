@@ -24,14 +24,14 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SniffTransformServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -56,7 +56,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
   public static final String XML_TAG = "transform-sniff";
 
   final class MetaAndData {
-    public RowMetaInterface bufferRowMeta;
+    public IRowMeta bufferRowMeta;
     public List<Object[]> bufferRowData;
   }
 
@@ -270,10 +270,10 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
 
       // Find the transform to look at...
       //
-      TransformInterface transform = null;
-      List<TransformInterface> transformInterfaces = pipeline.findBaseTransforms( transformName );
+      ITransform transform = null;
+      List<ITransform> transformInterfaces = pipeline.findBaseTransforms( transformName );
       for ( int i = 0; i < transformInterfaces.size(); i++ ) {
-        TransformInterface look = transformInterfaces.get( i );
+        ITransform look = transformInterfaces.get( i );
         if ( look.getCopy() == copyNr ) {
           transform = look;
         }
@@ -289,22 +289,22 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
         metaData.bufferRowMeta = null;
         metaData.bufferRowData = new ArrayList<Object[]>();
 
-        RowListener rowListener = new RowListener() {
-          public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+        IRowListener rowListener = new IRowListener() {
+          public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
             if ( read && metaData.bufferRowData.size() < nrLines ) {
               metaData.bufferRowMeta = rowMeta;
               metaData.bufferRowData.add( row );
             }
           }
 
-          public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+          public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
             if ( written && metaData.bufferRowData.size() < nrLines ) {
               metaData.bufferRowMeta = rowMeta;
               metaData.bufferRowData.add( row );
             }
           }
 
-          public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+          public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
           }
         };
 
@@ -383,7 +383,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
               // Print a header row containing all the field names...
               //
               out.print( "<tr><th>#</th>" );
-              for ( ValueMetaInterface valueMeta : metaData.bufferRowMeta.getValueMetaList() ) {
+              for ( IValueMeta valueMeta : metaData.bufferRowMeta.getValueMetaList() ) {
                 out.print( "<th>" + valueMeta.getName() + "</th>" );
               }
               out.println( "</tr>" );
@@ -395,7 +395,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
                 out.print( "<tr>" );
                 out.println( "<td>" + ( r + 1 ) + "</td>" );
                 for ( int v = 0; v < metaData.bufferRowMeta.size(); v++ ) {
-                  ValueMetaInterface valueMeta = metaData.bufferRowMeta.getValueMeta( v );
+                  IValueMeta valueMeta = metaData.bufferRowMeta.getValueMeta( v );
                   Object valueData = rowData[ v ];
                   out.println( "<td>" + valueMeta.getString( valueData ) + "</td>" );
                 }
@@ -447,7 +447,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements HopServerP
   }
 
   public String toString() {
-    return "Pipeline Status Handler";
+    return "Pipeline Status IHandler";
   }
 
   public String getService() {

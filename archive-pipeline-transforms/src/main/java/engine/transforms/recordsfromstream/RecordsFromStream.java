@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transforms.recordsfromstream;
 
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResult;
 
 public class RecordsFromStream extends RowsFromResult {
   public RecordsFromStream( final TransformMeta transformMeta,
-                            final TransformDataInterface transformDataInterface, final int copyNr,
+                            final ITransformData iTransformData, final int copyNr,
                             final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 }

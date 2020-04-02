@@ -22,12 +22,12 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.initializer;
 
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 
-public abstract class JobEntryInitializer<T extends JobEntryInterface>
-  implements InitializerInterface<JobEntryInterface> {
+public abstract class JobEntryInitializer<T extends IJobEntry>
+  implements IInitializerInterface<IJobEntry> {
 
   @Override
-  public abstract void modify( JobEntryInterface object );
+  public abstract void modify( IJobEntry object );
 
 }

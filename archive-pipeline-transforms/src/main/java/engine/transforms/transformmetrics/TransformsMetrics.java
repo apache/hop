@@ -32,8 +32,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -49,20 +49,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 30-06-2008
  */
 
-public class TransformsMetrics extends BaseTransform implements TransformInterface {
+public class TransformsMetrics extends BaseTransform implements ITransform {
   private static Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
 
   private TransformsMetricsMeta meta;
   private TransformsMetricsData data;
 
-  public HashSet<TransformInterface> transformInterfaces;
+  public HashSet<ITransform> transformInterfaces;
 
-  public TransformsMetrics( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TransformsMetrics( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (TransformsMetricsMeta) smi;
     data = (TransformsMetricsData) sdi;
 
@@ -91,7 +91,7 @@ public class TransformsMetrics extends BaseTransform implements TransformInterfa
       // Get target transformnames
       String[] targetTransforms = getPipelineMeta().getNextTransformNames( getTransformMeta() );
 
-      data.transformInterfaces = new ConcurrentHashMap<Integer, TransformInterface>();
+      data.transformInterfaces = new ConcurrentHashMap<Integer, ITransform>();
       for ( int i = 0; i < transformnrs; i++ ) {
         // We can not get metrics from current transform
         if ( transformnames[ i ].equals( getTransformName() ) ) {
@@ -107,7 +107,7 @@ public class TransformsMetrics extends BaseTransform implements TransformInterfa
         }
 
         int CopyNr = Const.toInt( meta.getTransformCopyNr()[ i ], 0 );
-        TransformInterface si = getPipeline().getTransformInterface( transformnames[ i ], CopyNr );
+        ITransform si = getPipeline().getTransformInterface( transformnames[ i ], CopyNr );
         if ( si != null ) {
           data.transformInterfaces.put( i, getDispatcher().findBaseTransforms( transformnames[ i ] ).get( CopyNr ) );
         } else {
@@ -125,10 +125,10 @@ public class TransformsMetrics extends BaseTransform implements TransformInterfa
     // Wait until all specified transforms have finished!
     while ( data.continueLoop && !isStopped() ) {
       data.continueLoop = false;
-      Iterator<Entry<Integer, TransformInterface>> it = data.transformInterfaces.entrySet().iterator();
+      Iterator<Entry<Integer, ITransform>> it = data.transformInterfaces.entrySet().iterator();
       while ( it.hasNext() ) {
-        Entry<Integer, TransformInterface> e = it.next();
-        TransformInterface transform = e.getValue();
+        Entry<Integer, ITransform> e = it.next();
+        ITransform transform = e.getValue();
 
         if ( transform.getStatus() != TransformExecutionStatus.STATUS_FINISHED ) {
           // This transform is still running...
@@ -205,7 +205,7 @@ public class TransformsMetrics extends BaseTransform implements TransformInterfa
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TransformsMetricsMeta) smi;
     data = (TransformsMetricsData) sdi;
 

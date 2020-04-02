@@ -31,8 +31,8 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -58,7 +58,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
-public class ExecSQLRowMeta extends BaseTransformMeta implements TransformMetaInterface<ExecSQLRow, ExecSQLRowData> {
+public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSQLRow, ExecSQLRowData> {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private IMetaStore metaStore;
@@ -275,8 +275,8 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements TransformMetaIn
     sendOneStatement = true;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -300,8 +300,8 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements TransformMetaIn
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -361,9 +361,9 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements TransformMetaIn
 
   }
 
-  public ExecSQLRow createTransform( TransformMeta transformMeta, ExecSQLRowData transformDataInterface, int cnr,
+  public ExecSQLRow createTransform( TransformMeta transformMeta, ExecSQLRowData iTransformData, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQLRow( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ExecSQLRow( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public ExecSQLRowData getTransformData() {

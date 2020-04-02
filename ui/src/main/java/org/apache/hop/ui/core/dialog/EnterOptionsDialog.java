@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GUIOption;
+import org.apache.hop.core.gui.IGUIOption;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
@@ -1412,7 +1412,7 @@ public class EnterOptionsDialog extends Dialog {
     Label refLabel = new Label( wGeneralComp, SWT.RIGHT );
     refLabel = tooltipLbl;
     Button lastbtn = closeAllFilesBtn;
-    for ( final GUIOption<Object> e : PropsUI.getInstance().getRegisteredEditableComponents() ) {
+    for ( final IGUIOption<Object> e : PropsUI.getInstance().getRegisteredEditableComponents() ) {
       if ( e.getLabelText() == null ) {
         continue;
       }

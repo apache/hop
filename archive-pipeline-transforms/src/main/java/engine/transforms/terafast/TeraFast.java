@@ -30,16 +30,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.AbstractTransform;
 import org.apache.hop.core.util.ConfigurableStreamLogger;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -57,7 +57,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  */
-public class TeraFast extends AbstractTransform implements TransformInterface {
+public class TeraFast extends AbstractTransform implements ITransform {
 
   private static Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -73,7 +73,7 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
 
   private List<Integer> columnSortOrder;
 
-  private RowMetaInterface tableRowMeta;
+  private IRowMeta tableRowMeta;
 
   private SimpleDateFormat simpleDateFormat;
 
@@ -81,14 +81,14 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
    * Constructor.
    *
    * @param transformMeta          the transformMeta.
-   * @param transformDataInterface the transformDataInterface.
+   * @param iTransformData the iTransformData.
    * @param copyNr            the copyNr.
    * @param pipelineMeta         the pipelineMeta.
    * @param pipeline             the pipeline.
    */
-  public TeraFast( final TransformMeta transformMeta, final TransformDataInterface transformDataInterface, final int copyNr,
+  public TeraFast( final TransformMeta transformMeta, final ITransformData iTransformData, final int copyNr,
                    final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -135,10 +135,10 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.pipeline.transform.BaseTransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface,
-   * org.apache.hop.pipeline.transform.TransformDataInterface)
+   * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public boolean init( final TransformMetaInterface smi, final TransformDataInterface sdi ) {
+  public boolean init( final TransformMetaInterface smi, final ITransformData sdi ) {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
     simpleDateFormat = new SimpleDateFormat( FastloadControlBuilder.DEFAULT_DATE_FORMAT );
@@ -158,10 +158,10 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.pipeline.transform.BaseTransform#processRow(org.apache.hop.pipeline.transform.TransformMetaInterface,
-   * org.apache.hop.pipeline.transform.TransformDataInterface)
+   * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public boolean processRow( final TransformMetaInterface smi, final TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( final TransformMetaInterface smi, final ITransformData sdi ) throws HopException {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
 
@@ -211,10 +211,10 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
       // thus the columns in the generated datafile are always in the same order and have the same size as in the
       // targetTable
       this.tableRowMeta = this.meta.getRequiredFields( this.getPipelineMeta() );
-      RowMetaInterface streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this.getTransformMeta() );
+      IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this.getTransformMeta() );
       this.columnSortOrder = new ArrayList<Integer>( this.tableRowMeta.size() );
       for ( int i = 0; i < this.tableRowMeta.size(); i++ ) {
-        ValueMetaInterface column = this.tableRowMeta.getValueMeta( i );
+        IValueMeta column = this.tableRowMeta.getValueMeta( i );
         int tableIndex = this.meta.getTableFieldList().getValue().indexOf( column.getName() );
         if ( tableIndex >= 0 ) {
           String streamField = this.meta.getStreamFieldList().getValue().get( tableIndex );
@@ -230,52 +230,52 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
   /**
    * Write a single row to the temporary data file.
    *
-   * @param rowMetaInterface describe the row of data
+   * @param iRowMeta describe the row of data
    * @param row              row entries
    * @throws HopException ...
    */
   @SuppressWarnings( "ArrayToString" )
-  public void writeToDataFile( RowMetaInterface rowMetaInterface, Object[] row ) throws HopException {
+  public void writeToDataFile( IRowMeta iRowMeta, Object[] row ) throws HopException {
     // Write the data to the output
-    ValueMetaInterface valueMeta = null;
+    IValueMeta valueMeta = null;
 
     for ( int i = 0; i < row.length; i++ ) {
       if ( row[ i ] == null ) {
         break; // no more rows
       }
-      valueMeta = rowMetaInterface.getValueMeta( i );
+      valueMeta = iRowMeta.getValueMeta( i );
       if ( row[ i ] != null ) {
         switch ( valueMeta.getType() ) {
-          case ValueMetaInterface.TYPE_STRING:
-            String s = rowMetaInterface.getString( row, i );
+          case IValueMeta.TYPE_STRING:
+            String s = iRowMeta.getString( row, i );
             dataFilePrintStream.print( pad( valueMeta, s.toString() ) );
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-            Long l = rowMetaInterface.getInteger( row, i );
+          case IValueMeta.TYPE_INTEGER:
+            Long l = iRowMeta.getInteger( row, i );
             dataFilePrintStream.print( pad( valueMeta, l.toString() ) );
             break;
-          case ValueMetaInterface.TYPE_NUMBER:
-            Double d = rowMetaInterface.getNumber( row, i );
+          case IValueMeta.TYPE_NUMBER:
+            Double d = iRowMeta.getNumber( row, i );
             dataFilePrintStream.print( pad( valueMeta, d.toString() ) );
             break;
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-            BigDecimal bd = rowMetaInterface.getBigNumber( row, i );
+          case IValueMeta.TYPE_BIGNUMBER:
+            BigDecimal bd = iRowMeta.getBigNumber( row, i );
             dataFilePrintStream.print( pad( valueMeta, bd.toString() ) );
             break;
-          case ValueMetaInterface.TYPE_DATE:
-            Date dt = rowMetaInterface.getDate( row, i );
+          case IValueMeta.TYPE_DATE:
+            Date dt = iRowMeta.getDate( row, i );
             dataFilePrintStream.print( simpleDateFormat.format( dt ) );
             break;
-          case ValueMetaInterface.TYPE_BOOLEAN:
-            Boolean b = rowMetaInterface.getBoolean( row, i );
+          case IValueMeta.TYPE_BOOLEAN:
+            Boolean b = iRowMeta.getBoolean( row, i );
             if ( b.booleanValue() ) {
               dataFilePrintStream.print( "Y" );
             } else {
               dataFilePrintStream.print( "N" );
             }
             break;
-          case ValueMetaInterface.TYPE_BINARY:
-            byte[] byt = rowMetaInterface.getBinary( row, i );
+          case IValueMeta.TYPE_BINARY:
+            byte[] byt = iRowMeta.getBinary( row, i );
             // REVIEW - this does an implicit byt.toString, which can't be what was intended.
             dataFilePrintStream.print( byt );
             break;
@@ -289,9 +289,9 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
     dataFilePrintStream.print( Const.CR );
   }
 
-  private String pad( ValueMetaInterface valueMetaInterface, String data ) {
+  private String pad( IValueMeta iValueMeta, String data ) {
     StringBuilder padding = new StringBuilder( data );
-    int padLength = valueMetaInterface.getLength() - data.length();
+    int padLength = iValueMeta.getLength() - data.length();
     int currentPadLength = 0;
     while ( currentPadLength < padLength ) {
       padding.append( " " );
@@ -412,10 +412,10 @@ public class TeraFast extends AbstractTransform implements TransformInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.pipeline.transform.BaseTransform#dispose(org.apache.hop.pipeline.transform.TransformMetaInterface,
-   * org.apache.hop.pipeline.transform.TransformDataInterface)
+   * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public void dispose( final TransformMetaInterface smi, final TransformDataInterface sdi ) {
+  public void dispose( final TransformMetaInterface smi, final ITransformData sdi ) {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
 

@@ -31,23 +31,23 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineDependency;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -56,7 +56,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.FieldDisabledListener;
+import org.apache.hop.ui.core.widget.IFieldDisabledListener;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -65,7 +65,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -208,7 +207,7 @@ public class PipelineDialog extends Dialog {
   private SelectionAdapter lsModSel;
   private TextVar wTransformPerfMaxSize;
 
-  private ArrayList<PipelineDialogPluginInterface> extraTabs;
+  private ArrayList<IPipelineDialogPlugin> extraTabs;
 
   public PipelineDialog( Shell parent, int style, PipelineMeta pipelineMeta, Tabs currentTab ) {
     this( parent, style, pipelineMeta );
@@ -270,13 +269,13 @@ public class PipelineDialog extends Dialog {
     addMonitoringTab();
 
     // See if there are any other tabs to be added...
-    extraTabs = new ArrayList<PipelineDialogPluginInterface>();
-    java.util.List<PluginInterface> pipelineDialogPlugins =
+    extraTabs = new ArrayList<IPipelineDialogPlugin>();
+    java.util.List<IPlugin> pipelineDialogPlugins =
       PluginRegistry.getInstance().getPlugins( PipelineDialogPluginType.class );
-    for ( PluginInterface pipelineDialogPlugin : pipelineDialogPlugins ) {
+    for ( IPlugin pipelineDialogPlugin : pipelineDialogPlugins ) {
       try {
-        PipelineDialogPluginInterface extraTab =
-          (PipelineDialogPluginInterface) PluginRegistry.getInstance().loadClass( pipelineDialogPlugin );
+        IPipelineDialogPlugin extraTab =
+          (IPipelineDialogPlugin) PluginRegistry.getInstance().loadClass( pipelineDialogPlugin );
         extraTab.addTab( pipelineMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
@@ -820,7 +819,7 @@ public class PipelineDialog extends Dialog {
     }
   }
 
-  private Control addDBSchemaTableLogOptions( LogTableInterface logTable ) {
+  private Control addDBSchemaTableLogOptions( ILogTable logTable ) {
 
     // Log table connection...
     //
@@ -975,7 +974,7 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1120,7 +1119,7 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1256,7 +1255,7 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1351,7 +1350,7 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1466,7 +1465,7 @@ public class PipelineDialog extends Dialog {
           BaseMessages.getString( PKG, "PipelineDialog.PipelineLogTable.Fields.Description" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    FieldDisabledListener disabledListener = new FieldDisabledListener() {
+    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
 
       public boolean isFieldDisabled( int rowNr ) {
         if ( rowNr >= 0 && rowNr < fields.size() ) {
@@ -1988,7 +1987,7 @@ public class PipelineDialog extends Dialog {
     wPipelineName.selectAll();
     wPipelineName.setFocus();
 
-    for ( PipelineDialogPluginInterface extraTab : extraTabs ) {
+    for ( IPipelineDialogPlugin extraTab : extraTabs ) {
       try {
         extraTab.getData( pipelineMeta );
       } catch ( Exception e ) {
@@ -2114,7 +2113,7 @@ public class PipelineDialog extends Dialog {
       OK = false;
     }
 
-    for ( PipelineDialogPluginInterface extraTab : extraTabs ) {
+    for ( IPipelineDialogPlugin extraTab : extraTabs ) {
       try {
         extraTab.ok( pipelineMeta );
       } catch ( Exception e ) {
@@ -2136,7 +2135,7 @@ public class PipelineDialog extends Dialog {
       String con = null;
       String tab = null;
       TableItem item = null;
-      TransformMetaInterface sii = transformMeta.getTransformMetaInterface();
+      ITransformMeta sii = transformMeta.getTransformMetaInterface();
       if ( sii instanceof TableInputMeta ) {
         TableInputMeta tii = (TableInputMeta) transformMeta.getTransformMetaInterface();
         if ( tii.getDatabaseMeta() == null ) {
@@ -2202,7 +2201,7 @@ public class PipelineDialog extends Dialog {
 
       boolean allOK = true;
 
-      for ( LogTableInterface logTable : new LogTableInterface[] {
+      for ( ILogTable logTable : new ILogTable[] {
         pipelineLogTable, performanceLogTable, channelLogTable, transformLogTable, metricsLogTable, } ) {
         if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
           // OK, we have something to work with!
@@ -2215,7 +2214,7 @@ public class PipelineDialog extends Dialog {
 
             StringBuilder ddl = new StringBuilder();
 
-            RowMetaInterface fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
+            IRowMeta fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
             String tableName = db.environmentSubstitute( logTable.getTableName() );
             String schemaTable =
               logTable.getDatabaseMeta().getQuotedSchemaTableCombination(
@@ -2228,9 +2227,9 @@ public class PipelineDialog extends Dialog {
               ddl.append( createTable ).append( Const.CR );
             }
 
-            java.util.List<RowMetaInterface> indexes = logTable.getRecommendedIndexes();
+            java.util.List<IRowMeta> indexes = logTable.getRecommendedIndexes();
             for ( int i = 0; i < indexes.size(); i++ ) {
-              RowMetaInterface index = indexes.get( i );
+              IRowMeta index = indexes.get( i );
               if ( !index.isEmpty() ) {
                 String createIndex =
                   db.getCreateIndexStatement( schemaTable, "IDX_" + tableName + "_" + ( i + 1 ), index

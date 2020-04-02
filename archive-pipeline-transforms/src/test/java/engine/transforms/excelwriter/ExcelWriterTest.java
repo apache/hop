@@ -26,8 +26,8 @@ import com.google.common.io.Files;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -95,10 +95,10 @@ public class ExcelWriter Test {
     FileObject xlsFile = TestUtils.getFileObject( path );
     wb = createWorkbook( xlsFile );
     mockHelper = new TransformMockHelper<>( "Excel Writer Test", ExcelWriterTransformMeta.class, ExcelWriter Data.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     transform = spy( new ExcelWriterTransform(
-      mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
+      mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
 
     transformMeta = new ExcelWriterTransformMeta();
     metaMock = mock( ExcelWriterTransformMeta.class );
@@ -191,10 +191,10 @@ public class ExcelWriter Test {
 
     for ( TransformInjectionMetaEntry entry : entries ) {
       switch ( entry.getValueType() ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           entry.setValue( "new_".concat( entry.getKey() ) );
           break;
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           entry.setValue( Boolean.TRUE );
           break;
         default:
@@ -206,10 +206,10 @@ public class ExcelWriter Test {
         List<TransformInjectionMetaEntry> childEntries = entry.getDetails().get( 0 ).getDetails();
         for ( TransformInjectionMetaEntry childEntry : childEntries ) {
           switch ( childEntry.getValueType() ) {
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               childEntry.setValue( "new_".concat( childEntry.getKey() ) );
               break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               childEntry.setValue( Boolean.TRUE );
               break;
             default:
@@ -264,11 +264,11 @@ public class ExcelWriter Test {
     dataMock.createNewFile = true;
     dataMock.realTemplateFileName = getClass().getResource( "template_with_formatting.xlsx" ).getFile();
     dataMock.realSheetname = "TicketData";
-    dataMock.inputRowMeta = mock( RowMetaInterface.class );
+    dataMock.inputRowMeta = mock( IRowMeta.class );
 
     ExcelWriter Field field = new ExcelWriter Field();
-    ValueMetaInterface vmi = mock( ValueMetaInteger.class );
-    doReturn( ValueMetaInterface.TYPE_INTEGER ).when( vmi ).getType();
+    IValueMeta vmi = mock( ValueMetaInteger.class );
+    doReturn( IValueMeta.TYPE_INTEGER ).when( vmi ).getType();
     doReturn( "name" ).when( vmi ).getName();
     doReturn( 12.0 ).when( vmi ).getNumber( anyObject() );
 
@@ -295,9 +295,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueBigNumber() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaBigNumber.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaBigNumber.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_BIGNUMBER ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_BIGNUMBER ).when( vmi ).getType();
     doReturn( "value_bigNumber" ).when( vmi ).getName();
     doReturn( Double.MAX_VALUE ).when( vmi ).getNumber( anyObject() );
 
@@ -307,9 +307,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueBinary() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaBinary.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaBinary.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_BINARY ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_BINARY ).when( vmi ).getType();
     doReturn( "value_binary" ).when( vmi ).getName();
     doReturn( "a1b2c3d4e5f6g7h8i9j0" ).when( vmi ).getString( anyObject() );
 
@@ -319,9 +319,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueBoolean() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaInteger.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaInteger.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_BOOLEAN ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_BOOLEAN ).when( vmi ).getType();
     doReturn( "value_bool" ).when( vmi ).getName();
     doReturn( Boolean.FALSE ).when( vmi ).getBoolean( anyObject() );
 
@@ -331,9 +331,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueDate() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaDate.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaDate.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_DATE ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_DATE ).when( vmi ).getType();
     doReturn( "value_date" ).when( vmi ).getName();
     doReturn( new Date() ).when( vmi ).getDate( anyObject() );
 
@@ -343,9 +343,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueInteger() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaInteger.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaInteger.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INTEGER ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INTEGER ).when( vmi ).getType();
     doReturn( "value_integer" ).when( vmi ).getName();
     doReturn( Double.MAX_VALUE ).when( vmi ).getNumber( anyObject() );
 
@@ -355,9 +355,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueInternetAddress() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaInternetAddress.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaInternetAddress.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_internetAddress" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( anyObject() );
 
@@ -367,9 +367,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueNumber() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaNumber.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaNumber.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_NUMBER ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_NUMBER ).when( vmi ).getType();
     doReturn( "value_number" ).when( vmi ).getName();
     doReturn( Double.MIN_VALUE ).when( vmi ).getNumber( anyObject() );
 
@@ -379,9 +379,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueString() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaString.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaString.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_STRING ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_STRING ).when( vmi ).getType();
     doReturn( "value_string" ).when( vmi ).getName();
     doReturn( "a_string" ).when( vmi ).getString( anyObject() );
 
@@ -391,9 +391,9 @@ public class ExcelWriter Test {
   @Test
   public void testValueTimestamp() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -403,9 +403,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xlsx_Stream_NoTemplate() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -415,9 +415,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xlsx_NoStream_NoTemplate() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -427,9 +427,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xlsx_Stream_Template() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -439,9 +439,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xlsx_NoStream_Template() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -451,9 +451,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xls_NoTemplate() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -463,9 +463,9 @@ public class ExcelWriter Test {
   @Test
   public void test_Xls_Template() throws Exception {
 
-    ValueMetaInterface vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
+    IValueMeta vmi = mock( ValueMetaTimestamp.class, new DefaultAnswerThrowsException() );
     Object vObj = new Object();
-    doReturn( ValueMetaInterface.TYPE_INET ).when( vmi ).getType();
+    doReturn( IValueMeta.TYPE_INET ).when( vmi ).getType();
     doReturn( "value_timestamp" ).when( vmi ).getName();
     doReturn( "127.0.0.1" ).when( vmi ).getString( vObj );
 
@@ -475,12 +475,12 @@ public class ExcelWriter Test {
   /**
    * <p>The base for testing if a field of a specific type is correctly handled for an XLSX.</p>
    *
-   * @param vmi               {@link ValueMetaInterface}'s instance to be used
+   * @param vmi               {@link IValueMeta}'s instance to be used
    * @param vObj              the {@link Object} to be used as the value
    * @param isStreaming       if it's to use streaming
    * @param isTemplateEnabled if it's to use a template
    */
-  private void testBaseXlsx( ValueMetaInterface vmi, Object vObj, boolean isStreaming, boolean isTemplateEnabled )
+  private void testBaseXlsx( IValueMeta vmi, Object vObj, boolean isStreaming, boolean isTemplateEnabled )
     throws Exception {
     testBase( vmi, vObj, XLSX, DOT_XLSX, isStreaming, isTemplateEnabled );
   }
@@ -488,11 +488,11 @@ public class ExcelWriter Test {
   /**
    * <p>The base for testing if a field of a specific type is correctly handled for an XLS.</p>
    *
-   * @param vmi               {@link ValueMetaInterface}'s instance to be used
+   * @param vmi               {@link IValueMeta}'s instance to be used
    * @param vObj              the {@link Object} to be used as the value
    * @param isTemplateEnabled if it's to use a template
    */
-  private void testBaseXls( ValueMetaInterface vmi, Object vObj, boolean isTemplateEnabled )
+  private void testBaseXls( IValueMeta vmi, Object vObj, boolean isTemplateEnabled )
     throws Exception {
 
     testBase( vmi, vObj, XLS, DOT_XLS, false, isTemplateEnabled );
@@ -501,13 +501,13 @@ public class ExcelWriter Test {
   /**
    * <p>The base for testing if a field of a specific type is correctly handled.</p>
    *
-   * @param vmi               {@link ValueMetaInterface}'s instance to be used
+   * @param vmi               {@link IValueMeta}'s instance to be used
    * @param vObj              the {@link Object} to be used as the value
    * @param extension         the extension to be used
    * @param isStreaming       if it's to use streaming
    * @param isTemplateEnabled if it's to use a template
    */
-  private void testBase( ValueMetaInterface vmi, Object vObj, String extension, String dotExtension,
+  private void testBase( IValueMeta vmi, Object vObj, String extension, String dotExtension,
                          boolean isStreaming,
                          boolean isTemplateEnabled )
     throws Exception {
@@ -526,7 +526,7 @@ public class ExcelWriter Test {
     dataMock.commentfieldnrs = new int[] { -1 };
     dataMock.createNewFile = true;
     dataMock.realSheetname = SHEET_NAME;
-    dataMock.inputRowMeta = mock( RowMetaInterface.class );
+    dataMock.inputRowMeta = mock( IRowMeta.class );
 
     doReturn( path ).when( transform ).buildFilename( 0 );
     doReturn( isTemplateEnabled ).when( metaMock ).isTemplateEnabled();

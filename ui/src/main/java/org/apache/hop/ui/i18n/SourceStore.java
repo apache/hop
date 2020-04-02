@@ -23,7 +23,7 @@
 package org.apache.hop.ui.i18n;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +44,11 @@ public class SourceStore {
   private Map<String, MessagesStore> messagesMap;
 
   private String locale;
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   private String sourceFolder;
 
-  public SourceStore( LogChannelInterface log, String locale, String sourceFolder,
+  public SourceStore( ILogChannel log, String locale, String sourceFolder,
                       Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
     this.log = log;
     this.locale = locale;

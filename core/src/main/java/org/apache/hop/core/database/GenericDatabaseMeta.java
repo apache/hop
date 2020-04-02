@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -38,10 +38,10 @@ import java.util.Map;
  * @since 11-mrt-2005
  */
 
-public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
   public static final String DATABASE_DIALECT_ID = "DATABASE_DIALECT_ID";
-  private DatabaseInterface databaseDialect = null;
+  private IDatabase databaseDialect = null;
 
   @GuiWidgetElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
   protected String hostname;
@@ -87,7 +87,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @see DatabaseInterface#getNotFoundTK(boolean)
+   * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override
   public int getNotFoundTK( boolean use_autoinc ) {
@@ -149,7 +149,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                        String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
@@ -170,7 +170,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                           String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getModifyColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
@@ -179,7 +179,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
                                     boolean add_fieldname, boolean add_cr ) {
 
     if ( databaseDialect != null ) {
@@ -198,20 +198,20 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -237,7 +237,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length >= DatabaseMeta.CLOB_LENGTH ) {
           retval += "TEXT";
         } else {
@@ -308,8 +308,8 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
     if ( dialectName.equals( getPluginName() ) ) {
       databaseDialect = null;
     } else {
-      DatabaseInterface[] dialects = DatabaseMeta.getDatabaseInterfaces();
-      for ( DatabaseInterface dialect : dialects ) {
+      IDatabase[] dialects = DatabaseMeta.getDatabaseInterfaces();
+      for ( IDatabase dialect : dialects ) {
         if ( dialectName.equals( dialect.getPluginName() ) ) {
           databaseDialect = dialect;
           break;
@@ -504,7 +504,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public String getSQLValue( ValueMetaInterface valueMeta, Object valueData, String dateFormat ) throws
+  public String getSQLValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws
     HopValueException {
     if ( databaseDialect != null ) {
       return databaseDialect.getSQLValue( valueMeta, valueData, dateFormat );
@@ -513,7 +513,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public ValueMetaInterface customizeValueFromSQLType( ValueMetaInterface v, java.sql.ResultSetMetaData rm, int index )
+  public IValueMeta customizeValueFromSQLType( IValueMeta v, java.sql.ResultSetMetaData rm, int index )
     throws SQLException {
     if ( databaseDialect != null ) {
       return databaseDialect.customizeValueFromSQLType( v, rm, index );
@@ -826,7 +826,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                         String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );

@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.mappingoutput;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
 import java.util.List;
@@ -34,12 +34,12 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class MappingOutputData extends BaseTransformData implements TransformDataInterface {
+public class MappingOutputData extends BaseTransformData implements ITransformData {
 
-  public TransformInterface[] targetTransforms;
+  public ITransform[] targetTransforms;
   public String[] outputField;
   public String[] outputMapping;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public List<MappingValueRename> inputValueRenames;
   public List<MappingValueRename> outputValueRenames;
 

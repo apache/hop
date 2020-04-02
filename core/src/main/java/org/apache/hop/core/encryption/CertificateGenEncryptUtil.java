@@ -23,7 +23,7 @@
 package org.apache.hop.core.encryption;
 
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 
@@ -49,7 +49,7 @@ public class CertificateGenEncryptUtil {
   public static final String PUBLIC_KEY_ALGORITHM = "RSA";
   public static final String SINGLE_KEY_ALGORITHM = "AES";
   public static final String TRANSMISSION_CIPHER_PARAMS = "RSA/ECB/PKCS1Padding";
-  private static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  private static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Certificate Encryption Utility", LoggingObjectType.GENERAL, null );
   private static final LogChannel log = new LogChannel( loggingObject );
 

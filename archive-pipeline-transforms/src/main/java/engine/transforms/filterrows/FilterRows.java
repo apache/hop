@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transforms.filterrows;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -44,18 +44,18 @@ import java.util.List;
  * @author Matt
  * @since 16-apr-2003, 07-nov-2004 (rewrite)
  */
-public class FilterRows extends BaseTransform implements TransformInterface {
+public class FilterRows extends BaseTransform implements ITransform {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private FilterRowsMeta meta;
   private FilterRowsData data;
 
-  public FilterRows( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public FilterRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private synchronized boolean keepRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private synchronized boolean keepRow( IRowMeta rowMeta, Object[] row ) throws HopException {
     try {
       return meta.getCondition().evaluate( rowMeta, row );
     } catch ( Exception e ) {
@@ -68,7 +68,7 @@ public class FilterRows extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (FilterRowsMeta) smi;
     data = (FilterRowsData) sdi;
 
@@ -90,7 +90,7 @@ public class FilterRows extends BaseTransform implements TransformInterface {
       // if filter refers to non-existing fields, throw exception
       checkNonExistingFields();
 
-      // Cache the position of the RowSet for the output.
+      // ICache the position of the RowSet for the output.
       //
       if ( data.chosesTargetTransforms ) {
         List<StreamInterface> targetStreams = meta.getTransformIOMeta().getTargetStreams();
@@ -149,9 +149,9 @@ public class FilterRows extends BaseTransform implements TransformInterface {
   }
 
   /**
-   * @see TransformInterface#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (FilterRowsMeta) smi;
     data = (FilterRowsData) sdi;
 

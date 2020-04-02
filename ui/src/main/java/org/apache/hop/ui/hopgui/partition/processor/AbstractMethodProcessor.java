@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * @author Evgeniy_Lyakhov@epam.com
  */
-public abstract class AbstractMethodProcessor implements MethodProcessor {
+public abstract class AbstractMethodProcessor implements IMethodProcessor {
 
   public String askForSchema( String[] schemaNames, Shell shell, int defaultSelectedSchemaIndex ) {
     EnterSelectionDialog askSchema =

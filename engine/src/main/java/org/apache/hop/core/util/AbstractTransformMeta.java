@@ -31,9 +31,9 @@ import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -47,7 +47,7 @@ import java.util.prefs.Preferences;
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  */
-public abstract class AbstractTransformMeta extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
+public abstract class AbstractTransformMeta extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
   private static final String CONNECTION_NAME = "connection";
 
@@ -125,9 +125,9 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
   /**
    * {@inheritDoc}
    *
-   * @see TransformMetaInterface#getTransformData()
+   * @see ITransformMeta#getTransformData()
    */
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     // you may be override this.
     return new GenericTransformData();
   }

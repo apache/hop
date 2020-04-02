@@ -25,15 +25,15 @@ package org.apache.hop.ui.pipeline.transforms.sasinput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.sasinput.SasInputField;
 import org.apache.hop.pipeline.transforms.sasinput.SasInputHelper;
 import org.apache.hop.pipeline.transforms.sasinput.SasInputMeta;
@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SasInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SasInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
   // by Translator!!
 
@@ -148,7 +148,7 @@ public class SasInputDialog extends BaseTransformDialog implements TransformDial
     // Fill in the source fields...
     //
     try {
-      RowMetaInterface fields = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta fields = pipelineMeta.getPrevTransformFields( transformMeta );
       wAccField.setItems( fields.getFieldNames() );
     } catch ( Exception e ) {
       LogChannel.GENERAL.logError( "Couldn't get input fields for transform '" + transformMeta + "'", e );
@@ -226,12 +226,12 @@ public class SasInputDialog extends BaseTransformDialog implements TransformDial
         String[] comboValues = new String[] {};
         int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
         switch ( type ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             comboValues = Const.getDateFormats();
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
             comboValues = Const.getNumberFormats();
             break;
           default:

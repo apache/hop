@@ -28,13 +28,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.getpop.MailConnectionMeta;
@@ -42,8 +42,8 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -301,7 +301,7 @@ public class MailInputMeta extends BaseTransformMeta implements TransformMetaInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     // See if we get input...
@@ -587,40 +587,40 @@ public class MailInputMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new MailInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new MailInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new MailInputData();
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       MailInputField field = inputFields[ i ];
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( field.getName() ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( field.getName() ) );
       switch ( field.getColumn() ) {
         case MailInputField.COLUMN_MESSAGE_NR:
         case MailInputField.COLUMN_SIZE:
         case MailInputField.COLUMN_ATTACHED_FILES_COUNT:
-          v = new ValueMetaInteger( space.environmentSubstitute( field.getName() ) );
-          v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+          v = new ValueMetaInteger( variables.environmentSubstitute( field.getName() ) );
+          v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
           break;
         case MailInputField.COLUMN_RECEIVED_DATE:
         case MailInputField.COLUMN_SENT_DATE:
-          v = new ValueMetaDate( space.environmentSubstitute( field.getName() ) );
+          v = new ValueMetaDate( variables.environmentSubstitute( field.getName() ) );
           break;
         case MailInputField.COLUMN_FLAG_DELETED:
         case MailInputField.COLUMN_FLAG_DRAFT:
         case MailInputField.COLUMN_FLAG_FLAGGED:
         case MailInputField.COLUMN_FLAG_NEW:
         case MailInputField.COLUMN_FLAG_READ:
-          v = new ValueMetaBoolean( space.environmentSubstitute( field.getName() ) );
+          v = new ValueMetaBoolean( variables.environmentSubstitute( field.getName() ) );
           break;
         default:
           // STRING

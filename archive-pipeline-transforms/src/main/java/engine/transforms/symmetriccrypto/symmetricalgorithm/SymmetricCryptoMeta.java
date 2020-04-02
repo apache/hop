@@ -62,10 +62,10 @@ public class SymmetricCryptoMeta {
   }
 
   /**
-   * Search for the right type of DatabaseInterface object and clone it.
+   * Search for the right type of IDatabase object and clone it.
    *
-   * @param databaseType the type of DatabaseInterface to look for (description)
-   * @return The requested DatabaseInterface
+   * @param databaseType the type of IDatabase to look for (description)
+   * @return The requested IDatabase
    * @throws CryptoException when the type could not be found or referenced.
    */
   public static final SymmetricCryptoInterface getSymmetricCryptoInterface( String cryptoname ) throws CryptoException {
@@ -74,10 +74,10 @@ public class SymmetricCryptoMeta {
   }
 
   /**
-   * Search for the right type of DatabaseInterface object and return it.
+   * Search for the right type of IDatabase object and return it.
    *
-   * @param databaseType the type of DatabaseInterface to look for (description)
-   * @return The requested DatabaseInterface
+   * @param databaseType the type of IDatabase to look for (description)
+   * @return The requested IDatabase
    * @throws CryptoException when the type could not be found or referenced.
    */
   private static final synchronized SymmetricCryptoInterface findSymmetricCryptoInterface( String cryptograhname ) throws CryptoException {

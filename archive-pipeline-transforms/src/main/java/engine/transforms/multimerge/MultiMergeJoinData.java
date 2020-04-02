@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.multimerge;
 
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Comparator;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.PriorityQueue;
  * @since 24-nov-2005
  */
 
-public class MultiMergeJoinData extends BaseTransformData implements TransformDataInterface {
+public class MultiMergeJoinData extends BaseTransformData implements ITransformData {
   public static class QueueEntry {
     public Object[] row;
     public int index;
@@ -64,8 +64,8 @@ public class MultiMergeJoinData extends BaseTransformData implements TransformDa
   }
 
   public Object[][] rows;
-  public RowMetaInterface[] metas;
-  public RowMetaInterface outputRowMeta; // just for speed: oneMeta+twoMeta
+  public IRowMeta[] metas;
+  public IRowMeta outputRowMeta; // just for speed: oneMeta+twoMeta
   public Object[][] dummy;
   public List<List<Object[]>> results;
   public PriorityQueue<QueueEntry> queue;

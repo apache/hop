@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.util.List;
@@ -60,40 +60,40 @@ public class TransformOption {
     this.value = value;
   }
 
-  public static void checkInteger( List<CheckResultInterface> remarks, TransformMeta transformMeta, VariableSpace space,
+  public static void checkInteger( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                    String identifier, String value ) {
     try {
-      if ( !StringUtil.isEmpty( space.environmentSubstitute( value ) ) ) {
-        Integer.parseInt( space.environmentSubstitute( value ) );
+      if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) ) {
+        Integer.parseInt( variables.environmentSubstitute( value ) );
       }
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
-        CheckResultInterface.TYPE_RESULT_ERROR,
+        ICheckResult.TYPE_RESULT_ERROR,
         BaseMessages.getString( PKG, "TransformOption.CheckResult.NotAInteger", identifier ),
         transformMeta ) );
     }
   }
 
-  public static void checkLong( List<CheckResultInterface> remarks, TransformMeta transformMeta, VariableSpace space,
+  public static void checkLong( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                 String identifier, String value ) {
     try {
-      if ( !StringUtil.isEmpty( space.environmentSubstitute( value ) ) ) {
-        Long.parseLong( space.environmentSubstitute( value ) );
+      if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) ) {
+        Long.parseLong( variables.environmentSubstitute( value ) );
       }
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
-        CheckResultInterface.TYPE_RESULT_ERROR,
+        ICheckResult.TYPE_RESULT_ERROR,
         BaseMessages.getString( PKG, "TransformOption.CheckResult.NotAInteger", identifier ),
         transformMeta ) );
     }
   }
 
-  public static void checkBoolean( List<CheckResultInterface> remarks, TransformMeta transformMeta, VariableSpace space,
+  public static void checkBoolean( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                    String identifier, String value ) {
-    if ( !StringUtil.isEmpty( space.environmentSubstitute( value ) ) && null == BooleanUtils
-      .toBooleanObject( space.environmentSubstitute( value ) ) ) {
+    if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) && null == BooleanUtils
+      .toBooleanObject( variables.environmentSubstitute( value ) ) ) {
       remarks.add( new CheckResult(
-        CheckResultInterface.TYPE_RESULT_ERROR,
+        ICheckResult.TYPE_RESULT_ERROR,
         BaseMessages.getString( PKG, "TransformOption.CheckResult.NotABoolean", identifier ),
         transformMeta ) );
     }

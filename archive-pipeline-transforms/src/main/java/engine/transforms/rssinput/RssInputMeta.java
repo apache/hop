@@ -27,21 +27,21 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -350,19 +350,19 @@ public class RssInputMeta extends BaseTransformMeta implements TransformMetaInte
     rowLimit = 0;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       RssInputField field = inputFields[ i ];
 
       int type = field.getType();
-      if ( type == ValueMetaInterface.TYPE_NONE ) {
-        type = ValueMetaInterface.TYPE_STRING;
+      if ( type == IValueMeta.TYPE_NONE ) {
+        type = IValueMeta.TYPE_STRING;
       }
       try {
-        ValueMetaInterface v =
-          ValueMetaFactory.createValueMeta( space.environmentSubstitute( field.getName() ), type );
+        IValueMeta v =
+          ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
         v.setLength( field.getLength(), field.getPrecision() );
         v.setOrigin( name );
         r.addValueMeta( v );
@@ -373,21 +373,21 @@ public class RssInputMeta extends BaseTransformMeta implements TransformMetaInte
     }
 
     if ( includeUrl ) {
-      ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( urlField ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( urlField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( includeRowNumber ) {
-      ValueMetaInterface v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new RssInputData();
   }
 
@@ -396,7 +396,7 @@ public class RssInputMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -428,9 +428,9 @@ public class RssInputMeta extends BaseTransformMeta implements TransformMetaInte
 
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new RssInput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new RssInput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
 }

@@ -44,13 +44,13 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
 
   private File rootFile;
 
-  private final XmlMetaStoreCache metaStoreCache;
+  private final IXmlMetaStoreCache metaStoreCache;
 
   public XmlMetaStore() throws MetaStoreException {
     this( new AutomaticXmlMetaStoreCache() );
   }
 
-  public XmlMetaStore( XmlMetaStoreCache metaStoreCacheImpl ) throws MetaStoreException {
+  public XmlMetaStore( IXmlMetaStoreCache metaStoreCacheImpl ) throws MetaStoreException {
     this( System.getProperty( "java.io.tmpdir" ) + File.separator + UUID.randomUUID(), metaStoreCacheImpl );
   }
 
@@ -58,7 +58,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
     this( rootFolder, new AutomaticXmlMetaStoreCache() );
   }
 
-  public XmlMetaStore( String rootFolder, XmlMetaStoreCache metaStoreCacheImpl ) throws MetaStoreException {
+  public XmlMetaStore( String rootFolder, IXmlMetaStoreCache metaStoreCacheImpl ) throws MetaStoreException {
     this.rootFolder = rootFolder + File.separator + XmlUtil.META_FOLDER_NAME;
 
     rootFile = new File( this.rootFolder );

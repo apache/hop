@@ -29,10 +29,10 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogChannelInterfaceFactory;
+import org.apache.hop.core.logging.LogChannelFactory;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -105,8 +105,8 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
     attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldLookup", stringArrayLoadSaveValidator );
     // Note - have to use the non-zero int load/save validator here because if "update"
-    // is false, code in DimensionLookupMeta replaces "ValueMetaInterface.TYPE_NONE" with
-    // ValueMetaInterface.TYPE_STRING. This happens about once out of every 3 or so runs of
+    // is false, code in DimensionLookupMeta replaces "IValueMeta.TYPE_NONE" with
+    // IValueMeta.TYPE_STRING. This happens about once out of every 3 or so runs of
     // the test which made it a bit difficult to track down.
     // MB - 5/2016
     attrValidatorMap.put( "fieldUpdate", new FieldUpdateIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator(
@@ -146,10 +146,10 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
 
   @Before
   public void setUp() throws Exception {
-    LogChannelInterfaceFactory logChannelInterfaceFactory = mock( LogChannelInterfaceFactory.class );
+    LogChannelFactory logChannelFactory = mock( LogChannelFactory.class );
     LogChannelInterface logChannelInterface = mock( LogChannelInterface.class );
-    HopLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
-    when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    HopLogStore.setLogChannelFactory( logChannelFactory );
+    when( logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       logChannelInterface );
   }
 
@@ -188,7 +188,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
         return mock( Database.class );
       }
 
-      @Override protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+      @Override protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
         throws HopDatabaseException {
         assertEquals( "aSchema", schemaName );
         assertEquals( "aDimTable", tableName );

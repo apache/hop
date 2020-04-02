@@ -25,17 +25,17 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.sql.ResultSet;
 
@@ -45,24 +45,24 @@ import java.sql.ResultSet;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DatabaseJoin extends BaseTransform implements TransformInterface {
+public class DatabaseJoin extends BaseTransform implements ITransform {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseJoinMeta meta;
   private DatabaseJoinData data;
 
-  public DatabaseJoin( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public DatabaseJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private synchronized void lookupValues( RowMetaInterface rowMeta, Object[] rowData ) throws HopException {
+  private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
     if ( first ) {
       first = false;
 
       data.outputRowMeta = rowMeta.clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new RowMetaInterface[] { meta.getTableFields(), }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(), }, null, this, metaStore );
 
       data.lookupRowMeta = new RowMeta();
 
@@ -95,7 +95,7 @@ public class DatabaseJoin extends BaseTransform implements TransformInterface {
     // Get a row from the database...
     //
     Object[] add = data.db.getRow( rs );
-    RowMetaInterface addMeta = data.db.getReturnRowMeta();
+    IRowMeta addMeta = data.db.getReturnRowMeta();
 
     incrementLinesInput();
 
@@ -141,7 +141,7 @@ public class DatabaseJoin extends BaseTransform implements TransformInterface {
     data.db.closeQuery( rs );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 
@@ -190,7 +190,7 @@ public class DatabaseJoin extends BaseTransform implements TransformInterface {
    * <p>
    * To cancel a prepared statement we need a valid database connection which we do not have if disposed has already been called
    */
-  public synchronized void stopRunning( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public synchronized void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( this.isStopped() || sdi.isDisposed() ) {
       return;
     }
@@ -204,7 +204,7 @@ public class DatabaseJoin extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 
@@ -252,7 +252,7 @@ public class DatabaseJoin extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 

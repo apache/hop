@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.missing.MissingEntry;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class MissingEntryDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = MissingEntryDialog.class;
 
   private Shell shell;
@@ -53,7 +53,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
   private List<MissingEntry> missingEntries;
   private int mode;
   private PropsUI props;
-  private JobEntryInterface jobEntryResult;
+  private IJobEntry jobEntryResult;
 
   public static final int MISSING_JOB_ENTRIES = 1;
   public static final int MISSING_JOB_ENTRY_ID = 2;
@@ -65,7 +65,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
     this.mode = MISSING_JOB_ENTRIES;
   }
 
-  public MissingEntryDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public MissingEntryDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     this.shellParent = parent;
     this.mode = MISSING_JOB_ENTRY_ID;
@@ -93,7 +93,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
     return message;
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
 
     this.props = PropsUI.getInstance();
     Display display = shellParent.getDisplay();

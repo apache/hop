@@ -36,9 +36,9 @@ import java.util.Map;
  *
  * @author matt
  */
-public class Plugin implements PluginInterface, Comparable<Plugin> {
+public class Plugin implements IPlugin, Comparable<Plugin> {
 
-  public static Comparator<PluginInterface> nullStringComparator =
+  public static Comparator<IPlugin> nullStringComparator =
     ( p1, p2 ) -> new CompareToBuilder()
       .append( p1.getName(), p2.getName(), Comparator.nullsLast( String::compareToIgnoreCase ) )
       .append( p1.getIds(), p2.getIds() )
@@ -48,7 +48,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   private String name;
   private String description;
   private String[] ids;
-  private Class<? extends PluginTypeInterface> pluginType;
+  private Class<? extends IPluginType> pluginType;
   private String imageFile;
   private boolean separateClassLoaderNeeded;
   private String classLoaderGroup;
@@ -76,7 +76,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
    * @param classMap
    * @param libraries
    */
-  public Plugin( String[] ids, Class<? extends PluginTypeInterface> pluginType, Class<?> mainType,
+  public Plugin( String[] ids, Class<? extends IPluginType> pluginType, Class<?> mainType,
                  String category, String name, String description, String imageFile, boolean separateClassLoaderNeeded,
                  boolean nativePlugin, Map<Class<?>, String> classMap, List<String> libraries, String errorHelpFile, String[] keywords,
                  URL pluginFolder ) {
@@ -96,7 +96,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
    * @param classMap
    * @param libraries
    */
-  public Plugin( String[] ids, Class<? extends PluginTypeInterface> pluginType, Class<?> mainType,
+  public Plugin( String[] ids, Class<? extends IPluginType> pluginType, Class<?> mainType,
                  String category, String name, String description, String imageFile, boolean separateClassLoaderNeeded,
                  boolean nativePlugin, Map<Class<?>, String> classMap, List<String> libraries, String errorHelpFile, String[] keywords,
                  URL pluginFolder, String documentationUrl, String casesUrl, String forumUrl ) {
@@ -104,7 +104,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
       nativePlugin, classMap, libraries, errorHelpFile, keywords, pluginFolder, documentationUrl, casesUrl, forumUrl );
   }
 
-  public Plugin( String[] ids, Class<? extends PluginTypeInterface> pluginType, Class<?> mainType,
+  public Plugin( String[] ids, Class<? extends IPluginType> pluginType, Class<?> mainType,
                  String category, String name, String description, String imageFile, boolean separateClassLoaderNeeded,
                  String classLoaderGroup, boolean nativePlugin, Map<Class<?>, String> classMap, List<String> libraries,
                  String errorHelpFile, String[] keywords, URL pluginFolder, String documentationUrl, String casesUrl, String forumUrl ) {
@@ -148,7 +148,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
    * @param forumUrl
    * @param suggestion
    */
-  public Plugin( String[] ids, Class<? extends PluginTypeInterface> pluginType, Class<?> mainType,
+  public Plugin( String[] ids, Class<? extends IPluginType> pluginType, Class<?> mainType,
                  String category, String name, String description, String imageFile, boolean separateClassLoaderNeeded,
                  String classLoaderGroup, boolean nativePlugin, Map<Class<?>, String> classMap, List<String> libraries,
                  String errorHelpFile, String[] keywords, URL pluginFolder, String documentationUrl, String casesUrl, String forumUrl,
@@ -159,7 +159,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
     this.suggestion = suggestion;
   }
 
-  public Plugin( String[] ids, Class<? extends PluginTypeInterface> pluginType, Class<?> mainType,
+  public Plugin( String[] ids, Class<? extends IPluginType> pluginType, Class<?> mainType,
                  String category, String name, String description, String imageFile, boolean separateClassLoaderNeeded,
                  boolean nativePlugin, Map<Class<?>, String> classMap, List<String> libraries, String errorHelpFile, String[] keywords,
                  URL pluginFolder, String documentationUrl, String casesUrl, String forumUrl, String suggestion ) {
@@ -261,14 +261,14 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
    * @return the pluginType
    */
   @Override
-  public Class<? extends PluginTypeInterface> getPluginType() {
+  public Class<? extends IPluginType> getPluginType() {
     return pluginType;
   }
 
   /**
    * @param pluginType the pluginType to set
    */
-  public void setPluginType( Class<? extends PluginTypeInterface> pluginType ) {
+  public void setPluginType( Class<? extends IPluginType> pluginType ) {
     this.pluginType = pluginType;
   }
 

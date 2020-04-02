@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -65,65 +65,65 @@ public class ValueMetaConverterTest {
     //All combination not listed here should generate ValueMetaConversionExceptions
     // source type, destination type, source object, expected result
     Object[][] tests = new Object[][] {
-      { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NONE, 1234.56d, null },
-      { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_STRING, 1234.56d, "1234.56" },
-      { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER, 1234.56d, 1234.56d },
-      { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_INTEGER, 1234.56d, 1234L },
-      { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_BIGNUMBER, 1234.56d, new BigDecimal( 1234.56 ) },
+      { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NONE, 1234.56d, null },
+      { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_STRING, 1234.56d, "1234.56" },
+      { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NUMBER, 1234.56d, 1234.56d },
+      { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, 1234.56d, 1234L },
+      { IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER, 1234.56d, new BigDecimal( 1234.56 ) },
 
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_NONE, inetHost, null },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING, "foobar", "foobar" },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_INET, inetHost, inetAddress1 },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_INTEGER, "1234", 1234L },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_NUMBER, "1234.56", 1234.56 },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_BIGNUMBER, "123456789.123456789",
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_NONE, inetHost, null },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING, "foobar", "foobar" },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_INET, inetHost, inetAddress1 },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_INTEGER, "1234", 1234L },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_NUMBER, "1234.56", 1234.56 },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_BIGNUMBER, "123456789.123456789",
         new BigDecimal( "123456789.123456789" ) },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_TIMESTAMP, "2001/11/01 20:30:15.123", timeStamp1 },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_DATE, "1999/12/31 00:00:00.000", date1 },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_BOOLEAN, "true", true },
-      { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_BINARY, "foobar", "foobar".getBytes() },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_TIMESTAMP, "2001/11/01 20:30:15.123", timeStamp1 },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_DATE, "1999/12/31 00:00:00.000", date1 },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_BOOLEAN, "true", true },
+      { IValueMeta.TYPE_STRING, IValueMeta.TYPE_BINARY, "foobar", "foobar".getBytes() },
 
-      { ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_NONE, date1, null },
-      { ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_DATE, date1, date1 },
-      { ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_INTEGER, date1, date1.getTime() },
-      { ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_STRING, date1, "1999/12/31 00:00:00.000" },
-      { ValueMetaInterface.TYPE_DATE, ValueMetaInterface.TYPE_TIMESTAMP, date1, new Timestamp( date1.getTime() ) },
+      { IValueMeta.TYPE_DATE, IValueMeta.TYPE_NONE, date1, null },
+      { IValueMeta.TYPE_DATE, IValueMeta.TYPE_DATE, date1, date1 },
+      { IValueMeta.TYPE_DATE, IValueMeta.TYPE_INTEGER, date1, date1.getTime() },
+      { IValueMeta.TYPE_DATE, IValueMeta.TYPE_STRING, date1, "1999/12/31 00:00:00.000" },
+      { IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP, date1, new Timestamp( date1.getTime() ) },
 
-      { ValueMetaInterface.TYPE_BOOLEAN, ValueMetaInterface.TYPE_NONE, true, null },
-      { ValueMetaInterface.TYPE_BOOLEAN, ValueMetaInterface.TYPE_STRING, true, "true" },
-      { ValueMetaInterface.TYPE_BOOLEAN, ValueMetaInterface.TYPE_BOOLEAN, true, true },
+      { IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_NONE, true, null },
+      { IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_STRING, true, "true" },
+      { IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_BOOLEAN, true, true },
 
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NONE, 1234L, null },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_DATE, date1.getTime(), date1 },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_STRING, 1234L, "1234" },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_INTEGER, 1234L, 1234L },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER, 1234L, 1234.0 },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_BIGNUMBER, 1234L, new BigDecimal( "1234" ) },
-      { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_TIMESTAMP, timeStamp1.getTime(), timeStamp1 },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NONE, 1234L, null },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_DATE, date1.getTime(), date1 },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING, 1234L, "1234" },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_INTEGER, 1234L, 1234L },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, 1234L, 1234.0 },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, 1234L, new BigDecimal( "1234" ) },
+      { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_TIMESTAMP, timeStamp1.getTime(), timeStamp1 },
 
-      { ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_NONE, new BigDecimal( "123456.123456" ), null },
-      { ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_STRING, new BigDecimal( "123456.123456" ),
+      { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NONE, new BigDecimal( "123456.123456" ), null },
+      { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_STRING, new BigDecimal( "123456.123456" ),
         "123456.123456" },
-      { ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_NUMBER, new BigDecimal( "123456.123456" ),
+      { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER, new BigDecimal( "123456.123456" ),
         123456.123456d },
-      { ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_BIGNUMBER, new BigDecimal( "123456.123456" ),
+      { IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_BIGNUMBER, new BigDecimal( "123456.123456" ),
         new BigDecimal( "123456.123456" ) },
 
-      { ValueMetaInterface.TYPE_SERIALIZABLE, ValueMetaInterface.TYPE_NONE, "foobar", null },
-      { ValueMetaInterface.TYPE_SERIALIZABLE, ValueMetaInterface.TYPE_SERIALIZABLE, "foobar", "foobar" },
+      { IValueMeta.TYPE_SERIALIZABLE, IValueMeta.TYPE_NONE, "foobar", null },
+      { IValueMeta.TYPE_SERIALIZABLE, IValueMeta.TYPE_SERIALIZABLE, "foobar", "foobar" },
 
-      { ValueMetaInterface.TYPE_BINARY, ValueMetaInterface.TYPE_NONE, "foobar".getBytes(), null },
-      { ValueMetaInterface.TYPE_BINARY, ValueMetaInterface.TYPE_BINARY, "foobar".getBytes(), "foobar".getBytes() },
+      { IValueMeta.TYPE_BINARY, IValueMeta.TYPE_NONE, "foobar".getBytes(), null },
+      { IValueMeta.TYPE_BINARY, IValueMeta.TYPE_BINARY, "foobar".getBytes(), "foobar".getBytes() },
 
-      { ValueMetaInterface.TYPE_TIMESTAMP, ValueMetaInterface.TYPE_NONE, timeStamp1, null },
-      { ValueMetaInterface.TYPE_TIMESTAMP, ValueMetaInterface.TYPE_STRING, timeStamp1, "2001/11/01 20:30:15.123" },
-      { ValueMetaInterface.TYPE_TIMESTAMP, ValueMetaInterface.TYPE_INTEGER, timeStamp1, timeStamp1.getTime() },
-      { ValueMetaInterface.TYPE_TIMESTAMP, ValueMetaInterface.TYPE_TIMESTAMP, timeStamp1, timeStamp1 },
-      { ValueMetaInterface.TYPE_TIMESTAMP, ValueMetaInterface.TYPE_DATE, timeStamp1, new Date( timeStamp1.getTime() ) },
+      { IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_NONE, timeStamp1, null },
+      { IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_STRING, timeStamp1, "2001/11/01 20:30:15.123" },
+      { IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_INTEGER, timeStamp1, timeStamp1.getTime() },
+      { IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_TIMESTAMP, timeStamp1, timeStamp1 },
+      { IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE, timeStamp1, new Date( timeStamp1.getTime() ) },
 
-      { ValueMetaInterface.TYPE_INET, ValueMetaInterface.TYPE_NONE, inetAddress1, null },
-      { ValueMetaInterface.TYPE_INET, ValueMetaInterface.TYPE_STRING, inetAddress1, inetAddress1.getHostAddress() },
-      { ValueMetaInterface.TYPE_INET, ValueMetaInterface.TYPE_INET, inetAddress1, inetAddress1 },
+      { IValueMeta.TYPE_INET, IValueMeta.TYPE_NONE, inetAddress1, null },
+      { IValueMeta.TYPE_INET, IValueMeta.TYPE_STRING, inetAddress1, inetAddress1.getHostAddress() },
+      { IValueMeta.TYPE_INET, IValueMeta.TYPE_INET, inetAddress1, inetAddress1 },
 
     };
 
@@ -143,7 +143,7 @@ public class ValueMetaConverterTest {
             System.out.println(
               "type " + sourceType + "/" + targetType + ":" + testSpec[ 3 ].toString() + "=" + targetValue.toString() );
           }
-          if ( targetType == ValueMetaInterface.TYPE_BINARY ) {
+          if ( targetType == IValueMeta.TYPE_BINARY ) {
             Arrays.equals( (byte[]) testSpec[ 3 ], (byte[]) targetValue );
           } else {
             assertEquals( testSpec[ 3 ], targetValue );
@@ -152,7 +152,7 @@ public class ValueMetaConverterTest {
           //  Attempt a non-defined conversion.  Should throw an exception.
           try {
             //Get a source object of the correct type
-            testSpec = testMap.get( getKey( sourceType, ValueMetaInterface.TYPE_NONE ) );
+            testSpec = testMap.get( getKey( sourceType, IValueMeta.TYPE_NONE ) );
 
             if ( IS_VERBOSE ) {
               System.out.println( "type " + sourceType + "/" + targetType + ":" + testSpec[ 2 ].toString() + " should throw Exception" );

@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transforms.setvaluefield;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -41,18 +41,18 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Samatar
  * @since 10-11-2008
  */
-public class SetValueField extends BaseTransform implements TransformInterface {
+public class SetValueField extends BaseTransform implements ITransform {
   private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
 
   private SetValueFieldMeta meta;
   private SetValueFieldData data;
 
-  public SetValueField( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SetValueField( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SetValueFieldMeta) smi;
     data = (SetValueFieldData) sdi;
 
@@ -103,8 +103,8 @@ public class SetValueField extends BaseTransform implements TransformInterface {
             PKG, "SetValueField.Log.CouldNotFindFieldInRow", sourceField ) );
         }
         // Compare fields type
-        ValueMetaInterface SourceValue = getInputRowMeta().getValueMeta( data.indexOfField[ i ] );
-        ValueMetaInterface ReplaceByValue = getInputRowMeta().getValueMeta( data.indexOfReplaceByValue[ i ] );
+        IValueMeta SourceValue = getInputRowMeta().getValueMeta( data.indexOfField[ i ] );
+        IValueMeta ReplaceByValue = getInputRowMeta().getValueMeta( data.indexOfReplaceByValue[ i ] );
 
         if ( SourceValue.getType() != ReplaceByValue.getType() ) {
           String err =
@@ -142,14 +142,14 @@ public class SetValueField extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SetValueFieldMeta) smi;
     data = (SetValueFieldData) sdi;
 
     super.dispose( smi, sdi );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SetValueFieldMeta) smi;
     data = (SetValueFieldData) sdi;
 

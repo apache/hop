@@ -24,21 +24,21 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -46,7 +46,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
 
@@ -66,7 +66,7 @@ import java.util.Map;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         documentationUrl = ""
 )
-public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMetaInterface<GetSubFolders, GetSubFoldersData> {
+public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFoldersDesc = new String[] {
@@ -275,70 +275,70 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // the folderName
-    ValueMetaInterface folderName = new ValueMetaString( "folderName" );
+    IValueMeta folderName = new ValueMetaString( "folderName" );
     folderName.setLength( 500 );
     folderName.setPrecision( -1 );
     folderName.setOrigin( name );
     row.addValueMeta( folderName );
 
     // the short folderName
-    ValueMetaInterface short_folderName = new ValueMetaString( "short_folderName" );
+    IValueMeta short_folderName = new ValueMetaString( "short_folderName" );
     short_folderName.setLength( 500 );
     short_folderName.setPrecision( -1 );
     short_folderName.setOrigin( name );
     row.addValueMeta( short_folderName );
 
     // the path
-    ValueMetaInterface path = new ValueMetaString( "path" );
+    IValueMeta path = new ValueMetaString( "path" );
     path.setLength( 500 );
     path.setPrecision( -1 );
     path.setOrigin( name );
     row.addValueMeta( path );
 
     // the ishidden
-    ValueMetaInterface ishidden = new ValueMetaBoolean( "ishidden" );
+    IValueMeta ishidden = new ValueMetaBoolean( "ishidden" );
     ishidden.setOrigin( name );
     row.addValueMeta( ishidden );
 
     // the isreadable
-    ValueMetaInterface isreadable = new ValueMetaBoolean( "isreadable" );
+    IValueMeta isreadable = new ValueMetaBoolean( "isreadable" );
     isreadable.setOrigin( name );
     row.addValueMeta( isreadable );
 
     // the iswriteable
-    ValueMetaInterface iswriteable = new ValueMetaBoolean( "iswriteable" );
+    IValueMeta iswriteable = new ValueMetaBoolean( "iswriteable" );
     iswriteable.setOrigin( name );
     row.addValueMeta( iswriteable );
 
     // the lastmodifiedtime
-    ValueMetaInterface lastmodifiedtime = new ValueMetaDate( "lastmodifiedtime" );
+    IValueMeta lastmodifiedtime = new ValueMetaDate( "lastmodifiedtime" );
     lastmodifiedtime.setOrigin( name );
     row.addValueMeta( lastmodifiedtime );
 
     // the uri
-    ValueMetaInterface uri = new ValueMetaString( "uri" );
+    IValueMeta uri = new ValueMetaString( "uri" );
     uri.setOrigin( name );
     row.addValueMeta( uri );
 
     // the rooturi
-    ValueMetaInterface rooturi = new ValueMetaString( "rooturi" );
+    IValueMeta rooturi = new ValueMetaString( "rooturi" );
     rooturi.setOrigin( name );
     row.addValueMeta( rooturi );
 
     // childrens
-    ValueMetaInterface childrens =
-      new ValueMetaInteger( space.environmentSubstitute( "childrens" ) );
-    childrens.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+    IValueMeta childrens =
+      new ValueMetaInteger( variables.environmentSubstitute( "childrens" ) );
+    childrens.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
     childrens.setOrigin( name );
     row.addValueMeta( childrens );
 
     if ( includeRowNumber ) {
-      ValueMetaInterface v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -390,16 +390,16 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public FileInputList getFolderList( VariableSpace space ) {
-    return FileInputList.createFolderList( space, folderName, folderRequired );
+  public FileInputList getFolderList( IVariables variables ) {
+    return FileInputList.createFolderList( variables, folderName, folderRequired );
   }
 
-  public FileInputList getDynamicFolderList( VariableSpace space, String[] folderName, String[] folderRequired ) {
-    return FileInputList.createFolderList( space, folderName, folderRequired );
+  public FileInputList getDynamicFolderList( IVariables variables, String[] folderName, String[] folderRequired ) {
+    return FileInputList.createFolderList( variables, folderName, folderRequired );
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -407,22 +407,22 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
     if ( isFoldernameDynamic ) {
       if ( input.length > 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.InputOk" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.InputErrorKo" ), transformMeta );
       }
       remarks.add( cr );
 
       if ( Utils.isEmpty( dynamicFoldernameField ) ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.FolderFieldnameMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.FolderFieldnameOk" ), transformMeta );
       }
 
@@ -430,11 +430,11 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
     } else {
       if ( input.length > 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.NoInputError" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.NoInputOk" ), transformMeta );
       }
       remarks.add( cr );
@@ -442,12 +442,12 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
       FileInputList fileList = getFolderList( pipelineMeta );
       if ( fileList.nrOfFiles() == 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.ExpectedFoldersError" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "GetSubFoldersMeta.CheckResult.ExpectedFilesOk", "" + fileList.nrOfFiles() ), transformMeta );
         remarks.add( cr );
       }
@@ -455,9 +455,9 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
 
   }
 
-  public GetSubFolders createTransform( TransformMeta transformMeta, GetSubFoldersData transformDataInterface, int cnr,
+  public GetSubFolders createTransform( TransformMeta transformMeta, GetSubFoldersData iTransformData, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetSubFolders( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new GetSubFolders( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public GetSubFoldersData getTransformData() {
@@ -470,14 +470,14 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -485,8 +485,8 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMet
       //
       if ( !isFoldernameDynamic ) {
         for ( int i = 0; i < folderName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( folderName[ i ] ), space );
-          folderName[ i ] = resourceNamingInterface.nameResource( fileObject, space, true );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( folderName[ i ] ), variables );
+          folderName[ i ] = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }
       return null;

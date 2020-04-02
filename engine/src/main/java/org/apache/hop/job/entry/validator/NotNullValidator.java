@@ -23,8 +23,8 @@
 package org.apache.hop.job.entry.validator;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -34,14 +34,14 @@ import java.util.List;
  *
  * @author mlowery
  */
-public class NotNullValidator implements JobEntryValidator {
+public class NotNullValidator implements IJobEntryValidator {
 
   public static final NotNullValidator INSTANCE = new NotNullValidator();
 
   private static final String VALIDATOR_NAME = "notNull";
 
-  public boolean validate( CheckResultSourceInterface source, String propertyName,
-                           List<CheckResultInterface> remarks, ValidatorContext context ) {
+  public boolean validate( ICheckResultSource source, String propertyName,
+                           List<ICheckResult> remarks, ValidatorContext context ) {
     Object value = null;
     try {
       value = PropertyUtils.getProperty( source, propertyName );

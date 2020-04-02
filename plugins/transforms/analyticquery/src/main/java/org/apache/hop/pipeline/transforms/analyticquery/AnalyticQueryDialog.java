@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.analyticquery;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -66,7 +66,7 @@ import java.util.Set;
 
 @PluginDialog( id = "AnalyticQuery", image = "AnalyticQuery.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Analytic+Query" )
-public class AnalyticQueryDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class AnalyticQueryDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AnalyticQueryDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "AnalyticQuerySortWarning";
@@ -226,7 +226,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements Transfor
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -428,7 +428,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements Transfor
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wGroup, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
       }
@@ -441,7 +441,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements Transfor
 
   private void getAgg() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wAgg, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }

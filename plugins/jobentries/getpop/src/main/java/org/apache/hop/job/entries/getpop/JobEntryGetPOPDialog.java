@@ -31,8 +31,8 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -85,7 +85,7 @@ import java.util.Calendar;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryGetPOPDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
@@ -396,7 +396,7 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
 
   private MailConnection mailConn = null;
 
-  public JobEntryGetPOPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryGetPOPDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryGetPOP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -404,7 +404,7 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

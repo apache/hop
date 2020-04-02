@@ -22,21 +22,21 @@
 
 package org.apache.hop.pipeline.transforms.webserviceavailable;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-02-2010
  */
-public class WebServiceAvailableData extends BaseTransformData implements TransformDataInterface {
+public class WebServiceAvailableData extends BaseTransformData implements ITransformData {
   public int indexOfURL;
   public int connectTimeOut;
   public int readTimeOut;
 
-  public RowMetaInterface previousRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta previousRowMeta;
+  public IRowMeta outputRowMeta;
   public int NrPrevFields;
 
   public WebServiceAvailableData() {

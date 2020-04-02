@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
@@ -72,8 +72,8 @@ public class EditRowsDialog_EmptyStringVsNull_Test {
     EditRowsDialog dialog = mock( EditRowsDialog.class );
 
     when( dialog.getRowForData( any( TableItem.class ), anyInt() ) ).thenCallRealMethod();
-    doCallRealMethod().when( dialog ).setRowMeta( any( RowMetaInterface.class ) );
-    doCallRealMethod().when( dialog ).setStringRowMeta( any( RowMetaInterface.class ) );
+    doCallRealMethod().when( dialog ).setRowMeta( any( IRowMeta.class ) );
+    doCallRealMethod().when( dialog ).setStringRowMeta( any( IRowMeta.class ) );
 
     when( dialog.isDisplayingNullValue( any( TableItem.class ), anyInt() ) ).thenReturn( false );
 

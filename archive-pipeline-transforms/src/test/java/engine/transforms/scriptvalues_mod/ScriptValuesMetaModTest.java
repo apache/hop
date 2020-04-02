@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.scriptvalues_mod;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -169,8 +169,8 @@ public class ScriptValuesMetaModTest implements InitializerInterface<TransformMe
     // set some values, uneven lengths
     Whitebox.setInternalState( meta, "fieldname", new String[] { "Field 1", "Field 2", "Field 3" } );
     Whitebox.setInternalState( meta, "rename", new String[] { "Field 1 - new" } );
-    Whitebox.setInternalState( meta, "type", new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface
-      .TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
+    Whitebox.setInternalState( meta, "type", new int[] { IValueMeta.TYPE_STRING, IValueMeta
+      .TYPE_INTEGER, IValueMeta.TYPE_NUMBER } );
 
     meta.extend( 3 );
     validateExtended( meta );
@@ -187,9 +187,9 @@ public class ScriptValuesMetaModTest implements InitializerInterface<TransformMe
     Assert.assertNull( meta.getRename()[ 1 ] );
     Assert.assertNull( meta.getRename()[ 2 ] );
     Assert.assertEquals( 3, meta.getType().length );
-    Assert.assertEquals( ValueMetaInterface.TYPE_STRING, meta.getType()[ 0 ] );
-    Assert.assertEquals( ValueMetaInterface.TYPE_INTEGER, meta.getType()[ 1 ] );
-    Assert.assertEquals( ValueMetaInterface.TYPE_NUMBER, meta.getType()[ 2 ] );
+    Assert.assertEquals( IValueMeta.TYPE_STRING, meta.getType()[ 0 ] );
+    Assert.assertEquals( IValueMeta.TYPE_INTEGER, meta.getType()[ 1 ] );
+    Assert.assertEquals( IValueMeta.TYPE_NUMBER, meta.getType()[ 2 ] );
     Assert.assertEquals( 3, meta.getLength().length );
     Assert.assertEquals( -1, meta.getLength()[ 0 ] );
     Assert.assertEquals( -1, meta.getLength()[ 1 ] );

@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import java.util.Random;
 import java.util.UUID;
 
-public class ConditionLoadSaveValidator implements FieldLoadSaveValidator<Condition> {
+public class ConditionLoadSaveValidator implements IFieldLoadSaveValidator<Condition> {
   final Random rand = new Random();
 
   @Override
@@ -48,7 +48,7 @@ public class ConditionLoadSaveValidator implements FieldLoadSaveValidator<Condit
     }
     Condition another = (Condition) actual;
     try {
-      return ( testObject.getXML().equals( another.getXML() ) );
+      return ( testObject.getXml().equals( another.getXml() ) );
     } catch ( HopException ex ) {
       throw new RuntimeException( ex );
     }

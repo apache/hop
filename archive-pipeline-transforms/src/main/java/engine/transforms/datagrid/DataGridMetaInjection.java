@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.datagrid;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
 
@@ -239,22 +239,22 @@ public class DataGridMetaInjection implements TransformMetaInjectionInterface {
 
   private enum Entry {
 
-    FIELDS( ValueMetaInterface.TYPE_NONE, "All the fields" ),
-    FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
+    FIELDS( IValueMeta.TYPE_NONE, "All the fields" ),
+    FIELD( IValueMeta.TYPE_NONE, "One field" ),
 
-    NAME( FIELD, ValueMetaInterface.TYPE_STRING, "Field name" ),
-    TYPE( FIELD, ValueMetaInterface.TYPE_STRING, "Field data type" ),
-    FORMAT( FIELD, ValueMetaInterface.TYPE_STRING, "Field conversion format" ),
-    CURRENCY( FIELD, ValueMetaInterface.TYPE_STRING, "Field currency symbol" ),
-    DECIMAL( FIELD, ValueMetaInterface.TYPE_STRING, "Field decimal symbol" ),
-    GROUP( FIELD, ValueMetaInterface.TYPE_STRING, "Field group symbol" ),
-    LENGTH( FIELD, ValueMetaInterface.TYPE_STRING, "Field length" ),
-    PRECISION( FIELD, ValueMetaInterface.TYPE_STRING, "Field precision" ),
-    EMPTY_STRING( FIELD, ValueMetaInterface.TYPE_STRING, "Set field to empty string?" ),
+    NAME( FIELD, IValueMeta.TYPE_STRING, "Field name" ),
+    TYPE( FIELD, IValueMeta.TYPE_STRING, "Field data type" ),
+    FORMAT( FIELD, IValueMeta.TYPE_STRING, "Field conversion format" ),
+    CURRENCY( FIELD, IValueMeta.TYPE_STRING, "Field currency symbol" ),
+    DECIMAL( FIELD, IValueMeta.TYPE_STRING, "Field decimal symbol" ),
+    GROUP( FIELD, IValueMeta.TYPE_STRING, "Field group symbol" ),
+    LENGTH( FIELD, IValueMeta.TYPE_STRING, "Field length" ),
+    PRECISION( FIELD, IValueMeta.TYPE_STRING, "Field precision" ),
+    EMPTY_STRING( FIELD, IValueMeta.TYPE_STRING, "Set field to empty string?" ),
 
-    DATA_LINES( ValueMetaInterface.TYPE_NONE, "Nr Rows x Nr Columns values" ),
-    DATA_LINE( DATA_LINES, ValueMetaInterface.TYPE_NONE, "One data value" ),
-    DATA_VALUE( DATA_LINE, ValueMetaInterface.TYPE_STRING, "One value" );
+    DATA_LINES( IValueMeta.TYPE_NONE, "Nr Rows x Nr Columns values" ),
+    DATA_LINE( DATA_LINES, IValueMeta.TYPE_NONE, "One data value" ),
+    DATA_VALUE( DATA_LINE, IValueMeta.TYPE_STRING, "One value" );
 
     private int valueType;
     private String description;

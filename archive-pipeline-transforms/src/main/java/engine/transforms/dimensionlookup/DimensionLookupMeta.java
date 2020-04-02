@@ -39,14 +39,14 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -54,8 +54,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -662,8 +662,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
       return TYPE_UPDATE_DIM_INSERT; // INSERT is the default: don't lose information.
     } else {
       int retval = ValueMetaFactory.getIdForValueMeta( ty );
-      if ( retval == ValueMetaInterface.TYPE_NONE ) {
-        retval = ValueMetaInterface.TYPE_STRING;
+      if ( retval == IValueMeta.TYPE_NONE ) {
+        retval = IValueMeta.TYPE_STRING;
       }
       return retval;
     }
@@ -777,19 +777,19 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Change all the fields to normal storage, this is the fastest way to handle lazy conversion.
     // It doesn't make sense to use it in the SCD context but people try it anyway
     //
-    for ( ValueMetaInterface valueMeta : row.getValueMetaList() ) {
-      valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    for ( IValueMeta valueMeta : row.getValueMetaList() ) {
+      valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
       // Also change the trim type to "None" as this can cause trouble
       // during compare of the data when there are leading/trailing spaces in the target table
       //
-      valueMeta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+      valueMeta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     }
 
     // technical key can't be null
@@ -802,7 +802,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
       throw new HopTransformException( message );
     }
 
-    ValueMetaInterface v = new ValueMetaInteger( keyField );
+    IValueMeta v = new ValueMetaInteger( keyField );
     if ( keyRename != null && keyRename.length() > 0 ) {
       v.setName( keyRename );
     }
@@ -821,7 +821,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         if ( databaseMeta != null ) {
           db = createDatabaseObject();
 
-          RowMetaInterface extraFields = getDatabaseTableFields( db, schemaName, tableName );
+          IRowMeta extraFields = getDatabaseTableFields( db, schemaName, tableName );
 
           for ( int i = 0; i < fieldLookup.length; i++ ) {
             v = extraFields.searchValueMeta( fieldLookup[ i ] );
@@ -1032,8 +1032,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     if ( update ) {
       checkUpdate( remarks, transformMeta, prev );
@@ -1067,13 +1067,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  private void checkUpdate( List<CheckResultInterface> remarks, TransformMeta transforminfo, RowMetaInterface prev ) {
+  private void checkUpdate( List<CheckResultInterface> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     CheckResult cr;
     String error_message = "";
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      // TODO SB: Share VariableSpace
+      // TODO SB: Share iVariables
       try {
         db.connect();
         if ( !Utils.isEmpty( tableName ) ) {
@@ -1081,13 +1081,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           boolean error_found = false;
           error_message = "";
 
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             for ( int i = 0; i < fieldLookup.length; i++ ) {
               String lufield = fieldLookup[ i ];
               logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.CheckLookupField" ) + i + " --> "
                 + lufield + " in lookup table..." );
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -1200,7 +1200,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
           for ( int i = 0; i < fieldStream.length; i++ ) {
             logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.CheckField", i + " --> "
               + fieldStream[ i ] ) );
-            ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -1255,7 +1255,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  private void checkLookup( List<CheckResultInterface> remarks, TransformMeta transforminfo, RowMetaInterface prev ) {
+  private void checkLookup( List<CheckResultInterface> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     int i;
     boolean error_found = false;
     String error_message = "";
@@ -1269,7 +1269,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         db.connect();
 
         if ( !Utils.isEmpty( tableName ) ) {
-          RowMetaInterface tableFields = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta tableFields = db.getTableFieldsMeta( schemaName, tableName );
           if ( tableFields != null ) {
             if ( prev != null && prev.size() > 0 ) {
               // Start at the top, see if the key fields exist:
@@ -1278,7 +1278,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               for ( i = 0; i < keyStream.length; i++ ) {
                 // Does the field exist in the input stream?
                 String strfield = keyStream[ i ];
-                ValueMetaInterface strvalue = prev.searchValueMeta( strfield ); //
+                IValueMeta strvalue = prev.searchValueMeta( strfield ); //
                 if ( strvalue == null ) {
                   if ( first ) {
                     first = false;
@@ -1292,7 +1292,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 } else {
                   // does the field exist in the dimension table?
                   String dimfield = keyLookup[ i ];
-                  ValueMetaInterface dimvalue = tableFields.searchValueMeta( dimfield );
+                  IValueMeta dimvalue = tableFields.searchValueMeta( dimfield );
                   if ( dimvalue == null ) {
                     if ( first ) {
                       first = false;
@@ -1344,7 +1344,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
                 String lufield = fieldLookup[ i ];
                 if ( lufield != null && lufield.length() > 0 ) {
                   // Checking compare field: lufield
-                  ValueMetaInterface v = tableFields.searchValueMeta( lufield );
+                  IValueMeta v = tableFields.searchValueMeta( lufield );
                   if ( v == null ) {
                     if ( first ) {
                       first = false;
@@ -1444,8 +1444,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public RowMetaInterface getTableFields() {
-    RowMetaInterface fields = null;
+  public IRowMeta getTableFields() {
+    IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
       try {
@@ -1461,7 +1461,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -1480,28 +1480,28 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
               // How does the table look like?
               //
-              RowMetaInterface fields = new RowMeta();
+              IRowMeta fields = new RowMeta();
 
               // First the technical key
               //
-              ValueMetaInterface vkeyfield = new ValueMetaInteger( keyField );
+              IValueMeta vkeyfield = new ValueMetaInteger( keyField );
               vkeyfield.setLength( 10 );
               fields.addValueMeta( vkeyfield );
 
               // The the version
               //
-              ValueMetaInterface vversion = new ValueMetaInteger( versionField );
+              IValueMeta vversion = new ValueMetaInteger( versionField );
               vversion.setLength( 5 );
               fields.addValueMeta( vversion );
 
               // The date from
               //
-              ValueMetaInterface vdatefrom = new ValueMetaDate( dateFrom );
+              IValueMeta vdatefrom = new ValueMetaDate( dateFrom );
               fields.addValueMeta( vdatefrom );
 
               // The date to
               //
-              ValueMetaInterface vdateto = new ValueMetaDate( dateTo );
+              IValueMeta vdateto = new ValueMetaDate( dateTo );
               fields.addValueMeta( vdateto );
 
               String errors = "";
@@ -1509,9 +1509,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Then the keys
               //
               for ( int i = 0; i < keyLookup.length; i++ ) {
-                ValueMetaInterface vprev = prev.searchValueMeta( keyStream[ i ] );
+                IValueMeta vprev = prev.searchValueMeta( keyStream[ i ] );
                 if ( vprev != null ) {
-                  ValueMetaInterface field = vprev.clone();
+                  IValueMeta field = vprev.clone();
                   field.setName( keyLookup[ i ] );
                   fields.addValueMeta( field );
                 } else {
@@ -1526,9 +1526,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Then the fields to update...
               //
               for ( int i = 0; i < fieldLookup.length; i++ ) {
-                ValueMetaInterface vprev = prev.searchValueMeta( fieldStream[ i ] );
+                IValueMeta vprev = prev.searchValueMeta( fieldStream[ i ] );
                 if ( vprev != null ) {
-                  ValueMetaInterface field = vprev.clone();
+                  IValueMeta field = vprev.clone();
                   field.setName( fieldLookup[ i ] );
                   fields.addValueMeta( field );
                 } else {
@@ -1542,7 +1542,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
               // Finally, the special update fields...
               //
               for ( int i = 0; i < fieldUpdate.length; i++ ) {
-                ValueMetaInterface valueMeta = null;
+                IValueMeta valueMeta = null;
                 switch ( fieldUpdate[ i ] ) {
                   case TYPE_UPDATE_DATE_INSUP:
                   case TYPE_UPDATE_DATE_INSERTED:
@@ -1638,13 +1638,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                             String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore ) {
+  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                             String[] input, String[] output, IRowMeta info, IMetaStore metaStore ) {
     if ( prev != null ) {
       if ( !update ) {
         // Lookup: we do a lookup on the natural keys + the return fields!
         for ( int i = 0; i < keyLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -1655,7 +1655,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
         // Return fields...
         for ( int i = 0; i < fieldLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -1667,7 +1667,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
         // Update: insert/update on all specified fields...
         // Lookup: we do a lookup on the natural keys + the return fields!
         for ( int i = 0; i < keyLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
@@ -1678,7 +1678,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
 
         // Return fields...
         for ( int i = 0; i < fieldLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
 
           DatabaseImpact ii =
             new DatabaseImpact( DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
@@ -1691,13 +1691,13 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new DimensionLookup( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new DimensionLookup( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new DimensionLookupData();
   }
 
@@ -1814,10 +1814,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
     this.useBatchUpdate = useBatchUpdate;
   }
 
-  protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+  protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
     throws HopDatabaseException {
     // First try without connecting to the database... (can be S L O W)
-    RowMetaInterface extraFields = db.getTableFieldsMeta( schemaName, tableName );
+    IRowMeta extraFields = db.getTableFieldsMeta( schemaName, tableName );
     if ( extraFields == null ) { // now we need to connect
       db.connect();
       extraFields = db.getTableFieldsMeta( schemaName, tableName );
@@ -1830,7 +1830,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements TransformM
   }
 
   @Override
-  public RowMeta getRowMeta( final TransformDataInterface transformData ) {
+  public RowMeta getRowMeta( final ITransformData transformData ) {
     try {
       return (RowMeta) getDatabaseTableFields( createDatabaseObject(), schemaName, tableName );
     } catch ( HopDatabaseException e ) {

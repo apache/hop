@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LoggingRegistry {
   private static LoggingRegistry registry = new LoggingRegistry();
-  private Map<String, LoggingObjectInterface> map;
+  private Map<String, ILoggingObject> map;
   private Map<String, LogChannelFileWriterBuffer> fileWriterBuffers;
   private Map<String, List<String>> childrenMap;
   private Date lastModificationTime;
@@ -49,7 +49,7 @@ public class LoggingRegistry {
   private final Object syncObject = new Object();
 
   private LoggingRegistry() {
-    this.map = new ConcurrentHashMap<String, LoggingObjectInterface>();
+    this.map = new ConcurrentHashMap<String, ILoggingObject>();
     this.childrenMap = new ConcurrentHashMap<String, List<String>>();
     this.fileWriterBuffers = new ConcurrentHashMap<>();
 
@@ -66,10 +66,10 @@ public class LoggingRegistry {
 
       LoggingObject loggingSource = new LoggingObject( object );
 
-      LoggingObjectInterface found = findExistingLoggingSource( loggingSource );
+      ILoggingObject found = findExistingLoggingSource( loggingSource );
       if ( found != null ) {
-        LoggingObjectInterface foundParent = found.getParent();
-        LoggingObjectInterface loggingSourceParent = loggingSource.getParent();
+        ILoggingObject foundParent = found.getParent();
+        ILoggingObject loggingSourceParent = loggingSource.getParent();
         String foundLogChannelId = found.getLogChannelId();
         if ( foundParent != null && loggingSourceParent != null ) {
           String foundParentLogChannelId = foundParent.getLogChannelId();
@@ -106,10 +106,10 @@ public class LoggingRegistry {
       loggingSource.setRegistrationDate( this.lastModificationTime );
 
       if ( ( this.maxSize > 0 ) && ( this.map.size() > this.maxSize ) ) {
-        List<LoggingObjectInterface> all = new ArrayList<LoggingObjectInterface>( this.map.values() );
-        Collections.sort( all, new Comparator<LoggingObjectInterface>() {
+        List<ILoggingObject> all = new ArrayList<ILoggingObject>( this.map.values() );
+        Collections.sort( all, new Comparator<ILoggingObject>() {
           @Override
-          public int compare( LoggingObjectInterface o1, LoggingObjectInterface o2 ) {
+          public int compare( ILoggingObject o1, ILoggingObject o2 ) {
             if ( ( o1 == null ) && ( o2 != null ) ) {
               return -1;
             }
@@ -134,7 +134,7 @@ public class LoggingRegistry {
         int cutCount = this.maxSize < 1000 ? this.maxSize : 1000;
         Set<String> channelsNotToRemove = getLogChannelFileWriterBufferIds();
         for ( int i = 0; i < cutCount; i++ ) {
-          LoggingObjectInterface toRemove = all.get( i );
+          ILoggingObject toRemove = all.get( i );
           if ( !channelsNotToRemove.contains( toRemove.getLogChannelId() ) ) {
             this.map.remove( toRemove.getLogChannelId() );
           }
@@ -145,9 +145,9 @@ public class LoggingRegistry {
     }
   }
 
-  public LoggingObjectInterface findExistingLoggingSource( LoggingObjectInterface loggingObject ) {
-    LoggingObjectInterface found = null;
-    for ( LoggingObjectInterface verify : this.map.values() ) {
+  public ILoggingObject findExistingLoggingSource( ILoggingObject loggingObject ) {
+    ILoggingObject found = null;
+    for ( ILoggingObject verify : this.map.values() ) {
       if ( loggingObject.equals( verify ) ) {
         found = verify;
         break;
@@ -156,11 +156,11 @@ public class LoggingRegistry {
     return found;
   }
 
-  public LoggingObjectInterface getLoggingObject( String logChannelId ) {
+  public ILoggingObject getLoggingObject( String logChannelId ) {
     return this.map.get( logChannelId );
   }
 
-  public Map<String, LoggingObjectInterface> getMap() {
+  public Map<String, ILoggingObject> getMap() {
     return this.map;
   }
 
@@ -202,7 +202,7 @@ public class LoggingRegistry {
 
   public String dump( boolean includeGeneral ) {
     StringBuilder out = new StringBuilder( 50000 );
-    for ( LoggingObjectInterface o : this.map.values() ) {
+    for ( ILoggingObject o : this.map.values() ) {
       if ( ( includeGeneral ) || ( !o.getObjectType().equals( LoggingObjectType.GENERAL ) ) ) {
         out.append( o.getContainerObjectId() );
         out.append( "\t" );
@@ -228,7 +228,7 @@ public class LoggingRegistry {
    *
    * @return ro items map
    */
-  Map<String, LoggingObjectInterface> dumpItems() {
+  Map<String, ILoggingObject> dumpItems() {
     return Collections.unmodifiableMap( this.map );
   }
 

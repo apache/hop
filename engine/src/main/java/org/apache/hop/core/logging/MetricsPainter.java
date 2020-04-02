@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EFont;
+import org.apache.hop.core.gui.IPrimitiveGC.EColor;
+import org.apache.hop.core.gui.IPrimitiveGC.EFont;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.util.Utils;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MetricsPainter {
-  private GCInterface gc;
+  private IGC gc;
 
   private Long periodStart = null;
   private Long periodEnd = null;
@@ -59,7 +59,7 @@ public class MetricsPainter {
     }
   }
 
-  public MetricsPainter( GCInterface gc, int barHeight ) {
+  public MetricsPainter( IGC gc, int barHeight ) {
     this.setGc( gc );
     this.barHeight = barHeight;
   }
@@ -130,7 +130,7 @@ public class MetricsPainter {
       getGc().drawRectangle( x, y, durationWidth, barHeight );
       areas.add( new MetricsDrawArea( new Rectangle( x, y, durationWidth, barHeight ), duration ) );
 
-      LoggingObjectInterface loggingObject =
+      ILoggingObject loggingObject =
         LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
 
       String message =
@@ -164,12 +164,12 @@ public class MetricsPainter {
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  GCInterface getGc() {
+  IGC getGc() {
     return gc;
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  void setGc( GCInterface gc ) {
+  void setGc( IGC gc ) {
     this.gc = gc;
   }
 }

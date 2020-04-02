@@ -28,8 +28,8 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
 
@@ -98,7 +98,7 @@ public class SlaveSequence {
     this.valueField = valueField;
   }
 
-  public synchronized long getNextValue( LoggingObjectInterface log, long incrementValue ) throws HopException {
+  public synchronized long getNextValue( ILoggingObject log, long incrementValue ) throws HopException {
 
     Database db = null;
     try {
@@ -113,7 +113,7 @@ public class SlaveSequence {
 
       String sql = "SELECT " + valField + " FROM " + schemaTable + " WHERE " + seqField + " = ?";
       RowMetaAndData param = new RowMetaAndData();
-      param.addValue( seqField, ValueMetaInterface.TYPE_STRING, name );
+      param.addValue( seqField, IValueMeta.TYPE_STRING, name );
       RowMetaAndData row = db.getOneRow( sql, param.getRowMeta(), param.getData() );
       long value;
       if ( row != null && row.getData() != null ) {
@@ -135,14 +135,14 @@ public class SlaveSequence {
       if ( update ) {
         sql = "UPDATE " + schemaTable + " SET " + valField + "= ? WHERE " + seqField + "= ? ";
         param = new RowMetaAndData();
-        param.addValue( valField, ValueMetaInterface.TYPE_INTEGER, Long.valueOf( maximum ) );
-        param.addValue( seqField, ValueMetaInterface.TYPE_STRING, name );
+        param.addValue( valField, IValueMeta.TYPE_INTEGER, Long.valueOf( maximum ) );
+        param.addValue( seqField, IValueMeta.TYPE_STRING, name );
 
       } else {
         sql = "INSERT INTO " + schemaTable + "(" + seqField + ", " + valField + ") VALUES( ? , ? )";
         param = new RowMetaAndData();
-        param.addValue( seqField, ValueMetaInterface.TYPE_STRING, name );
-        param.addValue( valField, ValueMetaInterface.TYPE_INTEGER, Long.valueOf( maximum ) );
+        param.addValue( seqField, IValueMeta.TYPE_STRING, name );
+        param.addValue( valField, IValueMeta.TYPE_INTEGER, Long.valueOf( maximum ) );
       }
       db.execStatement( sql, param.getRowMeta(), param.getData() );
 

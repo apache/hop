@@ -2,15 +2,15 @@ package org.apache.hop.ui.hopgui.file.job.delegates;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
@@ -36,7 +36,7 @@ public class HopGuiJobEntryDelegate {
 
   public JobEntryCopy newJobEntry( JobMeta jobMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface jobPlugin;
+    IPlugin jobPlugin;
 
     try {
       if ( pluginId == null ) {
@@ -65,7 +65,7 @@ public class HopGuiJobEntryDelegate {
         }
 
         // Generate the appropriate class...
-        JobEntryInterface jei = (JobEntryInterface) registry.loadClass( jobPlugin );
+        IJobEntry jei = (IJobEntry) registry.loadClass( jobPlugin );
         jei.setPluginId( jobPlugin.getIds()[ 0 ] );
         jei.setName( entry_name );
 
@@ -84,7 +84,7 @@ public class HopGuiJobEntryDelegate {
         }
 
         if ( openIt ) {
-          JobEntryDialogInterface d = getJobEntryDialog( jei, jobMeta );
+          IJobEntryDialog d = getJobEntryDialog( jei, jobMeta );
           if ( d != null && d.open() != null ) {
             JobEntryCopy jge = new JobEntryCopy();
             jge.setEntry( jei );
@@ -133,23 +133,23 @@ public class HopGuiJobEntryDelegate {
   }
 
 
-  public JobEntryDialogInterface getJobEntryDialog( JobEntryInterface jobEntryInterface, JobMeta jobMeta ) {
-    Class<?>[] paramClasses = new Class<?>[] { Shell.class, JobEntryInterface.class, JobMeta.class };
-    Object[] paramArgs = new Object[] { hopUi.getShell(), jobEntryInterface, jobMeta };
+  public IJobEntryDialog getJobEntryDialog( IJobEntry jobEntry, JobMeta jobMeta ) {
+    Class<?>[] paramClasses = new Class<?>[] { Shell.class, IJobEntry.class, JobMeta.class };
+    Object[] paramArgs = new Object[] { hopUi.getShell(), jobEntry, jobMeta };
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface plugin = registry.getPlugin( JobEntryPluginType.class, jobEntryInterface );
-    String dialogClassName = plugin.getClassMap().get( JobEntryDialogInterface.class );
+    IPlugin plugin = registry.getPlugin( JobEntryPluginType.class, jobEntry );
+    String dialogClassName = plugin.getClassMap().get( IJobEntryDialog.class );
     if ( dialogClassName == null ) {
       // try the deprecated way
-      hopUi.getLog().logDebug( "Use of JobEntryInterface#getDialogClassName is deprecated, use PluginDialog annotation instead." );
-      dialogClassName = jobEntryInterface.getDialogClassName();
+      hopUi.getLog().logDebug( "Use of IJobEntry#getDialogClassName is deprecated, use PluginDialog annotation instead." );
+      dialogClassName = jobEntry.getDialogClassName();
     }
 
     try {
-      Class<JobEntryDialogInterface> dialogClass = registry.getClass( plugin, dialogClassName );
-      Constructor<JobEntryDialogInterface> dialogConstructor = dialogClass.getConstructor( paramClasses );
-      JobEntryDialogInterface entryDialogInterface = dialogConstructor.newInstance( paramArgs );
+      Class<IJobEntryDialog> dialogClass = registry.getClass( plugin, dialogClassName );
+      Constructor<IJobEntryDialog> dialogConstructor = dialogClass.getConstructor( paramClasses );
+      IJobEntryDialog entryDialogInterface = dialogConstructor.newInstance( paramArgs );
       entryDialogInterface.setMetaStore( hopUi.getMetaStore() );
       return entryDialogInterface;
     } catch ( Throwable t ) {
@@ -169,9 +169,9 @@ public class HopGuiJobEntryDelegate {
 
       JobEntryCopy before = (JobEntryCopy) je.clone_deep();
 
-      JobEntryInterface jei = je.getEntry();
+      IJobEntry jei = je.getEntry();
 
-      JobEntryDialogInterface d = getJobEntryDialog( jei, jobMeta );
+      IJobEntryDialog d = getJobEntryDialog( jei, jobMeta );
       if ( d != null ) {
         if ( d.open() != null ) {
           // First see if the name changed.

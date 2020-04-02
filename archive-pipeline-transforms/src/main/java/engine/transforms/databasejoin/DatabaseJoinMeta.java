@@ -33,11 +33,11 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -45,8 +45,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -264,16 +264,16 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
 
     for ( int i = 0; i < nrparam; i++ ) {
       parameterField[ i ] = "param" + i;
-      parameterType[ i ] = ValueMetaInterface.TYPE_NUMBER;
+      parameterType[ i ] = IValueMeta.TYPE_NUMBER;
     }
   }
 
-  public RowMetaInterface getParameterRow( RowMetaInterface fields ) {
-    RowMetaInterface param = new RowMeta();
+  public IRowMeta getParameterRow( IRowMeta fields ) {
+    IRowMeta param = new RowMeta();
 
     if ( fields != null ) {
       for ( int i = 0; i < parameterField.length; i++ ) {
-        ValueMetaInterface v = fields.searchValueMeta( parameterField[ i ] );
+        IValueMeta v = fields.searchValueMeta( parameterField[ i ] );
         if ( v != null ) {
           param.addValueMeta( v );
         }
@@ -283,8 +283,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     if ( databaseMeta == null ) {
       return;
@@ -296,23 +296,23 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
     // Which fields are parameters?
     // info[0] comes from the database connection.
     //
-    RowMetaInterface param = getParameterRow( row );
+    IRowMeta param = getParameterRow( row );
 
     // First try without connecting to the database... (can be S L O W)
     // See if it's in the cache...
     //
-    RowMetaInterface add = null;
+    IRowMeta add = null;
     try {
-      add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
+      add = db.getQueryFields( variables.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
     } catch ( HopDatabaseException dbe ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields" )
         + Const.CR + sql, dbe );
     }
 
-    if ( add != null ) { // Cache hit, just return it this...
+    if ( add != null ) { // ICache hit, just return it this...
       for ( int i = 0; i < add.size(); i++ ) {
-        ValueMetaInterface v = add.getValueMeta( i );
+        IValueMeta v = add.getValueMeta( i );
         v.setOrigin( name );
       }
       row.addRowMeta( add );
@@ -321,9 +321,9 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
       //
       try {
         db.connect();
-        add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
+        add = db.getQueryFields( variables.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
         for ( int i = 0; i < add.size(); i++ ) {
-          ValueMetaInterface v = add.getValueMeta( i );
+          IValueMeta v = add.getValueMeta( i );
           v.setOrigin( name );
         }
         row.addRowMeta( add );
@@ -361,7 +361,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -374,11 +374,11 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
       try {
         db.connect();
         if ( sql != null && sql.length() != 0 ) {
-          RowMetaInterface param = getParameterRow( prev );
+          IRowMeta param = getParameterRow( prev );
 
           error_message = "";
 
-          RowMetaInterface r =
+          IRowMeta r =
             db.getQueryFields( pipelineMeta.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
           if ( r != null ) {
             cr =
@@ -421,7 +421,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
           boolean error_found = false;
 
           for ( int i = 0; i < parameterField.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( parameterField[ i ] );
+            IValueMeta v = prev.searchValueMeta( parameterField[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -476,12 +476,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public RowMetaInterface getTableFields() {
+  public IRowMeta getTableFields() {
     // Build a dummy parameter row...
     //
-    RowMetaInterface param = new RowMeta();
+    IRowMeta param = new RowMeta();
     for ( int i = 0; i < parameterField.length; i++ ) {
-      ValueMetaInterface v;
+      IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( parameterField[ i ], parameterType[ i ] );
       } catch ( HopPluginException e ) {
@@ -490,7 +490,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
       param.addValueMeta( v );
     }
 
-    RowMetaInterface fields = null;
+    IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
       databases = new Database[] { db }; // Keep track of this one for cancelQuery
@@ -509,29 +509,29 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new DatabaseJoin( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new DatabaseJoin( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new DatabaseJoinData();
   }
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
 
     // Find the lookupfields...
     //
-    RowMetaInterface out = prev.clone();
-    getFields( out, transformMeta.getName(), new RowMetaInterface[] { info, }, null, pipelineMeta, metaStore );
+    IRowMeta out = prev.clone();
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, pipelineMeta, metaStore );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {
-        ValueMetaInterface outvalue = out.getValueMeta( i );
+        IValueMeta outvalue = out.getValueMeta( i );
         DatabaseImpact di =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(),

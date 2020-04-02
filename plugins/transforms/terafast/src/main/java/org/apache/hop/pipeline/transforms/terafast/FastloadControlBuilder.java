@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.terafast;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.Utils;
@@ -133,20 +133,20 @@ public class FastloadControlBuilder {
    * @param dataFile          ...
    * @return this
    */
-  public FastloadControlBuilder define( final RowMetaInterface targetTableFields,
+  public FastloadControlBuilder define( final IRowMeta targetTableFields,
                                         StringListPluginProperty tableFieldList, final String dataFile ) {
     Assert.assertNotNull( targetTableFields, "fields cannot be null" );
     Assert.assertNotNull( dataFile, "dataFile cannot be null" );
 
     this.builder.append( "DEFINE " );
     for ( int i = 0; i < targetTableFields.size(); i++ ) {
-      ValueMetaInterface value = targetTableFields.getValueMeta( i );
+      IValueMeta value = targetTableFields.getValueMeta( i );
       int tableIndex = tableFieldList.getValue().indexOf( value.getName() );
       if ( tableIndex >= 0 ) {
         this.builder.append( value.getName() );
         // all fields of type VARCHAR. converted by fastload if necessary
         int length = 0;
-        if ( value.getType() == ValueMetaInterface.TYPE_DATE ) {
+        if ( value.getType() == IValueMeta.TYPE_DATE ) {
           length = DEFAULT_DATE_FORMAT.length();
         } else {
           length = value.getLength();
@@ -168,7 +168,7 @@ public class FastloadControlBuilder {
    * @param tableName         ...
    * @return ...
    */
-  public FastloadControlBuilder insert( final RowMetaInterface targetTableFields,
+  public FastloadControlBuilder insert( final IRowMeta targetTableFields,
                                         StringListPluginProperty tableFieldList, final String tableName ) {
     Assert.assertNotNull( targetTableFields, "targetTableFields cannot be null." );
     Assert.assertNotNull( tableName, "TableName cannot be null." );
@@ -178,7 +178,7 @@ public class FastloadControlBuilder {
       int tableIndex = tableFieldList.getValue().indexOf( targetTableFields.getValueMeta( i ).getName() );
       if ( tableIndex >= 0 ) {
         this.builder.append( ":" + targetTableFields.getValueMeta( i ).getName() );
-        if ( targetTableFields.getValueMeta( i ).getType() == ValueMetaInterface.TYPE_DATE ) {
+        if ( targetTableFields.getValueMeta( i ).getType() == IValueMeta.TYPE_DATE ) {
           this.builder.append( "(DATE, FORMAT '" );
           this.builder.append( DEFAULT_DATE_FORMAT );
           this.builder.append( "')" );

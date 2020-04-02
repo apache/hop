@@ -26,8 +26,8 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -79,7 +79,7 @@ public class ExcelWriter_StyleFormatTest {
     transformMockHelper =
       new TransformMockHelper<ExcelWriterMeta, ExcelWriterData>(
         "Excel Writer Style Format Test", ExcelWriterMeta.class, ExcelWriterData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString() );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
@@ -266,15 +266,15 @@ public class ExcelWriter_StyleFormatTest {
   private void setupTransformMock( String fileType ) throws Exception {
     transform =
       new ExcelWriterTransform(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
     transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
 
     List<Object[]> rows = createRowData();
     String[] outFields = new String[] { "col 1", "col 2", "col 3", "col 4" };
     RowSet inputRowSet = transformMockHelper.getMockInputRowSet( rows );
-    RowMetaInterface inputRowMeta = createRowMeta();
+    IRowMeta inputRowMeta = createRowMeta();
     inputRowSet.setRowMeta( inputRowMeta );
-    RowMetaInterface mockOutputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta mockOutputRowMeta = mock( IRowMeta.class );
     when( mockOutputRowMeta.size() ).thenReturn( outFields.length );
     when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
 
@@ -306,10 +306,10 @@ public class ExcelWriter_StyleFormatTest {
    * @return
    * @throws HopException
    */
-  private RowMetaInterface createRowMeta() throws HopException {
-    RowMetaInterface rm = new RowMeta();
+  private IRowMeta createRowMeta() throws HopException {
+    IRowMeta rm = new RowMeta();
     try {
-      ValueMetaInterface[] valuesMeta = {
+      IValueMeta[] valuesMeta = {
         new ValueMetaInteger( "col 1" ),
         new ValueMetaNumber( "col 2" ),
         new ValueMetaBigNumber( "col 3" ),

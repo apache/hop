@@ -25,10 +25,10 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputField;
@@ -55,13 +55,13 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   private static final String UTF16BE = "UTF-16BE";
   private static final String TEST_DATA = "Header1\tHeader2\r\nValue\tValue\r\nValue\tValue\r\n";
 
-  private static TransformMockHelper<CsvInputMeta, TransformDataInterface> transformMockHelper;
+  private static TransformMockHelper<CsvInputMeta, ITransformData> transformMockHelper;
 
   @BeforeClass
   public static void setUp() throws HopException {
     transformMockHelper =
       TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, "CsvInputDoubleLineEndTest" );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -99,13 +99,13 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
 
     CsvInput csvInput =
       new CsvInput(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
 
     csvInput.init( meta, data );
     csvInput.addRowListener( new RowAdapter() {
       @Override
-      public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         for ( int i = 0; i < rowMeta.size(); i++ ) {
           assertEquals( "Value", row[ i ] );
         }

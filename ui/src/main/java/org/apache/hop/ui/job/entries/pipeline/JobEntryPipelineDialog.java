@@ -32,9 +32,9 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.pipeline.JobEntryPipeline;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUI;
@@ -43,7 +43,7 @@ import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -78,7 +78,7 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEntryDialogInterface {
+public class JobEntryPipelineDialog extends JobEntryBaseDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryPipeline.class; // for i18n purposes, needed by Translator!!
 
   protected JobEntryPipeline jobEntry;
@@ -88,12 +88,12 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEnt
     BaseMessages.getString( PKG, "JobPipeline.Fileformat.LOG" ),
     BaseMessages.getString( PKG, "JobPipeline.Fileformat.All" ) };
 
-  public JobEntryPipelineDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryPipelineDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryPipeline) jobEntryInt;
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     display = parent.getDisplay();
 
@@ -297,7 +297,7 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements JobEnt
             if ( answer == SWT.YES ) {
 
               HopGui hopGui = HopGui.getInstance();
-              HopFileTypeHandlerInterface fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getPipelineFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              IHopFileTypeHandler fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getPipelineFileType().newFile( hopGui, hopGui.getVariableSpace() );
               fileTypeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               hopGui.fileDelegate.fileSave();

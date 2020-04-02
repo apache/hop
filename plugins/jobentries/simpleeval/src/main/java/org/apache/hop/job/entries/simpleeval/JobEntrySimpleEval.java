@@ -34,7 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
   image = "SimpleEval.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
-public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntrySimpleEval.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] valueTypeDesc = new String[] {

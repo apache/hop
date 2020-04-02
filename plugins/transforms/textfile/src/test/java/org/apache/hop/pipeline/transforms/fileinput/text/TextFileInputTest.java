@@ -26,13 +26,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.variables.Variables;
@@ -41,10 +41,10 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputTransformControl;
@@ -226,7 +226,7 @@ public class TextFileInputTest {
     meta.content.nrWraps = 1;
     meta.errorHandling.errorIgnored = true;
     TextFileInputData data = createDataObject( virtualFile, ";", "col1" );
-    data.dataErrorLineHandler = Mockito.mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
     TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
 
     List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 4, false );
@@ -248,7 +248,7 @@ public class TextFileInputTest {
     meta.errorHandling.skipBadFiles = true;
 
     TextFileInputData data = createDataObject( virtualFile, ";", "col1" );
-    data.dataErrorLineHandler = Mockito.mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
 
     TestTextFileInput textFileInput = TransformMockUtil.getTransform( TestTextFileInput.class, TextFileInputMeta.class, "test" );
     TransformMeta transformMeta = textFileInput.getTransformMeta();
@@ -277,8 +277,8 @@ public class TextFileInputTest {
 
     TextFileInput input = Mockito.spy( TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" ) );
 
-    RowSet rowset = Mockito.mock( RowSet.class );
-    RowMetaInterface rwi = Mockito.mock( RowMetaInterface.class );
+    IRowSet rowset = Mockito.mock( IRowSet.class );
+    IRowMeta rwi = Mockito.mock( IRowMeta.class );
     Object[] obj1 = new Object[ 2 ];
     Object[] obj2 = new Object[ 2 ];
     Mockito.doReturn( rowset ).when( input ).findInputRowSet( null );
@@ -324,7 +324,7 @@ public class TextFileInputTest {
     when( mockFO.getContent() ).thenReturn( mockFileContent );
 
     TextFileInputReader tFIR = new TextFileInputReader( mock( IBaseFileInputTransformControl.class ),
-      mockTFIM, mockTFID, mockFO, mock( LogChannelInterface.class ) );
+      mockTFIM, mockTFID, mockFO, mock( ILogChannel.class ) );
 
     assertEquals( 3, mockTFID.lineBuffer.size() );
     tFIR.close();
@@ -361,7 +361,7 @@ public class TextFileInputTest {
       }
     }
 
-    data.dataErrorLineHandler = mock( FileErrorHandler.class );
+    data.dataErrorLineHandler = mock( IFileErrorHandler.class );
     data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ], new Variables() );
     data.filePlayList = new FilePlayListAll();
@@ -396,9 +396,9 @@ public class TextFileInputTest {
   }
 
   public static class TestTextFileInput extends TextFileInput {
-    public TestTextFileInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+    public TestTextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

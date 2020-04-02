@@ -22,8 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Assert;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class DimensionCacheTest {
 
   @Test
   public void testCompareDateInterval() {
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaTimestamp( "DATE_FROM" ) );
     rowMeta.addValueMeta( new ValueMetaTimestamp( "DATE_TO" ) );
     int[] keyIndexes = new int[] {};

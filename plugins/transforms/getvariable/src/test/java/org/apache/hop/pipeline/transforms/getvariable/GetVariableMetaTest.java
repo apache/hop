@@ -26,17 +26,17 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.getvariable.GetVariableMeta.FieldDefinition;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta> {
+public class GetVariableMetaTest implements IInitializerInterface<GetVariableMeta> {
   LoadSaveTester<GetVariableMeta> loadSaveTester;
   Class<GetVariableMeta> testMetaClass = GetVariableMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -78,17 +78,17 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     fieldDefinition.setFieldLength( 4 );
     fieldDefinition.setCurrency( null );
     fieldDefinition.setFieldPrecision( 5 );
-    fieldDefinition.setFieldType( ValueMetaInterface.TYPE_NUMBER );
+    fieldDefinition.setFieldType( IValueMeta.TYPE_NUMBER );
     fieldDefinition.setGroup( "group" );
     fieldDefinition.setVariableString( "variableString" );
 
-    FieldLoadSaveValidator<FieldDefinition[]> fieldDefinitionLoadSaveValidator =
+    IFieldLoadSaveValidator<FieldDefinition[]> fieldDefinitionLoadSaveValidator =
       new ArrayLoadSaveValidator<FieldDefinition>( new FieldDefinitionLoadSaveValidator( fieldDefinition ), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldName", fieldDefinitionLoadSaveValidator );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     typeValidatorMap.put( FieldDefinition[].class.getCanonicalName(), fieldDefinitionLoadSaveValidator );
 
     loadSaveTester =
@@ -115,20 +115,20 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     FieldDefinition field = new FieldDefinition();
     field.setFieldName( "outputField" );
     field.setVariableString( String.valueOf( 2000000L ) );
-    field.setFieldType( ValueMetaInterface.TYPE_TIMESTAMP );
+    field.setFieldType( IValueMeta.TYPE_TIMESTAMP );
     meta.setFieldDefinitions( new FieldDefinition[] { field } );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     meta.getFields( rowMeta, "transformName", null, null, new Variables(), null );
 
     assertNotNull( rowMeta );
     assertEquals( 1, rowMeta.size() );
     assertEquals( "outputField", rowMeta.getFieldNames()[ 0 ] );
-    assertEquals( ValueMetaInterface.TYPE_TIMESTAMP, rowMeta.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_TIMESTAMP, rowMeta.getValueMeta( 0 ).getType() );
     assertTrue( rowMeta.getValueMeta( 0 ) instanceof ValueMetaTimestamp );
   }
 
-  public static class FieldDefinitionLoadSaveValidator implements FieldLoadSaveValidator<FieldDefinition> {
+  public static class FieldDefinitionLoadSaveValidator implements IFieldLoadSaveValidator<FieldDefinition> {
 
     private final FieldDefinition defaultValue;
 

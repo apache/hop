@@ -37,7 +37,7 @@ import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.TransformDialogFragmentType;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.i18n.BaseMessages;
@@ -79,7 +79,7 @@ public class HopEnvironment {
     init( getStandardPluginTypes() );
   }
 
-  public static List<PluginTypeInterface> getStandardPluginTypes() {
+  public static List<IPluginType> getStandardPluginTypes() {
     return Arrays.asList(
       RowDistributionPluginType.getInstance(),
       TransformPluginType.getInstance(),
@@ -98,7 +98,7 @@ public class HopEnvironment {
     );
   }
 
-  public static void init( List<PluginTypeInterface> pluginTypes ) throws HopException {
+  public static void init( List<IPluginType> pluginTypes ) throws HopException {
 
     SettableFuture<Boolean> ready;
     if ( initialized.compareAndSet( null, ready = SettableFuture.create() ) ) {
@@ -207,7 +207,7 @@ public class HopEnvironment {
   /**
    * Sets the executor's user and Server information
    */
-  public static void setExecutionInformation( ExecutorInterface executor ) {
+  public static void setExecutionInformation( IExecutor executor ) {
     // Capture the executing user and server name...
     executor.setExecutingUser( System.getProperty( "user.name" ) );
   }

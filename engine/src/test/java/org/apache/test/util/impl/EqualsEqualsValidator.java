@@ -22,11 +22,11 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.ObjectValidator;
+import org.apache.test.util.IObjectValidator;
 
 import static org.junit.Assert.assertTrue;
 
-public class EqualsEqualsValidator<T> implements ObjectValidator<T> {
+public class EqualsEqualsValidator<T> implements IObjectValidator<T> {
 
   @Override
   public void validate( T expected, Object actual ) {

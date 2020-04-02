@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValidatorFactory {
+public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValidatorFactory {
 
-  private final Map<Getter<?>, FieldLoadSaveValidator<?>> getterMap;
-  private final Map<String, FieldLoadSaveValidator<?>> typeMap;
+  private final Map<IGetter<?>, IFieldLoadSaveValidator<?>> getterMap;
+  private final Map<String, IFieldLoadSaveValidator<?>> typeMap;
 
   public DefaultFieldLoadSaveValidatorFactory() {
-    this.typeMap = new HashMap<String, FieldLoadSaveValidator<?>>();
-    this.getterMap = new HashMap<Getter<?>, FieldLoadSaveValidator<?>>();
+    this.typeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    this.getterMap = new HashMap<IGetter<?>, IFieldLoadSaveValidator<?>>();
     this.typeMap.put( String.class.getCanonicalName(), new StringLoadSaveValidator() );
     this.typeMap.put( boolean.class.getCanonicalName(), new BooleanLoadSaveValidator() );
     this.typeMap.put( Boolean.class.getCanonicalName(), new BooleanLoadSaveValidator() );
@@ -65,12 +65,12 @@ public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValida
   }
 
   @Override
-  public void registerValidator( String typeString, FieldLoadSaveValidator<?> validator ) {
+  public void registerValidator( String typeString, IFieldLoadSaveValidator<?> validator ) {
     this.typeMap.put( typeString, validator );
   }
 
-  public DefaultFieldLoadSaveValidatorFactory( Map<Getter<?>, FieldLoadSaveValidator<?>> map,
-                                               Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+  public DefaultFieldLoadSaveValidatorFactory( Map<IGetter<?>, IFieldLoadSaveValidator<?>> map,
+                                               Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this();
     getterMap.putAll( map );
     typeMap.putAll( fieldLoadSaveValidatorTypeMap );
@@ -78,9 +78,9 @@ public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValida
 
   @SuppressWarnings( "unchecked" )
   @Override
-  public <T> FieldLoadSaveValidator<T> createValidator( Getter<T> getter ) {
+  public <T> IFieldLoadSaveValidator<T> createValidator( IGetter<T> getter ) {
     try {
-      FieldLoadSaveValidator<?> validatorClass = getterMap.get( getter );
+      IFieldLoadSaveValidator<?> validatorClass = getterMap.get( getter );
       if ( validatorClass == null ) {
         Type type = getter.getGenericType();
         validatorClass = typeMap.get( getName( type ) );
@@ -88,7 +88,7 @@ public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValida
       if ( validatorClass == null ) {
         throw new RuntimeException( "Unable to find validator for " + getter.getGenericType() + " or " + getter );
       }
-      return (FieldLoadSaveValidator<T>) validatorClass;
+      return (IFieldLoadSaveValidator<T>) validatorClass;
     } catch ( Exception e ) {
       if ( e instanceof RuntimeException ) {
         throw (RuntimeException) e;

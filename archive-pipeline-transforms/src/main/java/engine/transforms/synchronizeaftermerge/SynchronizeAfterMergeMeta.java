@@ -35,10 +35,10 @@ import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -46,8 +46,8 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -574,7 +574,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -596,7 +596,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
           error_message = "";
 
           // Check fields in table
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -605,7 +605,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
 
             for ( int i = 0; i < keyLookup.length; i++ ) {
               String lufield = keyLookup[ i ];
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -634,7 +634,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
 
             for ( int i = 0; i < updateLookup.length; i++ ) {
               String lufield = updateLookup[ i ];
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -675,7 +675,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -689,7 +689,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
             if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
+              IValueMeta v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -718,7 +718,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
 
           for ( int i = 0; i < updateStream.length; i++ ) {
             String lufield = updateStream[ i ];
-            ValueMetaInterface v = prev.searchValueMeta( lufield );
+            IValueMeta v = prev.searchValueMeta( lufield );
 
             if ( v == null ) {
               if ( first ) {
@@ -748,16 +748,16 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
           String errorMsgDiffLenField = "";
           boolean errorDiffField = false;
 
-          RowMetaInterface r =
+          IRowMeta r =
             db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             for ( int i = 0; i < updateStream.length; i++ ) {
               String lufieldstream = updateStream[ i ];
               String lufieldtable = updateLookup[ i ];
               // get value from previous
-              ValueMetaInterface vs = prev.searchValueMeta( lufieldstream );
+              IValueMeta vs = prev.searchValueMeta( lufieldstream );
               // get value from table fields
-              ValueMetaInterface vt = r.searchValueMeta( lufieldtable );
+              IValueMeta vt = r.searchValueMeta( lufieldtable );
               if ( vs != null && vt != null ) {
                 if ( !vs.getTypeDesc().equalsIgnoreCase( vt.getTypeDesc() ) ) {
                   errorMsgDiffField +=
@@ -831,22 +831,22 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         // Copy the row
-        RowMetaInterface tableFields = new RowMeta();
+        IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
         // the key fields
         if ( keyLookup != null ) {
           for ( int i = 0; i < keyLookup.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v != null ) {
-              ValueMetaInterface tableField = v.clone();
+              IValueMeta tableField = v.clone();
               tableField.setName( keyLookup[ i ] );
               tableFields.addValueMeta( tableField );
             } else {
@@ -856,11 +856,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
         }
         // the lookup fields
         for ( int i = 0; i < updateLookup.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
+          IValueMeta v = prev.searchValueMeta( updateStream[ i ] );
           if ( v != null ) {
-            ValueMetaInterface vk = tableFields.searchValueMeta( updateStream[ i ] );
+            IValueMeta vk = tableFields.searchValueMeta( updateStream[ i ] );
             if ( vk == null ) { // do not add again when already added as key fields
-              ValueMetaInterface tableField = v.clone();
+              IValueMeta tableField = v.clone();
               tableField.setName( updateLookup[ i ] );
               tableFields.addValueMeta( tableField );
             }
@@ -924,12 +924,12 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -941,7 +941,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
 
       // Insert update fields : read/write
       for ( int i = 0; i < updateLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( updateStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -953,12 +953,12 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SynchronizeAfterMerge( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new SynchronizeAfterMerge( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new SynchronizeAfterMergeData();
   }
 
@@ -970,9 +970,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
     }
   }
 
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
-    String realTableName = space.environmentSubstitute( tableName );
-    String realSchemaName = space.environmentSubstitute( schemaName );
+  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+    String realTableName = variables.environmentSubstitute( tableName );
+    String realSchemaName = variables.environmentSubstitute( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

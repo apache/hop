@@ -23,7 +23,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-public class YNLoadSaveValidator implements FieldLoadSaveValidator<String> {
+public class YNLoadSaveValidator implements IFieldLoadSaveValidator<String> {
   Random r = new Random();
 
   @Override

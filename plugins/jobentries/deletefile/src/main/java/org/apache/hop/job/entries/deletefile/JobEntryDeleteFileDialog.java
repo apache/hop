@@ -27,8 +27,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryDeleteFileDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryDeleteFileDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryDeleteFile.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
@@ -95,7 +95,7 @@ public class JobEntryDeleteFileDialog extends JobEntryDialog implements JobEntry
 
   private boolean changed;
 
-  public JobEntryDeleteFileDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryDeleteFileDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryDeleteFile) jobEntryInt;
 
@@ -104,7 +104,7 @@ public class JobEntryDeleteFileDialog extends JobEntryDialog implements JobEntry
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

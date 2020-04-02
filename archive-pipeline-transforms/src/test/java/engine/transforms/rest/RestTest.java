@@ -27,10 +27,10 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +63,7 @@ public class RestTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( "TestRest" );
     pipelineMeta.addTransform( transformMeta );
-    Rest rest = new Rest( transformMeta, mock( TransformDataInterface.class ),
+    Rest rest = new Rest( transformMeta, mock( ITransformData.class ),
       1, pipelineMeta, mock( Pipeline.class ) );
     MultivaluedMapImpl map = rest.createMultivalueMap( "param1", "{a:{[val1]}}" );
     String val1 = map.getFirst( "param1" );
@@ -97,7 +97,7 @@ public class RestTest {
     doReturn( false ).when( meta ).isUrlInField();
     doReturn( false ).when( meta ).isDynamicMethod();
 
-    RowMetaInterface rmi = mock( RowMetaInterface.class );
+    IRowMeta rmi = mock( IRowMeta.class );
     doReturn( 1 ).when( rmi ).size();
 
     RestData data = mock( RestData.class );

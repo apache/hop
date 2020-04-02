@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 public class XsdType {
   public static final String DATE = "date";
@@ -42,31 +42,31 @@ public class XsdType {
     STRING, INTEGER, INTEGER_DESC, SHORT, BOOLEAN, DATE, TIME, DATE_TIME, DOUBLE, FLOAT, BINARY, DECIMAL, };
 
   public static int xsdTypeToHopType( String aXsdType ) {
-    int vRet = ValueMetaInterface.TYPE_NONE;
+    int vRet = IValueMeta.TYPE_NONE;
     if ( aXsdType != null ) {
       if ( aXsdType.equalsIgnoreCase( DATE ) ) {
-        vRet = ValueMetaInterface.TYPE_DATE;
+        vRet = IValueMeta.TYPE_DATE;
       } else if ( aXsdType.equalsIgnoreCase( TIME ) ) {
-        vRet = ValueMetaInterface.TYPE_DATE;
+        vRet = IValueMeta.TYPE_DATE;
       } else if ( aXsdType.equalsIgnoreCase( DATE_TIME ) ) {
-        vRet = ValueMetaInterface.TYPE_DATE;
+        vRet = IValueMeta.TYPE_DATE;
       } else if ( aXsdType.equalsIgnoreCase( INTEGER ) || aXsdType.equalsIgnoreCase( INTEGER_DESC ) ) {
-        vRet = ValueMetaInterface.TYPE_INTEGER;
+        vRet = IValueMeta.TYPE_INTEGER;
       } else if ( aXsdType.equalsIgnoreCase( SHORT ) ) {
-        vRet = ValueMetaInterface.TYPE_INTEGER;
+        vRet = IValueMeta.TYPE_INTEGER;
       } else if ( aXsdType.equalsIgnoreCase( BOOLEAN ) ) {
-        vRet = ValueMetaInterface.TYPE_BOOLEAN;
+        vRet = IValueMeta.TYPE_BOOLEAN;
       } else if ( aXsdType.equalsIgnoreCase( STRING ) ) {
-        vRet = ValueMetaInterface.TYPE_STRING;
+        vRet = IValueMeta.TYPE_STRING;
       } else if ( aXsdType.equalsIgnoreCase( DOUBLE ) ) {
-        vRet = ValueMetaInterface.TYPE_NUMBER;
+        vRet = IValueMeta.TYPE_NUMBER;
       } else if ( aXsdType.equalsIgnoreCase( BINARY ) ) {
-        vRet = ValueMetaInterface.TYPE_BINARY;
+        vRet = IValueMeta.TYPE_BINARY;
       } else if ( aXsdType.equalsIgnoreCase( DECIMAL ) ) {
-        vRet = ValueMetaInterface.TYPE_BIGNUMBER;
+        vRet = IValueMeta.TYPE_BIGNUMBER;
       } else {
         // When all else fails, map it to a String
-        vRet = ValueMetaInterface.TYPE_NONE;
+        vRet = IValueMeta.TYPE_NONE;
       }
     }
     return vRet;

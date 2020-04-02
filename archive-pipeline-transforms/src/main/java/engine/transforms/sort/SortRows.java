@@ -28,15 +28,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -61,21 +61,21 @@ import java.util.zip.GZIPOutputStream;
  * @author Matt
  * @since 29-apr-2003
  */
-public class SortRows extends BaseTransform implements TransformInterface {
+public class SortRows extends BaseTransform implements ITransform {
   private static Class<?> PKG = SortRows.class; // for i18n
 
   private SortRowsMeta meta;
   private SortRowsData data;
 
-  public SortRows( TransformMeta transformMeta, TransformDataInterface transformDataInterface,
+  public SortRows( TransformMeta transformMeta, ITransformData iTransformData,
                    int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (SortRowsMeta) getTransformMeta().getTransformMetaInterface();
-    data = (SortRowsData) transformDataInterface;
+    data = (SortRowsData) iTransformData;
   }
 
-  void addBuffer( RowMetaInterface rowMeta, Object[] r ) throws HopException {
+  void addBuffer( IRowMeta rowMeta, Object[] r ) throws HopException {
     // we need convert some keys?
     if ( data.convertKeysToNative != null ) {
       for ( int i = 0; i < data.convertKeysToNative.length; i++ ) {
@@ -373,7 +373,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     // wait for first for is available
     Object[] r = getRow();
@@ -390,7 +390,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
         return false;
       }
 
-      RowMetaInterface inputRowMeta = getInputRowMeta();
+      IRowMeta inputRowMeta = getInputRowMeta();
 
       // do we have group numbers?
       if ( meta.isGroupSortEnabled() ) {
@@ -543,7 +543,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SortRowsMeta) smi;
     data = (SortRowsData) sdi;
 
@@ -577,7 +577,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     clearBuffers();
     super.dispose( smi, sdi );
   }
@@ -622,7 +622,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
       Collections.sort( elements, data.rowComparator );
 
       long nrConversions = 0L;
-      for ( ValueMetaInterface valueMeta : data.outputRowMeta.getValueMetaList() ) {
+      for ( IValueMeta valueMeta : data.outputRowMeta.getValueMetaList() ) {
         nrConversions += valueMeta.getNumberOfBinaryStringConversions();
         valueMeta.setNumberOfBinaryStringConversions( 0L );
       }
@@ -671,17 +671,17 @@ public class SortRows extends BaseTransform implements TransformInterface {
   }
 
   private class SortRowsComparator {
-    protected RowMetaInterface rowMeta;
+    protected IRowMeta rowMeta;
     protected int[] fieldNrs;
 
-    SortRowsComparator( RowMetaInterface rowMeta, int[] fieldNrs ) {
+    SortRowsComparator( IRowMeta rowMeta, int[] fieldNrs ) {
       this.rowMeta = rowMeta;
       this.fieldNrs = fieldNrs;
     }
   }
 
   private class RowTemapFileComparator extends SortRowsComparator implements Comparator<RowTempFile> {
-    RowTemapFileComparator( RowMetaInterface rowMeta, int[] fieldNrs ) {
+    RowTemapFileComparator( IRowMeta rowMeta, int[] fieldNrs ) {
       super( rowMeta, fieldNrs );
     }
 
@@ -697,7 +697,7 @@ public class SortRows extends BaseTransform implements TransformInterface {
   }
 
   private class RowObjectArrayComparator extends SortRowsComparator implements Comparator<Object[]> {
-    RowObjectArrayComparator( RowMetaInterface rowMeta, int[] fieldNrs ) {
+    RowObjectArrayComparator( IRowMeta rowMeta, int[] fieldNrs ) {
       super( rowMeta, fieldNrs );
     }
 

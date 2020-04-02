@@ -2,8 +2,8 @@ package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 
@@ -19,14 +19,14 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    *
    * @return The active file type handler
    */
-  HopFileTypeHandlerInterface getActiveFileTypeHandler();
+  IHopFileTypeHandler getActiveFileTypeHandler();
 
   /**
    * Get a list of supported file types for this perspective
    *
    * @return The list of supported file types
    */
-  List<HopFileTypeInterface> getSupportedHopFileTypes();
+  List<IHopFileType> getSupportedHopFileTypes();
 
   /**
    * Switch to this perspective.
@@ -83,7 +83,7 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * @param typeHandler The file type handler to remove
    * @return
    */
-  boolean remove( HopFileTypeHandlerInterface typeHandler );
+  boolean remove( IHopFileTypeHandler typeHandler );
 
 
 }

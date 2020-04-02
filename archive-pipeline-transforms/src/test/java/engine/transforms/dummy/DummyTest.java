@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.dummy;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -41,14 +41,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DummyTest {
-  private TransformMockHelper<TransformMetaInterface, TransformDataInterface> transformMockHelper;
+  private TransformMockHelper<TransformMetaInterface, ITransformData> transformMockHelper;
 
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<TransformMetaInterface, TransformDataInterface>(
-        "DUMMY TEST", TransformMetaInterface.class, TransformDataInterface.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+      new TransformMockHelper<TransformMetaInterface, ITransformData>(
+        "DUMMY TEST", TransformMetaInterface.class, ITransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -62,30 +62,30 @@ public class DummyTest {
   public void testDummyDoesntWriteOutputWithoutInputRow() throws HopException {
     Dymmy dummy =
       new Dymmy(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     dummy.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
     RowSet rowSet = transformMockHelper.getMockInputRowSet();
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( rowSet.getRowMeta() ).thenReturn( inputRowMeta );
     dummy.addRowSetToInputRowSets( rowSet );
     RowSet outputRowSet = mock( RowSet.class );
     dummy.addRowSetToOutputRowSets( outputRowSet );
     dummy.processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
     verify( inputRowMeta, never() ).cloneRow( any( Object[].class ) );
-    verify( outputRowSet, never() ).putRow( any( RowMetaInterface.class ), any( Object[].class ) );
+    verify( outputRowSet, never() ).putRow( any( IRowMeta.class ), any( Object[].class ) );
   }
 
   @Test
   public void testDymmyWritesOutputWithInputRow() throws HopException {
     Dymmy dummy =
       new Dymmy(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     dummy.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
     Object[] row = new Object[] { "abcd" };
     RowSet rowSet = transformMockHelper.getMockInputRowSet( row );
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
     when( rowSet.getRowMeta() ).thenReturn( inputRowMeta );
     dummy.addRowSetToInputRowSets( rowSet );

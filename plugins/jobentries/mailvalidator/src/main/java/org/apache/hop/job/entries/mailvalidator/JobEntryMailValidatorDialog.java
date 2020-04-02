@@ -29,7 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.mailvalidator.JobEntryMailValidator;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -115,7 +115,7 @@ public class JobEntryMailValidatorDialog extends JobEntryDialog implements JobEn
   private Button wSMTPCheck;
   private FormData fdSMTPCheck;
 
-  public JobEntryMailValidatorDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryMailValidatorDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMailValidator) jobEntryInt;
 
@@ -124,7 +124,7 @@ public class JobEntryMailValidatorDialog extends JobEntryDialog implements JobEn
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     display = parent.getDisplay();
 

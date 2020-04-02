@@ -26,12 +26,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -48,7 +48,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-public class ExecProcessDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -402,7 +402,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements TransformD
     // Set the shell size, based upon previous time...
     setSize();
 
-    RowMetaInterface r = null;
+    IRowMeta r = null;
     try {
       r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
@@ -508,7 +508,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements TransformD
       try {
         String fieldvalue = wProcess.getText();
         wProcess.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wProcess.setItems( r.getFieldNames() );
         }

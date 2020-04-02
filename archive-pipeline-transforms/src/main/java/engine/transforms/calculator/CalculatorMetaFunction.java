@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
@@ -226,163 +226,163 @@ public class CalculatorMetaFunction implements Cloneable {
   public static final int[] calcDefaultResultType = new int[ calc_desc.length ];
 
   static {
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_NONE ] = ValueMetaInterface.TYPE_NONE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_NONE ] = IValueMeta.TYPE_NONE;
     // Set field to constant value...
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CONSTANT ] = ValueMetaInterface.TYPE_STRING;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_COPY_OF_FIELD ] = ValueMetaInterface.TYPE_NONE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CONSTANT ] = IValueMeta.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_COPY_OF_FIELD ] = IValueMeta.TYPE_NONE;
     // A + B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD ] = IValueMeta.TYPE_NUMBER;
     // A - B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SUBTRACT ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SUBTRACT ] = IValueMeta.TYPE_NUMBER;
     // A * B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_MULTIPLY ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_MULTIPLY ] = IValueMeta.TYPE_NUMBER;
     // A / B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DIVIDE ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DIVIDE ] = IValueMeta.TYPE_NUMBER;
     // A * A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SQUARE ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SQUARE ] = IValueMeta.TYPE_NUMBER;
     // SQRT( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SQUARE_ROOT ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SQUARE_ROOT ] = IValueMeta.TYPE_NUMBER;
     // 100 * A / B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_1 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_1 ] = IValueMeta.TYPE_NUMBER;
     // A - ( A * B / 100 )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_2 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_2 ] = IValueMeta.TYPE_NUMBER;
     // A + ( A * B / 100 )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_3 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_PERCENT_3 ] = IValueMeta.TYPE_NUMBER;
     // A + B * C
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_COMBINATION_1 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_COMBINATION_1 ] = IValueMeta.TYPE_NUMBER;
     // SQRT( A*A + B*B )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_COMBINATION_2 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_COMBINATION_2 ] = IValueMeta.TYPE_NUMBER;
     // ROUND( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_1 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_1 ] = IValueMeta.TYPE_INTEGER;
     // ROUND( A , B )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_2 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_2 ] = IValueMeta.TYPE_NUMBER;
     // STDROUND( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_STD_1 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_STD_1 ] = IValueMeta.TYPE_INTEGER;
     // STDROUND( A , B )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_STD_2 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_STD_2 ] = IValueMeta.TYPE_NUMBER;
     // CEIL( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CEIL ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CEIL ] = IValueMeta.TYPE_INTEGER;
     // FLOOR( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_FLOOR ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_FLOOR ] = IValueMeta.TYPE_INTEGER;
     // Replace null values with another value
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_NVL ] = ValueMetaInterface.TYPE_NONE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_NVL ] = IValueMeta.TYPE_NONE;
     // Add B days to date field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_DAYS ] = ValueMetaInterface.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_DAYS ] = IValueMeta.TYPE_DATE;
     // What is the year (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_YEAR_OF_DATE ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_YEAR_OF_DATE ] = IValueMeta.TYPE_INTEGER;
     // What is the month (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_MONTH_OF_DATE ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_MONTH_OF_DATE ] = IValueMeta.TYPE_INTEGER;
     // What is the day of year (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_YEAR ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_YEAR ] = IValueMeta.TYPE_INTEGER;
     // What is the day of month (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_MONTH ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_MONTH ] = IValueMeta.TYPE_INTEGER;
     // What is the day of week (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_WEEK ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAY_OF_WEEK ] = IValueMeta.TYPE_INTEGER;
     // What is the week of year (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_WEEK_OF_YEAR ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_WEEK_OF_YEAR ] = IValueMeta.TYPE_INTEGER;
     // What is the week of year (Integer) of a date ISO8601 style?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_WEEK_OF_YEAR_ISO8601 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_WEEK_OF_YEAR_ISO8601 ] = IValueMeta.TYPE_INTEGER;
     // What is the year (Integer) of a date ISO8601 style?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_YEAR_OF_DATE_ISO8601 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_YEAR_OF_DATE_ISO8601 ] = IValueMeta.TYPE_INTEGER;
     // Byte to Hex encode string field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_BYTE_TO_HEX_ENCODE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_BYTE_TO_HEX_ENCODE ] = IValueMeta.TYPE_STRING;
     // Hex to Byte decode string field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_HEX_TO_BYTE_DECODE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_HEX_TO_BYTE_DECODE ] = IValueMeta.TYPE_STRING;
     // Char to Hex encode string field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHAR_TO_HEX_ENCODE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHAR_TO_HEX_ENCODE ] = IValueMeta.TYPE_STRING;
     // Hex to Char decode string field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_HEX_TO_CHAR_DECODE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_HEX_TO_CHAR_DECODE ] = IValueMeta.TYPE_STRING;
     // CRC32 of a file A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CRC32 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CRC32 ] = IValueMeta.TYPE_INTEGER;
     // ADLER32 of a file A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADLER32 ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADLER32 ] = IValueMeta.TYPE_INTEGER;
     // MD5 of a file A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_MD5 ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_MD5 ] = IValueMeta.TYPE_STRING;
     // SHA1 of a file Al
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SHA1 ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SHA1 ] = IValueMeta.TYPE_STRING;
     // LEVENSHTEIN_DISTANCE of string A and string B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_LEVENSHTEIN_DISTANCE ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_LEVENSHTEIN_DISTANCE ] = IValueMeta.TYPE_INTEGER;
     // METAPHONE of string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_METAPHONE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_METAPHONE ] = IValueMeta.TYPE_STRING;
     // Double METAPHONE of string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DOUBLE_METAPHONE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DOUBLE_METAPHONE ] = IValueMeta.TYPE_STRING;
     // ABS( A )
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ABS ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ABS ] = IValueMeta.TYPE_INTEGER;
     // Remove time from field A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_TIME_FROM_DATE ] = ValueMetaInterface.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_TIME_FROM_DATE ] = IValueMeta.TYPE_DATE;
     // DateA - DateB
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF ] = IValueMeta.TYPE_INTEGER;
     // A + B +C
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD3 ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD3 ] = IValueMeta.TYPE_NUMBER;
     // InitCap(A)
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_INITCAP ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_INITCAP ] = IValueMeta.TYPE_STRING;
     // UpperCase(A)
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_UPPER_CASE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_UPPER_CASE ] = IValueMeta.TYPE_STRING;
     // LowerCase(A)
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_LOWER_CASE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_LOWER_CASE ] = IValueMeta.TYPE_STRING;
     // MaskXML(A)
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_MASK_XML ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_MASK_XML ] = IValueMeta.TYPE_STRING;
     // CDATA(A)
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_USE_CDATA ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_USE_CDATA ] = IValueMeta.TYPE_STRING;
     // REMOVE CR FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_CR ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_CR ] = IValueMeta.TYPE_STRING;
     // REMOVE LF FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_LF ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_LF ] = IValueMeta.TYPE_STRING;
     // REMOVE CRLF FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_CRLF ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_CRLF ] = IValueMeta.TYPE_STRING;
     // REMOVE TAB FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_TAB ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_TAB ] = IValueMeta.TYPE_STRING;
     // GET ONLY DIGITS FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_GET_ONLY_DIGITS ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_GET_ONLY_DIGITS ] = IValueMeta.TYPE_STRING;
     // REMOVE DIGITS FROM string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_DIGITS ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMOVE_DIGITS ] = IValueMeta.TYPE_STRING;
     // LENGTH OF string A
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_STRING_LEN ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_STRING_LEN ] = IValueMeta.TYPE_INTEGER;
     // LOAD FILE CONTENT IN BLOB
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_LOAD_FILE_CONTENT_BINARY ] = ValueMetaInterface.TYPE_BINARY;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_LOAD_FILE_CONTENT_BINARY ] = IValueMeta.TYPE_BINARY;
     // ADD TIME TO A DATE
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_TIME_TO_DATE ] = ValueMetaInterface.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_TIME_TO_DATE ] = IValueMeta.TYPE_DATE;
     // What is the quarter (Integer) of a date?
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_QUARTER_OF_DATE ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_QUARTER_OF_DATE ] = IValueMeta.TYPE_INTEGER;
     // variable substitution in string
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SUBSTITUTE_VARIABLE ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SUBSTITUTE_VARIABLE ] = IValueMeta.TYPE_STRING;
     // unEscape XML
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_UNESCAPE_XML ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_UNESCAPE_XML ] = IValueMeta.TYPE_STRING;
     // escape HTML
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ESCAPE_HTML ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ESCAPE_HTML ] = IValueMeta.TYPE_STRING;
     // unEscape HTML
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_UNESCAPE_HTML ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_UNESCAPE_HTML ] = IValueMeta.TYPE_STRING;
     // escape SQL
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ESCAPE_SQL ] = ValueMetaInterface.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ESCAPE_SQL ] = IValueMeta.TYPE_STRING;
     // Date A - Date B
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_WORKING_DIFF ] = ValueMetaInterface.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_WORKING_DIFF ] = IValueMeta.TYPE_INTEGER;
     // Date A - B Months
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_MONTHS ] = ValueMetaInterface.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_MONTHS ] = IValueMeta.TYPE_DATE;
     // XML file A well formed
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHECK_XML_FILE_WELL_FORMED ] = ValueMetaInterface.TYPE_BOOLEAN;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHECK_XML_FILE_WELL_FORMED ] = IValueMeta.TYPE_BOOLEAN;
     // XML string A well formed
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHECK_XML_WELL_FORMED ] = ValueMetaInterface.TYPE_BOOLEAN;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_CHECK_XML_WELL_FORMED ] = IValueMeta.TYPE_BOOLEAN;
     // get file encoding
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_GET_FILE_ENCODING ] = ValueMetaInterface.TYPE_STRING;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAMERAU_LEVENSHTEIN ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_NEEDLEMAN_WUNSH ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_JARO ] = ValueMetaInterface.TYPE_NUMBER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_JARO_WINKLER ] = ValueMetaInterface.TYPE_NUMBER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SOUNDEX ] = ValueMetaInterface.TYPE_STRING;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REFINED_SOUNDEX ] = ValueMetaInterface.TYPE_STRING;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_HOURS ] = ValueMetaInterface.TYPE_DATE;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_MINUTES ] = ValueMetaInterface.TYPE_DATE;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_MSEC ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_SEC ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_MN ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_HR ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_HOUR_OF_DAY ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_MINUTE_OF_HOUR ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_SECOND_OF_MINUTE ] = ValueMetaInterface.TYPE_INTEGER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_1 ] = ValueMetaInterface.TYPE_NUMBER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_2 ] = ValueMetaInterface.TYPE_NUMBER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_SECONDS ] = ValueMetaInterface.TYPE_DATE;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMAINDER ] = ValueMetaInterface.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_GET_FILE_ENCODING ] = IValueMeta.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DAMERAU_LEVENSHTEIN ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_NEEDLEMAN_WUNSH ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_JARO ] = IValueMeta.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_JARO_WINKLER ] = IValueMeta.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SOUNDEX ] = IValueMeta.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REFINED_SOUNDEX ] = IValueMeta.TYPE_STRING;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_HOURS ] = IValueMeta.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_MINUTES ] = IValueMeta.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_MSEC ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_SEC ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_MN ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_DATE_DIFF_HR ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_HOUR_OF_DAY ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_MINUTE_OF_HOUR ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_SECOND_OF_MINUTE ] = IValueMeta.TYPE_INTEGER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_1 ] = IValueMeta.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_2 ] = IValueMeta.TYPE_NUMBER;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_SECONDS ] = IValueMeta.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_REMAINDER ] = IValueMeta.TYPE_NUMBER;
   }
 
   private String fieldName;
@@ -511,7 +511,7 @@ public class CalculatorMetaFunction implements Cloneable {
   }
 
   private void fixBackwardCompatibility() {
-    if ( valueType == ValueMetaInterface.TYPE_INTEGER ) {
+    if ( valueType == IValueMeta.TYPE_INTEGER ) {
       if ( Utils.isEmpty( conversionMask ) ) {
         conversionMask = "0";
       }
@@ -522,7 +522,7 @@ public class CalculatorMetaFunction implements Cloneable {
         groupingSymbol = ",";
       }
     }
-    if ( valueType == ValueMetaInterface.TYPE_NUMBER ) {
+    if ( valueType == IValueMeta.TYPE_NUMBER ) {
       if ( Utils.isEmpty( conversionMask ) ) {
         conversionMask = "0.0";
       }
@@ -566,7 +566,7 @@ public class CalculatorMetaFunction implements Cloneable {
 
   public static int getCalcFunctionDefaultResultType( int type ) {
     if ( type < 0 || type >= calcDefaultResultType.length ) {
-      return ValueMetaInterface.TYPE_NONE;
+      return IValueMeta.TYPE_NONE;
     }
     return calcDefaultResultType[ type ];
   }

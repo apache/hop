@@ -23,19 +23,19 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.GenericDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -132,12 +132,12 @@ public class DatabaseLookupUTest {
     TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper =
       new TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData>( "test DatabaseLookup", DatabaseLookupMeta.class,
         DatabaseLookupData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     RowMeta inputRowMeta = new RowMeta();
-    RowSet rowSet = mock( RowSet.class );
+    IRowSet rowSet = mock( IRowSet.class );
     when( rowSet.getRowWait( anyLong(), any( TimeUnit.class ) ) ).thenReturn( new Object[ 0 ] ).thenReturn( null );
     when( rowSet.getRowMeta() ).thenReturn( inputRowMeta );
 
@@ -155,7 +155,7 @@ public class DatabaseLookupUTest {
   private DatabaseLookupMeta createDatabaseMeta() throws HopException {
     GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseInterface( genericMeta );
+    dbMeta.setIDatabase( genericMeta );
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setDatabaseMeta( dbMeta );
@@ -166,7 +166,7 @@ public class DatabaseLookupUTest {
 
     meta.setReturnValueNewName( new String[] { "returned value" } );
     meta.setReturnValueField( new String[] { BINARY_FIELD } );
-    meta.setReturnValueDefaultType( new int[] { ValueMetaInterface.TYPE_BINARY } );
+    meta.setReturnValueDefaultType( new int[] { IValueMeta.TYPE_BINARY } );
 
     meta.setStreamKeyField1( new String[ 0 ] );
     meta.setStreamKeyField2( new String[ 0 ] );
@@ -176,17 +176,17 @@ public class DatabaseLookupUTest {
     meta = spy( meta );
     doAnswer( new Answer() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        RowMetaInterface row = (RowMetaInterface) invocation.getArguments()[ 0 ];
-        ValueMetaInterface v = new ValueMetaBinary( BINARY_FIELD );
+        IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
+        IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
         row.addValueMeta( v );
         return null;
       }
     } ).when( meta ).getFields(
-      any( RowMetaInterface.class ),
+      any( IRowMeta.class ),
       anyString(),
-      any( RowMetaInterface[].class ),
+      any( IRowMeta[].class ),
       any( TransformMeta.class ),
-      any( VariableSpace.class ),
+      any( IVariables.class ),
       any( IMetaStore.class ) );
     return meta;
   }
@@ -207,18 +207,18 @@ public class DatabaseLookupUTest {
     Connection connection = mock( Connection.class );
     when( connection.prepareStatement( anyString() ) ).thenReturn( ps );
 
-    Database db = new Database( mock( LoggingObjectInterface.class ), meta );
+    Database db = new Database( mock( ILoggingObject.class ), meta );
     db.setConnection( connection );
 
     db = spy( db );
     doNothing().when( db ).normalConnect( anyString() );
 
-    ValueMetaInterface binary = new ValueMetaString( BINARY_FIELD );
-    binary.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta binary = new ValueMetaString( BINARY_FIELD );
+    binary.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
 
-    ValueMetaInterface id = new ValueMetaInteger( ID_FIELD );
+    IValueMeta id = new ValueMetaInteger( ID_FIELD );
 
-    RowMetaInterface metaByQuerying = new RowMeta();
+    IRowMeta metaByQuerying = new RowMeta();
     metaByQuerying.addValueMeta( binary );
     metaByQuerying.addValueMeta( id );
 
@@ -231,13 +231,13 @@ public class DatabaseLookupUTest {
 
   private DatabaseLookup spyLookup( TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mocks, Database db,
                                     DatabaseMeta dbMeta ) {
-    DatabaseLookup lookup = new DatabaseLookup( mocks.transformMeta, mocks.transformDataInterface, 1, mocks.pipelineMeta, mocks.pipeline );
+    DatabaseLookup lookup = new DatabaseLookup( mocks.transformMeta, mocks.iTransformData, 1, mocks.pipelineMeta, mocks.pipeline );
     lookup = Mockito.spy( lookup );
 
     doReturn( db ).when( lookup ).getDatabase( eq( dbMeta ) );
-    for ( RowSet rowSet : lookup.getOutputRowSets() ) {
+    for ( IRowSet rowSet : lookup.getOutputRowSets() ) {
       if ( mockingDetails( rowSet ).isMock() ) {
-        when( rowSet.putRow( any( RowMetaInterface.class ), any( Object[].class ) ) ).thenReturn( true );
+        when( rowSet.putRow( any( IRowMeta.class ), any( Object[].class ) ) ).thenReturn( true );
       }
     }
 
@@ -246,11 +246,11 @@ public class DatabaseLookupUTest {
 
   @Test
   public void testEqualsAndIsNullAreCached() throws Exception {
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
 
     DatabaseLookup look =
-      new MockDatabaseLookup( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+      new MockDatabaseLookup( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
     DatabaseLookupData lookData = new DatabaseLookupData();
     lookData.cache = DefaultCache.newCache( lookData, 0 );
@@ -258,7 +258,7 @@ public class DatabaseLookupUTest {
 
     GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseInterface( genericMeta );
+    dbMeta.setIDatabase( genericMeta );
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setDatabaseMeta( dbMeta );
@@ -269,7 +269,7 @@ public class DatabaseLookupUTest {
 
     meta.setReturnValueNewName( new String[] { "val1", "val2" } );
     meta.setReturnValueField( new String[] { BINARY_FIELD, BINARY_FIELD } );
-    meta.setReturnValueDefaultType( new int[] { ValueMetaInterface.TYPE_BINARY, ValueMetaInterface.TYPE_BINARY } );
+    meta.setReturnValueDefaultType( new int[] { IValueMeta.TYPE_BINARY, IValueMeta.TYPE_BINARY } );
 
     meta.setStreamKeyField1( new String[ 0 ] );
     meta.setStreamKeyField2( new String[ 0 ] );
@@ -279,17 +279,17 @@ public class DatabaseLookupUTest {
     meta = spy( meta );
     doAnswer( new Answer() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        RowMetaInterface row = (RowMetaInterface) invocation.getArguments()[ 0 ];
-        ValueMetaInterface v = new ValueMetaBinary( BINARY_FIELD );
+        IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
+        IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
         row.addValueMeta( v );
         return null;
       }
     } ).when( meta ).getFields(
-      any( RowMetaInterface.class ),
+      any( IRowMeta.class ),
       anyString(),
-      any( RowMetaInterface[].class ),
+      any( IRowMeta[].class ),
       any( TransformMeta.class ),
-      any( VariableSpace.class ),
+      any( IVariables.class ),
       any( IMetaStore.class ) );
 
 
@@ -300,11 +300,11 @@ public class DatabaseLookupUTest {
 
   @Test
   public void getRowInCacheTest() throws HopException {
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
 
     DatabaseLookup look =
-      new DatabaseLookup( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+      new DatabaseLookup( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
     DatabaseLookupData lookData = new DatabaseLookupData();
     lookData.cache = DefaultCache.newCache( lookData, 0 );
@@ -312,7 +312,7 @@ public class DatabaseLookupUTest {
 
     look.init( new DatabaseLookupMeta(), lookData );
 
-    ValueMetaInterface valueMeta = new ValueMetaInteger( "fieldTest" );
+    IValueMeta valueMeta = new ValueMetaInteger( "fieldTest" );
     RowMeta lookupMeta = new RowMeta();
     lookupMeta.setValueMetaList( Collections.singletonList( valueMeta ) );
     Object[] kgsRow1 = new Object[ 1 ];
@@ -365,7 +365,7 @@ public class DatabaseLookupUTest {
 
 
     data.db = db;
-    data.keytypes = new int[] { ValueMetaInterface.TYPE_INTEGER };
+    data.keytypes = new int[] { IValueMeta.TYPE_INTEGER };
     if ( allEquals ) {
       data.allEquals = true;
       data.conditions = new int[] { DatabaseLookupMeta.CONDITION_EQ };
@@ -394,7 +394,7 @@ public class DatabaseLookupUTest {
                                           DatabaseLookupMeta meta ) throws HopException {
     DatabaseLookup transform = spyLookup( mockHelper, db, meta.getDatabaseMeta() );
     doNothing().when( transform ).determineFieldsTypesQueryingDb();
-    doReturn( null ).when( transform ).lookupValues( any( RowMetaInterface.class ), any( Object[].class ) );
+    doReturn( null ).when( transform ).lookupValues( any( IRowMeta.class ), any( Object[].class ) );
 
     RowMeta input = new RowMeta();
     input.addValueMeta( new ValueMetaInteger( "Test" ) );
@@ -421,7 +421,7 @@ public class DatabaseLookupUTest {
     transform.init( meta, data );
 
     data.db = db;
-    data.keytypes = new int[] { ValueMetaInterface.TYPE_INTEGER };
+    data.keytypes = new int[] { IValueMeta.TYPE_INTEGER };
     data.allEquals = true;
     data.conditions = new int[] { DatabaseLookupMeta.CONDITION_EQ };
 
@@ -435,8 +435,8 @@ public class DatabaseLookupUTest {
   }
 
   public class MockDatabaseLookup extends DatabaseLookup {
-    public MockDatabaseLookup( TransformMeta transformMeta, DatabaseLookupData transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    public MockDatabaseLookup( TransformMeta transformMeta, DatabaseLookupData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

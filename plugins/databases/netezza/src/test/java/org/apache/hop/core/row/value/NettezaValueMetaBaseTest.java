@@ -22,16 +22,16 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.netezza.NetezzaDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -98,7 +98,7 @@ public class NettezaValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
   }
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
+  private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
     private List<HopLoggingEvent> events = new ArrayList<>();
 
@@ -121,7 +121,7 @@ public class NettezaValueMetaBaseTest {
   @Test
   public void testGetValueFromSqlTypeNetezza() throws Exception {
     ValueMetaBase obj = new ValueMetaBase();
-    DatabaseInterface databaseInterface = new NetezzaDatabaseMeta();
+    IDatabase iDatabase = new NetezzaDatabaseMeta();
 
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
     when( resultSet.getMetaData() ).thenReturn( metaData );
@@ -129,13 +129,13 @@ public class NettezaValueMetaBaseTest {
     when( metaData.getColumnType( 1 ) ).thenReturn( Types.DATE );
     when( metaData.getColumnType( 2 ) ).thenReturn( Types.TIME );
 
-    obj.type = ValueMetaInterface.TYPE_DATE;
+    obj.type = IValueMeta.TYPE_DATE;
     // call to testing method
-    obj.getValueFromResultSet( databaseInterface, resultSet, 0 );
+    obj.getValueFromResultSet( iDatabase, resultSet, 0 );
     // for jdbc Date type getDate method called
     verify( resultSet, times( 1 ) ).getDate( anyInt() );
 
-    obj.getValueFromResultSet( databaseInterface, resultSet, 1 );
+    obj.getValueFromResultSet( iDatabase, resultSet, 1 );
     // for jdbc Time type getTime method called
     verify( resultSet, times( 1 ) ).getTime( anyInt() );
   }

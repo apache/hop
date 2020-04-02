@@ -27,9 +27,9 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -254,12 +254,12 @@ public class HopGuiPipelinePreviewDelegate {
   protected void showPreviewGrid( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowBuffer rowBuffer) throws HopException {
     clearPreviewComposite();
 
-    RowMetaInterface rowMeta = rowBuffer.getRowMeta();
+    IRowMeta rowMeta = rowBuffer.getRowMeta();
     List<Object[]> rowsData = rowBuffer.getBuffer();
 
     ColumnInfo[] columnInfo = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < columnInfo.length; i++ ) {
-      ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+      IValueMeta valueMeta = rowMeta.getValueMeta( i );
       columnInfo[ i ] = new ColumnInfo( valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false, true );
       columnInfo[ i ].setValueMeta( valueMeta );
     }
@@ -280,12 +280,12 @@ public class HopGuiPipelinePreviewDelegate {
       for ( int colNr = 0; colNr < rowMeta.size(); colNr++ ) {
         int dataIndex = rowMeta.indexOfValue( rowMeta.getValueMeta( colNr ).getName() );
         String string;
-        ValueMetaInterface valueMetaInterface;
+        IValueMeta iValueMeta;
         try {
-          valueMetaInterface = rowMeta.getValueMeta( dataIndex );
-          if ( valueMetaInterface.isStorageBinaryString() ) {
-            Object nativeType = valueMetaInterface.convertBinaryStringToNativeType( (byte[]) rowData[ dataIndex ] );
-            string = valueMetaInterface.getStorageMetadata().getString( nativeType );
+          iValueMeta = rowMeta.getValueMeta( dataIndex );
+          if ( iValueMeta.isStorageBinaryString() ) {
+            Object nativeType = iValueMeta.convertBinaryStringToNativeType( (byte[]) rowData[ dataIndex ] );
+            string = iValueMeta.getStorageMetadata().getString( nativeType );
           } else {
             string = rowMeta.getString( rowData, dataIndex );
           }
@@ -369,7 +369,7 @@ public class HopGuiPipelinePreviewDelegate {
     }
   }
 
-  public void addPreviewData( TransformMeta transformMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
+  public void addPreviewData( TransformMeta transformMeta, IRowMeta rowMeta, List<Object[]> rowsData,
                               StringBuffer buffer ) {
     previewLogMap.put( transformMeta.getName(), buffer.toString() );
     previewDataMap.put( transformMeta.getName(), new RowBuffer(rowMeta, rowsData) );

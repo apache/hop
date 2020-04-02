@@ -22,14 +22,14 @@
 
 package org.apache.hop.pipeline.transforms.jobexecutor;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
@@ -37,13 +37,13 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class JobExecutorData extends BaseTransformData implements TransformDataInterface {
+public class JobExecutorData extends BaseTransformData implements ITransformData {
   public Job executorJob;
   public JobMeta executorJobMeta;
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface executionResultsOutputRowMeta;
-  public RowMetaInterface resultRowsOutputRowMeta;
-  public RowMetaInterface resultFilesOutputRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta executionResultsOutputRowMeta;
+  public IRowMeta resultRowsOutputRowMeta;
+  public IRowMeta resultFilesOutputRowMeta;
 
   public List<RowMetaAndData> groupBuffer;
   public int groupSize;
@@ -51,11 +51,11 @@ public class JobExecutorData extends BaseTransformData implements TransformDataI
   public long groupTimeStart;
   public String groupField;
   public int groupFieldIndex;
-  public ValueMetaInterface groupFieldMeta;
+  public IValueMeta groupFieldMeta;
   public Object prevGroupFieldData;
-  public RowSet resultRowsRowSet;
-  public RowSet resultFilesRowSet;
-  public RowSet executionResultRowSet;
+  public IRowSet resultRowsRowSet;
+  public IRowSet resultFilesRowSet;
+  public IRowSet executionResultRowSet;
 
   public JobExecutorData() {
     super();

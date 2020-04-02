@@ -26,10 +26,10 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -53,7 +53,7 @@ import java.util.Properties;
 public class FTPSConnection implements FTPListener {
 
   private static Class<?> PKG = JobEntryFTPSGet.class; // for i18n purposes, needed by Translator!!
-  private LogChannelInterface logger;
+  private ILogChannel logger;
 
   public static final String HOME_FOLDER = "/";
   public static final String COMMAND_SUCCESSUL = "COMMAND SUCCESSFUL";
@@ -95,7 +95,7 @@ public class FTPSConnection implements FTPListener {
   private String proxyUser;
   private String proxyPassword;
   private int proxyPort;
-  private VariableSpace nameSpace;
+  private IVariables nameSpace;
 
   /**
    * Please supply real namespace as it is required for proper VFS operation
@@ -106,7 +106,7 @@ public class FTPSConnection implements FTPListener {
   }
 
   public FTPSConnection( int connectionType, String hostname, int port, String username, String password,
-                         VariableSpace nameSpace ) {
+                         IVariables nameSpace ) {
     this.hostName = hostname;
     this.portNumber = port;
     this.userName = username;

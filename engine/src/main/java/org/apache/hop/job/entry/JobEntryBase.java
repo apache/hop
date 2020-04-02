@@ -23,10 +23,10 @@
 package org.apache.hop.job.entry;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.AttributesInterface;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
-import org.apache.hop.core.ExtensionDataInterface;
+import org.apache.hop.core.IAttributes;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,26 +35,26 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceHolderInterface;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceHolder;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
@@ -67,14 +67,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Base class for the different types of job-entries. Job entries can extend this base class to get access to common
- * member variables and default method behavior. However, JobEntryBase does not implement JobEntryInterface (although it
- * implements most of the same methods), so individual job entry classes must implement JobEntryInterface and
+ * member variables and default method behavior. However, JobEntryBase does not implement IJobEntry (although it
+ * implements most of the same methods), so individual job entry classes must implement IJobEntry and
  * specifically the <code>execute()</code> method.
  *
  * @author Matt Created on 18-jun-04
  */
-public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInterface,
-  AttributesInterface, ExtensionDataInterface, CheckResultSourceInterface, ResourceHolderInterface {
+public class JobEntryBase implements Cloneable, IVariables, ILoggingObject,
+  IAttributes, IExtensionData, ICheckResultSource, IResourceHolder {
 
   /**
    * The name of the job entry
@@ -99,7 +99,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * The variable bindings for the job entry
    */
-  protected VariableSpace variables = new Variables();
+  protected IVariables variables = new Variables();
 
   /**
    * The map for transform variable bindings for the job entry
@@ -114,7 +114,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * The log channel interface object, used for logging
    */
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   /**
    * The log level
@@ -197,7 +197,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * @return the plug-in type description
    */
   public String getTypeDesc() {
-    PluginInterface plugin = PluginRegistry.getInstance().findPluginWithId( JobEntryPluginType.class, configId );
+    IPlugin plugin = PluginRegistry.getInstance().findPluginWithId( JobEntryPluginType.class, configId );
     return plugin.getDescription();
   }
 
@@ -214,7 +214,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the name of the job entry
    *
    * @return the name of the job entry
-   * @see org.apache.hop.core.CheckResultSourceInterface#getName()
+   * @see ICheckResultSource#getName()
    */
   public String getName() {
     return name;
@@ -233,7 +233,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the description of the job entry
    *
    * @return the description of the job entry
-   * @see org.apache.hop.core.CheckResultSourceInterface#getDescription()
+   * @see ICheckResultSource#getDescription()
    */
   public String getDescription() {
     return description;
@@ -473,11 +473,11 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables. For
    * JobEntryBase, this method returns an empty list.
    *
-   * @param space a variable space object containing variable bindings
+   * @param variables a variable space object containing variable bindings
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
     return new ArrayList<>();
   }
 
@@ -485,7 +485,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the filename of the job entry. For JobEntryBase, this method always returns null
    *
    * @return null
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getFilename()
+   * @see ILoggingObject#getFilename()
    */
   @Override
   public String getFilename() {
@@ -515,18 +515,18 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Copies variables from a given variable space to this job entry
    *
-   * @see org.apache.hop.core.variables.VariableSpace#copyVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#copyVariablesFrom(IVariables)
    */
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   /**
    * Substitutes any variable values into the given string, and returns the resolved string
    *
    * @return the string with any environment variables resolved and substituted
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String)
+   * @see IVariables#environmentSubstitute(java.lang.String)
    */
   @Override
   public String environmentSubstitute( String aString ) {
@@ -537,7 +537,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Substitutes any variable values into each of the given strings, and returns an array containing the resolved
    * string(s)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String[])
+   * @see IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override
   public String[] environmentSubstitute( String[] aString ) {
@@ -545,7 +545,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
@@ -553,21 +553,21 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the parent variable space
    *
    * @return the parent variable space
-   * @see org.apache.hop.core.variables.VariableSpace#getParentVariableSpace()
+   * @see IVariables#getParentVariableSpace()
    */
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
   /**
    * Sets the parent variable space
    *
-   * @see org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(
-   *org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#setParentVariableSpace(
+   *IVariables)
    */
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -575,7 +575,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String, java.lang.String)
+   * @see IVariables#getVariable(java.lang.String, java.lang.String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -586,7 +586,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String)
+   * @see IVariables#getVariable(java.lang.String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -600,7 +600,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * @param variableName the name of the variable to interrogate
    * @return a boolean representation of the specified variable after performing any necessary substitution
    * @boolean defaultValue the value to use if the specified variable is unassigned.
-   * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
   public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
@@ -616,11 +616,11 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the values of the job entry's variables to the values from the parent variables
    *
-   * @see org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(
-   *org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#initializeVariablesFrom(
+   *IVariables)
    */
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -628,7 +628,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets a list of variable names for the job entry
    *
    * @return a list of variable names
-   * @see org.apache.hop.core.variables.VariableSpace#listVariables()
+   * @see IVariables#listVariables()
    */
   @Override
   public String[] listVariables() {
@@ -638,7 +638,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the value of the specified variable to the specified value
    *
-   * @see org.apache.hop.core.variables.VariableSpace#setVariable(java.lang.String, java.lang.String)
+   * @see IVariables#setVariable(java.lang.String, java.lang.String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -649,19 +649,19 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Shares a variable space from another variable space. This means that the object should take over the space used as
    * argument.
    *
-   * @see org.apache.hop.core.variables.VariableSpace#shareVariablesWith(org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#shareVariablesWith(IVariables)
    */
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   /**
    * Injects variables using the given Map. The behavior should be that the properties object will be stored and at the
-   * time the VariableSpace is initialized (or upon calling this method if the space is already initialized). After
+   * time the IVariables is initialized (or upon calling this method if the space is already initialized). After
    * injecting the link of the properties object should be removed.
    *
-   * @see org.apache.hop.core.variables.VariableSpace#injectVariables(java.util.Map)
+   * @see IVariables#injectVariables(java.util.Map)
    */
   @Override
   public void injectVariables( Map<String, String> prop ) {
@@ -673,10 +673,10 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    *
    * @param remarks   List of CheckResult objects indicating consistency status
    * @param jobMeta   the metadata object for the job entry
-   * @param space     the variable space to resolve string expressions with variables with
+   * @param variables     the variable space to resolve string expressions with variables with
    * @param metaStore the MetaStore to load common elements from
    */
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables, IMetaStore metaStore ) {
 
   }
 
@@ -697,15 +697,15 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space           The variable space to resolve (environment) variables with.
+   * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
     return null;
   }
 
@@ -753,7 +753,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    *
    * @return the variable bindings for the job entry.
    */
-  protected VariableSpace getVariables() {
+  protected IVariables getVariables() {
     return variables;
   }
 
@@ -943,7 +943,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    *
    * @return the log channel
    */
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -951,7 +951,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the logging channel id
    *
    * @return the log channel id
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogChannelId()
+   * @see ILoggingObject#getLogChannelId()
    */
   @Override
   public String getLogChannelId() {
@@ -962,7 +962,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the object name
    *
    * @return the object name
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectName()
+   * @see ILoggingObject#getObjectName()
    */
   @Override
   public String getObjectName() {
@@ -973,7 +973,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets a string identifying a copy in a series of transforms
    *
    * @return a string identifying a copy in a series of transforms
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectCopy()
+   * @see ILoggingObject#getObjectCopy()
    */
   @Override
   public String getObjectCopy() {
@@ -985,7 +985,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the logging object type
    *
    * @return the logging object type
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
+   * @see ILoggingObject#getObjectType()
    */
   @Override
   public LoggingObjectType getObjectType() {
@@ -996,17 +996,17 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the logging object interface's parent
    *
    * @return the logging object interface's parent
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getParent()
+   * @see ILoggingObject#getParent()
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parentJob;
   }
 
   /**
    * Gets the logging level for the job entry
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogLevel()
+   * @see ILoggingObject#getLogLevel()
    */
   @Override
   public LogLevel getLogLevel() {
@@ -1071,11 +1071,11 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore the metaStore to load from
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
     return null;
   }
 
@@ -1166,7 +1166,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * At save and run time, the system will attempt to set the jobMeta so that it can be accessed by the jobEntries
    * if necessary.
    *
-   * @param parentJobMeta the JobMeta to which this JobEntryInterface belongs
+   * @param parentJobMeta the JobMeta to which this IJobEntry belongs
    */
   public void setParentJobMeta( JobMeta parentJobMeta ) {
     this.parentJobMeta = parentJobMeta;

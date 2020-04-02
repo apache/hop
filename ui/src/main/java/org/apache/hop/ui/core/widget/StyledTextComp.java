@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUI;
@@ -83,23 +83,23 @@ public class StyledTextComp extends Composite {
   private Image image;
 
   private KeyListener kls;
-  private VariableSpace variables;
+  private IVariables variables;
   private boolean varsSensitive;
 
-  public StyledTextComp( VariableSpace space, Composite parent, int args, String strTabName ) {
-    this( space, parent, args, strTabName, true, false );
+  public StyledTextComp( IVariables variables, Composite parent, int args, String strTabName ) {
+    this( variables, parent, args, strTabName, true, false );
   }
 
 
-  public StyledTextComp( VariableSpace space, Composite parent, int args, String strTabName, boolean varsSensitive ) {
-    this( space, parent, args, strTabName, varsSensitive, false );
+  public StyledTextComp( IVariables variables, Composite parent, int args, String strTabName, boolean varsSensitive ) {
+    this( variables, parent, args, strTabName, varsSensitive, false );
   }
 
-  public StyledTextComp( VariableSpace space, Composite parent, int args, String strTabName, boolean varsSensitive,
+  public StyledTextComp( IVariables variables, Composite parent, int args, String strTabName, boolean varsSensitive,
                          boolean variableIconOnTop ) {
     super( parent, SWT.NONE );
     this.varsSensitive = varsSensitive;
-    this.variables = space;
+    this.variables = variables;
     undoStack = new LinkedList<UndoRedoStack>();
     redoStack = new LinkedList<UndoRedoStack>();
     styledText = new StyledText( this, args );

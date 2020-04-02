@@ -35,14 +35,14 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLLexer;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLParser;
 
-public class Edi2Xml extends BaseTransform implements TransformInterface {
+public class Edi2Xml extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
@@ -52,11 +52,11 @@ public class Edi2Xml extends BaseTransform implements TransformInterface {
   private CommonTokenStream tokens;
   private FastSimpleGenericEdifactDirectXMLParser parser;
 
-  public Edi2Xml( TransformMeta s, TransformDataInterface transformDataInterface, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, transformDataInterface, c, t, dis );
+  public Edi2Xml( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, iTransformData, c, t, dis );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 
@@ -200,14 +200,14 @@ public class Edi2Xml extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 
     return super.init( smi, sdi );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 

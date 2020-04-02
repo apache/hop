@@ -30,8 +30,8 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Andrey Khayrutdinov
  */
-public abstract class SingleThreadedExecutionGuarder<Meta extends TransformMetaInterface> {
+public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass

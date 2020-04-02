@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
-public class MergeJoinDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
@@ -450,7 +450,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements TransformDia
 
       TransformMeta transformMeta = infoStreams.get( 0 ).getTransformMeta();
       if ( transformMeta != null ) {
-        RowMetaInterface prev = pipelineMeta.getTransformFields( transformMeta );
+        IRowMeta prev = pipelineMeta.getTransformFields( transformMeta );
         if ( prev != null ) {
           BaseTransformDialog.getFieldsFromPrevious( prev, wKeys1, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
         }
@@ -471,7 +471,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements TransformDia
 
       TransformMeta transformMeta = infoStreams.get( 1 ).getTransformMeta();
       if ( transformMeta != null ) {
-        RowMetaInterface prev = pipelineMeta.getTransformFields( transformMeta );
+        IRowMeta prev = pipelineMeta.getTransformFields( transformMeta );
         if ( prev != null ) {
           BaseTransformDialog.getFieldsFromPrevious( prev, wKeys2, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
         }

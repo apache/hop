@@ -27,15 +27,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -44,7 +44,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DatabaseLookupDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -122,7 +122,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
   /**
    * all fields from the previous transforms
    */
-  private RowMetaInterface prevFields = null;
+  private IRowMeta prevFields = null;
 
   public DatabaseLookupDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -251,7 +251,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
     fdTable.right = new FormAttachment( wbTable, -margin );
     wTable.setLayoutData( fdTable );
 
-    // Cache?
+    // ICache?
     wlCache = new Label( shell, SWT.RIGHT );
     wlCache.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.Cache.Label" ) );
     props.setLook( wlCache );
@@ -273,7 +273,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
       }
     } );
 
-    // Cache size line
+    // ICache size line
     wlCachesize = new Label( shell, SWT.RIGHT );
     wlCachesize.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.Cachesize.Label" ) );
     props.setLook( wlCachesize );
@@ -293,7 +293,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
     fdCachesize.top = new FormAttachment( wCache, margin );
     wCachesize.setLayoutData( fdCachesize );
 
-    // Cache : Load all?
+    // ICache : Load all?
     wlCacheLoadAll = new Label( shell, SWT.RIGHT );
     wlCacheLoadAll.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.CacheLoadAll.Label" ) );
     props.setLook( wlCacheLoadAll );
@@ -581,9 +581,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
               try {
                 db.connect();
 
-                //RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+                //IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
                 String schemaTable = ci.getQuotedSchemaTableCombination( schemaName, tableName );
-                RowMetaInterface r = db.getTableFields( schemaTable );
+                IRowMeta r = db.getTableFields( schemaTable );
 
                 if ( null != r ) {
                   String[] fieldNames = r.getFieldNames();
@@ -745,7 +745,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
       input.getReturnValueDefaultType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 4 ) );
 
       if ( input.getReturnValueDefaultType()[ i ] < 0 ) {
-        input.getReturnValueDefaultType()[ i ] = ValueMetaInterface.TYPE_STRING;
+        input.getReturnValueDefaultType()[ i ] = IValueMeta.TYPE_STRING;
       }
     }
 
@@ -796,10 +796,10 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, "=" );
             return true;
           }
@@ -826,7 +826,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements Transfo
           String schemaTable =
             ci.getQuotedSchemaTableCombination( db.environmentSubstitute( wSchema.getText() ), db
               .environmentSubstitute( wTable.getText() ) );
-          RowMetaInterface r = db.getTableFields( schemaTable );
+          IRowMeta r = db.getTableFields( schemaTable );
 
           if ( r != null && !r.isEmpty() ) {
             logDebug( BaseMessages.getString( PKG, "DatabaseLookupDialog.Log.FoundTableFields" )

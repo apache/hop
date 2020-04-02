@@ -25,7 +25,7 @@ package org.apache.hop.ui.hopgui.partition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -58,9 +58,9 @@ public class PartitionSettings {
     System.arraycopy( TransformPartitioningMeta.methodCodes, 0, codes, 0, TransformPartitioningMeta.methodCodes.length );
   }
 
-  public void fillOptionsAndCodesByPlugins( List<PluginInterface> plugins ) {
+  public void fillOptionsAndCodesByPlugins( List<IPlugin> plugins ) {
     int pluginIndex = 0;
-    for ( PluginInterface plugin : plugins ) {
+    for ( IPlugin plugin : plugins ) {
       options[ TransformPartitioningMeta.methodDescriptions.length + pluginIndex ] = plugin.getDescription();
       codes[ TransformPartitioningMeta.methodCodes.length + pluginIndex ] = plugin.getIds()[ 0 ];
       pluginIndex++;

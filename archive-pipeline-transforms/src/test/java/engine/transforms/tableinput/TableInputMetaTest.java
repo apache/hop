@@ -28,10 +28,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -99,23 +99,23 @@ public class TableInputMetaTest {
     Database mockDB = meta.getDatabase();
     when( mockDB.getQueryFields( anyString(), anyBoolean() ) ).thenReturn( createMockFields() );
 
-    RowMetaInterface expectedRowMeta = new RowMeta();
-    ValueMetaInterface valueMeta = new ValueMetaString( "field1" );
+    IRowMeta expectedRowMeta = new RowMeta();
+    IValueMeta valueMeta = new ValueMetaString( "field1" );
     valueMeta.setStorageMetadata( new ValueMetaString( "field1" ) );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     expectedRowMeta.addValueMeta( valueMeta );
 
-    VariableSpace space = mock( VariableSpace.class );
-    RowMetaInterface rowMetaInterface = new RowMeta();
-    meta.getFields( rowMetaInterface, "TABLE_INPUT_META", null, null, space, null );
+    iVariables variables = mock( iVariables.class );
+    IRowMeta iRowMeta = new RowMeta();
+    meta.getFields( iRowMeta, "TABLE_INPUT_META", null, null, variables, null );
 
-    assertEquals( expectedRowMeta.toString(), rowMetaInterface.toString() );
+    assertEquals( expectedRowMeta.toString(), iRowMeta.toString() );
   }
 
-  private RowMetaInterface createMockFields() {
-    RowMetaInterface rowMetaInterface = new RowMeta();
-    ValueMetaInterface valueMeta = new ValueMetaString( "field1" );
-    rowMetaInterface.addValueMeta( valueMeta );
-    return rowMetaInterface;
+  private IRowMeta createMockFields() {
+    IRowMeta iRowMeta = new RowMeta();
+    IValueMeta valueMeta = new ValueMetaString( "field1" );
+    iRowMeta.addValueMeta( valueMeta );
+    return iRowMeta;
   }
 }

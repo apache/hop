@@ -24,37 +24,37 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ import java.util.List;
  */
 public class PipelineExecutorMeta
   extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
-  implements TransformMetaInterface<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {
+  implements ITransformMeta<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {
 
   private static Class<?> PKG = PipelineExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -368,35 +368,35 @@ public class PipelineExecutorMeta
     resultFilesFileNameField = "FileName";
   }
 
-  void prepareExecutionResultsFields( RowMetaInterface row, TransformMeta nextTransform ) throws HopTransformException {
+  void prepareExecutionResultsFields( IRowMeta row, TransformMeta nextTransform ) throws HopTransformException {
     if ( nextTransform != null && executionResultTargetTransformMeta != null ) {
-      addFieldToRow( row, executionTimeField, ValueMetaInterface.TYPE_INTEGER, 15, 0 );
-      addFieldToRow( row, executionResultField, ValueMetaInterface.TYPE_BOOLEAN );
-      addFieldToRow( row, executionNrErrorsField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesReadField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesWrittenField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesInputField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesOutputField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesRejectedField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesUpdatedField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionLinesDeletedField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionFilesRetrievedField, ValueMetaInterface.TYPE_INTEGER, 9, 0 );
-      addFieldToRow( row, executionExitStatusField, ValueMetaInterface.TYPE_INTEGER, 3, 0 );
-      addFieldToRow( row, executionLogTextField, ValueMetaInterface.TYPE_STRING );
-      addFieldToRow( row, executionLogChannelIdField, ValueMetaInterface.TYPE_STRING, 50, 0 );
+      addFieldToRow( row, executionTimeField, IValueMeta.TYPE_INTEGER, 15, 0 );
+      addFieldToRow( row, executionResultField, IValueMeta.TYPE_BOOLEAN );
+      addFieldToRow( row, executionNrErrorsField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesReadField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesWrittenField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesInputField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesOutputField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesRejectedField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesUpdatedField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionLinesDeletedField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionFilesRetrievedField, IValueMeta.TYPE_INTEGER, 9, 0 );
+      addFieldToRow( row, executionExitStatusField, IValueMeta.TYPE_INTEGER, 3, 0 );
+      addFieldToRow( row, executionLogTextField, IValueMeta.TYPE_STRING );
+      addFieldToRow( row, executionLogChannelIdField, IValueMeta.TYPE_STRING, 50, 0 );
 
     }
   }
 
-  protected void addFieldToRow( RowMetaInterface row, String fieldName, int type ) throws HopTransformException {
+  protected void addFieldToRow( IRowMeta row, String fieldName, int type ) throws HopTransformException {
     addFieldToRow( row, fieldName, type, -1, -1 );
   }
 
-  protected void addFieldToRow( RowMetaInterface row, String fieldName, int type, int length, int precision )
+  protected void addFieldToRow( IRowMeta row, String fieldName, int type, int length, int precision )
     throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
       try {
-        ValueMetaInterface value = ValueMetaFactory.createValueMeta( fieldName, type, length, precision );
+        IValueMeta value = ValueMetaFactory.createValueMeta( fieldName, type, length, precision );
         value.setOrigin( getParentTransformMeta().getName() );
         row.addValueMeta( value );
       } catch ( HopPluginException e ) {
@@ -406,21 +406,21 @@ public class PipelineExecutorMeta
     }
   }
 
-  void prepareExecutionResultsFileFields( RowMetaInterface row, TransformMeta nextTransform ) throws HopTransformException {
+  void prepareExecutionResultsFileFields( IRowMeta row, TransformMeta nextTransform ) throws HopTransformException {
     if ( nextTransform != null && resultFilesTargetTransformMeta != null && nextTransform.equals( resultFilesTargetTransformMeta ) ) {
-      addFieldToRow( row, resultFilesFileNameField, ValueMetaInterface.TYPE_STRING );
+      addFieldToRow( row, resultFilesFileNameField, IValueMeta.TYPE_STRING );
     }
   }
 
-  void prepareResultsRowsFields( RowMetaInterface row ) throws HopTransformException {
+  void prepareResultsRowsFields( IRowMeta row ) throws HopTransformException {
     for ( int i = 0; i < outputRowsField.length; i++ ) {
       addFieldToRow( row, outputRowsField[ i ], outputRowsType[ i ], outputRowsLength[ i ], outputRowsPrecision[ i ] );
     }
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( nextTransform != null ) {
       if ( nextTransform.equals( executionResultTargetTransformMeta ) ) {
         inputRowMeta.clear();
@@ -444,23 +444,23 @@ public class PipelineExecutorMeta
 
   @Deprecated
   public static synchronized PipelineMeta loadPipelineMeta( PipelineExecutorMeta executorMeta,
-                                                         VariableSpace space ) throws HopException {
-    return loadMappingMeta( executorMeta, null, space );
+                                                         IVariables variables ) throws HopException {
+    return loadMappingMeta( executorMeta, null, variables );
   }
 
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
           "PipelineExecutorMeta.CheckResult.NotReceivingAnyFields" ), transforminfo );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "PipelineExecutorMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transforminfo );
       remarks.add( cr );
     }
@@ -468,20 +468,20 @@ public class PipelineExecutorMeta
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "PipelineExecutorMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transforminfo );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "PipelineExecutorMeta.CheckResult.NoInputReceived" ), transforminfo );
       remarks.add( cr );
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, PipelineExecutorData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new PipelineExecutor( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, PipelineExecutorData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new PipelineExecutor( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
@@ -505,8 +505,8 @@ public class PipelineExecutorMeta
   }
 
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
 
       ioMeta = new TransformIOMeta( true, true, true, false, true, false );
@@ -529,10 +529,10 @@ public class PipelineExecutorMeta
    *
    * @param stream The optional stream to handle.
    */
-  public void handleStreamSelection( StreamInterface stream ) {
+  public void handleStreamSelection( IStream stream ) {
     // This transform targets another transform.
     // Make sure that we don't specify the same transform for more than 1 target...
-    List<StreamInterface> targets = getTransformIOMeta().getTargetStreams();
+    List<IStream> targets = getTransformIOMeta().getTargetStreams();
     int index = targets.indexOf( stream );
     TransformMeta transform = targets.get( index ).getTransformMeta();
     switch ( index ) {
@@ -903,13 +903,13 @@ public class PipelineExecutorMeta
    * Load the referenced object
    *
    * @param index the object index to load
-   * @param space the variable space to use
+   * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space )
+  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables )
     throws HopException {
-    return loadMappingMeta( this, metaStore, space );
+    return loadMappingMeta( this, metaStore, variables );
   }
 
   public IMetaStore getMetaStore() {

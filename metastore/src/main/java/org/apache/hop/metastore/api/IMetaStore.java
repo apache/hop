@@ -42,7 +42,7 @@ public interface IMetaStore {
    * @return A list of all defined namespaces in the metastore
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public List<String> getNamespaces() throws MetaStoreException;
+  List<String> getNamespaces() throws MetaStoreException;
 
   /**
    * Create a namespace in the metastore
@@ -51,7 +51,7 @@ public interface IMetaStore {
    * @throws MetaStoreException                in case there is a problem in the underlying store
    * @throws MetaStoreNamespaceExistsException in case the namespace already exists
    */
-  public void createNamespace( String namespace ) throws MetaStoreException, MetaStoreNamespaceExistsException;
+  void createNamespace( String namespace ) throws MetaStoreException, MetaStoreNamespaceExistsException;
 
   /**
    * Delete a namespace
@@ -61,7 +61,7 @@ public interface IMetaStore {
    * @throws MetaStoreDependenciesExistsException In case the namespace is not empty and contains element types. The exception contains the namespaces as
    *                                              dependencies in that case.
    */
-  public void deleteNamespace( String namespace ) throws MetaStoreException, MetaStoreDependenciesExistsException;
+  void deleteNamespace( String namespace ) throws MetaStoreException, MetaStoreDependenciesExistsException;
 
   /**
    * Validate if a namespace exists.
@@ -70,21 +70,21 @@ public interface IMetaStore {
    * @return True if the namespace exists, false otherwise
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public boolean namespaceExists( String namespace ) throws MetaStoreException;
+  boolean namespaceExists( String namespace ) throws MetaStoreException;
 
   /**
    * @param namespace the namespace to look in.
    * @return A list with all the defined element types in a namespace
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public List<IMetaStoreElementType> getElementTypes( String namespace ) throws MetaStoreException;
+  List<IMetaStoreElementType> getElementTypes( String namespace ) throws MetaStoreException;
 
   /**
    * @param namespace the namespace to look in.
    * @return A list with the IDs of all the defined element types in a namespace
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public List<String> getElementTypeIds( String namespace ) throws MetaStoreException;
+  List<String> getElementTypeIds( String namespace ) throws MetaStoreException;
 
   /**
    * @param namespace     the namespace to look in.
@@ -92,7 +92,7 @@ public interface IMetaStore {
    * @return An element type or null if the type ID couldn't be found.
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public IMetaStoreElementType getElementType( String namespace, String elementTypeId ) throws MetaStoreException;
+  IMetaStoreElementType getElementType( String namespace, String elementTypeId ) throws MetaStoreException;
 
   /**
    * @param namespace       the namespace to look in.
@@ -100,7 +100,7 @@ public interface IMetaStore {
    * @return An element type or null if the type name couldn't be found.
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public IMetaStoreElementType getElementTypeByName( String namespace, String elementTypeName )
+  IMetaStoreElementType getElementTypeByName( String namespace, String elementTypeName )
     throws MetaStoreException;
 
   /**
@@ -111,7 +111,7 @@ public interface IMetaStore {
    * @throws MetaStoreElementTypeExistsException in case a type with the same ID already exists in the specified namespace
    * @throws MetaStoreException                  in case there is a problem in the underlying store
    */
-  public void createElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
+  void createElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
     MetaStoreElementTypeExistsException;
 
   /**
@@ -121,7 +121,7 @@ public interface IMetaStore {
    * @param elementType The type to update
    * @throws MetaStoreException in case there is a problem in the underlying store or if the type doesn't exist.
    */
-  public void updateElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException;
+  void updateElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException;
 
   /**
    * Delete an element type from a namespace
@@ -132,7 +132,7 @@ public interface IMetaStore {
    * @throws MetaStoreDependenciesExistsException In case the type is not empty and contains elements. The exception contains the element IDs as
    *                                              dependencies in that case.
    */
-  public void deleteElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
+  void deleteElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
     MetaStoreDependenciesExistsException;
 
   /**
@@ -143,7 +143,7 @@ public interface IMetaStore {
    * @return A list of entities
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public List<IMetaStoreElement> getElements( String namespace, IMetaStoreElementType elementType )
+  List<IMetaStoreElement> getElements( String namespace, IMetaStoreElementType elementType )
     throws MetaStoreException;
 
   /**
@@ -154,7 +154,7 @@ public interface IMetaStore {
    * @return A list of element IDs
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public List<String> getElementIds( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException;
+  List<String> getElementIds( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException;
 
   /**
    * Load the meta store element with the specified namespace, element type ID and element ID
@@ -165,7 +165,7 @@ public interface IMetaStore {
    * @return The element or null if it wasn't found.
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public IMetaStoreElement getElement( String namespace, IMetaStoreElementType elementType, String elementId )
+  IMetaStoreElement getElement( String namespace, IMetaStoreElementType elementType, String elementId )
     throws MetaStoreException;
 
   /**
@@ -177,7 +177,7 @@ public interface IMetaStore {
    * @return The first encountered element with the given name or null if no element name could be matched.
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public IMetaStoreElement getElementByName( String namespace, IMetaStoreElementType elementType, String name )
+  IMetaStoreElement getElementByName( String namespace, IMetaStoreElementType elementType, String name )
     throws MetaStoreException;
 
   /**
@@ -189,7 +189,7 @@ public interface IMetaStore {
    * @throws MetaStoreException             in case there is a problem in the underlying store
    * @throws MetaStoreElementExistException In case an element with the same ID already exists.
    */
-  public void createElement( String namespace, IMetaStoreElementType elementType, IMetaStoreElement element )
+  void createElement( String namespace, IMetaStoreElementType elementType, IMetaStoreElement element )
     throws MetaStoreException, MetaStoreElementExistException;
 
   /**
@@ -200,7 +200,7 @@ public interface IMetaStore {
    * @param elementId   The ID of the element to remove
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public void deleteElement( String namespace, IMetaStoreElementType elementType, String elementId )
+  void deleteElement( String namespace, IMetaStoreElementType elementType, String elementId )
     throws MetaStoreException;
 
   /**
@@ -212,7 +212,7 @@ public interface IMetaStore {
    * @param element     The element to update, make sure it has the ID of an existing element!
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public void updateElement( String namespace, IMetaStoreElementType elementType, String elementId,
+  void updateElement( String namespace, IMetaStoreElementType elementType, String elementId,
                              IMetaStoreElement element ) throws MetaStoreException;
 
   /**
@@ -222,7 +222,7 @@ public interface IMetaStore {
    * @return The new element type. To actually create it, use createElementType();
    * @throws MetaStoreException in case something unexpected happens in a bad way.
    */
-  public IMetaStoreElementType newElementType( String namespace ) throws MetaStoreException;
+  IMetaStoreElementType newElementType( String namespace ) throws MetaStoreException;
 
   /**
    * Have the meta store generate a new empty element type for you
@@ -230,7 +230,7 @@ public interface IMetaStore {
    * @return A new element, to create it in a element type, use createElement()
    * @throws MetaStoreException in case something unexpected happens in a bad way.
    */
-  public IMetaStoreElement newElement() throws MetaStoreException;
+  IMetaStoreElement newElement() throws MetaStoreException;
 
   /**
    * Have the meta store generate a new element for you with specified ID and value.
@@ -241,7 +241,7 @@ public interface IMetaStore {
    * @return A new element, to create it in a element type, use createElement()
    * @throws MetaStoreException in case something unexpected happens in a bad way.
    */
-  public IMetaStoreElement newElement( IMetaStoreElementType elementType, String id, Object value )
+  IMetaStoreElement newElement( IMetaStoreElementType elementType, String id, Object value )
     throws MetaStoreException;
 
   /**
@@ -252,7 +252,7 @@ public interface IMetaStore {
    * @return The new attribute
    * @throws MetaStoreException
    */
-  public IMetaStoreAttribute newAttribute( String id, Object value ) throws MetaStoreException;
+  IMetaStoreAttribute newAttribute( String id, Object value ) throws MetaStoreException;
 
   /**
    * Have the meta store generate a new element owner for you with specified name and type.
@@ -262,28 +262,28 @@ public interface IMetaStore {
    * @return A newly generated element owner
    * @throws MetaStoreException In case something unexpected happens in a bad way.
    */
-  public IMetaStoreElementOwner newElementOwner( String name, MetaStoreElementOwnerType ownerType )
+  IMetaStoreElementOwner newElementOwner( String name, MetaStoreElementOwnerType ownerType )
     throws MetaStoreException;
 
   /**
    * @return The name of the meta store
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public String getName() throws MetaStoreException;
+  String getName() throws MetaStoreException;
 
   /**
    * @return The description of the meta store
    * @throws MetaStoreException in case there is a problem in the underlying store
    */
-  public String getDescription() throws MetaStoreException;
+  String getDescription() throws MetaStoreException;
 
   /**
    * @param encoder The password encoder to use in this MetaStore
    */
-  public void setTwoWayPasswordEncoder( ITwoWayPasswordEncoder encoder );
+  void setTwoWayPasswordEncoder( ITwoWayPasswordEncoder encoder );
 
   /**
    * @return The password encoder used by the MetaStore.
    */
-  public ITwoWayPasswordEncoder getTwoWayPasswordEncoder();
+  ITwoWayPasswordEncoder getTwoWayPasswordEncoder();
 }

@@ -29,11 +29,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -46,10 +46,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -70,7 +70,7 @@ import java.util.TreeSet;
  * @author Matt
  * @since 2-jun-2003
  */
-public class GroupBy extends BaseTransform implements TransformInterface {
+public class GroupBy extends BaseTransform implements ITransform {
   private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   private GroupByMeta meta;
@@ -80,16 +80,16 @@ public class GroupBy extends BaseTransform implements TransformInterface {
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  public GroupBy( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public GroupBy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (GroupByMeta) getTransformMeta().getTransformMetaInterface();
-    data = (GroupByData) transformDataInterface;
+    data = (GroupByData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (GroupByMeta) smi;
     data = (GroupByData) sdi;
 
@@ -238,8 +238,8 @@ public class GroupBy extends BaseTransform implements TransformInterface {
 
           if ( meta.isAddingLineNrInGroup() && !Utils.isEmpty( meta.getLineNrInGroupField() ) ) {
             Object lineNrValue = new Long( lineNr );
-            // ValueMetaInterface lineNrValueMeta = new ValueMeta(meta.getLineNrInGroupField(),
-            // ValueMetaInterface.TYPE_INTEGER);
+            // IValueMeta lineNrValueMeta = new ValueMeta(meta.getLineNrInGroupField(),
+            // IValueMeta.TYPE_INTEGER);
             // lineNrValueMeta.setLength(9);
             row = RowDataUtil.addValueData( row, size, lineNrValue );
             size++;
@@ -293,8 +293,8 @@ public class GroupBy extends BaseTransform implements TransformInterface {
 
         if ( meta.isAddingLineNrInGroup() && !Utils.isEmpty( meta.getLineNrInGroupField() ) ) {
           Object lineNrValue = new Long( lineNr );
-          // ValueMetaInterface lineNrValueMeta = new ValueMeta(meta.getLineNrInGroupField(),
-          // ValueMetaInterface.TYPE_INTEGER);
+          // IValueMeta lineNrValueMeta = new ValueMeta(meta.getLineNrInGroupField(),
+          // IValueMeta.TYPE_INTEGER);
           // lineNrValueMeta.setLength(9);
           row = RowDataUtil.addValueData( row, size, lineNrValue );
           size++;
@@ -332,8 +332,8 @@ public class GroupBy extends BaseTransform implements TransformInterface {
 
       int targetIndex = data.cumulativeSumTargetIndexes.get( i );
 
-      ValueMetaInterface sourceMeta = data.inputRowMeta.getValueMeta( sourceIndex );
-      ValueMetaInterface targetMeta = data.outputRowMeta.getValueMeta( targetIndex );
+      IValueMeta sourceMeta = data.inputRowMeta.getValueMeta( sourceIndex );
+      IValueMeta targetMeta = data.outputRowMeta.getValueMeta( targetIndex );
 
       // If the first values where null, or this is the first time around, just take the source value...
       //
@@ -364,8 +364,8 @@ public class GroupBy extends BaseTransform implements TransformInterface {
 
       int targetIndex = data.cumulativeAvgTargetIndexes.get( i );
 
-      ValueMetaInterface sourceMeta = data.inputRowMeta.getValueMeta( sourceIndex );
-      ValueMetaInterface targetMeta = data.outputRowMeta.getValueMeta( targetIndex );
+      IValueMeta sourceMeta = data.inputRowMeta.getValueMeta( sourceIndex );
+      IValueMeta targetMeta = data.outputRowMeta.getValueMeta( targetIndex );
 
       // If the first values where null, or this is the first time around, just take the source value...
       //
@@ -421,9 +421,9 @@ public class GroupBy extends BaseTransform implements TransformInterface {
   @SuppressWarnings( "unchecked" ) void calcAggregate( Object[] row ) throws HopValueException {
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
       Object subj = row[ data.subjectnrs[ i ] ];
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
+      IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object value = data.agg[ i ];
-      ValueMetaInterface valueMeta = data.aggMeta.getValueMeta( i );
+      IValueMeta valueMeta = data.aggMeta.getValueMeta( i );
 
       switch ( meta.getAggregateType()[ i ] ) {
         case GroupByMeta.TYPE_GROUP_SUM:
@@ -585,9 +585,9 @@ public class GroupBy extends BaseTransform implements TransformInterface {
     data.aggMeta = new RowMeta();
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
+      IValueMeta subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object v = null;
-      ValueMetaInterface vMeta = null;
+      IValueMeta vMeta = null;
       int aggType = meta.getAggregateType()[ i ];
       switch ( aggType ) {
         case GroupByMeta.TYPE_GROUP_SUM:
@@ -679,7 +679,7 @@ public class GroupBy extends BaseTransform implements TransformInterface {
     return result;
   }
 
-  private void initGroupMeta( RowMetaInterface previousRowMeta ) throws HopValueException {
+  private void initGroupMeta( IRowMeta previousRowMeta ) throws HopValueException {
     data.groupMeta = new RowMeta();
     for ( int i = 0; i < data.groupnrs.length; i++ ) {
       data.groupMeta.addValueMeta( previousRowMeta.getValueMeta( data.groupnrs[ i ] ) );
@@ -774,7 +774,7 @@ public class GroupBy extends BaseTransform implements TransformInterface {
       if ( ag == null && allNullsAreZero ) {
         // PDI-10250, 6960 seems all rows for min function was nulls...
         // get output subject meta based on original subject meta calculation
-        ValueMetaInterface vm = data.aggMeta.getValueMeta( i );
+        IValueMeta vm = data.aggMeta.getValueMeta( i );
         ag = ValueDataUtil.getZeroForValueMetaType( vm );
       }
       result[ i ] = ag;
@@ -887,7 +887,7 @@ public class GroupBy extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (GroupByMeta) smi;
     data = (GroupByData) sdi;
 
@@ -902,7 +902,7 @@ public class GroupBy extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     if ( data.tempFile != null ) {
       try {
         closeInput();

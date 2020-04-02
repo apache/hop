@@ -38,18 +38,18 @@ import static org.mockito.Mockito.when;
 public class ExtensionPointMapTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   public static final String TEST_NAME = "testName";
-  private PluginMockInterface pluginInterface;
-  private ExtensionPointInterface extensionPoint;
+  private IPluginMock pluginInterface;
+  private IExtensionPoint extensionPoint;
 
   @Before
   public void setUp() {
-    pluginInterface = mock( PluginMockInterface.class );
+    pluginInterface = mock( IPluginMock.class );
     when( pluginInterface.getName() ).thenReturn( TEST_NAME );
-    when( pluginInterface.getMainType() ).thenReturn( (Class) ExtensionPointInterface.class );
+    when( pluginInterface.getMainType() ).thenReturn( (Class) IExtensionPoint.class );
     when( pluginInterface.getIds() ).thenReturn( new String[] { "testID" } );
 
-    extensionPoint = mock( ExtensionPointInterface.class );
-    when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );
+    extensionPoint = mock( IExtensionPoint.class );
+    when( pluginInterface.loadClass( IExtensionPoint.class ) ).thenReturn( extensionPoint );
   }
 
   @Test

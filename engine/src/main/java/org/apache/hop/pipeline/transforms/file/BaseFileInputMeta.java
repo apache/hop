@@ -25,11 +25,12 @@ package org.apache.hop.pipeline.transforms.file;
 import com.google.common.base.Preconditions;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.ResourceReference;
 
@@ -42,7 +43,7 @@ import java.util.List;
  */
 public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField>
   extends org.apache.hop.pipeline.transform.BaseTransformMeta implements
-  org.apache.hop.pipeline.transform.TransformMetaInterface<TransformInterface, TransformDataInterface> {
+  ITransformMeta<ITransform, ITransformData> {
   private static Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
@@ -116,9 +117,9 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
     }
   }
 
-  public FileInputList getFileInputList( VariableSpace space ) {
+  public FileInputList getFileInputList( IVariables variables ) {
     inputFiles.normalizeAllocation( inputFiles.fileName.length );
-    return FileInputList.createFileList( space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
+    return FileInputList.createFileList( variables, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
       inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 

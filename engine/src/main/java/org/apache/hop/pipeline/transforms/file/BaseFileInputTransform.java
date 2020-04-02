@@ -27,23 +27,23 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLineNumber;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 
@@ -59,7 +59,7 @@ import java.util.Map;
  * @author Alexander Buloichik
  */
 public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?>, D extends BaseFileInputTransformData> extends
-  BaseTransform<TransformMetaInterface, TransformDataInterface> implements IBaseFileInputTransformControl {
+  BaseTransform<ITransformMeta, ITransformData> implements IBaseFileInputTransformControl {
   private static Class<?> PKG = BaseFileInputTransform.class; // for i18n purposes, needed by Translator!!
 
   protected M meta;
@@ -76,16 +76,16 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    */
   protected abstract IBaseFileInputReader createReader( M meta, D data, FileObject file ) throws Exception;
 
-  public BaseFileInputTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public BaseFileInputTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Initialize transform before execute.
    */
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (M) smi;
     data = (D) sdi;
 
@@ -180,7 +180,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    * Process next row. This methods opens next file automatically.
    */
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (M) smi;
     data = (D) sdi;
 
@@ -221,7 +221,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    */
   protected void prepareToRowProcessing() throws HopException {
     data.outputRowMeta = new RowMeta();
-    RowMetaInterface[] infoTransform = null;
+    IRowMeta[] infoTransform = null;
 
     if ( meta.inputFiles.acceptingFilenames ) {
       // input files from previous transform
@@ -232,7 +232,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
     meta.getFields( data.outputRowMeta, getTransformName(), infoTransform, null, this, metaStore );
     // Create convert meta-data objects that will contain Date & Number formatters
     //
-    data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+    data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
     BaseFileInputTransformUtils.handleMissingFiles( data.files, log, meta.errorHandling.errorIgnored,
       data.dataErrorLineHandler );
@@ -256,7 +256,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    * TODO: should we set charset for error files from content meta ? What about case for automatic charset ?
    */
   private void initErrorHandling() {
-    List<FileErrorHandler> dataErrorLineHandlers = new ArrayList<FileErrorHandler>( 2 );
+    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<IFileErrorHandler>( 2 );
     if ( meta.errorHandling.lineNumberFilesDestinationDirectory != null ) {
       dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getPipeline().getCurrentDate(),
         environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
@@ -273,21 +273,21 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
   /**
    * Read files from previous transform.
    */
-  private RowMetaInterface[] filesFromPreviousTransform() throws HopException {
-    RowMetaInterface[] infoTransform = null;
+  private IRowMeta[] filesFromPreviousTransform() throws HopException {
+    IRowMeta[] infoTransform = null;
 
     data.files.getFiles().clear();
 
     int idx = -1;
-    RowSet rowSet = findInputRowSet( meta.inputFiles.acceptingTransformName );
+    IRowSet rowSet = findInputRowSet( meta.inputFiles.acceptingTransformName );
 
     Object[] fileRow = getRowFrom( rowSet );
     while ( fileRow != null ) {
-      RowMetaInterface prevInfoFields = rowSet.getRowMeta();
+      IRowMeta prevInfoFields = rowSet.getRowMeta();
       if ( idx < 0 ) {
         if ( meta.inputFiles.passingThruFields ) {
           data.passThruFields = new HashMap<String, Object[]>();
-          infoTransform = new RowMetaInterface[] { prevInfoFields };
+          infoTransform = new IRowMeta[] { prevInfoFields };
           data.nrPassThruFields = prevInfoFields.size();
         }
         idx = prevInfoFields.indexOfValue( meta.inputFiles.acceptingField );
@@ -351,7 +351,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    * Dispose transform.
    */
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     closeLastFile();
 
     super.dispose( smi, sdi );
@@ -380,7 +380,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
   private void rejectCurrentFile( String errorMsg ) {
     if ( StringUtils.isNotBlank( meta.errorHandling.fileErrorField ) || StringUtils.isNotBlank(
       meta.errorHandling.fileErrorMessageField ) ) {
-      RowMetaInterface rowMeta = getInputRowMeta();
+      IRowMeta rowMeta = getInputRowMeta();
       if ( rowMeta == null ) {
         rowMeta = new RowMeta();
       }

@@ -28,13 +28,13 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LDAPConnection;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocol;
@@ -84,7 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class LDAPOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class LDAPOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = LDAPOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -1055,7 +1055,7 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1360,7 +1360,7 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
   private void getPreviousFields() {
     if ( !gotPrevious ) {
       try {
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           String dn = wDnField.getText();
           String olddn = wOldDnField.getText();
@@ -1409,10 +1409,10 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
 
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 3, "Y" );
             return true;
           }
@@ -1464,7 +1464,7 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
     wDnField.setEnabled( !activateRename );
   }
 
-  public RowMetaInterface getLDAPFields() throws HopException {
+  public IRowMeta getLDAPFields() throws HopException {
     LDAPConnection connection = null;
     try {
       LDAPOutputMeta meta = new LDAPOutputMeta();
@@ -1499,8 +1499,8 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields = new RowMeta();
+    IRowMeta sourceFields;
+    IRowMeta targetFields = new RowMeta();
 
     try {
       sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
@@ -1532,7 +1532,7 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
@@ -1630,7 +1630,7 @@ public class LDAPOutputDialog extends BaseTransformDialog implements TransformDi
           String baseDn = pipelineMeta.environmentSubstitute( wBaseDN.getText() );
           if ( !Utils.isEmpty( baseDn ) ) {
             try {
-              RowMetaInterface fields = getLDAPFields();
+              IRowMeta fields = getLDAPFields();
               // loop through the objects and find build the list of fields
               String[] fieldsName = new String[ fields.size() ];
               for ( int i = 0; i < fields.size(); i++ ) {

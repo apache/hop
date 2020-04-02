@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
@@ -187,9 +187,9 @@ public class TableOutputMetaTest {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     tableOutputMeta.setDatabaseMeta( dbMeta );
-    DatabaseInterface databaseInterface = mock( DatabaseInterface.class );
-    when( dbMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
-    when( databaseInterface.supportsErrorHandling() ).thenReturn( true, false );
+    IDatabase iDatabase = mock( IDatabase.class );
+    when( dbMeta.getIDatabase() ).thenReturn( iDatabase );
+    when( iDatabase.supportsErrorHandling() ).thenReturn( true, false );
     assertTrue( tableOutputMeta.supportsErrorHandling() );
     assertFalse( tableOutputMeta.supportsErrorHandling() );
     tableOutputMeta.setDatabaseMeta( null );

@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget.warning;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.CheckBoxVar;
@@ -51,19 +51,19 @@ import java.util.List;
  * @author Matt
  * @since 15-MAR-2009
  */
-public class TextVarWarning extends Composite implements SupportsWarningInterface {
+public class TextVarWarning extends Composite implements ISupportsWarning {
   private static Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
 
   private ControlDecoration warningControlDecoration;
 
   private TextVar wText;
 
-  private List<WarningInterface> warningInterfaces;
+  private List<IWarning> warningInterfaces;
 
-  public TextVarWarning( VariableSpace space, Composite composite, int flags ) {
+  public TextVarWarning( IVariables variables, Composite composite, int flags ) {
     super( composite, SWT.NONE );
 
-    warningInterfaces = new ArrayList<WarningInterface>();
+    warningInterfaces = new ArrayList<IWarning>();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -74,7 +74,7 @@ public class TextVarWarning extends Composite implements SupportsWarningInterfac
     this.setLayout( formLayout );
 
     // add a text field on it...
-    wText = new TextVar( space, this, flags );
+    wText = new TextVar( variables, this, flags );
 
     warningControlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT );
     Image warningImage = GUIResource.getInstance().getImageWarning();
@@ -91,8 +91,8 @@ public class TextVarWarning extends Composite implements SupportsWarningInterfac
         // Show the first that has a warning to show...
         //
         boolean foundOne = false;
-        for ( WarningInterface warningInterface : warningInterfaces ) {
-          WarningMessageInterface warningSituation =
+        for ( IWarning warningInterface : warningInterfaces ) {
+          IWarningMessage warningSituation =
             warningInterface.getWarningSituation( wText.getText(), wText, this );
           if ( warningSituation.isWarning() ) {
             foundOne = true;
@@ -185,15 +185,15 @@ public class TextVarWarning extends Composite implements SupportsWarningInterfac
     wText.showSelection();
   }
 
-  public void addWarningInterface( WarningInterface warningInterface ) {
+  public void addWarning( IWarning warningInterface ) {
     warningInterfaces.add( warningInterface );
   }
 
-  public void removeWarningInterface( WarningInterface warningInterface ) {
+  public void removeWarningInterface( IWarning warningInterface ) {
     warningInterfaces.remove( warningInterface );
   }
 
-  public List<WarningInterface> getWarningInterfaces() {
+  public List<IWarning> getWarningInterfaces() {
     return warningInterfaces;
   }
 }

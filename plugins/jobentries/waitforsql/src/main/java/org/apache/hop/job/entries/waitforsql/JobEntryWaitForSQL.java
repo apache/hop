@@ -22,7 +22,7 @@
 
 package org.apache.hop.job.entries.waitforsql;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -32,14 +32,14 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -66,7 +66,7 @@ import java.util.List;
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
-public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryWaitForSQL.class; // for i18n purposes, needed by Translator!!
 
   public boolean isClearResultList;
@@ -460,7 +460,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
     long rowsCount = 0;
     boolean successOK = false;
     List<Object[]> ar = null;
-    RowMetaInterface rowMeta = null;
+    IRowMeta rowMeta = null;
     Database db = new Database( this, connection );
     db.shareVariablesWith( this );
     try {
@@ -570,7 +570,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

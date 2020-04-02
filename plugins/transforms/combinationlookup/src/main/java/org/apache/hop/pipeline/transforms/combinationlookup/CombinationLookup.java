@@ -31,9 +31,9 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
@@ -41,10 +41,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,7 +72,7 @@ import java.util.List;
  * @author Matt
  * @since 22-jul-2003
  */
-public class CombinationLookup extends BaseTransform implements TransformInterface {
+public class CombinationLookup extends BaseTransform implements ITransform {
   private static final Class<?> PKG = CombinationLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int CREATION_METHOD_AUTOINC = 1;
@@ -84,12 +84,12 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   private CombinationLookupMeta meta;
   private CombinationLookupData data;
 
-  public CombinationLookup( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public CombinationLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (CombinationLookupMeta) getTransformMeta().getTransformMetaInterface();
-    data = (CombinationLookupData) transformDataInterface;
+    data = (CombinationLookupData) iTransformData;
   }
 
   private void setTechKeyCreation( int method ) {
@@ -113,7 +113,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
     }
   }
 
-  private Long lookupInCache( RowMetaInterface rowMeta, Object[] row ) {
+  private Long lookupInCache( IRowMeta rowMeta, Object[] row ) {
     // Short circuit if cache is disabled.
     if ( meta.getCacheSize() == -1 ) {
       return null;
@@ -137,7 +137,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
    * @param tk
    * @throws HopValueException
    */
-  private void addToCache( RowMetaInterface rowMeta, Object[] row, Long tk ) throws HopValueException {
+  private void addToCache( IRowMeta rowMeta, Object[] row, Long tk ) throws HopValueException {
     // Short circuit if cache is disabled.
     if ( meta.getCacheSize() == -1 ) {
       return;
@@ -217,7 +217,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   }
 
   @SuppressWarnings( "deprecation" )
-  private Object[] lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     Long val_key = null;
     Long val_hash = null;
     Object[] hashRow = null;
@@ -245,7 +245,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
       lookupIndex++;
 
       if ( meta.getDatabaseMeta().requiresCastToVariousForIsNull()
-        && rowMeta.getValueMeta( rowIndex ).getType() == ValueMetaInterface.TYPE_STRING ) {
+        && rowMeta.getValueMeta( rowIndex ).getType() == IValueMeta.TYPE_STRING ) {
         lookupRow[ lookupIndex ] =
           rowMeta.getValueMeta( rowIndex ).isNull( row[ rowIndex ] ) ? null : "NotNull"; // KEYi IS
         // NULL or
@@ -331,7 +331,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     // if no more input to be expected set done
     if ( r == null ) {
@@ -370,7 +370,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
       // Sort lookup values keys so that we
       //
       for ( int i = 0; i < getInputRowMeta().size(); i++ ) {
-        ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( i );
+        IValueMeta valueMeta = getInputRowMeta().getValueMeta( i );
         // Is this one of the keys?
         int idx = Const.indexOfString( valueMeta.getName(), meta.getKeyField() );
         data.removeField[ i ] = idx >= 0;
@@ -415,7 +415,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
    * CombinationLookup table: dimension table keys[]: which dim-fields do we use to look up key? retval: name of the key
    * to return
    */
-  public void setCombiLookup( RowMetaInterface inputRowMeta ) throws HopDatabaseException {
+  public void setCombiLookup( IRowMeta inputRowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
     String sql = "";
@@ -486,7 +486,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   /**
    * This inserts new record into a junk dimension
    */
-  public Long combiInsert( RowMetaInterface rowMeta, Object[] row, Long val_key, Long val_crc )
+  public Long combiInsert( IRowMeta rowMeta, Object[] row, Long val_key, Long val_crc )
     throws HopDatabaseException {
     String debug = "Combination insert";
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
@@ -673,7 +673,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public boolean init( TransformMetaInterface sii, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta sii, ITransformData sdi ) {
     if ( super.init( sii, sdi ) ) {
       data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
       data.realTableName = environmentSubstitute( meta.getTableName() );
@@ -712,7 +712,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (CombinationLookupMeta) smi;
     data = (CombinationLookupData) sdi;
 
@@ -744,7 +744,7 @@ public class CombinationLookup extends BaseTransform implements TransformInterfa
    * @throws HopConfigException   If the transform configuration is incomplete
    * @author nwyrwa
    */
-  private void preloadCache( RowMetaInterface hashRowMeta )
+  private void preloadCache( IRowMeta hashRowMeta )
     throws HopDatabaseException, HopValueException, HopConfigException {
     // fast exit if no preload cache or no cache
     if ( meta.getPreloadCache() && meta.getCacheSize() >= 0 ) {

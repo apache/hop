@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.job.dialog;
 
-import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.job.JobMeta;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -35,14 +35,14 @@ public class JobDialogLogTableExtension {
 
   public Direction direction;
   public Shell shell;
-  public LogTableInterface logTable;
+  public ILogTable logTable;
   public Composite wLogOptionsComposite;
   public JobMeta jobMeta;
   public ModifyListener lsMod;
   public JobDialog jobDialog;
 
   public JobDialogLogTableExtension( Direction direction, Shell shell, JobMeta jobMeta,
-                                     LogTableInterface logTable, Composite wLogOptionsComposite, ModifyListener lsMod, JobDialog jobDialog ) {
+                                     ILogTable logTable, Composite wLogOptionsComposite, ModifyListener lsMod, JobDialog jobDialog ) {
     super();
     this.direction = direction;
     this.shell = shell;

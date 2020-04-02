@@ -25,11 +25,11 @@ package org.apache.hop.ui.pipeline.transforms.propertyoutput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.propertyoutput.PropertyOutputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 13-Apr-2008
  */
 
-public class PropertyOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class PropertyOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlAddToResult;
@@ -769,7 +769,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements Transfo
   private void getFields() {
     if ( !gotPreviousFields ) {
       try {
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           fieldNames = r.getFieldNames();
         }

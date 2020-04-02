@@ -24,7 +24,7 @@ package org.apache.hop.core.compress.zip;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.util.Utils;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.zip.ZipOutputStream;
 
 public class ZIPCompressionOutputStream extends CompressionOutputStream {
 
-  public ZIPCompressionOutputStream( OutputStream out, CompressionProvider provider ) {
+  public ZIPCompressionOutputStream( OutputStream out, ICompressionProvider provider ) {
     super( getDelegate( out ), provider );
   }
 

@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.transformsmetrics;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,14 +33,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Samatar
  * @since 16-06-2008
  */
-public class TransformsMetricsData extends BaseTransformData implements TransformDataInterface {
+public class TransformsMetricsData extends BaseTransformData implements ITransformData {
 
   boolean continueLoop;
-  public ConcurrentHashMap<Integer, TransformInterface> transformInterfaces;
+  public ConcurrentHashMap<Integer, ITransform> transformInterfaces;
   /**
    * The metadata we send out
    */
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public String realTransformNameField;
   public String realTransformIdField;

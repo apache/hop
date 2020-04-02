@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.getfilesrowscount;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.InputStream;
 
@@ -34,10 +34,10 @@ import java.io.InputStream;
  * @author Samatar Hassan
  * @since 06-Sept-2007
  */
-public class GetFilesRowsCountData extends BaseTransformData implements TransformDataInterface {
+public class GetFilesRowsCountData extends BaseTransformData implements ITransformData {
   public String thisline;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
   public Object[] previousRow;
 
   public FileInputList files;
@@ -52,7 +52,7 @@ public class GetFilesRowsCountData extends BaseTransformData implements Transfor
   public int totalpreviousfields;
   public int indexOfFilenameField;
   public Object[] readrow;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
   public char separator;
 
   public boolean foundData;

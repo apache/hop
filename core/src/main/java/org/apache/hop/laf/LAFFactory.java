@@ -22,37 +22,37 @@
 
 package org.apache.hop.laf;
 
-import org.apache.hop.i18n.MessageHandler;
+import org.apache.hop.i18n.IMessageHandler;
 
 import java.util.HashMap;
 
 /**
- * the LAFFactory provides a mechanism whereby @see Handler s can be dynamically replaced to enable user driven
+ * the LAFFactory provides a mechanism whereby @see IHandler s can be dynamically replaced to enable user driven
  * replacement of dynamic resolvers whether ImageHandlers, MessageHandlers, or other elements of Look and Feel.
  *
  * @author dhushon
  */
 public class LAFFactory {
 
-  static Class<? extends Handler> _defMessageHandler = org.apache.hop.i18n.LAFMessageHandler.class;
-  static Class<? extends Handler> _defPropertyHandler = org.apache.hop.laf.OverlayPropertyHandler.class;
+  static Class<? extends IHandler> _defMessageHandler = org.apache.hop.i18n.LAFMessageHandler.class;
+  static Class<? extends IHandler> _defPropertyHandler = org.apache.hop.laf.OverlayPropertyHandler.class;
 
   // Registry of Delegates that know how to load the appropriate handlers
-  private static HashMap<Class<? extends Handler>, LAFDelegate<? extends Handler>> delegateRegistry =
-    new HashMap<Class<? extends Handler>, LAFDelegate<? extends Handler>>();
+  private static HashMap<Class<? extends IHandler>, LAFDelegate<? extends IHandler>> delegateRegistry =
+    new HashMap<Class<? extends IHandler>, LAFDelegate<? extends IHandler>>();
 
   // Map an abstract ClassName (by String) to an implementing Class
-  private static HashMap<String, Class<? extends Handler>> handlerRef =
-    new HashMap<String, Class<? extends Handler>>();
+  private static HashMap<String, Class<? extends IHandler>> handlerRef =
+    new HashMap<String, Class<? extends IHandler>>();
 
   static {
-    // handlers.put(MessageHandler.class.), (Handler)_defMessageHandler.newInstance());
-    handlerRef.put( MessageHandler.class.getName(), _defMessageHandler );
-    handlerRef.put( PropertyHandler.class.getName(), _defPropertyHandler );
+    // handlers.put(IMessageHandler.class.), (IHandler)_defMessageHandler.newInstance());
+    handlerRef.put( IMessageHandler.class.getName(), _defMessageHandler );
+    handlerRef.put( IPropertyHandler.class.getName(), _defPropertyHandler );
   }
 
   @SuppressWarnings( "unchecked" )
-  protected static synchronized <V extends Handler> LAFDelegate<V> getDelegate( Class<V> handler ) {
+  protected static synchronized <V extends IHandler> LAFDelegate<V> getDelegate( Class<V> handler ) {
     LAFDelegate<V> l = (LAFDelegate<V>) delegateRegistry.get( handler );
     if ( l == null ) {
       // TODO: check subclasses
@@ -71,7 +71,7 @@ public class LAFFactory {
    * @param handler
    * @return
    */
-  public static <V extends Handler> V getHandler( Class<V> handler ) {
+  public static <V extends IHandler> V getHandler( Class<V> handler ) {
     LAFDelegate<V> l = getDelegate( handler );
     return l.getHandler();
   }

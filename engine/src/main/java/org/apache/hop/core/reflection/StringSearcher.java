@@ -23,7 +23,7 @@
 package org.apache.hop.core.reflection;
 
 import org.apache.hop.core.Condition;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -159,13 +159,13 @@ public class StringSearcher {
         + " (Boolean)" ) );
     } else if ( obj instanceof Condition ) {
       stringList.add( new StringSearchResult( ( (Condition) obj ).toString(), parentObject, grandParentObject, fieldName + " (Condition)" ) );
-    } else if ( obj instanceof DatabaseInterface ) {
+    } else if ( obj instanceof IDatabase ) {
       // Make sure we read the attributes. This is not picked up by default. (getDeclaredFields doesn't pick up
       // inherited fields)
       //
-      DatabaseInterface databaseInterface = (DatabaseInterface) obj;
+      IDatabase iDatabase = (IDatabase) obj;
       findMapMetaData(
-        databaseInterface.getAttributes(), level + 1, stringList, parentObject, grandParentObject, field );
+        iDatabase.getAttributes(), level + 1, stringList, parentObject, grandParentObject, field );
       findMetaData( obj, level + 1, stringList, parentObject, grandParentObject );
     } else if ( obj instanceof Map ) {
       findMapMetaData( (Map<?, ?>) obj, level, stringList, parentObject, grandParentObject, field );

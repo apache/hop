@@ -23,21 +23,21 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ProvidesModelerMeta;
+import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -45,9 +45,9 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -61,7 +61,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.DatabaseLookup",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
-public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMetaInterface<DatabaseLookup, DatabaseLookupData>, ProvidesModelerMeta {
+public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -140,7 +140,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
   private String orderByClause;
 
   /**
-   * Cache values we look up --> faster
+   * ICache values we look up --> faster
    */
   private boolean cached;
 
@@ -456,7 +456,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
         returnValueDefaultType[ i ] = ValueMetaFactory.getIdForValueMeta( dtype );
         if ( returnValueDefaultType[ i ] < 0 ) {
           // logError("unknown default value type: "+dtype+" for value "+value[i]+", default to type: String!");
-          returnValueDefaultType[ i ] = ValueMetaInterface.TYPE_STRING;
+          returnValueDefaultType[ i ] = IValueMeta.TYPE_STRING;
         }
       }
       orderByClause = XMLHandler.getTagValue( lookup, "orderby" ); // Optional, can by null
@@ -495,7 +495,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
       returnValueNewName[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnNewNamePrefix" ) + i;
       returnValueDefault[ i ] =
         BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnDefaultValuePrefix" ) + i;
-      returnValueDefaultType[ i ] = ValueMetaInterface.TYPE_STRING;
+      returnValueDefaultType[ i ] = IValueMeta.TYPE_STRING;
     }
 
     orderByClause = "";
@@ -504,12 +504,12 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( Utils.isEmpty( info ) || info[ 0 ] == null ) { // null or length 0 : no info from database
       for ( int i = 0; i < getReturnValueNewName().length; i++ ) {
         try {
-          ValueMetaInterface v =
+          IValueMeta v =
             ValueMetaFactory.createValueMeta( getReturnValueNewName()[ i ], getReturnValueDefaultType()[ i ] );
           v.setOrigin( name );
           row.addValueMeta( v );
@@ -519,9 +519,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
       }
     } else {
       for ( int i = 0; i < returnValueNewName.length; i++ ) {
-        ValueMetaInterface v = info[ 0 ].searchValueMeta( returnValueField[ i ] );
+        IValueMeta v = info[ 0 ].searchValueMeta( returnValueField[ i ] );
         if ( v != null ) {
-          ValueMetaInterface copy = v.clone(); // avoid renaming other value meta - PDI-9844
+          IValueMeta copy = v.clone(); // avoid renaming other value meta - PDI-9844
           copy.setName( returnValueNewName[ i ] );
           copy.setOrigin( name );
           row.addValueMeta( copy );
@@ -572,8 +572,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -594,7 +594,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
           String schemaTable =
             databaseMeta.getQuotedSchemaTableCombination( db.environmentSubstitute( schemaName ), db
               .environmentSubstitute( tablename ) );
-          RowMetaInterface r = db.getTableFields( schemaTable );
+          IRowMeta r = db.getTableFields( schemaTable );
 
           if ( r != null ) {
             // Check the keys used to do the lookup...
@@ -602,7 +602,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
             for ( int i = 0; i < tableKeyField.length; i++ ) {
               String lufield = tableKeyField[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -615,10 +615,10 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "DatabaseLookupMeta.Check.AllLookupFieldsFoundInTable" ), transformMeta );
             }
             remarks.add( cr );
@@ -628,7 +628,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
             for ( int i = 0; i < returnValueField.length; i++ ) {
               String lufield = returnValueField[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -641,17 +641,17 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "DatabaseLookupMeta.Check.AllReturnFieldsFoundInTable" ), transformMeta );
             }
             remarks.add( cr );
 
           } else {
             error_message = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           }
         }
@@ -663,7 +663,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
           boolean error_found = false;
 
           for ( int i = 0; i < streamKeyField1.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[ i ] );
+            IValueMeta v = prev.searchValueMeta( streamKeyField1[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -676,51 +676,51 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "DatabaseLookupMeta.Check.AllFieldsFoundInInput" ), transformMeta );
           }
           remarks.add( cr );
         } else {
           error_message =
             BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.CouldNotReadFromPreviousTransforms" ) + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopDatabaseException dbe ) {
         error_message =
           BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.DatabaseErrorWhileChecking" )
             + dbe.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
       error_message = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingConnectionError" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DatabaseLookupMeta.Check.TransformIsReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "DatabaseLookupMeta.Check.NoInputReceivedFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public RowMetaInterface getTableFields() {
-    RowMetaInterface fields = null;
+  public IRowMeta getTableFields() {
+    IRowMeta fields = null;
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
       databases = new Database[] { db }; // Keep track of this one for cancelQuery
@@ -742,9 +742,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
   }
 
   @Override
-  public DatabaseLookup createTransform( TransformMeta transformMeta, DatabaseLookupData transformDataInterface, int cnr,
+  public DatabaseLookup createTransform( TransformMeta transformMeta, DatabaseLookupData iTransformData, int cnr,
                                          PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DatabaseLookup( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new DatabaseLookup( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -754,11 +754,11 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) {
     // The keys are read-only...
     for ( int i = 0; i < streamKeyField1.length; i++ ) {
-      ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[ i ] );
+      IValueMeta v = prev.searchValueMeta( streamKeyField1[ i ] );
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transforminfo.getName(), databaseMeta
@@ -839,7 +839,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
     this.loadingAllDataInCache = loadingAllDataInCache;
   }
 
-  @Override public RowMeta getRowMeta( TransformDataInterface transformData ) {
+  @Override public RowMeta getRowMeta( ITransformData transformData ) {
     return (RowMeta) ( (DatabaseLookupData) transformData ).returnMeta;
   }
 

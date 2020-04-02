@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.propertyoutput;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,9 +39,9 @@ import java.util.Properties;
  * @since 13-Apr-2008
  */
 
-public class PropertyOutputData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+public class PropertyOutputData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
   private static final String DATE_FORMAT = "yyyy-MM-dd H:mm:ss";
   DateFormat dateParser;
 

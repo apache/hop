@@ -23,22 +23,22 @@
 package org.apache.hop.pipeline.transforms.closure;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -55,7 +55,7 @@ import java.util.List;
   i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
-public class ClosureGeneratorMeta extends BaseTransformMeta implements TransformMetaInterface<ClosureGenerator, ClosureGeneratorData> {
+public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 
   private boolean rootIdZero;
 
@@ -94,8 +94,8 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements Transform
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // The output for the closure table is:
     //
     // - parentId
@@ -104,19 +104,19 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements Transform
     //
     // Nothing else.
     //
-    RowMetaInterface result = new RowMeta();
-    ValueMetaInterface parentValueMeta = row.searchValueMeta( parentIdFieldName );
+    IRowMeta result = new RowMeta();
+    IValueMeta parentValueMeta = row.searchValueMeta( parentIdFieldName );
     if ( parentValueMeta != null ) {
       result.addValueMeta( parentValueMeta );
     }
 
-    ValueMetaInterface childValueMeta = row.searchValueMeta( childIdFieldName );
+    IValueMeta childValueMeta = row.searchValueMeta( childIdFieldName );
     if ( childValueMeta != null ) {
       result.addValueMeta( childValueMeta );
     }
 
-    ValueMetaInterface distanceValueMeta = new ValueMetaInteger( distanceFieldName );
-    distanceValueMeta.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH );
+    IValueMeta distanceValueMeta = new ValueMetaInteger( distanceFieldName );
+    distanceValueMeta.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
     result.addValueMeta( distanceValueMeta );
 
     row.clear();
@@ -136,44 +136,44 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements Transform
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
-    ValueMetaInterface parentValueMeta = prev.searchValueMeta( parentIdFieldName );
+    IValueMeta parentValueMeta = prev.searchValueMeta( parentIdFieldName );
     if ( parentValueMeta != null ) {
       cr =
         new CheckResult(
-          CheckResultInterface.TYPE_RESULT_ERROR, "The fieldname of the parent id could not be found.",
+          ICheckResult.TYPE_RESULT_ERROR, "The fieldname of the parent id could not be found.",
           transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult(
-          CheckResultInterface.TYPE_RESULT_OK, "The fieldname of the parent id could be found", transformMeta );
+          ICheckResult.TYPE_RESULT_OK, "The fieldname of the parent id could be found", transformMeta );
       remarks.add( cr );
     }
 
-    ValueMetaInterface childValueMeta = prev.searchValueMeta( childIdFieldName );
+    IValueMeta childValueMeta = prev.searchValueMeta( childIdFieldName );
     if ( childValueMeta != null ) {
       cr =
         new CheckResult(
-          CheckResultInterface.TYPE_RESULT_ERROR, "The fieldname of the child id could not be found.",
+          ICheckResult.TYPE_RESULT_ERROR, "The fieldname of the child id could not be found.",
           transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult(
-          CheckResultInterface.TYPE_RESULT_OK, "The fieldname of the child id could be found", transformMeta );
+          ICheckResult.TYPE_RESULT_OK, "The fieldname of the child id could be found", transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public ClosureGenerator createTransform( TransformMeta transformMeta, ClosureGeneratorData transformDataInterface, int cnr,
+  public ClosureGenerator createTransform( TransformMeta transformMeta, ClosureGeneratorData iTransformData, int cnr,
                                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ClosureGenerator( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ClosureGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

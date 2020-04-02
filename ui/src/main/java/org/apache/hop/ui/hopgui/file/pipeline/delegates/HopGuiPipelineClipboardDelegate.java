@@ -4,14 +4,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -31,7 +31,7 @@ public class HopGuiPipelineClipboardDelegate {
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   public HopGuiPipelineClipboardDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
     this.hopGui = hopGui;
@@ -155,7 +155,7 @@ public class HopGuiPipelineClipboardDelegate {
 
       // Set the source and target transforms ...
       for ( TransformMeta transform : transforms ) {
-        TransformMetaInterface smi = transform.getTransformMetaInterface();
+        ITransformMeta smi = transform.getTransformMetaInterface();
         smi.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
       }
 
@@ -230,7 +230,7 @@ public class HopGuiPipelineClipboardDelegate {
             PipelineHopMeta hop = pipelineMeta.findPipelineHop( transform1, transform2, true );
             if ( hop != null ) {
               // Ok, we found one...
-              xml.append( hop.getXML() ).append( Const.CR );
+              xml.append( hop.getXml() ).append( Const.CR );
             }
           }
         }
@@ -240,7 +240,7 @@ public class HopGuiPipelineClipboardDelegate {
       xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( NotePadMeta note : notes ) {
-          xml.append( note.getXML() );
+          xml.append( note.getXml() );
         }
       }
       xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
@@ -248,7 +248,7 @@ public class HopGuiPipelineClipboardDelegate {
       xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
       for ( TransformMeta transform : transforms ) {
         if ( transform.getTransformErrorMeta() != null ) {
-          xml.append( transform.getTransformErrorMeta().getXML() ).append( Const.CR );
+          xml.append( transform.getTransformErrorMeta().getXml() ).append( Const.CR );
         }
       }
       xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );

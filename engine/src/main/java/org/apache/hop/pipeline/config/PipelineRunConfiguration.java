@@ -3,10 +3,10 @@ package org.apache.hop.pipeline.config;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -28,7 +28,7 @@ import java.util.Objects;
   description = "Describes how and with which engine a pipeline is to be executed",
   iconImage = "ui/images/run.svg"
 )
-public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopMetaStoreElement<PipelineRunConfiguration> {
+public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMetaStoreElement<PipelineRunConfiguration> {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PipelineRunConfiguration-PluginSpecific-Options";
 
@@ -41,7 +41,7 @@ public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopM
   @MetaStoreAttribute
   private IPipelineEngineRunConfiguration engineRunConfiguration;
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   public PipelineRunConfiguration() {
   }
@@ -77,8 +77,8 @@ public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopM
   }
 
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   @Override
@@ -92,17 +92,17 @@ public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopM
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -128,7 +128,7 @@ public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopM
   }
 
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -143,8 +143,8 @@ public class PipelineRunConfiguration implements Cloneable, VariableSpace, IHopM
   }
 
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   @Override

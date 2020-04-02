@@ -30,7 +30,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.www.SlaveServerJobStatusTest.LoggingStringLoadSaveValidator;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -97,7 +97,7 @@ public class SlaveServerPipelineStatusTest {
     // TODO Add TransformStatusList
     List<String> attributes = Arrays.asList( "PipelineName", "Id", "StatusDescription", "ErrorDescription",
       "LogDate", "Paused", "FirstLoggingLineNr", "LastLoggingLineNr", "LoggingString" );
-    Map<String, FieldLoadSaveValidator<?>> attributeMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attributeMap.put( "LoggingString", new LoggingStringLoadSaveValidator() );
 
     SlaveServerPipelineStatusLoadSaveTester tester = new SlaveServerPipelineStatusLoadSaveTester( SlaveServerPipelineStatus.class, attributes, attributeMap );

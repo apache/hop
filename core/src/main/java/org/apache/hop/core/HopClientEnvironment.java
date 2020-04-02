@@ -29,13 +29,13 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LoggingPluginInterface;
+import org.apache.hop.core.logging.ILoggingPlugin;
 import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.logging.Slf4jLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
@@ -94,7 +94,7 @@ public class HopClientEnvironment {
     );
   }
 
-  public static synchronized void init( List<PluginTypeInterface> pluginsToLoad ) throws HopException {
+  public static synchronized void init( List<IPluginType> pluginsToLoad ) throws HopException {
     if ( initialized != null ) {
       return;
     }
@@ -126,7 +126,7 @@ public class HopClientEnvironment {
     pluginsToLoad.forEach( PluginRegistry::addPluginType );
     PluginRegistry.init();
 
-    List<PluginInterface> logginPlugins = PluginRegistry.getInstance().getPlugins( LoggingPluginType.class );
+    List<IPlugin> logginPlugins = PluginRegistry.getInstance().getPlugins( LoggingPluginType.class );
     initLogginPlugins( logginPlugins );
 
     String passwordEncoderPluginID = Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
@@ -209,9 +209,9 @@ public class HopClientEnvironment {
     }
   }
 
-  private static void initLogginPlugins( List<PluginInterface> logginPlugins ) throws HopPluginException {
-    for ( PluginInterface plugin : logginPlugins ) {
-      LoggingPluginInterface loggingPlugin = (LoggingPluginInterface) PluginRegistry.getInstance().loadClass( plugin );
+  private static void initLogginPlugins( List<IPlugin> logginPlugins ) throws HopPluginException {
+    for ( IPlugin plugin : logginPlugins ) {
+      ILoggingPlugin loggingPlugin = (ILoggingPlugin) PluginRegistry.getInstance().loadClass( plugin );
       loggingPlugin.init();
     }
   }

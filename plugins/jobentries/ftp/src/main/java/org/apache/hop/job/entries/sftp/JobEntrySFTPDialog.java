@@ -28,8 +28,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -77,7 +77,7 @@ import java.net.InetAddress;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntrySFTPDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntrySFTP.class; // for i18n purposes, needed by Translator!!
   private static final String[] FILETYPES =
     new String[] {
@@ -241,7 +241,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
   private LabelTextVar wProxyPassword;
   private FormData fdProxyPasswd;
 
-  public JobEntrySFTPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntrySFTPDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySFTP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -249,7 +249,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

@@ -27,8 +27,8 @@ package org.apache.hop.pipeline.transforms.validator;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -68,13 +68,13 @@ public class ValidatorTest {
   public void setUp() throws Exception {
     mockHelper =
       new TransformMockHelper<ValidatorMeta, ValidatorData>( "Validator", ValidatorMeta.class, ValidatorData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     validator =
       spy( new Validator(
-        mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
+        mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
   }
 
   @After
@@ -105,7 +105,7 @@ public class ValidatorTest {
 
     doReturn( new ValueMetaString( "field" ) ).when( validator ).createValueMeta( anyString(), anyInt() );
     doReturn( new ValueMetaString( "field" ) ).when( validator ).cloneValueMeta(
-      (ValueMetaInterface) anyObject(), anyInt() );
+      (IValueMeta) anyObject(), anyInt() );
 
     validator.init( meta, data );
   }
@@ -126,7 +126,7 @@ public class ValidatorTest {
     assertNumericForNumberMeta( new ValueMetaBigNumber( "big-number" ), BigDecimal.ONE );
   }
 
-  private void assertNumericForNumberMeta( ValueMetaInterface numeric, Object data ) throws Exception {
+  private void assertNumericForNumberMeta( IValueMeta numeric, Object data ) throws Exception {
     assertTrue( numeric.isNumeric() );
     assertNull( validator.assertNumeric( numeric, data, new Validation() ) );
   }
@@ -174,11 +174,11 @@ public class ValidatorTest {
     Mockito.when( rowSet.getDestinationTransformCopy() ).thenReturn( 0 );
     Mockito.when( rowSet.getRow() ).thenReturn( new String[] { values } ).thenReturn( null );
     Mockito.when( rowSet.isDone() ).thenReturn( true );
-    RowMetaInterface allowedRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta allowedRowMeta = Mockito.mock( IRowMeta.class );
     Mockito.when( rowSet.getRowMeta() ).thenReturn( allowedRowMeta );
-    Mockito.when( rowSet.getRowMeta() ).thenReturn( Mockito.mock( RowMetaInterface.class ) );
+    Mockito.when( rowSet.getRowMeta() ).thenReturn( Mockito.mock( IRowMeta.class ) );
     Mockito.when( allowedRowMeta.indexOfValue( field ) ).thenReturn( 0 );
-    Mockito.when( allowedRowMeta.getValueMeta( 0 ) ).thenReturn( Mockito.mock( ValueMetaInterface.class ) );
+    Mockito.when( allowedRowMeta.getValueMeta( 0 ) ).thenReturn( Mockito.mock( IValueMeta.class ) );
 
     List<RowSet> rowSets = new ArrayList<>();
     rowSets.add( rowSet );
@@ -197,7 +197,7 @@ public class ValidatorTest {
     metaField.set( validator, meta );
 
     ValidatorData data = new ValidatorData();
-    data.constantsMeta = new ValueMetaInterface[ 2 ];
+    data.constantsMeta = new IValueMeta[ 2 ];
     Field dataField = validatorClass.getDeclaredField( "data" );
     dataField.setAccessible( true );
     dataField.set( validator, data );

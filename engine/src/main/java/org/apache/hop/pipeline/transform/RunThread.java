@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
@@ -39,10 +39,10 @@ public class RunThread implements Runnable {
    */
   private static Class<?> PKG = BaseTransform.class;
 
-  private TransformInterface transform;
-  private TransformMetaInterface meta;
-  private TransformDataInterface data;
-  private LogChannelInterface log;
+  private ITransform transform;
+  private ITransformMeta meta;
+  private ITransformData data;
+  private ILogChannel log;
 
   public RunThread( TransformMetaDataCombi combi ) {
     this.transform = combi.transform;
@@ -80,7 +80,7 @@ public class RunThread implements Runnable {
         }
 
         String logChannelId = log.getLogChannelId();
-        LoggingObjectInterface loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+        ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
         String parentLogChannelId = loggingObject.getParent().getLogChannelId();
         List<String> logChannelChildren = LoggingRegistry.getInstance().getLogChannelChildren( parentLogChannelId );
         int childIndex = Const.indexOfString( log.getLogChannelId(), logChannelChildren );

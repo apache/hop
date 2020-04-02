@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.getsubfolders.GetSubFoldersMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class GetSubFoldersDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class GetSubFoldersDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;

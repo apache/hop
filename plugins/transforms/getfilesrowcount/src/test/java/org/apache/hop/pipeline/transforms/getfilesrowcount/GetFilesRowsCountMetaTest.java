@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GetFilesRowsCountMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class GetFilesRowsCountMetaTest implements IInitializerInterface<ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   LoadSaveTester loadSaveTester;
@@ -88,18 +88,18 @@ public class GetFilesRowsCountMetaTest implements InitializerInterface<Transform
         put( "smartCount", "setSmartCount" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
-    FieldLoadSaveValidator<String[]> ynArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> ynArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileRequired", ynArrayLoadSaveValidator );
     attrValidatorMap.put( "includeSubFolders", ynArrayLoadSaveValidator );
     attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( GetFilesRowsCountMeta.class, attributes, new ArrayList<>(),
@@ -108,7 +108,7 @@ public class GetFilesRowsCountMetaTest implements InitializerInterface<Transform
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof GetFilesRowsCountMeta ) {
       ( (GetFilesRowsCountMeta) someMeta ).allocate( 5 );
     }

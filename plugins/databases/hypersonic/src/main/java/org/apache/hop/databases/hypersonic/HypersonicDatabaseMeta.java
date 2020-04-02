@@ -24,11 +24,11 @@ package org.apache.hop.databases.hypersonic;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -42,7 +42,7 @@ import org.apache.hop.core.util.Utils;
   typeDescription = "Hypersonic"
 )
 @GuiPlugin( id = "GUI-HypersonicDatabaseMeta" )
-public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
@@ -96,7 +96,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -113,13 +113,13 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     StringBuilder retval = new StringBuilder( 128 );
 
@@ -133,20 +133,20 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval.append( "TIMESTAMP" );
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval.append( "BOOLEAN" );
         } else {
           retval.append( "CHAR(1)" );
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -172,7 +172,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length >= DatabaseMeta.CLOB_LENGTH ) {
           retval.append( "LONGVARCHAR" );
         } else {

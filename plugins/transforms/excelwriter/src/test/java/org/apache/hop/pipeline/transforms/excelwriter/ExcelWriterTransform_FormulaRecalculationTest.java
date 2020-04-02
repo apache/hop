@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -41,7 +41,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
 
   private ExcelWriterTransform transform;
   private ExcelWriterTransformData data;
-  private TransformMockHelper<ExcelWriterTransformMeta, TransformDataInterface> mockHelper;
+  private TransformMockHelper<ExcelWriterTransformMeta, ITransformData> mockHelper;
 
   @Before
   public void setUp() throws Exception {
@@ -49,7 +49,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
       TransformMockUtil.getTransformMockHelper( ExcelWriterTransformMeta.class, "ExcelWriterTransform_FormulaRecalculationTest" );
 
     transform = new ExcelWriterTransform(
-      mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     transform = spy( transform );
     // ignoring to avoid useless errors in log
     doNothing().when( transform ).prepareNextOutputFile();

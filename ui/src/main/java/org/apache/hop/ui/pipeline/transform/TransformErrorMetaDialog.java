@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -62,7 +62,7 @@ import java.util.List;
  * @since 31-10-2006
  */
 public class TransformErrorMetaDialog extends Dialog {
-  private static Class<?> PKG = TransformInterface.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
 
   private TransformErrorMeta transformErrorMeta;
   private List<TransformMeta> targetTransforms;

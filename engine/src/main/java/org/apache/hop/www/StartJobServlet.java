@@ -45,7 +45,7 @@ import java.net.URLEncoder;
 import java.util.UUID;
 
 
-public class StartJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class StartJobServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = StartJobServlet.class; // for i18n purposes,
   // needed by
   // Translator!!

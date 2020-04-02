@@ -24,10 +24,10 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.exception.HopPluginClassMapException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.extension.PluginMockInterface;
+import org.apache.hop.core.extension.IPluginMock;
 import org.apache.hop.core.logging.LoggingPluginType;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -61,8 +61,8 @@ public class PluginRegistryUnitTest {
     assertNotNull( result );
     assertEquals( 8, result.getRowMeta().size() );
 
-    for ( ValueMetaInterface vmi : result.getRowMeta().getValueMetaList() ) {
-      assertEquals( ValueMetaInterface.TYPE_STRING, vmi.getType() );
+    for ( IValueMeta vmi : result.getRowMeta().getValueMetaList() ) {
+      assertEquals( IValueMeta.TYPE_STRING, vmi.getType() );
     }
   }
 
@@ -72,7 +72,7 @@ public class PluginRegistryUnitTest {
   @Test
   public void testSupplementalPluginMappings() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface mockPlugin = mock( PluginInterface.class );
+    IPlugin mockPlugin = mock( IPlugin.class );
     when( mockPlugin.getIds() ).thenReturn( new String[] { "mockPlugin" } );
     when( mockPlugin.matches( "mockPlugin" ) ).thenReturn( true );
     when( mockPlugin.getName() ).thenReturn( "mockPlugin" );
@@ -98,22 +98,22 @@ public class PluginRegistryUnitTest {
   @Test
   public void testPluginClassloaderGroup() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface mockPlugin1 = mock( PluginInterface.class );
+    IPlugin mockPlugin1 = mock( IPlugin.class );
     when( mockPlugin1.getIds() ).thenReturn( new String[] { "mockPlugin" } );
     when( mockPlugin1.matches( "mockPlugin" ) ).thenReturn( true );
     when( mockPlugin1.getName() ).thenReturn( "mockPlugin" );
     when( mockPlugin1.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-      put( PluginTypeInterface.class, String.class.getName() );
+      put( IPluginType.class, String.class.getName() );
     }} );
     when( mockPlugin1.getClassLoaderGroup() ).thenReturn( "groupPlugin" );
     doReturn( BasePluginType.class ).when( mockPlugin1 ).getPluginType();
 
-    PluginInterface mockPlugin2 = mock( PluginInterface.class );
+    IPlugin mockPlugin2 = mock( IPlugin.class );
     when( mockPlugin2.getIds() ).thenReturn( new String[] { "mockPlugin2" } );
     when( mockPlugin2.matches( "mockPlugin2" ) ).thenReturn( true );
     when( mockPlugin2.getName() ).thenReturn( "mockPlugin2" );
     when( mockPlugin2.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-      put( PluginTypeInterface.class, Integer.class.getName() );
+      put( IPluginType.class, Integer.class.getName() );
     }} );
     when( mockPlugin2.getClassLoaderGroup() ).thenReturn( "groupPlugin" );
     doReturn( BasePluginType.class ).when( mockPlugin2 ).getPluginType();
@@ -133,7 +133,7 @@ public class PluginRegistryUnitTest {
   @Test( expected = HopPluginClassMapException.class )
   public void testClassloadingPluginNoClassRegistered() throws HopPluginException {
     PluginRegistry registry = PluginRegistry.getInstance();
-    PluginMockInterface plugin = mock( PluginMockInterface.class );
+    IPluginMock plugin = mock( IPluginMock.class );
     when( plugin.loadClass( any() ) ).thenReturn( null );
     registry.loadClass( plugin, Class.class );
   }
@@ -144,8 +144,8 @@ public class PluginRegistryUnitTest {
     // initialize Fragment Type
     PluginRegistry registry = PluginRegistry.getInstance();
     BaseFragmentType fragmentType = new BaseFragmentType( Annotation.class, "", "", ValueMetaPluginType.class ) {
-      @Override protected void initListeners( Class<? extends PluginTypeInterface> aClass,
-                                              Class<? extends PluginTypeInterface> typeToTrack ) {
+      @Override protected void initListeners( Class<? extends IPluginType> aClass,
+                                              Class<? extends IPluginType> typeToTrack ) {
         super.initListeners( BaseFragmentType.class, typeToTrack );
       }
 
@@ -175,17 +175,17 @@ public class PluginRegistryUnitTest {
     };
     assertTrue( fragmentType.isFragment() );
 
-    PluginInterface plugin = mock( PluginInterface.class );
+    IPlugin plugin = mock( IPlugin.class );
     when( plugin.getIds() ).thenReturn( new String[] { "mock" } );
     when( plugin.matches( any() ) ).thenReturn( true );
     doReturn( ValueMetaPluginType.class ).when( plugin ).getPluginType();
-    doAnswer( invocationOnMock -> null ).when( plugin ).merge( any( PluginInterface.class ) );
+    doAnswer( invocationOnMock -> null ).when( plugin ).merge( any( IPlugin.class ) );
 
-    PluginInterface fragment = mock( PluginInterface.class );
+    IPlugin fragment = mock( IPlugin.class );
     when( fragment.getIds() ).thenReturn( new String[] { "mock" } );
     when( fragment.matches( any() ) ).thenReturn( true );
     doReturn( BaseFragmentType.class ).when( fragment ).getPluginType();
-    doAnswer( invocationOnMock -> null ).when( fragment ).merge( any( PluginInterface.class ) );
+    doAnswer( invocationOnMock -> null ).when( fragment ).merge( any( IPlugin.class ) );
 
     // test
     registry.registerPlugin( ValueMetaPluginType.class, plugin );

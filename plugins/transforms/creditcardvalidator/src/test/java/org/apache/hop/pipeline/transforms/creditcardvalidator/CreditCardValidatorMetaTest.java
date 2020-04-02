@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -79,13 +79,13 @@ public class CreditCardValidatorMetaTest {
     meta.getFields( rowMeta, "this transform", null, null, new Variables(), null );
     assertEquals( 3, rowMeta.size() );
     assertEquals( "The Result Field", rowMeta.getValueMeta( 0 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );
     assertEquals( "this transform", rowMeta.getValueMeta( 0 ).getOrigin() );
     assertEquals( "The Card Type Field", rowMeta.getValueMeta( 1 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rowMeta.getValueMeta( 1 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rowMeta.getValueMeta( 1 ).getType() );
     assertEquals( "this transform", rowMeta.getValueMeta( 1 ).getOrigin() );
     assertEquals( "Is Card Valid", rowMeta.getValueMeta( 2 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rowMeta.getValueMeta( 2 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rowMeta.getValueMeta( 2 ).getType() );
     assertEquals( "this transform", rowMeta.getValueMeta( 2 ).getOrigin() );
   }
 }

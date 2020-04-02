@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -55,32 +55,32 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static final PropsUI props = PropsUI.getInstance();
 
-  private GetCaretPositionInterface getCaretPositionInterface;
+  private IGetCaretPosition getCaretPositionInterface;
 
-  private InsertTextInterface insertTextInterface;
+  private IInsertText insertTextInterface;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   private Control control;
 
   /**
-   * @param space
+   * @param variables
    * @param control a Text or CCombo box object
    */
-  public ControlSpaceKeyAdapter( final VariableSpace space, final Control control ) {
-    this( space, control, null, null );
+  public ControlSpaceKeyAdapter( final IVariables variables, final Control control ) {
+    this( variables, control, null, null );
   }
 
   /**
-   * @param space
+   * @param variables
    * @param control                   a Text or CCombo box object
    * @param getCaretPositionInterface
    * @param insertTextInterface
    */
-  public ControlSpaceKeyAdapter( VariableSpace space, final Control control,
-                                 final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface ) {
+  public ControlSpaceKeyAdapter( IVariables variables, final Control control,
+                                 final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface ) {
 
-    this.variables = space;
+    this.variables = variables;
     this.control = control;
     this.getCaretPositionInterface = getCaretPositionInterface;
     this.insertTextInterface = insertTextInterface;
@@ -190,7 +190,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   private static final void applyChanges( Shell shell, List list, Control control, int position,
-                                          InsertTextInterface insertTextInterface ) {
+                                          IInsertText insertTextInterface ) {
     String selection =
       list.getSelection()[ 0 ].contains( Const.getDeprecatedPrefix() )
         ? list.getSelection()[ 0 ].replace( Const.getDeprecatedPrefix(), "" )
@@ -225,8 +225,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     }
   }
 
-  public static final String[] getVariableNames( VariableSpace space ) {
-    String[] variableNames = space.listVariables();
+  public static final String[] getVariableNames( IVariables variables ) {
+    String[] variableNames = variables.listVariables();
     for ( int i = 0; i < variableNames.length; i++ ) {
       for ( int j = 0; j < Const.DEPRECATED_VARIABLES.length; j++ ) {
         if ( variableNames[ i ].equals( Const.DEPRECATED_VARIABLES[ j ] ) ) {
@@ -253,7 +253,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     return variableNames;
   }
 
-  public void setVariables( VariableSpace vars ) {
+  public void setVariables( IVariables vars ) {
     variables = vars;
   }
 }

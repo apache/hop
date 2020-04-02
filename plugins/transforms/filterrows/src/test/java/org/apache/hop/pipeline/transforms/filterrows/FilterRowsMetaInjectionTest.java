@@ -40,22 +40,22 @@ public class FilterRowsMetaInjectionTest extends BaseMetadataInjectionTest<Filte
   @Test
   public void test() throws Exception {
 
-    check( "SEND_FALSE_TRANSFORM", new StringGetter() {
+    check( "SEND_FALSE_TRANSFORM", new IStringGetter() {
       public String get() {
         return meta.getFalseTransformName();
       }
     } );
 
-    check( "SEND_TRUE_TRANSFORM", new StringGetter() {
+    check( "SEND_TRUE_TRANSFORM", new IStringGetter() {
       public String get() {
         return meta.getTrueTransformName();
       }
     } );
 
-    check( "CONDITION", new StringGetter() {
+    check( "CONDITION", new IStringGetter() {
       public String get() {
         return meta.getConditionXML();
       }
-    }, new Condition().getXML() );
+    }, new Condition().getXml() );
   }
 }

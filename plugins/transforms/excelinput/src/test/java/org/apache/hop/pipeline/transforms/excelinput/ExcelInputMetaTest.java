@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -97,9 +97,9 @@ public class ExcelInputMetaTest {
         put( "rootUriNameFieldName", "setRootUriField" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "sheetName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
@@ -109,7 +109,7 @@ public class ExcelInputMetaTest {
     attrValidatorMap.put( "field",
       new ArrayLoadSaveValidator<ExcelInputField>( new ExcelInputFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator(), 5 ) );
 
@@ -119,7 +119,7 @@ public class ExcelInputMetaTest {
     loadSaveTester.testSerialization();
   }
 
-  public class ExcelInputFieldLoadSaveValidator implements FieldLoadSaveValidator<ExcelInputField> {
+  public class ExcelInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelInputField> {
     final Random rand = new Random();
 
     @Override
@@ -159,7 +159,7 @@ public class ExcelInputMetaTest {
     }
   }
 
-  public class SpreadSheetTypeFieldLoadSaveValidator implements FieldLoadSaveValidator<SpreadSheetType> {
+  public class SpreadSheetTypeFieldLoadSaveValidator implements IFieldLoadSaveValidator<SpreadSheetType> {
     @Override public SpreadSheetType getTestObject() {
       return SpreadSheetType.POI;
     }
@@ -203,15 +203,15 @@ public class ExcelInputMetaTest {
       }
     };
 
-    FieldLoadSaveValidator<String[]> nullStringArrayLoadSaveValidator = new NullStringArrayLoadSaveValidator();
+    IFieldLoadSaveValidator<String[]> nullStringArrayLoadSaveValidator = new NullStringArrayLoadSaveValidator();
 
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 1 );
 
     NullNameExcelInputArrayFieldLoadSaveValidator nullNameExcelInputArrayFieldLoadSaveValidator =
       new NullNameExcelInputArrayFieldLoadSaveValidator();
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", nullStringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
@@ -221,7 +221,7 @@ public class ExcelInputMetaTest {
     attrValidatorMap.put( "field", nullNameExcelInputArrayFieldLoadSaveValidator );
     attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator(), 1 ) );
 
@@ -230,7 +230,7 @@ public class ExcelInputMetaTest {
 
   }
 
-  public class NullStringArrayLoadSaveValidator implements FieldLoadSaveValidator<String[]> {
+  public class NullStringArrayLoadSaveValidator implements IFieldLoadSaveValidator<String[]> {
     @Override public String[] getTestObject() {
       return new String[] { null };
     }
@@ -244,7 +244,7 @@ public class ExcelInputMetaTest {
     }
   }
 
-  public class NullNameExcelInputArrayFieldLoadSaveValidator implements FieldLoadSaveValidator<ExcelInputField[]> {
+  public class NullNameExcelInputArrayFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelInputField[]> {
     @Override public ExcelInputField[] getTestObject() {
       ExcelInputField rtn = new ExcelInputField();
       rtn.setName( null );

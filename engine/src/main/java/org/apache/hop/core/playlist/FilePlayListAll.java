@@ -24,9 +24,9 @@ package org.apache.hop.core.playlist;
 
 import org.apache.commons.vfs2.FileObject;
 
-public class FilePlayListAll implements FilePlayList {
+public class FilePlayListAll implements IFilePlayList {
 
-  public static final FilePlayList INSTANCE = new FilePlayListAll();
+  public static final IFilePlayList INSTANCE = new FilePlayListAll();
 
   public boolean isProcessingNeeded( FileObject file, long lineNr, String filePart ) {
     return true;

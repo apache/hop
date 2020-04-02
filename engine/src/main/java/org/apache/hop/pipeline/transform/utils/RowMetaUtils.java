@@ -24,22 +24,22 @@ package org.apache.hop.pipeline.transform.utils;
 
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 
 public class RowMetaUtils {
 
-  public static RowMetaInterface getRowMetaForUpdate( RowMetaInterface prev, String[] keyLookup, String[] keyStream,
-                                                      String[] updateLookup, String[] updateStream ) throws HopTransformException {
-    RowMetaInterface tableFields = new RowMeta();
+  public static IRowMeta getRowMetaForUpdate( IRowMeta prev, String[] keyLookup, String[] keyStream,
+                                              String[] updateLookup, String[] updateStream ) throws HopTransformException {
+    IRowMeta tableFields = new RowMeta();
 
     // Now change the field names
     // the key fields
     if ( keyLookup != null ) {
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
         if ( v != null ) {
-          ValueMetaInterface tableField = v.clone();
+          IValueMeta tableField = v.clone();
           tableField.setName( keyLookup[ i ] );
           tableFields.addValueMeta( tableField );
         } else {
@@ -49,11 +49,11 @@ public class RowMetaUtils {
     }
     // the lookup fields
     for ( int i = 0; i < updateLookup.length; i++ ) {
-      ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
+      IValueMeta v = prev.searchValueMeta( updateStream[ i ] );
       if ( v != null ) {
-        ValueMetaInterface vk = tableFields.searchValueMeta( updateLookup[ i ] );
+        IValueMeta vk = tableFields.searchValueMeta( updateLookup[ i ] );
         if ( vk == null ) { // do not add again when already added as key fields
-          ValueMetaInterface tableField = v.clone();
+          IValueMeta tableField = v.clone();
           tableField.setName( updateLookup[ i ] );
           tableFields.addValueMeta( tableField );
         }

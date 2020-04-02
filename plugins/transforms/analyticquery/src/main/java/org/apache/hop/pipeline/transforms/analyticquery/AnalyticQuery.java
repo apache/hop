@@ -30,10 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -43,22 +43,22 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author ngoodman
  * @since 27-jan-2009
  */
-public class AnalyticQuery extends BaseTransform implements TransformInterface {
+public class AnalyticQuery extends BaseTransform implements ITransform {
   private static Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
 
   private AnalyticQueryMeta meta;
   private AnalyticQueryData data;
 
-  public AnalyticQuery( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public AnalyticQuery( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (AnalyticQueryMeta) getTransformMeta().getTransformMetaInterface();
-    data = (AnalyticQueryData) transformDataInterface;
+    data = (AnalyticQueryData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (AnalyticQueryMeta) smi;
     data = (AnalyticQueryData) sdi;
 
@@ -225,7 +225,7 @@ public class AnalyticQuery extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (AnalyticQueryMeta) smi;
     data = (AnalyticQueryData) sdi;
 

@@ -24,12 +24,12 @@ package org.apache.hop.pipeline.debug;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.HashMap;
@@ -96,76 +96,77 @@ public class PipelineDebugMeta {
       for ( IEngineComponent component : pipeline.getComponentCopies( transformMeta.getName() ) ) {
         // TODO: Make this functionality more generic in the pipeline engines
         //
-        if ( component instanceof TransformInterface ) {
-          TransformInterface baseTransform = (TransformInterface) component;
+        if ( component instanceof ITransform ) {
+          ITransform baseTransform = (ITransform) component;
           baseTransform.addRowListener( new RowAdapter() {
-               public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+               public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
                  try {
-
-                   // This block of code is called whenever there is a row written by the transform
-                   // So we want to execute the debugging actions that are specified by the transform...
-                   //
-                   int rowCount = transformDebugMeta.getRowCount();
-
-                   if ( transformDebugMeta.isReadingFirstRows() && rowCount > 0 ) {
-
-                     int bufferSize = transformDebugMeta.getRowBuffer().size();
-                     if ( bufferSize < rowCount ) {
-
-                       // This is the classic preview mode.
-                       // We add simply add the row to the buffer.
-                       //
-                       transformDebugMeta.setRowBufferMeta( rowMeta );
-                       transformDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
-                     } else {
-                       // pause the pipeline...
-                       //
-                       pipeline.pauseRunning();
-
-                       // Also call the pause / break-point listeners on the transform debugger...
-                       //
-                       transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
-                     }
-                   } else if ( transformDebugMeta.isPausingOnBreakPoint() && transformDebugMeta.getCondition() != null ) {
-                     // A break-point is set
-                     // Verify the condition and pause if required
-                     // Before we do that, see if a row count is set.
-                     // If so, keep the last rowCount rows in memory
+                   synchronized ( transformDebugMeta ) {
+                     // This block of code is called whenever there is a row written by the transform
+                     // So we want to execute the debugging actions that are specified by the transform...
                      //
-                     if ( rowCount > 0 ) {
-                       // Keep a number of rows in memory
-                       // Store them in a reverse order to keep it intuitive for the user.
-                       //
-                       transformDebugMeta.setRowBufferMeta( rowMeta );
-                       transformDebugMeta.getRowBuffer().add( 0, rowMeta.cloneRow( row ) );
+                     int rowCount = transformDebugMeta.getRowCount();
 
-                       // Only keep a number of rows in memory
-                       // If we have too many, remove the last (oldest)
-                       //
+                     if ( transformDebugMeta.isReadingFirstRows() && rowCount > 0 ) {
+
                        int bufferSize = transformDebugMeta.getRowBuffer().size();
-                       if ( bufferSize > rowCount ) {
-                         transformDebugMeta.getRowBuffer().remove( bufferSize - 1 );
-                       }
-                     } else {
-                       // Just keep one row...
-                       //
-                       if ( transformDebugMeta.getRowBuffer().isEmpty() ) {
+                       if ( bufferSize < rowCount ) {
+
+                         // This is the classic preview mode.
+                         // We add simply add the row to the buffer.
+                         //
+                         transformDebugMeta.setRowBufferMeta( rowMeta );
                          transformDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
                        } else {
-                         transformDebugMeta.getRowBuffer().set( 0, rowMeta.cloneRow( row ) );
+                         // pause the pipeline...
+                         //
+                         pipeline.pauseRunning();
+
+                         // Also call the pause / break-point listeners on the transform debugger...
+                         //
+                         transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
                        }
-                     }
-
-                     // Now evaluate the condition and see if we need to pause the pipeline
-                     //
-                     if ( transformDebugMeta.getCondition().evaluate( rowMeta, row ) ) {
-                       // We hit the break-point: pause the pipeline
+                     } else if ( transformDebugMeta.isPausingOnBreakPoint() && transformDebugMeta.getCondition() != null ) {
+                       // A break-point is set
+                       // Verify the condition and pause if required
+                       // Before we do that, see if a row count is set.
+                       // If so, keep the last rowCount rows in memory
                        //
-                       pipeline.pauseRunning();
+                       if ( rowCount > 0 ) {
+                         // Keep a number of rows in memory
+                         // Store them in a reverse order to keep it intuitive for the user.
+                         //
+                         transformDebugMeta.setRowBufferMeta( rowMeta );
+                         transformDebugMeta.getRowBuffer().add( 0, rowMeta.cloneRow( row ) );
 
-                       // Also fire off the break point listeners...
+                         // Only keep a number of rows in memory
+                         // If we have too many, remove the last (oldest)
+                         //
+                         int bufferSize = transformDebugMeta.getRowBuffer().size();
+                         if ( bufferSize > rowCount ) {
+                           transformDebugMeta.getRowBuffer().remove( bufferSize - 1 );
+                         }
+                       } else {
+                         // Just keep one row...
+                         //
+                         if ( transformDebugMeta.getRowBuffer().isEmpty() ) {
+                           transformDebugMeta.getRowBuffer().add( rowMeta.cloneRow( row ) );
+                         } else {
+                           transformDebugMeta.getRowBuffer().set( 0, rowMeta.cloneRow( row ) );
+                         }
+                       }
+
+                       // Now evaluate the condition and see if we need to pause the pipeline
                        //
-                       transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
+                       if ( transformDebugMeta.getCondition().evaluate( rowMeta, row ) ) {
+                         // We hit the break-point: pause the pipeline
+                         //
+                         pipeline.pauseRunning();
+
+                         // Also fire off the break point listeners...
+                         //
+                         transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
+                       }
                      }
                    }
                  } catch ( HopException e ) {
@@ -184,7 +185,7 @@ public class PipelineDebugMeta {
    *
    * @param breakPointListener the break point listener to add
    */
-  public void addBreakPointListers( BreakPointListener breakPointListener ) {
+  public void addBreakPointListers( IBreakPointListener breakPointListener ) {
     for ( TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values() ) {
       transformDebugMeta.addBreakPointListener( breakPointListener );
     }

@@ -24,7 +24,7 @@ import org.apache.hop.metastore.api.IMetaStoreElement;
  *
  * @author matt
  */
-public class MetaStoreEntityAdapter implements MetaStoreElementListener {
+public class MetaStoreEntityAdapter implements IMetaStoreElementListener {
 
   @Override
   public void elementUpdated( String namespace, String dataTypeId, IMetaStoreElement oldEntity,

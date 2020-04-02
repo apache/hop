@@ -62,7 +62,7 @@ public class ValueDateUtilTest {
   public void shouldCalculateHourOfDayUsingValueMetasTimeZoneByDefault() throws HopValueException {
     Calendar date = Calendar.getInstance();
     date.setTimeInMillis( 1454313600000L ); // 2016-07-01 08:00:00 UTC
-    ValueMetaInterface valueMetaDate = new ValueMetaDate();
+    IValueMeta valueMetaDate = new ValueMetaDate();
     valueMetaDate.setDateFormatTimeZone( TimeZone.getTimeZone( "CET" ) ); // UTC +1
     long offsetCET = (long) TimeZone.getTimeZone( "CET" ).getRawOffset() / 3600000;
 
@@ -75,7 +75,7 @@ public class ValueDateUtilTest {
   public void shouldCalculateHourOfDayUsingLocalTimeZoneIfPropertyIsSet() throws HopValueException {
     Calendar date = Calendar.getInstance();
     date.setTimeInMillis( 1454313600000L ); // 2016-07-01 08:00:00 UTC
-    ValueMetaInterface valueMetaDate = new ValueMetaDate();
+    IValueMeta valueMetaDate = new ValueMetaDate();
     valueMetaDate.setDateFormatTimeZone( TimeZone.getTimeZone( "CET" ) ); // UTC +1
     long offsetLocal = (long) TimeZone.getDefault().getRawOffset() / 3600000;
     System.setProperty( Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION, "true" );
@@ -87,8 +87,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_JAN() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1230768000000L ); // 2009-01-01 00:00:00
@@ -99,8 +99,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_FEB() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1233446400000L ); // 2009-02-01 00:00:00
@@ -111,8 +111,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_MAR() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1235865600000L ); // 2009-03-01 00:00:00
@@ -123,8 +123,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_APR() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1238544000000L ); // 2009-04-01 00:00:00
@@ -135,8 +135,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_MAY() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1241136000000L ); // 2009-05-01 00:00:00
@@ -147,8 +147,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_JUN() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1243814400000L ); // 2009-06-01 00:00:00
@@ -159,8 +159,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_JUL() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1246406400000L ); // 2009-07-01 00:00:00
@@ -171,8 +171,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_AUG() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1249084800000L ); // 2009-08-01 00:00:00
@@ -183,8 +183,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_SEP() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1251763200000L ); // 2009-09-01 00:00:00
@@ -195,8 +195,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_OCT() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1254355200000L ); // 2009-10-01 00:00:00
@@ -207,8 +207,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_NOV() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1257033600000L ); // 2009-11-01 00:00:00
@@ -219,8 +219,8 @@ public class ValueDateUtilTest {
 
   @Test
   public void shouldCalculateDateWorkingDiff_DEC() throws HopValueException {
-    ValueMetaInterface metaA = new ValueMetaDate();
-    ValueMetaInterface metaB = new ValueMetaDate();
+    IValueMeta metaA = new ValueMetaDate();
+    IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
     Calendar endDate = Calendar.getInstance();
     startDate.setTimeInMillis( 1259625600000L ); // 2009-12-01 00:00:00

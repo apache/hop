@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.Job;
 import org.apache.hop.pipeline.Pipeline;
 
-public class SubComponentExecutionAdapter implements SubComponentExecutionListener {
+public class SubComponentExecutionAdapter implements ISubComponentExecutionListener {
 
   @Override
   public void beforePipelineExecution( Pipeline pipeline ) throws HopException {

@@ -25,7 +25,7 @@ package org.apache.hop.core.xml;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopAttributeInterface;
+import org.apache.hop.core.IHopAttribute;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
@@ -115,7 +115,7 @@ public class XMLHandler {
    * @param code The tag to look for
    * @return The value of the tag or null if nothing was found.
    */
-  public static String getTagValue( Node n, HopAttributeInterface code ) {
+  public static String getTagValue( Node n, IHopAttribute code ) {
     return getTagValue( n, code.getXmlCode() );
   }
 
@@ -773,7 +773,7 @@ public class XMLHandler {
    * @param val The String value of the tag
    * @return The XML String for the tag.
    */
-  public static String addTagValue( HopAttributeInterface tag, String val ) {
+  public static String addTagValue( IHopAttribute tag, String val ) {
     return addTagValue( tag.getXmlCode(), val );
   }
 
@@ -795,7 +795,7 @@ public class XMLHandler {
    * @param bool The boolean value of the tag
    * @return The XML String for the tag.
    */
-  public static String addTagValue( HopAttributeInterface tag, boolean bool ) {
+  public static String addTagValue( IHopAttribute tag, boolean bool ) {
     return addTagValue( tag.getXmlCode(), bool );
   }
 
@@ -854,7 +854,7 @@ public class XMLHandler {
    * @param i   The integer value of the tag
    * @return The XML String for the tag.
    */
-  public static String addTagValue( HopAttributeInterface tag, int i ) {
+  public static String addTagValue( IHopAttribute tag, int i ) {
     return addTagValue( tag.getXmlCode(), i );
   }
 

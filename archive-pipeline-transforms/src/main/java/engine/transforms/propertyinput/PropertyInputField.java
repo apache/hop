@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -75,7 +75,7 @@ public class PropertyInputField implements Cloneable {
     this.name = fieldname;
     this.column = COLUMN_KEY;
     this.length = -1;
-    this.type = ValueMetaInterface.TYPE_STRING;
+    this.type = IValueMeta.TYPE_STRING;
     this.format = "";
     this.trimtype = TYPE_TRIM_NONE;
     this.groupSymbol = "";

@@ -26,10 +26,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class VerticaDatabaseMetaTest {
   private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
-  private ValueMetaInterface valueMetaBase;
+  private IValueMeta valueMetaBase;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -77,7 +77,7 @@ public class VerticaDatabaseMetaTest {
     listener = new VerticaDatabaseMetaTest.StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
 
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
@@ -205,7 +205,7 @@ public class VerticaDatabaseMetaTest {
   }
 
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
+  private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
     private List<HopLoggingEvent> events = new ArrayList<>();
 

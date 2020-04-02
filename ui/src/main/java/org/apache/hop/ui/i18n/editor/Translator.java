@@ -27,8 +27,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
@@ -78,11 +78,9 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -103,7 +101,7 @@ public class Translator {
 
   private Display display;
   private Shell shell;
-  private LogChannelInterface log;
+  private ILogChannel log;
   private PropsUI props;
 
   /**
@@ -1257,7 +1255,7 @@ public class Translator {
     String sourceFolder = args[ 1 ];
 
     Display display = new Display();
-    LogChannelInterface log = new LogChannel( APP_NAME );
+    ILogChannel log = new LogChannel( APP_NAME );
     PropsUI.init( display );
 
     Translator translator = new Translator( display );

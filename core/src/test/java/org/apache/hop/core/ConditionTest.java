@@ -23,7 +23,7 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -50,12 +50,12 @@ public class ConditionTest {
 
   @Test
   public void testPdi13227() throws Exception {
-    RowMetaInterface rowMeta1 = new RowMeta();
+    IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta( new ValueMetaNumber( "name1" ) );
     rowMeta1.addValueMeta( new ValueMetaNumber( "name2" ) );
     rowMeta1.addValueMeta( new ValueMetaNumber( "name3" ) );
 
-    RowMetaInterface rowMeta2 = new RowMeta();
+    IRowMeta rowMeta2 = new RowMeta();
     rowMeta2.addValueMeta( new ValueMetaNumber( "name2" ) );
     rowMeta2.addValueMeta( new ValueMetaNumber( "name1" ) );
     rowMeta2.addValueMeta( new ValueMetaNumber( "name3" ) );
@@ -70,7 +70,7 @@ public class ConditionTest {
 
   @Test
   public void testNullLessThanNumberEvaluatesAsFalse() throws Exception {
-    RowMetaInterface rowMeta1 = new RowMeta();
+    IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta( new ValueMetaInteger( "name1" ) );
 
     String left = "name1";

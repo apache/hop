@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Apply certain operations too string.
@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Samatar Hassan
  * @since 02 April 2009
  */
-public class StringOperationsData extends BaseTransformData implements TransformDataInterface {
+public class StringOperationsData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs; // string infields
 
@@ -62,7 +62,7 @@ public class StringOperationsData extends BaseTransformData implements Transform
 
   public int[] removeSpecialCharacters;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public int inputFieldsNr;
 

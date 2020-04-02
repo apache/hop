@@ -62,12 +62,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class BasePluginType implements PluginTypeInterface {
+public abstract class BasePluginType implements IPluginType {
   protected static Class<?> PKG = BasePluginType.class; // for i18n purposes, needed by Translator!!
 
   protected String id;
   protected String name;
-  protected List<PluginFolderInterface> pluginFolders;
+  protected List<IPluginFolder> pluginFolders;
 
   protected PluginRegistry registry;
 
@@ -299,14 +299,14 @@ public abstract class BasePluginType implements PluginTypeInterface {
    * @return the pluginFolders
    */
   @Override
-  public List<PluginFolderInterface> getPluginFolders() {
+  public List<IPluginFolder> getPluginFolders() {
     return pluginFolders;
   }
 
   /**
    * @param pluginFolders the pluginFolders to set
    */
-  public void setPluginFolders( List<PluginFolderInterface> pluginFolders ) {
+  public void setPluginFolders( List<IPluginFolder> pluginFolders ) {
     this.pluginFolders = pluginFolders;
   }
 
@@ -380,7 +380,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
     // We want to scan the plugins folder for plugin.xml files...
     //
-    for ( PluginFolderInterface pluginFolder : getPluginFolders() ) {
+    for ( IPluginFolder pluginFolder : getPluginFolders() ) {
 
       if ( pluginFolder.isPluginAnnotationsFolder() ) {
 
@@ -457,19 +457,19 @@ public abstract class BasePluginType implements PluginTypeInterface {
    * @throws HopPluginException
    */
   public void registerCustom( Class<?> clazz, String cat, String id, String name, String desc, String image ) throws HopPluginException {
-    Class<? extends PluginTypeInterface> pluginType = getClass();
+    Class<? extends IPluginType> pluginType = getClass();
     Map<Class<?>, String> classMap = new HashMap<>();
     PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
     classMap.put( mainClassTypesAnnotation.value(), clazz.getName() );
-    PluginInterface transformPlugin =
+    IPlugin transformPlugin =
       new Plugin(
         new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
         false, classMap, new ArrayList<>(), null, null, null, null, null, null );
     registry.registerPlugin( pluginType, transformPlugin );
   }
 
-  protected PluginInterface registerPluginFromXmlResource( Node pluginNode, String path,
-                                                           Class<? extends PluginTypeInterface> pluginType, boolean nativePlugin, URL pluginFolder ) throws HopPluginException {
+  protected IPlugin registerPluginFromXmlResource( Node pluginNode, String path,
+                                                   Class<? extends IPluginType> pluginType, boolean nativePlugin, URL pluginFolder ) throws HopPluginException {
     try {
 
       String id = XMLHandler.getTagAttribute( pluginNode, "id" );
@@ -557,7 +557,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
         mainAnnotationClass = mainClassTypesAnnotation.value();
       }
 
-      PluginInterface pluginInterface =
+      IPlugin pluginInterface =
         new Plugin(
           id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
           iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, keywords, pluginFolder,
@@ -834,7 +834,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     classMap.put( mainClass, clazz.getName() );
     addExtraClasses( classMap, clazz, annotation );
 
-    PluginInterface plugin =
+    IPlugin plugin =
       new Plugin(
         ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
         classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, documentationUrl,

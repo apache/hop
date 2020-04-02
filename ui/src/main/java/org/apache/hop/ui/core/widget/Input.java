@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.WidgetUtils;
 import org.eclipse.swt.SWT;
@@ -34,16 +34,16 @@ public abstract class Input<Txt extends Control> extends Composite {
   protected Label label;
   protected Txt input;
 
-  protected Input( VariableSpace space, Composite composite, int width1, int width2 ) {
+  protected Input( IVariables variables, Composite composite, int width1, int width2 ) {
     super( composite, SWT.NONE );
     WidgetUtils.setFormLayout( this, 0 );
 
     label = new Label( this, SWT.LEFT );
-    initText( space, composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER );
+    initText( variables, composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER );
     input.setLayoutData( new FormDataBuilder().top( label ).left().right( width1, width2 ).result() );
   }
 
-  abstract void initText( VariableSpace space, Composite composite, int flags );
+  abstract void initText( IVariables variables, Composite composite, int flags );
 
   public void setText( String text ) {
     label.setText( text );

@@ -32,22 +32,22 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -526,7 +526,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
@@ -552,7 +552,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
                 PKG, "SQLFileOutputMeta.CheckResult.TableAccessible", schemaTable ), transformMeta );
             remarks.add( cr );
 
-            RowMetaInterface r = db.getTableFieldsMeta( schemaName, tablename );
+            IRowMeta r = db.getTableFieldsMeta( schemaName, tablename );
             if ( r != null ) {
               cr =
                 new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -571,7 +571,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
 
                 // Starting from prev...
                 for ( int i = 0; i < prev.size(); i++ ) {
-                  ValueMetaInterface pv = prev.getValueMeta( i );
+                  IValueMeta pv = prev.getValueMeta( i );
                   int idx = r.indexOfValue( pv.getName() );
                   if ( idx < 0 ) {
                     error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
@@ -594,7 +594,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
 
                 // Starting from table fields in r...
                 for ( int i = 0; i < r.size(); i++ ) {
-                  ValueMetaInterface rv = r.getValueMeta( i );
+                  IValueMeta rv = r.getValueMeta( i );
                   int idx = prev.indexOfValue( rv.getName() );
                   if ( idx < 0 ) {
                     error_message += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
@@ -666,17 +666,17 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SQLFileOutput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new SQLFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new SQLFileOutputData();
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
@@ -689,7 +689,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
     // The values that are entering this transform are in "prev":
     if ( prev != null ) {
       for ( int i = 0; i < prev.size(); i++ ) {
-        ValueMetaInterface v = prev.getValueMeta( i );
+        IValueMeta v = prev.getValueMeta( i );
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -700,7 +700,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -740,9 +740,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
     return retval;
   }
 
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
-    String realTableName = space.environmentSubstitute( tablename );
-    String realSchemaName = space.environmentSubstitute( schemaName );
+  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+    String realTableName = variables.environmentSubstitute( tablename );
+    String realSchemaName = variables.environmentSubstitute( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -802,14 +802,14 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -817,14 +817,14 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName ), space );
+      FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
 
       // If the file doesn't exist, forget about this effort too!
       //
       if ( fileObject.exists() ) {
         // Convert to an absolute path...
         //
-        fileName = resourceNamingInterface.nameResource( fileObject, space, true );
+        fileName = iResourceNaming.nameResource( fileObject, variables, true );
 
         return fileName;
       }

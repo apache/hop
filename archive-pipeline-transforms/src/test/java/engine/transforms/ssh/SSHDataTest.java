@@ -28,7 +28,7 @@ import com.trilead.ssh2.ServerHostKeyVerifier;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class SSHDataTest {
   @Mock
   FileContent fileContent;
   @Mock
-  VariableSpace variableSpace;
+  iVariables variables;
 
   String server = "testServerUrl";
   String keyFilePath = "keyFilePath";
@@ -117,10 +117,10 @@ public class SSHDataTest {
     when( fileObject.getContent() ).thenReturn( fileContent );
     when( fileContent.getSize() ).thenReturn( 1000L );
     when( fileContent.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[] { 1, 2, 3, 4, 5 } ) );
-    when( variableSpace.environmentSubstitute( passPhrase ) ).thenReturn( passPhrase );
+    when( variables.environmentSubstitute( passPhrase ) ).thenReturn( passPhrase );
     when( connection.authenticateWithPublicKey( eq( username ), Matchers.<char[]>any(), eq( passPhrase ) ) ).thenReturn( true );
     SSHData.OpenConnection( server, port, username, null, true, keyFilePath,
-      passPhrase, 0, variableSpace, null, 0, null, null );
+      passPhrase, 0, variables, null, 0, null, null );
     verify( connection ).connect();
     verify( connection ).authenticateWithPublicKey( eq( username ), Matchers.<char[]>any(), eq( passPhrase ) );
   }

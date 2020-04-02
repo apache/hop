@@ -7,7 +7,7 @@ import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 import java.util.List;
 
@@ -17,10 +17,10 @@ public class HopGuiNotePadDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGui hopUi;
-  private HopFileTypeHandlerInterface handler;
+  private IHopFileTypeHandler handler;
   private PropsUI props;
 
-  public HopGuiNotePadDelegate( HopGui hopGui, HopFileTypeHandlerInterface handler ) {
+  public HopGuiNotePadDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
     this.hopUi = hopGui;
     this.handler = handler;
     this.props = PropsUI.getInstance();

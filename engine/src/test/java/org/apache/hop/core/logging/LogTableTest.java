@@ -18,7 +18,7 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class LogTableTest {
   private static String GLOBAL_PARAM = PARAM_START_SYMBOL + Const.HOP_TRANSFORM_LOG_DB + PARAM_END_SYMBOL;
   private static String USER_PARAM = PARAM_START_SYMBOL + "param-content" + PARAM_END_SYMBOL;
   private static String HARDCODED_VALUE = "hardcoded";
-  private VariableSpace mockedVariableSpace;
+  private IVariables mockedVariableSpace;
   private IMetaStore mockedMetaStore;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -42,7 +42,7 @@ public class LogTableTest {
   public void init() {
     System.setProperty( Const.HOP_TRANSFORM_LOG_DB, "HOP_TRANSFORM_LOG_DB_VALUE" );
     System.setProperty( Const.HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT, "true" );
-    mockedVariableSpace = mock( VariableSpace.class );
+    mockedVariableSpace = mock( IVariables.class );
     mockedMetaStore = mock( IMetaStore.class );
   }
 

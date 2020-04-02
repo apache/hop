@@ -24,11 +24,11 @@ package org.apache.hop.databases.sqlbase;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Gupta SQLBase specific information through static final members
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "Gupta SQL Base"
 )
 @GuiPlugin( id = "GUI-SQLBaseDatabaseMeta" )
-public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
@@ -124,7 +124,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -141,7 +141,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     String retval = "";
     retval += "ALTER TABLE " + tablename + " DROP " + v.getName() + Const.CR + ";" + Const.CR;
@@ -150,7 +150,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -164,16 +164,16 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "DATETIME NULL";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         retval += "CHAR(1)";
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -186,7 +186,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length > 254 || length < 0 ) {
           retval += "LONG VARCHAR";
         } else {

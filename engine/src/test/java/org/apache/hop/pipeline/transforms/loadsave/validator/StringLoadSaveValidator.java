@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.UUID;
 
-public class StringLoadSaveValidator implements FieldLoadSaveValidator<String> {
+public class StringLoadSaveValidator implements IFieldLoadSaveValidator<String> {
 
   @Override
   public String getTestObject() {

@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorMeta;
 import org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorParameters;
 import org.apache.hop.ui.core.ConstUI;
@@ -76,7 +76,7 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class JobExecutorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class JobExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JobExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   private static int FIELD_DESCRIPTION = 1;

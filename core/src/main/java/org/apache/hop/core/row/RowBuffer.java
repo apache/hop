@@ -26,19 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class contains a list of data rows as well as the RowMetaInterface to describe it.
+ * This class contains a list of data rows as well as the IRowMeta to describe it.
  *
  * @author matt
  */
 public class RowBuffer {
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
   private List<Object[]> buffer;
 
   /**
    * @param rowMeta
    * @param buffer
    */
-  public RowBuffer( RowMetaInterface rowMeta, List<Object[]> buffer ) {
+  public RowBuffer( IRowMeta rowMeta, List<Object[]> buffer ) {
     this.rowMeta = rowMeta;
     this.buffer = buffer;
   }
@@ -46,21 +46,21 @@ public class RowBuffer {
   /**
    * @param rowMeta
    */
-  public RowBuffer( RowMetaInterface rowMeta ) {
+  public RowBuffer( IRowMeta rowMeta ) {
     this( rowMeta, new ArrayList<Object[]>() );
   }
 
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
   /**
    * @param rowMeta the rowMeta to set
    */
-  public void setRowMeta( RowMetaInterface rowMeta ) {
+  public void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 

@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopLifecyclePlugin;
-import org.apache.hop.core.lifecycle.HopLifecycleListener;
+import org.apache.hop.core.lifecycle.IHopLifecycleListener;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -33,9 +33,9 @@ import java.util.Map;
  * Defines a Hop Environment lifecycle plugin type. These plugins are invoked at Hop Environment initialization
  * and shutdown.
  */
-@PluginMainClassType( HopLifecycleListener.class )
+@PluginMainClassType( IHopLifecycleListener.class )
 @PluginAnnotationType( HopLifecyclePlugin.class )
-public class HopLifecyclePluginType extends BasePluginType implements PluginTypeInterface {
+public class HopLifecyclePluginType extends BasePluginType implements IPluginType {
 
   private static HopLifecyclePluginType pluginType;
 

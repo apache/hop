@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 28 September 2008
  */
-public class ReplaceStringData extends BaseTransformData implements TransformDataInterface {
+public class ReplaceStringData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs;
 
@@ -60,7 +60,7 @@ public class ReplaceStringData extends BaseTransformData implements TransformDat
 
   public String finalvalueChange;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public int inputFieldsNr;
 

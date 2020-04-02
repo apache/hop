@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.detectlastrow;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.DetectLastRow",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
 )
-public class DetectLastRowMeta extends BaseTransformMeta implements TransformMetaInterface<DetectLastRow, DetectLastRowData> {
+public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMeta<DetectLastRow, DetectLastRowData> {
   private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -91,12 +91,12 @@ public class DetectLastRowMeta extends BaseTransformMeta implements TransformMet
     resultfieldname = "result";
   }
 
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     if ( !Utils.isEmpty( resultfieldname ) ) {
-      ValueMetaInterface v =
-        new ValueMetaBoolean( space.environmentSubstitute( resultfieldname ) );
+      IValueMeta v =
+        new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -117,8 +117,8 @@ public class DetectLastRowMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -147,9 +147,9 @@ public class DetectLastRowMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public DetectLastRow createTransform( TransformMeta transformMeta, DetectLastRowData transformDataInterface, int cnr,
+  public DetectLastRow createTransform( TransformMeta transformMeta, DetectLastRowData iTransformData, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DetectLastRow( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new DetectLastRow( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public DetectLastRowData getTransformData() {

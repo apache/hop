@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.ftpsget;
 
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.ClassRule;
 
@@ -52,8 +52,8 @@ public class JobEntryFTPSGetLoadSaveTest extends JobEntryLoadSaveTestSupport<Job
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     validators.put( "connection_type", new IntLoadSaveValidator( FTPSConnection.connection_type_Code.length ) );
     validators.put( "ifFileExists", new IntLoadSaveValidator( JobEntryFTPSGet.FILE_EXISTS_ACTIONS.length ) );
 

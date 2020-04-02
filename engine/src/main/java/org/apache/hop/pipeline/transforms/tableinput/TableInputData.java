@@ -22,12 +22,12 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.sql.ResultSet;
 
@@ -35,16 +35,16 @@ import java.sql.ResultSet;
  * @author Matt
  * @since 20-jan-2005
  */
-public class TableInputData extends BaseTransformData implements TransformDataInterface {
+public class TableInputData extends BaseTransformData implements ITransformData {
   public Object[] nextrow;
   public Object[] thisrow;
   public Database db;
   public ResultSet rs;
   public String lookupTransform;
-  public RowMetaInterface rowMeta;
-  public RowSet rowSet;
+  public IRowMeta rowMeta;
+  public IRowSet rowSet;
   public boolean isCanceled;
-  public StreamInterface infoStream;
+  public IStream infoStream;
 
   public TableInputData() {
     super();

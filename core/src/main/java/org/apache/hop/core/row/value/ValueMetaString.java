@@ -23,26 +23,26 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Comparator;
 
-public class ValueMetaString extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaString extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaString() {
     this( null );
   }
 
   public ValueMetaString( String name ) {
-    super( name, ValueMetaInterface.TYPE_STRING );
+    super( name, IValueMeta.TYPE_STRING );
   }
 
   public ValueMetaString( String name, Comparator<Object> comparator ) {
-    super( name, ValueMetaInterface.TYPE_STRING, comparator );
+    super( name, IValueMeta.TYPE_STRING, comparator );
   }
 
   public ValueMetaString( String name, int length, int precision ) {
-    super( name, ValueMetaInterface.TYPE_STRING, length, precision );
+    super( name, IValueMeta.TYPE_STRING, length, precision );
   }
 
   @Override

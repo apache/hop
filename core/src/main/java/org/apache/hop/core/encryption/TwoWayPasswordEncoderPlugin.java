@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * Classes annotated with "TwoWayPasswordEncoderPlugin" are automatically recognized and registered as a new data type in the form
- * of a TwoWayPasswordEncoderInterface class.
+ * of a ITwoWayPasswordEncoder class.
  *
  * @author matt
  */

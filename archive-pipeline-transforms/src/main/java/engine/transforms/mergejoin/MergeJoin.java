@@ -26,14 +26,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -56,18 +56,18 @@ import java.util.List;
  * @since 24-nov-2006
  */
 
-public class MergeJoin extends BaseTransform implements TransformInterface {
+public class MergeJoin extends BaseTransform implements ITransform {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private MergeJoinMeta meta;
   private MergeJoinData data;
 
-  public MergeJoin( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MergeJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MergeJoinMeta) smi;
     data = (MergeJoinData) sdi;
     int compare;
@@ -395,9 +395,9 @@ public class MergeJoin extends BaseTransform implements TransformInterface {
   }
 
   /**
-   * @see TransformInterface#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MergeJoinMeta) smi;
     data = (MergeJoinData) sdi;
 
@@ -429,7 +429,7 @@ public class MergeJoin extends BaseTransform implements TransformInterface {
    * @param row2 Row to compare to
    * @return true when templates are compatible.
    */
-  protected boolean isInputLayoutValid( RowMetaInterface row1, RowMetaInterface row2 ) {
+  protected boolean isInputLayoutValid( IRowMeta row1, IRowMeta row2 ) {
     if ( row1 != null && row2 != null ) {
       // Compare the key types
       String[] keyFields1 = meta.getKeyFields1();
@@ -443,11 +443,11 @@ public class MergeJoin extends BaseTransform implements TransformInterface {
       }
 
       for ( int i = 0; i < nrKeyFields1; i++ ) {
-        ValueMetaInterface v1 = row1.searchValueMeta( keyFields1[ i ] );
+        IValueMeta v1 = row1.searchValueMeta( keyFields1[ i ] );
         if ( v1 == null ) {
           return false;
         }
-        ValueMetaInterface v2 = row2.searchValueMeta( keyFields2[ i ] );
+        IValueMeta v2 = row2.searchValueMeta( keyFields2[ i ] );
         if ( v2 == null ) {
           return false;
         }

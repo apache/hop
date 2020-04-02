@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationProvider;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
-public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
-  public static class UsernamePasswordAuthenticationProviderType implements AuthenticationProviderType {
+public class UsernamePasswordAuthenticationProvider implements IAuthenticationProvider {
+  public static class UsernamePasswordAuthenticationProviderType implements IAuthenticationProviderType {
 
     @Override
     public String getDisplayName() {
@@ -33,7 +33,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     }
 
     @Override
-    public Class<? extends AuthenticationProvider> getProviderClass() {
+    public Class<? extends IAuthenticationProvider> getProviderClass() {
       return UsernamePasswordAuthenticationProvider.class;
     }
   }

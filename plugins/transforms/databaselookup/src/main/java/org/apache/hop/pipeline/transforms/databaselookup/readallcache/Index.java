@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -35,10 +35,10 @@ import java.util.Comparator;
 abstract class Index {
 
   final int column;
-  final ValueMetaInterface valueMeta;
+  final IValueMeta valueMeta;
   final IndexedValue[] values;
 
-  Index( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  Index( int column, IValueMeta valueMeta, int rowsAmount ) {
     this.column = column;
     this.valueMeta = valueMeta;
     this.values = new IndexedValue[ rowsAmount ];
@@ -74,7 +74,7 @@ abstract class Index {
     return column;
   }
 
-  public void applyRestrictionsTo( SearchingContext context, ValueMetaInterface lookupMeta, Object lookupValue ) {
+  public void applyRestrictionsTo( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
     try {
       doApply( context, lookupMeta, lookupValue );
     } catch ( HopException e ) {
@@ -82,7 +82,7 @@ abstract class Index {
     }
   }
 
-  abstract void doApply( SearchingContext context, ValueMetaInterface lookupMeta, Object lookupValue )
+  abstract void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue )
     throws HopException;
 
   /**
@@ -115,9 +115,9 @@ abstract class Index {
 
   static class IndexValueComparator implements Comparator<IndexedValue> {
 
-    private final ValueMetaInterface meta;
+    private final IValueMeta meta;
 
-    public IndexValueComparator( ValueMetaInterface meta ) {
+    public IndexValueComparator( IValueMeta meta ) {
       this.meta = meta;
     }
 

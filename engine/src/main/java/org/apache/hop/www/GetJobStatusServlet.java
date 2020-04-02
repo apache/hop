@@ -46,7 +46,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 
-public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetJobStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = GetJobStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -437,7 +437,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
   }
 
   public String toString() {
-    return "Job Status Handler";
+    return "Job Status IHandler";
   }
 
   public String getService() {

@@ -29,8 +29,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.StreamLogger;
@@ -39,8 +39,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -61,7 +61,7 @@ import java.util.Date;
  * @author matt
  * @since 14-apr-2009
  */
-public class MySQLBulkLoader extends BaseTransform implements TransformInterface {
+public class MySQLBulkLoader extends BaseTransform implements ITransform {
   private static Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MySQLBulkLoaderMeta meta;
@@ -69,9 +69,9 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
   private final long threadWaitTime = 300000;
   private final String threadWaitTimeText = "5min";
 
-  public MySQLBulkLoader( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MySQLBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean execute( MySQLBulkLoaderMeta meta ) throws HopException {
@@ -123,7 +123,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       PluginInterface dbPlugin =
-        PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, meta.getDatabaseMeta().getDatabaseInterface() );
+        PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, meta.getDatabaseMeta().getIDatabase() );
       data.dbDescription = ( dbPlugin != null ) ? dbPlugin.getDescription() : BaseMessages.getString( PKG, "MySQLBulkLoader.UnknownDB" );
 
       // Connect to the database
@@ -230,7 +230,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 
@@ -248,16 +248,16 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
       if ( first ) {
         first = false;
 
-        // Cache field indexes.
+        // ICache field indexes.
         //
         data.keynrs = new int[ meta.getFieldStream().length ];
         for ( int i = 0; i < data.keynrs.length; i++ ) {
           data.keynrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldStream()[ i ] );
         }
 
-        data.bulkFormatMeta = new ValueMetaInterface[ data.keynrs.length ];
+        data.bulkFormatMeta = new IValueMeta[ data.keynrs.length ];
         for ( int i = 0; i < data.keynrs.length; i++ ) {
-          ValueMetaInterface sourceMeta = getInputRowMeta().getValueMeta( data.keynrs[ i ] );
+          IValueMeta sourceMeta = getInputRowMeta().getValueMeta( data.keynrs[ i ] );
           if ( sourceMeta.isDate() ) {
             if ( meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_DATE ) {
               data.bulkFormatMeta[ i ] = data.bulkDateMeta.clone();
@@ -321,7 +321,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
     }
   }
 
-  private void writeRowToBulk( RowMetaInterface rowMeta, Object[] r ) throws HopException {
+  private void writeRowToBulk( IRowMeta rowMeta, Object[] r ) throws HopException {
 
     try {
       // So, we have this output stream to which we can write CSV data to.
@@ -337,14 +337,14 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
         }
 
         int index = data.keynrs[ i ];
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( index );
+        IValueMeta valueMeta = rowMeta.getValueMeta( index );
         Object valueData = r[ index ];
 
         if ( valueData == null ) {
           data.fifoStream.write( "NULL".getBytes() );
         } else {
           switch ( valueMeta.getType() ) {
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               data.fifoStream.write( data.quote );
               if ( valueMeta.isStorageBinaryString()
                 && meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_OK ) {
@@ -362,7 +362,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
               }
               data.fifoStream.write( data.quote );
               break;
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_INTEGER:
               if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
@@ -372,7 +372,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
                 }
               }
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
@@ -382,7 +382,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
                 }
               }
               break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
@@ -392,7 +392,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
                 }
               }
               break;
-            case ValueMetaInterface.TYPE_NUMBER:
+            case IValueMeta.TYPE_NUMBER:
               if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( (byte[]) valueData );
               } else {
@@ -412,7 +412,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
                 }
               }
               break;
-            case ValueMetaInterface.TYPE_BIGNUMBER:
+            case IValueMeta.TYPE_BIGNUMBER:
               if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( (byte[]) valueData );
               } else {
@@ -466,7 +466,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 
@@ -520,7 +520,7 @@ public class MySQLBulkLoader extends BaseTransform implements TransformInterface
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 

@@ -22,17 +22,17 @@
 
 package org.apache.hop.job.entries.delay;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
   image = "Delay.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
-public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryDelay extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryDelay.class; // for i18n purposes, needed by Translator!!
 
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
@@ -220,7 +220,7 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "maximumTimeout", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.longValidator() ) );

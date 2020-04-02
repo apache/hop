@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.playlist.FilePlayList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.playlist.IFilePlayList;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.InputStreamReader;
 import java.util.Date;
@@ -46,7 +46,7 @@ import java.util.Map;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public class TextFileInputData extends BaseTransformData implements TransformDataInterface {
+public class TextFileInputData extends BaseTransformData implements ITransformData {
 
   public List<TextFileLine> lineBuffer;
 
@@ -88,13 +88,13 @@ public class TextFileInputData extends BaseTransformData implements TransformDat
 
   public boolean doneWithHeader;
 
-  public FileErrorHandler dataErrorLineHandler;
+  public IFileErrorHandler dataErrorLineHandler;
 
-  public FilePlayList filePlayList;
+  public IFilePlayList filePlayList;
 
   public TextFileFilterProcessor filterProcessor;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public StringBuilder lineStringBuilder;
 
@@ -102,9 +102,9 @@ public class TextFileInputData extends BaseTransformData implements TransformDat
 
   public int fileType;
 
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta convertRowMeta;
 
-  public RowSet rowSet;
+  public IRowSet rowSet;
 
   /**
    * The separator (delimiter)

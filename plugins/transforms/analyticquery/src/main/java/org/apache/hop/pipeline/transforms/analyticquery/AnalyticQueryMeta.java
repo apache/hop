@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.analyticquery;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -31,11 +31,11 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -43,8 +43,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -57,7 +57,7 @@ import java.util.List;
   name = "AnalyticQuery.Name", description = "AnalyticQuery.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics" )
 @InjectionSupported( localizationPrefix = "AnalyticQuery.Injection." )
-public class AnalyticQueryMeta extends BaseTransformMeta implements TransformMetaInterface<AnalyticQuery, AnalyticQueryData> {
+public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
 
@@ -266,11 +266,11 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements TransformMet
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // re-assemble a new row of metadata
     //
-    RowMetaInterface fields = new RowMeta();
+    IRowMeta fields = new RowMeta();
 
     // Add existing values
     fields.addRowMeta( r );
@@ -281,14 +281,14 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements TransformMet
       int index_of_subject = -1;
       index_of_subject = r.indexOfValue( subjectField[ i ] );
 
-      // if we found the subjectField in the RowMetaInterface, and we should....
+      // if we found the subjectField in the IRowMeta, and we should....
       if ( index_of_subject > -1 ) {
-        ValueMetaInterface vmi = r.getValueMeta( index_of_subject ).clone();
+        IValueMeta vmi = r.getValueMeta( index_of_subject ).clone();
         vmi.setOrigin( origin );
         vmi.setName( aggregateField[ i ] );
         fields.addValueMeta( r.size() + i, vmi );
       } else {
-        // we have a condition where the subjectField can't be found from the rowMetaInterface
+        // we have a condition where the subjectField can't be found from the iRowMeta
         StringBuilder sbfieldNames = new StringBuilder();
         String[] fieldNames = r.getFieldNames();
         for ( int j = 0; j < fieldNames.length; j++ ) {
@@ -332,28 +332,28 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements TransformMet
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "AnalyticQueryMeta.CheckResult.ReceivingInfoOK" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "AnalyticQueryMeta.CheckResult.NoInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public AnalyticQuery createTransform( TransformMeta transformMeta, AnalyticQueryData transformDataInterface, int cnr,
+  public AnalyticQuery createTransform( TransformMeta transformMeta, AnalyticQueryData iTransformData, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new AnalyticQuery( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new AnalyticQuery( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.denormaliser;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -36,8 +36,8 @@ import java.util.Map;
  * @author Matt
  * @since 19-jan-2006
  */
-public class DenormaliserData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class DenormaliserData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
 
   public Object[] previous;
 
@@ -58,7 +58,7 @@ public class DenormaliserData extends BaseTransformData implements TransformData
 
   public Object[] sum;
 
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public DenormaliserData() {
     super();

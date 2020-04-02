@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.gui;
 
-public class RuntimeThreadDialogs implements ThreadDialogs {
+public class RuntimeThreadDialogs implements IThreadDialogs {
 
   @Override
   public boolean threadMessageBox( String message, String text, boolean allowCancel, int type ) {

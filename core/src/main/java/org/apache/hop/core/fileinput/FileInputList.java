@@ -29,9 +29,9 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.compressed.CompressedFileFileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class FileInputList {
   private List<FileObject> nonExistantFiles = new ArrayList<FileObject>( 1 );
   private List<FileObject> nonAccessibleFiles = new ArrayList<FileObject>( 1 );
 
-  private static LogChannelInterface log = new LogChannel( "FileInputList" );
+  private static ILogChannel log = new LogChannel( "FileInputList" );
 
   public enum FileTypeFilter {
     FILES_AND_FOLDERS( "all_files", FileType.FILE, FileType.FOLDER ), ONLY_FILES( "only_files", FileType.FILE ),
@@ -110,23 +110,23 @@ public class FileInputList {
     return includeSubdirs;
   }
 
-  public static String[] createFilePathList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static String[] createFilePathList( IVariables variables, String[] fileName, String[] fileMask,
                                              String[] excludeFileMask, String[] fileRequired ) {
     boolean[] includeSubdirs = includeSubdirsFalse( fileName.length );
-    return createFilePathList( space, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
+    return createFilePathList( variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
   }
 
-  public static String[] createFilePathList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static String[] createFilePathList( IVariables variables, String[] fileName, String[] fileMask,
                                              String[] excludeFileMask, String[] fileRequired,
                                              boolean[] includeSubdirs ) {
-    return createFilePathList( space, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
+    return createFilePathList( variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
   }
 
-  public static String[] createFilePathList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static String[] createFilePathList( IVariables variables, String[] fileName, String[] fileMask,
                                              String[] excludeFileMask, String[] fileRequired, boolean[] includeSubdirs,
                                              FileTypeFilter[] filters ) {
     List<FileObject> fileList =
-      createFileList( space, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, filters )
+      createFileList( variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, filters )
         .getFiles();
     String[] filePaths = new String[ fileList.size() ];
     for ( int i = 0; i < filePaths.length; i++ ) {
@@ -135,27 +135,27 @@ public class FileInputList {
     return filePaths;
   }
 
-  public static FileInputList createFileList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static FileInputList createFileList( IVariables variables, String[] fileName, String[] fileMask,
                                               String[] excludeFileMask, String[] fileRequired ) {
     boolean[] includeSubdirs = includeSubdirsFalse( fileName.length );
-    return createFileList( space, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
+    return createFileList( variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
   }
 
-  public static FileInputList createFileList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static FileInputList createFileList( IVariables variables, String[] fileName, String[] fileMask,
                                               String[] excludeFileMask, String[] fileRequired,
                                               boolean[] includeSubdirs ) {
-    return createFileList( space, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
+    return createFileList( variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubdirs, null );
   }
 
-  public static FileInputList createFileList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static FileInputList createFileList( IVariables variables, String[] fileName, String[] fileMask,
                                               String[] excludeFileMask, String[] fileRequired, boolean[] includeSubdirs,
                                               FileTypeFilter[] fileTypeFilters ) {
     FileInputList fileInputList = new FileInputList();
 
     // Replace possible environment variables...
-    final String[] realfile = space.environmentSubstitute( fileName );
-    final String[] realmask = space.environmentSubstitute( fileMask );
-    final String[] realExcludeMask = space.environmentSubstitute( excludeFileMask );
+    final String[] realfile = variables.environmentSubstitute( fileName );
+    final String[] realmask = variables.environmentSubstitute( fileMask );
+    final String[] realExcludeMask = variables.environmentSubstitute( excludeFileMask );
 
     for ( int i = 0; i < realfile.length; i++ ) {
       final String onefile = realfile[ i ];
@@ -172,7 +172,7 @@ public class FileInputList {
       }
 
       try {
-        FileObject directoryFileObject = HopVFS.getFileObject( onefile, space );
+        FileObject directoryFileObject = HopVFS.getFileObject( onefile, variables );
         boolean processFolder = true;
         if ( onerequired ) {
           if ( !directoryFileObject.exists() ) {
@@ -261,7 +261,7 @@ public class FileInputList {
             }
             // We don't sort here, keep the order of the files in the archive.
           } else {
-            FileObject fileObject = HopVFS.getFileObject( onefile, space );
+            FileObject fileObject = HopVFS.getFileObject( onefile, variables );
             if ( fileObject.exists() ) {
               if ( fileObject.isReadable() ) {
                 fileInputList.addFile( fileObject );
@@ -288,11 +288,11 @@ public class FileInputList {
     return fileInputList;
   }
 
-  public static FileInputList createFolderList( VariableSpace space, String[] folderName, String[] folderRequired ) {
+  public static FileInputList createFolderList( IVariables variables, String[] folderName, String[] folderRequired ) {
     FileInputList fileInputList = new FileInputList();
 
     // Replace possible environment variables...
-    final String[] realfolder = space.environmentSubstitute( folderName );
+    final String[] realfolder = variables.environmentSubstitute( folderName );
 
     for ( int i = 0; i < realfolder.length; i++ ) {
       final String onefile = realfolder[ i ];
@@ -308,7 +308,7 @@ public class FileInputList {
       try {
         // Find all folder names in this directory
         //
-        directoryFileObject = HopVFS.getFileObject( onefile, space );
+        directoryFileObject = HopVFS.getFileObject( onefile, variables );
         if ( directoryFileObject != null && directoryFileObject.getType() == FileType.FOLDER ) { // it's a directory
           FileObject[] fileObjects = directoryFileObject.findFiles( new AllFileSelector() {
             @Override
@@ -436,16 +436,16 @@ public class FileInputList {
     return nonAccessibleFiles.size() + nonExistantFiles.size();
   }
 
-  public static FileInputList createFileList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static FileInputList createFileList( IVariables variables, String[] fileName, String[] fileMask,
                                               String[] fileRequired, boolean[] includeSubdirs ) {
     return createFileList(
-      space, fileName, fileMask, new String[ fileName.length ], fileRequired, includeSubdirs, null );
+      variables, fileName, fileMask, new String[ fileName.length ], fileRequired, includeSubdirs, null );
   }
 
-  public static String[] createFilePathList( VariableSpace space, String[] fileName, String[] fileMask,
+  public static String[] createFilePathList( IVariables variables, String[] fileName, String[] fileMask,
                                              String[] fileRequired ) {
     boolean[] includeSubdirs = includeSubdirsFalse( fileName.length );
     return createFilePathList(
-      space, fileName, fileMask, new String[ fileName.length ], fileRequired, includeSubdirs, null );
+      variables, fileName, fileMask, new String[ fileName.length ], fileRequired, includeSubdirs, null );
   }
 }

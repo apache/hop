@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public class HopGuiPipelineUndoDelegate {
@@ -46,7 +46,7 @@ public class HopGuiPipelineUndoDelegate {
     this.pipelineGraph = pipelineGraph;
   }
 
-  public void undoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta ) {
+  public void undoPipelineAction( IHopFileTypeHandler handler, PipelineMeta pipelineMeta ) {
     ChangeAction changeAction = pipelineMeta.previousUndo();
     if ( changeAction == null ) {
       return;
@@ -56,7 +56,7 @@ public class HopGuiPipelineUndoDelegate {
   }
 
 
-  public void undoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
+  public void undoPipelineAction( IHopFileTypeHandler handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       // We created a new transform : undo this...
       case NewTransform:
@@ -195,7 +195,7 @@ public class HopGuiPipelineUndoDelegate {
     }
   }
 
-  public void redoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta ) {
+  public void redoPipelineAction( IHopFileTypeHandler handler, PipelineMeta pipelineMeta ) {
     ChangeAction changeAction = pipelineMeta.nextUndo();
     if ( changeAction == null ) {
       return;
@@ -204,7 +204,7 @@ public class HopGuiPipelineUndoDelegate {
     handler.updateGui();
   }
 
-  public void redoPipelineAction( HopFileTypeHandlerInterface handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
+  public void redoPipelineAction( IHopFileTypeHandler handler, PipelineMeta pipelineMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       case NewTransform:
         // re-delete the transform at correct location:

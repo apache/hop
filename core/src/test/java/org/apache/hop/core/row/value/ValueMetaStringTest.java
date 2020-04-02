@@ -24,7 +24,7 @@ package org.apache.hop.core.row.value;
 
 import junit.framework.Assert;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -76,25 +76,25 @@ public class ValueMetaStringTest {
     Timestamp ts = Timestamp.valueOf( "2012-11-10 09:08:07.654321" );
     assertEquals( "2012-11-10 09:08:07.654321", meta.getNativeDataType( ts ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     assertEquals( "", meta.getNativeDataType( "" ) );
     assertEquals( "1", meta.getNativeDataType( "1" ) );
     assertEquals( "    ", meta.getNativeDataType( "    " ) );
     assertEquals( "  1  ", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     assertEquals( "", meta.getNativeDataType( "" ) );
     assertEquals( "1", meta.getNativeDataType( "1" ) );
     assertEquals( "", meta.getNativeDataType( "    " ) );
     assertEquals( "1  ", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     assertEquals( "", meta.getNativeDataType( "" ) );
     assertEquals( "1", meta.getNativeDataType( "1" ) );
     assertEquals( "", meta.getNativeDataType( "    " ) );
     assertEquals( "  1", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     assertEquals( "", meta.getNativeDataType( "" ) );
     assertEquals( "1", meta.getNativeDataType( "1" ) );
     assertEquals( "", meta.getNativeDataType( "    " ) );
@@ -117,14 +117,14 @@ public class ValueMetaStringTest {
     Timestamp ts = Timestamp.valueOf( "2012-11-10 09:08:07.654321" );
     assertEquals( "2012-11-10 09:08:07.654321", meta.getNativeDataType( ts ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
     assertEquals( "", meta.getNativeDataType( "" ) ); // TODO: is it correct?
     assertEquals( "1", meta.getNativeDataType( "1" ) );
     assertEquals( "    ", meta.getNativeDataType( "    " ) );
     assertEquals( "  1  ", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
     assertEquals( "", meta.getNativeDataType( "" ) ); // TODO: is it correct?
     assertEquals( "1", meta.getNativeDataType( "1" ) );
@@ -132,7 +132,7 @@ public class ValueMetaStringTest {
     assertEquals( "", meta.getNativeDataType( "    " ) ); // TODO: is it correct?
     assertEquals( "1  ", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
     assertEquals( "", meta.getNativeDataType( "" ) ); // TODO: is it correct?
     assertEquals( "1", meta.getNativeDataType( "1" ) );
@@ -140,7 +140,7 @@ public class ValueMetaStringTest {
     assertEquals( "", meta.getNativeDataType( "    " ) ); // TODO: is it correct?
     assertEquals( "  1", meta.getNativeDataType( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
     assertEquals( "", meta.getNativeDataType( "" ) ); // TODO: is it correct?
     assertEquals( "1", meta.getNativeDataType( "1" ) );
@@ -158,19 +158,19 @@ public class ValueMetaStringTest {
 
     assertEquals( false, meta.isNull( "1" ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     assertEquals( false, meta.isNull( "    " ) );
     assertEquals( false, meta.isNull( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     assertEquals( false, meta.isNull( "    " ) );
     assertEquals( false, meta.isNull( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     assertEquals( false, meta.isNull( "    " ) );
     assertEquals( false, meta.isNull( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     assertEquals( false, meta.isNull( "    " ) );
     assertEquals( false, meta.isNull( "  1  " ) );
   }
@@ -184,14 +184,14 @@ public class ValueMetaStringTest {
 
     assertEquals( false, meta.isNull( "1" ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     assertEquals( false, meta.isNull( "    " ) );
     assertEquals( false, meta.isNull( meta.getString( "    " ) ) );
 
     assertEquals( false, meta.isNull( "  1  " ) );
     assertEquals( false, meta.isNull( meta.getString( "  1  " ) ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
     assertEquals( false, meta.isNull( "    " ) ); // TODO: is it correct?
     assertEquals( true, meta.isNull( meta.getString( "    " ) ) );
@@ -199,7 +199,7 @@ public class ValueMetaStringTest {
     assertEquals( false, meta.isNull( "  1  " ) );
     assertEquals( false, meta.isNull( meta.getString( "  1  " ) ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
     assertEquals( false, meta.isNull( "    " ) ); // TODO: is it correct?
     assertEquals( true, meta.isNull( meta.getString( "    " ) ) );
@@ -207,7 +207,7 @@ public class ValueMetaStringTest {
     assertEquals( false, meta.isNull( "  1  " ) );
     assertEquals( false, meta.isNull( meta.getString( "  1  " ) ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
     assertEquals( false, meta.isNull( "    " ) ); // TODO: is it correct?
     assertEquals( true, meta.isNull( meta.getString( "    " ) ) );
@@ -223,19 +223,19 @@ public class ValueMetaStringTest {
     assertEquals( null, meta.getString( null ) );
     assertEquals( "", meta.getString( "" ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     assertEquals( "    ", meta.getString( "    " ) );
     assertEquals( "  1  ", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     assertEquals( "", meta.getString( "    " ) );
     assertEquals( "1  ", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     assertEquals( "", meta.getString( "    " ) );
     assertEquals( "  1", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     assertEquals( "", meta.getString( "    " ) );
     assertEquals( "1", meta.getString( "  1  " ) );
   }
@@ -248,21 +248,21 @@ public class ValueMetaStringTest {
     //assertEquals( null, meta.getString( "" ) ); // TODO: is it correct?
     assertEquals( "", meta.getString( "" ) ); // TODO: is it correct?
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     assertEquals( "    ", meta.getString( "    " ) );
     assertEquals( "  1  ", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
     // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "", meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "1  ", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
     // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "", meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "  1", meta.getString( "  1  " ) );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "", meta.getString( "    " ) ); // TODO: is it correct?
     assertEquals( "1", meta.getString( "  1  " ) );
@@ -272,7 +272,7 @@ public class ValueMetaStringTest {
   public void testCompare_emptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( true );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( -1, meta.compare( null, "" ) ); // null < ""
@@ -330,7 +330,7 @@ public class ValueMetaStringTest {
     assertSignum( 1, meta.compare( "1 ", "1" ) ); // "1 " > "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1 " == "1 "
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( -1, meta.compare( null, "" ) ); // null < ""
@@ -388,7 +388,7 @@ public class ValueMetaStringTest {
     assertSignum( 1, meta.compare( "1 ", "1" ) ); // "1 " > "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1 " == "1 "
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( -1, meta.compare( null, "" ) ); // null < ""
@@ -446,7 +446,7 @@ public class ValueMetaStringTest {
     assertSignum( 0, meta.compare( "1 ", "1" ) ); // "1" == "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1" == "1"
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( -1, meta.compare( null, "" ) ); // null < ""
@@ -504,7 +504,7 @@ public class ValueMetaStringTest {
     assertSignum( 0, meta.compare( "1 ", "1" ) ); // "1" == "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1" == "1"
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     meta.setIgnoreWhitespace( true );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
@@ -568,7 +568,7 @@ public class ValueMetaStringTest {
   public void testCompare_emptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( false );
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( 0, meta.compare( null, "" ) ); // null == null
@@ -626,7 +626,7 @@ public class ValueMetaStringTest {
     assertSignum( 1, meta.compare( "1 ", "1" ) ); // "1 " > "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1 " == "1 "
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_LEFT );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( 0, meta.compare( null, "" ) ); // null < null
@@ -687,7 +687,7 @@ public class ValueMetaStringTest {
     assertSignum( 1, meta.compare( "1 ", "1" ) ); // "1 " > "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1 " == "1 "
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_RIGHT );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( 0, meta.compare( null, "" ) ); // null == null
@@ -749,7 +749,7 @@ public class ValueMetaStringTest {
     assertSignum( 0, meta.compare( "1 ", "1" ) ); // "1" == "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1" == "1"
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_BOTH );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
     assertSignum( 0, meta.compare( null, "" ) ); // null == null
@@ -811,7 +811,7 @@ public class ValueMetaStringTest {
     assertSignum( 0, meta.compare( "1 ", "1" ) ); // "1" == "1"
     assertSignum( 0, meta.compare( "1 ", "1 " ) ); // "1" == "1"
 
-    meta.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
     meta.setIgnoreWhitespace( true );
 
     assertSignum( 0, meta.compare( null, null ) ); // null == null
@@ -909,7 +909,7 @@ public class ValueMetaStringTest {
   @Test
   public void testGetIntegerWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.56";
-    ValueMetaInterface stringValueMeta = new ValueMetaString( "test" );
+    IValueMeta stringValueMeta = new ValueMetaString( "test" );
 
     Long expected = 100L;
     Long result = stringValueMeta.getInteger( value );
@@ -919,7 +919,7 @@ public class ValueMetaStringTest {
   @Test
   public void testGetNumberWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.56";
-    ValueMetaInterface stringValueMeta = new ValueMetaString( "test" );
+    IValueMeta stringValueMeta = new ValueMetaString( "test" );
 
     Double expected = 100.56D;
     Double result = stringValueMeta.getNumber( value );
@@ -929,7 +929,7 @@ public class ValueMetaStringTest {
   @Test
   public void testGetBigNumberWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.5";
-    ValueMetaInterface stringValueMeta = new ValueMetaString( "test" );
+    IValueMeta stringValueMeta = new ValueMetaString( "test" );
 
     BigDecimal expected = new BigDecimal( 100.5 );
     BigDecimal result = stringValueMeta.getBigNumber( value );
@@ -940,7 +940,7 @@ public class ValueMetaStringTest {
   public void testGetDateWithoutConversionMask() throws HopValueException, ParseException {
     Calendar date = new GregorianCalendar( 2017, 9, 20 ); // month 9 = Oct
     String value = "2017/10/20 00:00:00.000";
-    ValueMetaInterface stringValueMeta = new ValueMetaString( "test" );
+    IValueMeta stringValueMeta = new ValueMetaString( "test" );
 
     Date expected = Date.from( date.toInstant() );
     Date result = stringValueMeta.getDate( value );

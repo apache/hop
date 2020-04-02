@@ -22,8 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.simplemapping;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
@@ -38,7 +38,7 @@ public class RowDataInputMapper {
   private final MappingIODefinition inputDefinition;
 
   private boolean first = true;
-  private RowMetaInterface renamedRowMeta;
+  private IRowMeta renamedRowMeta;
 
   public RowDataInputMapper( MappingIODefinition inputDefinition, RowProducer rowProducer ) {
     this.inputDefinition = inputDefinition;
@@ -53,13 +53,13 @@ public class RowDataInputMapper {
    * @param row     input row
    * @return <code>true</code> if the <code>row</code> was put successfully
    */
-  public boolean putRow( RowMetaInterface rowMeta, Object[] row ) {
+  public boolean putRow( IRowMeta rowMeta, Object[] row ) {
     if ( first ) {
       first = false;
       renamedRowMeta = rowMeta.clone();
 
       for ( MappingValueRename valueRename : inputDefinition.getValueRenames() ) {
-        ValueMetaInterface valueMeta = renamedRowMeta.searchValueMeta( valueRename.getSourceValueName() );
+        IValueMeta valueMeta = renamedRowMeta.searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta != null ) {
           valueMeta.setName( valueRename.getTargetValueName() );
         }

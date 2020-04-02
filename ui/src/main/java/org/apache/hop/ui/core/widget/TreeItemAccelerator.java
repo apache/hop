@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.TreeItem;
  * @author Matt
  */
 public class TreeItemAccelerator {
-  public static final void addDoubleClick( final TreeItem treeItem, final DoubleClickInterface doubleClick ) {
+  public static final void addDoubleClick( final TreeItem treeItem, final IDoubleClick doubleClick ) {
     final String[] path1 = ConstUI.getTreeStrings( treeItem );
     final Tree tree = treeItem.getParent();
 

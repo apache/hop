@@ -6,5 +6,5 @@ public interface IHasName {
    *
    * @return the name of an element
    */
-  public String getName();
+  String getName();
 }

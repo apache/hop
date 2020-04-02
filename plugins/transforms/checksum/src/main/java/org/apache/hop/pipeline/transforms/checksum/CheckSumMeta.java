@@ -23,28 +23,28 @@
 package org.apache.hop.pipeline.transforms.checksum;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -58,7 +58,7 @@ import java.util.List;
   description = "CheckSum.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform" )
 @InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
-public class CheckSumMeta extends BaseTransformMeta implements TransformMetaInterface<CheckSum, CheckSumData> {
+public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {
 
   private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -318,20 +318,20 @@ public class CheckSumMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldName ) ) {
-      ValueMetaInterface v = null;
+      IValueMeta v = null;
       if ( checksumtype.equals( TYPE_CRC32 ) || checksumtype.equals( TYPE_ADLER32 ) ) {
-        v = new ValueMetaInteger( space.environmentSubstitute( resultfieldName ) );
+        v = new ValueMetaInteger( variables.environmentSubstitute( resultfieldName ) );
       } else {
         switch ( resultType ) {
           case result_TYPE_BINARY:
-            v = new ValueMetaBinary( space.environmentSubstitute( resultfieldName ) );
+            v = new ValueMetaBinary( variables.environmentSubstitute( resultfieldName ) );
             break;
           default:
-            v = new ValueMetaString( space.environmentSubstitute( resultfieldName ) );
+            v = new ValueMetaString( variables.environmentSubstitute( resultfieldName ) );
             break;
         }
       }
@@ -341,8 +341,8 @@ public class CheckSumMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -426,9 +426,9 @@ public class CheckSumMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public CheckSum createTransform( TransformMeta transformMeta, CheckSumData transformDataInterface, int cnr, PipelineMeta tr,
+  public CheckSum createTransform( TransformMeta transformMeta, CheckSumData iTransformData, int cnr, PipelineMeta tr,
                                    Pipeline pipeline ) {
-    return new CheckSum( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new CheckSum( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override

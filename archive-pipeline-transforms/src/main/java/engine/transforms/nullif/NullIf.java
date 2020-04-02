@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.nullif;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -40,19 +40,19 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 4-aug-2003
  */
-public class NullIf extends BaseTransform implements TransformInterface {
+public class NullIf extends BaseTransform implements ITransform {
   private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
 
   private NullIfMeta meta;
   private NullIfData data;
 
-  public NullIf( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public NullIf( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (NullIfMeta) smi;
     data = (NullIfData) sdi;
 
@@ -71,7 +71,7 @@ public class NullIf extends BaseTransform implements TransformInterface {
       int fieldsLength = meta.getFields().length;
       data.keynr = new int[ fieldsLength ];
       data.nullValue = new Object[ fieldsLength ];
-      data.nullValueMeta = new ValueMetaInterface[ fieldsLength ];
+      data.nullValueMeta = new IValueMeta[ fieldsLength ];
       for ( int i = 0; i < fieldsLength; i++ ) {
         data.keynr[ i ] = data.outputRowMeta.indexOfValue( meta.getFields()[ i ].getFieldName() );
         if ( data.keynr[ i ] < 0 ) {
@@ -108,7 +108,7 @@ public class NullIf extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (NullIfMeta) smi;
     data = (NullIfData) sdi;
 
@@ -116,7 +116,7 @@ public class NullIf extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (NullIfMeta) smi;
     data = (NullIfData) sdi;
 

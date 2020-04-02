@@ -25,9 +25,9 @@ package org.apache.hop.core.logging;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -44,7 +44,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class TransformLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class TransformLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = TransformLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -69,8 +69,8 @@ public class TransformLogTable extends BaseLogTable implements Cloneable, LogTab
     }
   }
 
-  private TransformLogTable( VariableSpace space, IMetaStore metaStore ) {
-    super( space, metaStore, null, null, null );
+  private TransformLogTable( IVariables variables, IMetaStore metaStore ) {
+    super( variables, metaStore, null, null, null );
   }
 
   @Override
@@ -111,7 +111,7 @@ public class TransformLogTable extends BaseLogTable implements Cloneable, LogTab
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof TransformLogTable ) ) {
       return;
     }
@@ -121,38 +121,38 @@ public class TransformLogTable extends BaseLogTable implements Cloneable, LogTab
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static TransformLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
-    TransformLogTable table = new TransformLogTable( space, metaStore );
+  public static TransformLogTable getDefault( IVariables variables, IMetaStore metaStore ) {
+    TransformLogTable table = new TransformLogTable( variables, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "TransformLogTable.FieldName.IdBatch" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.IdBatch" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "TransformLogTable.FieldName.ChannelId" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.ChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "TransformLogTable.FieldName.PipelineName" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.PipelineName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.TRANSFORM_NAME.id, true, false, "TRANSFORM_NAME", BaseMessages.getString( PKG, "TransformLogTable.FieldName.TransformName" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.TransformName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.TransformName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.TRANSFORM_COPY.id, true, false, "TRANSFORM_COPY", BaseMessages.getString( PKG, "TransformLogTable.FieldName.TransformCopy" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.TransformCopy" ), ValueMetaInterface.TYPE_INTEGER, 3 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.TransformCopy" ), IValueMeta.TYPE_INTEGER, 3 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesRead" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesRead" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesWritten" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesWritten" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, false, "LINES_UPDATED", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesUpdated" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesUpdated" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, false, "LINES_INPUT", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesInput" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesInput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, false, "LINES_OUTPUT", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesOutput" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesOutput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, false, "LINES_REJECTED", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LinesRejected" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LinesRejected" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add(
       new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "TransformLogTable.FieldName.Errors" ), BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.Errors" ),
-        ValueMetaInterface.TYPE_INTEGER, 18 ) );
+        IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LOG_FIELD.id, false, false, "LOG_FIELD", BaseMessages.getString( PKG, "TransformLogTable.FieldName.LogField" ),
-      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
+      BaseMessages.getString( PKG, "TransformLogTable.FieldDescription.LogField" ), IValueMeta.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
 
     table.findField( ID.PIPELINE_NAME.id ).setNameField( true );
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
@@ -262,8 +262,8 @@ public class TransformLogTable extends BaseLogTable implements Cloneable, LogTab
     return Const.HOP_TRANSFORM_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
     return indexes;
   }
 }

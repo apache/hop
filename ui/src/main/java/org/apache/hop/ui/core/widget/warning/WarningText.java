@@ -50,19 +50,19 @@ import java.util.List;
  * @author Matt
  * @since 25-FEB-2009
  */
-public class WarningText extends Composite implements SupportsWarningInterface {
+public class WarningText extends Composite implements ISupportsWarning {
   private static Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
 
   private ControlDecoration warningControlDecoration;
 
   private Text wText;
 
-  private List<WarningInterface> warningInterfaces;
+  private List<IWarning> warningInterfaces;
 
   public WarningText( Composite composite, int flags ) {
     super( composite, SWT.NONE );
 
-    warningInterfaces = new ArrayList<WarningInterface>();
+    warningInterfaces = new ArrayList<IWarning>();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -90,8 +90,8 @@ public class WarningText extends Composite implements SupportsWarningInterface {
         // Show the first that has a warning to show...
         //
         boolean foundOne = false;
-        for ( WarningInterface warningInterface : warningInterfaces ) {
-          WarningMessageInterface warningSituation =
+        for ( IWarning warningInterface : warningInterfaces ) {
+          IWarningMessage warningSituation =
             warningInterface.getWarningSituation( wText.getText(), wText, this );
           if ( warningSituation.isWarning() ) {
             foundOne = true;
@@ -184,15 +184,15 @@ public class WarningText extends Composite implements SupportsWarningInterface {
     wText.showSelection();
   }
 
-  public void addWarningInterface( WarningInterface warningInterface ) {
+  public void addWarning( IWarning warningInterface ) {
     warningInterfaces.add( warningInterface );
   }
 
-  public void removeWarningInterface( WarningInterface warningInterface ) {
+  public void removeWarningInterface( IWarning warningInterface ) {
     warningInterfaces.remove( warningInterface );
   }
 
-  public List<WarningInterface> getWarningInterfaces() {
+  public List<IWarning> getWarningInterfaces() {
     return warningInterfaces;
   }
 }

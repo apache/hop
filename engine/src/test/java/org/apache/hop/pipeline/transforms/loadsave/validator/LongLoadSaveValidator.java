@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * @author Andrey Khayrutdinov
  */
-public class LongLoadSaveValidator implements FieldLoadSaveValidator<Long> {
+public class LongLoadSaveValidator implements IFieldLoadSaveValidator<Long> {
   private final Long sample = new Random().nextLong();
 
   @Override

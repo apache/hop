@@ -29,8 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -40,19 +40,19 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 2-jun-2003
  */
-public class RowsFromResult extends BaseTransform implements TransformInterface {
+public class RowsFromResult extends BaseTransform implements ITransform {
   private static Class<?> PKG = RowsFromResult.class; // for i18n purposes, needed by Translator!!
 
   private RowsFromResultData data;
 
-  public RowsFromResult( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public RowsFromResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
-    data = (RowsFromResultData) transformDataInterface;
+    data = (RowsFromResultData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Result previousResult = getPipeline().getPreviousResult();
     if ( previousResult == null || getLinesRead() >= previousResult.getRows().size() ) {
       setOutputDone();

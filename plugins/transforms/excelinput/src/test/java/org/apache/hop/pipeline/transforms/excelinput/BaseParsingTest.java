@@ -28,10 +28,10 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -50,9 +50,9 @@ import static org.junit.Assert.*;
  * Base class for all tests for BaseFileInput transforms.
  */
 @Ignore( "No tests in abstract base class" )
-public abstract class BaseParsingTest<Meta extends TransformMetaInterface, Data extends TransformDataInterface, Transform extends BaseTransform> {
+public abstract class BaseParsingTest<Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
 
-  protected LogChannelInterface log = new LogChannel( "junit" );
+  protected ILogChannel log = new LogChannel( "junit" );
   protected FileSystemManager fs;
   protected String inPrefix;
   protected Meta meta;
@@ -162,19 +162,19 @@ public abstract class BaseParsingTest<Meta extends TransformMetaInterface, Data 
   /**
    * Listener for parsing result.
    */
-  protected RowListener rowListener = new RowListener() {
+  protected IRowListener rowListener = new IRowListener() {
     @Override
-    public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       rows.add( Arrays.copyOf( row, rowMeta.size() ) );
     }
 
     @Override
-    public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       System.out.println();
     }
 
     @Override
-    public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       errorsCount++;
     }
   };

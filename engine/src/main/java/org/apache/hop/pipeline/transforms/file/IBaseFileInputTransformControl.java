@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.file;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * Interface for some transform operations required for parse input file.
@@ -33,7 +33,7 @@ public interface IBaseFileInputTransformControl {
 
   long getLinesWritten();
 
-  void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException;
+  void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException;
 
   long getLinesInput();
 

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -46,7 +46,7 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputMultiCharDelimiterTest" );
     csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 
@@ -86,7 +86,7 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
   }
 
   private void doTest( String content ) throws Exception {
-    RowSet output = new QueueRowSet();
+    IRowSet output = new QueueRowSet();
 
     File tmp = createTestFile( ENCODING, content );
     try {

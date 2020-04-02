@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class GetJobImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetJobImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
 
@@ -200,7 +200,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements HopServerPlug
   }
 
   public String toString() {
-    return "Job Image Handler";
+    return "Job Image IHandler";
   }
 
   public String getService() {

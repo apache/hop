@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.validator;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
@@ -32,10 +32,10 @@ import java.util.regex.Pattern;
  * @author Matt
  * @since 11-jan-2007
  */
-public class ValidatorData extends BaseTransformData implements TransformDataInterface {
+public class ValidatorData extends BaseTransformData implements ITransformData {
   public int[] fieldIndexes;
 
-  public ValueMetaInterface[] constantsMeta;
+  public IValueMeta[] constantsMeta;
   public String[] minimumValueAsString;
   public String[] maximumValueAsString;
   public int[] fieldsMinimumLengthAsInt;

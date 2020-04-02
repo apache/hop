@@ -24,11 +24,11 @@ package org.apache.hop.ui.pipeline.transforms.symmetriccrypto.symmetriccrypto;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetriccrypto.SymmetricCryptoPipelineMeta;
 import org.apache.hop.ui.core.PropsUI;
@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class SymmetricCryptoDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SymmetricCryptoDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
 
   private Group wCryptoSettings;
@@ -570,7 +570,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements Transf
       String field = wSecretKeyField.getText();
       wSecretKeyField.removeAll();
 
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         wSecretKeyField.setItems( r.getFieldNames() );
       }
@@ -590,7 +590,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements Transf
       String field = wMessage.getText();
       wMessage.removeAll();
 
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       wMessage.setItems( r.getFieldNames() );
       if ( field != null ) {
         wMessage.setText( field );

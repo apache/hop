@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.normaliser;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -44,18 +44,18 @@ import java.util.Set;
  * @author Matt
  * @since 5-apr-2003
  */
-public class Normaliser extends BaseTransform implements TransformInterface {
+public class Normaliser extends BaseTransform implements ITransform {
   private static Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private NormaliserMeta meta;
   private NormaliserData data;
 
-  public Normaliser( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Normaliser( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (NormaliserMeta) smi;
     data = (NormaliserData) sdi;
 
@@ -124,7 +124,7 @@ public class Normaliser extends BaseTransform implements TransformInterface {
       int irmSize = data.inputRowMeta.size();
 
       for ( i = 0; i < irmSize; i++ ) {
-        ValueMetaInterface v = data.inputRowMeta.getValueMeta( Integer.valueOf( i ) );
+        IValueMeta v = data.inputRowMeta.getValueMeta( Integer.valueOf( i ) );
         // Backwards compatibility - old loop called Const.indexofstring which uses equalsIgnoreCase
         if ( !normaliserFields.contains( v.getName().toLowerCase() ) ) {
           data.copy_fieldnrs.add( Integer.valueOf( i ) );
@@ -189,7 +189,7 @@ public class Normaliser extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (NormaliserMeta) smi;
     data = (NormaliserData) sdi;
 

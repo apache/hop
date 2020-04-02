@@ -22,20 +22,20 @@
 
 package org.apache.hop.pipeline.transforms.getvariable;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class GetVariableData extends BaseTransformData implements TransformDataInterface {
+public class GetVariableData extends BaseTransformData implements ITransformData {
   public boolean readsRows;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
   public Object[] extraData;
-  public RowMetaInterface conversionMeta;
+  public IRowMeta conversionMeta;
 
   public GetVariableData() {
     super();

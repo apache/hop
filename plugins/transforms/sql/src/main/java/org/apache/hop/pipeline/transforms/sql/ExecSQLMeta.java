@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.sql;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -35,9 +35,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -45,9 +45,9 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -67,7 +67,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSQLMeta.Injection.", groups = { "PARAMETERS" } )
-public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInterface<ExecSQL, ExecSQLData> {
+public class ExecSQLMeta extends BaseTransformMeta implements ITransformMeta<ExecSQL, ExecSQLData> {
   private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
@@ -292,8 +292,8 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
     arguments = new String[ 0 ];
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -328,14 +328,14 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ExecSQLMeta.CheckResult.ConnectionExists" ), transformMeta );
       remarks.add( cr );
 
@@ -347,24 +347,24 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
       try {
         db.connect();
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.DBConnectionOK" ), transformMeta );
         remarks.add( cr );
 
         if ( sql != null && sql.length() != 0 ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
               PKG, "ExecSQLMeta.CheckResult.SQLStatementEntered" ), transformMeta );
           remarks.add( cr );
         } else {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
               PKG, "ExecSQLMeta.CheckResult.SQLStatementMissing" ), transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.ErrorOccurred" )
             + e.getMessage(), transformMeta );
         remarks.add( cr );
@@ -373,7 +373,7 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
       }
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "ExecSQLMeta.CheckResult.ConnectionNeeded" ), transformMeta );
       remarks.add( cr );
     }
@@ -382,33 +382,33 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
     if ( executedEachInputRow ) {
       if ( input.length > 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.TransformReceivingInfoOK" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.NoInputReceivedError" ), transformMeta );
         remarks.add( cr );
       }
     } else {
       if ( input.length > 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.SQLOnlyExecutedOnce" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ExecSQLMeta.CheckResult.InputReceivedOKForSQLOnlyExecuteOnce" ), transformMeta );
         remarks.add( cr );
       }
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, ExecSQLData transformDataInterface, int cnr,
-                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQL( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, ExecSQLData iTransformData, int cnr,
+                                     PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new ExecSQL( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public ExecSQLData getTransformData() {

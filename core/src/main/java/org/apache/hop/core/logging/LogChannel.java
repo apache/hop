@@ -24,7 +24,7 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.metrics.MetricsSnapshot;
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 import org.apache.hop.core.util.Utils;
 
@@ -32,13 +32,13 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
 
-public class LogChannel implements LogChannelInterface {
+public class LogChannel implements ILogChannel {
 
-  public static LogChannelInterface GENERAL = new LogChannel( "General" );
+  public static ILogChannel GENERAL = new LogChannel( "General" );
 
-  public static LogChannelInterface METADATA = new LogChannel( "Metadata" );
+  public static ILogChannel METADATA = new LogChannel( "Metadata" );
 
-  public static LogChannelInterface UI = new LogChannel( "GUI" );
+  public static ILogChannel UI = new LogChannel( "GUI" );
 
   private String logChannelId;
 
@@ -66,7 +66,7 @@ public class LogChannel implements LogChannelInterface {
     this.gatheringMetrics = gatheringMetrics;
   }
 
-  public LogChannel( Object subject, LoggingObjectInterface parentObject ) {
+  public LogChannel( Object subject, ILoggingObject parentObject ) {
     if ( parentObject != null ) {
       this.logLevel = parentObject.getLogLevel();
       this.containerObjectId = parentObject.getContainerObjectId();
@@ -77,7 +77,7 @@ public class LogChannel implements LogChannelInterface {
     logChannelId = LoggingRegistry.getInstance().registerLoggingSource( subject );
   }
 
-  public LogChannel( Object subject, LoggingObjectInterface parentObject, boolean gatheringMetrics ) {
+  public LogChannel( Object subject, ILoggingObject parentObject, boolean gatheringMetrics ) {
     this( subject, parentObject );
     this.gatheringMetrics = gatheringMetrics;
   }
@@ -96,7 +96,7 @@ public class LogChannel implements LogChannelInterface {
    * @param logMessage
    * @param channelLogLevel
    */
-  public void println( LogMessageInterface logMessage, LogLevel channelLogLevel ) {
+  public void println( ILogMessage logMessage, LogLevel channelLogLevel ) {
     String subject = null;
 
     LogLevel logLevel = logMessage.getLevel();
@@ -134,7 +134,7 @@ public class LogChannel implements LogChannelInterface {
     }
   }
 
-  public void println( LogMessageInterface message, Throwable e, LogLevel channelLogLevel ) {
+  public void println( ILogMessage message, Throwable e, LogLevel channelLogLevel ) {
     println( message, channelLogLevel );
 
     String stackTrace = Const.getStackTracker( e );
@@ -289,20 +289,20 @@ public class LogChannel implements LogChannelInterface {
   }
 
   @Override
-  public void snap( MetricsInterface metric, long... value ) {
+  public void snap( IMetrics metric, long... value ) {
     snap( metric, null, value );
   }
 
   @Override
-  public void snap( MetricsInterface metric, String subject, long... value ) {
+  public void snap( IMetrics metric, String subject, long... value ) {
     if ( !isGatheringMetrics() ) {
       return;
     }
 
     String key = MetricsSnapshot.getKey( metric, subject );
-    Map<String, MetricsSnapshotInterface> metricsMap = null;
-    MetricsSnapshotInterface snapshot = null;
-    Queue<MetricsSnapshotInterface> metricsList = null;
+    Map<String, IMetricsSnapshot> metricsMap = null;
+    IMetricsSnapshot snapshot = null;
+    Queue<IMetricsSnapshot> metricsList = null;
     switch ( metric.getType() ) {
       case MAX:
         // Calculate and store the maximum value for this metric

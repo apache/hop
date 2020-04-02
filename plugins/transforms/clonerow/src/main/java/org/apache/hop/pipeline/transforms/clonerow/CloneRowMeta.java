@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.clonerow;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -57,7 +57,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
   i18nPackageName = "org.apache.hop.pipeline.transforms.clonerow"
 )
-public class CloneRowMeta extends BaseTransformMeta implements TransformMetaInterface<CloneRow, CloneRowData> {
+public class CloneRowMeta extends BaseTransformMeta implements ITransformMeta<CloneRow, CloneRowData> {
 
   private static Class<?> PKG = CloneRowMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -197,60 +197,60 @@ public class CloneRowMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Output field (boolean) ?
     if ( addcloneflag ) {
-      String realfieldValue = space.environmentSubstitute( cloneflagfield );
+      String realfieldValue = variables.environmentSubstitute( cloneflagfield );
       if ( !Utils.isEmpty( realfieldValue ) ) {
-        ValueMetaInterface v = new ValueMetaBoolean( realfieldValue );
+        IValueMeta v = new ValueMetaBoolean( realfieldValue );
         v.setOrigin( origin );
         rowMeta.addValueMeta( v );
       }
     }
     // Output clone row number
     if ( addclonenum ) {
-      String realfieldValue = space.environmentSubstitute( clonenumfield );
+      String realfieldValue = variables.environmentSubstitute( clonenumfield );
       if ( !Utils.isEmpty( realfieldValue ) ) {
-        ValueMetaInterface v = new ValueMetaInteger( realfieldValue );
+        IValueMeta v = new ValueMetaInteger( realfieldValue );
         v.setOrigin( origin );
         rowMeta.addValueMeta( v );
       }
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
     if ( Utils.isEmpty( nrclones ) ) {
       error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesdMissing" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
     } else {
       error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.NrClonesOK" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
     }
     remarks.add( cr );
 
     if ( addcloneflag ) {
       if ( Utils.isEmpty( cloneflagfield ) ) {
         error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldMissing" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       } else {
         error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneFlagFieldOk" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
       }
       remarks.add( cr );
     }
     if ( addclonenum ) {
       if ( Utils.isEmpty( clonenumfield ) ) {
         error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldMissing" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       } else {
         error_message = BaseMessages.getString( PKG, "CloneRowMeta.CheckResult.CloneNumFieldOk" );
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
       }
       remarks.add( cr );
     }
@@ -267,11 +267,11 @@ public class CloneRowMeta extends BaseTransformMeta implements TransformMetaInte
 
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "CloneRowMeta.CheckResult.NotReceivingFields" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "CloneRowMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
     }
     remarks.add( cr );
@@ -279,20 +279,20 @@ public class CloneRowMeta extends BaseTransformMeta implements TransformMetaInte
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "CloneRowMeta.CheckResult.TransformRecevingData2" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "CloneRowMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
     }
     remarks.add( cr );
   }
 
   @Override
-  public CloneRow createTransform( TransformMeta transformMeta, CloneRowData transformDataInterface, int cnr, PipelineMeta tr,
+  public CloneRow createTransform( TransformMeta transformMeta, CloneRowData iTransformData, int cnr, PipelineMeta tr,
                                    Pipeline pipeline ) {
-    return new CloneRow( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new CloneRow( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override

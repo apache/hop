@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -37,8 +37,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -47,7 +47,7 @@ import java.util.List;
 @Transform( id = "BlockingTransform", i18nPackageName = "org.apache.hop.pipeline.transforms.blockingtransform", name = "BlockingTransform.Name",
   description = "BlockingTransform.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
-public class BlockingTransformMeta extends BaseTransformMeta implements TransformMetaInterface<BlockingTransform, BlockingTransformData> {
+public class BlockingTransformMeta extends BaseTransformMeta implements ITransformMeta<BlockingTransform, BlockingTransformData> {
 
   private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -83,8 +83,8 @@ public class BlockingTransformMeta extends BaseTransformMeta implements Transfor
   public static final int CACHE_SIZE = 5000;
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -95,27 +95,27 @@ public class BlockingTransformMeta extends BaseTransformMeta implements Transfor
       if ( f.exists() ) {
         if ( f.isDirectory() ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+            new CheckResult( ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.DirectoryExists", realDirectory ),
               transformMeta );
           remarks.add( cr );
         } else {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+            new CheckResult( ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.ExistsButNoDirectory", realDirectory ),
               transformMeta );
           remarks.add( cr );
         }
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR,
             BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.DirectoryNotExists", realDirectory ),
             transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR,
           BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.NoFields" ), transformMeta );
       remarks.add( cr );
     }
@@ -123,28 +123,28 @@ public class BlockingTransformMeta extends BaseTransformMeta implements Transfor
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK,
           BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.TransformExpectingRowsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR,
           BaseMessages.getString( PKG, "BlockingTransformMeta.CheckResult.NoInputReceivedError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore )
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore )
     throws HopTransformException {
     // Default: no values are added to the row in the transform
   }
 
   @Override
-  public BlockingTransform createTransform( TransformMeta transformMeta, BlockingTransformData transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public BlockingTransform createTransform( TransformMeta transformMeta, BlockingTransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                                             Pipeline pipeline ) {
-    return new BlockingTransform( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    return new BlockingTransform( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

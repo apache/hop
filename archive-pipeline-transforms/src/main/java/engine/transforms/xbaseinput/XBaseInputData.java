@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.xbaseinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Provides data for the XBaseInput transform.
@@ -34,13 +34,13 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Matt
  * @since 20-jan-2005
  */
-public class XBaseInputData extends BaseTransformData implements TransformDataInterface {
+public class XBaseInputData extends BaseTransformData implements ITransformData {
   public XBase xbi;
-  public RowMetaInterface fields;
+  public IRowMeta fields;
   public int fileNr;
   public FileObject file_dbf;
   public FileInputList files;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public XBaseInputData() {
     super();

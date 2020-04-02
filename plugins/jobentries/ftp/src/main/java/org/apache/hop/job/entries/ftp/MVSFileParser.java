@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.ftp;
 
 import com.enterprisedt.net.ftp.FTPFile;
 import com.enterprisedt.net.ftp.FTPFileParser;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.text.ParseException;
@@ -84,9 +84,9 @@ public class MVSFileParser extends FTPFileParser {
 
   private boolean partitionedDataset = false; // If true, It's a partitioned data set listing
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
-  public MVSFileParser( LogChannelInterface log ) {
+  public MVSFileParser( ILogChannel log ) {
     this.log = log;
   }
 

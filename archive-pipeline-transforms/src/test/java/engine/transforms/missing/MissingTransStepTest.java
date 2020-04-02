@@ -26,8 +26,8 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.AbstractTransformMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MissingPipelineTransformTest {
-  private TransformMockHelper<DataGridMeta, TransformDataInterface> helper;
+  private TransformMockHelper<DataGridMeta, ITransformData> helper;
 
   @Before
   public void setUp() {
@@ -67,7 +67,7 @@ public class MissingPipelineTransformTest {
       }
 
       @Override
-      public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+      public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                     PipelineMeta pipelineMeta,
                                     Pipeline pipeline ) {
         return null;
@@ -77,7 +77,7 @@ public class MissingPipelineTransformTest {
     TransformMeta transformMeta = new TransformMeta();
 
     transformMeta.setName( "TestMetaTransform" );
-    TransformDataInterface transformDataInterface = mock( TransformDataInterface.class );
+    ITransformData iTransformData = mock( ITransformData.class );
     Pipeline pipeline = new Pipeline();
     LogChannel log = mock( LogChannel.class );
     doAnswer( new Answer<Void>() {
@@ -90,12 +90,12 @@ public class MissingPipelineTransformTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform( transformMeta );
 
-    MissingPipelineTransform transform = createAndInitTransform( transformMetaInterface, transformDataInterface );
+    MissingPipelineTransform transform = createAndInitTransform( transformMetaInterface, iTransformData );
 
-    assertFalse( transform.init( transformMetaInterface, transformDataInterface ) );
+    assertFalse( transform.init( transformMetaInterface, iTransformData ) );
   }
 
-  private MissingPipelineTransform createAndInitTransform( TransformMetaInterface meta, TransformDataInterface data ) {
+  private MissingPipelineTransform createAndInitTransform( TransformMetaInterface meta, ITransformData data ) {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
 
     MissingPipelineTransform transform = new MissingPipelineTransform( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );

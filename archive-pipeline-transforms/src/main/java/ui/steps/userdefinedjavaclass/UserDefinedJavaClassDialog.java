@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.FieldHelper;
@@ -120,7 +120,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserDefinedJavaClassDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   private ModifyListener lsMod;
@@ -173,7 +173,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
 
   private TreeItem itemWaitFieldsIn, itemWaitFieldsInfo, itemWaitFieldsOut;
 
-  private RowMetaInterface inputRowMeta, infoRowMeta, outputRowMeta;
+  private IRowMeta inputRowMeta, infoRowMeta, outputRowMeta;
 
   private RowGeneratorMeta genMeta;
 
@@ -1311,7 +1311,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
       }
 
       // What fields are coming into the transform?
-      RowMetaInterface rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
       if ( rowMeta != null ) {
         // Create a new RowGenerator transform to generate rows for the test
         // data...
@@ -1324,9 +1324,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
           genMeta.allocate( rowMeta.size() );
           //CHECKSTYLE:Indentation:OFF
           for ( int i = 0; i < rowMeta.size(); i++ ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+            IValueMeta valueMeta = rowMeta.getValueMeta( i );
             if ( valueMeta.isStorageBinaryString() ) {
-              valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+              valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
             }
             genMeta.getFieldName()[ i ] = valueMeta.getName();
             genMeta.getFieldType()[ i ] = valueMeta.getTypeDesc();
@@ -1338,33 +1338,33 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
 
             String string = null;
             switch ( valueMeta.getType() ) {
-              case ValueMetaInterface.TYPE_DATE:
+              case IValueMeta.TYPE_DATE:
                 genMeta.getFieldFormat()[ i ] = "yyyy/MM/dd HH:mm:ss";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( new Date() );
                 break;
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 string = "test value test value";
                 break;
-              case ValueMetaInterface.TYPE_INTEGER:
+              case IValueMeta.TYPE_INTEGER:
                 genMeta.getFieldFormat()[ i ] = "#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Long.valueOf( 0L ) );
                 break;
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 genMeta.getFieldFormat()[ i ] = "#.#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Double.valueOf( 0.0D ) );
                 break;
-              case ValueMetaInterface.TYPE_BIGNUMBER:
+              case IValueMeta.TYPE_BIGNUMBER:
                 genMeta.getFieldFormat()[ i ] = "#.#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( BigDecimal.ZERO );
                 break;
-              case ValueMetaInterface.TYPE_BOOLEAN:
+              case IValueMeta.TYPE_BOOLEAN:
                 string = valueMeta.getString( Boolean.TRUE );
                 break;
-              case ValueMetaInterface.TYPE_BINARY:
+              case IValueMeta.TYPE_BINARY:
                 string = valueMeta.getString( new byte[] { 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, } );
                 break;
               default:
@@ -1421,7 +1421,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
             }
           }
 
-          RowMetaInterface previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
+          IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
           List<Object[]> previewRows = progressDialog.getPreviewRows( wTransformName.getText() );
 
           if ( previewRowsMeta != null && previewRows != null && previewRows.size() > 0 ) {
@@ -1493,7 +1493,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
 
         if ( inputRowMeta != null ) {
           for ( int i = 0; i < inputRowMeta.size(); i++ ) {
-            ValueMetaInterface v = inputRowMeta.getValueMeta( i );
+            IValueMeta v = inputRowMeta.getValueMeta( i );
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInput, SWT.NULL );
@@ -1510,7 +1510,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
         }
         if ( infoRowMeta != null ) {
           for ( int i = 0; i < infoRowMeta.size(); i++ ) {
-            ValueMetaInterface v = infoRowMeta.getValueMeta( i );
+            IValueMeta v = infoRowMeta.getValueMeta( i );
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( true, itemName );
             TreeItem itemField = new TreeItem( itemInfo, SWT.NULL );
@@ -1527,7 +1527,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements T
         }
         if ( outputRowMeta != null ) {
           for ( int i = 0; i < outputRowMeta.size(); i++ ) {
-            ValueMetaInterface v = outputRowMeta.getValueMeta( i );
+            IValueMeta v = outputRowMeta.getValueMeta( i );
             String itemName = v.getName();
             String itemData = FieldHelper.getAccessor( false, itemName );
             TreeItem itemField = new TreeItem( itemOutput, SWT.NULL );

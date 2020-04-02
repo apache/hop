@@ -22,25 +22,24 @@
 
 package org.apache.hop.core;
 
-public class HopAttribute implements HopAttributeInterface {
+public class HopAttribute implements IHopAttribute {
   private String key;
 
   private String xmlCode;
   private String description;
   private String tooltip;
   private int type;
-  private HopAttributeInterface parent;
+  private IHopAttribute parent;
 
   /**
    * @param key
    * @param xmlCode
-   * @param repCode
    * @param description
    * @param tooltip
    * @param type
    */
   public HopAttribute( String key, String xmlCode, String description, String tooltip,
-                       int type, HopAttributeInterface parent ) {
+                       int type, IHopAttribute parent ) {
     this.key = key;
     this.xmlCode = xmlCode;
     this.description = description;
@@ -122,14 +121,14 @@ public class HopAttribute implements HopAttributeInterface {
    * @return the parent
    */
   @Override
-  public HopAttributeInterface getParent() {
+  public IHopAttribute getParent() {
     return parent;
   }
 
   /**
    * @param parent the parent to set
    */
-  public void setParent( HopAttributeInterface parent ) {
+  public void setParent( IHopAttribute parent ) {
     this.parent = parent;
   }
 }

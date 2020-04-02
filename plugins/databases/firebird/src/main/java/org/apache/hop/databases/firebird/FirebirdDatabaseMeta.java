@@ -24,11 +24,11 @@ package org.apache.hop.databases.firebird;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Firebird specific information through static final members
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "Firebird SQL"
 )
 @GuiPlugin( id = "GUI-FirebirdDatabaseMeta" )
-public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
@@ -116,7 +116,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -133,7 +133,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + v.getName() + " TYPE "
@@ -141,7 +141,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -159,20 +159,20 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BIT";
         } else {
           retval += "CHAR(1)";
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -201,7 +201,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length < 32720 ) {
           retval += "VARCHAR";
           if ( length > 0 ) {
@@ -213,7 +213,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
           retval += "BLOB SUB_TYPE TEXT";
         }
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         retval += "BLOB";
         break;
       default:

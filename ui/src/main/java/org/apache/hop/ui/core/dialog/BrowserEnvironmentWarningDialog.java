@@ -23,8 +23,8 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -66,7 +66,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
   private final int MAX_TEXT_WIDTH_UBUNTU = 418;
   private final int MAX_TEXT_WIDTH_WINDOWS = 286;
   private final int MAX_TEXT_WIDTH_MAC = 326;
-  private final LogChannelInterface log = new LogChannel( this );
+  private final ILogChannel log = new LogChannel( this );
   private static final String URI_PATH = "Setup/Components_Reference";
 
   public BrowserEnvironmentWarningDialog( Shell parent ) {

@@ -26,14 +26,14 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.util.List;
 
-public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta implements TransformMetaInterface<TransformInterface, TransformDataInterface> {
+public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
   @InjectionDeep
   public List<T> items;
@@ -57,11 +57,11 @@ public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransfo
   @Override public void setDefault() {
   }
 
-  @Override public TransformInterface createTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return null;
   }
 
-  @Override public TransformDataInterface getTransformData() {
+  @Override public ITransformData getTransformData() {
     return null;
   }
 }

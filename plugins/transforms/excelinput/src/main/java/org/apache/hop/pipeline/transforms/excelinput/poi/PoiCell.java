@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -31,7 +31,7 @@ import org.apache.poi.ss.usermodel.Row;
 import java.sql.Date;
 import java.util.TimeZone;
 
-public class PoiCell implements KCell {
+public class PoiCell implements IKCell {
 
   private Cell cell;
 

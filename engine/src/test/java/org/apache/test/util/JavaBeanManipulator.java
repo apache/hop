@@ -23,11 +23,11 @@
 package org.apache.test.util;
 
 import org.apache.hop.pipeline.transforms.loadsave.getter.FieldGetter;
-import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import org.apache.hop.pipeline.transforms.loadsave.getter.MethodGetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.FieldSetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.MethodSetter;
-import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,17 +36,17 @@ import java.util.Map;
 public class JavaBeanManipulator<T> {
   private final Class<? extends T> clazz;
   private final Map<String, String> getterMap;
-  private final Map<String, Getter<?>> getterMethodMap;
+  private final Map<String, IGetter<?>> getterMethodMap;
   private final Map<String, String> setterMap;
-  private final Map<String, Setter<?>> setterMethodMap;
+  private final Map<String, ISetter<?>> setterMethodMap;
 
   public JavaBeanManipulator( Class<? extends T> clazz, List<String> attributes, Map<String, String> getterMap,
                               Map<String, String> setterMap ) {
     this.clazz = clazz;
     this.getterMap = new HashMap<>( getterMap );
     this.setterMap = new HashMap<>( setterMap );
-    this.getterMethodMap = new HashMap<String, Getter<?>>();
-    this.setterMethodMap = new HashMap<String, Setter<?>>();
+    this.getterMethodMap = new HashMap<String, IGetter<?>>();
+    this.setterMethodMap = new HashMap<String, ISetter<?>>();
     populateGetters( attributes );
     populateSetters( attributes );
   }
@@ -70,7 +70,7 @@ public class JavaBeanManipulator<T> {
     for ( String attribute : attributes ) {
       String getterMethodName = getterMap.get( attribute );
       try {
-        Getter<?> getter;
+        IGetter<?> getter;
         if ( getterMethodName != null ) {
           getter = new MethodGetter( clazz.getMethod( getterMethodName ) );
         } else {
@@ -96,7 +96,7 @@ public class JavaBeanManipulator<T> {
     for ( String attribute : attributes ) {
       String setterMethodName = setterMap.get( attribute );
       try {
-        Setter<?> setter;
+        ISetter<?> setter;
         if ( setterMethodName != null ) {
           setter = new MethodSetter( clazz.getMethod( setterMethodName, getterMethodMap.get( attribute ).getType() ) );
         } else {
@@ -115,11 +115,11 @@ public class JavaBeanManipulator<T> {
     }
   }
 
-  public Getter<?> getGetter( String attribute ) {
+  public IGetter<?> getGetter( String attribute ) {
     return getterMethodMap.get( attribute );
   }
 
-  public Setter<?> getSetter( String attribute ) {
+  public ISetter<?> getSetter( String attribute ) {
     return setterMethodMap.get( attribute );
   }
 }

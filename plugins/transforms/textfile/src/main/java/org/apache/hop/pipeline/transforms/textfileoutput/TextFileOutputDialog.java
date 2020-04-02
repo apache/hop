@@ -26,15 +26,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -43,7 +43,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -80,7 +80,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TextFileOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TextFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -1113,7 +1113,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements Transfo
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1389,7 +1389,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements Transfo
     if ( !gotPreviousFields ) {
       try {
         String field = wFileNameField.getText();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wFileNameField.setItems( r.getFieldNames() );
         }
@@ -1584,10 +1584,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements Transfo
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
 
             if ( v.isNumeric() ) {
               // currency symbol
@@ -1651,20 +1651,20 @@ public class TextFileOutputDialog extends BaseTransformDialog implements Transfo
 
       item.setText( 4, "" );
       item.setText( 5, "" );
-      item.setText( 9, ValueMetaString.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_BOTH ) );
+      item.setText( 9, ValueMetaString.getTrimTypeDesc( IValueMeta.TRIM_TYPE_BOTH ) );
 
       int type = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
       switch ( type ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           item.setText( 3, "" );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           item.setText( 3, "0" );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           item.setText( 3, "0.#####" );
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           break;
         default:
           break;
@@ -1672,7 +1672,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements Transfo
     }
 
     for ( int i = 0; i < input.getOutputFields().length; i++ ) {
-      input.getOutputFields()[ i ].setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+      input.getOutputFields()[ i ].setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     }
 
     wFields.optWidth( true );

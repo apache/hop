@@ -26,53 +26,53 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * This class maintains a map of ExtensionPointInterface object to its name.
+ * This class maintains a map of IExtensionPoint object to its name.
  */
 public class ExtensionPointMap {
 
-  private static LogChannelInterface log = new LogChannel( "ExtensionPointMap" );
+  private static ILogChannel log = new LogChannel( "ExtensionPointMap" );
   private static ExtensionPointMap INSTANCE = new ExtensionPointMap( PluginRegistry.getInstance() );
 
   private final PluginRegistry registry;
-  private Table<String, String, Supplier<ExtensionPointInterface>> extensionPointPluginMap;
+  private Table<String, String, Supplier<IExtensionPoint>> extensionPointPluginMap;
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   private ExtensionPointMap( PluginRegistry pluginRegistry ) {
     this.registry = pluginRegistry;
     extensionPointPluginMap = HashBasedTable.create();
-    registry.addPluginListener( ExtensionPointPluginType.class, new PluginTypeListener() {
+    registry.addPluginListener( ExtensionPointPluginType.class, new IPluginTypeListener() {
 
       @Override
       public void pluginAdded( Object serviceObject ) {
-        addExtensionPoint( (PluginInterface) serviceObject );
+        addExtensionPoint( (IPlugin) serviceObject );
       }
 
       @Override
       public void pluginRemoved( Object serviceObject ) {
-        removeExtensionPoint( (PluginInterface) serviceObject );
+        removeExtensionPoint( (IPlugin) serviceObject );
       }
 
       @Override
       public void pluginChanged( Object serviceObject ) {
-        removeExtensionPoint( (PluginInterface) serviceObject );
-        addExtensionPoint( (PluginInterface) serviceObject );
+        removeExtensionPoint( (IPlugin) serviceObject );
+        addExtensionPoint( (IPlugin) serviceObject );
       }
 
     } );
 
-    List<PluginInterface> extensionPointPlugins = registry.getPlugins( ExtensionPointPluginType.class );
-    for ( PluginInterface extensionPointPlugin : extensionPointPlugins ) {
+    List<IPlugin> extensionPointPlugins = registry.getPlugins( ExtensionPointPluginType.class );
+    for ( IPlugin extensionPointPlugin : extensionPointPlugins ) {
       addExtensionPoint( extensionPointPlugin );
     }
   }
@@ -86,7 +86,7 @@ public class ExtensionPointMap {
    *
    * @param extensionPointPlugin
    */
-  public void addExtensionPoint( PluginInterface extensionPointPlugin ) {
+  public void addExtensionPoint( IPlugin extensionPointPlugin ) {
     lock.writeLock().lock();
     try {
       for ( String id : extensionPointPlugin.getIds() ) {
@@ -102,7 +102,7 @@ public class ExtensionPointMap {
    *
    * @param extensionPointPlugin
    */
-  public void removeExtensionPoint( PluginInterface extensionPointPlugin ) {
+  public void removeExtensionPoint( IPlugin extensionPointPlugin ) {
     lock.writeLock().lock();
     try {
       for ( String id : extensionPointPlugin.getIds() ) {
@@ -121,8 +121,8 @@ public class ExtensionPointMap {
     try {
       extensionPointPluginMap = HashBasedTable.create();
       final PluginRegistry registry = PluginRegistry.getInstance();
-      List<PluginInterface> extensionPointPlugins = registry.getPlugins( ExtensionPointPluginType.class );
-      for ( PluginInterface extensionPointPlugin : extensionPointPlugins ) {
+      List<IPlugin> extensionPointPlugins = registry.getPlugins( ExtensionPointPluginType.class );
+      for ( IPlugin extensionPointPlugin : extensionPointPlugins ) {
         addExtensionPoint( extensionPointPlugin );
       }
     } finally {
@@ -130,7 +130,7 @@ public class ExtensionPointMap {
     }
   }
 
-  Supplier<ExtensionPointInterface> createLazyLoader( PluginInterface extensionPointPlugin ) {
+  Supplier<IExtensionPoint> createLazyLoader( IPlugin extensionPointPlugin ) {
     return Suppliers.memoize( new ExtensionPointLoader( extensionPointPlugin ) );
   }
 
@@ -143,11 +143,11 @@ public class ExtensionPointMap {
    * @param id     the id of the extension point interface
    * @param object object to pass to extension point call
    */
-  public void callExtensionPoint( LogChannelInterface log, String id, Object object ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, String id, Object object ) throws HopException {
     lock.readLock().lock();
     try {
       if ( extensionPointPluginMap.containsRow( id ) && !extensionPointPluginMap.rowMap().get( id ).values().isEmpty() ) {
-        for ( Supplier<ExtensionPointInterface> extensionPoint : extensionPointPluginMap.row( id ).values() ) {
+        for ( Supplier<IExtensionPoint> extensionPoint : extensionPointPluginMap.row( id ).values() ) {
           extensionPoint.get().callExtensionPoint( log, object );
         }
       }
@@ -164,7 +164,7 @@ public class ExtensionPointMap {
    * @param rowId    the key of the row to be accessed
    * @param columnId the key of the column to be accessed
    */
-  ExtensionPointInterface getTableValue( String rowId, String columnId ) {
+  IExtensionPoint getTableValue( String rowId, String columnId ) {
     lock.readLock().lock();
     try {
       return extensionPointPluginMap.contains( rowId, columnId )
@@ -188,16 +188,16 @@ public class ExtensionPointMap {
     }
   }
 
-  private class ExtensionPointLoader implements Supplier<ExtensionPointInterface> {
-    private final PluginInterface extensionPointPlugin;
+  private class ExtensionPointLoader implements Supplier<IExtensionPoint> {
+    private final IPlugin extensionPointPlugin;
 
-    private ExtensionPointLoader( PluginInterface extensionPointPlugin ) {
+    private ExtensionPointLoader( IPlugin extensionPointPlugin ) {
       this.extensionPointPlugin = extensionPointPlugin;
     }
 
-    @Override public ExtensionPointInterface get() {
+    @Override public IExtensionPoint get() {
       try {
-        return registry.loadClass( extensionPointPlugin, ExtensionPointInterface.class );
+        return registry.loadClass( extensionPointPlugin, IExtensionPoint.class );
       } catch ( Exception e ) {
         getLog().logError( "Unable to load extension point for name = ["
           + ( extensionPointPlugin != null ? extensionPointPlugin.getName() : "null" ) + "]", e );
@@ -206,7 +206,7 @@ public class ExtensionPointMap {
     }
   }
 
-  public static LogChannelInterface getLog() {
+  public static ILogChannel getLog() {
     if ( log == null ) {
       log = new LogChannel( "ExtensionPointMap" );
     }
@@ -217,22 +217,22 @@ public class ExtensionPointMap {
     lock.writeLock().lock();
     try {
       extensionPointPluginMap.clear();
-      registry.addPluginListener( ExtensionPointPluginType.class, new PluginTypeListener() {
+      registry.addPluginListener( ExtensionPointPluginType.class, new IPluginTypeListener() {
 
         @Override
         public void pluginAdded( Object serviceObject ) {
-          addExtensionPoint( (PluginInterface) serviceObject );
+          addExtensionPoint( (IPlugin) serviceObject );
         }
 
         @Override
         public void pluginRemoved( Object serviceObject ) {
-          removeExtensionPoint( (PluginInterface) serviceObject );
+          removeExtensionPoint( (IPlugin) serviceObject );
         }
 
         @Override
         public void pluginChanged( Object serviceObject ) {
-          removeExtensionPoint( (PluginInterface) serviceObject );
-          addExtensionPoint( (PluginInterface) serviceObject );
+          removeExtensionPoint( (IPlugin) serviceObject );
+          addExtensionPoint( (IPlugin) serviceObject );
         }
 
       } );

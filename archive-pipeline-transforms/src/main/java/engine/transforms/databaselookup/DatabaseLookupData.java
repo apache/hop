@@ -24,15 +24,15 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class DatabaseLookupData extends BaseTransformData implements TransformDataInterface {
+public class DatabaseLookupData extends BaseTransformData implements ITransformData {
   public Cache cache;
   public Database db;
 
@@ -41,9 +41,9 @@ public class DatabaseLookupData extends BaseTransformData implements TransformDa
   public int[] keynrs2; // nr of keylookup2-value in row...
   public int[] keytypes; // Types of the desired database values
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface lookupMeta;
-  public RowMetaInterface returnMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta lookupMeta;
+  public IRowMeta returnMeta;
   public boolean isCanceled;
   public boolean allEquals;
   public int[] conditions;
@@ -56,9 +56,9 @@ public class DatabaseLookupData extends BaseTransformData implements TransformDa
   }
 
   /**
-   * Cache for {@code DatabaseLookup} transform.
+   * ICache for {@code DatabaseLookup} transform.
    */
-  public interface Cache {
+  public interface ICache {
     /**
      * Returns the very first data row that matches all conditions or {@code null} if none has been found.
      * Note, cache should keep the order in which elements were put into it.
@@ -68,7 +68,7 @@ public class DatabaseLookupData extends BaseTransformData implements TransformDa
      * @return first matching data row or {@code null}
      * @throws HopException
      */
-    Object[] getRowFromCache( RowMetaInterface lookupMeta, Object[] lookupRow ) throws HopException;
+    Object[] getRowFromCache( IRowMeta lookupMeta, Object[] lookupRow ) throws HopException;
 
     /**
      * Saved {@code add} as data row and {@code lookupRow} as a key for searching it.
@@ -78,6 +78,6 @@ public class DatabaseLookupData extends BaseTransformData implements TransformDa
      * @param lookupRow  tuple of keys
      * @param add        tuple of data
      */
-    void storeRowInCache( DatabaseLookupMeta meta, RowMetaInterface lookupMeta, Object[] lookupRow, Object[] add );
+    void storeRowInCache( DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow, Object[] add );
   }
 }

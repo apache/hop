@@ -29,7 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.DBCache;
 import org.apache.hop.core.DBCacheEntry;
-import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
@@ -42,22 +42,22 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -71,7 +71,7 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -101,7 +101,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -114,7 +113,7 @@ import java.util.Set;
  * @author Matt
  * @since 05-04-2003
  */
-public class Database implements VariableSpace, LoggingObjectInterface {
+public class Database implements IVariables, ILoggingObject {
   /**
    * for i18n purposes, needed by Translator!!
    */
@@ -142,12 +141,12 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   // private ResultSetMetaData rsmd;
   private DatabaseMetaData dbmd;
 
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
   private int written;
 
-  private LogChannelInterface log;
-  private LoggingObjectInterface parentLoggingObject;
+  private ILogChannel log;
+  private ILoggingObject parentLoggingObject;
   private static final String[] TABLE_TYPES_TO_GET = { "TABLE", "VIEW" };
   private static final String TABLES_META_DATA_TABLE_NAME = "TABLE_NAME";
 
@@ -164,7 +163,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   private String connectionGroup;
   private String partitionId;
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
@@ -172,14 +171,14 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   private int nrExecutedCommits;
 
-  private static List<ValueMetaInterface> valueMetaPluginClasses;
+  private static List<IValueMeta> valueMetaPluginClasses;
 
   static {
     try {
       valueMetaPluginClasses = ValueMetaFactory.getValueMetaPluginClasses();
-      Collections.sort( valueMetaPluginClasses, new Comparator<ValueMetaInterface>() {
+      Collections.sort( valueMetaPluginClasses, new Comparator<IValueMeta>() {
         @Override
-        public int compare( ValueMetaInterface o1, ValueMetaInterface o2 ) {
+        public int compare( IValueMeta o1, IValueMeta o2 ) {
           // Reverse the sort list
           return ( Integer.valueOf( o1.getType() ).compareTo( Integer.valueOf( o2.getType() ) ) ) * -1;
         }
@@ -231,13 +230,13 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    *
    * @param databaseMeta The Database Connection Info to construct the connection with.
    */
-  public Database( LoggingObjectInterface parentObject, DatabaseMeta databaseMeta ) {
+  public Database( ILoggingObject parentObject, DatabaseMeta databaseMeta ) {
     this.parentLoggingObject = parentObject;
     this.databaseMeta = databaseMeta;
 
     shareVariablesWith( databaseMeta );
-    if ( parentObject instanceof VariableSpace ) {
-      shareVariablesWith( (VariableSpace) parentObject );
+    if ( parentObject instanceof IVariables ) {
+      shareVariablesWith( (IVariables) parentObject );
     }
 
     log = new LogChannel( this, parentObject );
@@ -444,8 +443,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    */
   private void connectUsingClass( String classname, String partitionId ) throws HopDatabaseException {
     // Install and load the jdbc Driver
-    PluginInterface plugin =
-      PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, databaseMeta.getDatabaseInterface() );
+    IPlugin plugin =
+      PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, databaseMeta.getIDatabase() );
 
     try {
       synchronized ( java.sql.DriverManager.class ) {
@@ -455,7 +454,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         // Only need DelegatingDriver for drivers not from our classloader
         if ( driverClass.getClassLoader() != this.getClass().getClassLoader() ) {
           String pluginId =
-            PluginRegistry.getInstance().getPluginId( DatabasePluginType.class, databaseMeta.getDatabaseInterface() );
+            PluginRegistry.getInstance().getPluginId( DatabasePluginType.class, databaseMeta.getIDatabase() );
           Set<String> registeredDriversFromPlugin = registeredDrivers.get( pluginId );
           if ( registeredDriversFromPlugin == null ) {
             registeredDriversFromPlugin = new HashSet<String>();
@@ -491,7 +490,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
           // Allow for empty username with given password, in this case username must be given with one space
           properties.put( "user", Const.NVL( username, " " ) );
           properties.put( "password", Const.NVL( password, "" ) );
-          if ( databaseMeta.getDatabaseInterface().isMSSQLServerNativeVariant() ) {
+          if ( databaseMeta.getIDatabase().isMSSQLServerNativeVariant() ) {
             // Handle MSSQL Instance name. Would rather this was handled in the dialect
             // but cannot (without refactor) get to variablespace for variable substitution from
             // a BaseDatabaseMeta subclass.
@@ -761,7 +760,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param logTable
    * @throws HopDatabaseException
    */
-  public void commitLog( LogTableCoreInterface logTable ) throws HopDatabaseException {
+  public void commitLog( ILogTableCore logTable ) throws HopDatabaseException {
     this.commitLog( false, logTable );
   }
 
@@ -772,7 +771,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param logTable
    * @throws HopDatabaseException
    */
-  public void commitLog( boolean force, LogTableCoreInterface logTable ) throws HopDatabaseException {
+  public void commitLog( boolean force, ILogTableCore logTable ) throws HopDatabaseException {
     try {
       commitInternal( force );
     } catch ( Exception e ) {
@@ -842,7 +841,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param tableName The name of the table in which we want to insert rows
    * @throws HopDatabaseException if something went wrong.
    */
-  public void prepareInsert( RowMetaInterface rowMeta, String tableName ) throws HopDatabaseException {
+  public void prepareInsert( IRowMeta rowMeta, String tableName ) throws HopDatabaseException {
     prepareInsert( rowMeta, null, tableName );
   }
 
@@ -854,7 +853,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param tableName  The name of the table in which we want to insert rows
    * @throws HopDatabaseException if something went wrong.
    */
-  public void prepareInsert( RowMetaInterface rowMeta, String schemaName, String tableName )
+  public void prepareInsert( IRowMeta rowMeta, String schemaName, String tableName )
     throws HopDatabaseException {
     if ( rowMeta.size() == 0 ) {
       throw new HopDatabaseException( "No fields in row, can't insert!" );
@@ -888,8 +887,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException
    */
   public PreparedStatement prepareSQL( String sql, boolean returnKeys ) throws HopDatabaseException {
-    DatabaseInterface databaseInterface = databaseMeta.getDatabaseInterface();
-    boolean supportsAutoGeneratedKeys = databaseInterface.supportsAutoGeneratedKeys();
+    IDatabase iDatabase = databaseMeta.getIDatabase();
+    boolean supportsAutoGeneratedKeys = iDatabase.supportsAutoGeneratedKeys();
 
     try {
       if ( returnKeys && supportsAutoGeneratedKeys ) {
@@ -939,7 +938,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public void setValues( RowMetaInterface rowMeta, Object[] data ) throws HopDatabaseException {
+  public void setValues( IRowMeta rowMeta, Object[] data ) throws HopDatabaseException {
     setValues( rowMeta, data, pstmt );
   }
 
@@ -947,7 +946,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     setValues( row.getRowMeta(), row.getData() );
   }
 
-  public void setValuesInsert( RowMetaInterface rowMeta, Object[] data ) throws HopDatabaseException {
+  public void setValuesInsert( IRowMeta rowMeta, Object[] data ) throws HopDatabaseException {
     setValues( rowMeta, data, prepStatementInsert );
   }
 
@@ -955,15 +954,15 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     setValues( row.getRowMeta(), row.getData(), prepStatementInsert );
   }
 
-  public void setValuesUpdate( RowMetaInterface rowMeta, Object[] data ) throws HopDatabaseException {
+  public void setValuesUpdate( IRowMeta rowMeta, Object[] data ) throws HopDatabaseException {
     setValues( rowMeta, data, prepStatementUpdate );
   }
 
-  public void setValuesLookup( RowMetaInterface rowMeta, Object[] data ) throws HopDatabaseException {
+  public void setValuesLookup( IRowMeta rowMeta, Object[] data ) throws HopDatabaseException {
     setValues( rowMeta, data, prepStatementLookup );
   }
 
-  public void setProcValues( RowMetaInterface rowMeta, Object[] data, int[] argnrs, String[] argdir, boolean result )
+  public void setProcValues( IRowMeta rowMeta, Object[] data, int[] argnrs, String[] argdir, boolean result )
     throws HopDatabaseException {
     int pos;
 
@@ -975,7 +974,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     for ( int i = 0; i < argnrs.length; i++ ) {
       if ( argdir[ i ].equalsIgnoreCase( "IN" ) || argdir[ i ].equalsIgnoreCase( "INOUT" ) ) {
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( argnrs[ i ] );
+        IValueMeta valueMeta = rowMeta.getValueMeta( argnrs[ i ] );
         Object value = data[ argnrs[ i ] ];
 
         setValue( cstmt, valueMeta, value, pos );
@@ -986,7 +985,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public void setValue( PreparedStatement ps, ValueMetaInterface v, Object object, int pos )
+  public void setValue( PreparedStatement ps, IValueMeta v, Object object, int pos )
     throws HopDatabaseException {
 
     v.setPreparedStatementValue( databaseMeta, ps, pos, object );
@@ -997,11 +996,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     setValues( row.getRowMeta(), row.getData(), ps );
   }
 
-  public void setValues( RowMetaInterface rowMeta, Object[] data, PreparedStatement ps )
+  public void setValues( IRowMeta rowMeta, Object[] data, PreparedStatement ps )
     throws HopDatabaseException {
     // now set the values in the row!
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( i );
+      IValueMeta v = rowMeta.getValueMeta( i );
       Object object = data[ i ];
 
       try {
@@ -1018,13 +1017,13 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param rowMeta
    * @param data
    */
-  public void setValues( RowMetaInterface rowMeta, Object[] data, PreparedStatement ps, int ignoreThisValueIndex )
+  public void setValues( IRowMeta rowMeta, Object[] data, PreparedStatement ps, int ignoreThisValueIndex )
     throws HopDatabaseException {
     // now set the values in the row!
     int index = 0;
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       if ( i != ignoreThisValueIndex ) {
-        ValueMetaInterface v = rowMeta.getValueMeta( i );
+        IValueMeta v = rowMeta.getValueMeta( i );
         Object object = data[ i ];
 
         try {
@@ -1050,7 +1049,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       if ( resultSetMetaData == null ) {
         resultSetMetaData = ps.getMetaData();
       }
-      RowMetaInterface rowMeta;
+      IRowMeta rowMeta;
       if ( resultSetMetaData == null ) {
         rowMeta = new RowMeta();
         rowMeta.addValueMeta( new ValueMetaInteger( "ai-key" ) );
@@ -1105,11 +1104,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return retval;
   }
 
-  public void insertRow( String tableName, RowMetaInterface fields, Object[] data ) throws HopDatabaseException {
+  public void insertRow( String tableName, IRowMeta fields, Object[] data ) throws HopDatabaseException {
     insertRow( null, tableName, fields, data );
   }
 
-  public void insertRow( String schemaName, String tableName, RowMetaInterface fields, Object[] data )
+  public void insertRow( String schemaName, String tableName, IRowMeta fields, Object[] data )
     throws HopDatabaseException {
     prepareInsert( fields, schemaName, tableName );
     setValuesInsert( fields, data );
@@ -1117,11 +1116,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     closeInsert();
   }
 
-  public String getInsertStatement( String tableName, RowMetaInterface fields ) {
+  public String getInsertStatement( String tableName, IRowMeta fields ) {
     return getInsertStatement( null, tableName, fields );
   }
 
-  public String getInsertStatement( String schemaName, String tableName, RowMetaInterface fields ) {
+  public String getInsertStatement( String schemaName, String tableName, IRowMeta fields ) {
     StringBuilder ins = new StringBuilder( 128 );
 
     String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
@@ -1439,7 +1438,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return execStatement( sql, null, null );
   }
 
-  public Result execStatement( String rawsql, RowMetaInterface params, Object[] data ) throws HopDatabaseException {
+  public Result execStatement( String rawsql, IRowMeta params, Object[] data ) throws HopDatabaseException {
     Result result = new Result();
 
     // Replace existing code with a class that removes comments from the raw
@@ -1448,7 +1447,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     // double-dash or a multiline comment appears
     // in a single-quoted string, it will be treated as a string instead of
     // comments.
-    String sql = databaseMeta.getDatabaseInterface().createSqlScriptParser().removeComments( rawsql ).trim();
+    String sql = databaseMeta.getIDatabase().createSqlScriptParser().removeComments( rawsql ).trim();
     try {
       boolean resultSet;
       int count;
@@ -1528,10 +1527,10 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return A result with counts of the number or records updates, inserted, deleted or read.
    * @throws HopDatabaseException In case an error occurs
    */
-  public Result execStatements( String script, RowMetaInterface params, Object[] data ) throws HopDatabaseException {
+  public Result execStatements( String script, IRowMeta params, Object[] data ) throws HopDatabaseException {
     Result result = new Result();
 
-    SqlScriptParser sqlScriptParser = databaseMeta.getDatabaseInterface().createSqlScriptParser();
+    SqlScriptParser sqlScriptParser = databaseMeta.getIDatabase().createSqlScriptParser();
     List<String> statements = sqlScriptParser.split( script );
     int nrstats = 0;
 
@@ -1616,16 +1615,16 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException when something goes wrong with the query.
    * @data the parameter data to open the query with
    */
-  public ResultSet openQuery( String sql, RowMetaInterface params, Object[] data ) throws HopDatabaseException {
+  public ResultSet openQuery( String sql, IRowMeta params, Object[] data ) throws HopDatabaseException {
     return openQuery( sql, params, data, ResultSet.FETCH_FORWARD );
   }
 
-  public ResultSet openQuery( String sql, RowMetaInterface params, Object[] data, int fetch_mode )
+  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetch_mode )
     throws HopDatabaseException {
     return openQuery( sql, params, data, fetch_mode, false );
   }
 
-  public ResultSet openQuery( String sql, RowMetaInterface params, Object[] data, int fetch_mode,
+  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetch_mode,
                               boolean lazyConversion ) throws HopDatabaseException {
     ResultSet res;
 
@@ -1668,7 +1667,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         log.snap( Metrics.METRIC_DATABASE_CREATE_SQL_STOP, databaseMeta.getName() );
         if ( canWeSetFetchSize( sel_stmt ) ) {
           int fs = Const.FETCH_SIZE <= sel_stmt.getMaxRows() ? sel_stmt.getMaxRows() : Const.FETCH_SIZE;
-          if ( databaseMeta.getDatabaseInterface().isMySQLVariant()
+          if ( databaseMeta.getIDatabase().isMySQLVariant()
             && databaseMeta.isStreamingResults() ) {
             sel_stmt.setFetchSize( Integer.MIN_VALUE );
           } else {
@@ -1705,11 +1704,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   private boolean canWeSetFetchSize( Statement statement ) throws SQLException {
     return databaseMeta.isFetchSizeSupported()
       && ( statement.getMaxRows() > 0
-      || databaseMeta.getDatabaseInterface().isPostgresVariant()
+      || databaseMeta.getIDatabase().isPostgresVariant()
       || ( databaseMeta.isMySQLVariant() && databaseMeta.isStreamingResults() ) );
   }
 
-  public ResultSet openQuery( PreparedStatement ps, RowMetaInterface params, Object[] data )
+  public ResultSet openQuery( PreparedStatement ps, IRowMeta params, Object[] data )
     throws HopDatabaseException {
     ResultSet res;
 
@@ -1784,11 +1783,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    *
    * @param tablename This is the properly quoted, and schema prefixed table name.
    */
-  public RowMetaInterface getTableFields( String tablename ) throws HopDatabaseException {
+  public IRowMeta getTableFields( String tablename ) throws HopDatabaseException {
     return getQueryFields( databaseMeta.getSQLQueryFields( tablename ), false );
   }
 
-  public RowMetaInterface getQueryFields( String sql, boolean param ) throws HopDatabaseException {
+  public IRowMeta getQueryFields( String sql, boolean param ) throws HopDatabaseException {
     return getQueryFields( sql, param, null, null );
   }
 
@@ -2076,7 +2075,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       log.logDebug( "CheckIndexExists() tablename = " + tablename + " type = " + databaseMeta.getPluginId() );
     }
 
-    return databaseMeta.getDatabaseInterface().checkIndexExists( this, schemaName, tableName, idx_fields );
+    return databaseMeta.getIDatabase().checkIndexExists( this, schemaName, tableName, idx_fields );
   }
 
   public String getCreateIndexStatement( String tablename, String indexname, String[] idx_fields, boolean tk,
@@ -2088,16 +2087,16 @@ public class Database implements VariableSpace, LoggingObjectInterface {
                                          String[] idx_fields, boolean tk, boolean unique, boolean bitmap,
                                          boolean semi_colon ) {
     String cr_index = "";
-    DatabaseInterface databaseInterface = databaseMeta.getDatabaseInterface();
+    IDatabase iDatabase = databaseMeta.getIDatabase();
 
     // Exasol does not support explicit handling of indexes
-    if ( databaseInterface.isExasolVariant() ) {
+    if ( iDatabase.isExasolVariant() ) {
       return "";
     }
 
     cr_index += "CREATE ";
 
-    if ( unique || ( tk && databaseInterface.isSybaseVariant() ) ) {
+    if ( unique || ( tk && iDatabase.isSybaseVariant() ) ) {
       cr_index += "UNIQUE ";
     }
 
@@ -2118,7 +2117,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
     cr_index += ")" + Const.CR;
 
-    cr_index += databaseInterface.getIndexTablespaceDDL( variables, databaseMeta );
+    cr_index += iDatabase.getIndexTablespaceDDL( variables, databaseMeta );
 
     if ( semi_colon ) {
       cr_index += ";" + Const.CR;
@@ -2169,8 +2168,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         // AS400
         //
         if ( databaseMeta.supportsSequenceNoMaxValueOption() && max_value.trim().equals( "-1" ) ) {
-          DatabaseInterface databaseInterface = databaseMeta.getDatabaseInterface();
-          cr_seq += databaseInterface.getSequenceNoMaxValueOption() + Const.CR;
+          IDatabase iDatabase = databaseMeta.getIDatabase();
+          cr_seq += iDatabase.getSequenceNoMaxValueOption() + Const.CR;
         } else {
           // set the max value
           cr_seq += "MAXVALUE " + max_value + Const.CR;
@@ -2201,7 +2200,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param schemaName The unquoted schema name. Can be null.
    * @param tableName  The unquoted table name. Cannot be null.
    */
-  public RowMetaInterface getTableFieldsMeta( String schemaName, String tableName )
+  public IRowMeta getTableFieldsMeta( String schemaName, String tableName )
     throws HopDatabaseException {
     if ( useJdbcMeta() ) {
       return getTableFieldsMetaByDbMeta( schemaName, tableName );
@@ -2212,7 +2211,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public RowMetaInterface getTableFieldsMetaByDbMeta( String schemaName, String tableName )
+  public IRowMeta getTableFieldsMetaByDbMeta( String schemaName, String tableName )
     throws HopDatabaseException {
     try {
       // Cleanup a bit. In JDBC metadata, we want null names for
@@ -2224,7 +2223,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         tableName = null;
       }
 
-      RowMetaInterface fields = null;
+      IRowMeta fields = null;
       DBCache dbcache = DBCache.getInstance();
       DBCacheEntry entry = null;
 
@@ -2258,10 +2257,10 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       }
 
       while ( rm.next() ) {
-        ValueMetaInterface valueMeta = null;
-        for ( ValueMetaInterface valueMetaClass : valueMetaPluginClasses ) {
+        IValueMeta valueMeta = null;
+        for ( IValueMeta valueMetaClass : valueMetaPluginClasses ) {
           try {
-            ValueMetaInterface v =
+            IValueMeta v =
               valueMetaClass.getMetadataPreview( databaseMeta, rm );
             if ( v != null ) {
               valueMeta = v;
@@ -2270,7 +2269,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
           } catch ( HopDatabaseException e ) {
             // That's ok. The VMI impl doesn't like this data type.
             if ( log.isDebug() ) {
-              log.logDebug( "Skipping ValueMetaInterface:" + valueMetaClass.getClass().getName(), e );
+              log.logDebug( "Skipping IValueMeta:" + valueMetaClass.getClass().getName(), e );
             }
           }
         }
@@ -2291,9 +2290,9 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   }
 
-  public RowMetaInterface getQueryFields( String sql, boolean param, RowMetaInterface inform, Object[] data )
+  public IRowMeta getQueryFields( String sql, boolean param, IRowMeta inform, Object[] data )
     throws HopDatabaseException {
-    RowMetaInterface fields;
+    IRowMeta fields;
     DBCache dbcache = DBCache.getInstance();
 
     DBCacheEntry entry = null;
@@ -2357,7 +2356,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return DATA_SERVICES_PLUGIN_ID.equals( databaseMeta.getPluginId() );
   }
 
-  public RowMetaInterface getQueryFieldsFromPreparedStatement( String sql ) throws Exception {
+  public IRowMeta getQueryFieldsFromPreparedStatement( String sql ) throws Exception {
     PreparedStatement preparedStatement = null;
     try {
       preparedStatement =
@@ -2379,17 +2378,17 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public RowMetaInterface getQueryFieldsFromDatabaseMetaData() throws Exception {
+  public IRowMeta getQueryFieldsFromDatabaseMetaData() throws Exception {
     return this.getQueryFieldsFromDatabaseMetaData( null );
   }
 
-  private RowMetaInterface getQueryFieldsFromDatabaseMetaData( String sql ) throws Exception {
+  private IRowMeta getQueryFieldsFromDatabaseMetaData( String sql ) throws Exception {
 
     ResultSet columns = connection.getMetaData().getColumns( "", "",
       StringUtils.isNotBlank( sql ) ? sql : databaseMeta.getName(), "" );
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     while ( columns.next() ) {
-      ValueMetaInterface valueMeta = null;
+      IValueMeta valueMeta = null;
       String name = columns.getString( "COLUMN_NAME" );
       String type = columns.getString( "SOURCE_DATA_TYPE" );
       int size = columns.getInt( "COLUMN_SIZE" );
@@ -2425,7 +2424,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
         rowMeta.addValueMeta( valueMeta );
       } else {
-        log.logBasic( "Database.getQueryFields() ValueMetaInterface mapping not resolved for the column " + name );
+        log.logBasic( "Database.getQueryFields() IValueMeta mapping not resolved for the column " + name );
         rowMeta = null;
         break;
       }
@@ -2437,20 +2436,20 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public RowMetaInterface getQueryFieldsFallback( String sql, boolean param, RowMetaInterface inform,
-                                                  Object[] data ) throws HopDatabaseException {
-    RowMetaInterface fields;
+  public IRowMeta getQueryFieldsFallback( String sql, boolean param, IRowMeta inform,
+                                          Object[] data ) throws HopDatabaseException {
+    IRowMeta fields;
 
     try {
       if ( ( inform == null
         // Hack for MSSQL jtds 1.2 when using xxx NOT IN yyy we have to use a
         // prepared statement (see BugID 3214)
-        && databaseMeta.getDatabaseInterface().isMSSQLServerVariant() )
-        || databaseMeta.getDatabaseInterface().supportsResultSetMetadataRetrievalOnly() ) {
+        && databaseMeta.getIDatabase().isMSSQLServerVariant() )
+        || databaseMeta.getIDatabase().supportsResultSetMetadataRetrievalOnly() ) {
         sel_stmt = connection.createStatement( ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY );
         try {
           if ( databaseMeta.isFetchSizeSupported() && sel_stmt.getMaxRows() >= 1 ) {
-            if ( databaseMeta.getDatabaseInterface().isMySQLVariant() ) {
+            if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
               sel_stmt.setFetchSize( Integer.MIN_VALUE );
             } else {
               sel_stmt.setFetchSize( 1 );
@@ -2474,7 +2473,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         PreparedStatement ps = connection.prepareStatement( databaseMeta.stripCR( sql ) );
         try {
           if ( param ) {
-            RowMetaInterface par = inform;
+            IRowMeta par = inform;
 
             if ( par == null || par.isEmpty() ) {
               par = getParameterMetaData( ps );
@@ -2542,7 +2541,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param ignoreLength   true if you want to ignore the length (workaround for MySQL bug/problem)
    * @param lazyConversion true if lazy conversion needs to be enabled where possible
    */
-  private RowMetaInterface getRowInfo( ResultSetMetaData rm, boolean ignoreLength, boolean lazyConversion )
+  private IRowMeta getRowInfo( ResultSetMetaData rm, boolean ignoreLength, boolean lazyConversion )
     throws HopDatabaseException {
     try {
       log.snap( Metrics.METRIC_DATABASE_GET_ROW_META_START, databaseMeta.getName() );
@@ -2551,12 +2550,12 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         throw new HopDatabaseException( "No result set metadata available to retrieve row metadata!" );
       }
 
-      RowMetaInterface rowMeta = new RowMeta();
+      IRowMeta rowMeta = new RowMeta();
 
       try {
         int nrcols = rm.getColumnCount();
         for ( int i = 1; i <= nrcols; i++ ) {
-          ValueMetaInterface valueMeta = getValueFromSQLType( rm, i, ignoreLength, lazyConversion );
+          IValueMeta valueMeta = getValueFromSQLType( rm, i, ignoreLength, lazyConversion );
           rowMeta.addValueMeta( valueMeta );
         }
         return rowMeta;
@@ -2568,8 +2567,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  private ValueMetaInterface getValueFromSQLType( ResultSetMetaData rm, int i, boolean ignoreLength,
-                                                  boolean lazyConversion )
+  private IValueMeta getValueFromSQLType( ResultSetMetaData rm, int i, boolean ignoreLength,
+                                          boolean lazyConversion )
     throws HopDatabaseException, SQLException {
     // TODO If we do lazy conversion, we need to find out about the encoding
     //
@@ -2578,7 +2577,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     //
     String name;
     if ( databaseMeta.isMySQLVariant() ) {
-      name = databaseMeta.getDatabaseInterface().getLegacyColumnName( getDatabaseMetaData(), rm, i );
+      name = databaseMeta.getIDatabase().getLegacyColumnName( getDatabaseMetaData(), rm, i );
     } else {
       name = new String( rm.getColumnName( i ) );
     }
@@ -2592,9 +2591,9 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     // Ask all the value meta types if they want to handle the SQL type.
     // The first to reply something gets the job...
     //
-    ValueMetaInterface valueMeta = null;
-    for ( ValueMetaInterface valueMetaClass : valueMetaPluginClasses ) {
-      ValueMetaInterface v =
+    IValueMeta valueMeta = null;
+    for ( IValueMeta valueMetaClass : valueMetaPluginClasses ) {
+      IValueMeta v =
         valueMetaClass.getValueFromSQLType( databaseMeta, name, rm, i, ignoreLength, lazyConversion );
       if ( v != null ) {
         valueMeta = v;
@@ -2680,7 +2679,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param rs The resultset to get the row from
    * @return one row or null if no row was found on the resultset or if an error occurred.
    */
-  public Object[] getRow( ResultSet rs, ResultSetMetaData dummy, RowMetaInterface rowInfo )
+  public Object[] getRow( ResultSet rs, ResultSetMetaData dummy, IRowMeta rowInfo )
     throws HopDatabaseException {
     long startTime = System.currentTimeMillis();
 
@@ -2691,7 +2690,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
       if ( rs.next() ) {
         for ( int i = 0; i < nrcols; i++ ) {
-          ValueMetaInterface val = rowInfo.getValueMeta( i );
+          IValueMeta val = rowInfo.getValueMeta( i );
 
           data[ i ] = databaseMeta.getValueFromResultSet( rs, val, i );
         }
@@ -2952,22 +2951,22 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         pos = 1;
         if ( !Utils.isEmpty( returnvalue ) ) {
           switch ( returntype ) {
-            case ValueMetaInterface.TYPE_NUMBER:
+            case IValueMeta.TYPE_NUMBER:
               cstmt.registerOutParameter( pos, java.sql.Types.DOUBLE );
               break;
-            case ValueMetaInterface.TYPE_BIGNUMBER:
+            case IValueMeta.TYPE_BIGNUMBER:
               cstmt.registerOutParameter( pos, java.sql.Types.DECIMAL );
               break;
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_INTEGER:
               cstmt.registerOutParameter( pos, java.sql.Types.BIGINT );
               break;
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               cstmt.registerOutParameter( pos, java.sql.Types.VARCHAR );
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               cstmt.registerOutParameter( pos, java.sql.Types.TIMESTAMP );
               break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               cstmt.registerOutParameter( pos, java.sql.Types.BOOLEAN );
               break;
             default:
@@ -2978,22 +2977,22 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         for ( int i = 0; i < arg.length; i++ ) {
           if ( argdir[ i ].equalsIgnoreCase( "OUT" ) || argdir[ i ].equalsIgnoreCase( "INOUT" ) ) {
             switch ( argtype[ i ] ) {
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.DOUBLE );
                 break;
-              case ValueMetaInterface.TYPE_BIGNUMBER:
+              case IValueMeta.TYPE_BIGNUMBER:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.DECIMAL );
                 break;
-              case ValueMetaInterface.TYPE_INTEGER:
+              case IValueMeta.TYPE_INTEGER:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.BIGINT );
                 break;
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.VARCHAR );
                 break;
-              case ValueMetaInterface.TYPE_DATE:
+              case IValueMeta.TYPE_DATE:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.TIMESTAMP );
                 break;
-              case ValueMetaInterface.TYPE_BOOLEAN:
+              case IValueMeta.TYPE_BOOLEAN:
                 cstmt.registerOutParameter( i + pos, java.sql.Types.BOOLEAN );
                 break;
               default:
@@ -3089,16 +3088,16 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return dbmd;
   }
 
-  public String getDDL( String tablename, RowMetaInterface fields ) throws HopDatabaseException {
+  public String getDDL( String tablename, IRowMeta fields ) throws HopDatabaseException {
     return getDDL( tablename, fields, null, false, null, true );
   }
 
-  public String getDDL( String tablename, RowMetaInterface fields, String tk, boolean use_autoinc, String pk )
+  public String getDDL( String tablename, IRowMeta fields, String tk, boolean use_autoinc, String pk )
     throws HopDatabaseException {
     return getDDL( tablename, fields, tk, use_autoinc, pk, true );
   }
 
-  public String getDDL( String tableName, RowMetaInterface fields, String tk, boolean use_autoinc, String pk,
+  public String getDDL( String tableName, IRowMeta fields, String tk, boolean use_autoinc, String pk,
                         boolean semicolon ) throws HopDatabaseException {
     String retval;
 
@@ -3126,11 +3125,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @param semicolon   append semicolon to the statement
    * @return the SQL needed to create the specified table and fields.
    */
-  public String getCreateTableStatement( String tableName, RowMetaInterface fields, String tk,
+  public String getCreateTableStatement( String tableName, IRowMeta fields, String tk,
                                          boolean use_autoinc, String pk, boolean semicolon ) {
     StringBuilder retval = new StringBuilder();
-    DatabaseInterface databaseInterface = databaseMeta.getDatabaseInterface();
-    retval.append( databaseInterface.getCreateTableStatement() );
+    IDatabase iDatabase = databaseMeta.getIDatabase();
+    retval.append( iDatabase.getCreateTableStatement() );
 
     retval.append( tableName + Const.CR );
     retval.append( "(" ).append( Const.CR );
@@ -3141,7 +3140,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         retval.append( "  " );
       }
 
-      ValueMetaInterface v = fields.getValueMeta( i );
+      IValueMeta v = fields.getValueMeta( i );
       retval.append( databaseMeta.getFieldDefinition( v, tk, pk, use_autoinc ) );
     }
     // At the end, before the closing of the statement, we might need to add
@@ -3161,9 +3160,9 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
     retval.append( ")" ).append( Const.CR );
 
-    retval.append( databaseMeta.getDatabaseInterface().getDataTablespaceDDL( variables, databaseMeta ) );
+    retval.append( databaseMeta.getIDatabase().getDataTablespaceDDL( variables, databaseMeta ) );
 
-    if ( pk == null && tk == null && databaseMeta.getDatabaseInterface().isNeoviewVariant() ) {
+    if ( pk == null && tk == null && databaseMeta.getIDatabase().isNeoviewVariant() ) {
       retval.append( "NO PARTITION" ); // use this as a default when no pk/tk is
       // there, otherwise you get an error
     }
@@ -3175,20 +3174,20 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return retval.toString();
   }
 
-  public String getAlterTableStatement( String tableName, RowMetaInterface fields, String tk, boolean use_autoinc,
+  public String getAlterTableStatement( String tableName, IRowMeta fields, String tk, boolean use_autoinc,
                                         String pk, boolean semicolon ) throws HopDatabaseException {
     String retval = "";
 
     // Get the fields that are in the table now:
-    RowMetaInterface tabFields = getTableFields( tableName );
+    IRowMeta tabFields = getTableFields( tableName );
 
     // Don't forget to quote these as well...
     databaseMeta.quoteReservedWords( tabFields );
 
     // Find the missing fields
-    RowMetaInterface missing = new RowMeta();
+    IRowMeta missing = new RowMeta();
     for ( int i = 0; i < fields.size(); i++ ) {
-      ValueMetaInterface v = fields.getValueMeta( i );
+      IValueMeta v = fields.getValueMeta( i );
       // Not found?
       if ( tabFields.searchValueMeta( v.getName() ) == null ) {
         missing.addValueMeta( v ); // nope --> Missing!
@@ -3197,15 +3196,15 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     if ( missing.size() != 0 ) {
       for ( int i = 0; i < missing.size(); i++ ) {
-        ValueMetaInterface v = missing.getValueMeta( i );
+        IValueMeta v = missing.getValueMeta( i );
         retval += databaseMeta.getAddColumnStatement( tableName, v, tk, use_autoinc, pk, true );
       }
     }
 
     // Find the surplus fields
-    RowMetaInterface surplus = new RowMeta();
+    IRowMeta surplus = new RowMeta();
     for ( int i = 0; i < tabFields.size(); i++ ) {
-      ValueMetaInterface v = tabFields.getValueMeta( i );
+      IValueMeta v = tabFields.getValueMeta( i );
       // Found in table, not in input ?
       if ( fields.searchValueMeta( v.getName() ) == null ) {
         surplus.addValueMeta( v ); // yes --> surplus!
@@ -3214,7 +3213,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     if ( surplus.size() != 0 ) {
       for ( int i = 0; i < surplus.size(); i++ ) {
-        ValueMetaInterface v = surplus.getValueMeta( i );
+        IValueMeta v = surplus.getValueMeta( i );
         retval += databaseMeta.getDropColumnStatement( tableName, v, tk, use_autoinc, pk, true );
       }
     }
@@ -3223,10 +3222,10 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     // OK, see if there are fields for which we need to modify the type...
     // (length, precision)
     //
-    RowMetaInterface modify = new RowMeta();
+    IRowMeta modify = new RowMeta();
     for ( int i = 0; i < fields.size(); i++ ) {
-      ValueMetaInterface desiredField = fields.getValueMeta( i );
-      ValueMetaInterface currentField = tabFields.searchValueMeta( desiredField.getName() );
+      IValueMeta desiredField = fields.getValueMeta( i );
+      IValueMeta currentField = tabFields.searchValueMeta( desiredField.getName() );
       if ( desiredField != null && currentField != null ) {
         String desiredDDL = databaseMeta.getFieldDefinition( desiredField, tk, pk, use_autoinc );
         String currentDDL = databaseMeta.getFieldDefinition( currentField, tk, pk, use_autoinc );
@@ -3240,7 +3239,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     if ( modify.size() > 0 ) {
       for ( int i = 0; i < modify.size(); i++ ) {
-        ValueMetaInterface v = modify.getValueMeta( i );
+        IValueMeta v = modify.getValueMeta( i );
         retval += databaseMeta.getModifyColumnStatement( tableName, v, tk, use_autoinc, pk, true );
       }
     }
@@ -3253,7 +3252,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       String truncateStatement = databaseMeta.getTruncateTableStatement( null, tablename );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
-          + databaseMeta.getDatabaseInterface().getPluginName() );
+          + databaseMeta.getIDatabase().getPluginName() );
       }
       execStatement( truncateStatement );
     } else {
@@ -3266,7 +3265,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tablename );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
-          + databaseMeta.getDatabaseInterface().getPluginName() );
+          + databaseMeta.getIDatabase().getPluginName() );
       }
       execStatement( truncateStatement );
     } else {
@@ -3317,14 +3316,14 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     RowMeta meta = new RowMeta();
 
     for ( int i = 0; i < md.getColumnCount(); i++ ) {
-      ValueMetaInterface valueMeta = getValueFromSQLType( md, i + 1, true, false );
+      IValueMeta valueMeta = getValueFromSQLType( md, i + 1, true, false );
       meta.addValueMeta( valueMeta );
     }
 
     return meta;
   }
 
-  public RowMetaAndData getOneRow( String sql, RowMetaInterface param, Object[] data ) throws HopDatabaseException {
+  public RowMetaAndData getOneRow( String sql, IRowMeta param, Object[] data ) throws HopDatabaseException {
     ResultSet rs = openQuery( sql, param, data );
     if ( rs != null ) {
       Object[] row = getRow( rs ); // One value: a number;
@@ -3370,8 +3369,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public RowMetaInterface getParameterMetaData( PreparedStatement ps ) {
-    RowMetaInterface par = new RowMeta();
+  public IRowMeta getParameterMetaData( PreparedStatement ps ) {
+    IRowMeta par = new RowMeta();
     try {
       ParameterMetaData pmd = ps.getParameterMetaData();
       for ( int i = 1; i <= pmd.getParameterCount(); i++ ) {
@@ -3379,7 +3378,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         int sqltype = pmd.getParameterType( i );
         int length = pmd.getPrecision( i );
         int precision = pmd.getScale( i );
-        ValueMetaInterface val;
+        IValueMeta val;
 
         switch ( sqltype ) {
           case java.sql.Types.CHAR:
@@ -3460,21 +3459,21 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   // Get the fields back from an SQL query
-  public RowMetaInterface getParameterMetaData( String sql, RowMetaInterface inform, Object[] data ) {
+  public IRowMeta getParameterMetaData( String sql, IRowMeta inform, Object[] data ) {
     // The database couldn't handle it: try manually!
     int q = countParameters( sql );
 
-    RowMetaInterface par = new RowMeta();
+    IRowMeta par = new RowMeta();
 
     if ( inform != null && q == inform.size() ) {
       for ( int i = 0; i < q; i++ ) {
-        ValueMetaInterface inf = inform.getValueMeta( i );
-        ValueMetaInterface v = inf.clone();
+        IValueMeta inf = inform.getValueMeta( i );
+        IValueMeta v = inf.clone();
         par.addValueMeta( v );
       }
     } else {
       for ( int i = 0; i < q; i++ ) {
-        ValueMetaInterface v = new ValueMetaNumber( "name" + i );
+        IValueMeta v = new ValueMetaNumber( "name" + i );
         par.addValueMeta( v );
       }
     }
@@ -3482,7 +3481,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return par;
   }
 
-  public void writeLogRecord( LogTableCoreInterface logTable, LogStatus status, Object subject, Object parent )
+  public void writeLogRecord( ILogTableCore logTable, LogStatus status, Object subject, Object parent )
     throws HopDatabaseException {
     try {
       RowMetaAndData logRecord = logTable.getLogRecord( status, subject, parent );
@@ -3495,18 +3494,18 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         databaseMeta.getQuotedSchemaTableCombination(
           environmentSubstitute( logTable.getActualSchemaName() ), environmentSubstitute( logTable
             .getActualTableName() ) );
-      RowMetaInterface rowMeta = logRecord.getRowMeta();
+      IRowMeta rowMeta = logRecord.getRowMeta();
       Object[] rowData = logRecord.getData();
 
       if ( update ) {
-        RowMetaInterface updateRowMeta = new RowMeta();
+        IRowMeta updateRowMeta = new RowMeta();
         Object[] updateRowData = new Object[ rowMeta.size() ];
-        ValueMetaInterface keyValueMeta = rowMeta.getValueMeta( 0 );
+        IValueMeta keyValueMeta = rowMeta.getValueMeta( 0 );
         StringBuilder sqlBuff = new StringBuilder( 250 );
         sqlBuff.append( "UPDATE " ).append( schemaTable ).append( " SET " );
 
         for ( int i = 1; i < rowMeta.size(); i++ ) { // Without ID_JOB or ID_BATCH
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+          IValueMeta valueMeta = rowMeta.getValueMeta( i );
           if ( i > 1 ) {
             sqlBuff.append( ", " );
           }
@@ -3536,7 +3535,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
   }
 
-  public void cleanupLogRecords( LogTableCoreInterface logTable ) throws HopDatabaseException {
+  public void cleanupLogRecords( ILogTableCore logTable ) throws HopDatabaseException {
     double timeout = Const.toDouble( Const.trim( environmentSubstitute( logTable.getTimeoutInDays() ) ), 0.0 );
     if ( timeout < 0.000001 ) {
       // The timeout has to be at least a few seconds, otherwise we don't
@@ -3566,7 +3565,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     long now = System.currentTimeMillis();
     long limit = now - Math.round( timeout * 24 * 60 * 60 * 1000 );
     RowMetaAndData row = new RowMetaAndData();
-    row.addValue( logField.getFieldName(), ValueMetaInterface.TYPE_DATE, new Date( limit ) );
+    row.addValue( logField.getFieldName(), IValueMeta.TYPE_DATE, new Date( limit ) );
 
     try {
       //fire database
@@ -3600,7 +3599,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     try {
       pstmt = connection.prepareStatement( databaseMeta.stripCR( sql ) );
 
-      RowMetaInterface r = new RowMeta();
+      IRowMeta r = new RowMeta();
       r.addValueMeta( new ValueMetaString( "PIPELINE_NAME", 255, -1 ) );
       setValues( r, new Object[] { name } );
 
@@ -3706,7 +3705,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
    */
-  public List<Object[]> getRows( String sql, int limit, ProgressMonitorListener monitor )
+  public List<Object[]> getRows( String sql, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
 
     return getRows( sql, null, null, ResultSet.FETCH_FORWARD, false, limit, monitor );
@@ -3725,8 +3724,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
    */
-  public List<Object[]> getRows( String sql, RowMetaInterface params, Object[] data, int fetch_mode,
-                                 boolean lazyConversion, int limit, ProgressMonitorListener monitor )
+  public List<Object[]> getRows( String sql, IRowMeta params, Object[] data, int fetch_mode,
+                                 boolean lazyConversion, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
     if ( monitor != null ) {
       monitor.setTaskName( "Opening query..." );
@@ -3745,7 +3744,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
    */
-  public List<Object[]> getRows( ResultSet rset, int limit, ProgressMonitorListener monitor )
+  public List<Object[]> getRows( ResultSet rset, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
     try {
       List<Object[]> result = new ArrayList<>();
@@ -3796,12 +3795,12 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException in case something goes wrong
    */
-  public List<Object[]> getFirstRows( String table_name, int limit, ProgressMonitorListener monitor )
+  public List<Object[]> getFirstRows( String table_name, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
     String sql = "SELECT";
-    if ( databaseMeta.getDatabaseInterface().isNeoviewVariant() ) {
+    if ( databaseMeta.getIDatabase().isNeoviewVariant() ) {
       sql += " [FIRST " + limit + "]";
-    } else if ( databaseMeta.getDatabaseInterface().isSybaseIQVariant() ) {
+    } else if ( databaseMeta.getIDatabase().isSybaseIQVariant() ) {
       // improve support for Sybase IQ
       sql += " TOP " + limit + " ";
     }
@@ -3814,7 +3813,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return getRows( sql, limit, monitor );
   }
 
-  public RowMetaInterface getReturnRowMeta() {
+  public IRowMeta getReturnRowMeta() {
     return rowMeta;
   }
 
@@ -4389,8 +4388,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   @Override
@@ -4404,18 +4403,18 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -4441,7 +4440,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -4456,15 +4455,15 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
 
     // Also share the variables with the meta data object
     // Make sure it's not the databaseMeta object itself. We would get an
     // infinite loop in that case.
     //
-    if ( space != databaseMeta ) {
-      databaseMeta.shareVariablesWith( space );
+    if ( variables != databaseMeta ) {
+      databaseMeta.shareVariablesWith( variables );
     }
   }
 
@@ -4481,25 +4480,25 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       ret = new RowMetaAndData();
       int pos = 1;
       if ( resultname != null && resultname.length() != 0 ) {
-        ValueMetaInterface vMeta = ValueMetaFactory.createValueMeta( resultname, resulttype );
+        IValueMeta vMeta = ValueMetaFactory.createValueMeta( resultname, resulttype );
         Object v = null;
         switch ( resulttype ) {
-          case ValueMetaInterface.TYPE_BOOLEAN:
+          case IValueMeta.TYPE_BOOLEAN:
             v = Boolean.valueOf( cstmt.getBoolean( pos ) );
             break;
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_NUMBER:
             v = Double.valueOf( cstmt.getDouble( pos ) );
             break;
-          case ValueMetaInterface.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_BIGNUMBER:
             v = cstmt.getBigDecimal( pos );
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
+          case IValueMeta.TYPE_INTEGER:
             v = Long.valueOf( cstmt.getLong( pos ) );
             break;
-          case ValueMetaInterface.TYPE_STRING:
+          case IValueMeta.TYPE_STRING:
             v = cstmt.getString( pos );
             break;
-          case ValueMetaInterface.TYPE_BINARY:
+          case IValueMeta.TYPE_BINARY:
             if ( databaseMeta.supportsGetBlob() ) {
               Blob blob = cstmt.getBlob( pos );
               if ( blob != null ) {
@@ -4511,7 +4510,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
               v = cstmt.getBytes( pos );
             }
             break;
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             if ( databaseMeta.supportsTimeStampToDateConversion() ) {
               v = cstmt.getTimestamp( pos );
             } else {
@@ -4526,25 +4525,25 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       }
       for ( int i = 0; i < arg.length; i++ ) {
         if ( argdir[ i ].equalsIgnoreCase( "OUT" ) || argdir[ i ].equalsIgnoreCase( "INOUT" ) ) {
-          ValueMetaInterface vMeta = ValueMetaFactory.createValueMeta( arg[ i ], argtype[ i ] );
+          IValueMeta vMeta = ValueMetaFactory.createValueMeta( arg[ i ], argtype[ i ] );
           Object v = null;
           switch ( argtype[ i ] ) {
-            case ValueMetaInterface.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_BOOLEAN:
               v = Boolean.valueOf( cstmt.getBoolean( pos + i ) );
               break;
-            case ValueMetaInterface.TYPE_NUMBER:
+            case IValueMeta.TYPE_NUMBER:
               v = Double.valueOf( cstmt.getDouble( pos + i ) );
               break;
-            case ValueMetaInterface.TYPE_BIGNUMBER:
+            case IValueMeta.TYPE_BIGNUMBER:
               v = cstmt.getBigDecimal( pos + i );
               break;
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_INTEGER:
               v = Long.valueOf( cstmt.getLong( pos + i ) );
               break;
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_STRING:
               v = cstmt.getString( pos + i );
               break;
-            case ValueMetaInterface.TYPE_BINARY:
+            case IValueMeta.TYPE_BINARY:
               if ( databaseMeta.supportsGetBlob() ) {
                 Blob blob = cstmt.getBlob( pos + i );
                 if ( blob != null ) {
@@ -4556,7 +4555,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
                 v = cstmt.getBytes( pos + i );
               }
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               if ( databaseMeta.supportsTimeStampToDateConversion() ) {
                 v = cstmt.getTimestamp( pos + i );
               } else {
@@ -4630,7 +4629,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException
    */
 
-  public String getDDLCreationTable( String tableName, RowMetaInterface fields ) throws HopDatabaseException {
+  public String getDDLCreationTable( String tableName, IRowMeta fields ) throws HopDatabaseException {
     String retval;
 
     // First, check for reserved SQL in the input row r...
@@ -4653,7 +4652,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tablename );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
-          + databaseMeta.getDatabaseInterface().getPluginName() );
+          + databaseMeta.getIDatabase().getPluginName() );
       }
       return truncateStatement;
     } else {
@@ -4671,7 +4670,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException
    */
 
-  public String getSQLOutput( String schemaName, String tableName, RowMetaInterface fields, Object[] r,
+  public String getSQLOutput( String schemaName, String tableName, IRowMeta fields, Object[] r,
                               String dateFormat ) throws HopDatabaseException {
     StringBuilder ins = new StringBuilder( 128 );
 
@@ -4694,7 +4693,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
       // new add values ...
       for ( int i = 0; i < fields.size(); i++ ) {
-        ValueMetaInterface valueMeta = fields.getValueMeta( i );
+        IValueMeta valueMeta = fields.getValueMeta( i );
         Object valueData = r[ i ];
 
         if ( i > 0 ) {
@@ -4709,8 +4708,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
           // Normal cases...
           //
           switch ( valueMeta.getType() ) {
-            case ValueMetaInterface.TYPE_BOOLEAN:
-            case ValueMetaInterface.TYPE_STRING:
+            case IValueMeta.TYPE_BOOLEAN:
+            case IValueMeta.TYPE_STRING:
               String string = valueMeta.getString( valueData );
               // Have the database dialect do the quoting.
               // This also adds the single quotes around the string (thanks to
@@ -4719,11 +4718,11 @@ public class Database implements VariableSpace, LoggingObjectInterface {
               string = databaseMeta.quoteSQLString( string );
               ins.append( string );
               break;
-            case ValueMetaInterface.TYPE_DATE:
+            case IValueMeta.TYPE_DATE:
               Date date = fields.getDate( r, i );
 
               if ( Utils.isEmpty( dateFormat ) ) {
-                if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
+                if ( databaseMeta.getIDatabase().isOracleVariant() ) {
                   if ( fieldDateFormatters[ i ] == null ) {
                     fieldDateFormatters[ i ] = new java.text.SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
                   }
@@ -4880,7 +4879,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parentLoggingObject;
   }
 

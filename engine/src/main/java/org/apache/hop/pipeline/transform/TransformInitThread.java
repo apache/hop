@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -38,9 +38,9 @@ public class TransformInitThread implements Runnable {
 
   private TransformMetaDataCombi combi;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
-  public TransformInitThread( TransformMetaDataCombi combi, LogChannelInterface log ) {
+  public TransformInitThread( TransformMetaDataCombi combi, ILogChannel log ) {
     this.combi = combi;
     this.log = combi.transform.getLogChannel();
     this.ok = false;

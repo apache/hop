@@ -29,8 +29,8 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -53,7 +53,7 @@ import java.net.URLConnection;
   image = "WebServiceAvailable.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
-public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryWebServiceAvailable.class; // for i18n purposes, needed by Translator!!
 
   private String url;

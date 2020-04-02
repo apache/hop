@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
@@ -57,7 +57,7 @@ public class PDI_2875_Test {
     HopEnvironment.init();
     smh =
       new TransformMockHelper<TextFileInputMeta, TextFileInputData>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -85,7 +85,7 @@ public class PDI_2875_Test {
   @Test
   public void testVariableSubstitution() {
     doReturn( new Date() ).when( smh.pipeline ).getCurrentDate();
-    TextFileInput transform = spy( new TextFileInput( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline ) );
+    TextFileInput transform = spy( new TextFileInput( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
     TextFileInputData data = new TextFileInputData();
     transform.setVariable( VAR_NAME, "value" );
     transform.init( getMeta(), data );

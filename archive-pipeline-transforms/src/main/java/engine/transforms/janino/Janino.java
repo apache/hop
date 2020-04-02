@@ -26,16 +26,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.codehaus.janino.ExpressionEvaluator;
@@ -49,18 +49,18 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Janino extends BaseTransform implements TransformInterface {
+public class Janino extends BaseTransform implements ITransform {
   private static Class<?> PKG = JaninoMeta.class;
   private JaninoMeta meta;
   private JaninoData data;
 
-  public Janino( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Janino( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (JaninoMeta) smi;
     data = (JaninoData) sdi;
 
@@ -80,7 +80,7 @@ public class Janino extends BaseTransform implements TransformInterface {
       // Calculate replace indexes...
       //
       data.replaceIndex = new int[ meta.getFormula().length ];
-      data.returnType = new ValueMetaInterface[ meta.getFormula().length ];
+      data.returnType = new IValueMeta[ meta.getFormula().length ];
       for ( int i = 0; i < meta.getFormula().length; i++ ) {
         JaninoMetaFunction fn = meta.getFormula()[ i ];
         data.returnType[ i ] = ValueMetaFactory.createValueMeta( fn.getValueType() );
@@ -121,7 +121,7 @@ public class Janino extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private Object[] calcFields( RowMetaInterface rowMeta, Object[] r ) throws HopValueException {
+  private Object[] calcFields( IRowMeta rowMeta, Object[] r ) throws HopValueException {
     try {
       Object[] outputRowData = RowDataUtil.createResizedCopy( r, data.outputRowMeta.size() );
       int tempIndex = rowMeta.size();
@@ -144,7 +144,7 @@ public class Janino extends BaseTransform implements TransformInterface {
 
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
 
-            ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( i );
+            IValueMeta valueMeta = data.outputRowMeta.getValueMeta( i );
 
             // See if the value is being used in a formula...
             //
@@ -184,7 +184,7 @@ public class Janino extends BaseTransform implements TransformInterface {
         Object[] argumentData = new Object[ argumentIndexes.size() ];
         for ( int x = 0; x < argumentIndexes.size(); x++ ) {
           int index = argumentIndexes.get( x );
-          ValueMetaInterface outputValueMeta = data.outputRowMeta.getValueMeta( index );
+          IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta( index );
           argumentData[ x ] = outputValueMeta.convertToNormalStorageType( outputRowData[ index ] );
         }
 
@@ -194,10 +194,10 @@ public class Janino extends BaseTransform implements TransformInterface {
         if ( formulaResult == null ) {
           value = null;
         } else {
-          ValueMetaInterface valueMeta = data.returnType[ i ];
+          IValueMeta valueMeta = data.returnType[ i ];
           if ( valueMeta.getNativeDataTypeClass().isAssignableFrom( formulaResult.getClass() ) ) {
             value = formulaResult;
-          } else if ( formulaResult instanceof Integer && valueMeta.getType() == ValueMetaInterface.TYPE_INTEGER ) {
+          } else if ( formulaResult instanceof Integer && valueMeta.getType() == IValueMeta.TYPE_INTEGER ) {
             value = ( (Integer) formulaResult ).longValue();
           } else {
             throw new HopValueException(
@@ -222,7 +222,7 @@ public class Janino extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (JaninoMeta) smi;
     data = (JaninoData) sdi;
 

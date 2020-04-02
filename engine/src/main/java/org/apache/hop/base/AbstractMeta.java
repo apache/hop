@@ -25,38 +25,37 @@ package org.apache.hop.base;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.AttributesInterface;
+import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.changed.ChangedFlag;
-import org.apache.hop.core.changed.ChangedFlagInterface;
-import org.apache.hop.core.changed.HopObserver;
+import org.apache.hop.core.changed.IChanged;
+import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.UndoInterface;
-import org.apache.hop.core.listeners.ContentChangedListener;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
-import org.apache.hop.core.listeners.FilenameChangedListener;
-import org.apache.hop.core.listeners.NameChangedListener;
+import org.apache.hop.core.gui.IUndo;
+import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
+import org.apache.hop.core.listeners.IFilenameChangedListener;
+import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.pipeline.HasSlaveServersInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,9 +67,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterface, VariableSpace,
-  EngineMetaInterface, NamedParams, HasSlaveServersInterface, AttributesInterface,
-  LoggingObjectInterface {
+public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
+  IEngineMeta, INamedParams, IAttributes,
+  ILoggingObject {
 
   /**
    * Constant = 1
@@ -102,13 +101,13 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected String filename;
 
-  protected Set<NameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<NameChangedListener, Boolean>() );
+  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<INameChangedListener, Boolean>() );
 
-  protected Set<FilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<FilenameChangedListener, Boolean>() );
+  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IFilenameChangedListener, Boolean>() );
 
-  protected Set<ContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<ContentChangedListener, Boolean>() );
+  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IContentChangedListener, Boolean>() );
 
-  protected Set<CurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<CurrentDirectoryChangedListener, Boolean>() );
+  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<ICurrentDirectoryChangedListener, Boolean>() );
 
   protected List<NotePadMeta> notes;
 
@@ -120,9 +119,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected Map<String, Map<String, String>> attributesMap;
 
-  protected VariableSpace variables = new Variables();
+  protected IVariables variables = new Variables();
 
-  protected NamedParams namedParams = new NamedParamsDefault();
+  protected INamedParams namedParams = new NamedParamsDefault();
 
   protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
@@ -251,7 +250,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * Gets the filename.
    *
    * @return filename
-   * @see org.apache.hop.core.EngineMetaInterface#getFilename()
+   * @see IEngineMeta#getFilename()
    */
   @Override
   public String getFilename() {
@@ -281,14 +280,14 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /**
    * This method sets various internal kettle variables.
    */
-  public abstract void setInternalHopVariables( VariableSpace var );
+  public abstract void setInternalHopVariables( IVariables var );
 
   /**
    * Sets the internal filename kettle variables.
    *
    * @param var the new internal filename kettle variables
    */
-  protected abstract void setInternalFilenameHopVariables( VariableSpace var );
+  protected abstract void setInternalFilenameHopVariables( IVariables var );
 
   /**
    * Find a database connection by it's name
@@ -320,7 +319,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param listener the listener
    */
-  public void addNameChangedListener( NameChangedListener listener ) {
+  public void addNameChangedListener( INameChangedListener listener ) {
     if ( listener != null ) {
       nameChangedListeners.add( listener );
     }
@@ -331,7 +330,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param listener the listener
    */
-  public void removeNameChangedListener( NameChangedListener listener ) {
+  public void removeNameChangedListener( INameChangedListener listener ) {
     if ( listener != null ) {
       nameChangedListeners.remove( listener );
     }
@@ -352,7 +351,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    */
   protected void fireNameChangedListeners( String oldName, String newName ) {
     if ( nameChanged( oldName, newName ) ) {
-      for ( NameChangedListener listener : nameChangedListeners ) {
+      for ( INameChangedListener listener : nameChangedListeners ) {
         listener.nameChanged( this, oldName, newName );
       }
     }
@@ -363,7 +362,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param listener the listener
    */
-  public void addFilenameChangedListener( FilenameChangedListener listener ) {
+  public void addFilenameChangedListener( IFilenameChangedListener listener ) {
     if ( listener != null ) {
       filenameChangedListeners.add( listener );
     }
@@ -374,7 +373,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param listener the listener
    */
-  public void removeFilenameChangedListener( FilenameChangedListener listener ) {
+  public void removeFilenameChangedListener( IFilenameChangedListener listener ) {
     if ( listener != null ) {
       filenameChangedListeners.remove( listener );
     }
@@ -388,35 +387,35 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    */
   protected void fireFilenameChangedListeners( String oldFilename, String newFilename ) {
     if ( nameChanged( oldFilename, newFilename ) ) {
-      for ( FilenameChangedListener listener : filenameChangedListeners ) {
+      for ( IFilenameChangedListener listener : filenameChangedListeners ) {
         listener.filenameChanged( this, oldFilename, newFilename );
       }
     }
   }
 
   /**
-   * Adds the passed ContentChangedListener to the list of listeners.
+   * Adds the passed IContentChangedListener to the list of listeners.
    *
    * @param listener
    */
-  public void addContentChangedListener( ContentChangedListener listener ) {
+  public void addContentChangedListener( IContentChangedListener listener ) {
     if ( listener != null ) {
       contentChangedListeners.add( listener );
     }
   }
 
   /**
-   * Removes the passed ContentChangedListener from the list of listeners.
+   * Removes the passed IContentChangedListener from the list of listeners.
    *
    * @param listener
    */
-  public void removeContentChangedListener( ContentChangedListener listener ) {
+  public void removeContentChangedListener( IContentChangedListener listener ) {
     if ( listener != null ) {
       contentChangedListeners.remove( listener );
     }
   }
 
-  public List<ContentChangedListener> getContentChangedListeners() {
+  public List<IContentChangedListener> getContentChangedListeners() {
     return ImmutableList.copyOf( contentChangedListeners );
   }
 
@@ -429,11 +428,11 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected void fireContentChangedListeners( boolean ch ) {
     if ( ch ) {
-      for ( ContentChangedListener listener : contentChangedListeners ) {
+      for ( IContentChangedListener listener : contentChangedListeners ) {
         listener.contentChanged( this );
       }
     } else {
-      for ( ContentChangedListener listener : contentChangedListeners ) {
+      for ( IContentChangedListener listener : contentChangedListeners ) {
         listener.contentSafe( this );
       }
     }
@@ -442,7 +441,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /**
    * Remove listener
    */
-  public void addCurrentDirectoryChangedListener( CurrentDirectoryChangedListener listener ) {
+  public void addCurrentDirectoryChangedListener( ICurrentDirectoryChangedListener listener ) {
     if ( listener != null && !currentDirectoryChangedListeners.contains( listener ) ) {
       currentDirectoryChangedListeners.add( listener );
     }
@@ -451,7 +450,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /**
    * Add a listener to be notified of design-time changes to current directory variable
    */
-  public void removeCurrentDirectoryChangedListener( CurrentDirectoryChangedListener listener ) {
+  public void removeCurrentDirectoryChangedListener( ICurrentDirectoryChangedListener listener ) {
     if ( listener != null ) {
       currentDirectoryChangedListeners.remove( listener );
     }
@@ -462,26 +461,12 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    */
   protected void fireCurrentDirectoryChanged( String previous, String current ) {
     if ( nameChanged( previous, current ) ) {
-      for ( CurrentDirectoryChangedListener listener : currentDirectoryChangedListeners ) {
+      for ( ICurrentDirectoryChangedListener listener : currentDirectoryChangedListeners ) {
         listener.directoryChanged( this, previous, current );
       }
     }
   }
 
-
-  /**
-   * Gets a list of slave servers.
-   *
-   * @return the slaveServer list
-   */
-  @Override
-  public List<SlaveServer> getSlaveServers() {
-    try {
-      return SlaveServer.createFactory( metaStore ).getElements();
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load slave servers from the metastore", e );
-    }
-  }
 
   /**
    * Find a slave server using the name
@@ -518,7 +503,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#addUndo(java.lang.Object[], java.lang.Object[], int[],
+   * @see org.apache.hop.core.gui.IUndo#addUndo(java.lang.Object[], java.lang.Object[], int[],
    * org.apache.hop.core.gui.Point[], org.apache.hop.core.gui.Point[], int, boolean)
    */
   @Override
@@ -574,7 +559,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#nextUndo()
+   * @see org.apache.hop.core.gui.IUndo#nextUndo()
    */
   @Override
   public ChangeAction nextUndo() {
@@ -593,7 +578,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#viewNextUndo()
+   * @see org.apache.hop.core.gui.IUndo#viewNextUndo()
    */
   @Override
   public ChangeAction viewNextUndo() {
@@ -611,7 +596,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#previousUndo()
+   * @see org.apache.hop.core.gui.IUndo#previousUndo()
    */
   @Override
   public ChangeAction previousUndo() {
@@ -646,7 +631,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#viewPreviousUndo()
+   * @see org.apache.hop.core.gui.IUndo#viewPreviousUndo()
    */
   @Override
   public ChangeAction viewPreviousUndo() {
@@ -662,7 +647,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#getMaxUndo()
+   * @see org.apache.hop.core.gui.IUndo#getMaxUndo()
    */
   @Override
   public int getMaxUndo() {
@@ -672,7 +657,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.gui.UndoInterface#setMaxUndo(int)
+   * @see org.apache.hop.core.gui.IUndo#setMaxUndo(int)
    */
   @Override
   public void setMaxUndo( int mu ) {
@@ -958,18 +943,18 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#copyVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#copyVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
 
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String)
    */
   @Override
   public String environmentSubstitute( String aString ) {
@@ -979,7 +964,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String[])
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override
   public String[] environmentSubstitute( String[] aString ) {
@@ -987,17 +972,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getParentVariableSpace()
+   * @see org.apache.hop.core.variables.IVariables#getParentVariableSpace()
    */
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
@@ -1005,17 +990,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#setParentVariableSpace(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String, java.lang.String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -1025,7 +1010,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -1035,7 +1020,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see org.apache.hop.core.variables.IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
   public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
@@ -1052,17 +1037,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#initializeVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#listVariables()
+   * @see org.apache.hop.core.variables.IVariables#listVariables()
    */
   @Override
   public String[] listVariables() {
@@ -1072,7 +1057,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#setVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#setVariable(java.lang.String, java.lang.String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -1082,17 +1067,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#shareVariablesWith(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#shareVariablesWith(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#injectVariables(java.util.Map)
+   * @see org.apache.hop.core.variables.IVariables#injectVariables(java.util.Map)
    */
   @Override
   public void injectVariables( Map<String, String> prop ) {
@@ -1102,7 +1087,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override
@@ -1113,7 +1098,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
    */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
@@ -1123,7 +1108,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
    */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
@@ -1133,7 +1118,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterValue(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
    */
   @Override
   public String getParameterValue( String key ) throws UnknownParamException {
@@ -1143,7 +1128,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
    */
   @Override
   public String[] listParameters() {
@@ -1153,7 +1138,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override
   public void setParameterValue( String key, String value ) throws UnknownParamException {
@@ -1163,7 +1148,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#eraseParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
    */
   @Override
   public void eraseParameters() {
@@ -1173,7 +1158,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
    */
   @Override
   public void clearParameters() {
@@ -1183,27 +1168,27 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#copyParametersFrom(org.apache.hop.core.parameters.NamedParams)
+   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
    */
   @Override
-  public void copyParametersFrom( NamedParams params ) {
+  public void copyParametersFrom( INamedParams params ) {
     namedParams.copyParametersFrom( params );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#mergeParametersWith(org.apache.hop.core.parameters.NamedParams, boolean replace)
+   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams, boolean replace)
    */
   @Override
-  public void mergeParametersWith( NamedParams params, boolean replace ) {
+  public void mergeParametersWith( INamedParams params, boolean replace ) {
     namedParams.mergeParametersWith( params, replace );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#activateParameters()
+   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
    */
   @Override
   public void activateParameters() {
@@ -1234,7 +1219,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogLevel()
+   * @see org.apache.hop.core.logging.ILoggingObject#getLogLevel()
    */
   @Override
   public LogLevel getLogLevel() {
@@ -1264,7 +1249,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param var the new internal name kettle variable
    */
-  protected abstract void setInternalNameHopVariable( VariableSpace var );
+  protected abstract void setInternalNameHopVariable( IVariables var );
 
   /**
    * Gets the date the pipeline was created.
@@ -1397,11 +1382,11 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     }
   }
 
-  public void addObserver( HopObserver o ) {
+  public void addObserver( IHopObserver o ) {
     changedFlag.addObserver( o );
   }
 
-  public void deleteObserver( HopObserver o ) {
+  public void deleteObserver( IHopObserver o ) {
     changedFlag.deleteObserver( o );
   }
 
@@ -1413,7 +1398,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * Checks whether the job can be saved. For JobMeta, this method always returns true
    *
    * @return true
-   * @see org.apache.hop.core.EngineMetaInterface#canSave()
+   * @see IEngineMeta#canSave()
    */
   @Override
   public boolean canSave() {
@@ -1445,17 +1430,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * Gets the interface to the parent log object. For AbstractMeta, this method always returns null.
    *
    * @return null
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getParent()
+   * @see ILoggingObject#getParent()
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return null;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectName()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectName()
    */
   @Override
   public String getObjectName() {
@@ -1465,7 +1450,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectCopy()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectCopy()
    */
   @Override
   public String getObjectCopy() {

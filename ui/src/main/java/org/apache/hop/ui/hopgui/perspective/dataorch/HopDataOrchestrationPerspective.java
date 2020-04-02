@@ -15,8 +15,8 @@ import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
@@ -181,7 +181,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       hopGui.getLog().logError( "Tab item handler not found for tab item " + tabItem.toString() );
       return;
     }
-    HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
+    IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
     remove( typeHandler );
 
     // Also switch to the last used tab
@@ -253,7 +253,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return items.get( index );
   }
 
-  public TabItemHandler findTabItemHandler( HopFileTypeHandlerInterface handler ) {
+  public TabItemHandler findTabItemHandler( IHopFileTypeHandler handler ) {
     for ( TabItemHandler item : items ) {
       // This compares the handler payload, typically PipelineMeta, JobMeta and so on.
       if ( item.getTypeHandler().equals( handler ) ) {
@@ -269,7 +269,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param pipelineMeta
    * @return
    */
-  public HopFileTypeHandlerInterface addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
+  public IHopFileTypeHandler addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setImage( GUIResource.getInstance().getImageToolbarPipeline() );
     HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
@@ -315,7 +315,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param jobMeta
    * @return The file type handler
    */
-  public HopFileTypeHandlerInterface addJob( Composite parent, HopGui hopGui, JobMeta jobMeta, HopJobFileType jobFile ) throws HopException {
+  public IHopFileTypeHandler addJob( Composite parent, HopGui hopGui, JobMeta jobMeta, HopJobFileType jobFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setImage( GUIResource.getInstance().getImageToolbarJob() );
     HopGuiJobGraph jobGraph = new HopGuiJobGraph( tabFolder, hopGui, tabItem, this, jobMeta, jobFile );
@@ -357,7 +357,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param typeHandler The file type handler to remove
    * @return true if the handler was removed from the perspective, false if it wasn't (cancelled, not possible, ...)
    */
-  @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
+  @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
     TabItemHandler tabItemHandler = findTabItemHandler( typeHandler );
     if ( tabItemHandler == null ) {
       return false;
@@ -385,14 +385,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    *
    * @return the active file type handler or if none is active return an empty handler which does do anything.
    */
-  @Override public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
+  @Override public IHopFileTypeHandler getActiveFileTypeHandler() {
     if ( activeItem == null ) {
       return new EmptyHopFileTypeHandler();
     }
     return activeItem.getTypeHandler();
   }
 
-  public List<HopFileTypeInterface> getSupportedHopFileTypes() {
+  public List<IHopFileType> getSupportedHopFileTypes() {
     return Arrays.asList( pipelineFileType, jobFileType );
   }
 
@@ -435,7 +435,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     // For every file type we have a context handler...
     //
-    for ( HopFileTypeInterface fileType : getSupportedHopFileTypes() ) {
+    for ( IHopFileType fileType : getSupportedHopFileTypes() ) {
       handlers.addAll( fileType.getContextHandlers() );
     }
     return handlers;
@@ -446,7 +446,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public void updateTabs() {
     for (TabItemHandler item : items) {
-      HopFileTypeHandlerInterface typeHandler = item.getTypeHandler();
+      IHopFileTypeHandler typeHandler = item.getTypeHandler();
       updateTabLabel( item.getTabItem(), typeHandler.getFilename(), typeHandler.getName() );
     }
   }

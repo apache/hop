@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.getpop;
 
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.ClassRule;
 
@@ -54,8 +54,8 @@ public class JobEntryGetPOPLoadSaveTest extends JobEntryLoadSaveTestSupport<JobE
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     validators.put( "valueImapList", new IntLoadSaveValidator( MailConnectionMeta.valueIMAPListCode.length ) );
     validators.put( "conditionReceivedDate", new IntLoadSaveValidator( MailConnectionMeta.conditionDateCode.length ) );
     validators.put( "actiontype", new IntLoadSaveValidator( MailConnectionMeta.actionTypeCode.length ) );

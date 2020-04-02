@@ -24,11 +24,11 @@ package org.apache.hop.databases.monetdb;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -42,7 +42,7 @@ import org.apache.hop.core.util.Utils;
   typeDescription = "MonetDB"
 )
 @GuiPlugin( id = "GUI-MonetDBDatabaseMeta" )
-public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<>();
 
@@ -59,7 +59,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @see DatabaseInterface#getDefaultDatabasePort()
+   * @see IDatabase#getDefaultDatabasePort()
    */
   @Override
   public int getDefaultDatabasePort() {
@@ -71,7 +71,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @see DatabaseInterface#getNotFoundTK(boolean)
+   * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override
   public int getNotFoundTK( boolean useAutoinc ) {
@@ -154,7 +154,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -171,7 +171,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -190,7 +190,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     StringBuilder retval = new StringBuilder();
 
@@ -212,20 +212,20 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval.append( "TIMESTAMP" );
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval.append( "BOOLEAN" );
         } else {
           retval.append( "CHAR(1)" );
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -245,7 +245,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
               } else {
                 retval.append( "DECIMAL(" ).append( length ).append( ")" );
               }
-            } else if ( type == ValueMetaInterface.TYPE_NUMBER ) {
+            } else if ( type == IValueMeta.TYPE_NUMBER ) {
               retval.append( "DOUBLE" );
             } else {
               retval.append( "BIGINT" );
@@ -266,7 +266,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length > getMaxVARCHARLength() ) {
           retval.append( "CLOB" );
         } else {

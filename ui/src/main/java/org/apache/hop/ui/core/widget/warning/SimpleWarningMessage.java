@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget.warning;
 
-public class SimpleWarningMessage implements WarningMessageInterface {
+public class SimpleWarningMessage implements IWarningMessage {
 
   private String warningMessage;
   private boolean warning;

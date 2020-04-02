@@ -43,7 +43,7 @@ public class UnnamedFieldsMappingTest {
 
   @Test
   public void fieldMetaIndexWithUnexistingField() {
-    assertEquals( FieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex( 2 ) );
+    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex( 2 ) );
   }
 
   @Test

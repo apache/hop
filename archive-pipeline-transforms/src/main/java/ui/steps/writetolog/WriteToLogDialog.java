@@ -26,13 +26,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -68,7 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class WriteToLogDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
 
   private WriteToLogMeta input;
@@ -205,7 +205,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements TransformDi
     wPrintHeader.addSelectionListener( lsSelMod );
 
     // Limit output?
-    // Cache?
+    // ICache?
     wlLimitRows = new Label( shell, SWT.RIGHT );
     wlLimitRows.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.LimitRows.Label" ) );
     props.setLook( wlLimitRows );
@@ -308,7 +308,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements TransformDi
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -393,10 +393,10 @@ public class WriteToLogDialog extends BaseTransformDialog implements TransformDi
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener insertListener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             return true;
           }
         };

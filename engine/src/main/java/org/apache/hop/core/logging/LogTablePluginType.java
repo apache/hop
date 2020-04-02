@@ -24,9 +24,9 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -36,9 +36,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( LogTablePluginInterface.class )
+@PluginMainClassType( ILogTablePlugin.class )
 @PluginAnnotationType( LogTablePlugin.class )
-public class LogTablePluginType extends BasePluginType implements PluginTypeInterface {
+public class LogTablePluginType extends BasePluginType implements IPluginType {
 
   private static LogTablePluginType logTablePluginType;
 

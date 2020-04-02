@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -38,15 +38,15 @@ public class LdapProtocolFactoryTest {
     String host = "localhost";
 
     LdapProtocolFactory ldapProtocolFactory = new LdapProtocolFactory( Mockito.mock( LogChannelInterface.class ) );
-    VariableSpace variableSpace = Mockito.mock( VariableSpace.class );
+    iVariables variables = Mockito.mock( iVariables.class );
     LdapMeta meta = Mockito.mock( LdapMeta.class );
     Mockito.doReturn( ldapVariable ).when( meta ).getProtocol();
-    Mockito.doReturn( ldap ).when( variableSpace ).environmentSubstitute( ldapVariable );
+    Mockito.doReturn( ldap ).when( variables ).environmentSubstitute( ldapVariable );
     Mockito.doReturn( host ).when( meta ).getHost();
-    Mockito.doReturn( host ).when( variableSpace ).environmentSubstitute( host );
+    Mockito.doReturn( host ).when( variables ).environmentSubstitute( host );
 
-    ldapProtocolFactory.createLdapProtocol( variableSpace, meta, Collections.emptyList() );
-    Mockito.verify( variableSpace, Mockito.times( 1 ) ).environmentSubstitute( ldapVariable );
+    ldapProtocolFactory.createLdapProtocol( variables, meta, Collections.emptyList() );
+    Mockito.verify( variables, Mockito.times( 1 ) ).environmentSubstitute( ldapVariable );
 
   }
 }

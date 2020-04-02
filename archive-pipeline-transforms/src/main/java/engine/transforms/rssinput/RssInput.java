@@ -30,15 +30,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.dom4j.DocumentException;
@@ -84,15 +84,15 @@ import java.text.SimpleDateFormat;
  * @author Samatar
  * @since 13-10-2007
  */
-public class RssInput extends BaseTransform implements TransformInterface {
+public class RssInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = RssInput.class; // for i18n purposes, needed by Translator!!
 
   private RssInputMeta meta;
   private RssInputData data;
 
-  public RssInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public RssInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean readNextUrl() throws Exception {
@@ -118,7 +118,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
         data.totalpreviousfields = data.inputRowMeta.size();
 
         // Create convert meta-data objects that will contain Date & Number formatters
-        data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+        data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
         // Check is URL field is provided
         if ( Utils.isEmpty( meta.getUrlFieldname() ) ) {
@@ -262,8 +262,8 @@ public class RssInput extends BaseTransform implements TransformInterface {
 
         // Do conversions
         //
-        ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + j );
-        ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + j );
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + j );
+        IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + j );
         outputRowData[ data.totalpreviousfields + j ] = targetValueMeta.convertData( sourceValueMeta, valueString );
 
         // Do we need to repeat this field if it is null?
@@ -286,7 +286,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
         outputRowData[ data.totalpreviousfields + rowIndex++ ] = new Long( data.rownr );
       }
 
-      RowMetaInterface irow = getInputRowMeta();
+      IRowMeta irow = getInputRowMeta();
 
       data.previousRow = irow == null ? outputRowData : irow.cloneRow( outputRowData ); // copy it to make
       // surely the next transform doesn't change it in between...
@@ -303,7 +303,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Object[] outputRowData = null;
 
     try {
@@ -376,7 +376,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (RssInputMeta) smi;
     data = (RssInputData) sdi;
 
@@ -416,7 +416,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
           meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
 
           // Create convert meta-data objects that will contain Date & Number formatters
-          data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+          data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
         } catch ( Exception e ) {
           logError( "Error initializing transform: " + e.toString() );
           logError( Const.getStackTracker( e ) );
@@ -435,7 +435,7 @@ public class RssInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (RssInputMeta) smi;
     data = (RssInputData) sdi;
     if ( data.feed != null ) {

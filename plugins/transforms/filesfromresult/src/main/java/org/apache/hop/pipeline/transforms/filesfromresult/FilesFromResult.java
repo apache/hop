@@ -31,10 +31,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /**
  * Reads results from a previous pipeline in a Job
@@ -42,19 +42,19 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 2-jun-2003
  */
-public class FilesFromResult extends BaseTransform implements TransformInterface {
+public class FilesFromResult extends BaseTransform implements ITransform {
   private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
 
   private FilesFromResultData data;
 
-  public FilesFromResult( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public FilesFromResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
-    data = (FilesFromResultData) transformDataInterface;
+    data = (FilesFromResultData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size() ) {
       setOutputDone();
       return false;
@@ -80,7 +80,7 @@ public class FilesFromResult extends BaseTransform implements TransformInterface
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     data = (FilesFromResultData) sdi;
 
     if ( super.init( smi, sdi ) ) {

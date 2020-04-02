@@ -24,9 +24,9 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class ChannelLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = ChannelLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -66,8 +66,8 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
     }
   }
 
-  private ChannelLogTable( VariableSpace space, IMetaStore metaStore ) {
-    super( space, metaStore, null, null, null );
+  private ChannelLogTable( IVariables variables, IMetaStore metaStore ) {
+    super( variables, metaStore, null, null, null );
   }
 
   @Override
@@ -107,7 +107,7 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof ChannelLogTable ) ) {
       return;
     }
@@ -117,36 +117,36 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static ChannelLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
-    ChannelLogTable table = new ChannelLogTable( space, metaStore );
+  public static ChannelLogTable getDefault( IVariables variables, IMetaStore metaStore ) {
+    ChannelLogTable table = new ChannelLogTable( variables, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.IdBatch" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.IdBatch" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.ChannelId" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.LOGGING_OBJECT_TYPE.id, true, false, "LOGGING_OBJECT_TYPE",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.ObjectType" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectType" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectType" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.OBJECT_NAME.id, true, false, "OBJECT_NAME",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.ObjectName" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.OBJECT_COPY.id, true, false, "OBJECT_COPY", BaseMessages.getString(
       PKG, "ChannelLogTable.FieldName.ObjectCopy" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectCopy" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ObjectCopy" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.FILENAME.id, true, false, "FILENAME",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.Filename" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.Filename" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.Filename" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.PARENT_CHANNEL_ID.id, true, false, "PARENT_CHANNEL_ID",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.ParentChannelId" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ParentChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.ParentChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.ROOT_CHANNEL_ID.id, true, false, "ROOT_CHANNEL_ID",
       BaseMessages.getString( PKG, "ChannelLogTable.FieldName.RootChannelId" ),
-      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.RootChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "ChannelLogTable.FieldDescription.RootChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
 
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
     table.findField( ID.ID_BATCH.id ).setKey( true );
@@ -165,7 +165,7 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
     if ( subject == null || subject instanceof LoggingHierarchy ) {
 
       LoggingHierarchy loggingHierarchy = (LoggingHierarchy) subject;
-      LoggingObjectInterface loggingObject = null;
+      ILoggingObject loggingObject = null;
       if ( subject != null ) {
         loggingObject = loggingHierarchy.getLoggingObject();
       }
@@ -242,8 +242,8 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
     return Const.HOP_CHANNEL_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
     return indexes;
   }
 

@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -54,7 +54,7 @@ public class JobTest {
   private static final String STRING_DEFAULT = "<def>";
   private Job mockedJob;
   private Database mockedDataBase;
-  private VariableSpace mockedVariableSpace;
+  private IVariables mockedVariableSpace;
   private IMetaStore mockedMetaStore;
   private JobMeta mockedJobMeta;
   private JobEntryCopy mockedJobEntryCopy;
@@ -66,7 +66,7 @@ public class JobTest {
   public void init() {
     mockedDataBase = mock( Database.class );
     mockedJob = mock( Job.class );
-    mockedVariableSpace = mock( VariableSpace.class );
+    mockedVariableSpace = mock( IVariables.class );
     mockedMetaStore = mock( IMetaStore.class );
     mockedJobMeta = mock( JobMeta.class );
     mockedJobEntryCopy = mock( JobEntryCopy.class );

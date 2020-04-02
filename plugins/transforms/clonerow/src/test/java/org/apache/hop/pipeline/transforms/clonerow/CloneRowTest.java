@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.clonerow;
 
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class CloneRowTest {
   public void setup() {
     transformMockHelper =
       new TransformMockHelper<CloneRowMeta, CloneRowData>( "Test CloneRow", CloneRowMeta.class, CloneRowData.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -62,14 +62,14 @@ public class CloneRowTest {
   @Test( expected = HopException.class )
   public void nullNrCloneField() throws Exception {
     CloneRow transform =
-      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
 
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.getInteger( any( Object[].class ), anyInt() ) ).thenReturn( null );
 
-    RowSet inputRowSet = transformMockHelper.getMockInputRowSet( new Integer[] { null } );
+    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet( new Integer[] { null } );
     when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
     transform.setInputRowSets( Collections.singletonList( inputRowSet ) );
 

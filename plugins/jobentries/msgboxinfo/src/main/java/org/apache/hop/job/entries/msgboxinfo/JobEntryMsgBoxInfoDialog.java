@@ -28,8 +28,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryMsgBoxInfoDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryMsgBoxInfoDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryMsgBoxInfo.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
@@ -101,7 +101,7 @@ public class JobEntryMsgBoxInfoDialog extends JobEntryDialog implements JobEntry
 
   private FormData fdlTitleMessage, fdTitleMessage;
 
-  public JobEntryMsgBoxInfoDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryMsgBoxInfoDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMsgBoxInfo) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -109,7 +109,7 @@ public class JobEntryMsgBoxInfoDialog extends JobEntryDialog implements JobEntry
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

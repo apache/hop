@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.sort;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ import java.util.zip.GZIPInputStream;
  * @author Matt
  * @since 24-jan-2005
  */
-public class SortRowsData extends BaseTransformData implements TransformDataInterface {
+public class SortRowsData extends BaseTransformData implements ITransformData {
   public List<FileObject> files;
   public List<Object[]> buffer;
   public int getBufferIndex;
@@ -54,7 +54,7 @@ public class SortRowsData extends BaseTransformData implements TransformDataInte
 
   public int[] fieldnrs; // the corresponding field numbers;
   public FileObject fil;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int sortSize;
   public boolean compressFiles;
   public int[] convertKeysToNative;

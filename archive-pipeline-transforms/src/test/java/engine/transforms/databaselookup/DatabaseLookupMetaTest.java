@@ -27,8 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -117,19 +117,19 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
     databaseLookupMeta.setReturnValueField( new String[] { "match", "match", "mismatch" } );
     databaseLookupMeta.setReturnValueNewName( new String[] { "v1", "v2", "v3" } );
 
-    ValueMetaInterface v1 = new ValueMetaString( "match" );
-    ValueMetaInterface v2 = new ValueMetaString( "match1" );
-    RowMetaInterface[] info = new RowMetaInterface[ 1 ];
+    IValueMeta v1 = new ValueMetaString( "match" );
+    IValueMeta v2 = new ValueMetaString( "match1" );
+    IRowMeta[] info = new IRowMeta[ 1 ];
     info[ 0 ] = new RowMeta();
     info[ 0 ].setValueMetaList( Arrays.asList( v1, v2 ) );
 
-    ValueMetaInterface r1 = new ValueMetaString( "value" );
-    RowMetaInterface row = new RowMeta();
-    row.setValueMetaList( new ArrayList<ValueMetaInterface>( Arrays.asList( r1 ) ) );
+    IValueMeta r1 = new ValueMetaString( "value" );
+    IRowMeta row = new RowMeta();
+    row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
 
     databaseLookupMeta.getFields( row, "", info, null, null, null );
 
-    List<ValueMetaInterface> expectedRow = Arrays.asList( new ValueMetaInterface[] { new ValueMetaString( "value" ),
+    List<IValueMeta> expectedRow = Arrays.asList( new IValueMeta[] { new ValueMetaString( "value" ),
       new ValueMetaString( "v1" ), new ValueMetaString( "v2" ), } );
     assertEquals( 3, row.getValueMetaList().size() );
     for ( int i = 0; i < 3; i++ ) {

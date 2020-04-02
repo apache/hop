@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -128,12 +128,12 @@ public class TextFileOutputMetaTest {
     return setterMap;
   }
 
-  public static Map<String, FieldLoadSaveValidator<?>> getAttributeValidators() {
+  public static Map<String, IFieldLoadSaveValidator<?>> getAttributeValidators() {
     return new HashMap<>();
   }
 
-  public static Map<String, FieldLoadSaveValidator<?>> getTypeValidators() {
-    Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  public static Map<String, IFieldLoadSaveValidator<?>> getTypeValidators() {
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     typeValidators.put( TextFileField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileFieldLoadSaveValidator() ) );
     return typeValidators;
   }
@@ -152,7 +152,7 @@ public class TextFileOutputMetaTest {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
     meta.setSplitEveryRows( "${splitVar}" );
-    VariableSpace varSpace = new Variables();
+    IVariables varSpace = new Variables();
     assertEquals( 0, meta.getSplitEvery( varSpace ) );
     String fileName = meta.buildFilename( "foo", "txt2", varSpace, 0, null, 3, false, meta );
     assertEquals( "foo.txt2", fileName );
@@ -162,7 +162,7 @@ public class TextFileOutputMetaTest {
     assertEquals( "foo_5.txt2", fileName );
   }
 
-  public static class TextFileFieldLoadSaveValidator implements FieldLoadSaveValidator<TextFileField> {
+  public static class TextFileFieldLoadSaveValidator implements IFieldLoadSaveValidator<TextFileField> {
     Random rand = new Random();
 
     @Override

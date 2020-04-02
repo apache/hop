@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.wizard.WizardPage;
@@ -73,7 +73,7 @@ public class TableDraw extends Canvas {
   private Image cache_image;
   private int prev_fromx, prev_tox, prev_fromy, prev_toy;
 
-  private Vector<TextFileInputFieldInterface> fields;
+  private Vector<ITextFileInputField> fields;
 
   private List<String> rows;
 
@@ -86,7 +86,7 @@ public class TableDraw extends Canvas {
   private WizardPage wPage;
   private String prevfieldname;
 
-  public TableDraw( Composite parent, PropsUI props, WizardPage wPage, Vector<TextFileInputFieldInterface> fields ) {
+  public TableDraw( Composite parent, PropsUI props, WizardPage wPage, Vector<ITextFileInputField> fields ) {
     super( parent, SWT.NO_BACKGROUND | SWT.H_SCROLL | SWT.V_SCROLL );
     this.wPage = wPage;
     this.fields = fields;
@@ -191,7 +191,7 @@ public class TableDraw extends Canvas {
           }
         }
 
-        TextFileInputFieldInterface field = getFieldOnPosition( posx );
+        ITextFileInputField field = getFieldOnPosition( posx );
         if ( field != null && !field.getName().equalsIgnoreCase( prevfieldname ) ) {
           setToolTipText( field.getName() + " : length=" + field.getLength() );
           prevfieldname = field.getName();
@@ -200,9 +200,9 @@ public class TableDraw extends Canvas {
     } );
   }
 
-  private TextFileInputFieldInterface getFieldOnPosition( int x ) {
+  private ITextFileInputField getFieldOnPosition( int x ) {
     for ( int i = 0; i < fields.size(); i++ ) {
-      TextFileInputFieldInterface field = fields.get( i );
+      ITextFileInputField field = fields.get( i );
       int pos = field.getPosition();
       int len = field.getLength();
       if ( pos <= x && pos + len > x ) {
@@ -218,7 +218,7 @@ public class TableDraw extends Canvas {
     int highest_smaller = -1;
 
     for ( int i = 0; i < fields.size(); i++ ) {
-      TextFileInputFieldInterface field = fields.get( i );
+      ITextFileInputField field = fields.get( i );
 
       int pos = field.getPosition();
       int len = field.getLength();
@@ -250,9 +250,9 @@ public class TableDraw extends Canvas {
         // OK, let's add a new field, but split the length of the previous field
         // We want to keep this list sorted, so add at position lowest_larger.
         // We want to change the previous entry and add another after it.
-        TextFileInputFieldInterface prevfield = fields.get( highest_smaller );
+        ITextFileInputField prevfield = fields.get( highest_smaller );
         int newlength = prevfield.getLength() - ( x - prevfield.getPosition() );
-        TextFileInputFieldInterface field = prevfield.createNewInstance( getNewFieldname(), x, newlength );
+        ITextFileInputField field = prevfield.createNewInstance( getNewFieldname(), x, newlength );
         fields.add( highest_smaller + 1, field );
 
         // Don't forget to make the previous field shorter
@@ -262,8 +262,8 @@ public class TableDraw extends Canvas {
       if ( highest_smaller >= 0 ) {
         // Now we need to remove the field with the same starting position
         // The previous field need to receive extra length
-        TextFileInputFieldInterface prevfield = fields.get( highest_smaller );
-        TextFileInputFieldInterface field = fields.get( idx );
+        ITextFileInputField prevfield = fields.get( highest_smaller );
+        ITextFileInputField field = fields.get( idx );
         prevfield.setLength( prevfield.getLength() + field.getLength() );
         // Remove the field
         fields.remove( idx );
@@ -287,7 +287,7 @@ public class TableDraw extends Canvas {
 
   private boolean fieldExists( String name ) {
     for ( int i = 0; i < fields.size(); i++ ) {
-      TextFileInputFieldInterface field = fields.get( i );
+      ITextFileInputField field = fields.get( i );
 
       if ( name.equalsIgnoreCase( field.getName() ) ) {
         return true;
@@ -525,16 +525,16 @@ public class TableDraw extends Canvas {
     return area;
   }
 
-  public Vector<TextFileInputFieldInterface> getFields() {
+  public Vector<ITextFileInputField> getFields() {
     return fields;
   }
 
-  public void setFields( Vector<TextFileInputFieldInterface> fields ) {
+  public void setFields( Vector<ITextFileInputField> fields ) {
     this.fields = fields;
   }
 
   public void clearFields() {
-    fields = new Vector<TextFileInputFieldInterface>();
+    fields = new Vector<ITextFileInputField>();
   }
 
 }

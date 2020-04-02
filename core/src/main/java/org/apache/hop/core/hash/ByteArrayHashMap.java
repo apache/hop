@@ -24,8 +24,8 @@ package org.apache.hop.core.hash;
 
 import org.apache.commons.collections.map.AbstractHashedMap;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ByteArrayHashMap extends AbstractHashedMap {
-  private RowMetaInterface keyMeta;
+  private IRowMeta keyMeta;
 
   /**
    * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and load factor.
@@ -42,7 +42,7 @@ public class ByteArrayHashMap extends AbstractHashedMap {
    * @param loadFactor      the load factor
    * @throws IllegalArgumentException if the initial capacity is negative or the load factor is nonpositive
    */
-  public ByteArrayHashMap( int initialCapacity, float loadFactor, RowMetaInterface keyMeta ) {
+  public ByteArrayHashMap( int initialCapacity, float loadFactor, IRowMeta keyMeta ) {
     super( initialCapacity, loadFactor );
     this.keyMeta = keyMeta;
   }
@@ -76,14 +76,14 @@ public class ByteArrayHashMap extends AbstractHashedMap {
    * @param initialCapacity the initial capacity.
    * @throws IllegalArgumentException if the initial capacity is negative.
    */
-  public ByteArrayHashMap( int initialCapacity, RowMetaInterface keyMeta ) {
+  public ByteArrayHashMap( int initialCapacity, IRowMeta keyMeta ) {
     this( initialCapacity, DEFAULT_LOAD_FACTOR, keyMeta );
   }
 
   /**
    * Constructs an empty <tt>HashMap</tt> with the default initial capacity (16) and the default load factor (0.75).
    */
-  public ByteArrayHashMap( RowMetaInterface keyMeta ) {
+  public ByteArrayHashMap( IRowMeta keyMeta ) {
     this( DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, keyMeta );
   }
 

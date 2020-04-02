@@ -24,11 +24,11 @@ package org.apache.hop.databases.postgresql;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains PostgreSQL specific information through static final members
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "PostgreSQL"
 )
 @GuiPlugin( id = "GUI-PostgreSQLDatabaseMeta" )
-public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int GB_LIMIT = 1_073_741_824;
 
 
@@ -214,7 +214,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -231,7 +231,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName();
   }
@@ -248,11 +248,11 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     String retval = "";
 
-    ValueMetaInterface tmpColumn = v.clone();
+    IValueMeta tmpColumn = v.clone();
 
     String tmpName = v.getName();
     boolean isQuoted = tmpName.startsWith( getStartQuote() ) && tmpName.endsWith( getEndQuote() );
@@ -283,7 +283,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -300,20 +300,20 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -340,7 +340,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length < 1 || length >= DatabaseMeta.CLOB_LENGTH ) {
           retval += "TEXT";
         } else {
@@ -362,7 +362,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getSQLListOfProcedures()
+   * @see org.apache.hop.core.database.IDatabase#getSQLListOfProcedures()
    */
   @Override
   public String getSQLListOfProcedures() {
@@ -373,7 +373,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.DatabaseInterface#getReservedWords()
+   * @see org.apache.hop.core.database.IDatabase#getReservedWords()
    */
   @Override
   public String[] getReservedWords() {

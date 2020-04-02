@@ -26,10 +26,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 import javax.naming.NameClassPair;
@@ -100,10 +100,10 @@ public class LDAPConnection {
   /**
    * Construct a new LDAP Connection
    */
-  public LDAPConnection( LogChannelInterface logInterface, VariableSpace variableSpace, LdapMeta meta,
+  public LDAPConnection( LogChannelInterface logInterface, iVariables variables, LdapMeta meta,
                          Collection<String> binaryAttributes ) throws HopException {
     this.log = logInterface;
-    protocol = new LdapProtocolFactory( logInterface ).createLdapProtocol( variableSpace, meta, binaryAttributes );
+    protocol = new LdapProtocolFactory( logInterface ).createLdapProtocol( variables, meta, binaryAttributes );
     this.sortingAttributes = new ArrayList<>();
   }
 
@@ -702,16 +702,16 @@ public class LDAPConnection {
             // Try to determine the data type
             //
             if ( IsDate( attributeValue ) ) {
-              valueType = ValueMetaInterface.TYPE_DATE;
+              valueType = IValueMeta.TYPE_DATE;
             } else if ( IsInteger( attributeValue ) ) {
-              valueType = ValueMetaInterface.TYPE_INTEGER;
+              valueType = IValueMeta.TYPE_INTEGER;
             } else if ( IsNumber( attributeValue ) ) {
-              valueType = ValueMetaInterface.TYPE_NUMBER;
+              valueType = IValueMeta.TYPE_NUMBER;
             } else {
-              valueType = ValueMetaInterface.TYPE_STRING;
+              valueType = IValueMeta.TYPE_STRING;
             }
 
-            ValueMetaInterface value = ValueMetaFactory.createValueMeta( fieldName, valueType );
+            IValueMeta value = ValueMetaFactory.createValueMeta( fieldName, valueType );
             fields.addValueMeta( value );
           }
         }

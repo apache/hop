@@ -36,12 +36,12 @@ import java.util.concurrent.Callable;
  * <p>
  * Created by nbaker on 3/17/17.
  */
-public class SupplementalPlugin extends Plugin implements ClassLoadingPluginInterface {
+public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
   Map<Class, Callable> factoryMap = new HashMap<>();
-  private Class<? extends PluginTypeInterface> pluginClass;
+  private Class<? extends IPluginType> pluginClass;
   private String id;
 
-  public SupplementalPlugin( Class<? extends PluginTypeInterface> pluginClass, String id ) {
+  public SupplementalPlugin( Class<? extends IPluginType> pluginClass, String id ) {
     super( new String[] { id }, pluginClass, null, "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "", new String[] {}, null );
     this.pluginClass = pluginClass;
     this.id = id;

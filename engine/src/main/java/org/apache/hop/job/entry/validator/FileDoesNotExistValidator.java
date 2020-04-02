@@ -24,9 +24,9 @@ package org.apache.hop.job.entry.validator;
 
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.IOException;
@@ -45,21 +45,21 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
 
   static final String VALIDATOR_NAME = "fileDoesNotExist";
 
-  public boolean validate( CheckResultSourceInterface source, String propertyName,
-                           List<CheckResultInterface> remarks, ValidatorContext context ) {
+  public boolean validate( ICheckResultSource source, String propertyName,
+                           List<ICheckResult> remarks, ValidatorContext context ) {
 
     String filename = ValidatorUtils.getValueAsString( source, propertyName );
-    VariableSpace variableSpace = getVariableSpace( source, propertyName, remarks, context );
+    IVariables variables = getVariableSpace( source, propertyName, remarks, context );
     boolean failIfExists = getFailIfExists( source, propertyName, remarks, context );
 
-    if ( null == variableSpace ) {
+    if ( null == variables ) {
       return false;
     }
 
-    String realFileName = variableSpace.environmentSubstitute( filename );
+    String realFileName = variables.environmentSubstitute( filename );
     FileObject fileObject = null;
     try {
-      fileObject = HopVFS.getFileObject( realFileName, variableSpace );
+      fileObject = HopVFS.getFileObject( realFileName, variables );
 
       if ( fileObject.exists() && failIfExists ) {
         JobEntryValidatorUtils.addFailureRemark(
@@ -89,8 +89,8 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
     return context;
   }
 
-  protected boolean getFailIfExists( CheckResultSourceInterface source, String propertyName,
-                                     List<CheckResultInterface> remarks, ValidatorContext context ) {
+  protected boolean getFailIfExists( ICheckResultSource source, String propertyName,
+                                     List<ICheckResult> remarks, ValidatorContext context ) {
     Object obj = context.get( KEY_FAIL_IF_EXISTS );
     if ( obj instanceof Boolean ) {
       return (Boolean) obj;

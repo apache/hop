@@ -25,19 +25,19 @@ package org.apache.hop.pipeline.transforms.checksum;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -67,7 +67,7 @@ import java.util.Set;
 
 @PluginDialog( id = "CheckSum", image = "CheckSum.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "Products/Data_Integration/Pipeline_Transform_Reference/Add_a_Checksum" )
-public class CheckSumDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class CheckSumDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CheckSumDialog.class; // for i18n purposes, needed by Translator!!
 
   private CheckSumMeta input;
@@ -320,7 +320,7 @@ public class CheckSumDialog extends BaseTransformDialog implements TransformDial
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -420,11 +420,11 @@ public class CheckSumDialog extends BaseTransformDialog implements TransformDial
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        TableItemInsertListener insertListener = new TableItemInsertListener() {
+        ITableItemInsertListener insertListener = new ITableItemInsertListener() {
           @Override
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
             return true;
           }

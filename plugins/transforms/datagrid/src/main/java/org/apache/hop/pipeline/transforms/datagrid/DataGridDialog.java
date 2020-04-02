@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DataGridDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -354,7 +354,7 @@ public class DataGridDialog extends BaseTransformDialog implements TransformDial
     wTabFolder.layout( true, true );
 
     wFields.nrNonEmpty();
-    wFields.setTableViewModifyListener( new TableView.TableViewModifyListener() {
+    wFields.setTableViewModifyListener( new TableView.ITableViewModifyListener() {
 
       private Integer getIdxByValue( List<Integer> list, Integer value ) {
         for ( int i = 0; i < list.size(); i++ ) {

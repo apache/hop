@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.prioritizestreams.PrioritizeStreamsMeta;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class PrioritizeStreamsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class PrioritizeStreamsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] previousTransforms;

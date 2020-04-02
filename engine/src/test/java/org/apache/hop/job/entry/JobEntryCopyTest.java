@@ -39,7 +39,7 @@ public class JobEntryCopyTest {
   private static final String ATTRIBUTE_VALUE = "aValue";
   private JobEntryCopy originJobEntry;
   private JobEntryCopy copyJobEntry;
-  private JobEntryInterface originEntry;
+  private IJobEntry originEntry;
 
   @Before
   public void setUp() throws Exception {

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
@@ -31,24 +31,24 @@ import java.util.BitSet;
  */
 class GtIndex extends Index {
 
-  static Index lessOrEqualCache( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  static Index lessOrEqualCache( int column, IValueMeta valueMeta, int rowsAmount ) {
     return new GtIndex( column, valueMeta, rowsAmount, true );
   }
 
 
   private final boolean isMatchingLessOrEqual;
 
-  GtIndex( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  GtIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
     this( column, valueMeta, rowsAmount, false );
   }
 
-  GtIndex( int column, ValueMetaInterface valueMeta, int rowsAmount, boolean isMatchingLessOrEqual ) {
+  GtIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingLessOrEqual ) {
     super( column, valueMeta, rowsAmount );
     this.isMatchingLessOrEqual = isMatchingLessOrEqual;
   }
 
   @Override
-  void doApply( SearchingContext context, ValueMetaInterface lookupMeta, Object lookupValue ) {
+  void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
     int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, Integer.MAX_VALUE ) );
     final int length = values.length;
     if ( firstValue == length ) {

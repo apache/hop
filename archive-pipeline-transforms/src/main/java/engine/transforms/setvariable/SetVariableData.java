@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.setvariable;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class SetVariableData extends BaseTransformData implements TransformDataInterface {
+public class SetVariableData extends BaseTransformData implements ITransformData {
   public int keynr;
 
-  public RowMetaInterface outputMeta;
+  public IRowMeta outputMeta;
 
   /**
    * Default constructor.

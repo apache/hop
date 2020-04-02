@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -44,19 +44,19 @@ import java.util.List;
  * @since 30-06-2008
  */
 
-public class SetValueConstant extends BaseTransform implements TransformInterface {
+public class SetValueConstant extends BaseTransform implements ITransform {
   private static Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private SetValueConstantMeta meta;
   private SetValueConstantData data;
 
-  public SetValueConstant( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SetValueConstant( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   //CHECKSTYLE:Indentation:OFF
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SetValueConstantMeta) smi;
     data = (SetValueConstantData) sdi;
 
@@ -78,7 +78,7 @@ public class SetValueConstant extends BaseTransform implements TransformInterfac
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.setConvertRowMeta( data.getOutputRowMeta().cloneToType( ValueMetaInterface.TYPE_STRING ) );
+      data.setConvertRowMeta( data.getOutputRowMeta().cloneToType( IValueMeta.TYPE_STRING ) );
 
       // Consider only selected fields
       List<SetValueConstantMeta.Field> fields = meta.getFields();
@@ -147,20 +147,20 @@ public class SetValueConstant extends BaseTransform implements TransformInterfac
     for ( int i = 0; i < data.getFieldnr(); i++ ) {
       // DO CONVERSION OF THE DEFAULT VALUE ...
       // Entered by user
-      ValueMetaInterface targetValueMeta = data.getOutputRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
-      ValueMetaInterface sourceValueMeta = data.getConvertRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
+      IValueMeta targetValueMeta = data.getOutputRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
+      IValueMeta sourceValueMeta = data.getConvertRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
 
       if ( !Utils.isEmpty( meta.getField( i ).getReplaceMask() ) ) {
         sourceValueMeta.setConversionMask( meta.getField( i ).getReplaceMask() );
       }
 
-      sourceValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      sourceValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       r[ data.getFieldnrs()[ i ] ] = targetValueMeta.convertData( sourceValueMeta, data.getRealReplaceByValues()[ i ] );
-      targetValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+      targetValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SetValueConstantMeta) smi;
     data = (SetValueConstantData) sdi;
 

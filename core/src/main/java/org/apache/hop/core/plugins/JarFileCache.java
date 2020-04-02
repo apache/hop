@@ -34,7 +34,7 @@ public class JarFileCache {
 
   private static JarFileCache cache;
 
-  private final Map<PluginFolderInterface, FileObject[]> folderMap;
+  private final Map<IPluginFolder, FileObject[]> folderMap;
 
   private final Map<FileObject, AnnotationDB> annotationMap;
 
@@ -60,7 +60,7 @@ public class JarFileCache {
     return result;
   }
 
-  public FileObject[] getFileObjects( PluginFolderInterface pluginFolderInterface ) throws HopFileException {
+  public FileObject[] getFileObjects( IPluginFolder pluginFolderInterface ) throws HopFileException {
     FileObject[] result = folderMap.get( pluginFolderInterface );
     if ( result == null ) {
       result = pluginFolderInterface.findJarFiles();

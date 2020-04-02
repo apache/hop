@@ -147,7 +147,7 @@ public class BaseDatabaseMetaTest {
     Variables v = new Variables();
     v.setVariable( "FOOVARIABLE", "FOOVALUE" );
     DatabaseMeta dm = new DatabaseMeta();
-    dm.setDatabaseInterface( nativeMeta );
+    dm.setIDatabase( nativeMeta );
     assertEquals( "", nativeMeta.getDataTablespaceDDL( v, dm ) );
     assertEquals( "", nativeMeta.getIndexTablespaceDDL( v, dm ) );
     assertFalse( nativeMeta.useSafePoints() );

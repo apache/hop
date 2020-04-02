@@ -22,14 +22,14 @@
 
 package org.apache.hop.pipeline.transforms.transformmeta;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
-public class TransformMetastructureData extends BaseTransformData implements TransformDataInterface {
+public class TransformMetastructureData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public int rowCount;
 

@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -64,7 +64,7 @@ public class FieldHelperTest {
   public void getNativeDataTypeSimpleName_Unknown() throws Exception {
     HopValueException e = new HopValueException();
 
-    ValueMetaInterface v = mock( ValueMetaInterface.class );
+    IValueMeta v = mock( IValueMeta.class );
     doThrow( e ).when( v ).getNativeDataTypeClass();
 
     LogChannel log = mock( LogChannel.class );
@@ -195,7 +195,7 @@ public class FieldHelperTest {
   public void getInetAddress_Test() throws Exception {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress( "IP" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -207,7 +207,7 @@ public class FieldHelperTest {
   public void getTimestamp_Test() throws Exception {
     ValueMetaTimestamp v = new ValueMetaTimestamp( "TS" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -219,7 +219,7 @@ public class FieldHelperTest {
   public void getSerializable_Test() throws Exception {
     ValueMetaSerializable v = new ValueMetaSerializable( "Data" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -231,7 +231,7 @@ public class FieldHelperTest {
   public void getBinary_Test() throws Exception {
     ValueMetaBinary v = new ValueMetaBinary( "Data" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -243,7 +243,7 @@ public class FieldHelperTest {
   public void setValue_String() {
     ValueMetaString v = new ValueMetaString( "Name" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -257,7 +257,7 @@ public class FieldHelperTest {
   public void setValue_InetAddress() throws Exception {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress( "IP" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
@@ -271,7 +271,7 @@ public class FieldHelperTest {
   public void setValue_ValueMetaBinary() throws Exception {
     ValueMetaBinary v = new ValueMetaBinary( "Data" );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 

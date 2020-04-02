@@ -1,6 +1,6 @@
 package org.apache.hop.databases.vectorwise;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -15,7 +15,7 @@ public class VectorwiseSequenceAndReleaseSavePointTest {
   final String sequenceName = "sequence_name";
 
   //Set these parameters for the test
-  DatabaseInterface db = new VectorWiseDatabaseMeta();
+  IDatabase db = new VectorWiseDatabaseMeta();
   Boolean sequenceSupport = false;
   Boolean savepointSupport = true;
 
@@ -37,7 +37,7 @@ public class VectorwiseSequenceAndReleaseSavePointTest {
   }
 
 
-  public static void assertSupports( DatabaseInterface db, boolean expected ) {
+  public static void assertSupports( IDatabase db, boolean expected ) {
     String dbType = db.getClass().getSimpleName();
     if ( expected ) {
       assertTrue( dbType, db.supportsSequences() );

@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.shared;
 
 import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -54,7 +54,7 @@ import java.util.Map;
  *
  * @author matt
  */
-public class SWTDirectGC implements GCInterface {
+public class SWTDirectGC implements IGC {
 
   protected Color background;
 

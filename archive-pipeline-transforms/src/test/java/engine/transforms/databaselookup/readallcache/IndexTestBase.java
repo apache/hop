@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.junit.After;
 import org.junit.Before;
@@ -90,9 +90,9 @@ public abstract class IndexTestBase<T extends Index> {
     context.init( 5 );
   }
 
-  T createIndexInstance( int column, ValueMetaInterface meta, int rowsAmount ) throws Exception {
+  T createIndexInstance( int column, IValueMeta meta, int rowsAmount ) throws Exception {
     return clazz
-      .getDeclaredConstructor( int.class, ValueMetaInterface.class, int.class )
+      .getDeclaredConstructor( int.class, IValueMeta.class, int.class )
       .newInstance( column, meta, rowsAmount );
   }
 

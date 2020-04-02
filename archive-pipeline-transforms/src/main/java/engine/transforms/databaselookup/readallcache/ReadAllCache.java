@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupData;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupMeta;
 
@@ -35,7 +35,7 @@ import java.util.PriorityQueue;
 
 /**
  * This is a read-only array-based cache to be used in
- * {@linkplain org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookup DatabaseLookup} when "Load All Data In Cache"
+ * {@linkplain org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookup DatabaseLookup} when "Load All Data In ICache"
  * checkbox is selected. Internally, it uses some optimizations to reduce memory consumption.
  *
  * @author Andrey Khayrutdinov
@@ -45,7 +45,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
   private final DatabaseLookupData transformData;
 
   private final Object[][] keys;
-  private final RowMetaInterface keysMeta;
+  private final IRowMeta keysMeta;
 
   private final Object[][] data;
 
@@ -55,7 +55,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
   // such structure was chosen not to introduce separate data-container class
   private final int[][] otherConditions;
 
-  ReadAllCache( DatabaseLookupData transformData, Object[][] keys, RowMetaInterface keysMeta, Object[][] data ) {
+  ReadAllCache( DatabaseLookupData transformData, Object[][] keys, IRowMeta keysMeta, Object[][] data ) {
     this.transformData = transformData;
     this.keys = keys;
     this.keysMeta = keysMeta;
@@ -67,7 +67,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
   }
 
 
-  private static Object[] createIndexes( DatabaseLookupData transformData, RowMetaInterface keysMeta, Object[][] keys ) {
+  private static Object[] createIndexes( DatabaseLookupData transformData, IRowMeta keysMeta, Object[][] keys ) {
     final int rowsAmount = keys.length;
     final int[] conditions = transformData.conditions;
 
@@ -120,7 +120,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
 
 
   @Override
-  public Object[] getRowFromCache( RowMetaInterface lookupMeta, Object[] lookupRow ) throws HopException {
+  public Object[] getRowFromCache( IRowMeta lookupMeta, Object[] lookupRow ) throws HopException {
     if ( transformData.hasDBCondition ) {
       // actually, there was no sense in executing SELECT from db in this case,
       // should be reported as improvement
@@ -157,11 +157,11 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
 
         final int column = columnConditionPair[ 0 ];
         Object keyData = dataKeys[ column ];
-        ValueMetaInterface keyMeta = keysMeta.getValueMeta( column );
+        IValueMeta keyMeta = keysMeta.getValueMeta( column );
 
         int lookupIndex = column + lookupShift;
         Object cmpData = lookupRow[ lookupIndex ];
-        ValueMetaInterface cmpMeta = lookupMeta.getValueMeta( lookupIndex );
+        IValueMeta cmpMeta = lookupMeta.getValueMeta( lookupIndex );
 
         int condition = columnConditionPair[ 1 ];
         if ( condition == DatabaseLookupMeta.CONDITION_BETWEEN ) {
@@ -173,7 +173,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
           if ( matches ) {
             lookupShift++;
             lookupIndex++;
-            ValueMetaInterface cmpMeta2 = lookupMeta.getValueMeta( lookupIndex );
+            IValueMeta cmpMeta2 = lookupMeta.getValueMeta( lookupIndex );
             Object cmpData2 = lookupRow[ lookupIndex ];
             matches = ( keyMeta.compare( keyData, cmpMeta2, cmpData2 ) <= 0 );
           }
@@ -194,7 +194,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
   }
 
   @Override
-  public void storeRowInCache( DatabaseLookupMeta meta, RowMetaInterface lookupMeta, Object[] lookupRow,
+  public void storeRowInCache( DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow,
                                Object[] add ) {
     throw new UnsupportedOperationException( "This cache is read-only" );
   }
@@ -208,7 +208,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
     private final Object[][] keys;
     private final Object[][] data;
 
-    private RowMetaInterface keysMeta;
+    private IRowMeta keysMeta;
 
     private int current;
 
@@ -218,7 +218,7 @@ public class ReadAllCache implements DatabaseLookupData.Cache {
       data = new Object[ amount ][];
     }
 
-    public void setKeysMeta( RowMetaInterface keysMeta ) {
+    public void setKeysMeta( IRowMeta keysMeta ) {
       this.keysMeta = keysMeta;
     }
 

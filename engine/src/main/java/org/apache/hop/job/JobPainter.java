@@ -30,14 +30,14 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EFont;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
-import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
+import org.apache.hop.core.gui.IPrimitiveGC.EColor;
+import org.apache.hop.core.gui.IPrimitiveGC.EFont;
+import org.apache.hop.core.gui.IPrimitiveGC.EImage;
+import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
 import org.apache.hop.core.gui.Rectangle;
-import org.apache.hop.core.gui.ScrollBarInterface;
+import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.job.entry.JobEntryCopy;
 
@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
@@ -59,8 +58,8 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   private List<JobEntryCopy> activeJobEntries;
   private List<JobEntryResult> jobEntryResults;
 
-  public JobPainter( GCInterface gc, JobMeta jobMeta, Point area, ScrollBarInterface hori,
-                     ScrollBarInterface vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
+  public JobPainter( IGC gc, JobMeta jobMeta, Point area, IScrollBar hori,
+                     IScrollBar vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
                      List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                      int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
     super(

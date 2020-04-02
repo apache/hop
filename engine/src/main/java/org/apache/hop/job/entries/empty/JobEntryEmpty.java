@@ -22,20 +22,20 @@
 
 package org.apache.hop.job.entries.empty;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-public class JobEntryEmpty extends JobEntryBase implements JobEntryInterface {
+public class JobEntryEmpty extends JobEntryBase implements IJobEntry {
   public Result execute( Result prev_result, int nr ) throws HopException {
     return null;
   }
@@ -45,7 +45,7 @@ public class JobEntryEmpty extends JobEntryBase implements JobEntryInterface {
 
   }
 
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
 
   }

@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,17 +76,17 @@ public class LdapProtocolFactory {
   }
 
   /**
-   * Creates the LdapProtocol appropriate for the LdapMeta
+   * Creates the LdapProtocol appropriate for the ILdapMeta
    *
-   * @param variableSpace    the variable space for environment substitutions
+   * @param variables    the variable space for environment substitutions
    * @param meta             the ldap meta
    * @param binaryAttributes binary attributes to associate with the connection
    * @return an LdapProtocol
    * @throws HopException
    */
-  public LdapProtocol createLdapProtocol( VariableSpace variableSpace, LdapMeta meta,
+  public LdapProtocol createLdapProtocol( iVariables variables, LdapMeta meta,
                                           Collection<String> binaryAttributes ) throws HopException {
-    String connectionType = variableSpace.environmentSubstitute( meta.getProtocol() );
+    String connectionType = variables.environmentSubstitute( meta.getProtocol() );
 
     synchronized ( protocols ) {
       for ( Class<? extends LdapProtocol> protocol : protocols ) {
@@ -94,9 +94,9 @@ public class LdapProtocolFactory {
           try {
             return protocol.getConstructor(
               LogChannelInterface.class,
-              VariableSpace.class,
+              iVariables.class,
               LdapMeta.class,
-              Collection.class ).newInstance( log, variableSpace, meta, binaryAttributes );
+              Collection.class ).newInstance( log, variables, meta, binaryAttributes );
           } catch ( Exception e ) {
             throw new HopException( e );
           }

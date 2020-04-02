@@ -26,15 +26,15 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +50,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class CombinationLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class CombinationLookupMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<CombinationLookupMeta> testMetaClass = CombinationLookupMeta.class;
 
@@ -75,16 +75,16 @@ public class CombinationLookupMetaTest implements InitializerInterface<Transform
         put( "tableName", "setTablename" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "keyField", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
       getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
@@ -92,7 +92,7 @@ public class CombinationLookupMetaTest implements InitializerInterface<Transform
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof CombinationLookupMeta ) {
       ( (CombinationLookupMeta) someMeta ).allocate( 5 );
     }
@@ -112,7 +112,7 @@ public class CombinationLookupMetaTest implements InitializerInterface<Transform
         return Mockito.mock( Database.class );
       }
 
-      @Override protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+      @Override protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
         throws HopDatabaseException {
         assertEquals( "aSchema", schemaName );
         assertEquals( "aDimTable", tableName );

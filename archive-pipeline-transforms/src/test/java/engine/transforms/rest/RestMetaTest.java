@@ -29,10 +29,10 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -104,11 +104,11 @@ public class RestMetaTest {
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
     PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta transform = new TransformMeta();
-    RowMetaInterface prev = new RowMeta();
-    RowMetaInterface info = new RowMeta();
+    IRowMeta prev = new RowMeta();
+    IRowMeta info = new RowMeta();
     String[] input = new String[ 0 ];
     String[] output = new String[ 0 ];
-    VariableSpace variables = new Variables();
+    iVariables variables = new Variables();
     IMetaStore metaStore = null;
 
     // In a default configuration, it's expected that some errors will occur.

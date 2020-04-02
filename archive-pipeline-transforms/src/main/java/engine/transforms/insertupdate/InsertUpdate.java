@@ -30,14 +30,14 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -52,18 +52,18 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class InsertUpdate extends BaseTransform implements TransformInterface {
+public class InsertUpdate extends BaseTransform implements ITransform {
   private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private InsertUpdateMeta meta;
   private InsertUpdateData data;
 
-  public InsertUpdate( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public InsertUpdate( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  protected synchronized void lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  protected synchronized void lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     // OK, now do the lookup.
     // We need the lookupvalues for that.
     Object[] lookupRow = new Object[ data.lookupParameterRowMeta.size() ];
@@ -129,8 +129,8 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
         boolean update = false;
         for ( int i = 0; i < data.valuenrs.length; i++ ) {
           if ( meta.getUpdate()[ i ].booleanValue() ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.valuenrs[ i ] );
-            ValueMetaInterface retMeta = data.db.getReturnRowMeta().getValueMeta( i );
+            IValueMeta valueMeta = rowMeta.getValueMeta( data.valuenrs[ i ] );
+            IValueMeta retMeta = data.db.getReturnRowMeta().getValueMeta( i );
 
             Object rowvalue = row[ data.valuenrs[ i ] ];
             Object retvalue = add[ i ];
@@ -174,7 +174,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 
@@ -243,7 +243,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
       data.keynrs = ArrayUtils.toPrimitive( keynrs.toArray( new Integer[ 0 ] ) );
       data.keynrs2 = ArrayUtils.toPrimitive( keynrs2.toArray( new Integer[ 0 ] ) );
 
-      // Cache the position of the compare fields in Row row
+      // ICache the position of the compare fields in Row row
       //
       data.valuenrs = new int[ meta.getUpdateLookup().length ];
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
@@ -267,12 +267,12 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
 
       // Insert the update fields: just names. Type doesn't matter!
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
+        IValueMeta insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
         if ( insValue == null ) {
           // Don't add twice!
 
           // we already checked that this value exists so it's probably safe to ignore lookup failure...
-          ValueMetaInterface insertValue = getInputRowMeta().searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
+          IValueMeta insertValue = getInputRowMeta().searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
           insertValue.setName( meta.getUpdateLookup()[ i ] );
           data.insertRowMeta.addValueMeta( insertValue );
         } else {
@@ -326,7 +326,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public void setLookup( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public void setLookup( IRowMeta rowMeta ) throws HopDatabaseException {
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
@@ -394,7 +394,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
   }
 
   // Lookup certain fields in a table
-  public void prepareUpdate( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public void prepareUpdate( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.updateParameterRowMeta = new RowMeta();
 
@@ -464,7 +464,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 
@@ -494,7 +494,7 @@ public class InsertUpdate extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 

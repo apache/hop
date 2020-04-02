@@ -48,7 +48,7 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputRowNumberTest" );
     csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 

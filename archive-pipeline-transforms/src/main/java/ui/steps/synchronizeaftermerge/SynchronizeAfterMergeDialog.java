@@ -30,13 +30,13 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.synchronizeaftermerge.SynchronizeAfterMergeMeta;
@@ -87,7 +87,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -543,7 +543,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -833,8 +833,8 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields;
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
 
     try {
       sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
@@ -860,7 +860,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
@@ -965,7 +965,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
               try {
                 db.connect();
 
-                RowMetaInterface r =
+                IRowMeta r =
                   db.getTableFieldsMeta(
                     pipelineMeta.environmentSubstitute( schemaName ),
                     pipelineMeta.environmentSubstitute( tableName ) );
@@ -1035,7 +1035,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       try {
         String field = wTableField.getText();
         String fieldoperation = wOperationField.getText();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wTableField.setItems( r.getFieldNames() );
           wOperationField.setItems( r.getFieldNames() );
@@ -1240,10 +1240,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, "=" );
             return true;
           }
@@ -1259,10 +1259,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 3, "Y" );
             return true;
           }
@@ -1286,7 +1286,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TransformMeta.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {

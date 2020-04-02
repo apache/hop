@@ -24,7 +24,7 @@ package org.apache.hop.core.logging;
 
 import java.util.Timer;
 
-public class ConsoleLoggingEventListener implements HopLoggingEventListener {
+public class ConsoleLoggingEventListener implements IHopLoggingEventListener {
 
   private HopLogLayout layout;
 

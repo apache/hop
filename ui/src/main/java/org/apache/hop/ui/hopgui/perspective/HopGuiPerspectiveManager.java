@@ -2,7 +2,7 @@ package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.eclipse.swt.widgets.Composite;
 
@@ -65,9 +65,9 @@ public class HopGuiPerspectiveManager {
    * @param fileMetadata
    * @return
    */
-  public HopFileTypeInterface findFileTypeHandler( IHasFilename fileMetadata ) {
+  public IHopFileType findFileTypeHandler( IHasFilename fileMetadata ) {
     for ( IHopPerspective perspective : getPerspectives() ) {
-      for ( HopFileTypeInterface fileType : perspective.getSupportedHopFileTypes() ) {
+      for ( IHopFileType fileType : perspective.getSupportedHopFileTypes() ) {
         if ( fileType.supportsFile( fileMetadata ) ) {
           return fileType;
         }

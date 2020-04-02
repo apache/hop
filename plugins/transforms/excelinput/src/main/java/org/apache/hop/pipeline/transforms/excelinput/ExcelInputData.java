@@ -24,18 +24,18 @@ package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.playlist.FilePlayList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.playlist.IFilePlayList;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.IKSheet;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.Date;
 
@@ -43,7 +43,7 @@ import java.util.Date;
  * @author Matt
  * @since 24-jan-2005
  */
-public class ExcelInputData extends BaseTransformData implements TransformDataInterface {
+public class ExcelInputData extends BaseTransformData implements ITransformData {
   /**
    * The previous row in case we want to repeat values...
    */
@@ -76,7 +76,7 @@ public class ExcelInputData extends BaseTransformData implements TransformDataIn
   /**
    * The openFile that's being processed...
    */
-  public KWorkbook workbook;
+  public IKWorkbook workbook;
 
   /**
    * The sheet number that's being processed...
@@ -86,7 +86,7 @@ public class ExcelInputData extends BaseTransformData implements TransformDataIn
   /**
    * The sheet that's being processed...
    */
-  public KSheet sheet;
+  public IKSheet sheet;
 
   /**
    * The row where we left off the previous time...
@@ -101,18 +101,18 @@ public class ExcelInputData extends BaseTransformData implements TransformDataIn
   /**
    * The error handler when processing of a row fails.
    */
-  public FileErrorHandler errorHandler;
+  public IFileErrorHandler errorHandler;
 
-  public FilePlayList filePlayList;
+  public IFilePlayList filePlayList;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
-  ValueMetaInterface valueMetaString;
-  ValueMetaInterface valueMetaNumber;
-  ValueMetaInterface valueMetaDate;
-  ValueMetaInterface valueMetaBoolean;
+  IValueMeta valueMetaString;
+  IValueMeta valueMetaNumber;
+  IValueMeta valueMetaDate;
+  IValueMeta valueMetaBoolean;
 
-  public RowMetaInterface conversionRowMeta;
+  public IRowMeta conversionRowMeta;
 
   public String[] sheetNames;
   public int[] startColumn;

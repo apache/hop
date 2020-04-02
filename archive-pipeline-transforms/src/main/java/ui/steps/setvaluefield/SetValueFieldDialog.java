@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.setvaluefield;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.setvaluefield.SetValueFieldMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SetValueFieldDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SetValueFieldDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;
@@ -167,7 +167,7 @@ public class SetValueFieldDialog extends BaseTransformDialog implements Transfor
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -315,7 +315,7 @@ public class SetValueFieldDialog extends BaseTransformDialog implements Transfor
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformMeta );
       if ( r != null ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, null, -1, -1, null );
       }

@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.HashSet;
 
@@ -33,9 +33,9 @@ import java.util.HashSet;
  * @author Samatar
  * @since 24-jan-2010
  */
-public class FuzzyMatchData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface previousRowMeta;
-  public RowMetaInterface outputRowMeta;
+public class FuzzyMatchData extends BaseTransformData implements ITransformData {
+  public IRowMeta previousRowMeta;
+  public IRowMeta outputRowMeta;
 
   /**
    * used to store values in used to look up things
@@ -59,9 +59,9 @@ public class FuzzyMatchData extends BaseTransformData implements TransformDataIn
 
   public String valueSeparator;
 
-  public RowMetaInterface infoMeta;
+  public IRowMeta infoMeta;
 
-  public StreamInterface infoStream;
+  public IStream infoStream;
 
   public boolean addValueFieldName;
   public boolean addAdditionalFields;
@@ -71,7 +71,7 @@ public class FuzzyMatchData extends BaseTransformData implements TransformDataIn
    **/
   public int[] indexOfCachedFields;
   public int nrCachedFields;
-  public RowMetaInterface infoCache;
+  public IRowMeta infoCache;
 
   public FuzzyMatchData() {
     super();

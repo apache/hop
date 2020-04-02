@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.constant;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -56,7 +56,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.AddConstants",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
-public class ConstantMeta extends BaseTransformMeta implements TransformMetaInterface<Constant, ConstantData> {
+public class ConstantMeta extends BaseTransformMeta implements ITransformMeta<Constant, ConstantData> {
 
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -317,16 +317,16 @@ public class ConstantMeta extends BaseTransformMeta implements TransformMetaInte
 
   }
 
-  public void getFields( RowMetaInterface rowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
         int type = ValueMetaFactory.getIdForValueMeta( fieldType[ i ] );
-        if ( type == ValueMetaInterface.TYPE_NONE ) {
-          type = ValueMetaInterface.TYPE_STRING;
+        if ( type == IValueMeta.TYPE_NONE ) {
+          type = IValueMeta.TYPE_STRING;
         }
         try {
-          ValueMetaInterface v = ValueMetaFactory.createValueMeta( fieldName[ i ], type );
+          IValueMeta v = ValueMetaFactory.createValueMeta( fieldName[ i ], type );
           v.setLength( fieldLength[ i ] );
           v.setPrecision( fieldPrecision[ i ] );
           v.setOrigin( name );
@@ -364,18 +364,18 @@ public class ConstantMeta extends BaseTransformMeta implements TransformMetaInte
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev != null && prev.size() > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ConstantMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "ConstantMeta.CheckResult.NoFields" ), transformMeta );
       remarks.add( cr );
     }
@@ -386,9 +386,9 @@ public class ConstantMeta extends BaseTransformMeta implements TransformMetaInte
     Constant.buildRow( meta, data, remarks );
   }
 
-  public Constant createTransform( TransformMeta transformMeta, ConstantData transformDataInterface, int cnr,
+  public Constant createTransform( TransformMeta transformMeta, ConstantData iTransformData, int cnr,
                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Constant( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new Constant( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public ConstantData getTransformData() {

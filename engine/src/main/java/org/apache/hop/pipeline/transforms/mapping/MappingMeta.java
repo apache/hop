@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,14 +42,14 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInputMeta;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta;
 import org.apache.hop.resource.ResourceEntry;
@@ -68,7 +68,7 @@ import java.util.List;
  * @since 22-nov-2005
  */
 
-public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> implements TransformMetaInterface<Mapping, MappingData>,
+public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> implements ITransformMeta<Mapping, MappingData>,
   ISubPipelineAwareMeta {
 
   private static Class<?> PKG = MappingMeta.class;
@@ -228,15 +228,15 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     allowingMultipleOutputs = false;
   }
 
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
     //
     PipelineMeta mappingPipelineMeta = null;
     try {
-      mappingPipelineMeta = loadMappingMeta( this, metaStore, space );
+      mappingPipelineMeta = loadMappingMeta( this, metaStore, variables );
     } catch ( HopException e ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "MappingMeta.Exception.UnableToLoadMappingPipeline" ), e );
@@ -249,7 +249,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
       // See if we need to pass all variables from the parent or not...
       //
       if ( mappingParameters.isInheritingAllVariables() ) {
-        mappingPipelineMeta.copyVariablesFrom( space );
+        mappingPipelineMeta.copyVariablesFrom( variables );
       }
 
       // Just set the variables in the pipeline statically.
@@ -259,7 +259,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
 
       for ( int i = 0; i < mappingParameters.getVariable().length; i++ ) {
         String name = mappingParameters.getVariable()[ i ];
-        String value = space.environmentSubstitute( mappingParameters.getInputField()[ i ] );
+        String value = variables.environmentSubstitute( mappingParameters.getInputField()[ i ] );
         if ( !Utils.isEmpty( name ) && !Utils.isEmpty( value ) ) {
           if ( subParams.contains( name ) ) {
             try {
@@ -284,7 +284,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
      */
     for ( MappingIODefinition definition : inputMappings ) {
 
-      RowMetaInterface inputRowMeta;
+      IRowMeta inputRowMeta;
 
       if ( definition.isMainDataPath() || Utils.isEmpty( definition.getInputTransformName() ) ) {
         // The row metadata, what we pass to the mapping input transform
@@ -294,7 +294,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
         inputRowMeta = row.clone();
         if ( !inputRowMeta.isEmpty() ) {
           for ( MappingValueRename valueRename : definition.getValueRenames() ) {
-            ValueMetaInterface valueMeta = inputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
+            IValueMeta valueMeta = inputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
             if ( valueMeta == null ) {
               throw new HopTransformException( BaseMessages.getString(
                 PKG, "MappingMeta.Exception.UnableToFindField", valueRename.getSourceValueName() ) );
@@ -414,7 +414,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     // Now we know wat's going to come out of there...
     // This is going to be the full row, including all the remapping, etc.
     //
-    RowMetaInterface mappingOutputRowMeta = mappingPipelineMeta.getTransformFields( mappingOutputTransform );
+    IRowMeta mappingOutputRowMeta = mappingPipelineMeta.getTransformFields( mappingOutputTransform );
 
     row.clear();
     row.addRowMeta( mappingOutputRowMeta );
@@ -445,22 +445,22 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
 
   @Deprecated
   public static final synchronized PipelineMeta loadMappingMeta( MappingMeta mappingMeta,
-                                                                 VariableSpace space ) throws HopException {
-    return loadMappingMeta( mappingMeta, null, space );
+                                                                 IVariables variables ) throws HopException {
+    return loadMappingMeta( mappingMeta, null, variables );
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "MappingMeta.CheckResult.NotReceivingAnyFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -468,20 +468,20 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "MappingMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, MappingData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new Mapping( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, MappingData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new Mapping( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public MappingData getTransformData() {
@@ -544,8 +544,8 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
   }
 
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
       // TODO Create a dynamic TransformIOMeta so that we can more easily manipulate the info streams?
       ioMeta = new TransformIOMeta( true, true, true, false, true, false );
@@ -628,8 +628,8 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
   }
 
   @Deprecated
-  public Object loadReferencedObject( int index, VariableSpace space ) throws HopException {
-    return loadReferencedObject( index, null, space );
+  public Object loadReferencedObject( int index, IVariables variables ) throws HopException {
+    return loadReferencedObject( index, null, variables );
   }
 
   /**
@@ -637,12 +637,12 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
    *
    * @param index     the object index to load
    * @param metaStore the MetaStore to use
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadMappingMeta( this, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+    return loadMappingMeta( this, metaStore, variables );
   }
 
   public IMetaStore getMetaStore() {

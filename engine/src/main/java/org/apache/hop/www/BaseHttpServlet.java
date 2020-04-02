@@ -22,8 +22,8 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,7 +43,7 @@ public class BaseHttpServlet extends HttpServlet {
 
   private boolean jettyMode = false;
 
-  protected LogChannelInterface log = new LogChannel( "Servlet" );
+  protected ILogChannel log = new LogChannel( "Servlet" );
 
   public String convertContextPath( String contextPath ) {
     if ( jettyMode ) {

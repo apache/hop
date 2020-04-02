@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.delete;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
@@ -33,17 +33,17 @@ import java.sql.PreparedStatement;
  * @author Tom
  * @since 28-March-2006
  */
-public class DeleteData extends BaseTransformData implements TransformDataInterface {
+public class DeleteData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...
   public int[] keynrs2; // nr of keylookup2-value in row...
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public String schemaTable;
 
-  public RowMetaInterface deleteParameterRowMeta;
+  public IRowMeta deleteParameterRowMeta;
 
   public PreparedStatement prepStatementDelete;
 

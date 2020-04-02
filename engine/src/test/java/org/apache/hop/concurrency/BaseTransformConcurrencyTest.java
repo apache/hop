@@ -22,16 +22,16 @@
 
 package org.apache.hop.concurrency;
 
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class BaseTransformConcurrencyTest {
   private static final String TRANSFORM_META = "TransformMeta";
 
-  private BaseTransform<TransformMetaInterface, TransformDataInterface> baseTransform;
+  private BaseTransform<ITransformMeta, ITransformData> baseTransform;
 
   /**
    * Row listeners collection modifiers are exposed out of BaseTransform class,
@@ -127,8 +127,8 @@ public class BaseTransformConcurrencyTest {
 
     @Override
     BaseTransform doCall() {
-      baseTransform.addRowSetToInputRowSets( mock( RowSet.class ) );
-      baseTransform.addRowSetToOutputRowSets( mock( RowSet.class ) );
+      baseTransform.addRowSetToInputRowSets( mock( IRowSet.class ) );
+      baseTransform.addRowSetToOutputRowSets( mock( IRowSet.class ) );
       return null;
     }
   }
@@ -140,11 +140,11 @@ public class BaseTransformConcurrencyTest {
 
     @Override
     BaseTransform doCall() {
-      for ( RowSet rowSet : baseTransform.getInputRowSets() ) {
-        rowSet.setRowMeta( mock( RowMetaInterface.class ) );
+      for ( IRowSet rowSet : baseTransform.getInputRowSets() ) {
+        rowSet.setRowMeta( mock( IRowMeta.class ) );
       }
-      for ( RowSet rowSet : baseTransform.getOutputRowSets() ) {
-        rowSet.setRowMeta( mock( RowMetaInterface.class ) );
+      for ( IRowSet rowSet : baseTransform.getOutputRowSets() ) {
+        rowSet.setRowMeta( mock( IRowMeta.class ) );
       }
       return null;
     }
@@ -157,7 +157,7 @@ public class BaseTransformConcurrencyTest {
 
     @Override
     BaseTransform doCall() {
-      baseTransform.addRowListener( mock( RowListener.class ) );
+      baseTransform.addRowListener( mock( IRowListener.class ) );
       return null;
     }
   }
@@ -169,8 +169,8 @@ public class BaseTransformConcurrencyTest {
 
     @Override
     BaseTransform doCall() throws Exception {
-      for ( RowListener rowListener : baseTransform.getRowListeners() ) {
-        rowListener.rowWrittenEvent( mock( RowMetaInterface.class ), new Object[] {} );
+      for ( IRowListener rowListener : baseTransform.getRowListeners() ) {
+        rowListener.rowWrittenEvent( mock( IRowMeta.class ), new Object[] {} );
       }
       return null;
     }

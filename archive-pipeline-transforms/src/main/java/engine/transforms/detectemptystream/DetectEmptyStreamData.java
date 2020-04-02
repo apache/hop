@@ -22,14 +22,14 @@
 
 package org.apache.hop.pipeline.transforms.detectemptystream;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 30-08-2008
  */
-public class DetectEmptyStreamData extends BaseTransformData implements TransformDataInterface {
-  RowMetaInterface outputRowMeta;
+public class DetectEmptyStreamData extends BaseTransformData implements ITransformData {
+  IRowMeta outputRowMeta;
 }

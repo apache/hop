@@ -24,19 +24,19 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 18-July-2008
  */
-public class GetSubFoldersData extends BaseTransformData implements TransformDataInterface {
+public class GetSubFoldersData extends BaseTransformData implements ITransformData {
 
   public Object[] previous_row;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public FileInputList files;
 
@@ -54,7 +54,7 @@ public class GetSubFoldersData extends BaseTransformData implements TransformDat
 
   public int indexOfFoldernameField;
 
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public Object[] readrow;
 

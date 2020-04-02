@@ -24,7 +24,7 @@ package org.apache.hop.ui.pipeline.transform.common;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,10 +37,10 @@ public class CsvInputAwareImportProgressDialogTest {
     final String[] row = new String[ 2 ];
     row[ 0 ] = "foo";
     row[ 1 ] = null;
-    final CsvInputAwareImportProgressDialog dlg = ( failOnParseError ) -> {
+    final ICsvInputAwareImportProgressDialog dlg = ( failOnParseError ) -> {
       return null;
     };
-    final RowMetaInterface rowMeta = Mockito.mock( RowMeta.class );
+    final IRowMeta rowMeta = Mockito.mock( RowMeta.class );
 
     // verify that when 'failOnParseError' is false, and row index is out of bounds, we get a null value back and no
     // Exception

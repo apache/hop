@@ -24,8 +24,8 @@ package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -42,7 +42,7 @@ public class HopVariablesList {
     private static final HopVariablesList INSTANCE = new HopVariablesList();
   }
 
-  private static LogChannelInterface logger;
+  private static ILogChannel logger;
 
   private HopVariablesList() {
     logger = new LogChannel( this );

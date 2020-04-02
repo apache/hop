@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,7 +40,7 @@ public class SortedFileOutputStream extends FileOutputStream {
   /**
    * Logger, for the few errors that may occur.
    */
-  private LogChannelInterface log = null;
+  private ILogChannel log = null;
 
   /**
    * CT
@@ -57,7 +57,7 @@ public class SortedFileOutputStream extends FileOutputStream {
    *
    * @param log
    */
-  public void setLogger( LogChannelInterface log ) {
+  public void setLogger( ILogChannel log ) {
     this.log = log;
   }
 

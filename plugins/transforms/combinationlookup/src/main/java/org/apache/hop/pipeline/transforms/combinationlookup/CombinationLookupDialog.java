@@ -29,13 +29,13 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
@@ -46,7 +46,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -81,7 +81,7 @@ import java.util.Set;
 
 @PluginDialog( id = "CombinationLookup", pluginType = PluginDialog.PluginType.TRANSFORM, image = "CombinationLookup.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Combination+lookup-update" )
-public class CombinationLookupDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -566,7 +566,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements Tran
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -703,7 +703,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements Tran
                 String schemaTable =
                   ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
                     .environmentSubstitute( tableName ) );
-                RowMetaInterface r = db.getTableFields( schemaTable );
+                IRowMeta r = db.getTableFields( schemaTable );
                 if ( null != r ) {
                   String[] fieldNames = r.getFieldNames();
                   if ( null != fieldNames ) {
@@ -991,11 +991,11 @@ public class CombinationLookupDialog extends BaseTransformDialog implements Tran
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wKey, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, new TableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          r, wKey, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, new ITableItemInsertListener() {
+            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
               tableItem.setText( 3, "N" );
               return true;
             }
@@ -1019,7 +1019,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements Tran
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "CombinationLookupDialog.TransformMeta.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {

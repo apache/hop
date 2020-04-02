@@ -36,10 +36,10 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.NullNumberConverter;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,9 +47,9 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
@@ -105,7 +105,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
   private List<UsageParameter> usageParameters;
 
   static {
-    VariableSpace vs = new Variables();
+    iVariables vs = new Variables();
     vs.initializeVariablesFrom( null ); // sets up the default variables
     String maxSizeStr = vs.getVariable( UserDefinedJavaClass.HOP_DEFAULT_CLASS_CACHE_SIZE, "100" );
     int maxCacheSize = -1;
@@ -114,7 +114,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     } catch ( Exception ignored ) {
       maxCacheSize = 100; // default to 100 if property not set
     }
-    // Initialize Class Cache
+    // Initialize Class ICache
     classCache = CacheBuilder.newBuilder().maximumSize( maxCacheSize ).build();
   }
 
@@ -129,7 +129,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     public final int precision;
 
     public FieldInfo() {
-      this( null, ValueMetaInterface.TYPE_STRING, -1, -1 );
+      this( null, IValueMeta.TYPE_STRING, -1, -1 );
     }
 
     public FieldInfo( String name, int type, int length, int precision ) {
@@ -471,8 +471,8 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     }
   }
 
-  public void getFields( RowMetaInterface row, String originTransformName, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !checkClassCookings( getLog() ) ) {
       if ( cookErrors.size() > 0 ) {
         throw new HopTransformException( "Error initializing UserDefinedJavaClass to get fields: ", cookErrors
@@ -485,10 +485,10 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     try {
       Method getFieldsMethod =
         cookedTransformClass.getMethod(
-          "getFields", boolean.class, RowMetaInterface.class, String.class, RowMetaInterface[].class,
-          TransformMeta.class, VariableSpace.class, List.class );
+          "getFields", boolean.class, IRowMeta.class, String.class, IRowMeta[].class,
+          TransformMeta.class, iVariables.class, List.class );
       getFieldsMethod.invoke(
-        null, isClearingResultFields(), row, originTransformName, info, nextTransform, space, getFieldInfo() );
+        null, isClearingResultFields(), row, originTransformName, info, nextTransform, variables, getFieldInfo() );
     } catch ( Exception e ) {
       throw new HopTransformException( "Error executing UserDefinedJavaClass.getFields(): ", e );
     }
@@ -565,7 +565,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -583,10 +583,10 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     UserDefinedJavaClass userDefinedJavaClass =
-      new UserDefinedJavaClass( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+      new UserDefinedJavaClass( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
     if ( pipeline.hasHaltedTransforms() ) {
       return null;
     }
@@ -594,7 +594,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     return userDefinedJavaClass;
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new UserDefinedJavaClassData();
   }
 

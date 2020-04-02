@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -124,7 +124,7 @@ public class JobTrackerTest {
   }
 
   private static JobEntryCopy createEntryCopy( String entryName ) {
-    JobEntryInterface entry = mock( JobEntryInterface.class );
+    IJobEntry entry = mock( IJobEntry.class );
     when( entry.getName() ).thenReturn( entryName );
 
     JobEntryCopy copy = new JobEntryCopy( entry );

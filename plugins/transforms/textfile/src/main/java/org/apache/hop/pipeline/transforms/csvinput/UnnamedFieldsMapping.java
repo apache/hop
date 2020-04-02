@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-public class UnnamedFieldsMapping implements FieldsMapping {
+public class UnnamedFieldsMapping implements IFieldsMapping {
 
   private final int fieldsCount;
 
@@ -32,7 +32,7 @@ public class UnnamedFieldsMapping implements FieldsMapping {
 
   @Override
   public int fieldMetaIndex( int index ) {
-    return ( index >= fieldsCount || index < 0 ) ? FieldsMapping.FIELD_DOES_NOT_EXIST : index;
+    return ( index >= fieldsCount || index < 0 ) ? IFieldsMapping.FIELD_DOES_NOT_EXIST : index;
   }
 
   @Override

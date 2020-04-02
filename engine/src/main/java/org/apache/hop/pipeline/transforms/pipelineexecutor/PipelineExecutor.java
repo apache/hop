@@ -24,10 +24,10 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -35,16 +35,16 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 
 import java.util.ArrayList;
@@ -66,15 +66,15 @@ import java.util.Map;
  * @author Matt
  * @since 18-mar-2013
  */
-public class PipelineExecutor extends BaseTransform implements TransformInterface {
+public class PipelineExecutor extends BaseTransform implements ITransform {
   private static final Class<?> PKG = PipelineExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   private PipelineExecutorMeta meta;
   private PipelineExecutorData data;
 
-  public PipelineExecutor( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public PipelineExecutor( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -82,7 +82,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the PipelineExecutor.
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     try {
       meta = (PipelineExecutorMeta) smi;
       setData( (PipelineExecutorData) sdi );
@@ -109,7 +109,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
         initOnFirstProcessingIteration();
       }
 
-      RowSet executorTransformOutputRowSet = pipelineExecutorData.getExecutorTransformOutputRowSet();
+      IRowSet executorTransformOutputRowSet = pipelineExecutorData.getExecutorTransformOutputRowSet();
       if ( pipelineExecutorData.getExecutorTransformOutputRowMeta() != null && executorTransformOutputRowSet != null ) {
         putRowTo( pipelineExecutorData.getExecutorTransformOutputRowMeta(), row, executorTransformOutputRowSet );
       }
@@ -234,7 +234,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
       executorPipeline.startThreads();
 
       // Inform the parent pipeline we started something here...
-      for ( DelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
+      for ( IDelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
         // TODO: copy some settings in the pipeline execution configuration, not strictly needed
         // but the execution configuration information is useful in case of a pipeline re-start on HopServer
         delegationListener.pipelineDelegationStarted( executorPipeline, new PipelineExecutionConfiguration() );
@@ -372,7 +372,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
 
   @VisibleForTesting
   void collectPipelineResults( Result result ) throws HopException {
-    RowSet pipelineResultsRowSet = getData().getResultRowsRowSet();
+    IRowSet pipelineResultsRowSet = getData().getResultRowsRowSet();
     if ( meta.getOutputRowsSourceTransformMeta() != null && pipelineResultsRowSet != null ) {
       for ( RowMetaAndData metaAndData : result.getRows() ) {
         putRowTo( metaAndData.getRowMeta(), metaAndData.getData(), pipelineResultsRowSet );
@@ -382,7 +382,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
 
   @VisibleForTesting
   void collectExecutionResults( Result result ) throws HopException {
-    RowSet executionResultsRowSet = getData().getExecutionResultRowSet();
+    IRowSet executionResultsRowSet = getData().getExecutionResultRowSet();
     if ( meta.getExecutionResultTargetTransformMeta() != null && executionResultsRowSet != null ) {
       Object[] outputRow = RowDataUtil.allocateRowData( getData().getExecutionResultsOutputRowMeta().size() );
       int idx = 0;
@@ -438,7 +438,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
 
   @VisibleForTesting
   void collectExecutionResultFiles( Result result ) throws HopException {
-    RowSet resultFilesRowSet = getData().getResultFilesRowSet();
+    IRowSet resultFilesRowSet = getData().getResultFilesRowSet();
     if ( meta.getResultFilesTargetTransformMeta() != null && result.getResultFilesList() != null && resultFilesRowSet != null ) {
       for ( ResultFile resultFile : result.getResultFilesList() ) {
         Object[] targetRow = RowDataUtil.allocateRowData( getData().getResultFilesOutputRowMeta().size() );
@@ -453,7 +453,7 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
   }
 
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (PipelineExecutorMeta) smi;
     setData( (PipelineExecutorData) sdi );
     PipelineExecutorData pipelineExecutorData = getData();
@@ -503,13 +503,13 @@ public class PipelineExecutor extends BaseTransform implements TransformInterfac
     return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getParameters().isInheritingAllVariables() );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     PipelineExecutorData pipelineExecutorData = getData();
     pipelineExecutorData.groupBuffer = null;
     super.dispose( smi, sdi );
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface )
+  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData )
     throws HopException {
     if ( getData().getExecutorPipeline() != null ) {
       getData().getExecutorPipeline().stopAll();

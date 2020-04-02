@@ -31,20 +31,20 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -436,8 +436,8 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     return count;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Remove the field to split
     int idx = r.indexOfValue( getSplitField() );
     if ( idx < 0 ) { // not found
@@ -449,7 +449,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     int count = getFieldsCount();
     for ( int i = 0; i < count; i++ ) {
       try {
-        final ValueMetaInterface v = ValueMetaFactory.createValueMeta( getFieldName()[ i ], getFieldType()[ i ] );
+        final IValueMeta v = ValueMetaFactory.createValueMeta( getFieldName()[ i ], getFieldType()[ i ] );
         v.setLength( getFieldLength()[ i ], getFieldPrecision()[ i ] );
         v.setOrigin( name );
         v.setConversionMask( getFieldFormat()[ i ] );
@@ -524,7 +524,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
@@ -573,12 +573,12 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldSplitter( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FieldSplitter( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new FieldSplitterData();
   }
 

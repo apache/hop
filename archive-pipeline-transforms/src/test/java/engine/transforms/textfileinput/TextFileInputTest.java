@@ -30,8 +30,8 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -286,17 +286,17 @@ public class TextFileInputTest {
     Mockito.doReturn( true ).when( info ).isErrorIgnored();
     Mockito.doReturn( true ).when( info ).isErrorLineSkipped();
 
-    RowMetaInterface outputRowMeta = Mockito.mock( RowMetaInterface.class );
+    IRowMeta outputRowMeta = Mockito.mock( IRowMeta.class );
     Mockito.doReturn( 15 ).when( outputRowMeta ).size();
 
-    ValueMetaInterface valueMetaWithError = Mockito.mock( ValueMetaInterface.class );
+    IValueMeta valueMetaWithError = Mockito.mock( IValueMeta.class );
     Mockito.doThrow( new HopValueException( "Error converting" ) ).when( valueMetaWithError ).convertDataFromString( Mockito.anyString(),
-      Mockito.any( ValueMetaInterface.class ), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
+      Mockito.any( IValueMeta.class ), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
     Mockito.doReturn( valueMetaWithError ).when( outputRowMeta ).getValueMeta( Mockito.anyInt() );
 
     //it should run without NPE
     TextFileInput.convertLineToRow( log, textFileLine, info, new Object[ 3 ], 1, outputRowMeta,
-      Mockito.mock( RowMetaInterface.class ), null, 1L, ";", null, "/", Mockito.mock( FileErrorHandler.class ),
+      Mockito.mock( IRowMeta.class ), null, 1L, ";", null, "/", Mockito.mock( FileErrorHandler.class ),
       false, false, false, false, false, false, false, false, null, null, false, new Date(), null, null, null, 1L );
   }
 

@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.copyfiles;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 
@@ -78,9 +78,9 @@ public class JobEntryCopyFilesLoadSaveTest extends JobEntryLoadSaveTestSupport<J
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     int fileArraySize = new Random().nextInt( 5 ) + 1;
-    Map<String, FieldLoadSaveValidator<?>> attrMap = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> attrMap = new HashMap<>();
     attrMap.put( "source_filefolder",
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), fileArraySize ) );
     attrMap.put( "destination_filefolder",

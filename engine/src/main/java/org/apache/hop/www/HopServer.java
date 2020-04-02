@@ -44,7 +44,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -77,7 +77,7 @@ public class HopServer {
     allOK = true;
 
     HopServerSingleton.setSlaveServerConfig( config );
-    LogChannelInterface log = HopServerSingleton.getInstance().getLog();
+    ILogChannel log = HopServerSingleton.getInstance().getLog();
 
     final PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
     pipelineMap.setSlaveServerConfig( config );

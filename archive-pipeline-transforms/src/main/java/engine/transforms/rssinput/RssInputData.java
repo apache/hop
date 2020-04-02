@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.rssinput;
 
 import it.sauronsoftware.feed4j.bean.Feed;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -38,12 +38,12 @@ import java.util.Date;
  * @author Samatar Hassan
  * @since 13-10-2007
  */
-public class RssInputData extends BaseTransformData implements TransformDataInterface {
+public class RssInputData extends BaseTransformData implements ITransformData {
   public String thisline, nextline, lastline;
   public Object[] previousRow;
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
   public int nr_repeats;
 
   public NumberFormat nf;

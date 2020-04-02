@@ -28,14 +28,14 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -45,19 +45,19 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 13-may-2003
  */
-public class AddSequence extends BaseTransform implements TransformInterface {
+public class AddSequence extends BaseTransform implements ITransform {
   private static Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator!!
 
   private AddSequenceMeta meta;
 
   private AddSequenceData data;
 
-  public AddSequence( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public AddSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public Object[] addSequence( RowMetaInterface inputRowMeta, Object[] inputRowData ) throws HopException {
+  public Object[] addSequence( IRowMeta inputRowMeta, Object[] inputRowData ) throws HopException {
     Object next = null;
 
     if ( meta.isCounterUsed() ) {
@@ -101,7 +101,7 @@ public class AddSequence extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (AddSequenceMeta) smi;
     data = (AddSequenceData) sdi;
 
@@ -146,7 +146,7 @@ public class AddSequence extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (AddSequenceMeta) smi;
     data = (AddSequenceData) sdi;
 
@@ -241,7 +241,7 @@ public class AddSequence extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (AddSequenceMeta) smi;
     data = (AddSequenceData) sdi;
 

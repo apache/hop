@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadsave.setter;
 
 import java.lang.reflect.Field;
 
-public class FieldSetter<T> implements Setter<T> {
+public class FieldSetter<T> implements ISetter<T> {
   private final Field field;
 
   public FieldSetter( Field field ) {

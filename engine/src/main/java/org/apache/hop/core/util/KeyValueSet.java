@@ -151,7 +151,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @throws IllegalArgumentException if closure or filter is null.
    */
   public void walk( final Closure handler, final Predicate filter ) throws IllegalArgumentException {
-    Assert.assertNotNull( handler, "Handler cannot be null" );
+    Assert.assertNotNull( handler, "IHandler cannot be null" );
     Assert.assertNotNull( filter, "Filter cannot be null" );
     for ( KeyValue<?> keyValue : this.entries.values() ) {
       if ( filter.evaluate( keyValue ) ) {

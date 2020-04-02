@@ -46,7 +46,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.UUID;
 
-public class AddPipelineServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = -6850701762586992604L;
 
   public static final String CONTEXT_PATH = "/hop/addPipeline";
@@ -194,11 +194,11 @@ public class AddPipelineServlet extends BaseHttpServlet implements HopServerPlug
       if ( log.isDetailed() ) {
         logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
-      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariables() );
+      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
 
       // Also copy the parameters over...
       //
-      Map<String, String> params = pipelineExecutionConfiguration.getParams();
+      Map<String, String> params = pipelineExecutionConfiguration.getParametersMap();
       for ( String param : params.keySet() ) {
         String value = params.get( param );
         pipelineMeta.setParameterValue( param, value );

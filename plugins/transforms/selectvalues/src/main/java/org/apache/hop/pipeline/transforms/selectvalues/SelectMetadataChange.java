@@ -27,11 +27,11 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.pipeline.transform.TransformAttributesInterface;
+import org.apache.hop.core.xml.IXml;
+import org.apache.hop.pipeline.transform.ITransformAttributes;
 import org.w3c.dom.Node;
 
-public class SelectMetadataChange implements Cloneable, XMLInterface {
+public class SelectMetadataChange implements Cloneable, IXml {
 
   public static final String XML_TAG = "meta";
 
@@ -113,19 +113,19 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   @Injection( name = "META_ENCODING", group = "METAS" )
   private String encoding;
 
-  private TransformAttributesInterface attributesInterface;
+  private ITransformAttributes attributesInterface;
 
-  public SelectMetadataChange( TransformAttributesInterface attributesInterface ) {
+  public SelectMetadataChange( ITransformAttributes attributesInterface ) {
     this.attributesInterface = attributesInterface;
     storageType = -1; // storage type is not used by default!
   }
 
   /**
    * @Deprecated This method is left here for external code that may be using it. It may be removed in the future.
-   * @see #SelectMetadataChange(TransformAttributesInterface, String, String, int, int, int, int, String, boolean, String,
+   * @see #SelectMetadataChange(ITransformAttributes, String, String, int, int, int, int, String, boolean, String,
    * String, String)
    */
-  public SelectMetadataChange( TransformAttributesInterface attributesInterface, String name, String rename, int type,
+  public SelectMetadataChange( ITransformAttributes attributesInterface, String name, String rename, int type,
                                int length, int precision, int storageType, String conversionMask, String decimalSymbol,
                                String groupingSymbol, String currencySymbol ) {
     this(
@@ -150,7 +150,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
    * @param groupingSymbol
    * @param currencySymbol
    */
-  public SelectMetadataChange( TransformAttributesInterface attributesInterface, String name, String rename, int type,
+  public SelectMetadataChange( ITransformAttributes attributesInterface, String name, String rename, int type,
                                int length, int precision, int storageType, String conversionMask, boolean dateFormatLenient,
                                String dateFormatLocale, String dateFormatTimeZone, boolean lenientStringToNumber, String decimalSymbol,
                                String groupingSymbol, String currencySymbol ) {
@@ -171,7 +171,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
     this.currencySymbol = currencySymbol;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) );
     retval.append( "        " ).append(

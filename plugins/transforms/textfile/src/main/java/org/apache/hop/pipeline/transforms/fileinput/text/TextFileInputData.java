@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.playlist.FilePlayList;
+import org.apache.hop.core.playlist.IFilePlayList;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
 
 import java.util.LinkedList;
@@ -51,7 +51,7 @@ public class TextFileInputData extends BaseFileInputTransformData {
 
   public boolean doneWithHeader;
 
-  public FilePlayList filePlayList;
+  public IFilePlayList filePlayList;
 
   public TextFileFilterProcessor filterProcessor;
 

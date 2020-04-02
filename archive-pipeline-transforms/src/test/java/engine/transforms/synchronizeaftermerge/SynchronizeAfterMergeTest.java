@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class SynchronizeAfterMergeTest {
     SynchronizeAfterMergeData sdi = mock( SynchronizeAfterMergeData.class );
 
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
+    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
 
     doReturn( dbMeta ).when( smi ).getDatabaseMeta();
     doReturn( "${commit.size}" ).when( smi ).getCommitSize();
@@ -65,7 +65,7 @@ public class SynchronizeAfterMergeTest {
     SynchronizeAfterMerge transform = mock( SynchronizeAfterMerge.class );
     doCallRealMethod().when( transform ).setPipelineMeta( any( PipelineMeta.class ) );
     doCallRealMethod().when( transform ).setTransformMeta( any( TransformMeta.class ) );
-    doCallRealMethod().when( transform ).init( any( TransformMetaInterface.class ), any( TransformDataInterface.class ) );
+    doCallRealMethod().when( transform ).init( any( TransformMetaInterface.class ), any( ITransformData.class ) );
     doReturn( transformMeta ).when( transform ).getTransformMeta();
     doReturn( pipelineMeta ).when( transform ).getPipelineMeta();
     doReturn( "120" ).when( transform ).environmentSubstitute( "${commit.size}" );

@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.switchcase;
 
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -48,18 +48,18 @@ import java.util.Set;
  * @author Matt
  * @since 16-apr-2003, 07-nov-2004 (rewrite)
  */
-public class SwitchCase extends BaseTransform implements TransformInterface {
+public class SwitchCase extends BaseTransform implements ITransform {
   private static Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
 
   private SwitchCaseMeta meta;
   private SwitchCaseData data;
 
-  public SwitchCase( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SwitchCase( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SwitchCaseMeta) smi;
     data = (SwitchCaseData) sdi;
 
@@ -109,9 +109,9 @@ public class SwitchCase extends BaseTransform implements TransformInterface {
   }
 
   /**
-   * @see TransformInterface#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SwitchCaseMeta) smi;
     data = (SwitchCaseData) sdi;
 
@@ -130,7 +130,7 @@ public class SwitchCase extends BaseTransform implements TransformInterface {
       data.valueMeta.setConversionMask( meta.getCaseValueFormat() );
       data.valueMeta.setGroupingSymbol( meta.getCaseValueGroup() );
       data.valueMeta.setDecimalSymbol( meta.getCaseValueDecimal() );
-      data.stringValueMeta = ValueMetaFactory.cloneValueMeta( data.valueMeta, ValueMetaInterface.TYPE_STRING );
+      data.stringValueMeta = ValueMetaFactory.cloneValueMeta( data.valueMeta, IValueMeta.TYPE_STRING );
     } catch ( Exception e ) {
       logError( BaseMessages.getString( PKG, "SwitchCase.Log.UnexpectedError", e ) );
     }
@@ -189,7 +189,7 @@ public class SwitchCase extends BaseTransform implements TransformInterface {
         try {
           Object value =
             data.valueMeta.convertDataFromString(
-              target.caseValue, data.stringValueMeta, null, null, ValueMetaInterface.TRIM_TYPE_NONE );
+              target.caseValue, data.stringValueMeta, null, null, IValueMeta.TRIM_TYPE_NONE );
 
           // If we have a value and a rowset, we can store the combination in the map
           //

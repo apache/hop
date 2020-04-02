@@ -27,25 +27,25 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -93,18 +93,18 @@ public class BaseTransformDialog extends Dialog {
   /**
    * The package name used for internationalization
    */
-  private static Class<?> PKG = TransformInterface.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The logging object interface for this dialog.
    */
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Transform dialog", LoggingObjectType.TRANSFORM_DIALOG, null );
 
   /**
    * The variable bindings for this dialog.
    */
-  protected static VariableSpace variables = new Variables();
+  protected static IVariables variables = new Variables();
 
   /**
    * The transform name.
@@ -169,7 +169,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * The base transform meta.
    */
-  protected TransformMetaInterface baseTransformMeta;
+  protected ITransformMeta baseTransformMeta;
 
   /**
    * The UI properties.
@@ -236,7 +236,7 @@ public class BaseTransformDialog extends Dialog {
     this.pipelineMeta = pipelineMeta;
     this.transformName = transformName;
     this.transformMeta = pipelineMeta.findTransform( transformName );
-    this.baseTransformMeta = (TransformMetaInterface) baseTransformMeta;
+    this.baseTransformMeta = (ITransformMeta) baseTransformMeta;
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUI.getInstance();
   }
@@ -249,7 +249,7 @@ public class BaseTransformDialog extends Dialog {
    * @param pipelineMeta    the associated pipeline metadata
    * @param transformName     the transform name
    */
-  public BaseTransformDialog( Shell parent, TransformMetaInterface baseTransformMeta, PipelineMeta pipelineMeta, String transformName ) {
+  public BaseTransformDialog( Shell parent, ITransformMeta baseTransformMeta, PipelineMeta pipelineMeta, String transformName ) {
     super( parent, SWT.NONE );
 
     this.log = new LogChannel( baseTransformMeta );
@@ -280,7 +280,7 @@ public class BaseTransformDialog extends Dialog {
    * @param shell             the shell
    * @param transformMetaInterface the transform meta interface (because of the legacy code)
    */
-  public void setShellImage( Shell shell, TransformMetaInterface transformMetaInterface ) {
+  public void setShellImage( Shell shell, ITransformMeta transformMetaInterface ) {
 
     setShellImage( shell );
 
@@ -784,9 +784,9 @@ public class BaseTransformDialog extends Dialog {
   public static final void getFieldsFromPrevious( PipelineMeta pipelineMeta, TransformMeta transformMeta, TableView tableView,
                                                   int keyColumn, int[] nameColumn, int[] dataTypeColumn,
                                                   int lengthColumn, int precisionColumn,
-                                                  TableItemInsertListener listener ) {
+                                                  ITableItemInsertListener listener ) {
     try {
-      RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
       if ( row != null ) {
         getFieldsFromPrevious(
           row, tableView, keyColumn, nameColumn, dataTypeColumn, lengthColumn, precisionColumn, listener );
@@ -812,10 +812,10 @@ public class BaseTransformDialog extends Dialog {
    * @param listener        A listener that you can use to do custom modifications to the inserted table item, based on
    *                        a value from the provided row
    */
-  public static final void getFieldsFromPrevious( RowMetaInterface row, TableView tableView, int keyColumn,
+  public static final void getFieldsFromPrevious( IRowMeta row, TableView tableView, int keyColumn,
                                                   int[] nameColumn, int[] dataTypeColumn, int lengthColumn,
                                                   int precisionColumn,
-                                                  TableItemInsertListener listener ) {
+                                                  ITableItemInsertListener listener ) {
     getFieldsFromPrevious( row, tableView, keyColumn, nameColumn, dataTypeColumn, lengthColumn, precisionColumn, true,
       listener );
   }
@@ -835,10 +835,10 @@ public class BaseTransformDialog extends Dialog {
    * @param listener        A listener that you can use to do custom modifications to the inserted table item, based on
    *                        a value from the provided row
    */
-  public static final void getFieldsFromPrevious( RowMetaInterface row, TableView tableView, int keyColumn,
+  public static final void getFieldsFromPrevious( IRowMeta row, TableView tableView, int keyColumn,
                                                   int[] nameColumn, int[] dataTypeColumn, int lengthColumn,
                                                   int precisionColumn, boolean optimizeWidth,
-                                                  TableItemInsertListener listener ) {
+                                                  ITableItemInsertListener listener ) {
     getFieldsFromPrevious( row, tableView, keyColumn, nameColumn, dataTypeColumn, lengthColumn, precisionColumn,
       optimizeWidth, listener, BaseTransformDialog::getFieldsChoiceDialog );
   }
@@ -859,11 +859,11 @@ public class BaseTransformDialog extends Dialog {
    *                                      a value from the provided row
    * @param getFieldsChoiceDialogProvider the GetFieldsChoice dialog provider
    */
-  public static final void getFieldsFromPrevious( RowMetaInterface row, TableView tableView, int keyColumn,
+  public static final void getFieldsFromPrevious( IRowMeta row, TableView tableView, int keyColumn,
                                                   int[] nameColumn, int[] dataTypeColumn, int lengthColumn,
                                                   int precisionColumn, boolean optimizeWidth,
-                                                  TableItemInsertListener listener,
-                                                  FieldsChoiceDialogProvider getFieldsChoiceDialogProvider ) {
+                                                  ITableItemInsertListener listener,
+                                                  IFieldsChoiceDialogProvider getFieldsChoiceDialogProvider ) {
     if ( row == null || row.size() == 0 ) {
       return; // nothing to do
     }
@@ -902,7 +902,7 @@ public class BaseTransformDialog extends Dialog {
     }
 
     for ( int i = 0; i < row.size(); i++ ) {
-      ValueMetaInterface v = row.getValueMeta( i );
+      IValueMeta v = row.getValueMeta( i );
 
       boolean add = true;
 
@@ -975,7 +975,7 @@ public class BaseTransformDialog extends Dialog {
     String selectedField = null;
     int indexField = -1;
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformMeta );
       selectedField = comboVar.getText();
       comboVar.removeAll();
 
@@ -1008,13 +1008,13 @@ public class BaseTransformDialog extends Dialog {
    * @param fieldMapping the list of source to target mappings to default to (can be empty but not null)
    * @throws HopException in case something goes wrong during the field mapping
    */
-  public static final void generateFieldMapping( Shell shell, RowMetaInterface sourceFields,
-                                                 RowMetaInterface targetFields,
+  public static final void generateFieldMapping( Shell shell, IRowMeta sourceFields,
+                                                 IRowMeta targetFields,
                                                  List<SourceToTargetMapping> fieldMapping ) throws HopException {
     // Build the mapping: let the user decide!!
     String[] source = sourceFields.getFieldNames();
     for ( int i = 0; i < source.length; i++ ) {
-      ValueMetaInterface v = sourceFields.getValueMeta( i );
+      IValueMeta v = sourceFields.getValueMeta( i );
       source[ i ] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
     }
     String[] target = targetFields.getFieldNames();
@@ -1187,13 +1187,13 @@ public class BaseTransformDialog extends Dialog {
     log.logError( message, arguments );
   }
 
-  protected Button createHelpButton( final Shell shell, final TransformMeta transformMeta, final PluginInterface plugin ) {
+  protected Button createHelpButton( final Shell shell, final TransformMeta transformMeta, final IPlugin plugin ) {
     return HelpUtils.createHelpButton( shell, HelpUtils.getHelpDialogTitle( plugin ), plugin );
   }
 
   private void setShellImage( Shell shell ) {
     if ( transformMeta != null ) {
-      PluginInterface plugin =
+      IPlugin plugin =
         PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransformMetaInterface() );
       createHelpButton( shell, transformMeta, plugin );
       String id = plugin.getIds()[ 0 ];
@@ -1213,7 +1213,7 @@ public class BaseTransformDialog extends Dialog {
   }
 
 
-  public interface FieldsChoiceDialogProvider {
+  public interface IFieldsChoiceDialogProvider {
     MessageDialog provide( Shell shell, int existingFields, int newFields );
   }
 }

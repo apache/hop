@@ -39,32 +39,32 @@ public class CheckSumMetaInjectionTest extends BaseMetadataInjectionTest<CheckSu
 
   @Test
   public void test() throws Exception {
-    check( "RESULT_FIELD", new StringGetter() {
+    check( "RESULT_FIELD", new IStringGetter() {
       public String get() {
         return meta.getResultFieldName();
       }
     } );
-    check( "TYPE", new StringGetter() {
+    check( "TYPE", new IStringGetter() {
       public String get() {
         return meta.getCheckSumType();
       }
     } );
-    check( "COMPATIBILITY_MODE", new BooleanGetter() {
+    check( "COMPATIBILITY_MODE", new IBooleanGetter() {
       public boolean get() {
         return meta.isCompatibilityMode();
       }
     } );
-    check( "OLD_CHECKSUM_BEHAVIOR", new BooleanGetter() {
+    check( "OLD_CHECKSUM_BEHAVIOR", new IBooleanGetter() {
       public boolean get() {
         return meta.isOldChecksumBehaviour();
       }
     } );
-    check( "RESULT_TYPE", new IntGetter() {
+    check( "RESULT_TYPE", new IIntGetter() {
       public int get() {
         return meta.getResultType();
       }
     } );
-    check( "FIELD_NAME", new StringGetter() {
+    check( "FIELD_NAME", new IStringGetter() {
       public String get() {
         return meta.getFieldName()[ 0 ];
       }

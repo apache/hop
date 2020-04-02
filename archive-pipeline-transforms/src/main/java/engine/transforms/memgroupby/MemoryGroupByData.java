@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashMap;
 
@@ -34,7 +34,7 @@ import java.util.HashMap;
  * @author Matt
  * @since 24-jan-2005
  */
-public class MemoryGroupByData extends BaseTransformData implements TransformDataInterface {
+public class MemoryGroupByData extends BaseTransformData implements ITransformData {
   public class HashEntry {
     private Object[] groupData;
 
@@ -67,7 +67,7 @@ public class MemoryGroupByData extends BaseTransformData implements TransformDat
     private Object[] getHashValue() throws HopValueException {
       Object[] groupDataHash = new Object[ groupMeta.size() ];
       for ( int i = 0; i < groupMeta.size(); i++ ) {
-        ValueMetaInterface valueMeta = groupMeta.getValueMeta( i );
+        IValueMeta valueMeta = groupMeta.getValueMeta( i );
         groupDataHash[ i ] = valueMeta.convertToNormalStorageType( groupData[ i ] );
       }
       return groupDataHash;
@@ -76,11 +76,11 @@ public class MemoryGroupByData extends BaseTransformData implements TransformDat
 
   public HashMap<HashEntry, Aggregate> map;
 
-  public RowMetaInterface aggMeta;
-  public RowMetaInterface groupMeta;
-  public RowMetaInterface entryMeta;
+  public IRowMeta aggMeta;
+  public IRowMeta groupMeta;
+  public IRowMeta entryMeta;
 
-  public RowMetaInterface groupAggMeta; // for speed: groupMeta+aggMeta
+  public IRowMeta groupAggMeta; // for speed: groupMeta+aggMeta
   public int[] groupnrs;
   public int[] subjectnrs;
 
@@ -90,11 +90,11 @@ public class MemoryGroupByData extends BaseTransformData implements TransformDat
 
   public boolean hasOutput;
 
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
 
-  public ValueMetaInterface valueMetaInteger;
-  public ValueMetaInterface valueMetaNumber;
+  public IValueMeta valueMetaInteger;
+  public IValueMeta valueMetaNumber;
 
   public boolean newBatch;
 

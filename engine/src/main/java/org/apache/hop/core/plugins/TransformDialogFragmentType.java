@@ -25,7 +25,7 @@ package org.apache.hop.core.plugins;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -34,9 +34,9 @@ import java.util.List;
 /**
  * This class represents the transform dialog fragment type.
  */
-@PluginMainClassType( TransformDialogInterface.class )
+@PluginMainClassType( ITransformDialog.class )
 @PluginAnnotationType( PluginDialog.class )
-public class TransformDialogFragmentType extends BaseFragmentType implements PluginTypeInterface {
+public class TransformDialogFragmentType extends BaseFragmentType implements IPluginType {
 
   private static TransformDialogFragmentType transformDialogFragmentType;
 

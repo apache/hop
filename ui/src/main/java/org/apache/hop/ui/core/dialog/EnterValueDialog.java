@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -114,13 +114,13 @@ public class EnterValueDialog extends Dialog {
 
   private ValueMetaAndData valueMetaAndData;
 
-  private ValueMetaInterface valueMeta;
+  private IValueMeta valueMeta;
 
   private Object valueData;
 
   private boolean modalDialog;
 
-  public EnterValueDialog( Shell parent, int style, ValueMetaInterface value, Object data ) {
+  public EnterValueDialog( Shell parent, int style, IValueMeta value, Object data ) {
     super( parent, style );
     this.props = PropsUI.getInstance();
     this.valueMeta = value;
@@ -339,12 +339,12 @@ public class EnterValueDialog extends Dialog {
     String string = wInputString.getText();
 
     // remove white spaces if not a string field
-    if ( ( type != ValueMetaInterface.TYPE_STRING ) && ( string.startsWith( " " ) || string.endsWith( " " ) ) ) {
+    if ( ( type != IValueMeta.TYPE_STRING ) && ( string.startsWith( " " ) || string.endsWith( " " ) ) ) {
       string = Const.trim( string );
       wInputString.setText( string );
     }
     switch ( type ) {
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         wFormat.setItems( Const.getNumberFormats() );
         int index = ( !Utils.isEmpty( formatString ) ) ? wFormat.indexOf( formatString ) : wFormat.indexOf( "#" );
         // ... then we have a custom format mask
@@ -354,7 +354,7 @@ public class EnterValueDialog extends Dialog {
         }
         wFormat.select( index ); // default
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         wFormat.setItems( Const.getNumberFormats() );
         index = ( !Utils.isEmpty( formatString ) ) ? wFormat.indexOf( formatString ) : wFormat.indexOf( "#.#" );
         // ... then we have a custom format mask
@@ -364,7 +364,7 @@ public class EnterValueDialog extends Dialog {
         }
         wFormat.select( index ); // default
         break;
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         wFormat.setItems( Const.getDateFormats() );
         index =
           ( !Utils.isEmpty( formatString ) ) ? wFormat.indexOf( formatString ) : wFormat
@@ -376,7 +376,7 @@ public class EnterValueDialog extends Dialog {
         }
         wFormat.select( index ); // default
         break;
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         wFormat.setItems( new String[] {} );
         break;
       default:
@@ -437,7 +437,7 @@ public class EnterValueDialog extends Dialog {
       int valtype = ValueMetaFactory.getIdForValueMeta( wValueType.getText() );
       ValueMetaAndData val = new ValueMetaAndData( valuename, wInputString.getText() );
 
-      ValueMetaInterface valueMeta = ValueMetaFactory.cloneValueMeta( val.getValueMeta(), valtype );
+      IValueMeta valueMeta = ValueMetaFactory.cloneValueMeta( val.getValueMeta(), valtype );
       Object valueData = val.getValueData();
 
       int formatIndex = wFormat.getSelectionIndex();
@@ -446,7 +446,7 @@ public class EnterValueDialog extends Dialog {
       valueMeta.setPrecision( Const.toInt( wPrecision.getText(), -1 ) );
       val.setValueMeta( valueMeta );
 
-      ValueMetaInterface stringValueMeta = new ValueMetaString( valuename );
+      IValueMeta stringValueMeta = new ValueMetaString( valuename );
       stringValueMeta.setConversionMetadata( valueMeta );
 
       Object targetData = stringValueMeta.convertDataUsingConversionMetaData( valueData );

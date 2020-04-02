@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.fileinput.EncodingType;
 
 import java.io.FileInputStream;
@@ -38,11 +38,11 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class CsvInputData extends BaseTransformData implements TransformDataInterface {
+public class CsvInputData extends BaseTransformData implements ITransformData {
   public FileChannel fc;
   public ByteBuffer bb;
-  public RowMetaInterface convertRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta convertRowMeta;
+  public IRowMeta outputRowMeta;
 
   private byte[] byteBuffer;
   private int startBuffer;

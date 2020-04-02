@@ -27,10 +27,10 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.BufferedWriter;
@@ -68,7 +68,7 @@ public class OraBulkDataOutput {
     this.recTerm = recTerm;
   }
 
-  public void open( VariableSpace space, Process sqlldrProcess ) throws HopException {
+  public void open( iVariables variables, Process sqlldrProcess ) throws HopException {
     String loadMethod = meta.getLoadMethod();
     try {
       OutputStream os;
@@ -77,7 +77,7 @@ public class OraBulkDataOutput {
         os = sqlldrProcess.getOutputStream();
       } else {
         // Else open the data file filled in.
-        String dataFilePath = getFilename( getFileObject( space.environmentSubstitute( meta.getDataFile() ), space ) );
+        String dataFilePath = getFilename( getFileObject( variables.environmentSubstitute( meta.getDataFile() ), variables ) );
         File dataFile = new File( dataFilePath );
         // Make sure the parent directory exists
         dataFile.getParentFile().mkdirs();
@@ -115,7 +115,7 @@ public class OraBulkDataOutput {
   }
 
   @SuppressWarnings( "ArrayToString" )
-  public void writeLine( RowMetaInterface mi, Object[] row ) throws HopException {
+  public void writeLine( IRowMeta mi, Object[] row ) throws HopException {
     if ( first ) {
       first = false;
 
@@ -139,7 +139,7 @@ public class OraBulkDataOutput {
     outbuf.setLength( 0 );
 
     // Write the data to the output
-    ValueMetaInterface v;
+    IValueMeta v;
     int number;
     for ( int i = 0; i < fieldNumbers.length; i++ ) {
       if ( i != 0 ) {
@@ -153,7 +153,7 @@ public class OraBulkDataOutput {
         outbuf.append( enclosure );
       } else {
         switch ( v.getType() ) {
-          case ValueMetaInterface.TYPE_STRING:
+          case IValueMeta.TYPE_STRING:
             String s = mi.getString( row, number );
             if ( s.contains( enclosure ) ) {
               s = createEscapedString( s, enclosure );
@@ -162,25 +162,25 @@ public class OraBulkDataOutput {
             outbuf.append( s );
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
+          case IValueMeta.TYPE_INTEGER:
             Long l = mi.getInteger( row, number );
             outbuf.append( enclosure );
             outbuf.append( l );
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_NUMBER:
             Double d = mi.getNumber( row, number );
             outbuf.append( enclosure );
             outbuf.append( d );
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_BIGNUMBER:
             BigDecimal bd = mi.getBigNumber( row, number );
             outbuf.append( enclosure );
             outbuf.append( bd );
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             Date dt = mi.getDate( row, number );
             outbuf.append( enclosure );
             String mask = meta.getDateMask()[ i ];
@@ -192,7 +192,7 @@ public class OraBulkDataOutput {
             }
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_BOOLEAN:
+          case IValueMeta.TYPE_BOOLEAN:
             Boolean b = mi.getBoolean( row, number );
             outbuf.append( enclosure );
             if ( b ) {
@@ -202,14 +202,14 @@ public class OraBulkDataOutput {
             }
             outbuf.append( enclosure );
             break;
-          case ValueMetaInterface.TYPE_BINARY:
+          case IValueMeta.TYPE_BINARY:
             byte[] byt = mi.getBinary( row, number );
             outbuf.append( "<startlob>" );
             // TODO REVIEW - implicit .toString
             outbuf.append( byt );
             outbuf.append( "<endlob>" );
             break;
-          case ValueMetaInterface.TYPE_TIMESTAMP:
+          case IValueMeta.TYPE_TIMESTAMP:
             Timestamp timestamp = (Timestamp) mi.getDate( row, number );
             outbuf.append( enclosure );
             outbuf.append( timestamp.toString() );
@@ -234,7 +234,7 @@ public class OraBulkDataOutput {
   }
 
   @VisibleForTesting
-  FileObject getFileObject( String vfsFilename, VariableSpace space ) throws HopFileException {
-    return HopVFS.getFileObject( vfsFilename, space );
+  FileObject getFileObject( String vfsFilename, iVariables variables ) throws HopFileException {
+    return HopVFS.getFileObject( vfsFilename, variables );
   }
 }

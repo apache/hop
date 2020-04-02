@@ -22,7 +22,7 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.PipelineExecutionConfiguration;
  *
  * @author matt
  */
-public class HopServerDelegationHandler implements DelegationListener {
+public class HopServerDelegationHandler implements IDelegationListener {
 
   protected PipelineMap pipelineMap;
   protected JobMap jobMap;

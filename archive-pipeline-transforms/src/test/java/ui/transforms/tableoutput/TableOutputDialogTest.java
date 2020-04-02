@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.pipeline.transforms.tableoutput;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -48,8 +48,8 @@ import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class TableOutputDialogTest {
 
-  private static RowMetaInterface filled;
-  private static RowMetaInterface empty;
+  private static IRowMeta filled;
+  private static IRowMeta empty;
   private static String[] sample = { "1", "2", "3" };
 
   @Before
@@ -60,7 +60,7 @@ public class TableOutputDialogTest {
 
   @Test
   public void validationRowMetaTest() throws Exception {
-    Method m = TableOutputDialog.class.getDeclaredMethod( "isValidRowMeta", RowMetaInterface.class );
+    Method m = TableOutputDialog.class.getDeclaredMethod( "isValidRowMeta", IRowMeta.class );
     m.setAccessible( true );
     Object result1 = m.invoke( null, filled );
     Object result2 = m.invoke( null, empty );
@@ -68,8 +68,8 @@ public class TableOutputDialogTest {
     assertFalse( Boolean.parseBoolean( result2 + "" ) );
   }
 
-  private RowMetaInterface createRowMeta( String[] args, boolean hasEmptyFields ) {
-    RowMetaInterface result = new RowMeta();
+  private IRowMeta createRowMeta( String[] args, boolean hasEmptyFields ) {
+    IRowMeta result = new RowMeta();
     if ( hasEmptyFields ) {
       result.addValueMeta( new ValueMetaString( "" ) );
     }
@@ -86,7 +86,7 @@ public class TableOutputDialogTest {
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     TextVar text = mock( TextVar.class );
     MetaSelectionLine<DatabaseMeta> combo = mock( MetaSelectionLine.class );
-    DatabaseInterface dbInterface = mock( DatabaseInterface.class );
+    IDatabase dbInterface = mock( IDatabase.class );
 
     setInternalState( dialog, "wTable", text );
     setInternalState( dialog, "wConnection", combo );
@@ -95,7 +95,7 @@ public class TableOutputDialogTest {
     when( text.getText() ).thenReturn( "someTable" );
     when( combo.getText() ).thenReturn( "someConnection" );
     when( pipelineMeta.findDatabase( anyString() ) ).thenReturn( dbMeta );
-    when( dbMeta.getDatabaseInterface() ).thenReturn( dbInterface );
+    when( dbMeta.getIDatabase() ).thenReturn( dbInterface );
 
     doNothing().when( dialog ).showUnsupportedConnectionMessageBox( dbInterface );
     doCallRealMethod().when( dialog ).isConnectionSupported();

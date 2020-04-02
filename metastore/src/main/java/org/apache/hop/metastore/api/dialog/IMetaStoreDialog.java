@@ -6,5 +6,5 @@ public interface IMetaStoreDialog {
    *
    * @return null in case the dialog was cancelled or the name of the element if OK was pressed.
    */
-  public String open();
+  String open();
 }

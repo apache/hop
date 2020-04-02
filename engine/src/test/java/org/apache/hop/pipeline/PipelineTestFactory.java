@@ -26,14 +26,14 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 
@@ -62,13 +62,13 @@ public class PipelineTestFactory {
 
   static PluginRegistry registry = PluginRegistry.getInstance();
 
-  public static PipelineMeta generateTestPipeline( VariableSpace parent, TransformMetaInterface oneMeta,
+  public static PipelineMeta generateTestPipeline( IVariables parent, ITransformMeta oneMeta,
                                                    String oneTransformName ) {
     return generateTestPipeline( parent, oneMeta, oneTransformName, null );
   }
 
-  public static PipelineMeta generateTestPipeline( VariableSpace parent, TransformMetaInterface oneMeta,
-                                                   String oneTransformName, RowMetaInterface injectorRowMeta ) {
+  public static PipelineMeta generateTestPipeline( IVariables parent, ITransformMeta oneMeta,
+                                                   String oneTransformName, IRowMeta injectorRowMeta ) {
     PipelineMeta previewMeta = new PipelineMeta( parent );
 
     // First the injector transform...
@@ -94,7 +94,7 @@ public class PipelineTestFactory {
     return previewMeta;
   }
 
-  public static PipelineMeta generateTestPipelineError( VariableSpace parent, TransformMetaInterface oneMeta,
+  public static PipelineMeta generateTestPipelineError( IVariables parent, ITransformMeta oneMeta,
                                                         String oneTransformName ) {
     PipelineMeta previewMeta = new PipelineMeta( parent );
 
@@ -154,7 +154,7 @@ public class PipelineTestFactory {
 
   public static List<RowMetaAndData> executeTestPipeline( PipelineMeta pipelineMeta, String injectorTransformName,
                                                           String testTransformName, String dummyTransformname, List<RowMetaAndData> inputData,
-                                                          VariableSpace runTimeVariables, VariableSpace runTimeParameters ) throws HopException {
+                                                          IVariables runTimeVariables, IVariables runTimeParameters ) throws HopException {
     // Now execute the pipeline...
     Pipeline pipeline = new Pipeline( pipelineMeta );
 
@@ -172,7 +172,7 @@ public class PipelineTestFactory {
 
     // Capture the rows that come out of the dummy transform...
     //
-    TransformInterface si = pipeline.getTransformInterface( dummyTransformname, 0 );
+    ITransform si = pipeline.getTransformInterface( dummyTransformname, 0 );
     PipelineTransformCollector dummyRc = new PipelineTransformCollector();
     si.addRowListener( dummyRc );
 
@@ -225,16 +225,16 @@ public class PipelineTestFactory {
 
     // Capture the rows that come out of the dummy transform...
     //
-    TransformInterface si = pipeline.getTransformInterface( dummyTransformname, 0 );
+    ITransform si = pipeline.getTransformInterface( dummyTransformname, 0 );
     PipelineTransformCollector dummyRc = new PipelineTransformCollector();
     si.addRowListener( dummyRc );
 
-    TransformInterface junit = pipeline.getTransformInterface( testTransformName, 0 );
+    ITransform junit = pipeline.getTransformInterface( testTransformName, 0 );
     PipelineTransformCollector dummyJu = new PipelineTransformCollector();
     junit.addRowListener( dummyJu );
 
     // add error handler
-    TransformInterface er = pipeline.getTransformInterface( errorTransformName, 0 );
+    ITransform er = pipeline.getTransformInterface( errorTransformName, 0 );
     PipelineTransformCollector erColl = new PipelineTransformCollector();
     er.addRowListener( erColl );
 
@@ -278,7 +278,7 @@ public class PipelineTestFactory {
     return getInjectorTransformMeta( null );
   }
 
-  static TransformMeta getInjectorTransformMeta( RowMetaInterface outputRowMeta ) {
+  static TransformMeta getInjectorTransformMeta( IRowMeta outputRowMeta ) {
     InjectorMeta zeroMeta = new InjectorMeta();
 
     // Sets output fields for cases when no rows are sent to the test transform, but metadata is still needed
@@ -288,7 +288,7 @@ public class PipelineTestFactory {
       int[] fieldPrecision = new int[ outputRowMeta.size() ];
       int[] fieldType = new int[ outputRowMeta.size() ];
       for ( int i = 0; i < outputRowMeta.size(); i++ ) {
-        ValueMetaInterface field = outputRowMeta.getValueMeta( i );
+        IValueMeta field = outputRowMeta.getValueMeta( i );
         fieldName[ i ] = field.getName();
         fieldLength[ i ] = field.getLength();
         fieldPrecision[ i ] = field.getPrecision();

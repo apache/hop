@@ -92,7 +92,7 @@ public class DragAndDropContainerTest {
       + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
-    assertEquals( xml, dnd.getXML() );
+    assertEquals( xml, dnd.getXml() );
   }
 
   @Test
@@ -106,7 +106,7 @@ public class DragAndDropContainerTest {
       + "  <Data>VHJhbnNmb3JtIE5hbWU=</Data>\n"
       + "</DragAndDrop>\n";
 
-    assertEquals( xml, dnd.getXML() );
+    assertEquals( xml, dnd.getXml() );
   }
 
   @Test

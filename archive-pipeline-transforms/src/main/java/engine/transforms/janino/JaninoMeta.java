@@ -28,20 +28,20 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -133,8 +133,8 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < formula.length; i++ ) {
       JaninoMetaFunction fn = formula[ i ];
       if ( Utils.isEmpty( fn.getReplaceField() ) ) {
@@ -143,7 +143,7 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
           // It's a new field!
 
           try {
-            ValueMetaInterface v = ValueMetaFactory.createValueMeta( fn.getFieldName(), fn.getValueType() );
+            IValueMeta v = ValueMetaFactory.createValueMeta( fn.getFieldName(), fn.getValueType() );
             v.setLength( fn.getValueLength(), fn.getValuePrecision() );
             v.setOrigin( name );
             row.addValueMeta( v );
@@ -160,7 +160,7 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
         }
         // Change the data type etc.
         //
-        ValueMetaInterface v = row.getValueMeta( index ).clone();
+        IValueMeta v = row.getValueMeta( index ).clone();
         v.setLength( fn.getValueLength(), fn.getValuePrecision() );
         v.setOrigin( name );
         row.setValueMeta( index, v ); // replace it
@@ -179,7 +179,7 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
    * @param info     The fields that are used as information by the transform
    */
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
@@ -208,12 +208,12 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new Janino( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Janino( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new JaninoData();
   }
 

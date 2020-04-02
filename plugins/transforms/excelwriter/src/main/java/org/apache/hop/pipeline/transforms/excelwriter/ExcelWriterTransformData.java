@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-public class ExcelWriterTransformData extends BaseTransformData implements TransformDataInterface {
+public class ExcelWriterTransformData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int splitnr;
   public int datalines;
   public String realSheetname;
@@ -44,7 +44,7 @@ public class ExcelWriterTransformData extends BaseTransformData implements Trans
   public Sheet sheet;
   public Workbook wb;
   public int[] fieldnrs;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
   public int[] commentfieldnrs;
   public int[] commentauthorfieldnrs;
   public int startingCol = 0;

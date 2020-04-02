@@ -24,7 +24,7 @@ package org.apache.hop.ui.core;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -75,7 +75,7 @@ public abstract class WidgetUtils {
       fieldDropDownCombo.setText( current );
 
       try {
-        RowMetaInterface rmi = pipelineMeta.getPrevTransformFields( transformMeta.getParentTransformMeta().getName() );
+        IRowMeta rmi = pipelineMeta.getPrevTransformFields( transformMeta.getParentTransformMeta().getName() );
         List ls = rmi.getValueMetaList();
         for ( Object l : ls ) {
           ValueMetaBase vmb = (ValueMetaBase) l;

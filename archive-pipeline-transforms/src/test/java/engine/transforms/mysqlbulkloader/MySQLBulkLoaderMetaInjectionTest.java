@@ -22,7 +22,7 @@
 package org.apache.hop.pipeline.transforms.mysqlbulkloader;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -107,7 +107,7 @@ public class MySQLBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "OK" ), "f" );
     assertEquals( 0, meta.getFieldFormatType()[ 0 ] );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "DATE" ), "f" );

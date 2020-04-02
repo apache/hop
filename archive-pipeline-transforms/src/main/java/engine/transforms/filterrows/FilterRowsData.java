@@ -23,17 +23,17 @@
 package org.apache.hop.pipeline.transforms.filterrows;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class FilterRowsData extends BaseTransformData implements TransformDataInterface {
+public class FilterRowsData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public RowSet trueRowSet;
   public RowSet falseRowSet;
   public boolean chosesTargetTransforms;

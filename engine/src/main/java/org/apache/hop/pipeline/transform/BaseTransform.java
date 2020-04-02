@@ -28,28 +28,28 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ExtensionDataInterface;
+import org.apache.hop.core.IExtensionData;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -92,8 +92,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * The init() method is called when a pipeline is preparing to start execution.
  * <p>
  * <pre>
- * <a href="#init(org.apache.hop.pipeline.transform.TransformMetaInterface,
- * org.apache.hop.pipeline.transform.TransformDataInterface)">public boolean init(...)</a>
+ * <a href="#init(org.apache.hop.pipeline.transform.ITransformMeta,
+ * org.apache.hop.pipeline.transform.ITransformData)">public boolean init(...)</a>
  * </pre>
  * <p>
  * Every transform is given the opportunity to do one-time initialization tasks like opening files or establishing database
@@ -109,8 +109,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * passes the row on to next transforms.
  * <p>
  * <pre>
- * <a href="#processRow(org.apache.hop.pipeline.transform.TransformMetaInterface,
- * org.apache.hop.pipeline.transform.TransformDataInterface)">public boolean processRow(...)</a>
+ * <a href="#processRow(org.apache.hop.pipeline.transform.ITransformMeta,
+ * org.apache.hop.pipeline.transform.ITransformData)">public boolean processRow(...)</a>
  * </pre>
  * <p>
  * A typical implementation queries for incoming input rows by calling getRow(), which blocks and returns a row object
@@ -130,23 +130,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Once the pipeline is complete, PDI calls dispose() on all transforms.
  * <p>
  * <pre>
- * <a href="#dispose(org.apache.hop.pipeline.transform.TransformMetaInterface,
- * org.apache.hop.pipeline.transform.TransformDataInterface)">public void dispose(...)</a>
+ * <a href="#dispose(org.apache.hop.pipeline.transform.ITransformMeta,
+ * org.apache.hop.pipeline.transform.ITransformData)">public void dispose(...)</a>
  * </pre>
  * <p>
  * Transforms are required to deallocate resources allocated during init() or subsequent row processing. This typically means
- * to clear all fields of the TransformDataInterface object, and to ensure that all open files or connections are properly
+ * to clear all fields of the ITransformData object, and to ensure that all open files or connections are properly
  * closed. For any transforms derived from BaseTransform it is mandatory that super.dispose() is called to ensure correct
  * deallocation.
  * </ul>
  */
-public class BaseTransform<Meta extends TransformMetaInterface, Data extends TransformDataInterface>
-  implements TransformInterface<Meta, Data>,
-  VariableSpace, LoggingObjectInterface, ExtensionDataInterface, IEngineComponent {
+public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformData>
+  implements ITransform<Meta, Data>,
+  IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
   private static Class<?> PKG = BaseTransform.class; // for i18n purposes, needed by Translator!!
 
-  protected VariableSpace variables = new Variables();
+  protected IVariables variables = new Variables();
 
   private PipelineMeta pipelineMeta;
 
@@ -154,7 +154,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
   private String transformName;
 
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   private String containerObjectId;
 
@@ -222,7 +222,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
   private String rowDistributionCode;
 
-  private RowDistributionInterface rowDistribution;
+  private IRowDistribution rowDistribution;
 
   private long errors;
 
@@ -235,21 +235,21 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * The rowsets on the input, size() == nr of source transforms
    */
-  private List<RowSet> inputRowSets;
+  private List<IRowSet> inputRowSets;
 
   private final ReentrantReadWriteLock inputRowSetsLock = new ReentrantReadWriteLock();
 
   /**
    * the rowsets on the output, size() == nr of target transforms
    */
-  private List<RowSet> outputRowSets;
+  private List<IRowSet> outputRowSets;
 
   private final ReadWriteLock outputRowSetsLock = new ReentrantReadWriteLock();
 
   /**
    * the rowset for the error rows
    */
-  private RowSet errorRowSet;
+  private IRowSet errorRowSet;
 
   private AtomicBoolean running;
 
@@ -282,12 +282,12 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
   private Meta transformMetaInterface;
 
-  private Data transformDataInterface;
+  private Data iTransformData;
 
   /**
-   * The list of RowListener interfaces
+   * The list of IRowListener interfaces
    */
-  protected List<RowListener> rowListeners;
+  protected List<IRowListener> rowListeners;
 
   /**
    * Map of files that are generated or used by this transform. After execution, these can be added to result. The entry to
@@ -300,7 +300,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * This contains the first row received and will be the reference row. We used it to perform extra checking: see if we
    * don't get rows with "mixed" contents.
    */
-  private RowMetaInterface inputReferenceRow;
+  private IRowMeta inputReferenceRow;
 
   /**
    * This field tells the putRow() method that we are in partitioned mode
@@ -323,7 +323,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    */
   private Map<String, BlockingRowSet> partitionTargets;
 
-  private RowMetaInterface inputRowMeta;
+  private IRowMeta inputRowMeta;
 
   /**
    * transform partitioning information of the NEXT transform
@@ -333,9 +333,9 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * The metadata information of the error output row. There is only one per transform so we cache it
    */
-  private RowMetaInterface errorRowMeta = null;
+  private IRowMeta errorRowMeta = null;
 
-  private RowMetaInterface previewRowMeta;
+  private IRowMeta previewRowMeta;
 
   private boolean checkPipelineRunning;
 
@@ -349,7 +349,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
   private boolean usingThreadPriorityManagment;
 
-  private List<TransformListener> transformListeners;
+  private List<ITransformListener> transformListeners;
 
   /**
    * The socket repository to use when opening server side sockets in clustering mode
@@ -402,22 +402,22 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * rowHandler handles getting/putting rows and putting errors.
    * Default implementation defers to corresponding methods in this class.
    */
-  private RowHandler rowHandler;
+  private IRowHandler rowHandler;
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this class to implement your own
    * transforms.
    *
    * @param transformMeta          The TransformMeta object to run.
-   * @param transformDataInterface the data object to store temporary data, database connections, caches, result sets,
+   * @param iTransformData the data object to store temporary data, database connections, caches, result sets,
    *                          hashtables etc.
    * @param copyNr            The copynumber for this transform.
    * @param pipelineMeta         The PipelineMeta of which the transform transformMeta is part of.
    * @param pipeline             The (running) pipeline to obtain information shared among the transforms.
    */
-  public BaseTransform( TransformMeta transformMeta, Data transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  public BaseTransform( TransformMeta transformMeta, Data iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     this.transformMeta = transformMeta;
-    this.transformDataInterface = transformDataInterface;
+    this.iTransformData = iTransformData;
     this.copyNr = copyNr;
     this.pipelineMeta = pipelineMeta;
     this.pipeline = pipeline;
@@ -430,7 +430,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         + pipelineMeta.toString() + "] doesn't have a name.  A transform should always have a name to identify it by." );
     }
 
-    log = HopLogStore.getLogChannelInterfaceFactory().create( this, pipeline );
+    log = HopLogStore.getLogChannelFactory().create( this, pipeline );
 
     first = true;
 
@@ -487,7 +487,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       }
     }
 
-    rowListeners = new CopyOnWriteArrayList<RowListener>();
+    rowListeners = new CopyOnWriteArrayList<IRowListener>();
     resultFiles = new HashMap<String, ResultFile>();
     resultFilesLock = new ReentrantReadWriteLock();
 
@@ -510,7 +510,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     blockPointer = 0;
 
-    transformListeners = Collections.synchronizedList( new ArrayList<TransformListener>() );
+    transformListeners = Collections.synchronizedList( new ArrayList<ITransformListener>() );
 
     dispatch();
 
@@ -610,7 +610,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#cleanup()
+   * @see org.apache.hop.pipeline.transform.ITransform#cleanup()
    */
   @Override
   public void cleanup() {
@@ -619,7 +619,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getProcessed()
+   * @see org.apache.hop.pipeline.transform.ITransform#getProcessed()
    */
   @Override
   public long getProcessed() {
@@ -650,7 +650,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getErrors()
+   * @see org.apache.hop.pipeline.transform.ITransform#getErrors()
    */
   @Override
   public long getErrors() {
@@ -660,7 +660,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#setErrors(long)
+   * @see org.apache.hop.pipeline.transform.ITransform#setErrors(long)
    */
   @Override
   public void setErrors( long e ) {
@@ -950,17 +950,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   /**
-   * @return Returns the transformDataInterface.
+   * @return Returns the iTransformData.
    */
-  public TransformDataInterface getTransformDataInterface() {
-    return transformDataInterface;
+  public ITransformData getTransformDataInterface() {
+    return iTransformData;
   }
 
   /**
-   * @param transformDataInterface The transformDataInterface to set.
+   * @param iTransformData The iTransformData to set.
    */
-  public void setTransformDataInterface( Data transformDataInterface ) {
-    this.transformDataInterface = transformDataInterface;
+  public void setTransformDataInterface( Data iTransformData ) {
+    this.iTransformData = iTransformData;
   }
 
   /**
@@ -1010,11 +1010,11 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @throws HopTransformException
    */
   @Override
-  public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
     if ( rowMeta != null ) {
       if ( !allowEmptyFieldNamesAndTypes ) {
         // check row meta for empty field name (BACKLOG-18004)
-        for ( ValueMetaInterface vmi : rowMeta.getValueMetaList() ) {
+        for ( IValueMeta vmi : rowMeta.getValueMetaList() ) {
           if ( StringUtils.isBlank( vmi.getName() ) ) {
             throw new HopTransformException( "Please set a field name for all field(s) that have 'null'." );
           }
@@ -1027,7 +1027,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     getRowHandler().putRow( rowMeta, row );
   }
 
-  private void handlePutRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  private void handlePutRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
     // Are we pausing the transform? If so, stall forever...
     //
     while ( paused.get() && !stopped.get() ) {
@@ -1066,7 +1066,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     // call all row listeners...
     //
-    for ( RowListener listener : rowListeners ) {
+    for ( IRowListener listener : rowListeners ) {
       listener.rowWrittenEvent( rowMeta, row );
     }
 
@@ -1117,13 +1117,13 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * Copy always to all target transforms/copies
    */
-  private void mirrorPartitioning( RowMetaInterface rowMeta, Object[] row ) {
-    for ( RowSet rowSet : outputRowSets ) {
+  private void mirrorPartitioning( IRowMeta rowMeta, Object[] row ) {
+    for ( IRowSet rowSet : outputRowSets ) {
       putRowToRowSet( rowSet, rowMeta, row );
     }
   }
 
-  private void specialPartitioning( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  private void specialPartitioning( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
     if ( nextTransformPartitioningMeta == null ) {
       // Look up the partitioning of the next transform.
       // This is the case for non-clustered partitioning...
@@ -1145,7 +1145,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         "Unable to convert a value to integer while calculating the partition number", e );
     }
 
-    RowSet selectedRowSet = null;
+    IRowSet selectedRowSet = null;
 
 
     // Local partitioning...
@@ -1180,7 +1180,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
   }
 
-  private void noPartitioning( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  private void noPartitioning( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
     if ( distributed ) {
       if ( rowDistribution != null ) {
         // Plugin defined row distribution!
@@ -1193,7 +1193,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         // Copy the row to the "next" output rowset.
         // We keep the next one in out_handling
         //
-        RowSet rs = outputRowSets.get( currentOutputRowSetNr );
+        IRowSet rs = outputRowSets.get( currentOutputRowSetNr );
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
@@ -1229,7 +1229,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       // Copy to the row in the other output rowsets...
       for ( int i = 1; i < outputRowSets.size(); i++ ) { // start at 1
 
-        RowSet rs = outputRowSets.get( i );
+        IRowSet rs = outputRowSets.get( i );
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
@@ -1254,17 +1254,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
       // set row in first output rowset
       //
-      RowSet rs = outputRowSets.get( 0 );
+      IRowSet rs = outputRowSets.get( 0 );
       putRowToRowSet( rs, rowMeta, row );
       incrementLinesWritten();
     }
   }
 
-  private void putRowToRowSet( RowSet rs, RowMetaInterface rowMeta, Object[] row ) {
-    RowMetaInterface toBeSent;
-    RowMetaInterface metaFromRs = rs.getRowMeta();
+  private void putRowToRowSet( IRowSet rs, IRowMeta rowMeta, Object[] row ) {
+    IRowMeta toBeSent;
+    IRowMeta metaFromRs = rs.getRowMeta();
     if ( metaFromRs == null ) {
-      // RowSet is not initialised so far
+      // IRowSet is not initialised so far
       toBeSent = rowMeta.clone();
     } else {
       // use the existing
@@ -1279,18 +1279,18 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   /**
-   * putRowTo is used to put a row in a certain specific RowSet.
+   * putRowTo is used to put a row in a certain specific IRowSet.
    *
-   * @param rowMeta The row meta-data to put to the destination RowSet.
-   * @param row     the data to put in the RowSet
+   * @param rowMeta The row meta-data to put to the destination IRowSet.
+   * @param row     the data to put in the IRowSet
    * @param rowSet  the RoWset to put the row into.
    * @throws HopTransformException In case something unexpected goes wrong
    */
-  public void putRowTo( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void putRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
     getRowHandler().putRowTo( rowMeta, row, rowSet );
   }
 
-  public void handlePutRowTo( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void handlePutRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
 
     // Are we pausing the transform? If so, stall forever...
     //
@@ -1304,7 +1304,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     // call all row listeners...
     //
-    for ( RowListener listener : rowListeners ) {
+    for ( IRowListener listener : rowListeners ) {
       listener.rowWrittenEvent( rowMeta, row );
     }
 
@@ -1346,13 +1346,13 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param errorCodes        the error codes
    * @throws HopTransformException the kettle transform exception
    */
-  public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+  public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
     getRowHandler().putError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
   }
 
 
-  private void handlePutError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+  private void handlePutError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                                String fieldNames, String errorCodes ) throws HopTransformException {
     if ( pipeline.isSafeModeEnabled() ) {
       if ( rowMeta.size() > row.length ) {
@@ -1367,7 +1367,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     if ( errorRowMeta == null ) {
       errorRowMeta = rowMeta.clone();
 
-      RowMetaInterface add = transformErrorMeta.getErrorRowMeta( nrErrors, errorDescriptions, fieldNames, errorCodes );
+      IRowMeta add = transformErrorMeta.getErrorRowMeta( nrErrors, errorDescriptions, fieldNames, errorCodes );
       errorRowMeta.addRowMeta( add );
     }
 
@@ -1381,7 +1381,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       errorRowData, rowMeta.size(), nrErrors, errorDescriptions, fieldNames, errorCodes );
 
     // call all row listeners...
-    for ( RowListener listener : rowListeners ) {
+    for ( IRowListener listener : rowListeners ) {
       listener.errorRowWrittenEvent( rowMeta, row );
     }
 
@@ -1435,7 +1435,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return the row set
    */
   @VisibleForTesting
-  RowSet currentInputStream() {
+  IRowSet currentInputStream() {
     inputRowSetsLock.readLock().lock();
     try {
       return inputRowSets.get( currentInputRowSetNr );
@@ -1524,7 +1524,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     //
     waitUntilPipelineIsStarted();
 
-    RowSet inputRowSet = null;
+    IRowSet inputRowSet = null;
     Object[] row = null;
 
     inputRowSetsLock.readLock().lock();
@@ -1661,7 +1661,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         pipelineMeta.checkRowMixingStatically( transformMeta, null );
       }
 
-      for ( RowListener listener : rowListeners ) {
+      for ( IRowListener listener : rowListeners ) {
         listener.rowReadEvent( inputRowMeta, row );
       }
     }
@@ -1673,16 +1673,16 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   /**
-   * RowHandler controls how getRow/putRow are handled.
-   * The default RowHandler will simply call
-   * {@link #handleGetRow()} and {@link #handlePutRow(RowMetaInterface, Object[])}
+   * IRowHandler controls how getRow/putRow are handled.
+   * The default IRowHandler will simply call
+   * {@link #handleGetRow()} and {@link #handlePutRow(IRowMeta, Object[])}
    */
-  public void setRowHandler( RowHandler rowHandler ) {
+  public void setRowHandler( IRowHandler rowHandler ) {
     Preconditions.checkNotNull( rowHandler );
     this.rowHandler = rowHandler;
   }
 
-  public RowHandler getRowHandler() {
+  public IRowHandler getRowHandler() {
     if ( rowHandler == null ) {
       rowHandler = new DefaultRowHandler();
     }
@@ -1695,7 +1695,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param row the row
    * @throws HopRowException the kettle row exception
    */
-  protected void safeModeChecking( RowMetaInterface row ) throws HopRowException {
+  protected void safeModeChecking( IRowMeta row ) throws HopRowException {
     if ( row == null ) {
       return;
     }
@@ -1721,7 +1721,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#identifyErrorOutput()
+   * @see org.apache.hop.pipeline.transform.ITransform#identifyErrorOutput()
    */
   @Override
   public void identifyErrorOutput() {
@@ -1730,7 +1730,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       outputRowSetsLock.writeLock().lock();
       try {
         for ( int rowsetNr = 0; rowsetNr < outputRowSets.size(); rowsetNr++ ) {
-          RowSet outputRowSet = outputRowSets.get( rowsetNr );
+          IRowSet outputRowSet = outputRowSets.get( rowsetNr );
           if ( outputRowSet.getDestinationTransformName().equalsIgnoreCase( transformErrorMeta.getTargetTransform().getName() ) ) {
             // This is the rowset to move!
             //
@@ -1752,7 +1752,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param rowMeta          the row meta
    * @throws HopRowException the kettle row exception
    */
-  public static void safeModeChecking( RowMetaInterface referenceRowMeta, RowMetaInterface rowMeta )
+  public static void safeModeChecking( IRowMeta referenceRowMeta, IRowMeta rowMeta )
     throws HopRowException {
     // See if the row we got has the same layout as the reference row.
     // First check the number of fields
@@ -1763,8 +1763,8 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     } else {
       // Check field by field for the position of the names...
       for ( int i = 0; i < referenceRowMeta.size(); i++ ) {
-        ValueMetaInterface referenceValue = referenceRowMeta.getValueMeta( i );
-        ValueMetaInterface compareValue = rowMeta.getValueMeta( i );
+        IValueMeta referenceValue = referenceRowMeta.getValueMeta( i );
+        IValueMeta compareValue = rowMeta.getValueMeta( i );
 
         if ( !referenceValue.getName().equalsIgnoreCase( compareValue.getName() ) ) {
           throw new HopRowException( BaseMessages.getString(
@@ -1796,11 +1796,11 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return the row from
    * @throws HopTransformException the kettle transform exception
    */
-  public Object[] getRowFrom( RowSet rowSet ) throws HopTransformException {
+  public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
     return getRowHandler().getRowFrom( rowSet );
   }
 
-  public Object[] handleGetRowFrom( RowSet rowSet ) throws HopTransformException {
+  public Object[] handleGetRowFrom( IRowSet rowSet ) throws HopTransformException {
     // Are we pausing the transform? If so, stall forever...
     //
     while ( paused.get() && !stopped.get() ) {
@@ -1907,7 +1907,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     // call all rowlisteners...
     //
-    for ( RowListener listener : rowListeners ) {
+    for ( IRowListener listener : rowListeners ) {
       listener.rowReadEvent( rowSet.getRowMeta(), rowData );
     }
 
@@ -1924,9 +1924,9 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @throws HopTransformException
    */
   protected void verifyInputDeadLock() throws HopTransformException {
-    RowSet inputFull = null;
-    RowSet inputEmpty = null;
-    for ( RowSet rowSet : getInputRowSets() ) {
+    IRowSet inputFull = null;
+    IRowSet inputEmpty = null;
+    for ( IRowSet rowSet : getInputRowSets() ) {
       if ( rowSet.size() == pipeline.getRowSetSize() ) {
         inputFull = rowSet;
       } else if ( rowSet.size() == 0 ) {
@@ -1940,17 +1940,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       // - one output is empty
       for ( TransformMetaDataCombi combi : pipeline.getTransforms() ) {
         int inputSize = 0;
-        List<RowSet> combiInputRowSets = combi.transform.getInputRowSets();
+        List<IRowSet> combiInputRowSets = combi.transform.getInputRowSets();
         int totalSize = combiInputRowSets.size() * pipeline.getRowSetSize();
-        for ( RowSet rowSet : combiInputRowSets ) {
+        for ( IRowSet rowSet : combiInputRowSets ) {
           inputSize += rowSet.size();
         }
         // All full probably means a stalled transform.
-        List<RowSet> combiOutputRowSets = combi.transform.getOutputRowSets();
+        List<IRowSet> combiOutputRowSets = combi.transform.getOutputRowSets();
         if ( inputSize > 0 && inputSize == totalSize && combiOutputRowSets.size() > 1 ) {
-          RowSet outputFull = null;
-          RowSet outputEmpty = null;
-          for ( RowSet rowSet : combiOutputRowSets ) {
+          IRowSet outputFull = null;
+          IRowSet outputEmpty = null;
+          for ( IRowSet rowSet : combiOutputRowSets ) {
             if ( rowSet.size() == pipeline.getRowSetSize() ) {
               outputFull = rowSet;
             } else if ( rowSet.size() == 0 ) {
@@ -1978,7 +1978,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return the row set
    * @throws HopTransformException the kettle transform exception
    */
-  public RowSet findInputRowSet( String sourceTransformName ) throws HopTransformException {
+  public IRowSet findInputRowSet( String sourceTransformName ) throws HopTransformException {
     // Check to see that "sourceTransform" only runs in a single copy
     // Otherwise you'll see problems during execution.
     //
@@ -2006,10 +2006,10 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param toCopy   the tocopy
    * @return the row set
    */
-  public RowSet findInputRowSet( String from, int fromCopy, String to, int toCopy ) {
+  public IRowSet findInputRowSet( String from, int fromCopy, String to, int toCopy ) {
     inputRowSetsLock.readLock().lock();
     try {
-      for ( RowSet rs : inputRowSets ) {
+      for ( IRowSet rs : inputRowSets ) {
         if ( rs.getOriginTransformName().equalsIgnoreCase( from )
           && rs.getDestinationTransformName().equalsIgnoreCase( to ) && rs.getOriginTransformCopy() == fromCopy
           && rs.getDestinationTransformCopy() == toCopy ) {
@@ -2032,7 +2032,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
       // In this case we can cast the transform thread to a Mapping...
       //
-      List<TransformInterface> baseTransforms = pipeline.findBaseTransforms( from );
+      List<ITransform> baseTransforms = pipeline.findBaseTransforms( from );
       if ( baseTransforms.size() == 1 ) {
         Mapping mapping = (Mapping) baseTransforms.get( 0 );
 
@@ -2041,7 +2041,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         //
         MappingOutput[] outputs = mapping.getMappingPipeline().findMappingOutput();
         for ( MappingOutput output : outputs ) {
-          for ( RowSet rs : output.getOutputRowSets() ) {
+          for ( IRowSet rs : output.getOutputRowSets() ) {
             // The destination is what counts here...
             //
             if ( rs.getDestinationTransformName().equalsIgnoreCase( to ) ) {
@@ -2062,7 +2062,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return the row set
    * @throws HopTransformException the kettle transform exception
    */
-  public RowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
+  public IRowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
 
     // Check to see that "targetTransform" only runs in a single copy
     // Otherwise you'll see problems during execution.
@@ -2092,10 +2092,10 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param tocopy
    * @return The rowset or null if none is found.
    */
-  public RowSet findOutputRowSet( String from, int fromcopy, String to, int tocopy ) {
+  public IRowSet findOutputRowSet( String from, int fromcopy, String to, int tocopy ) {
     outputRowSetsLock.readLock().lock();
     try {
-      for ( RowSet rs : outputRowSets ) {
+      for ( IRowSet rs : outputRowSets ) {
         if ( rs.getOriginTransformName().equalsIgnoreCase( from )
           && rs.getDestinationTransformName().equalsIgnoreCase( to ) && rs.getOriginTransformCopy() == fromcopy
           && rs.getDestinationTransformCopy() == tocopy ) {
@@ -2118,7 +2118,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
       // In this case we can cast the transform thread to a Mapping...
       //
-      List<TransformInterface> baseTransforms = pipeline.findBaseTransforms( to );
+      List<ITransform> baseTransforms = pipeline.findBaseTransforms( to );
       if ( baseTransforms.size() == 1 ) {
         Mapping mapping = (Mapping) baseTransforms.get( 0 );
 
@@ -2128,7 +2128,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         MappingInput[] inputs = mapping.getMappingPipeline().findMappingInput();
         for ( MappingInput input : inputs ) {
           input.getInputRowSets();
-          for ( RowSet rs : input.getInputRowSets() ) {
+          for ( IRowSet rs : input.getInputRowSets() ) {
             // The source transform is what counts in this case...
             //
             if ( rs.getOriginTransformName().equalsIgnoreCase( from ) ) {
@@ -2151,7 +2151,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#setOutputDone()
+   * @see org.apache.hop.pipeline.transform.ITransform#setOutputDone()
    */
   @Override
   public void setOutputDone() {
@@ -2160,7 +2160,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "BaseTransform.Log.OutputDone", String.valueOf( outputRowSets.size() ) ) );
       }
-      for ( RowSet rs : outputRowSets ) {
+      for ( IRowSet rs : outputRowSets ) {
         rs.setDone();
       }
       if ( errorRowSet != null ) {
@@ -2268,7 +2268,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         }
 
         for ( int c = 0; c < nrCopies; c++ ) {
-          RowSet rowSet = null;
+          IRowSet rowSet = null;
           switch ( dispatchType ) {
             case Pipeline.TYPE_DISP_1_1:
               rowSet = pipeline.findRowSet( prevTransforms[ i ].getName(), 0, transformName, 0 );
@@ -2343,7 +2343,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         }
 
         for ( int c = 0; c < nrCopies; c++ ) {
-          RowSet rowSet = null;
+          IRowSet rowSet = null;
           switch ( dispatchType ) {
             case Pipeline.TYPE_DISP_1_1:
               rowSet = pipeline.findRowSet( transformName, 0, nextTransforms[ i ].getName(), 0 );
@@ -2574,7 +2574,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     outputRowSetsLock.readLock().lock();
     try {
-      for ( RowSet rs : outputRowSets ) {
+      for ( IRowSet rs : outputRowSets ) {
         if ( rs.isDone() ) {
           nrstopped++;
         }
@@ -2588,7 +2588,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#stopAll()
+   * @see org.apache.hop.pipeline.transform.ITransform#stopAll()
    */
   @Override
   public void stopAll() {
@@ -2599,7 +2599,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#isStopped()
+   * @see org.apache.hop.pipeline.transform.ITransform#isStopped()
    */
   @Override
   public boolean isStopped() {
@@ -2609,7 +2609,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#isRunning()
+   * @see org.apache.hop.pipeline.transform.ITransform#isRunning()
    */
   @Override
   public boolean isRunning() {
@@ -2619,7 +2619,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#isPaused()
+   * @see org.apache.hop.pipeline.transform.ITransform#isPaused()
    */
   @Override
   public boolean isPaused() {
@@ -2629,7 +2629,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#setStopped(boolean)
+   * @see org.apache.hop.pipeline.transform.ITransform#setStopped(boolean)
    */
   @Override
   public void setStopped( boolean stopped ) {
@@ -2649,7 +2649,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#setRunning(boolean)
+   * @see org.apache.hop.pipeline.transform.ITransform#setRunning(boolean)
    */
   @Override
   public void setRunning( boolean running ) {
@@ -2659,7 +2659,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#pauseRunning()
+   * @see org.apache.hop.pipeline.transform.ITransform#pauseRunning()
    */
   @Override
   public void pauseRunning() {
@@ -2669,7 +2669,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#resumeRunning()
+   * @see org.apache.hop.pipeline.transform.ITransform#resumeRunning()
    */
   @Override
   public void resumeRunning() {
@@ -2706,7 +2706,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#markStart()
+   * @see org.apache.hop.pipeline.transform.ITransform#markStart()
    */
   @Override
   public void markStart() {
@@ -2727,7 +2727,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#markStop()
+   * @see org.apache.hop.pipeline.transform.ITransform#markStop()
    */
   @Override
   public void markStop() {
@@ -2738,7 +2738,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     // Call all the attached listeners and notify the outside world that the transform has finished.
     //
     synchronized ( transformListeners ) {
-      for ( TransformListener transformListener : transformListeners ) {
+      for ( ITransformListener transformListener : transformListeners ) {
         transformListener.transformFinished( pipeline, transformMeta, this );
       }
     }
@@ -2751,7 +2751,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getRuntime()
+   * @see org.apache.hop.pipeline.transform.ITransform#getRuntime()
    */
   @Override
   public long getRuntime() {
@@ -2787,7 +2787,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   public RowMetaAndData buildLog( String sname, int copynr, long lines_read, long lines_written,
                                   long lines_updated, long lines_skipped, long errors, Date start_date,
                                   Date end_date ) {
-    RowMetaInterface r = new RowMeta();
+    IRowMeta r = new RowMeta();
     Object[] data = new Object[ 9 ];
     int nr = 0;
 
@@ -2843,9 +2843,9 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @param comm the comm
    * @return the log fields
    */
-  public static final RowMetaInterface getLogFields( String comm ) {
-    RowMetaInterface r = new RowMeta();
-    ValueMetaInterface sname =
+  public static final IRowMeta getLogFields( String comm ) {
+    IRowMeta r = new RowMeta();
+    IValueMeta sname =
       new ValueMetaString(
         BaseMessages.getString( PKG, "BaseTransform.ColumnName.TransformName" ) );
     sname.setLength( 256 );
@@ -2904,7 +2904,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#rowsetOutputSize()
+   * @see org.apache.hop.pipeline.transform.ITransform#rowsetOutputSize()
    */
   @Override
   public int rowsetOutputSize() {
@@ -2912,7 +2912,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     outputRowSetsLock.readLock().lock();
     try {
-      for ( RowSet outputRowSet : outputRowSets ) {
+      for ( IRowSet outputRowSet : outputRowSets ) {
         size += outputRowSet.size();
       }
     } finally {
@@ -2925,7 +2925,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#rowsetInputSize()
+   * @see org.apache.hop.pipeline.transform.ITransform#rowsetInputSize()
    */
   @Override
   public int rowsetInputSize() {
@@ -2933,7 +2933,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
 
     inputRowSetsLock.readLock().lock();
     try {
-      for ( RowSet inputRowSet : inputRowSets ) {
+      for ( IRowSet inputRowSet : inputRowSets ) {
         size += inputRowSet.size();
       }
     } finally {
@@ -2948,10 +2948,10 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * do anything.
    *
    * @param transformMetaInterface the object which contains the transform specific metadata
-   * @param transformDataInterface The interface to the transform data containing the connections, resultsets, open files, etc.
+   * @param iTransformData The interface to the transform data containing the connections, resultsets, open files, etc.
    * @throws HopException in case something goes wrong
    */
-  @Override public void stopRunning( Meta transformMetaInterface, Data transformDataInterface ) throws HopException {
+  @Override public void stopRunning( Meta transformMetaInterface, Data iTransformData ) throws HopException {
     // Nothing by default
   }
 
@@ -2991,7 +2991,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return Returns the inputRowSets.
    */
   @Override
-  public List<RowSet> getInputRowSets() {
+  public List<IRowSet> getInputRowSets() {
     inputRowSetsLock.readLock().lock();
     try {
       return new ArrayList<>( inputRowSets );
@@ -3001,7 +3001,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   @Override
-  public void addRowSetToInputRowSets( RowSet rowSet ) {
+  public void addRowSetToInputRowSets( IRowSet rowSet ) {
     inputRowSetsLock.writeLock().lock();
     try {
       inputRowSets.add( rowSet );
@@ -3010,7 +3010,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     }
   }
 
-  protected RowSet getFirstInputRowSet() {
+  protected IRowSet getFirstInputRowSet() {
     inputRowSetsLock.readLock().lock();
     try {
       return inputRowSets.get( 0 );
@@ -3049,7 +3049,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * @param inputRowSets The inputRowSets to set.
    */
-  public void setInputRowSets( List<RowSet> inputRowSets ) {
+  public void setInputRowSets( List<IRowSet> inputRowSets ) {
     inputRowSetsLock.writeLock().lock();
     try {
       this.inputRowSets = inputRowSets;
@@ -3062,7 +3062,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * @return Returns the outputRowSets.
    */
   @Override
-  public List<RowSet> getOutputRowSets() {
+  public List<IRowSet> getOutputRowSets() {
     outputRowSetsLock.readLock().lock();
     try {
       return new ArrayList<>( outputRowSets );
@@ -3072,7 +3072,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   @Override
-  public void addRowSetToOutputRowSets( RowSet rowSet ) {
+  public void addRowSetToOutputRowSets( IRowSet rowSet ) {
     outputRowSetsLock.writeLock().lock();
     try {
       outputRowSets.add( rowSet );
@@ -3093,7 +3093,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * @param outputRowSets The outputRowSets to set.
    */
-  public void setOutputRowSets( List<RowSet> outputRowSets ) {
+  public void setOutputRowSets( List<IRowSet> outputRowSets ) {
     outputRowSetsLock.writeLock().lock();
     try {
       this.outputRowSets = outputRowSets;
@@ -3119,30 +3119,30 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#addRowListener(org.apache.hop.pipeline.transform.RowListener)
+   * @see org.apache.hop.pipeline.transform.ITransform#addRowListener(org.apache.hop.pipeline.transform.IRowListener)
    */
   @Override
-  public void addRowListener( RowListener rowListener ) {
+  public void addRowListener( IRowListener rowListener ) {
     rowListeners.add( rowListener );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#removeRowListener(org.apache.hop.pipeline.transform.RowListener)
+   * @see org.apache.hop.pipeline.transform.ITransform#removeRowListener(org.apache.hop.pipeline.transform.IRowListener)
    */
   @Override
-  public void removeRowListener( RowListener rowListener ) {
+  public void removeRowListener( IRowListener rowListener ) {
     rowListeners.remove( rowListener );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getRowListeners()
+   * @see org.apache.hop.pipeline.transform.ITransform#getRowListeners()
    */
   @Override
-  public List<RowListener> getRowListeners() {
+  public List<IRowListener> getRowListeners() {
     return Collections.unmodifiableList( rowListeners );
   }
 
@@ -3164,7 +3164,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getResultFiles()
+   * @see org.apache.hop.pipeline.transform.ITransform#getResultFiles()
    */
   @Override
   public Map<String, ResultFile> getResultFiles() {
@@ -3180,7 +3180,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getStatus()
+   * @see org.apache.hop.pipeline.transform.ITransform#getStatus()
    */
   @Override
   public TransformExecutionStatus getStatus() {
@@ -3216,9 +3216,9 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         if ( isStopped() ) {
           return TransformExecutionStatus.STATUS_STOPPED;
         } else {
-          // To be sure (race conditions and all), get the rest in TransformDataInterface object:
+          // To be sure (race conditions and all), get the rest in ITransformData object:
           //
-          TransformDataInterface sdi = pipeline.getTransformDataInterface( transformName, copyNr );
+          ITransformData sdi = pipeline.getTransformDataInterface( transformName, copyNr );
           if ( sdi != null ) {
             if ( sdi.getStatus() == TransformExecutionStatus.STATUS_DISPOSED ) {
               return TransformExecutionStatus.STATUS_FINISHED;
@@ -3308,59 +3308,59 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getInputRowMeta() {
+  public IRowMeta getInputRowMeta() {
     return inputRowMeta;
   }
 
   /**
    * @param rowMeta the rowMeta to set
    */
-  public void setInputRowMeta( RowMetaInterface rowMeta ) {
+  public void setInputRowMeta( IRowMeta rowMeta ) {
     this.inputRowMeta = rowMeta;
   }
 
   /**
    * @return the errorRowMeta
    */
-  public RowMetaInterface getErrorRowMeta() {
+  public IRowMeta getErrorRowMeta() {
     return errorRowMeta;
   }
 
   /**
    * @param errorRowMeta the errorRowMeta to set
    */
-  public void setErrorRowMeta( RowMetaInterface errorRowMeta ) {
+  public void setErrorRowMeta( IRowMeta errorRowMeta ) {
     this.errorRowMeta = errorRowMeta;
   }
 
   /**
    * @return the previewRowMeta
    */
-  public RowMetaInterface getPreviewRowMeta() {
+  public IRowMeta getPreviewRowMeta() {
     return previewRowMeta;
   }
 
   /**
    * @param previewRowMeta the previewRowMeta to set
    */
-  public void setPreviewRowMeta( RowMetaInterface previewRowMeta ) {
+  public void setPreviewRowMeta( IRowMeta previewRowMeta ) {
     this.previewRowMeta = previewRowMeta;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#copyVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#copyVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String)
    */
   @Override
   public String environmentSubstitute( String aString ) {
@@ -3370,7 +3370,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String[])
+   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override
   public String[] environmentSubstitute( String[] aString ) {
@@ -3378,7 +3378,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
@@ -3386,10 +3386,10 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getParentVariableSpace()
+   * @see org.apache.hop.core.variables.IVariables#getParentVariableSpace()
    */
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
@@ -3397,17 +3397,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#setParentVariableSpace(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String, java.lang.String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -3417,7 +3417,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -3427,7 +3427,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see org.apache.hop.core.variables.IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
   public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
@@ -3444,17 +3444,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.variables.IVariables#initializeVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#listVariables()
+   * @see org.apache.hop.core.variables.IVariables#listVariables()
    */
   @Override
   public String[] listVariables() {
@@ -3464,7 +3464,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#setVariable(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.variables.IVariables#setVariable(java.lang.String, java.lang.String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -3474,17 +3474,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#shareVariablesWith(org.apache.hop.core.variables.VariableSpace)
+   * @see org.apache.hop.core.variables.IVariables#shareVariablesWith(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.VariableSpace#injectVariables(java.util.Map)
+   * @see org.apache.hop.core.variables.IVariables#injectVariables(java.util.Map)
    */
   @Override
   public void injectVariables( Map<String, String> prop ) {
@@ -3527,7 +3527,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    *
    * @return the transformListeners
    */
-  public List<TransformListener> getTransformListeners() {
+  public List<ITransformListener> getTransformListeners() {
     return transformListeners;
   }
 
@@ -3536,15 +3536,15 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
    *
    * @param transformListeners the transformListeners to set
    */
-  public void setTransformListeners( List<TransformListener> transformListeners ) {
+  public void setTransformListeners( List<ITransformListener> transformListeners ) {
     this.transformListeners = Collections.synchronizedList( transformListeners );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#processRow(org.apache.hop.pipeline.transform.TransformMetaInterface,
-   * org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see org.apache.hop.pipeline.transform.ITransform#processRow(org.apache.hop.pipeline.transform.ITransformMeta,
+   * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override public boolean processRow( Meta smi, Data sdi ) throws HopException {
     return false;
@@ -3553,7 +3553,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#canProcessOneRow()
+   * @see org.apache.hop.pipeline.transform.ITransform#canProcessOneRow()
    */
   @Override
   public boolean canProcessOneRow() {
@@ -3563,14 +3563,14 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
         case 0:
           return false;
         case 1:
-          RowSet set = inputRowSets.get( 0 );
+          IRowSet set = inputRowSets.get( 0 );
           if ( set.isDone() ) {
             return false;
           }
           return set.size() > 0;
         default:
           boolean allDone = true;
-          for ( RowSet rowSet : inputRowSets ) {
+          for ( IRowSet rowSet : inputRowSets ) {
             if ( !rowSet.isDone() ) {
               allDone = false;
             }
@@ -3586,7 +3586,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   }
 
   @Override
-  public void addTransformListener( TransformListener transformListener ) {
+  public void addTransformListener( ITransformListener transformListener ) {
     transformListeners.add( transformListener );
   }
 
@@ -3616,7 +3616,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectName()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectName()
    */
   @Override
   public String getObjectName() {
@@ -3626,10 +3626,10 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#getLogChannel()
+   * @see org.apache.hop.pipeline.transform.ITransform#getLogChannel()
    */
   @Override
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -3664,7 +3664,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getFilename()
+   * @see org.apache.hop.core.logging.ILoggingObject#getFilename()
    */
   @Override
   public String getFilename() {
@@ -3674,7 +3674,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogChannelId()
+   * @see org.apache.hop.core.logging.ILoggingObject#getLogChannelId()
    */
   @Override
   public String getLogChannelId() {
@@ -3684,7 +3684,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectType()
    */
   @Override
   public LoggingObjectType getObjectType() {
@@ -3694,17 +3694,17 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getParent()
+   * @see org.apache.hop.core.logging.ILoggingObject#getParent()
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return pipeline;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectCopy()
+   * @see org.apache.hop.core.logging.ILoggingObject#getObjectCopy()
    */
   @Override
   public String getObjectCopy() {
@@ -3714,7 +3714,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogLevel()
+   * @see org.apache.hop.core.logging.ILoggingObject#getLogLevel()
    */
   @Override
   public LogLevel getLogLevel() {
@@ -3767,7 +3767,7 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformInterface#batchComplete()
+   * @see org.apache.hop.pipeline.transform.ITransform#batchComplete()
    */
   @Override
   public void batchComplete() throws HopException {
@@ -3842,25 +3842,25 @@ public class BaseTransform<Meta extends TransformMetaInterface, Data extends Tra
     return extensionDataMap;
   }
 
-  private class DefaultRowHandler implements RowHandler {
+  private class DefaultRowHandler implements IRowHandler {
     @Override public Object[] getRow() throws HopException {
       return handleGetRow();
     }
 
-    @Override public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    @Override public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       handlePutRow( rowMeta, row );
     }
 
-    @Override public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+    @Override public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                                     String fieldNames, String errorCodes ) throws HopTransformException {
       handlePutError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
     }
 
-    @Override public Object[] getRowFrom( RowSet rowSet ) throws HopTransformException {
+    @Override public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
       return handleGetRowFrom( rowSet );
     }
 
-    @Override public void putRowTo( RowMetaInterface rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+    @Override public void putRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
       handlePutRowTo( rowMeta, row, rowSet );
     }
 

@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.base;
 
-import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.core.xml.IXml;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.hop.core.xml.XMLInterface;
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseHopMeta<T> implements Cloneable, XMLInterface {
+public abstract class BaseHopMeta<T> implements Cloneable, IXml {
   public static final String XML_TAG = "hop";
 
   public boolean split = false;

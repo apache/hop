@@ -23,9 +23,9 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Props;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
@@ -46,16 +46,16 @@ public class PreviewRowsDialogTest {
   @Test
   public void getDataForRow() throws Exception {
 
-    RowMetaInterface rowMetaInterface = Mockito.mock( RowMetaInterface.class );
-    Mockito.when( rowMetaInterface.size() ).thenReturn( 3 );
-    Mockito.when( rowMetaInterface.getValueMeta( Mockito.anyInt() ) ).thenReturn( Mockito.mock( ValueMetaInterface.class ) );
+    IRowMeta iRowMeta = Mockito.mock( IRowMeta.class );
+    Mockito.when( iRowMeta.size() ).thenReturn( 3 );
+    Mockito.when( iRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( Mockito.mock( IValueMeta.class ) );
 
     Field propsField = Props.class.getDeclaredField( "props" );
     propsField.setAccessible( true );
     propsField.set( PropsUI.class, Mockito.mock( PropsUI.class ) );
 
-    PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( Mockito.mock( Shell.class ), Mockito.mock( VariableSpace.class ), SWT.None, "test",
-      rowMetaInterface, Collections.emptyList() );
+    PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( Mockito.mock( Shell.class ), Mockito.mock( IVariables.class ), SWT.None, "test",
+      iRowMeta, Collections.emptyList() );
 
     //run without NPE
     int actualResult = previewRowsDialog.getDataForRow( Mockito.mock( TableItem.class ), null );

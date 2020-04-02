@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.exceloutput;
 import junit.framework.Assert;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
@@ -55,7 +55,7 @@ public class ExcelOutputTemplateTest {
     helper =
       new TransformMockHelper<ExcelOutputMeta, ExcelOutputData>( "ExcelOutputTest", ExcelOutputMeta.class,
         ExcelOutputData.class );
-    when( helper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.logChannelInterface );
     when( helper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -68,7 +68,7 @@ public class ExcelOutputTemplateTest {
   @Test
   public void testExceptionClosingWorkbook() throws Exception {
     ExcelOutput excelOutput =
-      new ExcelOutput( helper.transformMeta, helper.transformDataInterface, 0, helper.pipelineMeta, helper.pipeline );
+      new ExcelOutput( helper.transformMeta, helper.iTransformData, 0, helper.pipelineMeta, helper.pipeline );
     ExcelOutputMeta meta = createTransformMeta();
     excelOutput.init( meta, helper.initTransformDataInterface );
     Assert.assertEquals( "Transform init error.", 0, excelOutput.getErrors() );

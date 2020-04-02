@@ -27,8 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingData.PROC_MODE;
@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingDat
 import java.util.Arrays;
 import java.util.List;
 
-public class ReservoirSampling extends BaseTransform implements TransformInterface {
+public class ReservoirSampling extends BaseTransform implements ITransform {
 
   private ReservoirSamplingMeta m_meta;
   private ReservoirSamplingData m_data;
@@ -55,25 +55,25 @@ public class ReservoirSampling extends BaseTransform implements TransformInterfa
    * 1985. Pages 37-57.
    *
    * @param transformMeta          holds the transform's meta data
-   * @param transformDataInterface holds the transform's temporary data
+   * @param iTransformData holds the transform's temporary data
    * @param copyNr            the number assigned to the transform
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
    */
-  public ReservoirSampling( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public ReservoirSampling( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Process an incoming row of data.
    *
    * @param smi a <code>TransformMetaInterface</code> value
-   * @param sdi a <code>TransformDataInterface</code> value
+   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     if ( m_data.getProcessingMode() == PROC_MODE.DISABLED ) {
       setOutputDone();
@@ -158,10 +158,10 @@ public class ReservoirSampling extends BaseTransform implements TransformInterfa
    * Initialize the transform.
    *
    * @param smi a <code>TransformMetaInterface</code> value
-   * @param sdi a <code>TransformDataInterface</code> value
+   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     m_meta = (ReservoirSamplingMeta) smi;
     m_data = (ReservoirSamplingData) sdi;
 

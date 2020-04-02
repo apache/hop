@@ -25,14 +25,14 @@ package org.apache.hop.core.database.util;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.logging.ILogTableCore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DatabaseLogExceptionFactoryTest {
 
-  private LogTableCoreInterface logTable;
+  private ILogTableCore logTable;
   private static final String SUPPRESSABLE = "org.apache.hop.core.database.util.DatabaseLogExceptionFactory$SuppressBehaviour";
   private static final String THROWABLE = "org.apache.hop.core.database.util.DatabaseLogExceptionFactory$ThrowableBehaviour";
   private static final String
@@ -41,7 +41,7 @@ public class DatabaseLogExceptionFactoryTest {
   private static final String PROPERTY_VALUE_TRUE = "Y";
 
   @Before public void setUp() {
-    logTable = mock( LogTableCoreInterface.class );
+    logTable = mock( ILogTableCore.class );
     System.clearProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME );
   }
 
@@ -50,20 +50,20 @@ public class DatabaseLogExceptionFactoryTest {
   }
 
   @Test public void testGetExceptionStrategyWithoutException() {
-    LogExceptionBehaviourInterface exceptionStrategy = DatabaseLogExceptionFactory.getExceptionStrategy( logTable );
+    ILogExceptionBehaviour exceptionStrategy = DatabaseLogExceptionFactory.getExceptionStrategy( logTable );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( SUPPRESSABLE, strategyName );
   }
 
   @Test public void testGetExceptionStrategyWithoutExceptionPropSetY() {
     System.setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME, PROPERTY_VALUE_TRUE );
-    LogExceptionBehaviourInterface exceptionStrategy = DatabaseLogExceptionFactory.getExceptionStrategy( logTable );
+    ILogExceptionBehaviour exceptionStrategy = DatabaseLogExceptionFactory.getExceptionStrategy( logTable );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( THROWABLE, strategyName );
   }
 
   @Test public void testExceptionStrategyWithException() {
-    LogExceptionBehaviourInterface
+    ILogExceptionBehaviour
       exceptionStrategy =
       DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new Exception() );
     String strategyName = exceptionStrategy.getClass().getName();
@@ -72,7 +72,7 @@ public class DatabaseLogExceptionFactoryTest {
 
   @Test public void testGetExceptionStrategyWithExceptionPropSetY() {
     System.setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME, PROPERTY_VALUE_TRUE );
-    LogExceptionBehaviourInterface
+    ILogExceptionBehaviour
       exceptionStrategy =
       DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new Exception() );
     String strategyName = exceptionStrategy.getClass().getName();

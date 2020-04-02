@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformInjectionUtil;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -128,7 +128,7 @@ public class TextFileInputMetaInjectionTest {
     List<TransformInjectionMetaEntry> result = new ArrayList<TransformInjectionMetaEntry>( entries.length );
     for ( TextFileInputMetaInjection.Entry entry : entries ) {
       TransformInjectionMetaEntry injectionEntry = TransformInjectionUtil.getEntry( entry );
-      if ( entry.getValueType() != ValueMetaInterface.TYPE_NONE ) {
+      if ( entry.getValueType() != IValueMeta.TYPE_NONE ) {
         injectionEntry.setValue( generators.get( entry ).generateValue() );
       }
       result.add( injectionEntry );

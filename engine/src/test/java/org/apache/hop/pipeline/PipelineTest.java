@@ -30,16 +30,16 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.TransformLogTable;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.junit.Before;
@@ -81,8 +81,8 @@ import static org.mockito.Mockito.when;
 @RunWith( MockitoJUnitRunner.class )
 public class PipelineTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  @Mock private TransformInterface transformMock, transformMock2;
-  @Mock private TransformDataInterface data, data2;
+  @Mock private ITransform transformMock, transformMock2;
+  @Mock private ITransformData data, data2;
   @Mock private TransformMeta transformMeta, transformMeta2;
   @Mock private PipelineMeta pipelineMeta;
 
@@ -101,7 +101,7 @@ public class PipelineTest {
   public void beforeTest() throws HopException {
     meta = new PipelineMeta();
     pipeline = new Pipeline( meta );
-    pipeline.setLog( Mockito.mock( LogChannelInterface.class ) );
+    pipeline.setLog( Mockito.mock( ILogChannel.class ) );
     pipeline.prepareExecution();
     pipeline.startThreads();
   }
@@ -205,7 +205,7 @@ public class PipelineTest {
     Pipeline pipeline = mock( Pipeline.class );
 
     TransformLogTable transformLogTable =
-      TransformLogTable.getDefault( mock( VariableSpace.class ), mock( IMetaStore.class ) );
+      TransformLogTable.getDefault( mock( IVariables.class ), mock( IMetaStore.class ) );
     transformLogTable.setConnectionName( "connection" );
 
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -224,7 +224,7 @@ public class PipelineTest {
   @Test
   public void testFirePipelineFinishedListeners() throws Exception {
     Pipeline pipeline = new Pipeline();
-    ExecutionListener mockListener = mock( ExecutionListener.class );
+    IExecutionListener mockListener = mock( IExecutionListener.class );
     pipeline.setExecutionListeners( Collections.singletonList( mockListener ) );
 
     pipeline.firePipelineFinishedListeners();
@@ -235,7 +235,7 @@ public class PipelineTest {
   @Test( expected = HopException.class )
   public void testFirePipelineFinishedListenersExceptionOnPipelineFinished() throws Exception {
     Pipeline pipeline = new Pipeline();
-    ExecutionListener mockListener = mock( ExecutionListener.class );
+    IExecutionListener mockListener = mock( IExecutionListener.class );
     doThrow( HopException.class ).when( mockListener ).finished( pipeline );
     pipeline.setExecutionListeners( Collections.singletonList( mockListener ) );
 
@@ -290,14 +290,14 @@ public class PipelineTest {
     verifyStopped( transformMock2, 0 );
   }
 
-  private void verifyStopped( TransformInterface transform, int numberTimesCalled ) throws HopException {
+  private void verifyStopped( ITransform transform, int numberTimesCalled ) throws HopException {
     verify( transform, times( numberTimesCalled ) ).setStopped( true );
     verify( transform, times( numberTimesCalled ) ).setSafeStopped( true );
     verify( transform, times( numberTimesCalled ) ).resumeRunning();
     verify( transform, times( numberTimesCalled ) ).stopRunning( any(), any() );
   }
 
-  private TransformMetaDataCombi combi( TransformInterface transform, TransformDataInterface data, TransformMeta transformMeta ) {
+  private TransformMetaDataCombi combi( ITransform transform, ITransformData data, TransformMeta transformMeta ) {
     TransformMetaDataCombi transformMetaDataCombi = new TransformMetaDataCombi();
     transformMetaDataCombi.transform = transform;
     transformMetaDataCombi.data = data;
@@ -435,7 +435,7 @@ public class PipelineTest {
     }
   }
 
-  private final ExecutionListener<PipelineMeta> listener = new ExecutionListener<PipelineMeta>() {
+  private final IExecutionListener<PipelineMeta> listener = new IExecutionListener<PipelineMeta>() {
     @Override
     public void started( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     }
@@ -449,7 +449,7 @@ public class PipelineTest {
     }
   };
 
-  private final PipelineStoppedListener pipelineStoppedListener = new PipelineStoppedListener() {
+  private final IPipelineStoppedListener pipelineStoppedListener = new IPipelineStoppedListener() {
     @Override
     public void pipelineStopped( Pipeline pipeline ) {
     }

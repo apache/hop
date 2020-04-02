@@ -32,16 +32,16 @@ import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
-import org.apache.hop.core.ExecutorInterface;
-import org.apache.hop.core.ExtensionDataInterface;
+import org.apache.hop.core.IExecutor;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.DatabaseTransactionListener;
+import org.apache.hop.core.database.IDatabaseTransaction;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -52,15 +52,15 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LoggingHierarchy;
 import org.apache.hop.core.logging.LoggingMetric;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
@@ -70,33 +70,33 @@ import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
 import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.metrics.MetricsDuration;
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformListener;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformListener;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
@@ -166,8 +166,8 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
  * @since 07-04-2003
  */
 
-public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterface, LoggingObjectInterface,
-  ExecutorInterface, ExtensionDataInterface, IPipelineEngine<PipelineMeta> {
+public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
+  IExecutor, IExtensionData, IPipelineEngine<PipelineMeta> {
 
   public static final String METRIC_NAME_INPUT = "input";
   public static final String METRIC_NAME_OUTPUT = "output";
@@ -190,7 +190,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * The log channel interface.
    */
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   /**
    * The log level.
@@ -231,7 +231,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * The parent logging object interface (this could be a pipeline or a job).
    */
-  private LoggingObjectInterface parent;
+  private ILoggingObject parent;
 
   /**
    * The name of the mapping transform that executes this pipeline in case this is a mapping.
@@ -272,17 +272,17 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * The variable bindings for the pipeline.
    */
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   /**
    * A list of all the row sets.
    */
-  public List<RowSet> rowsets;
+  public List<IRowSet> rowsets;
 
   /**
    * A list of all the transforms.
    */
-  private List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms;
+  private List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
 
   /**
    * The class number.
@@ -429,17 +429,17 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * A list of listeners attached to the pipeline.
    */
-  private List<ExecutionListener<PipelineMeta>> executionListeners;
+  private List<IExecutionListener<PipelineMeta>> executionListeners;
 
   /**
    * A list of stop-event listeners attached to the pipeline.
    */
-  private List<PipelineStoppedListener> pipelineStoppedListeners;
+  private List<IPipelineStoppedListener> pipelineStoppedListeners;
 
   /**
    * In case this pipeline starts to delegate work to a local pipeline or job
    */
-  private List<DelegationListener> delegationListeners;
+  private List<IDelegationListener> delegationListeners;
 
   /**
    * The number of finished transforms.
@@ -454,7 +454,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * The named parameters.
    */
-  private NamedParams namedParams = new NamedParamsDefault();
+  private INamedParams namedParams = new NamedParamsDefault();
 
   /**
    * The socket repository.
@@ -596,7 +596,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param pipelineMeta the pipeline meta-data to use.
    * @param parent    the parent job that is executing this pipeline
    */
-  public Pipeline( PipelineMeta pipelineMeta, LoggingObjectInterface parent ) {
+  public Pipeline( PipelineMeta pipelineMeta, ILoggingObject parent ) {
     this();
 
     this.pipelineMeta = pipelineMeta;
@@ -625,7 +625,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param parent the new parent
    */
-  public void setParent( LoggingObjectInterface parent ) {
+  public void setParent( ILoggingObject parent ) {
     this.parent = parent;
 
     this.log = new LogChannel( this, parent );
@@ -665,10 +665,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the log channel interface for the pipeline.
    *
    * @return the log channel
-   * @see org.apache.hop.core.logging.HasLogChannelInterface#getLogChannel()
+   * @see IHasLogChannel#getLogChannel()
    */
   @Override
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -677,7 +677,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param log the new log channel interface
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 
@@ -704,7 +704,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param metaStore The MetaStore to use when referencing metadata objects
    * @throws HopException if any error occurs during loading, parsing, or creation of the pipeline
    */
-  public <Parent extends VariableSpace & NamedParams> Pipeline( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
+  public <Parent extends IVariables & INamedParams> Pipeline( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
     this();
 
     this.metaStore = metaStore;
@@ -880,7 +880,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         //
         if ( dispatchType != TYPE_DISP_N_M ) {
           for ( int c = 0; c < nrCopies; c++ ) {
-            RowSet rowSet;
+            IRowSet rowSet;
             switch ( pipelineMeta.getPipelineType() ) {
               case Normal:
                 // This is a temporary patch until the batching rowset has proven
@@ -986,11 +986,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
           combi.meta = transformMeta.getTransformMetaInterface();
 
           // Allocate the transform data
-          TransformDataInterface data = combi.meta.getTransformData();
+          ITransformData data = combi.meta.getTransformData();
           combi.data = data;
 
           // Allocate the transform
-          TransformInterface transform = combi.meta.createTransform( transformMeta, data, c, pipelineMeta, this );
+          ITransform transform = combi.meta.createTransform( transformMeta, data, c, pipelineMeta, this );
 
           // Copy the variables of the pipeline to the transform...
           // don't share. Each copy of the transform has its own variables.
@@ -1017,8 +1017,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
           // Pass logging level and metrics gathering down to the transform level.
           // /
-          if ( combi.transform instanceof LoggingObjectInterface ) {
-            LogChannelInterface logChannel = combi.transform.getLogChannel();
+          if ( combi.transform instanceof ILoggingObject ) {
+            ILogChannel logChannel = combi.transform.getLogChannel();
             logChannel.setLogLevel( logLevel );
             logChannel.setGatheringMetrics( log.isGatheringMetrics() );
           }
@@ -1072,7 +1072,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       TransformMetaDataCombi sid = transforms.get( i );
 
       TransformMeta transformMeta = sid.transformMeta;
-      TransformInterface baseTransform = sid.transform;
+      ITransform baseTransform = sid.transform;
 
       baseTransform.setPartitioned( transformMeta.isPartitioned() );
 
@@ -1266,15 +1266,15 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
       // also attach a Transform Listener to detect when we're done...
       //
-      TransformListener transformListener = new TransformListener() {
+      ITransformListener transformListener = new ITransformListener() {
         @Override
-        public void transformActive( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+        public void transformActive( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
           nrOfActiveTransforms++;
           if ( nrOfActiveTransforms == 1 ) {
             // Pipeline goes from in-active to active...
             // PDI-5229 sync added
             synchronized ( executionListeners ) {
-              for ( ExecutionListener listener : executionListeners ) {
+              for ( IExecutionListener listener : executionListeners ) {
                 listener.becameActive( Pipeline.this );
               }
             }
@@ -1282,7 +1282,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
         }
 
         @Override
-        public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+        public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
           synchronized ( Pipeline.this ) {
             nrOfFinishedTransforms++;
 
@@ -1360,7 +1360,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     pipelineFinishedBlockingQueue = new ArrayBlockingQueue<>( 10 );
 
-    ExecutionListener executionListener = new ExecutionAdapter<PipelineMeta>() {
+    IExecutionListener executionListener = new ExecutionAdapter<PipelineMeta>() {
       @Override
       public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
 
@@ -1429,7 +1429,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
           combi.transform.addTransformListener( new TransformAdapter() {
 
             @Override
-            public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, TransformInterface transform ) {
+            public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
               try {
                 ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformFinished.id, combi );
               } catch ( HopException e ) {
@@ -1478,7 +1478,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       }
       // prevent Exception from one listener to block others execution
       List<HopException> badGuys = new ArrayList<>( executionListeners.size() );
-      for ( ExecutionListener executionListener : executionListeners ) {
+      for ( IExecutionListener executionListener : executionListeners ) {
         try {
           executionListener.finished( this );
         } catch ( HopException e ) {
@@ -1504,7 +1504,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   protected void firePipelineStartedListeners() throws HopException {
     // PDI-5229 sync added
     synchronized ( executionListeners ) {
-      for ( ExecutionListener executionListener : executionListeners ) {
+      for ( IExecutionListener executionListener : executionListeners ) {
         executionListener.started( this );
       }
     }
@@ -1528,7 +1528,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       int seqNr = transformPerformanceSnapshotSeqNr.incrementAndGet();
       for ( int i = 0; i < transforms.size(); i++ ) {
         TransformMeta transformMeta = transforms.get( i ).transformMeta;
-        TransformInterface transform = transforms.get( i ).transform;
+        ITransform transform = transforms.get( i ).transform;
 
         PerformanceSnapShot snapShot =
           new PerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), transformMeta.getName(), transform.getCopy(),
@@ -1652,7 +1652,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transform = sid.transform;
+      ITransform transform = sid.transform;
 
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.LookingAtTransform" ) + transform.getTransformName() );
@@ -1669,7 +1669,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Finds the RowSet between two transforms (or copies of transforms).
+   * Finds the IRowSet between two transforms (or copies of transforms).
    *
    * @param from     the name of the "from" transform
    * @param fromcopy the copy number of the "from" transform
@@ -1677,10 +1677,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param tocopy   the copy number of the "to" transform
    * @return the row set, or null if none found
    */
-  public RowSet findRowSet( String from, int fromcopy, String to, int tocopy ) {
+  public IRowSet findRowSet( String from, int fromcopy, String to, int tocopy ) {
     // Start with the pipeline.
     for ( int i = 0; i < rowsets.size(); i++ ) {
-      RowSet rs = rowsets.get( i );
+      IRowSet rs = rowsets.get( i );
       if ( rs.getOriginTransformName().equalsIgnoreCase( from ) && rs.getDestinationTransformName().equalsIgnoreCase( to ) && rs
         .getOriginTransformCopy() == fromcopy && rs.getDestinationTransformCopy() == tocopy ) {
         return rs;
@@ -1746,7 +1746,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   public void stopTransform( TransformMetaDataCombi combi, boolean safeStop ) {
-    TransformInterface rt = combi.transform;
+    ITransform rt = combi.transform;
     rt.setStopped( true );
     rt.setSafeStopped( safeStop );
     rt.resumeRunning();
@@ -1766,7 +1766,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     // Fire the stopped listener...
     //
     synchronized ( pipelineStoppedListeners ) {
-      for ( PipelineStoppedListener listener : pipelineStoppedListeners ) {
+      for ( IPipelineStoppedListener listener : pipelineStoppedListeners ) {
         listener.pipelineStopped( this );
       }
     }
@@ -1851,9 +1851,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the run thread for the transform at the specified index.
    *
    * @param i the index of the desired transform
-   * @return a TransformInterface object corresponding to the run thread for the specified transform
+   * @return a ITransform object corresponding to the run thread for the specified transform
    */
-  public TransformInterface getRunThread( int i ) {
+  public ITransform getRunThread( int i ) {
     if ( transforms == null ) {
       return null;
     }
@@ -1865,16 +1865,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param name the transform name
    * @param copy the copy number
-   * @return a TransformInterface object corresponding to the run thread for the specified transform
+   * @return a ITransform object corresponding to the run thread for the specified transform
    */
-  public TransformInterface getRunThread( String name, int copy ) {
+  public ITransform getRunThread( String name, int copy ) {
     if ( transforms == null ) {
       return null;
     }
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transform = sid.transform;
+      ITransform transform = sid.transform;
       if ( transform.getTransformName().equalsIgnoreCase( name ) && transform.getCopy() == copy ) {
         return transform;
       }
@@ -2369,23 +2369,23 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
       List<String> logChannelIds = LoggingRegistry.getInstance().getLogChannelChildren( getLogChannelId() );
       for ( String logChannelId : logChannelIds ) {
-        Queue<MetricsSnapshotInterface> snapshotList =
+        Queue<IMetricsSnapshot> snapshotList =
           MetricsRegistry.getInstance().getSnapshotLists().get( logChannelId );
         if ( snapshotList != null ) {
-          Iterator<MetricsSnapshotInterface> iterator = snapshotList.iterator();
+          Iterator<IMetricsSnapshot> iterator = snapshotList.iterator();
           while ( iterator.hasNext() ) {
-            MetricsSnapshotInterface snapshot = iterator.next();
+            IMetricsSnapshot snapshot = iterator.next();
             db.writeLogRecord( metricsLogTable, LogStatus.START, new LoggingMetric( batchId, snapshot ), null );
           }
         }
 
-        Map<String, MetricsSnapshotInterface> snapshotMap =
+        Map<String, IMetricsSnapshot> snapshotMap =
           MetricsRegistry.getInstance().getSnapshotMaps().get( logChannelId );
         if ( snapshotMap != null ) {
           synchronized ( snapshotMap ) {
-            Iterator<MetricsSnapshotInterface> iterator = snapshotMap.values().iterator();
+            Iterator<IMetricsSnapshot> iterator = snapshotMap.values().iterator();
             while ( iterator.hasNext() ) {
-              MetricsSnapshotInterface snapshot = iterator.next();
+              IMetricsSnapshot snapshot = iterator.next();
               db.writeLogRecord( metricsLogTable, LogStatus.START, new LoggingMetric( batchId, snapshot ), null );
             }
           }
@@ -2431,7 +2431,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transform = sid.transform;
+      ITransform transform = sid.transform;
 
       result.setNrErrors( result.getNrErrors() + sid.transform.getErrors() );
       result.getResultFiles().putAll( transform.getResultFiles() );
@@ -2580,7 +2580,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
       // Write to the transform performance log table...
       //
-      RowMetaInterface rowMeta = performanceLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
+      IRowMeta rowMeta = performanceLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
       ldb.prepareInsert( rowMeta, performanceLogTable.getActualSchemaName(), performanceLogTable.getActualTableName() );
 
       synchronized ( transformPerformanceSnapShots ) {
@@ -2700,9 +2700,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
       // Who else needs to be informed of the rollback or commit?
       //
-      List<DatabaseTransactionListener> transactionListeners = map.getTransactionListeners( getTransactionId() );
+      List<IDatabaseTransaction> transactionListeners = map.getTransactionListeners( getTransactionId() );
       if ( result.getNrErrors() > 0 ) {
-        for ( DatabaseTransactionListener listener : transactionListeners ) {
+        for ( IDatabaseTransaction listener : transactionListeners ) {
           try {
             listener.rollback();
           } catch ( Exception e ) {
@@ -2712,7 +2712,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
           }
         }
       } else {
-        for ( DatabaseTransactionListener listener : transactionListeners ) {
+        for ( IDatabaseTransaction listener : transactionListeners ) {
           try {
             listener.commit();
           } catch ( Exception e ) {
@@ -2729,16 +2729,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Find the run thread for the transform with the specified name.
    *
    * @param transformName the transform name
-   * @return a TransformInterface object corresponding to the run thread for the specified transform
+   * @return a ITransform object corresponding to the run thread for the specified transform
    */
-  public TransformInterface findRunThread( String transformName ) {
+  public ITransform findRunThread( String transformName ) {
     if ( transforms == null ) {
       return null;
     }
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transform = sid.transform;
+      ITransform transform = sid.transform;
       if ( transform.getTransformName().equalsIgnoreCase( transformName ) ) {
         return transform;
       }
@@ -2752,8 +2752,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param transformName the transform name
    * @return the list of base transforms for the specified transform
    */
-  public List<TransformInterface> findBaseTransforms( String transformName ) {
-    List<TransformInterface> baseTransforms = new ArrayList<>();
+  public List<ITransform> findBaseTransforms( String transformName ) {
+    List<ITransform> baseTransforms = new ArrayList<>();
 
     if ( transforms == null ) {
       return baseTransforms;
@@ -2761,9 +2761,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transformInterface = sid.transform;
-      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) ) {
-        baseTransforms.add( transformInterface );
+      ITransform iTransform = sid.transform;
+      if ( iTransform.getTransformName().equalsIgnoreCase( transformName ) ) {
+        baseTransforms.add( iTransform );
       }
     }
     return baseTransforms;
@@ -2776,16 +2776,16 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param copyNr
    * @return the executing transform found or null if no copy could be found.
    */
-  public TransformInterface findTransformInterface( String transformName, int copyNr ) {
+  public ITransform findTransformInterface( String transformName, int copyNr ) {
     if ( transforms == null ) {
       return null;
     }
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transformInterface = sid.transform;
-      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) && sid.copy == copyNr ) {
-        return transformInterface;
+      ITransform iTransform = sid.transform;
+      if ( iTransform.getTransformName().equalsIgnoreCase( transformName ) && sid.copy == copyNr ) {
+        return iTransform;
       }
     }
     return null;
@@ -2797,18 +2797,18 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param transformName the transform name
    * @return the list of executing transform copies found or null if no transforms are available yet (incorrect usage)
    */
-  public List<TransformInterface> findTransformInterfaces( String transformName ) {
+  public List<ITransform> findTransformInterfaces( String transformName ) {
     if ( transforms == null ) {
       return null;
     }
 
-    List<TransformInterface> list = new ArrayList<>();
+    List<ITransform> list = new ArrayList<>();
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface transformInterface = sid.transform;
-      if ( transformInterface.getTransformName().equalsIgnoreCase( transformName ) ) {
-        list.add( transformInterface );
+      ITransform iTransform = sid.transform;
+      if ( iTransform.getTransformName().equalsIgnoreCase( transformName ) ) {
+        list.add( iTransform );
       }
     }
     return list;
@@ -2820,14 +2820,14 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param name the transform name
    * @return the transform data interface
    */
-  public TransformDataInterface findDataInterface( String name ) {
+  public ITransformData findDataInterface( String name ) {
     if ( transforms == null ) {
       return null;
     }
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      TransformInterface rt = sid.transform;
+      ITransform rt = sid.transform;
       if ( rt.getTransformName().equalsIgnoreCase( name ) ) {
         return sid.data;
       }
@@ -2921,7 +2921,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @return a list of rowsets
    */
-  public List<RowSet> getRowsets() {
+  public List<IRowSet> getRowsets() {
     return rowsets;
   }
 
@@ -2930,11 +2930,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @return a list of the transforms in the pipeline
    */
-  public List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> getTransforms() {
+  public List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> getTransforms() {
     return transforms;
   }
 
-  protected void setTransforms( List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> transforms ) {
+  protected void setTransforms( List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms ) {
     this.transforms = transforms;
   }
 
@@ -2986,7 +2986,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     // Look in threads and find the MappingInput transform thread...
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi smdc = transforms.get( i );
-      TransformInterface transform = smdc.transform;
+      ITransform transform = smdc.transform;
       if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingInput" ) ) {
         list.add( (MappingInput) transform );
       }
@@ -3006,7 +3006,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       // Look in threads and find the MappingInput transform thread...
       for ( int i = 0; i < transforms.size(); i++ ) {
         TransformMetaDataCombi smdc = transforms.get( i );
-        TransformInterface transform = smdc.transform;
+        ITransform transform = smdc.transform;
         if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingOutput" ) ) {
           list.add( (MappingOutput) transform );
         }
@@ -3016,13 +3016,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Find the TransformInterface (thread) by looking it up using the name.
+   * Find the ITransform (thread) by looking it up using the name.
    *
    * @param transformName The name of the transform to look for
    * @param copy     the copy number of the transform to look for
-   * @return the TransformInterface or null if nothing was found.
+   * @return the ITransform or null if nothing was found.
    */
-  public TransformInterface getTransformInterface( String transformName, int copy ) {
+  public ITransform getTransformInterface( String transformName, int copy ) {
     if ( transforms == null ) {
       return null;
     }
@@ -3068,13 +3068,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @see Pipeline#prepareExecution()
    */
   public RowProducer addRowProducer( String transformName, int copynr ) throws HopException {
-    TransformInterface transformInterface = getTransformInterface( transformName, copynr );
-    if ( transformInterface == null ) {
+    ITransform iTransform = getTransformInterface( transformName, copynr );
+    if ( iTransform == null ) {
       throw new HopException( "Unable to find thread with name " + transformName + " and copy number " + copynr );
     }
 
-    // We are going to add an extra RowSet to this transformInterface.
-    RowSet rowSet;
+    // We are going to add an extra IRowSet to this iTransform.
+    IRowSet rowSet;
     switch ( pipelineMeta.getPipelineType() ) {
       case Normal:
         rowSet = new BlockingRowSet( rowSetSize );
@@ -3087,9 +3087,9 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     }
 
     // Add this rowset to the list of active rowsets for the selected transform
-    transformInterface.addRowSetToInputRowSets( rowSet );
+    iTransform.addRowSetToInputRowSets( rowSet );
 
-    return new RowProducer( transformInterface, rowSet );
+    return new RowProducer( iTransform, rowSet );
   }
 
   /**
@@ -3115,13 +3115,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Finds the TransformDataInterface (currently) associated with the specified transform.
+   * Finds the ITransformData (currently) associated with the specified transform.
    *
    * @param transformName The name of the transform to look for
    * @param transformcopy The copy number (0 based) of the transform
-   * @return The TransformDataInterface or null if non found.
+   * @return The ITransformData or null if non found.
    */
-  public TransformDataInterface getTransformDataInterface( String transformName, int transformcopy ) {
+  public ITransformData getTransformDataInterface( String transformName, int transformcopy ) {
     if ( transforms == null ) {
       return null;
     }
@@ -3354,8 +3354,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
       vars.put( var, pipelineMeta.getVariable( var ) );
     }
 
-    executionConfiguration.getVariables().putAll( vars );
-    slaveServer.injectVariables( executionConfiguration.getVariables() );
+    executionConfiguration.getVariablesMap().putAll( vars );
+    slaveServer.injectVariables( executionConfiguration.getVariablesMap() );
 
     slaveServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
 
@@ -3452,7 +3452,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param var the new internal kettle variables
    */
-  public void setInternalHopVariables( VariableSpace var ) {
+  public void setInternalHopVariables( IVariables var ) {
     boolean hasFilename = pipelineMeta != null && !Utils.isEmpty( pipelineMeta.getFilename() );
     if ( hasFilename ) { // we have a finename that's defined.
       try {
@@ -3496,12 +3496,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * Copies variables from a given variable space to this pipeline.
    *
-   * @param space the variable space
-   * @see org.apache.hop.core.variables.VariableSpace#copyVariablesFrom(org.apache.hop.core.variables.VariableSpace)
+   * @param variables the variable space
+   * @see IVariables#copyVariablesFrom(IVariables)
    */
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   /**
@@ -3509,7 +3509,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param aString the string to resolve against environment variables
    * @return the string after variables have been resolved/susbstituted
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String)
+   * @see IVariables#environmentSubstitute(java.lang.String)
    */
   @Override
   public String environmentSubstitute( String aString ) {
@@ -3522,7 +3522,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param aString an array of strings to resolve against environment variables
    * @return the array of strings after variables have been resolved/susbstituted
-   * @see org.apache.hop.core.variables.VariableSpace#environmentSubstitute(java.lang.String[])
+   * @see IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override
   public String[] environmentSubstitute( String[] aString ) {
@@ -3530,7 +3530,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
@@ -3539,10 +3539,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the parent variable space.
    *
    * @return the parent variable space
-   * @see org.apache.hop.core.variables.VariableSpace#getParentVariableSpace()
+   * @see IVariables#getParentVariableSpace()
    */
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
@@ -3550,11 +3550,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Sets the parent variable space.
    *
    * @param parent the new parent variable space
-   * @see org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(
-   *org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#setParentVariableSpace(
+   *IVariables)
    */
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -3564,7 +3564,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param variableName the variable name
    * @param defaultValue the default value
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String, java.lang.String)
+   * @see IVariables#getVariable(java.lang.String, java.lang.String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -3576,7 +3576,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param variableName the variable name
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see org.apache.hop.core.variables.VariableSpace#getVariable(java.lang.String)
+   * @see IVariables#getVariable(java.lang.String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -3590,7 +3590,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param variableName the variable name
    * @param defaultValue the default value
    * @return a boolean representation of the specified variable after performing any necessary substitution
-   * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
   public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
@@ -3607,11 +3607,11 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Sets the values of the pipeline's variables to the values from the parent variables.
    *
    * @param parent the parent
-   * @see org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(
-   *org.apache.hop.core.variables.VariableSpace)
+   * @see IVariables#initializeVariablesFrom(
+   *IVariables)
    */
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -3619,7 +3619,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets a list of variable names for the pipeline.
    *
    * @return a list of variable names
-   * @see org.apache.hop.core.variables.VariableSpace#listVariables()
+   * @see IVariables#listVariables()
    */
   @Override
   public String[] listVariables() {
@@ -3631,7 +3631,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param variableName  the variable name
    * @param variableValue the variable value
-   * @see org.apache.hop.core.variables.VariableSpace#setVariable(java.lang.String, java.lang.String)
+   * @see IVariables#setVariable(java.lang.String, java.lang.String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -3642,21 +3642,21 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Shares a variable space from another variable space. This means that the object should take over the space used as
    * argument.
    *
-   * @param space the variable space
-   * @see org.apache.hop.core.variables.VariableSpace#shareVariablesWith(org.apache.hop.core.variables.VariableSpace)
+   * @param variables the variable space
+   * @see IVariables#shareVariablesWith(IVariables)
    */
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   /**
    * Injects variables using the given Map. The behavior should be that the properties object will be stored and at the
-   * time the VariableSpace is initialized (or upon calling this method if the space is already initialized). After
+   * time the IVariables is initialized (or upon calling this method if the space is already initialized). After
    * injecting the link of the properties object should be removed.
    *
    * @param prop the property map
-   * @see org.apache.hop.core.variables.VariableSpace#injectVariables(java.util.Map)
+   * @see IVariables#injectVariables(java.util.Map)
    */
   @Override
   public void injectVariables( Map<String, String> prop ) {
@@ -3725,7 +3725,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @return the executionListeners
    */
-  public List<ExecutionListener<PipelineMeta>> getExecutionListeners() {
+  public List<IExecutionListener<PipelineMeta>> getExecutionListeners() {
     return executionListeners;
   }
 
@@ -3734,7 +3734,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param executionListeners the executionListeners to set
    */
-  public void setExecutionListeners( List<ExecutionListener<PipelineMeta>> executionListeners ) {
+  public void setExecutionListeners( List<IExecutionListener<PipelineMeta>> executionListeners ) {
     this.executionListeners = Collections.synchronizedList( executionListeners );
   }
 
@@ -3743,7 +3743,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param executionListener the pipeline listener
    */
-  public void addPipelineListener( ExecutionListener executionListener ) {
+  public void addPipelineListener( IExecutionListener executionListener ) {
     // PDI-5229 sync added
     synchronized ( executionListeners ) {
       executionListeners.add( executionListener );
@@ -3755,7 +3755,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param pipelineStoppedListeners the list of stop-event listeners to set
    */
-  public void setPipelineStoppedListeners( List<PipelineStoppedListener> pipelineStoppedListeners ) {
+  public void setPipelineStoppedListeners( List<IPipelineStoppedListener> pipelineStoppedListeners ) {
     this.pipelineStoppedListeners = Collections.synchronizedList( pipelineStoppedListeners );
   }
 
@@ -3765,7 +3765,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @return the list of stop-event listeners
    */
-  public List<PipelineStoppedListener> getPipelineStoppedListeners() {
+  public List<IPipelineStoppedListener> getPipelineStoppedListeners() {
     return pipelineStoppedListeners;
   }
 
@@ -3774,7 +3774,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    *
    * @param pipelineStoppedListener the stop-event listener to add
    */
-  public void addPipelineStoppedListener( PipelineStoppedListener pipelineStoppedListener ) {
+  public void addPipelineStoppedListener( IPipelineStoppedListener pipelineStoppedListener ) {
     pipelineStoppedListeners.add( pipelineStoppedListener );
   }
 
@@ -3813,7 +3813,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param defValue    the default value for the parameter
    * @param description the description of the parameter
    * @throws DuplicateParamException the duplicate param exception
-   * @see org.apache.hop.core.parameters.NamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override
@@ -3827,7 +3827,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param key the name of the parameter
    * @return the default value of the parameter
    * @throws UnknownParamException if the parameter does not exist
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDefault(java.lang.String)
+   * @see INamedParams#getParameterDefault(java.lang.String)
    */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
@@ -3840,7 +3840,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param key the name of the parameter
    * @return the parameter description
    * @throws UnknownParamException if the parameter does not exist
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterDescription(java.lang.String)
+   * @see INamedParams#getParameterDescription(java.lang.String)
    */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
@@ -3853,7 +3853,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param key the name of the parameter
    * @return the parameter value
    * @throws UnknownParamException if the parameter does not exist
-   * @see org.apache.hop.core.parameters.NamedParams#getParameterValue(java.lang.String)
+   * @see INamedParams#getParameterValue(java.lang.String)
    */
   @Override
   public String getParameterValue( String key ) throws UnknownParamException {
@@ -3864,7 +3864,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets a list of the parameters for the pipeline.
    *
    * @return an array of strings containing the names of all parameters for the pipeline
-   * @see org.apache.hop.core.parameters.NamedParams#listParameters()
+   * @see INamedParams#listParameters()
    */
   @Override
   public String[] listParameters() {
@@ -3877,7 +3877,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * @param key   the name of the parameter
    * @param value the name of the value
    * @throws UnknownParamException if the parameter does not exist
-   * @see org.apache.hop.core.parameters.NamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see INamedParams#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override
   public void setParameterValue( String key, String value ) throws UnknownParamException {
@@ -3887,7 +3887,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * Remove all parameters.
    *
-   * @see org.apache.hop.core.parameters.NamedParams#eraseParameters()
+   * @see INamedParams#eraseParameters()
    */
   @Override
   public void eraseParameters() {
@@ -3897,7 +3897,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   /**
    * Clear the values of all parameters.
    *
-   * @see org.apache.hop.core.parameters.NamedParams#clearParameters()
+   * @see INamedParams#clearParameters()
    */
   @Override
   public void clearParameters() {
@@ -3909,7 +3909,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * parameter to the default value. If no default value exists, the method will set the value of the parameter to the
    * empty string ("").
    *
-   * @see org.apache.hop.core.parameters.NamedParams#activateParameters()
+   * @see INamedParams#activateParameters()
    */
   @Override
   public void activateParameters() {
@@ -3939,24 +3939,24 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   /**
-   * Copy parameters from a NamedParams object.
+   * Copy parameters from a INamedParams object.
    *
-   * @param params the NamedParams object from which to copy the parameters
-   * @see org.apache.hop.core.parameters.NamedParams#copyParametersFrom(org.apache.hop.core.parameters.NamedParams)
+   * @param params the INamedParams object from which to copy the parameters
+   * @see INamedParams#copyParametersFrom(INamedParams)
    */
   @Override
-  public void copyParametersFrom( NamedParams params ) {
+  public void copyParametersFrom( INamedParams params ) {
     namedParams.copyParametersFrom( params );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.NamedParams#mergeParametersWith(org.apache.hop.core.parameters.NamedParams,
+   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams,
    * boolean replace)
    */
   @Override
-  public void mergeParametersWith( NamedParams params, boolean replace ) {
+  public void mergeParametersWith( INamedParams params, boolean replace ) {
     namedParams.mergeParametersWith( params, replace );
   }
 
@@ -4022,7 +4022,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the object name.
    *
    * @return the object name
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectName()
+   * @see ILoggingObject#getObjectName()
    */
   @Override
   public String getObjectName() {
@@ -4033,7 +4033,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the object copy. For Pipeline, this always returns null
    *
    * @return null
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectCopy()
+   * @see ILoggingObject#getObjectCopy()
    */
   @Override
   public String getObjectCopy() {
@@ -4044,7 +4044,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the filename of the pipeline, or null if no filename exists
    *
    * @return the filename
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getFilename()
+   * @see ILoggingObject#getFilename()
    */
   @Override
   public String getFilename() {
@@ -4058,7 +4058,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the log channel ID.
    *
    * @return the log channel ID
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogChannelId()
+   * @see ILoggingObject#getLogChannelId()
    */
   @Override
   public String getLogChannelId() {
@@ -4070,7 +4070,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the object type. For Pipeline, this always returns LoggingObjectType.PIPELINE
    *
    * @return the object type
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
+   * @see ILoggingObject#getObjectType()
    */
   @Override
   public LoggingObjectType getObjectType() {
@@ -4081,10 +4081,10 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the parent logging object interface.
    *
    * @return the parent
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getParent()
+   * @see ILoggingObject#getParent()
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parent;
   }
 
@@ -4092,7 +4092,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
    * Gets the log level.
    *
    * @return the log level
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getLogLevel()
+   * @see ILoggingObject#getLogLevel()
    */
   @Override
   public LogLevel getLogLevel() {
@@ -4118,7 +4118,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     List<LoggingHierarchy> hierarchy = new ArrayList<>();
     List<String> childIds = LoggingRegistry.getInstance().getLogChannelChildren( getLogChannelId() );
     for ( String childId : childIds ) {
-      LoggingObjectInterface loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
+      ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
       if ( loggingObject != null ) {
         hierarchy.add( new LoggingHierarchy( getLogChannelId(), batchId, loggingObject ) );
       }
@@ -4316,8 +4316,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     errors.set( 0 );
     setFinished( false );
     for ( TransformMetaDataCombi combi : transforms ) {
-      TransformInterface<TransformMetaInterface, TransformDataInterface> transform = combi.transform;
-      for ( RowSet rowSet : transform.getInputRowSets() ) {
+      ITransform<ITransformMeta, ITransformData> transform = combi.transform;
+      for ( IRowSet rowSet : transform.getInputRowSets() ) {
         rowSet.clear();
       }
       transform.setStopped( false );
@@ -4408,15 +4408,15 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     return servletRequest;
   }
 
-  public List<DelegationListener> getDelegationListeners() {
+  public List<IDelegationListener> getDelegationListeners() {
     return delegationListeners;
   }
 
-  public void setDelegationListeners( List<DelegationListener> delegationListeners ) {
+  public void setDelegationListeners( List<IDelegationListener> delegationListeners ) {
     this.delegationListeners = delegationListeners;
   }
 
-  public void addDelegationListener( DelegationListener delegationListener ) {
+  public void addDelegationListener( IDelegationListener delegationListener ) {
     delegationListeners.add( delegationListener );
   }
 
@@ -4586,8 +4586,8 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
     metrics.setEndDate( getEndDate() );
     if ( transforms != null ) {
       synchronized ( transforms ) {
-        for ( TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface> combi : transforms ) {
-          TransformInterface<TransformMetaInterface, TransformDataInterface> transform = combi.transform;
+        for ( TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData> combi : transforms ) {
+          ITransform<ITransformMeta, ITransformData> transform = combi.transform;
 
           boolean collect = true;
           if ( copyNr >= 0 ) {
@@ -4610,12 +4610,12 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
             metrics.setComponentMetric( combi.transform, METRIC_ERROR, combi.transform.getErrors() );
 
             long inputBufferSize = 0;
-            for ( RowSet rowSet : transform.getInputRowSets() ) {
+            for ( IRowSet rowSet : transform.getInputRowSets() ) {
               inputBufferSize += rowSet.size();
             }
             metrics.setComponentMetric( combi.transform, METRIC_BUFFER_IN, inputBufferSize );
             long outputBufferSize = 0;
-            for ( RowSet rowSet : transform.getOutputRowSets() ) {
+            for ( IRowSet rowSet : transform.getOutputRowSets() ) {
               outputBufferSize += rowSet.size();
             }
             metrics.setComponentMetric( combi.transform, METRIC_BUFFER_OUT, outputBufferSize );
@@ -4663,7 +4663,7 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
 
   @Override
   public String getComponentLogText( String componentName, int copyNr ) {
-    TransformInterface transform = findTransformInterface( componentName, copyNr );
+    ITransform transform = findTransformInterface( componentName, copyNr );
     if ( transform == null ) {
       return null;
     }
@@ -4735,13 +4735,13 @@ public class Pipeline implements VariableSpace, NamedParams, HasLogChannelInterf
   }
 
   public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
-    TransformInterface transformInterface = findTransformInterface( componentName, copyNr );
-    if ( transformInterface ==null) {
+    ITransform iTransform = findTransformInterface( componentName, copyNr );
+    if ( iTransform ==null) {
       throw new HopException( "Unable to find transform '"+componentName+"', copy "+copyNr+" to retrieve output rows from" );
     }
     RowBuffer rowBuffer = new RowBuffer( pipelineMeta.getTransformFields( componentName ) );
-    transformInterface.addRowListener( new RowAdapter() {
-      @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    iTransform.addRowListener( new RowAdapter() {
+      @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         if (rowBuffer.getBuffer().size()<nrRows) {
           rowBuffer.getBuffer().add( row );
           if ( rowBuffer.getBuffer().size() >= nrRows ) {

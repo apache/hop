@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,19 +47,19 @@ public class LabelTextVar extends Composite {
   private Label wLabel;
   private TextVar wText;
 
-  public LabelTextVar( VariableSpace space, Composite composite, String labelText, String toolTipText ) {
-    this( space, composite, SWT.NONE, labelText, toolTipText );
+  public LabelTextVar( IVariables variables, Composite composite, String labelText, String toolTipText ) {
+    this( variables, composite, SWT.NONE, labelText, toolTipText );
   }
 
-  public LabelTextVar( VariableSpace space, Composite composite, String labelText, String toolTipText, boolean passwordField ) {
-    this( space, composite, SWT.NONE, labelText, toolTipText, passwordField );
+  public LabelTextVar( IVariables variables, Composite composite, String labelText, String toolTipText, boolean passwordField ) {
+    this( variables, composite, SWT.NONE, labelText, toolTipText, passwordField );
   }
 
-  public LabelTextVar( VariableSpace space, Composite composite, int flags, String labelText, String toolTipText ) {
-    this( space, composite, flags, labelText, toolTipText, false );
+  public LabelTextVar( IVariables variables, Composite composite, int flags, String labelText, String toolTipText ) {
+    this( variables, composite, flags, labelText, toolTipText, false );
   }
 
-  public LabelTextVar( VariableSpace space, Composite composite, int flags, String labelText, String toolTipText,
+  public LabelTextVar( IVariables variables, Composite composite, int flags, String labelText, String toolTipText,
                        boolean passwordField ) {
     super( composite, SWT.NONE );
     props.setLook( this );
@@ -81,9 +81,9 @@ public class LabelTextVar extends Composite {
     }
 
     if ( passwordField ) {
-      wText = new PasswordTextVar( space, this, textFlags, toolTipText );
+      wText = new PasswordTextVar( variables, this, textFlags, toolTipText );
     } else {
-      wText = new TextVar( space, this, textFlags, toolTipText );
+      wText = new TextVar( variables, this, textFlags, toolTipText );
     }
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( middle, margin );

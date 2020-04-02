@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.valuemapper;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.valuemapper.ValueMapperMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ValueMapperDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ValueMapperDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;
@@ -290,7 +290,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements TransformD
         String fieldname = wFieldname.getText();
 
         wFieldname.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wFieldname.setItems( r.getFieldNames() );
           if ( fieldname != null ) {

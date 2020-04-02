@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.ods;
 
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.Utils;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
@@ -30,7 +30,7 @@ import org.odftoolkit.odfdom.doc.table.OdfTableCell;
 import java.sql.Date;
 import java.util.TimeZone;
 
-public class OdfCell implements KCell {
+public class OdfCell implements IKCell {
 
   public static String TYPE_BOOLEAN = "boolean";
   public static String TYPE_CURRENCY = "currency";

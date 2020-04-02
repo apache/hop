@@ -26,11 +26,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
- * Utility class to allow only certain methods of ExecutionListener to be overridden.
+ * Utility class to allow only certain methods of IExecutionListener to be overridden.
  *
  * @author matt
  */
-public class ExecutionAdapter<T> implements ExecutionListener<T> {
+public class ExecutionAdapter<T> implements IExecutionListener<T> {
 
   @Override public void started( IPipelineEngine<T> engine ) throws HopException {
 

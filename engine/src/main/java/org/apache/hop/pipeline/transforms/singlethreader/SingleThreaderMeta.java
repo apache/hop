@@ -24,27 +24,27 @@ package org.apache.hop.pipeline.transforms.singlethreader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ import java.util.List;
 
 public class SingleThreaderMeta
   extends TransformWithMappingMeta<SingleThreader, SingleThreaderData>
-  implements TransformMetaInterface<SingleThreader, SingleThreaderData>, ISubPipelineAwareMeta {
+  implements ITransformMeta<SingleThreader, SingleThreaderData>, ISubPipelineAwareMeta {
 
   private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -166,8 +166,8 @@ public class SingleThreaderMeta
     parameterValues = new String[ 0 ];
   }
 
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // First load some interesting data...
     //
@@ -175,7 +175,7 @@ public class SingleThreaderMeta
     //
     PipelineMeta mappingPipelineMeta = null;
     try {
-      mappingPipelineMeta = loadSingleThreadedPipelineMeta( this, space );
+      mappingPipelineMeta = loadSingleThreadedPipelineMeta( this, variables );
     } catch ( HopException e ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "SingleThreaderMeta.Exception.UnableToLoadMappingPipeline" ), e );
@@ -185,35 +185,35 @@ public class SingleThreaderMeta
 
     // Let's keep it simple!
     //
-    if ( !Utils.isEmpty( space.environmentSubstitute( retrieveTransform ) ) ) {
-      RowMetaInterface transformFields = mappingPipelineMeta.getTransformFields( retrieveTransform );
+    if ( !Utils.isEmpty( variables.environmentSubstitute( retrieveTransform ) ) ) {
+      IRowMeta transformFields = mappingPipelineMeta.getTransformFields( retrieveTransform );
       row.addRowMeta( transformFields );
     }
   }
 
 
   public static final synchronized PipelineMeta loadSingleThreadedPipelineMeta( SingleThreaderMeta mappingMeta,
-                                                                                VariableSpace space ) throws HopException {
-    return loadMappingMeta( mappingMeta, null, space );
+                                                                                IVariables variables ) throws HopException {
+    return loadMappingMeta( mappingMeta, null, variables );
   }
 
   public static final synchronized PipelineMeta loadSingleThreadedPipelineMeta( SingleThreaderMeta mappingMeta,
-                                                                                VariableSpace space, boolean passingAllParameters ) throws HopException {
-    return loadMappingMeta( mappingMeta, null, space, passingAllParameters );
+                                                                                IVariables variables, boolean passingAllParameters ) throws HopException {
+    return loadMappingMeta( mappingMeta, null, variables, passingAllParameters );
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "SingleThreaderMeta.CheckResult.NotReceivingAnyFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SingleThreaderMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -221,21 +221,21 @@ public class SingleThreaderMeta
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SingleThreaderMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "SingleThreaderMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
 
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, SingleThreaderData transformDataInterface, int cnr, PipelineMeta tr,
-                                             Pipeline pipeline ) {
-    return new SingleThreader( transformMeta, transformDataInterface, cnr, tr, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, SingleThreaderData iTransformData, int cnr, PipelineMeta tr,
+                                     Pipeline pipeline ) {
+    return new SingleThreader( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public SingleThreaderData getTransformData() {
@@ -379,17 +379,17 @@ public class SingleThreaderMeta
    * Load the referenced object
    *
    * @param index the object index to load
-   * @param space the variable space to use
+   * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Deprecated
-  public Object loadReferencedObject( int index, VariableSpace space ) throws HopException {
-    return loadSingleThreadedPipelineMeta( this, space );
+  public Object loadReferencedObject( int index, IVariables variables ) throws HopException {
+    return loadSingleThreadedPipelineMeta( this, variables );
   }
 
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadMappingMeta( this, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+    return loadMappingMeta( this, metaStore, variables );
   }
 
   @Override

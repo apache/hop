@@ -31,21 +31,21 @@ import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -322,22 +322,22 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) {
     // Check compatibility mode
     boolean compatibilityMode = ValueMetaBase.convertStringToBoolean(
-      space.getVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N" ) );
+      variables.getVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N" ) );
 
     // re-assemble a new row of metadata
     //
-    RowMetaInterface fields = new RowMeta();
+    IRowMeta fields = new RowMeta();
 
     // Add the grouping fields in the correct order...
     //
     for ( int i = 0; i < groupField.length; i++ ) {
-      ValueMetaInterface valueMeta = r.searchValueMeta( groupField[ i ] );
+      IValueMeta valueMeta = r.searchValueMeta( groupField[ i ] );
       if ( valueMeta != null ) {
-        valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         fields.addValueMeta( valueMeta );
       }
     }
@@ -345,10 +345,10 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
     // Re-add aggregates
     //
     for ( int i = 0; i < subjectField.length; i++ ) {
-      ValueMetaInterface subj = r.searchValueMeta( subjectField[ i ] );
+      IValueMeta subj = r.searchValueMeta( subjectField[ i ] );
       if ( subj != null || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
         String value_name = aggregateField[ i ];
-        int value_type = ValueMetaInterface.TYPE_NONE;
+        int value_type = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
@@ -364,26 +364,26 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
           case TYPE_GROUP_COUNT_DISTINCT:
           case TYPE_GROUP_COUNT_ALL:
           case TYPE_GROUP_COUNT_ANY:
-            value_type = ValueMetaInterface.TYPE_INTEGER;
+            value_type = IValueMeta.TYPE_INTEGER;
             break;
           case TYPE_GROUP_CONCAT_COMMA:
-            value_type = ValueMetaInterface.TYPE_STRING;
+            value_type = IValueMeta.TYPE_STRING;
             break;
           case TYPE_GROUP_SUM:
           case TYPE_GROUP_AVERAGE:
             if ( !compatibilityMode && subj.isNumeric() ) {
               value_type = subj.getType();
             } else {
-              value_type = ValueMetaInterface.TYPE_NUMBER;
+              value_type = IValueMeta.TYPE_NUMBER;
             }
             break;
           case TYPE_GROUP_MEDIAN:
           case TYPE_GROUP_PERCENTILE:
           case TYPE_GROUP_STANDARD_DEVIATION:
-            value_type = ValueMetaInterface.TYPE_NUMBER;
+            value_type = IValueMeta.TYPE_NUMBER;
             break;
           case TYPE_GROUP_CONCAT_STRING:
-            value_type = ValueMetaInterface.TYPE_STRING;
+            value_type = IValueMeta.TYPE_STRING;
             break;
           default:
             break;
@@ -391,20 +391,20 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
 
         if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
           || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
-          length = ValueMetaInterface.DEFAULT_INTEGER_LENGTH;
+          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
           precision = 0;
         } else if ( aggregateType[ i ] == TYPE_GROUP_SUM
-          && value_type != ValueMetaInterface.TYPE_INTEGER && value_type != ValueMetaInterface.TYPE_NUMBER
-          && value_type != ValueMetaInterface.TYPE_BIGNUMBER ) {
+          && value_type != IValueMeta.TYPE_INTEGER && value_type != IValueMeta.TYPE_NUMBER
+          && value_type != IValueMeta.TYPE_BIGNUMBER ) {
           // If it ain't numeric, we change it to Number
           //
-          value_type = ValueMetaInterface.TYPE_NUMBER;
+          value_type = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
         }
 
-        if ( value_type != ValueMetaInterface.TYPE_NONE ) {
-          ValueMetaInterface v;
+        if ( value_type != IValueMeta.TYPE_NONE ) {
+          IValueMeta v;
           try {
             v = ValueMetaFactory.createValueMeta( value_name, value_type );
           } catch ( HopPluginException e ) {
@@ -460,7 +460,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -478,13 +478,13 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements TransformMet
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new MemoryGroupBy( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new MemoryGroupBy( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new MemoryGroupByData();
   }
 

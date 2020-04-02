@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Date;
 
@@ -32,8 +32,8 @@ import java.util.Date;
  * @author Matt
  * @since 24-jan-2005
  */
-public class RowGeneratorData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class RowGeneratorData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public Object[] outputRowData;
 
   public long rowLimit;

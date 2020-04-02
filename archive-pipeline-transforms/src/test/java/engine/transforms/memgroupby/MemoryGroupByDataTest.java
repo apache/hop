@@ -22,8 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +46,8 @@ import static org.mockito.Mockito.when;
 
   private MemoryGroupByData data = new MemoryGroupByData();
 
-  @Mock private RowMetaInterface groupMeta;
-  @Mock private ValueMetaInterface valueMeta;
+  @Mock private IRowMeta groupMeta;
+  @Mock private IValueMeta valueMeta;
 
   @Before public void setUp() throws Exception {
     data.groupMeta = groupMeta;

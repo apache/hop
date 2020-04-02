@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.janino;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.codehaus.janino.ExpressionEvaluator;
 
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class JaninoData extends BaseTransformData implements TransformDataInterface {
+public class JaninoData extends BaseTransformData implements ITransformData {
   public static final int RETURN_TYPE_STRING = 0;
   public static final int RETURN_TYPE_NUMBER = 1;
   public static final int RETURN_TYPE_INTEGER = 2;
@@ -44,8 +44,8 @@ public class JaninoData extends BaseTransformData implements TransformDataInterf
   public static final int RETURN_TYPE_BYTE_ARRAY = 6;
   public static final int RETURN_TYPE_BOOLEAN = 7;
 
-  public RowMetaInterface outputRowMeta;
-  public ValueMetaInterface[] returnType;
+  public IRowMeta outputRowMeta;
+  public IValueMeta[] returnType;
   public int[] replaceIndex;
 
   public ExpressionEvaluator[] expressionEvaluators;

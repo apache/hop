@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.filesfromresult;
 
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
@@ -33,10 +33,10 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class FilesFromResultData extends BaseTransformData implements TransformDataInterface {
+public class FilesFromResultData extends BaseTransformData implements ITransformData {
   public List<ResultFile> resultFilesList;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public FilesFromResultData() {
     super();

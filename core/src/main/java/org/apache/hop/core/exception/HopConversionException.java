@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.exception;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.List;
 
 public class HopConversionException extends HopException {
 
   private List<Exception> causes;
-  private List<ValueMetaInterface> fields;
+  private List<IValueMeta> fields;
   private Object[] rowData;
 
   /**
@@ -52,7 +52,7 @@ public class HopConversionException extends HopException {
    * @param fields  the failing fields
    * @param rowData the row with the failed fields set to null.
    */
-  public HopConversionException( String message, List<Exception> causes, List<ValueMetaInterface> fields,
+  public HopConversionException( String message, List<Exception> causes, List<IValueMeta> fields,
                                  Object[] rowData ) {
     super( message );
     this.causes = causes;
@@ -77,14 +77,14 @@ public class HopConversionException extends HopException {
   /**
    * @return the fields
    */
-  public List<ValueMetaInterface> getFields() {
+  public List<IValueMeta> getFields() {
     return fields;
   }
 
   /**
    * @param fields the fields to set
    */
-  public void setFields( List<ValueMetaInterface> fields ) {
+  public void setFields( List<IValueMeta> fields ) {
     this.fields = fields;
   }
 

@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationProvider;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
-public class KerberosAuthenticationProvider implements AuthenticationProvider {
-  public static class KerberosAuthenticationProviderType implements AuthenticationProviderType {
+public class KerberosAuthenticationProvider implements IAuthenticationProvider {
+  public static class KerberosAuthenticationProviderType implements IAuthenticationProviderType {
 
     @Override
     public String getDisplayName() {
@@ -33,7 +33,7 @@ public class KerberosAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Class<? extends AuthenticationProvider> getProviderClass() {
+    public Class<? extends IAuthenticationProvider> getProviderClass() {
       return KerberosAuthenticationProvider.class;
     }
   }

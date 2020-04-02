@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.transform.RowListener;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.IRowListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author Sven Boden
  */
-public class PipelineTransformCollector implements RowListener {
+public class PipelineTransformCollector implements IRowListener {
   private List<RowMetaAndData> rowsRead;
   private List<RowMetaAndData> rowsWritten;
   private List<RowMetaAndData> rowsError;
@@ -47,17 +47,17 @@ public class PipelineTransformCollector implements RowListener {
   }
 
   @Override
-  public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) {
+  public void rowReadEvent( IRowMeta rowMeta, Object[] row ) {
     rowsRead.add( new RowMetaAndData( rowMeta, row ) );
   }
 
   @Override
-  public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) {
+  public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
     rowsWritten.add( new RowMetaAndData( rowMeta, row ) );
   }
 
   @Override
-  public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) {
+  public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
     rowsError.add( new RowMetaAndData( rowMeta, row ) );
   }
 

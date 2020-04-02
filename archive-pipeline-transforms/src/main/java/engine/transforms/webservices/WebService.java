@@ -30,8 +30,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
@@ -40,8 +40,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
@@ -101,7 +101,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class WebService extends BaseTransform implements TransformInterface {
+public class WebService extends BaseTransform implements ITransform {
   private static Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String NS_PREFIX = "ns";
@@ -136,7 +136,7 @@ public class WebService extends BaseTransform implements TransformInterface {
 
   private WebServiceMeta cachedMeta;
 
-  public WebService( TransformMeta aTransformMeta, TransformDataInterface aTransformData, int value, PipelineMeta aPipelineMeta, Pipeline aPipeline ) {
+  public WebService( TransformMeta aTransformMeta, ITransformData aTransformData, int value, PipelineMeta aPipelineMeta, Pipeline aPipeline ) {
     super( aTransformMeta, aTransformData, value, aPipelineMeta, aPipeline );
 
     // Reference date used to format hours
@@ -149,7 +149,7 @@ public class WebService extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface metaInterface, TransformDataInterface dataInterface ) throws HopException {
+  public boolean processRow( TransformMetaInterface metaInterface, ITransformData dataInterface ) throws HopException {
     meta = (WebServiceMeta) metaInterface;
 
     // if a URL is not specified, throw an exception
@@ -208,7 +208,7 @@ public class WebService extends BaseTransform implements TransformInterface {
 
   private List<Integer> indexList;
 
-  private void defineIndexList( RowMetaInterface rowMeta, Object[] vCurrentRow ) throws HopException {
+  private void defineIndexList( IRowMeta rowMeta, Object[] vCurrentRow ) throws HopException {
     // Create an index list for the input fields
     //
     indexList = new ArrayList<Integer>();
@@ -305,7 +305,7 @@ public class WebService extends BaseTransform implements TransformInterface {
       }
 
       for ( Integer index : indexList ) {
-        ValueMetaInterface vCurrentValue = getInputRowMeta().getValueMeta( index );
+        IValueMeta vCurrentValue = getInputRowMeta().getValueMeta( index );
         Object data = vCurrentRow[ index ];
 
         WebServiceField field = meta.getFieldInFromName( vCurrentValue.getName() );
@@ -355,7 +355,7 @@ public class WebService extends BaseTransform implements TransformInterface {
     }
   }
 
-  private synchronized void requestSOAP( Object[] rowData, RowMetaInterface rowMeta ) throws HopException {
+  private synchronized void requestSOAP( Object[] rowData, IRowMeta rowMeta ) throws HopException {
     initWsdlEnv();
     HttpPost vHttpMethod = null;
     HttpEntity httpEntity = null;
@@ -497,7 +497,7 @@ public class WebService extends BaseTransform implements TransformInterface {
     return httpClient;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (WebServiceMeta) smi;
     data = (WebServiceData) sdi;
 
@@ -507,7 +507,7 @@ public class WebService extends BaseTransform implements TransformInterface {
     return super.init( smi, sdi );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (WebServiceMeta) smi;
     data = (WebServiceData) sdi;
 
@@ -537,7 +537,7 @@ public class WebService extends BaseTransform implements TransformInterface {
 
   }
 
-  private void processRows( InputStream anXml, Object[] rowData, RowMetaInterface rowMeta,
+  private void processRows( InputStream anXml, Object[] rowData, IRowMeta rowMeta,
                             boolean ignoreNamespacePrefix, String encoding ) throws HopException {
     // Just to make sure the old pipelines keep working...
     //
@@ -779,7 +779,7 @@ public class WebService extends BaseTransform implements TransformInterface {
       .createResizedCopy( inputRowData, data.outputRowMeta.size() );
   }
 
-  private void compatibleProcessRows( InputStream anXml, Object[] rowData, RowMetaInterface rowMeta,
+  private void compatibleProcessRows( InputStream anXml, Object[] rowData, IRowMeta rowMeta,
                                       boolean ignoreNamespacePrefix, String encoding ) throws HopException {
 
     // First we should get the complete string
@@ -872,7 +872,7 @@ public class WebService extends BaseTransform implements TransformInterface {
                     try {
                       if ( meta.isPassingInputData() ) {
                         for ( int i = 0; i < rowMeta.getValueMetaList().size(); i++ ) {
-                          ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( i );
+                          IValueMeta valueMeta = getInputRowMeta().getValueMeta( i );
                           outputRowData[ outputIndex++ ] = valueMeta.cloneValueData( rowData[ i ] );
 
                         }

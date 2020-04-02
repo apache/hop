@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
@@ -55,7 +55,7 @@ public class CurrentDirectoryResolver {
    * @param filename        - is file which we use at this moment
    * @return new var space if inherit was set false or child var space with updated system variables
    */
-  public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, String filename ) {
+  public IVariables resolveCurrentDirectory( IVariables parentVariables, String filename ) {
     Variables tmpSpace = new Variables();
     tmpSpace.setParentVariableSpace( parentVariables );
     tmpSpace.initializeVariablesFrom( parentVariables );
@@ -86,7 +86,7 @@ public class CurrentDirectoryResolver {
     return tmpSpace;
   }
 
-  public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, TransformMeta transformMeta, String filename ) {
+  public IVariables resolveCurrentDirectory( IVariables parentVariables, TransformMeta transformMeta, String filename ) {
     if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null ) {
       filename = transformMeta.getParentPipelineMeta().getFilename();
     } else if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null && filename == null ) {
@@ -95,7 +95,7 @@ public class CurrentDirectoryResolver {
     return resolveCurrentDirectory( parentVariables, filename );
   }
 
-  public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, Job job, String filename ) {
+  public IVariables resolveCurrentDirectory( IVariables parentVariables, Job job, String filename ) {
     if ( job != null && filename == null ) {
       filename = job.getFilename();
     } else if ( JobMeta.class.isAssignableFrom( parentVariables.getClass() ) ) {

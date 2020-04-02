@@ -25,7 +25,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -94,7 +94,7 @@ public class EnterSelectionDialog extends Dialog {
   private String lineText;
   private PropsUI props;
   private String constant;
-  private VariableSpace variableSpace;
+  private IVariables variables;
   private String currentValue;
 
   private boolean viewOnly, modal;
@@ -144,10 +144,10 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   public EnterSelectionDialog( Shell parent, String[] choices, String shellText, String message, String constant,
-                               VariableSpace variableSpace ) {
+                               IVariables variables ) {
     this( parent, choices, shellText, message );
     this.constant = constant;
-    this.variableSpace = variableSpace;
+    this.variables = variables;
   }
 
   public void setViewOnly() {
@@ -307,7 +307,7 @@ public class EnterSelectionDialog extends Dialog {
     Control nextControl = wOK;
 
     if ( constant != null ) {
-      wConstantValue = new TextVar( variableSpace, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wConstantValue = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
       if ( !Utils.isEmpty( constant ) ) {
         wConstantValue.setText( constant );
       }

@@ -540,10 +540,10 @@ public class ValueDataUtilTest {
 
   @Test
   public void testSumWithNullValues() throws Exception {
-    ValueMetaInterface metaA = new ValueMetaInteger();
-    metaA.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
-    ValueMetaInterface metaB = new ValueMetaInteger();
-    metaA.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    IValueMeta metaA = new ValueMetaInteger();
+    metaA.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
+    IValueMeta metaB = new ValueMetaInteger();
+    metaA.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     assertNull( ValueDataUtil.sum( metaA, null, metaB, null ) );
 
@@ -553,11 +553,11 @@ public class ValueDataUtilTest {
 
   @Test
   public void testSumConvertingStorageTypeToNormal() throws Exception {
-    ValueMetaInterface metaA = mock( ValueMetaInteger.class );
-    metaA.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta metaA = mock( ValueMetaInteger.class );
+    metaA.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
 
-    ValueMetaInterface metaB = new ValueMetaInteger();
-    metaB.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta metaB = new ValueMetaInteger();
+    metaB.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     Object valueB = "2";
 
     when( metaA.convertData( metaB, valueB ) ).thenAnswer( new Answer<Long>() {
@@ -570,6 +570,6 @@ public class ValueDataUtilTest {
     Object returnValue = ValueDataUtil.sum( metaA, null, metaB, valueB );
     verify( metaA ).convertData( metaB, valueB );
     assertEquals( 2L, returnValue );
-    assertEquals( metaA.getStorageType(), ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    assertEquals( metaA.getStorageType(), IValueMeta.STORAGE_TYPE_NORMAL );
   }
 }

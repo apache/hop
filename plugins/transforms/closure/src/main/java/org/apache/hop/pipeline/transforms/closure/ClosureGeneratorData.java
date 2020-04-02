@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.closure;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Map;
 
@@ -33,13 +33,13 @@ import java.util.Map;
  * @author Matt
  * @since 18-Sep-2007
  */
-public class ClosureGeneratorData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class ClosureGeneratorData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public int parentIndex;
   public int childIndex;
   public boolean reading;
-  public ValueMetaInterface parentValueMeta;
-  public ValueMetaInterface childValueMeta;
+  public IValueMeta parentValueMeta;
+  public IValueMeta childValueMeta;
   public Map<Object, Object> map;
   public Map<Object, Long> parents;
   public Object topLevel;

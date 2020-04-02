@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ProvidesModelerMeta;
+import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -37,13 +37,13 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -51,9 +51,9 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -74,7 +74,7 @@ import java.util.Objects;
   i18nPackageName = "org.apache.hop.pipeline.transform"
 )
 @InjectionSupported( localizationPrefix = "CombinationLookup.Injection." )
-public class CombinationLookupMeta extends BaseTransformMeta implements TransformMetaInterface<CombinationLookup, CombinationLookupData>, ProvidesModelerMeta {
+public class CombinationLookupMeta extends BaseTransformMeta implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
 
   private static Class<?> PKG = CombinationLookupMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -485,9 +485,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
-    ValueMetaInterface v = new ValueMetaInteger( technicalKeyField );
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+    IValueMeta v = new ValueMetaInteger( technicalKeyField );
     v.setLength( 10 );
     v.setPrecision( 0 );
     v.setOrigin( origin );
@@ -542,8 +542,8 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -559,12 +559,12 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
           error_message = "";
 
           String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tablename );
-          RowMetaInterface r = db.getTableFields( schemaTable );
+          IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             for ( int i = 0; i < keyLookup.length; i++ ) {
               String lufield = keyLookup[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -577,10 +577,10 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "CombinationLookupMeta.CheckResult.AllFieldsFound" ), transformMeta );
             }
             remarks.add( cr );
@@ -591,19 +591,19 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
                 BaseMessages.getString(
                   PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyNotFound", technicalKeyField )
                   + Const.CR;
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               error_message =
                 BaseMessages.getString(
                   PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyFound", technicalKeyField )
                   + Const.CR;
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
             }
             remarks.add( cr );
           } else {
             error_message =
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           }
         }
@@ -615,7 +615,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
           boolean error_found = false;
 
           for ( int i = 0; i < keyField.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyField[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyField[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -627,17 +627,17 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "CombinationLookupMeta.CheckResult.AllFieldsFoundInInputStream" ), transformMeta );
           }
           remarks.add( cr );
         } else {
           error_message =
             BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           remarks.add( cr );
         }
 
@@ -646,7 +646,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
           if ( Utils.isEmpty( sequenceFrom ) ) {
             error_message +=
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorNoSequenceName" ) + "!";
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           } else {
             // It doesn't make sense to check the sequence name
@@ -655,13 +655,13 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
               error_message =
                 BaseMessages
                   .getString( PKG, "CombinationLookupMeta.CheckResult.ReadingSequenceOK", sequenceFrom );
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
               remarks.add( cr );
             } else {
               error_message +=
                 BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorReadingSequence" )
                   + sequenceFrom + "!";
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
               remarks.add( cr );
             }
           }
@@ -675,7 +675,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
             error_message +=
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorTechKeyCreation" )
                 + ": " + techKeyCreation + "!";
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           }
 
@@ -683,33 +683,33 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
       } catch ( HopException e ) {
         error_message =
           BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
       error_message = BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "CombinationLookupMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "CombinationLookupMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -727,15 +727,15 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
             db.connect();
 
             // OK, what do we put in the new table??
-            RowMetaInterface fields = new RowMeta();
+            IRowMeta fields = new RowMeta();
 
             // First, the new technical key...
-            ValueMetaInterface vkeyfield = new ValueMetaInteger( technicalKeyField );
+            IValueMeta vkeyfield = new ValueMetaInteger( technicalKeyField );
             vkeyfield.setLength( 10 );
             vkeyfield.setPrecision( 0 );
 
             // Then the hashcode (optional)
-            ValueMetaInterface vhashfield = null;
+            IValueMeta vhashfield = null;
             if ( useHash && !Utils.isEmpty( hashField ) ) {
               vhashfield = new ValueMetaInteger( hashField );
               vhashfield.setLength( 15 );
@@ -744,7 +744,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
             }
 
             // Then the last update field (optional)
-            ValueMetaInterface vLastUpdateField = null;
+            IValueMeta vLastUpdateField = null;
             if ( !Utils.isEmpty( lastUpdateField ) ) {
               vLastUpdateField = new ValueMetaDate( lastUpdateField );
             }
@@ -760,10 +760,10 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
                   String error_field = "";
 
                   // Find the value in the stream
-                  ValueMetaInterface v = prev.searchValueMeta( keyField[ i ] );
+                  IValueMeta v = prev.searchValueMeta( keyField[ i ] );
                   if ( v != null ) {
                     String name = keyLookup[ i ];
-                    ValueMetaInterface newValue = v.clone();
+                    IValueMeta newValue = v.clone();
                     newValue.setName( name );
 
                     if ( name.equals( vkeyfield.getName() )
@@ -791,7 +791,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
               // Table already exists
 
               // Get the fields that are in the table now:
-              RowMetaInterface tabFields = db.getTableFields( schemaTable );
+              IRowMeta tabFields = db.getTableFields( schemaTable );
 
               // Don't forget to quote these as well...
               databaseMeta.quoteReservedWords( tabFields );
@@ -804,7 +804,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
               // Add the already existing fields
               int cnt = tabFields.size();
               for ( i = 0; i < cnt; i++ ) {
-                ValueMetaInterface v = tabFields.getValueMeta( i );
+                IValueMeta v = tabFields.getValueMeta( i );
 
                 fields.addValueMeta( v );
               }
@@ -816,9 +816,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
                 cnt = keyField.length;
                 for ( i = 0; i < cnt; i++ ) {
                   // Find the value in the stream
-                  ValueMetaInterface v = prev.searchValueMeta( keyField[ i ] );
+                  IValueMeta v = prev.searchValueMeta( keyField[ i ] );
                   if ( v != null ) {
-                    ValueMetaInterface newValue = v.clone();
+                    IValueMeta newValue = v.clone();
                     newValue.setName( keyLookup[ i ] );
 
                     // Does the corresponding name exist in the table
@@ -930,9 +930,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
   }
 
   @Override
-  public CombinationLookup createTransform( TransformMeta transformMeta, CombinationLookupData transformDataInterface, int cnr,
+  public CombinationLookup createTransform( TransformMeta transformMeta, CombinationLookupData iTransformData, int cnr,
                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new CombinationLookup( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new CombinationLookup( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -942,11 +942,11 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) {
     // The keys are read-only...
     for ( int i = 0; i < keyField.length; i++ ) {
-      ValueMetaInterface v = prev.searchValueMeta( keyField[ i ] );
+      IValueMeta v = prev.searchValueMeta( keyField[ i ] );
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -1091,11 +1091,11 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
     return true;
   }
 
-  protected RowMetaInterface getDatabaseTableFields( Database db, String schemaName, String tableName )
+  protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
     throws HopDatabaseException {
     // First try without connecting to the database... (can be S L O W)
     String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
-    RowMetaInterface extraFields = db.getTableFields( schemaTable );
+    IRowMeta extraFields = db.getTableFields( schemaTable );
     if ( extraFields == null ) { // now we need to connect
       db.connect();
       extraFields = db.getTableFields( schemaTable );
@@ -1107,7 +1107,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements Transfor
     return new Database( loggingObject, databaseMeta );
   }
 
-  @Override public RowMeta getRowMeta( TransformDataInterface transformData ) {
+  @Override public RowMeta getRowMeta( ITransformData transformData ) {
     try {
       return (RowMeta) getDatabaseTableFields( createDatabaseObject(), schemaName, getTableName() );
     } catch ( HopDatabaseException e ) {

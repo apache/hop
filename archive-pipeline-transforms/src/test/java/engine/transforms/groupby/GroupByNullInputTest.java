@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.groupby;
 import junit.framework.Assert;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -51,12 +51,12 @@ public class GroupByNullInputTest {
   private GroupByData groupByData;
 
   private GroupByMeta groupByMeta;
-  private RowMetaInterface rowMetaInterfaceMock;
+  private IRowMeta rowMetaInterfaceMock;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper = new TransformMockHelper<>( "Group By", GroupByMeta.class, GroupByData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -72,7 +72,7 @@ public class GroupByNullInputTest {
     groupByMeta = new GroupByMeta();
 
     when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( groupByMeta );
-    rowMetaInterfaceMock = Mockito.mock( RowMetaInterface.class );
+    rowMetaInterfaceMock = Mockito.mock( IRowMeta.class );
     groupByData.inputRowMeta = rowMetaInterfaceMock;
     groupByData.aggMeta = rowMetaInterfaceMock;
 
@@ -108,7 +108,7 @@ public class GroupByNullInputTest {
   @Test
   public void testNullInputDataForStandardDeviation() throws HopValueException {
     setAggregationTypesAndInitData( new int[] { 15 } );
-    ValueMetaInterface vmi = new ValueMetaInteger();
+    IValueMeta vmi = new ValueMetaInteger();
     when( rowMetaInterfaceMock.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     Object[] row1 = new Object[ NUMBER_OF_COLUMNS ];
     Arrays.fill( row1, null );
@@ -121,7 +121,7 @@ public class GroupByNullInputTest {
   @Test
   public void testNullInputDataForAggregationWithNumbers() throws HopValueException {
     setAggregationTypesAndInitData( new int[] { 1, 2, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15 } );
-    ValueMetaInterface vmi = new ValueMetaInteger();
+    IValueMeta vmi = new ValueMetaInteger();
     when( rowMetaInterfaceMock.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     Object[] row1 = new Object[ NUMBER_OF_COLUMNS ];
     Arrays.fill( row1, null );
@@ -134,7 +134,7 @@ public class GroupByNullInputTest {
   @Test
   public void testNullInputDataForAggregationWithNumbersMedianFunction() throws HopValueException {
     setAggregationTypesAndInitData( new int[] { 3, 4 } );
-    ValueMetaInterface vmi = new ValueMetaInteger();
+    IValueMeta vmi = new ValueMetaInteger();
     when( rowMetaInterfaceMock.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     //PERCENTILE set
     groupByMeta.setValueField( new String[] { "3", "3" } );
@@ -150,7 +150,7 @@ public class GroupByNullInputTest {
     setAggregationTypesAndInitData( new int[] { 8, 16, 17, 18 } );
     groupByMeta.setValueField( new String[] { "," } );
     groupByMeta.setSubjectField( new String[] { ANY_FIELD_NAME, ANY_FIELD_NAME } );
-    ValueMetaInterface vmi = new ValueMetaString();
+    IValueMeta vmi = new ValueMetaString();
     when( rowMetaInterfaceMock.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     Object[] row1 = new Object[ NUMBER_OF_COLUMNS ];
     Arrays.fill( row1, null );

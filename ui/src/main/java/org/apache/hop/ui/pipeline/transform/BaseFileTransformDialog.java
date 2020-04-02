@@ -25,7 +25,7 @@ package org.apache.hop.ui.pipeline.transform;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 public abstract class BaseFileTransformDialog<T extends BaseFileInputMeta<?, ?, ?>> extends BaseTransformDialog implements
-  TransformDialogInterface {
+  ITransformDialog {
   protected final Class<?> PKG = getClass();
 
   protected T input;

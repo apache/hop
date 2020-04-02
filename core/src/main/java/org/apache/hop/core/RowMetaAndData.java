@@ -25,10 +25,10 @@ package org.apache.hop.core;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.InjectionTypeConverter;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 
@@ -36,7 +36,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class RowMetaAndData implements Cloneable {
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
   private Object[] data;
 
@@ -48,7 +48,7 @@ public class RowMetaAndData implements Cloneable {
    * @param rowMeta
    * @param data
    */
-  public RowMetaAndData( RowMetaInterface rowMeta, Object... data ) {
+  public RowMetaAndData( IRowMeta rowMeta, Object... data ) {
     this.rowMeta = rowMeta;
     this.data = data;
   }
@@ -92,14 +92,14 @@ public class RowMetaAndData implements Cloneable {
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
   /**
    * @param rowMeta the rowMeta to set
    */
-  public void setRowMeta( RowMetaInterface rowMeta ) {
+  public void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 
@@ -123,13 +123,13 @@ public class RowMetaAndData implements Cloneable {
     }
   }
 
-  public void addValue( ValueMetaInterface valueMeta, Object valueData ) {
+  public void addValue( IValueMeta valueMeta, Object valueData ) {
     data = RowDataUtil.addValueData( data, rowMeta.size(), valueData );
     rowMeta.addValueMeta( valueMeta );
   }
 
   public void addValue( String valueName, int valueType, Object valueData ) {
-    ValueMetaInterface v;
+    IValueMeta v;
     try {
       v = ValueMetaFactory.createValueMeta( valueName, valueType );
     } catch ( HopPluginException e ) {
@@ -279,7 +279,7 @@ public class RowMetaAndData implements Cloneable {
     return rowMeta.size();
   }
 
-  public ValueMetaInterface getValueMeta( int index ) {
+  public IValueMeta getValueMeta( int index ) {
     return rowMeta.getValueMeta( index );
   }
 
@@ -289,25 +289,25 @@ public class RowMetaAndData implements Cloneable {
       throw new HopValueException( "Unknown column '" + valueName + "'" );
     }
 
-    ValueMetaInterface metaType = rowMeta.getValueMeta( idx );
+    IValueMeta metaType = rowMeta.getValueMeta( idx );
     // find by source value type
     switch ( metaType.getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         return rowMeta.getString( data, idx ) == null;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         return rowMeta.getBoolean( data, idx ) == null;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return rowMeta.getInteger( data, idx ) == null;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return rowMeta.getNumber( data, idx ) == null;
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return rowMeta.getBigNumber( data, idx ) == null;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         return rowMeta.getBinary( data, idx ) == null;
-      case ValueMetaInterface.TYPE_DATE:
-      case ValueMetaInterface.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
         return rowMeta.getDate( data, idx ) == null;
-      case ValueMetaInterface.TYPE_INET:
+      case IValueMeta.TYPE_INET:
         return rowMeta.getString( data, idx ) == null;
     }
     throw new HopValueException( "Unknown source type: " + metaType.getTypeDesc() );
@@ -349,13 +349,13 @@ public class RowMetaAndData implements Cloneable {
       throw new HopValueException( "Unknown column '" + valueName + "'" );
     }
 
-    ValueMetaInterface metaType = rowMeta.getValueMeta( idx );
+    IValueMeta metaType = rowMeta.getValueMeta( idx );
     // find by source value type
     switch ( metaType.getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         String vs = rowMeta.getString( data, idx );
         return getStringAsJavaType( vs, destinationType, converter );
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         Boolean vb = rowMeta.getBoolean( data, idx );
         if ( String.class.isAssignableFrom( destinationType ) ) {
           return converter.boolean2string( vb );
@@ -376,7 +376,7 @@ public class RowMetaAndData implements Cloneable {
         } else {
           throw new RuntimeException( "Wrong value conversion to " + destinationType );
         }
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         Long vi = rowMeta.getInteger( data, idx );
         if ( String.class.isAssignableFrom( destinationType ) ) {
           return converter.integer2string( vi );
@@ -397,7 +397,7 @@ public class RowMetaAndData implements Cloneable {
         } else {
           throw new RuntimeException( "Wrong value conversion to " + destinationType );
         }
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         Double vn = rowMeta.getNumber( data, idx );
         if ( String.class.isAssignableFrom( destinationType ) ) {
           return converter.number2string( vn );

@@ -31,8 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -43,18 +43,18 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @since 2-jun-2003
  */
 
-public class SampleRows extends BaseTransform implements TransformInterface {
+public class SampleRows extends BaseTransform implements ITransform {
   private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private SampleRowsMeta meta;
   private SampleRowsData data;
 
-  public SampleRows( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SampleRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SampleRowsMeta) smi;
     data = (SampleRowsData) sdi;
 
@@ -137,7 +137,7 @@ public class SampleRows extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SampleRowsMeta) smi;
     data = (SampleRowsData) sdi;
 

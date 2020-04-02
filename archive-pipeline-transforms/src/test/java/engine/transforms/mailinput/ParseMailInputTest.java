@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.job.entries.getpop.MailConnection;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mailinput.MailInput.MessageParser;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
@@ -57,7 +57,7 @@ import static org.mockito.Mockito.when;
 public class ParseMailInputTest {
 
   // mock is existed per-class instance loaded by junit loader
-  private static TransformMockHelper<MailInputMeta, TransformDataInterface> transformMockHelper;
+  private static TransformMockHelper<MailInputMeta, ITransformData> transformMockHelper;
 
   // test data
   public static final int MSG_NUMB = 3;
@@ -91,9 +91,9 @@ public class ParseMailInputTest {
   @BeforeClass
   public static void setup() {
     transformMockHelper =
-      new TransformMockHelper<MailInputMeta, TransformDataInterface>(
-        "ABORT TEST", MailInputMeta.class, TransformDataInterface.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+      new TransformMockHelper<MailInputMeta, ITransformData>(
+        "ABORT TEST", MailInputMeta.class, ITransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }

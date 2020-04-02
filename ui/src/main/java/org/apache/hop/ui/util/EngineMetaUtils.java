@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.util;
 
-import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 
@@ -34,7 +34,7 @@ public class EngineMetaUtils {
    * @param engineMetaInterface
    * @return true if engineMetaInterface instance is Job or Pipeline, otherwise false.
    */
-  public static boolean isJobOrPipeline( EngineMetaInterface engineMetaInterface ) {
+  public static boolean isJobOrPipeline( IEngineMeta engineMetaInterface ) {
 
     return ( engineMetaInterface instanceof PipelineMeta ) || ( engineMetaInterface instanceof JobMeta );
   }

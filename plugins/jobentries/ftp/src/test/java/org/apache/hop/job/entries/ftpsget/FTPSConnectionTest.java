@@ -23,7 +23,7 @@
 package org.apache.hop.job.entries.ftpsget;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.entries.ftpsget.ftp4che.SecureDataFTPConnection;
 import org.ftp4che.FTPConnection;
@@ -93,7 +93,7 @@ public class FTPSConnectionTest {
     public Map<String, Reply> replies = new HashMap<>();
 
     public FTPSTestConnection( int connectionType, String hostname, int port, String username, String password,
-                               VariableSpace nameSpace ) {
+                               IVariables nameSpace ) {
       super( connectionType, hostname, port, username, password, nameSpace );
     }
 

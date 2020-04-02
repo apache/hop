@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.symmetriccrypto.secretkeygenerator;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCrypto;
 
 /**
@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.Sym
  * @author Samatar
  * @since 01-4-2011
  */
-public class SecretKeyGeneratorData extends BaseTransformData implements TransformDataInterface {
+public class SecretKeyGeneratorData extends BaseTransformData implements ITransformData {
 
   public int[] algorithm;
   public String[] scheme;
@@ -41,7 +41,7 @@ public class SecretKeyGeneratorData extends BaseTransformData implements Transfo
   public int[] secretKeyLen;
   public int nr;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public boolean addAlgorithmOutput;
   public boolean addSecretKeyLengthOutput;

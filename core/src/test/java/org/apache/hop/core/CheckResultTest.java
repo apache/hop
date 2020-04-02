@@ -33,14 +33,14 @@ import static org.mockito.Mockito.when;
 public class CheckResultTest {
   @Test
   public void testClass() {
-    final int type = CheckResultInterface.TYPE_RESULT_ERROR;
+    final int type = ICheckResult.TYPE_RESULT_ERROR;
     final String text = "some text";
     final String sourceMetaName = "meta name";
-    final CheckResultSourceInterface sourceMeta = mock( CheckResultSourceInterface.class );
+    final ICheckResultSource sourceMeta = mock( ICheckResultSource.class );
     final String errorCode = "error code";
 
     CheckResult cr = new CheckResult();
-    assertEquals( CheckResultInterface.TYPE_RESULT_NONE, cr.getType() );
+    assertEquals( ICheckResult.TYPE_RESULT_NONE, cr.getType() );
     assertTrue( cr.getTypeDesc() != null && cr.getTypeDesc().isEmpty() );
     cr.setType( type );
     assertEquals( type, cr.getType() );

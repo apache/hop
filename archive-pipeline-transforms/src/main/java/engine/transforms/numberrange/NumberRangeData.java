@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline.transforms.numberrange;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * + * Data for the NumberRangePlugin + * + * @author ronny.roeller@fredhopper.com + * +
  */
-public class NumberRangeData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class NumberRangeData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public int inputColumnNr;
 
   public NumberRangeData() {

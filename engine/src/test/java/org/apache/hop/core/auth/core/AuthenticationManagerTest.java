@@ -27,7 +27,7 @@ import org.apache.hop.core.auth.DelegatingKerberosConsumerForClassloaderBridging
 import org.apache.hop.core.auth.DelegatingNoAuthConsumer;
 import org.apache.hop.core.auth.DelegatingUsernamePasswordConsumer;
 import org.apache.hop.core.auth.KerberosAuthenticationProvider;
-import org.apache.hop.core.auth.KerberosAuthenticationProviderProxyInterface;
+import org.apache.hop.core.auth.IKerberosAuthenticationProviderProxy;
 import org.apache.hop.core.auth.NoAuthenticationAuthenticationProvider;
 import org.apache.hop.core.auth.UsernamePasswordAuthenticationProvider;
 import org.apache.hop.core.auth.core.impl.ClassloaderBridgingAuthenticationPerformer;
@@ -61,9 +61,9 @@ public class AuthenticationManagerTest {
   @Test
   public void testNoAuthProviderAndConsumer() throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.registerConsumerClass( DelegatingNoAuthConsumer.class );
-    AuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> consumer =
-      mock( AuthenticationConsumer.class );
-    manager.getAuthenticationPerformer( Object.class, AuthenticationConsumer.class,
+    IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> consumer =
+      mock( IAuthenticationConsumer.class );
+    manager.getAuthenticationPerformer( Object.class, IAuthenticationConsumer.class,
       NoAuthenticationAuthenticationProvider.NO_AUTH_ID ).perform( consumer );
     verify( consumer ).consume( noAuthenticationAuthenticationProvider );
   }
@@ -77,9 +77,9 @@ public class AuthenticationManagerTest {
     UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider =
       new UsernamePasswordAuthenticationProvider( "upass", "u", "pass" );
     manager.registerAuthenticationProvider( usernamePasswordAuthenticationProvider );
-    AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> consumer =
-      mock( AuthenticationConsumer.class );
-    manager.getAuthenticationPerformer( Object.class, AuthenticationConsumer.class,
+    IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> consumer =
+      mock( IAuthenticationConsumer.class );
+    manager.getAuthenticationPerformer( Object.class, IAuthenticationConsumer.class,
       usernamePasswordAuthenticationProvider.getId() ).perform( consumer );
     verify( consumer ).consume( usernamePasswordAuthenticationProvider );
   }
@@ -93,8 +93,8 @@ public class AuthenticationManagerTest {
     KerberosAuthenticationProvider kerberosAuthenticationProvider =
       new KerberosAuthenticationProvider( "kerb", "kerb", true, "pass", true, "none" );
     manager.registerAuthenticationProvider( kerberosAuthenticationProvider );
-    AuthenticationConsumer<Object, KerberosAuthenticationProvider> consumer = mock( AuthenticationConsumer.class );
-    manager.getAuthenticationPerformer( Object.class, AuthenticationConsumer.class,
+    IAuthenticationConsumer<Object, KerberosAuthenticationProvider> consumer = mock( IAuthenticationConsumer.class );
+    manager.getAuthenticationPerformer( Object.class, IAuthenticationConsumer.class,
       kerberosAuthenticationProvider.getId() ).perform( consumer );
     verify( consumer ).consume( kerberosAuthenticationProvider );
   }
@@ -111,13 +111,13 @@ public class AuthenticationManagerTest {
     KerberosAuthenticationProvider kerberosAuthenticationProvider =
       new KerberosAuthenticationProvider( "kerb", "kerb", true, "pass", true, "none" );
     manager.registerAuthenticationProvider( kerberosAuthenticationProvider );
-    List<AuthenticationPerformer<Object, AuthenticationConsumer>> performers =
-      manager.getSupportedAuthenticationPerformers( Object.class, AuthenticationConsumer.class );
+    List<IAuthenticationPerformer<Object, IAuthenticationConsumer>> performers =
+      manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 3, performers.size() );
     Set<String> ids =
       new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
         usernamePasswordAuthenticationProvider.getId(), kerberosAuthenticationProvider.getId() ) );
-    for ( AuthenticationPerformer<Object, AuthenticationConsumer> performer : performers ) {
+    for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
     assertEquals( 0, ids.size() );
@@ -128,31 +128,31 @@ public class AuthenticationManagerTest {
   public void testRegisterUnregisterProvider() throws AuthenticationFactoryException {
     manager.registerConsumerClass( DelegatingNoAuthConsumer.class );
     manager.registerConsumerClass( DelegatingUsernamePasswordConsumer.class );
-    List<AuthenticationPerformer<Object, AuthenticationConsumer>> performers =
-      manager.getSupportedAuthenticationPerformers( Object.class, AuthenticationConsumer.class );
+    List<IAuthenticationPerformer<Object, IAuthenticationConsumer>> performers =
+      manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 1, performers.size() );
     Set<String> ids = new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
-    for ( AuthenticationPerformer<Object, AuthenticationConsumer> performer : performers ) {
+    for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
     assertEquals( 0, ids.size() );
     UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider =
       new UsernamePasswordAuthenticationProvider( "upass", "u", "pass" );
     manager.registerAuthenticationProvider( usernamePasswordAuthenticationProvider );
-    performers = manager.getSupportedAuthenticationPerformers( Object.class, AuthenticationConsumer.class );
+    performers = manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 2, performers.size() );
     ids =
       new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
         usernamePasswordAuthenticationProvider.getId() ) );
-    for ( AuthenticationPerformer<Object, AuthenticationConsumer> performer : performers ) {
+    for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
     assertEquals( 0, ids.size() );
     manager.unregisterAuthenticationProvider( usernamePasswordAuthenticationProvider );
-    performers = manager.getSupportedAuthenticationPerformers( Object.class, AuthenticationConsumer.class );
+    performers = manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 1, performers.size() );
     ids = new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
-    for ( AuthenticationPerformer<Object, AuthenticationConsumer> performer : performers ) {
+    for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
     assertEquals( 0, ids.size() );
@@ -161,18 +161,18 @@ public class AuthenticationManagerTest {
   @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Test
   public void testRegisterConsumerFactory() throws AuthenticationConsumptionException, AuthenticationFactoryException {
-    AuthenticationConsumer<Object, KerberosAuthenticationProvider> authConsumer = mock( AuthenticationConsumer.class );
-    AuthenticationConsumerFactory<Object, AuthenticationConsumer, KerberosAuthenticationProvider> factory =
-      mock( AuthenticationConsumerFactory.class );
+    IAuthenticationConsumer<Object, KerberosAuthenticationProvider> authConsumer = mock( IAuthenticationConsumer.class );
+    IAuthenticationConsumerFactory<Object, IAuthenticationConsumer, KerberosAuthenticationProvider> factory =
+      mock( IAuthenticationConsumerFactory.class );
     when( factory.getReturnType() ).thenReturn( Object.class );
-    when( factory.getCreateArgType() ).thenReturn( AuthenticationConsumer.class );
+    when( factory.getCreateArgType() ).thenReturn( IAuthenticationConsumer.class );
     when( factory.getConsumedType() ).thenReturn( KerberosAuthenticationProvider.class );
     when( factory.create( authConsumer ) ).thenReturn( authConsumer );
     KerberosAuthenticationProvider kerberosAuthenticationProvider =
       new KerberosAuthenticationProvider( "kerb", "kerb", true, "pass", true, "none" );
     manager.registerAuthenticationProvider( kerberosAuthenticationProvider );
     manager.registerConsumerFactory( factory );
-    manager.getAuthenticationPerformer( Object.class, AuthenticationConsumer.class,
+    manager.getAuthenticationPerformer( Object.class, IAuthenticationConsumer.class,
       kerberosAuthenticationProvider.getId() ).perform( authConsumer );
     verify( authConsumer ).consume( kerberosAuthenticationProvider );
   }
@@ -181,12 +181,12 @@ public class AuthenticationManagerTest {
   @SuppressWarnings( "unchecked" )
   public void testClassLoaderBridgingPerformer() throws AuthenticationConsumptionException,
     AuthenticationFactoryException {
-    manager.setAuthenticationPerformerFactory( new AuthenticationPerformerFactory() {
+    manager.setAuthenticationPerformerFactory( new IAuthenticationPerformerFactory() {
 
       @Override
-      public <ReturnType, CreateArgType, ConsumedType> AuthenticationPerformer<ReturnType, CreateArgType> create(
-        AuthenticationProvider authenticationProvider,
-        AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumer ) {
+      public <ReturnType, CreateArgType, ConsumedType> IAuthenticationPerformer<ReturnType, CreateArgType> create(
+        IAuthenticationProvider authenticationProvider,
+        IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumer ) {
         if ( AuthenticationConsumerInvocationHandler.isCompatible( authenticationConsumer.getConsumedType(),
           authenticationProvider ) ) {
           return new ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType>(
@@ -201,18 +201,18 @@ public class AuthenticationManagerTest {
     KerberosAuthenticationProvider kerberosAuthenticationProvider =
       new KerberosAuthenticationProvider( "kerb", "kerb", true, "pass", true, "none" );
     manager.registerAuthenticationProvider( kerberosAuthenticationProvider );
-    AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> consumer =
-      mock( AuthenticationConsumer.class );
+    IAuthenticationConsumer<Object, IKerberosAuthenticationProviderProxy> consumer =
+      mock( IAuthenticationConsumer.class );
 
     @SuppressWarnings( "rawtypes" )
-    AuthenticationPerformer<Object, AuthenticationConsumer> performer =
-      manager.getAuthenticationPerformer( Object.class, AuthenticationConsumer.class, kerberosAuthenticationProvider
+    IAuthenticationPerformer<Object, IAuthenticationConsumer> performer =
+      manager.getAuthenticationPerformer( Object.class, IAuthenticationConsumer.class, kerberosAuthenticationProvider
         .getId() );
     assertNotNull( performer );
     performer.perform( consumer );
 
-    ArgumentCaptor<KerberosAuthenticationProviderProxyInterface> captor =
-      ArgumentCaptor.forClass( KerberosAuthenticationProviderProxyInterface.class );
+    ArgumentCaptor<IKerberosAuthenticationProviderProxy> captor =
+      ArgumentCaptor.forClass( IKerberosAuthenticationProviderProxy.class );
     verify( consumer ).consume( captor.capture() );
     assertEquals( kerberosAuthenticationProvider.getId(), captor.getValue().getId() );
     assertEquals( kerberosAuthenticationProvider.getDisplayName(), captor.getValue().getDisplayName() );

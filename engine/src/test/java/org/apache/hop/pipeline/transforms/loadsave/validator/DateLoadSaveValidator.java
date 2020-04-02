@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 import java.util.Date;
 import java.util.Random;
 
-public class DateLoadSaveValidator implements FieldLoadSaveValidator<Date> {
+public class DateLoadSaveValidator implements IFieldLoadSaveValidator<Date> {
 
   @Override
   public Date getTestObject() {

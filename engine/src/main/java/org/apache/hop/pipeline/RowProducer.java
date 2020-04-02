@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,20 +34,20 @@ import java.util.concurrent.TimeUnit;
  * @author Matt
  */
 public class RowProducer {
-  private RowSet rowSet;
-  private TransformInterface transformInterface;
+  private IRowSet rowSet;
+  private ITransform iTransform;
 
-  public RowProducer( TransformInterface transformInterface, RowSet rowSet ) {
-    this.transformInterface = transformInterface;
+  public RowProducer( ITransform iTransform, IRowSet rowSet ) {
+    this.iTransform = iTransform;
     this.rowSet = rowSet;
   }
 
   /**
    * Puts a row into the underlying row set. This will block until the row is successfully added.
    *
-   * @see #putRow(RowMetaInterface, Object[], boolean) putRow(RowMetaInterface, Object[], true)
+   * @see #putRow(IRowMeta, Object[], boolean) putRow(IRowMeta, Object[], true)
    */
-  public void putRow( RowMetaInterface rowMeta, Object[] row ) {
+  public void putRow( IRowMeta rowMeta, Object[] row ) {
     putRow( rowMeta, row, true );
   }
 
@@ -56,9 +56,9 @@ public class RowProducer {
    *
    * @return true if the row was successfully added to the rowset and false if this buffer was full. If {@code block} is
    * true this will always return true.
-   * @see RowSet#putRow(RowMetaInterface, Object[])
+   * @see IRowSet#putRow(IRowMeta, Object[])
    */
-  public boolean putRow( RowMetaInterface rowMeta, Object[] row, boolean block ) {
+  public boolean putRow( IRowMeta rowMeta, Object[] row, boolean block ) {
     if ( block ) {
       boolean added = false;
       while ( !added ) {
@@ -71,9 +71,9 @@ public class RowProducer {
   }
 
   /**
-   * @see RowSet#putRowWait(RowMetaInterface, Object[], long, TimeUnit)
+   * @see IRowSet#putRowWait(IRowMeta, Object[], long, TimeUnit)
    */
-  public boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu ) {
+  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
     return rowSet.putRowWait( rowMeta, rowData, time, tu );
   }
 
@@ -88,29 +88,29 @@ public class RowProducer {
   /**
    * @return Returns the rowSet.
    */
-  public RowSet getRowSet() {
+  public IRowSet getRowSet() {
     return rowSet;
   }
 
   /**
    * @param rowSet The rowSet to set.
    */
-  public void setRowSet( RowSet rowSet ) {
+  public void setRowSet( IRowSet rowSet ) {
     this.rowSet = rowSet;
   }
 
   /**
-   * @return Returns the transformInterface.
+   * @return Returns the iTransform.
    */
-  public TransformInterface getTransformInterface() {
-    return transformInterface;
+  public ITransform getTransformInterface() {
+    return iTransform;
   }
 
   /**
-   * @param transformInterface The transformInterface to set.
+   * @param iTransform The iTransform to set.
    */
-  public void setTransformInterface( TransformInterface transformInterface ) {
-    this.transformInterface = transformInterface;
+  public void setTransformInterface( ITransform iTransform ) {
+    this.iTransform = iTransform;
   }
 
 }

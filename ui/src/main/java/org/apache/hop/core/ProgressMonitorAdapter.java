@@ -22,12 +22,10 @@
 
 package org.apache.hop.core;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+public class ProgressMonitorAdapter implements IProgressMonitor {
+  private org.eclipse.core.runtime.IProgressMonitor monitor;
 
-public class ProgressMonitorAdapter implements ProgressMonitorListener {
-  private IProgressMonitor monitor;
-
-  public ProgressMonitorAdapter( IProgressMonitor monitor ) {
+  public ProgressMonitorAdapter( org.eclipse.core.runtime.IProgressMonitor monitor ) {
     this.monitor = monitor;
   }
 

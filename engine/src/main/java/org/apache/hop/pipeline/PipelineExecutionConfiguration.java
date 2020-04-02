@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
@@ -45,10 +45,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class PipelineExecutionConfiguration implements ExecutionConfiguration {
+public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public static final String XML_TAG = "pipeline_execution_configuration";
 
-  private final LogChannelInterface log = LogChannel.GENERAL;
+  private final ILogChannel log = LogChannel.GENERAL;
 
   private boolean executingLocally;
 
@@ -56,8 +56,8 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
   private SlaveServer remoteServer;
   private boolean passingExport;
 
-  private Map<String, String> params;
-  private Map<String, String> variables;
+  private Map<String, String> parametersMap;
+  private Map<String, String> variablesMap;
 
   private LogLevel logLevel;
   private boolean clearingLog;
@@ -79,8 +79,8 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
 
     passingExport = false;
 
-    params = new HashMap<>();
-    variables = new HashMap<>();
+    parametersMap = new HashMap<>();
+    variablesMap = new HashMap<>();
 
     logLevel = LogLevel.BASIC;
 
@@ -93,11 +93,11 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
     try {
       PipelineExecutionConfiguration configuration = (PipelineExecutionConfiguration) super.clone();
 
-      configuration.params = new HashMap<>();
-      configuration.params.putAll( params );
+      configuration.parametersMap = new HashMap<>();
+      configuration.parametersMap.putAll( parametersMap );
 
-      configuration.variables = new HashMap<>();
-      configuration.variables.putAll( variables );
+      configuration.variablesMap = new HashMap<>();
+      configuration.variablesMap.putAll( variablesMap );
 
       return configuration;
     } catch ( CloneNotSupportedException e ) {
@@ -106,39 +106,39 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param params the parameters to set
+   * @param parametersMap the parameters to set
    */
-  public void setParams( Map<String, String> params ) {
-    this.params = params;
+  public void setParametersMap( Map<String, String> parametersMap ) {
+    this.parametersMap = parametersMap;
   }
 
   /**
    * @return the parameters.
    */
-  public Map<String, String> getParams() {
-    return params;
+  public Map<String, String> getParametersMap() {
+    return parametersMap;
   }
 
   /**
    * @return the variables
    */
-  public Map<String, String> getVariables() {
-    return variables;
+  public Map<String, String> getVariablesMap() {
+    return variablesMap;
   }
 
   /**
-   * @param variables the variables to set
+   * @param variablesMap the variables to set
    */
-  public void setVariables( Map<String, String> variables ) {
-    this.variables = variables;
+  public void setVariablesMap( Map<String, String> variablesMap ) {
+    this.variablesMap = variablesMap;
   }
 
-  public void setVariables( VariableSpace space ) {
-    this.variables = new HashMap<>();
+  public void setVariablesMap( IVariables variablesMap ) {
+    this.variablesMap = new HashMap<>();
 
-    for ( String name : space.listVariables() ) {
-      String value = space.getVariable( name );
-      this.variables.put( name, value );
+    for ( String name : variablesMap.listVariables() ) {
+      String value = variablesMap.getVariable( name );
+      this.variablesMap.put( name, value );
     }
   }
 
@@ -187,11 +187,11 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
 
   public void getAllVariables( PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
-    VariableSpace space = Variables.getADefaultVariableSpace();
+    IVariables variables = Variables.getADefaultVariableSpace();
 
-    String[] keys = space.listVariables();
+    String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[ i ], space.getVariable( keys[ i ] ) );
+      sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
     }
 
     String[] vars = pipelineMeta.listVariables();
@@ -200,10 +200,10 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
 
       for ( int i = 0; i < vars.length; i++ ) {
         String varname = vars[ i ];
-        newVariables.put( varname, Const.NVL( variables.get( varname ), sp.getProperty( varname, "" ) ) );
+        newVariables.put( varname, Const.NVL( variablesMap.get( varname ), sp.getProperty( varname, "" ) ) );
       }
       // variables.clear();
-      variables.putAll( newVariables );
+      variablesMap.putAll( newVariables );
     }
 
     // Also add the internal job variables if these are set...
@@ -211,18 +211,18 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
     for ( String variableName : Const.INTERNAL_JOB_VARIABLES ) {
       String value = pipelineMeta.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
-        variables.put( variableName, value );
+        variablesMap.put( variableName, value );
       }
     }
   }
 
   public void getUsedVariables( PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
-    VariableSpace space = Variables.getADefaultVariableSpace();
+    IVariables variables = Variables.getADefaultVariableSpace();
 
-    String[] keys = space.listVariables();
+    String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[ i ], space.getVariable( keys[ i ] ) );
+      sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
     }
 
     List<String> vars = pipelineMeta.getUsedVariables();
@@ -232,11 +232,11 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
       for ( int i = 0; i < vars.size(); i++ ) {
         String varname = vars.get( i );
         if ( !varname.startsWith( Const.INTERNAL_VARIABLE_PREFIX ) ) {
-          newVariables.put( varname, Const.NVL( variables.get( varname ), sp.getProperty( varname, "" ) ) );
+          newVariables.put( varname, Const.NVL( variablesMap.get( varname ), sp.getProperty( varname, "" ) ) );
         }
       }
       // variables.clear();
-      variables.putAll( newVariables );
+      variablesMap.putAll( newVariables );
     }
 
     // Also add the internal job variables if these are set...
@@ -244,7 +244,7 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
     for ( String variableName : Const.INTERNAL_JOB_VARIABLES ) {
       String value = pipelineMeta.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
-        variables.put( variableName, value );
+        variablesMap.put( variableName, value );
       }
     }
   }
@@ -272,17 +272,17 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
 
     xml.append( "    " ).append( XMLHandler.addTagValue( "exec_remote", executingRemotely ) );
     if ( remoteServer != null ) {
-      xml.append( "    " ).append( remoteServer.getXML() ).append( Const.CR );
+      xml.append( "    " ).append( remoteServer.getXml() ).append( Const.CR );
     }
     xml.append( "    " ).append( XMLHandler.addTagValue( "pass_export", passingExport ) );
 
     // Serialize the parameters...
     //
     xml.append( "    <parameters>" ).append( Const.CR );
-    List<String> paramNames = new ArrayList<>( params.keySet() );
+    List<String> paramNames = new ArrayList<>( parametersMap.keySet() );
     Collections.sort( paramNames );
     for ( String name : paramNames ) {
-      String value = params.get( name );
+      String value = parametersMap.get( name );
       xml.append( "    <parameter>" );
       xml.append( XMLHandler.addTagValue( "name", name, false ) );
       xml.append( XMLHandler.addTagValue( "value", value, false ) );
@@ -293,10 +293,10 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
     // Serialize the variables...
     //
     xml.append( "    <variables>" ).append( Const.CR );
-    List<String> variableNames = new ArrayList<>( variables.keySet() );
+    List<String> variableNames = new ArrayList<>( variablesMap.keySet() );
     Collections.sort( variableNames );
     for ( String name : variableNames ) {
-      String value = variables.get( name );
+      String value = variablesMap.get( name );
       xml.append( "    <variable>" );
       xml.append( XMLHandler.addTagValue( "name", name, false ) );
       xml.append( XMLHandler.addTagValue( "value", value, false ) );
@@ -351,7 +351,7 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
       String name = XMLHandler.getTagValue( argNode, "name" );
       String value = XMLHandler.getTagValue( argNode, "value" );
       if ( !Utils.isEmpty( name ) ) {
-        variables.put( name, Const.NVL( value, "" ) );
+        variablesMap.put( name, Const.NVL( value, "" ) );
       }
     }
 
@@ -364,7 +364,7 @@ public class PipelineExecutionConfiguration implements ExecutionConfiguration {
       String name = XMLHandler.getTagValue( parmNode, "name" );
       String value = XMLHandler.getTagValue( parmNode, "value" );
       if ( !Utils.isEmpty( name ) ) {
-        params.put( name, value );
+        parametersMap.put( name, value );
       }
     }
 

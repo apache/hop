@@ -31,8 +31,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.scriptvalues_mod.ScriptValuesAddedFunctions;
@@ -126,7 +126,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-public class ScriptValuesModDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ScriptValuesModDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {
@@ -225,7 +225,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
 
   private TreeItem itemWaitFieldsIn, itemWaitFieldsOut;
 
-  private RowMetaInterface rowPrevTransformFields;
+  private IRowMeta rowPrevTransformFields;
 
   private RowGeneratorMeta genMeta;
 
@@ -1149,7 +1149,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
     try {
       // What fields are coming into the transform?
       //
-      RowMetaInterface rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
       if ( rowMeta != null ) {
         // Create a new RowGenerator transform to generate rows for the test data...
         // Only create a new instance the first time to help the user.
@@ -1161,9 +1161,9 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
           genMeta.allocate( rowMeta.size() );
           //CHECKSTYLE:Indentation:OFF
           for ( int i = 0; i < rowMeta.size(); i++ ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+            IValueMeta valueMeta = rowMeta.getValueMeta( i );
             if ( valueMeta.isStorageBinaryString() ) {
-              valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+              valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
             }
             genMeta.getFieldName()[ i ] = valueMeta.getName();
             genMeta.getFieldType()[ i ] = valueMeta.getTypeDesc();
@@ -1175,33 +1175,33 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
 
             String string = null;
             switch ( valueMeta.getType() ) {
-              case ValueMetaInterface.TYPE_DATE:
+              case IValueMeta.TYPE_DATE:
                 genMeta.getFieldFormat()[ i ] = "yyyy/MM/dd HH:mm:ss";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( new Date() );
                 break;
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 string = "test value test value";
                 break;
-              case ValueMetaInterface.TYPE_INTEGER:
+              case IValueMeta.TYPE_INTEGER:
                 genMeta.getFieldFormat()[ i ] = "#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Long.valueOf( 0L ) );
                 break;
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 genMeta.getFieldFormat()[ i ] = "#.#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Double.valueOf( 0.0D ) );
                 break;
-              case ValueMetaInterface.TYPE_BIGNUMBER:
+              case IValueMeta.TYPE_BIGNUMBER:
                 genMeta.getFieldFormat()[ i ] = "#.#";
                 valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( BigDecimal.ZERO );
                 break;
-              case ValueMetaInterface.TYPE_BOOLEAN:
+              case IValueMeta.TYPE_BOOLEAN:
                 string = valueMeta.getString( Boolean.TRUE );
                 break;
-              case ValueMetaInterface.TYPE_BINARY:
+              case IValueMeta.TYPE_BINARY:
                 string = valueMeta.getString( new byte[] { 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, } );
                 break;
               default:
@@ -1262,7 +1262,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
             }
           }
 
-          RowMetaInterface previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
+          IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
           List<Object[]> previewRows = progressDialog.getPreviewRows( wTransformName.getText() );
 
           if ( previewRowsMeta != null && previewRows != null && previewRows.size() > 0 ) {
@@ -1315,7 +1315,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
     jsscope.put( "_PipelineName_", jsscope, this.transformName );
 
     try {
-      RowMetaInterface rowMeta = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName );
       if ( rowMeta != null ) {
 
         ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( rowMeta, pipelineMeta.getTransformFields( transformName ) );
@@ -1367,7 +1367,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
           Scriptable jsRowMeta = Context.toObject( rowMeta, jsscope );
           jsscope.put( "rowMeta", jsscope, jsRowMeta );
           for ( int i = 0; i < rowMeta.size(); i++ ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
+            IValueMeta valueMeta = rowMeta.getValueMeta( i );
             Object valueData = null;
 
             // Set date and string values to something to simulate real thing
@@ -1396,7 +1396,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
             }
 
             if ( valueMeta.isStorageBinaryString() ) {
-              valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+              valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
             }
 
             row[ i ] = valueData;
@@ -1464,36 +1464,36 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
             for ( int i = 0; i < tree.getParamAndVarCount(); i++ ) {
               String varname = tree.getParamOrVarName( i );
               if ( !varname.equalsIgnoreCase( "row" ) && !varname.equalsIgnoreCase( "pipeline_Status" ) ) {
-                int type = ValueMetaInterface.TYPE_STRING;
+                int type = IValueMeta.TYPE_STRING;
                 int length = -1, precision = -1;
                 Object result = jsscope.get( varname, jsscope );
                 if ( result != null ) {
                   String classname = result.getClass().getName();
                   if ( classname.equalsIgnoreCase( "java.lang.Byte" ) ) {
                     // MAX = 127
-                    type = ValueMetaInterface.TYPE_INTEGER;
+                    type = IValueMeta.TYPE_INTEGER;
                     length = 3;
                     precision = 0;
                   } else if ( classname.equalsIgnoreCase( "java.lang.Integer" ) ) {
                     // MAX = 2147483647
-                    type = ValueMetaInterface.TYPE_INTEGER;
+                    type = IValueMeta.TYPE_INTEGER;
                     length = 9;
                     precision = 0;
                   } else if ( classname.equalsIgnoreCase( "java.lang.Long" ) ) {
                     // MAX = 9223372036854775807
-                    type = ValueMetaInterface.TYPE_INTEGER;
+                    type = IValueMeta.TYPE_INTEGER;
                     length = 18;
                     precision = 0;
                   } else if ( classname.equalsIgnoreCase( "java.lang.Double" ) ) {
-                    type = ValueMetaInterface.TYPE_NUMBER;
+                    type = IValueMeta.TYPE_NUMBER;
                     length = 16;
                     precision = 2;
 
                   } else if ( classname.equalsIgnoreCase( "org.mozilla.javascript.NativeDate" )
                     || classname.equalsIgnoreCase( "java.util.Date" ) ) {
-                    type = ValueMetaInterface.TYPE_DATE;
+                    type = IValueMeta.TYPE_DATE;
                   } else if ( classname.equalsIgnoreCase( "java.lang.Boolean" ) ) {
-                    type = ValueMetaInterface.TYPE_BOOLEAN;
+                    type = IValueMeta.TYPE_BOOLEAN;
                   }
                 }
                 TableItem ti = new TableItem( wFields.table, SWT.NONE );
@@ -1690,40 +1690,40 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
 
         // try{
 
-        // RowMetaInterface r = pipelineMeta.getPrevTransformFields(transformName);
+        // IRowMeta r = pipelineMeta.getPrevTransformFields(transformName);
         if ( rowPrevTransformFields != null ) {
           // TreeItem item = new TreeItem(wTree, SWT.NULL);
           // item.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.OutputFields.Label"));
           // String strItemToAdd="";
 
           for ( int i = 0; i < rowPrevTransformFields.size(); i++ ) {
-            ValueMetaInterface v = rowPrevTransformFields.getValueMeta( i );
+            IValueMeta v = rowPrevTransformFields.getValueMeta( i );
             strItemToAddOut = v.getName() + ".setValue(var)";
             if ( wCompatible.getSelection() ) {
               switch ( v.getType() ) {
-                case ValueMetaInterface.TYPE_STRING:
+                case IValueMeta.TYPE_STRING:
                   strItemInToAdd = v.getName() + ".getString()";
                   break;
-                case ValueMetaInterface.TYPE_NUMBER:
+                case IValueMeta.TYPE_NUMBER:
                   strItemInToAdd = v.getName() + ".getNumber()";
                   break;
-                case ValueMetaInterface.TYPE_INTEGER:
+                case IValueMeta.TYPE_INTEGER:
                   strItemInToAdd = v.getName() + ".getInteger()";
                   break;
-                case ValueMetaInterface.TYPE_DATE:
+                case IValueMeta.TYPE_DATE:
                   strItemInToAdd = v.getName() + ".getDate()";
                   break;
-                case ValueMetaInterface.TYPE_BOOLEAN:
+                case IValueMeta.TYPE_BOOLEAN:
                   strItemInToAdd = v.getName() + ".getBoolean()";
                   strItemToAddOut = v.getName() + ".setValue(var)";
                   break;
-                case ValueMetaInterface.TYPE_BIGNUMBER:
+                case IValueMeta.TYPE_BIGNUMBER:
                   strItemInToAdd = v.getName() + ".getBigNumber()";
                   break;
-                case ValueMetaInterface.TYPE_BINARY:
+                case IValueMeta.TYPE_BINARY:
                   strItemInToAdd = v.getName() + ".getBytes()";
                   break;
-                case ValueMetaInterface.TYPE_SERIALIZABLE:
+                case IValueMeta.TYPE_SERIALIZABLE:
                   strItemInToAdd = v.getName() + ".getSerializable()";
                   break;
                 default:
@@ -1740,9 +1740,9 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
             itemFields.setData( strItemInToAdd );
 
             /*
-             * switch(v.getType()){ case ValueMetaInterface.TYPE_STRING : case ValueMetaInterface.TYPE_NUMBER : case
-             * ValueMetaInterface.TYPE_INTEGER: case ValueMetaInterface.TYPE_DATE : case
-             * ValueMetaInterface.TYPE_BOOLEAN: strItemToAdd=v.getName()+".setValue(var)"; break; default:
+             * switch(v.getType()){ case IValueMeta.TYPE_STRING : case IValueMeta.TYPE_NUMBER : case
+             * IValueMeta.TYPE_INTEGER: case IValueMeta.TYPE_DATE : case
+             * IValueMeta.TYPE_BOOLEAN: strItemToAdd=v.getName()+".setValue(var)"; break; default:
              * strItemToAdd=v.getName(); break; }
              */
             if ( wCompatible.getSelection() ) {
@@ -1772,18 +1772,18 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements Transf
    * private void rebuildInputFieldsTree(){ try{ String itemName = BaseMessages.getString(PKG,
    * "ScriptValuesDialogMod.InputFields.Label");
    *
-   * RowMetaInterface r = pipelineMeta.getPrevTransformFields(transformName); if (r!=null){ TreeItem item = null; for (TreeItem look
+   * IRowMeta r = pipelineMeta.getPrevTransformFields(transformName); if (r!=null){ TreeItem item = null; for (TreeItem look
    * : wTree.getItems()) { if (look.getText().equals(itemName)) { // This is the rebuild part! for (TreeItem child :
    * look.getItems()) child.dispose(); // clear the children. item=look; break; } } if (item==null) item = new
    * TreeItem(wTree, SWT.NULL); item.setText(itemName); String strItemToAdd=""; for (int i=0;i<r.size();i++){
-   * ValueMetaInterface v = r.getValueMeta(i); if (wCompatible.getSelection()) { switch(v.getType()){ case
-   * ValueMetaInterface.TYPE_STRING : strItemToAdd=v.getName()+".getString()"; break; case
-   * ValueMetaInterface.TYPE_NUMBER : strItemToAdd=v.getName()+".getNumber()"; break; case
-   * ValueMetaInterface.TYPE_INTEGER: strItemToAdd=v.getName()+".getInteger()"; break; case ValueMetaInterface.TYPE_DATE
-   * : strItemToAdd=v.getName()+".getDate()"; break; case ValueMetaInterface.TYPE_BOOLEAN:
-   * strItemToAdd=v.getName()+".getBoolean()"; break; case ValueMetaInterface.TYPE_BIGNUMBER:
-   * strItemToAdd=v.getName()+".getBigNumber()"; break; case ValueMetaInterface.TYPE_BINARY:
-   * strItemToAdd=v.getName()+".getBytes()"; break; case ValueMetaInterface.TYPE_SERIALIZABLE:
+   * IValueMeta v = r.getValueMeta(i); if (wCompatible.getSelection()) { switch(v.getType()){ case
+   * IValueMeta.TYPE_STRING : strItemToAdd=v.getName()+".getString()"; break; case
+   * IValueMeta.TYPE_NUMBER : strItemToAdd=v.getName()+".getNumber()"; break; case
+   * IValueMeta.TYPE_INTEGER: strItemToAdd=v.getName()+".getInteger()"; break; case IValueMeta.TYPE_DATE
+   * : strItemToAdd=v.getName()+".getDate()"; break; case IValueMeta.TYPE_BOOLEAN:
+   * strItemToAdd=v.getName()+".getBoolean()"; break; case IValueMeta.TYPE_BIGNUMBER:
+   * strItemToAdd=v.getName()+".getBigNumber()"; break; case IValueMeta.TYPE_BINARY:
+   * strItemToAdd=v.getName()+".getBytes()"; break; case IValueMeta.TYPE_SERIALIZABLE:
    * strItemToAdd=v.getName()+".getSerializable()"; break; default: strItemToAdd=v.getName(); break; } } else {
    * strItemToAdd=v.getName(); } TreeItem itemInputFields = new TreeItem(item, SWT.NULL);
    * itemInputFields.setText(strItemToAdd); itemInputFields.setData(strItemToAdd); } } }catch(HopException ke){ new

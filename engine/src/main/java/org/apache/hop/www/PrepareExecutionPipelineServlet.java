@@ -41,7 +41,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 
 
-public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = PrepareExecutionPipelineServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -206,7 +206,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
         PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
         // Set the appropriate logging, variables, arguments, replay date, ...
         // etc.
-        pipeline.injectVariables( executionConfiguration.getVariables() );
+        pipeline.injectVariables( executionConfiguration.getVariablesMap() );
         pipeline.setPreviousResult( executionConfiguration.getPreviousResult() );
 
         try {

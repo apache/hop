@@ -27,15 +27,15 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -46,21 +46,21 @@ import java.sql.ResultSet;
  * @since 19-11-2009
  */
 
-public class TableCompare extends BaseTransform implements TransformInterface {
+public class TableCompare extends BaseTransform implements ITransform {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
 
   private TableCompareMeta meta;
   private TableCompareData data;
 
-  public TableCompare( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TableCompare( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (TableCompareMeta) getTransformMeta().getTransformMetaInterface();
-    data = (TableCompareData) transformDataInterface;
+    data = (TableCompareData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 
@@ -193,7 +193,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private Object[] compareTables( RowMetaInterface rowMeta, Object[] r ) throws HopException {
+  private Object[] compareTables( IRowMeta rowMeta, Object[] r ) throws HopException {
     try {
       String referenceSchema = getInputRowMeta().getString( r, data.refSchemaIndex );
       String referenceTable = getInputRowMeta().getString( r, data.refTableIndex );
@@ -210,7 +210,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
     }
   }
 
-  private Object[] compareTables( RowMetaInterface rowMeta, Object[] r, String referenceSchema,
+  private Object[] compareTables( IRowMeta rowMeta, Object[] r, String referenceSchema,
                                   String referenceTable, String compareSchema, String compareTable, String keyFields, String excludeFields ) throws HopException {
     long nrErrors = 0L;
     long nrLeftErrors = 0L;
@@ -264,8 +264,8 @@ public class TableCompare extends BaseTransform implements TransformInterface {
     }
 
     try {
-      RowMetaInterface refFields = data.referenceDb.getTableFieldsMeta( referenceSchema, referenceTable );
-      RowMetaInterface cmpFields = data.compareDb.getTableFieldsMeta( referenceSchema, referenceTable );
+      IRowMeta refFields = data.referenceDb.getTableFieldsMeta( referenceSchema, referenceTable );
+      IRowMeta cmpFields = data.compareDb.getTableFieldsMeta( referenceSchema, referenceTable );
 
       // Remove the excluded fields from these fields...
       //
@@ -324,8 +324,8 @@ public class TableCompare extends BaseTransform implements TransformInterface {
         // Now we read the data from both tables and compare keys and values...
         // First we construct the SQL
         //
-        RowMetaInterface keyRowMeta = new RowMeta();
-        RowMetaInterface valueRowMeta = new RowMeta();
+        IRowMeta keyRowMeta = new RowMeta();
+        IRowMeta valueRowMeta = new RowMeta();
 
         int[] keyNrs = new int[ keys.length ];
 
@@ -375,7 +375,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
 
         // Now grab rows of data and start comparing the individual rows ...
         //
-        RowMetaInterface oneMeta = null, twoMeta = null;
+        IRowMeta oneMeta = null, twoMeta = null;
 
         Object[] one = data.referenceDb.getRow( refSet );
         if ( one != null ) {
@@ -459,7 +459,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
                     // Give some details on what is wrong... (fields, values, etc)
                     //
                     for ( int idx : valueNrs ) {
-                      ValueMetaInterface valueMeta = oneMeta.getValueMeta( idx );
+                      IValueMeta valueMeta = oneMeta.getValueMeta( idx );
                       Object oneData = one[ idx ];
                       Object twoData = two[ idx ];
                       int cmp = valueMeta.compare( oneData, twoData );
@@ -554,10 +554,10 @@ public class TableCompare extends BaseTransform implements TransformInterface {
     return result;
   }
 
-  private String getKeyDesc( RowMetaInterface keyRowMeta, int[] keyNrs, Object[] one ) throws HopException {
+  private String getKeyDesc( IRowMeta keyRowMeta, int[] keyNrs, Object[] one ) throws HopException {
     StringBuilder keyDesc = new StringBuilder();
     for ( int x = 0; x < keyNrs.length; x++ ) {
-      ValueMetaInterface keyValueMeta = keyRowMeta.getValueMeta( x );
+      IValueMeta keyValueMeta = keyRowMeta.getValueMeta( x );
       Object keyValueData = one[ keyNrs[ x ] ];
 
       if ( keyDesc.length() > 0 ) {
@@ -570,7 +570,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
     return keyDesc.toString();
   }
 
-  private Object[] constructErrorRow( RowMetaInterface rowMeta, Object[] r, String keyField,
+  private Object[] constructErrorRow( IRowMeta rowMeta, Object[] r, String keyField,
                                       String referenceValue, String compareValue ) throws HopException {
 
     if ( data.errorRowMeta == null ) {
@@ -585,7 +585,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 
@@ -618,7 +618,7 @@ public class TableCompare extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 

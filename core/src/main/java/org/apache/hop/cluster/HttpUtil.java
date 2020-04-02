@@ -27,7 +27,7 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -52,7 +52,7 @@ public class HttpUtil {
   /**
    * Returns http GET request string using specified parameters.
    *
-   * @param space
+   * @param variables
    * @param hostname
    * @param port
    * @param webAppName
@@ -60,26 +60,26 @@ public class HttpUtil {
    * @return
    * @throws UnsupportedEncodingException
    */
-  public static String constructUrl( VariableSpace space, String hostname, String port, String webAppName,
+  public static String constructUrl( IVariables variables, String hostname, String port, String webAppName,
                                      String serviceAndArguments ) throws UnsupportedEncodingException {
-    return constructUrl( space, hostname, port, webAppName, serviceAndArguments, false );
+    return constructUrl( variables, hostname, port, webAppName, serviceAndArguments, false );
   }
 
-  public static String constructUrl( VariableSpace space, String hostname, String port, String webAppName,
+  public static String constructUrl( IVariables variables, String hostname, String port, String webAppName,
                                      String serviceAndArguments, boolean isSecure )
     throws UnsupportedEncodingException {
-    String realHostname = space.environmentSubstitute( hostname );
+    String realHostname = variables.environmentSubstitute( hostname );
     if ( !StringUtils.isEmpty( webAppName ) ) {
-      serviceAndArguments = "/" + space.environmentSubstitute( webAppName ) + serviceAndArguments;
+      serviceAndArguments = "/" + variables.environmentSubstitute( webAppName ) + serviceAndArguments;
     }
     String protocol = isSecure ? PROTOCOL_SECURE : PROTOCOL_UNSECURE;
-    String retval = protocol + "://" + realHostname + getPortSpecification( space, port ) + serviceAndArguments;
+    String retval = protocol + "://" + realHostname + getPortSpecification( variables, port ) + serviceAndArguments;
     retval = Const.replace( retval, " ", "%20" );
     return retval;
   }
 
-  public static String getPortSpecification( VariableSpace space, String port ) {
-    String realPort = space.environmentSubstitute( port );
+  public static String getPortSpecification( IVariables variables, String port ) {
+    String realPort = variables.environmentSubstitute( port );
     String portSpec = ":" + realPort;
     if ( Utils.isEmpty( realPort ) || port.equals( "80" ) ) {
       portSpec = "";

@@ -24,13 +24,13 @@ package org.apache.hop.pipeline.transforms.textfileoutputlegacy;
 
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.textfileoutput.TextFileOutputMeta;
 import org.w3c.dom.Node;
@@ -89,20 +89,20 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
   }
 
   @Override
-  public String buildFilename( String filename, String extension, VariableSpace space, int transformnr, String partnr,
+  public String buildFilename( String filename, String extension, iVariables variables, int transformnr, String partnr,
                                int splitnr, boolean ziparchive, TextFileOutputMeta meta ) {
     if ( ( (TextFileOutputLegacyMeta) meta ).isFileAsCommand() ) {
-      return space.environmentSubstitute( filename );
+      return variables.environmentSubstitute( filename );
     } else {
-      return super.buildFilename( filename, extension, space, transformnr, partnr, splitnr, ziparchive, meta );
+      return super.buildFilename( filename, extension, variables, transformnr, partnr, splitnr, ziparchive, meta );
     }
   }
 
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new TextFileOutputLegacy( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new TextFileOutputLegacy( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
 }

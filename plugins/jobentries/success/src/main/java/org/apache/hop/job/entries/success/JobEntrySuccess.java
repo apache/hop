@@ -22,15 +22,15 @@
 
 package org.apache.hop.job.entries.success;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -51,7 +51,7 @@ import java.util.List;
   image = "Success.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.General"
 )	 
-public class JobEntrySuccess extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntrySuccess extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntrySuccess.class; // for i18n purposes, needed by Translator!!
 
   public JobEntrySuccess( String n, String scr ) {
@@ -108,7 +108,7 @@ public class JobEntrySuccess extends JobEntryBase implements Cloneable, JobEntry
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
 
   }

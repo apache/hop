@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInputField;
 import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInputMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -78,7 +78,7 @@ import org.eclipse.swt.widgets.Text;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class LoadFileInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class LoadFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {
@@ -1101,7 +1101,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements Transfor
       try {
         String field = wFilenameField.getText();
         wFilenameField.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wFilenameField.setItems( r.getFieldNames() );
         }

@@ -31,9 +31,9 @@ import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -89,7 +89,7 @@ import java.util.List;
  * <p>
  */
 public class DatabaseExplorerDialog extends Dialog {
-  private LogChannelInterface log;
+  private ILogChannel log;
   private PropsUI props;
   private DatabaseMeta dbMeta;
   private DBCache dbcache;
@@ -744,7 +744,7 @@ public class DatabaseExplorerDialog extends Dialog {
   public void showTable( String tableName ) {
     String sql = dbMeta.getSQLQueryFields( tableName );
     GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog( shell, dbMeta, sql );
-    RowMetaInterface result = pd.open();
+    IRowMeta result = pd.open();
     if ( result != null ) {
       TransformFieldsDialog sfd = new TransformFieldsDialog( shell, dbMeta, SWT.NONE, tableName, result );
       sfd.open();
@@ -766,7 +766,7 @@ public class DatabaseExplorerDialog extends Dialog {
     Database db = new Database( dbMeta );
     try {
       db.connect();
-      RowMetaInterface r = db.getTableFields( tableName );
+      IRowMeta r = db.getTableFields( tableName );
       String sql = db.getCreateTableStatement( tableName, r, null, false, null, true );
       SQLEditor se = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, sql );
       se.open();
@@ -785,7 +785,7 @@ public class DatabaseExplorerDialog extends Dialog {
       try {
         db.connect();
 
-        RowMetaInterface r = db.getTableFields( tableName );
+        IRowMeta r = db.getTableFields( tableName );
 
         // Now select the other connection...
 
@@ -898,7 +898,7 @@ public class DatabaseExplorerDialog extends Dialog {
           STRING_SYNONYMS.equalsIgnoreCase( path[ 1 ] ) ) {
           schemaName = null;
           tableName = table;
-          if ( dbMeta.getDatabaseInterface().isMSSQLServerVariant() ) {
+          if ( dbMeta.getIDatabase().isMSSQLServerVariant() ) {
             String st[] = tableName.split( "\\.", 2 );
             if ( st.length > 1 ) { // we have a dot in there and need to separate
               schemaName = st[ 0 ];

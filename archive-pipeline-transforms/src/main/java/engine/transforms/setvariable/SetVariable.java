@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.setvariable;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -43,18 +43,18 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 27-apr-2006
  */
-public class SetVariable extends BaseTransform implements TransformInterface {
+public class SetVariable extends BaseTransform implements ITransform {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   private SetVariableMeta meta;
   private SetVariableData data;
 
-  public SetVariable( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SetVariable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 
@@ -108,7 +108,7 @@ public class SetVariable extends BaseTransform implements TransformInterface {
       if ( index < 0 ) {
         throw new HopException( "Unable to find field [" + meta.getFieldName()[ i ] + "] in input row" );
       }
-      ValueMetaInterface valueMeta = data.outputMeta.getValueMeta( index );
+      IValueMeta valueMeta = data.outputMeta.getValueMeta( index );
       Object valueData = rowData[ index ];
 
       // Get variable value
@@ -172,7 +172,7 @@ public class SetVariable extends BaseTransform implements TransformInterface {
         break;
       case SetVariableMeta.VARIABLE_TYPE_ROOT_JOB:
         // Comments by SB
-        // VariableSpace rootJob = null;
+        // iVariables rootJob = null;
         parentJob = pipeline.getParentJob();
         while ( parentJob != null ) {
           parentJob.setVariable( varname, value );
@@ -194,7 +194,7 @@ public class SetVariable extends BaseTransform implements TransformInterface {
 
         // Set the variable on the grand-parent job
         //
-        VariableSpace gpJob = pipeline.getParentJob().getParentJob();
+        iVariables gpJob = pipeline.getParentJob().getParentJob();
         if ( gpJob != null ) {
           gpJob.setVariable( varname, value );
         } else {
@@ -222,14 +222,14 @@ public class SetVariable extends BaseTransform implements TransformInterface {
     logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[ i ], value ) );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 
     super.dispose( smi, sdi );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 

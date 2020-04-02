@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +42,10 @@ import java.util.Random;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class ReservoirSamplingData extends BaseTransformData implements TransformDataInterface {
+public class ReservoirSamplingData extends BaseTransformData implements ITransformData {
 
   // the output data format
-  protected RowMetaInterface m_outputRowMeta;
+  protected IRowMeta m_outputRowMeta;
 
   // holds the sampled rows
   protected List<Object[]> m_sample = null;
@@ -69,18 +69,18 @@ public class ReservoirSamplingData extends BaseTransformData implements Transfor
   /**
    * Set the meta data for the output format
    *
-   * @param rmi a <code>RowMetaInterface</code> value
+   * @param rmi a <code>IRowMeta</code> value
    */
-  public void setOutputRowMeta( RowMetaInterface rmi ) {
+  public void setOutputRowMeta( IRowMeta rmi ) {
     m_outputRowMeta = rmi;
   }
 
   /**
    * Get the output meta data
    *
-   * @return a <code>RowMetaInterface</code> value
+   * @return a <code>IRowMeta</code> value
    */
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return m_outputRowMeta;
   }
 

@@ -25,9 +25,9 @@ package org.apache.hop.ui.core.widget;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
@@ -122,7 +122,7 @@ public class ConditionEditor extends Composite {
   private int previous_area_nr;
 
   private ArrayList<Condition> parents;
-  private RowMetaInterface fields;
+  private IRowMeta fields;
 
   private int max_field_length;
 
@@ -135,7 +135,7 @@ public class ConditionEditor extends Composite {
   private String messageString;
   private Menu mPop;
 
-  public ConditionEditor( Composite composite, int arg1, Condition co, RowMetaInterface inputFields ) {
+  public ConditionEditor( Composite composite, int arg1, Condition co, IRowMeta inputFields ) {
     super( composite, arg1 | SWT.NO_BACKGROUND | SWT.V_SCROLL | SWT.H_SCROLL );
 
     widget = this;
@@ -361,7 +361,7 @@ public class ConditionEditor extends Composite {
                 defnr = esd.getSelectionNr( def );
                 selection = esd.open( defnr );
                 if ( selection != null ) {
-                  ValueMetaInterface v = fields.getValueMeta( esd.getSelectionNr() );
+                  IValueMeta v = fields.getValueMeta( esd.getSelectionNr() );
                   active_condition.setLeftValuename( v.getName() );
                   setModified();
                 }
@@ -380,7 +380,7 @@ public class ConditionEditor extends Composite {
                 defnr = esd.getSelectionNr( def );
                 selection = esd.open( defnr );
                 if ( selection != null ) {
-                  ValueMetaInterface v = fields.getValueMeta( esd.getSelectionNr() );
+                  IValueMeta v = fields.getValueMeta( esd.getSelectionNr() );
                   active_condition.setRightValuename( v.getName() );
                   active_condition.setRightExact( null );
                   setModified();
@@ -392,7 +392,7 @@ public class ConditionEditor extends Composite {
               if ( active_condition.isAtomic() ) {
                 ValueMetaAndData v = active_condition.getRightExact();
                 if ( v == null ) {
-                  ValueMetaInterface leftval =
+                  IValueMeta leftval =
                     fields != null ? fields.searchValueMeta( active_condition.getLeftValuename() ) : null;
                   if ( leftval != null ) {
                     try {
@@ -480,7 +480,7 @@ public class ConditionEditor extends Composite {
     max_field_length = 5;
     if ( fields != null ) {
       for ( int i = 0; i < fields.size(); i++ ) {
-        ValueMetaInterface value = fields.getValueMeta( i );
+        IValueMeta value = fields.getValueMeta( i );
         if ( value != null && value.getName() != null ) {
           int len = fields.getValueMeta( i ).getName().length();
           if ( len > max_field_length ) {
@@ -593,7 +593,7 @@ public class ConditionEditor extends Composite {
           public void widgetSelected( SelectionEvent e ) {
             Condition c = active_condition.getCondition( cond_nr );
             try {
-              String xml = c.getXML();
+              String xml = c.getXml();
               GUIResource.getInstance().toClipboard( xml );
               widget.redraw();
             } catch ( Exception ex ) {

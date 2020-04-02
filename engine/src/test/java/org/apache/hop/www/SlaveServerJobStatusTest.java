@@ -29,7 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -101,7 +101,7 @@ public class SlaveServerJobStatusTest {
     List<String> attributes = Arrays.asList( "JobName", "Id", "StatusDescription", "ErrorDescription",
       "LogDate", "LoggingString", "FirstLoggingLineNr", "LastLoggingLineNr" );
 
-    Map<String, FieldLoadSaveValidator<?>> attributeMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attributeMap.put( "LoggingString", new LoggingStringLoadSaveValidator() );
 
     SlaveServerJobStatusLoadSaveTester tester =
@@ -110,7 +110,7 @@ public class SlaveServerJobStatusTest {
     tester.testSerialization();
   }
 
-  public static class LoggingStringLoadSaveValidator implements FieldLoadSaveValidator<String> {
+  public static class LoggingStringLoadSaveValidator implements IFieldLoadSaveValidator<String> {
 
     @Override
     public String getTestObject() {

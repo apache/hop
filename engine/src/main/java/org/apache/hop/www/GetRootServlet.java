@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class GetRootServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -139,7 +139,7 @@ public class GetRootServlet extends BaseHttpServlet implements HopServerPluginIn
   }
 
   public String toString() {
-    return "Root Handler";
+    return "Root IHandler";
   }
 
   public String getService() {

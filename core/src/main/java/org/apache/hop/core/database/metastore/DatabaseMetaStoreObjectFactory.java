@@ -1,9 +1,9 @@
 package org.apache.hop.core.database.metastore;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
@@ -37,7 +37,7 @@ public class DatabaseMetaStoreObjectFactory implements IMetaStoreObjectFactory {
       }
 
     }
-    PluginInterface plugin = registry.findPluginWithId( DatabasePluginType.class, pluginId );
+    IPlugin plugin = registry.findPluginWithId( DatabasePluginType.class, pluginId );
     if ( plugin == null ) {
       throw new MetaStoreException( "Unable to find the plugin in the context of a database meta plugin, classname: " + className + ", plugin id: " + pluginId );
     }
@@ -51,8 +51,8 @@ public class DatabaseMetaStoreObjectFactory implements IMetaStoreObjectFactory {
 
   @Override public Map<String, String> getContext( Object pluginObject ) throws MetaStoreException {
     Map<String, String> context = new HashMap<>();
-    if ( pluginObject instanceof DatabaseInterface ) {
-      context.put( PLUGIN_ID_KEY, ( (DatabaseInterface) pluginObject ).getPluginId() );
+    if ( pluginObject instanceof IDatabase ) {
+      context.put( PLUGIN_ID_KEY, ( (IDatabase) pluginObject ).getPluginId() );
     }
     return context;
   }

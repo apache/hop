@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
@@ -68,12 +68,12 @@ public class EnterPreviewRowsDialog extends Dialog {
 
   private Shell shell;
   private java.util.List<String> transformNames;
-  private java.util.List<RowMetaInterface> rowMetas;
+  private java.util.List<IRowMeta> rowMetas;
   private java.util.List<java.util.List<Object[]>> rowDatas;
   private PropsUI props;
 
   public EnterPreviewRowsDialog( Shell parent, int style, java.util.List<String> transformNames,
-                                 java.util.List<RowMetaInterface> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
+                                 java.util.List<IRowMeta> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
     super( parent, style );
     this.transformNames = transformNames;
     this.rowDatas = rowBuffers;
@@ -198,7 +198,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     int nr = wTransformList.getSelectionIndex();
 
     java.util.List<Object[]> buffer = rowDatas.get( nr );
-    RowMetaInterface rowMeta = rowMetas.get( nr );
+    IRowMeta rowMeta = rowMetas.get( nr );
     String name = transformNames.get( nr );
 
     if ( rowMeta != null && buffer != null && buffer.size() > 0 ) {

@@ -5,7 +5,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.RowDistributionInterface;
+import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -159,7 +159,7 @@ public class HopGuiPipelineHopDelegate {
         fr.setRowDistribution( null );
       } else if ( customDistribution ) {
 
-        RowDistributionInterface rowDistribution = pipelineGraph.askUserForCustomDistributionMethod();
+        IRowDistribution rowDistribution = pipelineGraph.askUserForCustomDistributionMethod();
 
         fr.setDistributes( true );
         fr.setRowDistribution( rowDistribution );

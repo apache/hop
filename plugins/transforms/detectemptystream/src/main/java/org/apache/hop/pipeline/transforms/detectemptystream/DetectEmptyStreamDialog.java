@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.*;
  * @since 30-08-2008
  */
 
-public class DetectEmptyStreamDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   private DetectEmptyStreamMeta input;

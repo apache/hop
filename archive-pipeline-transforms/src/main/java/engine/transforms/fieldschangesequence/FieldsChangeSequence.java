@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.fieldschangesequence;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -42,19 +42,19 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @since 30-06-2008
  */
 
-public class FieldsChangeSequence extends BaseTransform implements TransformInterface {
+public class FieldsChangeSequence extends BaseTransform implements ITransform {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private FieldsChangeSequenceMeta meta;
   private FieldsChangeSequenceData data;
 
-  public FieldsChangeSequence( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public FieldsChangeSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 
@@ -76,7 +76,7 @@ public class FieldsChangeSequence extends BaseTransform implements TransformInte
         data.fieldnr = meta.getFieldName().length;
         data.fieldnrs = new int[ data.fieldnr ];
         data.previousValues = new Object[ data.fieldnr ];
-        data.fieldnrsMeta = new ValueMetaInterface[ data.fieldnr ];
+        data.fieldnrsMeta = new IValueMeta[ data.fieldnr ];
         for ( int i = 0; i < data.fieldnr; i++ ) {
           data.fieldnrs[ i ] = data.previousMeta.indexOfValue( meta.getFieldName()[ i ] );
           if ( data.fieldnrs[ i ] < 0 ) {
@@ -91,7 +91,7 @@ public class FieldsChangeSequence extends BaseTransform implements TransformInte
         data.fieldnr = data.previousMeta.size();
         data.fieldnrs = new int[ data.fieldnr ];
         data.previousValues = new Object[ data.fieldnr ];
-        data.fieldnrsMeta = new ValueMetaInterface[ data.fieldnr ];
+        data.fieldnrsMeta = new IValueMeta[ data.fieldnr ];
         for ( int i = 0; i < data.previousMeta.size(); i++ ) {
           data.fieldnrs[ i ] = i;
           data.fieldnrsMeta[ i ] = data.previousMeta.getValueMeta( i );
@@ -169,7 +169,7 @@ public class FieldsChangeSequence extends BaseTransform implements TransformInte
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 
@@ -181,7 +181,7 @@ public class FieldsChangeSequence extends BaseTransform implements TransformInte
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 

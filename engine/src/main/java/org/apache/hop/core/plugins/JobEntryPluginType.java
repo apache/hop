@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -45,9 +45,9 @@ import java.util.Map;
     "JobCategory.Category.XML", "JobCategory.Category.Utility", "JobCategory.Category.Repository",
     "JobCategory.Category.FileTransfer", "JobCategory.Category.FileEncryption", "JobCategory.Category.Palo",
     "JobCategory.Category.Experimental", "JobCategory.Category.Deprecated" }, i18nPackageClass = JobMeta.class )
-@PluginMainClassType( JobEntryInterface.class )
+@PluginMainClassType( IJobEntry.class )
 @PluginAnnotationType( JobEntry.class )
-public class JobEntryPluginType extends BasePluginType implements PluginTypeInterface {
+public class JobEntryPluginType extends BasePluginType implements IPluginType {
   private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String GENERAL_CATEGORY = BaseMessages.getString( PKG, "JobCategory.Category.General" );

@@ -24,14 +24,14 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -108,11 +108,11 @@ public class PreviewRowsDialog {
 
   private boolean askingToStop;
 
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private boolean dynamic;
 
@@ -124,23 +124,23 @@ public class PreviewRowsDialog {
 
   private Shell parentShell;
 
-  private List<DialogClosedListener> dialogClosedListeners;
+  private List<IDialogClosedListener> dialogClosedListeners;
 
-  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String transformName,
-                            RowMetaInterface rowMeta, List<Object[]> rowBuffer ) {
-    this( parent, space, style, transformName, rowMeta, rowBuffer, null );
+  public PreviewRowsDialog( Shell parent, IVariables variables, int style, String transformName,
+                            IRowMeta rowMeta, List<Object[]> rowBuffer ) {
+    this( parent, variables, style, transformName, rowMeta, rowBuffer, null );
   }
 
-  public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String transformName,
-                            RowMetaInterface rowMeta, List<Object[]> rowBuffer, String loggingText ) {
+  public PreviewRowsDialog( Shell parent, IVariables variables, int style, String transformName,
+                            IRowMeta rowMeta, List<Object[]> rowBuffer, String loggingText ) {
     this.transformName = transformName;
     this.buffer = rowBuffer;
     this.loggingText = loggingText;
     this.rowMeta = rowMeta;
-    this.variables = space;
+    this.variables = variables;
     this.parentShell = parent;
     this.style = ( style != SWT.None ) ? style : this.style;
-    this.dialogClosedListeners = new ArrayList<DialogClosedListener>();
+    this.dialogClosedListeners = new ArrayList<IDialogClosedListener>();
 
     props = PropsUI.getInstance();
     bounds = null;
@@ -306,7 +306,7 @@ public class PreviewRowsDialog {
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
     ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( i );
+      IValueMeta v = rowMeta.getValueMeta( i );
       colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
       colinf[ i ].setToolTip( v.toStringMeta() );
       colinf[ i ].setValueMeta( v );
@@ -384,7 +384,7 @@ public class PreviewRowsDialog {
     item.setText( 0, strNr );
 
     for ( int c = 0; c < rowMeta.size(); c++ ) {
-      ValueMetaInterface v = rowMeta.getValueMeta( c );
+      IValueMeta v = rowMeta.getValueMeta( c );
       String show;
       try {
         show = v.getString( row[ c ] );
@@ -529,7 +529,7 @@ public class PreviewRowsDialog {
     this.dynamic = dynamic;
   }
 
-  public synchronized void addDataRow( final RowMetaInterface rowMeta, final Object[] rowData ) {
+  public synchronized void addDataRow( final IRowMeta rowMeta, final Object[] rowData ) {
 
     if ( shell == null || shell.isDisposed() ) {
       return;
@@ -570,7 +570,7 @@ public class PreviewRowsDialog {
     } );
   }
 
-  public void addDialogClosedListener( DialogClosedListener listener ) {
+  public void addDialogClosedListener( IDialogClosedListener listener ) {
     dialogClosedListeners.add( listener );
   }
 }

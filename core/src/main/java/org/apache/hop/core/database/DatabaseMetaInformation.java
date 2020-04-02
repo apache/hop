@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -164,7 +164,7 @@ public class DatabaseMetaInformation {
     this.procedures = procedures;
   }
 
-  public void getData( LoggingObjectInterface parentLoggingObject, ProgressMonitorListener monitor ) throws HopDatabaseException {
+  public void getData( ILoggingObject parentLoggingObject, IProgressMonitor monitor ) throws HopDatabaseException {
     if ( monitor != null ) {
       monitor.beginTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingInfoFromDb" ), 8 );
     }

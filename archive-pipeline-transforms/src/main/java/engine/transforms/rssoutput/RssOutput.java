@@ -45,8 +45,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.dom4j.DocumentHelper;
@@ -65,18 +65,18 @@ import java.util.Date;
  * @author Samatar
  * @since 6-nov-2007
  */
-public class RssOutput extends BaseTransform implements TransformInterface {
+public class RssOutput extends BaseTransform implements ITransform {
   private static Class<?> PKG = RssOutput.class; // for i18n purposes, needed by Translator!!
 
   private RssOutputMeta meta;
   private RssOutputData data;
 
-  public RssOutput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public RssOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
 
@@ -727,7 +727,7 @@ public class RssOutput extends BaseTransform implements TransformInterface {
     return retval;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
 
@@ -738,7 +738,7 @@ public class RssOutput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
     if ( data.document != null ) {

@@ -22,22 +22,22 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class CreditCardValidatorData extends BaseTransformData implements TransformDataInterface {
+public class CreditCardValidatorData extends BaseTransformData implements ITransformData {
   public int indexOfField;
   public String realResultFieldname;
   public String realCardTypeFieldname;
   public String realNotValidMsgFieldname;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int NrPrevFields;
-  public RowMetaInterface previousRowMeta;
+  public IRowMeta previousRowMeta;
 
   public CreditCardValidatorData() {
     super();

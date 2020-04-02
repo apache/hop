@@ -23,12 +23,12 @@
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -44,7 +44,7 @@ import java.util.List;
 @Transform( id = "ChangeFileEncoding", i18nPackageName = "org.apache.hop.pipeline.transforms.changefileencoding",
   name = "ChangeFileEncoding.Name", description = "ChangeFileEncoding.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility" )
-public class ChangeFileEncodingMeta extends BaseTransformMeta implements TransformMetaInterface<ChangeFileEncoding, ChangeFileEncodingData> {
+public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
   private static final Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator!!
 
@@ -198,8 +198,8 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements Transfo
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -258,9 +258,9 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements Transfo
 
   }
 
-  public ChangeFileEncoding createTransform( TransformMeta transformMeta, ChangeFileEncodingData transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ChangeFileEncoding createTransform( TransformMeta transformMeta, ChangeFileEncodingData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                              Pipeline pipeline ) {
-    return new ChangeFileEncoding( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ChangeFileEncoding( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public ChangeFileEncodingData getTransformData() {

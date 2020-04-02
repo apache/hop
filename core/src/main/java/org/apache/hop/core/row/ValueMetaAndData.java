@@ -43,7 +43,7 @@ import java.util.Date;
 public class ValueMetaAndData {
   public static final String XML_TAG = "value";
 
-  private ValueMetaInterface valueMeta;
+  private IValueMeta valueMeta;
   private Object valueData;
 
   public ValueMetaAndData() {
@@ -53,7 +53,7 @@ public class ValueMetaAndData {
    * @param valueMeta
    * @param valueData
    */
-  public ValueMetaAndData( ValueMetaInterface valueMeta, Object valueData ) {
+  public ValueMetaAndData( IValueMeta valueMeta, Object valueData ) {
     this.valueMeta = valueMeta;
     this.valueData = valueData;
   }
@@ -108,7 +108,7 @@ public class ValueMetaAndData {
    * @throws HopValueException in case there is a data conversion error, only throws in case of lazy conversion
    */
   public String getXML() throws HopValueException {
-    ValueMetaInterface meta = valueMeta.clone();
+    IValueMeta meta = valueMeta.clone();
     meta.setDecimalSymbol( "." );
     meta.setGroupingSymbol( null );
     meta.setCurrencySymbol( null );
@@ -167,14 +167,14 @@ public class ValueMetaAndData {
         valueMeta.setConversionMask( mask );
       }
 
-      if ( valtype != ValueMetaInterface.TYPE_STRING ) {
-        ValueMetaInterface originMeta = new ValueMetaString( valname );
+      if ( valtype != IValueMeta.TYPE_STRING ) {
+        IValueMeta originMeta = new ValueMetaString( valname );
         if ( valueMeta.isNumeric() ) {
           originMeta.setDecimalSymbol( "." );
           originMeta.setGroupingSymbol( null );
           originMeta.setCurrencySymbol( null );
         }
-        if ( valtype == ValueMetaInterface.TYPE_DATE ) {
+        if ( valtype == IValueMeta.TYPE_DATE ) {
           originMeta.setConversionMask( ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN );
         }
         valueData = Const.trim( text );
@@ -213,14 +213,14 @@ public class ValueMetaAndData {
   /**
    * @return the valueMeta
    */
-  public ValueMetaInterface getValueMeta() {
+  public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
   /**
    * @param valueMeta the valueMeta to set
    */
-  public void setValueMeta( ValueMetaInterface valueMeta ) {
+  public void setValueMeta( IValueMeta valueMeta ) {
     this.valueMeta = valueMeta;
   }
 

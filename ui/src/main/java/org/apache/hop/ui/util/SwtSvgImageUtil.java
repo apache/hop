@@ -30,8 +30,8 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageBitmap;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.ui.core.ConstUI;
@@ -53,7 +53,7 @@ import java.net.URL;
  */
 public class SwtSvgImageUtil {
 
-  private static LogChannelInterface log = new LogChannel( "SwtSvgImageUtil" );
+  private static ILogChannel log = new LogChannel( "SwtSvgImageUtil" );
 
   private static final String NO_IMAGE = "ui/images/no_image.svg";
 

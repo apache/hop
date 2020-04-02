@@ -22,19 +22,19 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
+public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   private boolean inputAcceptor;
   private boolean outputProducer;
   private boolean inputOptional;
   private boolean outputDynamic;
   private boolean inputDynamic;
 
-  private List<StreamInterface> streams;
+  private List<IStream> streams;
   private boolean sortedDataRequired;
 
   private String generalInfoDescription;
@@ -50,7 +50,7 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
     this.outputProducer = outputProducer;
     this.inputOptional = inputOptional;
     this.sortedDataRequired = sortedDataRequired;
-    this.streams = java.util.Collections.synchronizedList( new ArrayList<StreamInterface>() );
+    this.streams = java.util.Collections.synchronizedList( new ArrayList<IStream>() );
     this.inputDynamic = inputDynamic;
     this.outputDynamic = outputDynamic;
   }
@@ -59,7 +59,7 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
   protected TransformIOMeta clone() throws CloneNotSupportedException {
     TransformIOMeta ioMeta = (TransformIOMeta) super.clone();
 
-    List<StreamInterface> cloneStreams = new ArrayList<>( streams );
+    List<IStream> cloneStreams = new ArrayList<>( streams );
     ioMeta.streams = java.util.Collections.synchronizedList( cloneStreams );
     return ioMeta;
   }
@@ -110,11 +110,11 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
    * @return the info streams of this transform. Important: Modifying this list does not have any effect on the Transforms IO
    * metadata.
    */
-  public List<StreamInterface> getInfoStreams() {
-    List<StreamInterface> list = new ArrayList<StreamInterface>();
+  public List<IStream> getInfoStreams() {
+    List<IStream> list = new ArrayList<IStream>();
     synchronized ( streams ) {
-      for ( StreamInterface stream : streams ) {
-        if ( stream.getStreamType().equals( StreamInterface.StreamType.INFO ) ) {
+      for ( IStream stream : streams ) {
+        if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
           list.add( stream );
         }
       }
@@ -126,11 +126,11 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
    * @return the target streams of this transform. Important: Modifying this list does not have any effect on the Transforms IO
    * metadata.
    */
-  public List<StreamInterface> getTargetStreams() {
-    List<StreamInterface> list = new ArrayList<StreamInterface>();
+  public List<IStream> getTargetStreams() {
+    List<IStream> list = new ArrayList<IStream>();
     synchronized ( streams ) {
-      for ( StreamInterface stream : streams ) {
-        if ( stream.getStreamType().equals( StreamInterface.StreamType.TARGET ) ) {
+      for ( IStream stream : streams ) {
+        if ( stream.getStreamType().equals( IStream.StreamType.TARGET ) ) {
           list.add( stream );
         }
       }
@@ -152,12 +152,12 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
     this.sortedDataRequired = sortedDataRequired;
   }
 
-  public void addStream( StreamInterface stream ) {
+  public void addStream( IStream stream ) {
     streams.add( stream );
   }
 
   public String[] getInfoTransformNames() {
-    List<StreamInterface> infoStreams = getInfoStreams();
+    List<IStream> infoStreams = getInfoStreams();
     String[] names = new String[ infoStreams.size() ];
     for ( int i = 0; i < names.length; i++ ) {
       names[ i ] = infoStreams.get( i ).getTransformName();
@@ -166,7 +166,7 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
   }
 
   public String[] getTargetTransformNames() {
-    List<StreamInterface> targetStreams = getTargetStreams();
+    List<IStream> targetStreams = getTargetStreams();
     String[] names = new String[ targetStreams.size() ];
     for ( int i = 0; i < names.length; i++ ) {
       names[ i ] = targetStreams.get( i ).getTransformName();
@@ -182,10 +182,10 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
   public void setInfoTransforms( TransformMeta[] infoTransforms ) {
     // First get the info transforms...
     //
-    List<StreamInterface> list = new ArrayList<StreamInterface>();
+    List<IStream> list = new ArrayList<IStream>();
     synchronized ( streams ) {
-      for ( StreamInterface stream : streams ) {
-        if ( stream.getStreamType().equals( StreamInterface.StreamType.INFO ) ) {
+      for ( IStream stream : streams ) {
+        if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
           list.add( stream );
         }
       }
@@ -258,8 +258,8 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
     this.inputDynamic = inputDynamic;
   }
 
-  public StreamInterface findTargetStream( TransformMeta targetTransform ) {
-    for ( StreamInterface stream : getTargetStreams() ) {
+  public IStream findTargetStream( TransformMeta targetTransform ) {
+    for ( IStream stream : getTargetStreams() ) {
       if ( targetTransform.equals( stream.getTransformMeta() ) ) {
         return stream;
       }
@@ -267,8 +267,8 @@ public class TransformIOMeta implements TransformIOMetaInterface, Cloneable {
     return null;
   }
 
-  public StreamInterface findInfoStream( TransformMeta infoTransform ) {
-    for ( StreamInterface stream : getInfoStreams() ) {
+  public IStream findInfoStream( TransformMeta infoTransform ) {
+    for ( IStream stream : getInfoStreams() ) {
       if ( infoTransform.equals( stream.getTransformMeta() ) ) {
         return stream;
       }

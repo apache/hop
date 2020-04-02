@@ -50,7 +50,7 @@ public class PipelineConfiguration {
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( pipelineMeta.getXML() );
+    xml.append( pipelineMeta.getXml() );
     xml.append( pipelineExecutionConfiguration.getXML() );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );

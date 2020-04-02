@@ -31,14 +31,14 @@ import java.util.Iterator;
  * @param <E>
  * @author dhushon
  */
-public class LAFDelegate<E extends Handler> {
+public class LAFDelegate<E extends IHandler> {
 
   E handler;
   Class<E> handlerClass = null;
   Class<E> defaultHandlerClass = null;
 
   // Set of Listeners for a concrete handler - intended use... getListeners for a given class
-  private HashSet<LAFChangeListener<E>> registry = new HashSet<LAFChangeListener<E>>();
+  private HashSet<ILAFChangeListener<E>> registry = new HashSet<ILAFChangeListener<E>>();
 
   /**
    *
@@ -60,7 +60,7 @@ public class LAFDelegate<E extends Handler> {
   }
 
   /**
-   * load a concrete Handler for a given Interface (by String classname) if the class is not instantiable, will fallback
+   * load a concrete IHandler for a given Interface (by String classname) if the class is not instantiable, will fallback
    * to default, and then fallback to an abstract implementation. Will always return non-null.
    *
    * @param classname
@@ -90,26 +90,26 @@ public class LAFDelegate<E extends Handler> {
     return h;
   }
 
-  public E registerChangeListener( LAFChangeListener<E> listener ) {
+  public E registerChangeListener( ILAFChangeListener<E> listener ) {
     // see if a handler has been instantiated for the requested Interface
     registry.add( listener );
     return handler;
   }
 
   /**
-   * unregister a @see LAFChangeListener from the Map which will prevent notification on @see Handler change
+   * unregister a @see ILAFChangeListener from the Map which will prevent notification on @see IHandler change
    *
    * @param listener
    */
-  public void unregisterChangeListener( LAFChangeListener<E> listener ) {
+  public void unregisterChangeListener( ILAFChangeListener<E> listener ) {
     registry.remove( listener );
   }
 
-  public HashSet<LAFChangeListener<E>> getListeners() {
+  public HashSet<ILAFChangeListener<E>> getListeners() {
     return registry;
   }
 
-  public void loadListeners( HashSet<LAFChangeListener<E>> listeners ) {
+  public void loadListeners( HashSet<ILAFChangeListener<E>> listeners ) {
     registry = listeners;
   }
 
@@ -119,7 +119,7 @@ public class LAFDelegate<E extends Handler> {
   }
 
   protected void notifyListeners() {
-    Iterator<LAFChangeListener<E>> iterator = registry.iterator();
+    Iterator<ILAFChangeListener<E>> iterator = registry.iterator();
     while ( iterator.hasNext() ) {
       iterator.next().notify( handler );
     }

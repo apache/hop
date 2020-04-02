@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-public class BlockingTransformData extends BaseTransformData implements TransformDataInterface {
+public class BlockingTransformData extends BaseTransformData implements ITransformData {
   public List<FileObject> files;
   public List<Object[]> buffer;
   public List<InputStream> fis;
@@ -41,7 +41,7 @@ public class BlockingTransformData extends BaseTransformData implements Transfor
   public List<DataInputStream> dis;
   public List<Object[]> rowbuffer;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public int[] fieldnrs; // the corresponding field numbers;
   public FileObject fil;

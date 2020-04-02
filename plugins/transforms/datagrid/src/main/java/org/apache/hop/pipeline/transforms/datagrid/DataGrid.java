@@ -23,18 +23,18 @@
 package org.apache.hop.pipeline.transforms.datagrid;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.util.List;
 
@@ -44,21 +44,21 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class DataGrid extends BaseTransform implements TransformInterface {
+public class DataGrid extends BaseTransform implements ITransform {
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   private DataGridMeta meta;
   private DataGridData data;
 
-  public DataGrid( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public DataGrid( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (DataGridMeta) getTransformMeta().getTransformMetaInterface();
-    data = (DataGridData) transformDataInterface;
+    data = (DataGridData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     if ( data.linesWritten >= meta.getDataLines().size() ) {
       // no more rows to be written
       setOutputDone();
@@ -77,7 +77,7 @@ public class DataGrid extends BaseTransform implements TransformInterface {
 
       // Use these metadata values to convert data...
       //
-      data.convertMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.convertMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
     }
 
     Object[] outputRowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
@@ -89,8 +89,8 @@ public class DataGrid extends BaseTransform implements TransformInterface {
         outputRowData[ i ] = StringUtil.EMPTY_STRING;
       } else {
 
-        ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( i );
-        ValueMetaInterface convertMeta = data.convertMeta.getValueMeta( i );
+        IValueMeta valueMeta = data.outputRowMeta.getValueMeta( i );
+        IValueMeta convertMeta = data.convertMeta.getValueMeta( i );
         String valueData = outputLine.get( i );
 
         if ( valueData != null && valueMeta.isNull( valueData ) ) {

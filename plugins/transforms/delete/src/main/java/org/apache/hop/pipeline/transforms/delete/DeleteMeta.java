@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.delete;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.annotations.Transform;
@@ -32,10 +32,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -61,7 +61,7 @@ import java.util.List;
   description = "BaseTransform.TypeTooltipDesc.Delete",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
 )
-public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterface<Delete, DeleteData> {
+public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Delete, DeleteData> {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -130,7 +130,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
    *           usually "this" for a calling transform
    * @return Returns the commitSize.
    */
-  public int getCommitSize( VariableSpace vs ) {
+  public int getCommitSize( IVariables vs ) {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = ( commitSize == null ) ? "0" : commitSize;
     return Integer.parseInt( vs.environmentSubstitute( commitSize ) );
@@ -333,13 +333,13 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -352,7 +352,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
 
         if ( !Utils.isEmpty( tableName ) ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
               PKG, "DeleteMeta.CheckResult.TablenameOK" ), transformMeta );
           remarks.add( cr );
 
@@ -361,17 +361,17 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           error_message = "";
 
           // Check fields in table
-          RowMetaInterface r = db.getTableFieldsMeta( schemaName, tableName );
+          IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "DeleteMeta.CheckResult.VisitTableSuccessfully" ), transformMeta );
             remarks.add( cr );
 
             for ( int i = 0; i < keyLookup.length; i++ ) {
               String lufield = keyLookup[ i ];
 
-              ValueMetaInterface v = r.searchValueMeta( lufield );
+              IValueMeta v = r.searchValueMeta( lufield );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -384,16 +384,16 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "DeleteMeta.CheckResult.FoundLookupFields" ), transformMeta );
             }
             remarks.add( cr );
           } else {
             error_message = BaseMessages.getString( PKG, "DeleteMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           }
         }
@@ -402,7 +402,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
         if ( prev != null && prev.size() > 0 ) {
           cr =
             new CheckResult(
-              CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
               PKG, "DeleteMeta.CheckResult.ConnectedTransformSuccessfully", String.valueOf( prev.size() ) ),
               transformMeta );
           remarks.add( cr );
@@ -412,7 +412,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+            IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -424,7 +424,7 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
             if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
+              IValueMeta v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -437,10 +437,10 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "DeleteMeta.CheckResult.AllFieldsFound" ), transformMeta );
           }
           remarks.add( cr );
@@ -451,37 +451,37 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
           error_message = "";
         } else {
           error_message = BaseMessages.getString( PKG, "DeleteMeta.CheckResult.MissingFields3" ) + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         error_message = BaseMessages.getString( PKG, "DeleteMeta.CheckResult.DatabaseError" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
       error_message = BaseMessages.getString( PKG, "DeleteMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DeleteMeta.CheckResult.TransformReceivingInfo" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "DeleteMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -540,12 +540,12 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
+        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
@@ -557,9 +557,9 @@ public class DeleteMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public Delete createTransform( TransformMeta transformMeta, DeleteData transformDataInterface, int cnr, PipelineMeta tr,
+  public Delete createTransform( TransformMeta transformMeta, DeleteData iTransformData, int cnr, PipelineMeta tr,
                                  Pipeline pipeline ) {
-    return new Delete( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Delete( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public DeleteData getTransformData() {

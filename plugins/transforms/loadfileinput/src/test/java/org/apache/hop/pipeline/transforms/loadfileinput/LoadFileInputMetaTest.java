@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
 import org.junit.After;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM
  */
-public class LoadFileInputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class LoadFileInputMetaTest implements IInitializerInterface<ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
 
@@ -188,16 +188,16 @@ public class LoadFileInputMetaTest implements InitializerInterface<TransformMeta
         put( "inputFields", "setInputFields" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
-    FieldLoadSaveValidator<LoadFileInputField[]> lfifArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<LoadFileInputField[]> lfifArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<LoadFileInputField>( new LoadFileInputFieldLoadSaveValidator(), 5 );
 
-    FieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
@@ -206,7 +206,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<TransformMeta
 
     attrValidatorMap.put( "inputFields", lfifArrayLoadSaveValidator );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( LoadFileInputMeta.class, attributes, new ArrayList<>(),
@@ -215,7 +215,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<TransformMeta
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof LoadFileInputMeta ) {
       ( (LoadFileInputMeta) someMeta ).allocate( 5, 5 );
     }
@@ -227,7 +227,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<TransformMeta
     loadSaveTester.testSerialization();
   }
 
-  public class LoadFileInputFieldLoadSaveValidator implements FieldLoadSaveValidator<LoadFileInputField> {
+  public class LoadFileInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<LoadFileInputField> {
     final Random rand = new Random();
 
     @Override

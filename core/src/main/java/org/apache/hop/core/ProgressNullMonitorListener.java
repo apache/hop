@@ -23,7 +23,7 @@
 
 package org.apache.hop.core;
 
-public class ProgressNullMonitorListener implements ProgressMonitorListener {
+public class ProgressNullMonitorListener implements IProgressMonitor {
 
   @Override
   public void beginTask( String message, int nrWorks ) {

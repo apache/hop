@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.replacestring;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -66,18 +66,18 @@ public class ReplaceStringMetaTest {
     meta.setFieldInStream( new String[] { FIELD_NAME } );
     meta.setFieldOutStream( new String[] { FIELD_NAME } );
 
-    ValueMetaInterface inputFieldMeta = mock( ValueMetaInterface.class );
+    IValueMeta inputFieldMeta = mock( IValueMeta.class );
     when( inputFieldMeta.getStringEncoding() ).thenReturn( ENCODING_NAME );
 
-    RowMetaInterface inputRowMeta = mock( RowMetaInterface.class );
+    IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.searchValueMeta( anyString() ) ).thenReturn( inputFieldMeta );
 
     TransformMeta nextTransform = mock( TransformMeta.class );
-    VariableSpace space = mock( VariableSpace.class );
+    iVariables variables = mock( iVariables.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    meta.getFields( inputRowMeta, "test", null, nextTransform, space, metaStore );
+    meta.getFields( inputRowMeta, "test", null, nextTransform, variables, metaStore );
 
-    ArgumentCaptor<ValueMetaInterface> argument = ArgumentCaptor.forClass( ValueMetaInterface.class );
+    ArgumentCaptor<IValueMeta> argument = ArgumentCaptor.forClass( IValueMeta.class );
     verify( inputRowMeta ).addValueMeta( argument.capture() );
     assertEquals( ENCODING_NAME, argument.getValue().getStringEncoding() );
   }

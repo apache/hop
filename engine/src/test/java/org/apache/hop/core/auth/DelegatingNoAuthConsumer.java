@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
-public class DelegatingNoAuthConsumer implements AuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> {
-  private AuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate;
+public class DelegatingNoAuthConsumer implements IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> {
+  private IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate;
 
-  public DelegatingNoAuthConsumer( AuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate ) {
+  public DelegatingNoAuthConsumer( IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate ) {
     this.delegate = delegate;
   }
 

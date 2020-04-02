@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fixedinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
@@ -87,10 +87,10 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   public FixedFileInputField() {
-    type = ValueMetaInterface.TYPE_STRING;
+    type = IValueMeta.TYPE_STRING;
     length = -1;
     precision = -1;
-    trimType = ValueMetaInterface.TRIM_TYPE_NONE;
+    trimType = IValueMeta.TRIM_TYPE_NONE;
   }
 
   /**
@@ -283,7 +283,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     daf.setLenient( false );
 
     // Start with a string...
-    type = ValueMetaInterface.TYPE_STRING;
+    type = IValueMeta.TYPE_STRING;
 
     // If we have no samples, we assume a String...
     if ( samples == null ) {
@@ -341,7 +341,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
         }
       }
 
-      type = ValueMetaInterface.TYPE_DATE;
+      type = IValueMeta.TYPE_DATE;
       format = date_formats[ first ];
 
       return;
@@ -473,14 +473,14 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
         }
       }
 
-      type = ValueMetaInterface.TYPE_NUMBER;
+      type = IValueMeta.TYPE_NUMBER;
       format = number_formats[ first ];
       precision = maxprecision[ first ];
 
       // Wait a minute!!! What about Integers?
       // OK, only if the precision is 0 and the length <19 (java long integer)
       /*
-       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=ValueMetaInterface.TYPE_INTEGER;
+       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=IValueMeta.TYPE_INTEGER;
        * decimalSymbol=""; groupSymbol=""; }
        */
 
@@ -490,7 +490,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     //
     // Assume it's a string...
     //
-    type = ValueMetaInterface.TYPE_STRING;
+    type = IValueMeta.TYPE_STRING;
     format = "";
     precision = -1;
     decimal = "";

@@ -22,13 +22,13 @@
 
 package org.apache.hop.pipeline.transforms.singlethreader;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class SingleThreaderData extends BaseTransformData implements TransformDataInterface {
+public class SingleThreaderData extends BaseTransformData implements ITransformData {
   public Pipeline mappingPipeline;
 
   public SingleThreadedPipelineExecutor executor;
@@ -46,7 +46,7 @@ public class SingleThreaderData extends BaseTransformData implements TransformDa
 
   public PipelineMeta mappingPipelineMeta;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public RowProducer rowProducer;
 
   public int batchCount;

@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -283,20 +283,20 @@ public class JavaScriptUtilsTest {
 
   @Test( expected = RuntimeException.class )
   public void convertFromJs_TypeNone() throws Exception {
-    JavaScriptUtils.convertFromJs( null, ValueMetaInterface.TYPE_NONE, "qwerty" );
+    JavaScriptUtils.convertFromJs( null, IValueMeta.TYPE_NONE, "qwerty" );
   }
 
   @Test
   public void convertFromJs_TypeBoolean() throws Exception {
     Object o = new Object();
-    Object o2 = JavaScriptUtils.convertFromJs( o, ValueMetaInterface.TYPE_BOOLEAN, "qwerty" );
+    Object o2 = JavaScriptUtils.convertFromJs( o, IValueMeta.TYPE_BOOLEAN, "qwerty" );
     assertEquals( o, o2 );
   }
 
   @Test
   public void convertFromJs_TypeBinary() throws Exception {
     byte[] bytes = new byte[] { 0, 1 };
-    Object converted = JavaScriptUtils.convertFromJs( bytes, ValueMetaInterface.TYPE_BINARY, "qwerty" );
+    Object converted = JavaScriptUtils.convertFromJs( bytes, IValueMeta.TYPE_BINARY, "qwerty" );
     assertThat( converted, is( instanceOf( byte[].class ) ) );
     assertArrayEquals( bytes, (byte[]) converted );
   }

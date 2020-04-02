@@ -30,8 +30,8 @@ import javassist.NotFoundException;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
@@ -78,9 +78,9 @@ public class ExtensionPointIntegrationTest {
     assertEquals( HopExtensionPoint.values().length, ExtensionPointMap.getInstance().getNumberOfRows() );
 
     // check that all extension points are executed
-    final LogChannelInterface log = mock( LogChannelInterface.class );
+    final ILogChannel log = mock( ILogChannel.class );
     for ( HopExtensionPoint ep : HopExtensionPoint.values() ) {
-      final ExtensionPointInterface currentEP = ExtensionPointMap.getInstance().getTableValue( ep.id, "id" + ep.id );
+      final IExtensionPoint currentEP = ExtensionPointMap.getInstance().getTableValue( ep.id, "id" + ep.id );
       assertFalse( currentEP.getClass().getField( EXECUTED_FIELD_NAME ).getBoolean( currentEP ) );
       ExtensionPointHandler.callExtensionPoint( log, ep.id, null );
       assertTrue( currentEP.getClass().getField( EXECUTED_FIELD_NAME ).getBoolean( currentEP ) );
@@ -88,7 +88,7 @@ public class ExtensionPointIntegrationTest {
 
     // check modification of extension point
     final HopExtensionPoint jobAfterOpen = HopExtensionPoint.JobAfterOpen;
-    final ExtensionPointInterface int1 = ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id );
+    final IExtensionPoint int1 = ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id );
     ExtensionPointPluginType.getInstance().registerCustom( createClassRuntime( jobAfterOpen, "Edited" ), "custom", "id"
         + jobAfterOpen.id, jobAfterOpen.id,
       "no description", null );
@@ -107,7 +107,7 @@ public class ExtensionPointIntegrationTest {
   }
 
   /**
-   * Create ExtensionPointInterface subclass in runtime
+   * Create IExtensionPoint subclass in runtime
    *
    * @param ep       extension point id
    * @param addition addition to class name to avoid duplicate classes
@@ -118,10 +118,10 @@ public class ExtensionPointIntegrationTest {
   private static Class createClassRuntime( HopExtensionPoint ep, String addition )
     throws NotFoundException, CannotCompileException {
     final CtClass ctClass = pool.makeClass( "Plugin" + ep.id + addition );
-    ctClass.addInterface( pool.get( ExtensionPointInterface.class.getCanonicalName() ) );
+    ctClass.addInterface( pool.get( IExtensionPoint.class.getCanonicalName() ) );
     ctClass.addField( CtField.make( "public boolean " + EXECUTED_FIELD_NAME + ";", ctClass ) );
     ctClass.addMethod( CtNewMethod.make(
-      "public void callExtensionPoint( org.apache.hop.core.logging.LogChannelInterface log, Object object ) "
+      "public void callExtensionPoint( org.apache.hop.core.logging.ILogChannel log, Object object ) "
         + "throws org.apache.hop.core.exception.HopException { " + EXECUTED_FIELD_NAME + " = true; }",
       ctClass ) );
     return ctClass.toClass();
@@ -129,13 +129,13 @@ public class ExtensionPointIntegrationTest {
 
   @Test
   public void testExtensionPointMapConcurrency() throws InterruptedException {
-    final LogChannelInterface log = mock( LogChannelInterface.class );
+    final ILogChannel log = mock( ILogChannel.class );
 
     List<Runnable> parallelTasksList = new ArrayList<>( TOTAL_THREADS_TO_RUN );
     for ( int i = 0; i < TOTAL_THREADS_TO_RUN; i++ ) {
       parallelTasksList.add( () -> {
         HopExtensionPoint kettleExtensionPoint = getRandomHopExtensionPoint();
-        PluginInterface pluginInterface = PluginRegistry.getInstance().getPlugin( ExtensionPointPluginType.class,
+        IPlugin pluginInterface = PluginRegistry.getInstance().getPlugin( ExtensionPointPluginType.class,
           "id" + kettleExtensionPoint.id );
 
         try {

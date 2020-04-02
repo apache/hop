@@ -117,7 +117,7 @@ public class JobExecutionConfigurationTest {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     Map<String, String> variables0 = new HashMap<>();
 
-    executionConfiguration.setVariables( variables0 );
+    executionConfiguration.setVariablesMap( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
     List<String> list0 = new ArrayList<>();
@@ -129,8 +129,8 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 8 = 7 internalDummyValues + var1 from JobMeta with default value
-    assertEquals( 7, executionConfiguration.getVariables().size() );
-    assertEquals( "", executionConfiguration.getVariables().get( "var1" ) );
+    assertEquals( 7, executionConfiguration.getVariablesMap().size() );
+    assertEquals( "", executionConfiguration.getVariablesMap().get( "var1" ) );
 
   }
 
@@ -139,7 +139,7 @@ public class JobExecutionConfigurationTest {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     Map<String, String> variables0 = new HashMap<>();
     variables0.put( "var1", "valueVar1" );
-    executionConfiguration.setVariables( variables0 );
+    executionConfiguration.setVariablesMap( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
     List<String> list0 = new ArrayList<>();
@@ -150,8 +150,8 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 8 = 7 internalDummyValues + var1 from JobMeta ( with variables0 value )
-    assertEquals( 7, executionConfiguration.getVariables().size() );
-    assertEquals( "valueVar1", executionConfiguration.getVariables().get( "var1" ) );
+    assertEquals( 7, executionConfiguration.getVariablesMap().size() );
+    assertEquals( "valueVar1", executionConfiguration.getVariablesMap().get( "var1" ) );
 
   }
 
@@ -160,7 +160,7 @@ public class JobExecutionConfigurationTest {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     Map<String, String> variables0 = new HashMap<>();
     variables0.put( "var2", "valueVar2" );
-    executionConfiguration.setVariables( variables0 );
+    executionConfiguration.setVariablesMap( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
     List<String> list0 = new ArrayList<>();
@@ -171,9 +171,9 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 9 = 7 internalDummyValues + var1 from JobMeta ( with the default value ) + var2 from variables0
-    assertEquals( 8, executionConfiguration.getVariables().size() );
-    assertEquals( "", executionConfiguration.getVariables().get( "var1" ) );
-    assertEquals( "valueVar2", executionConfiguration.getVariables().get( "var2" ) );
+    assertEquals( 8, executionConfiguration.getVariablesMap().size() );
+    assertEquals( "", executionConfiguration.getVariablesMap().get( "var1" ) );
+    assertEquals( "valueVar2", executionConfiguration.getVariablesMap().get( "var2" ) );
 
   }
 

@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -146,7 +146,7 @@ public class NotePadDialog extends Dialog {
 
   private Font font;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   /**
    * Dialog to allow someone to show or enter a text in variable width font
@@ -156,18 +156,18 @@ public class NotePadDialog extends Dialog {
    * @param message The message to display
    * @param text    The text to display or edit
    */
-  public NotePadDialog( VariableSpace space, Shell parent, String title, NotePadMeta nMeta ) {
+  public NotePadDialog( IVariables variables, Shell parent, String title, NotePadMeta nMeta ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
     this.title = title;
     if ( nMeta != null ) {
       notePadMeta = nMeta;
     }
-    this.variables = space;
+    this.variables = variables;
   }
 
-  public NotePadDialog( VariableSpace space, Shell parent, String title ) {
-    this( space, parent, title, null );
+  public NotePadDialog( IVariables variables, Shell parent, String title ) {
+    this( variables, parent, title, null );
   }
 
   public NotePadMeta open() {

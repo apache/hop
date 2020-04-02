@@ -23,18 +23,18 @@
 package org.apache.hop.pipeline.transforms.http;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -60,7 +60,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
         documentationUrl = ""
 )
-public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterface<HTTP, HTTPData> {
+public class HTTPMeta extends BaseTransformMeta implements ITransformMeta<HTTP, HTTPData> {
   private static Class<?> PKG = HTTPMeta.class; // for i18n purposes, needed by Translator!!
 
   // the timeout for waiting for data (milliseconds)
@@ -337,28 +337,28 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
     encoding = "UTF-8";
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
-      ValueMetaInterface v = new ValueMetaString( fieldName );
+      IValueMeta v = new ValueMetaString( fieldName );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( resultCodeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
-      ValueMetaInterface v =
-        new ValueMetaInteger( space.environmentSubstitute( responseTimeFieldName ) );
+      IValueMeta v =
+        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = space.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
-      ValueMetaInterface v =
+      IValueMeta v =
         new ValueMetaString( headerFieldName );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
@@ -453,20 +453,20 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "HTTPMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "HTTPMeta.CheckResult.NoInpuReceived" ), transformMeta );
       remarks.add( cr );
     }
@@ -474,31 +474,31 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
     if ( urlInField ) {
       if ( Utils.isEmpty( urlField ) ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "HTTPMeta.CheckResult.UrlfieldMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "HTTPMeta.CheckResult.UrlfieldOk" ), transformMeta );
       }
 
     } else {
       if ( Utils.isEmpty( url ) ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "HTTPMeta.CheckResult.UrlMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "HTTPMeta.CheckResult.UrlOk" ), transformMeta );
       }
     }
     remarks.add( cr );
   }
 
-  public HTTP createTransform( TransformMeta transformMeta, HTTPData transformDataInterface, int cnr,
+  public HTTP createTransform( TransformMeta transformMeta, HTTPData iTransformData, int cnr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new HTTP( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new HTTP( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public HTTPData getTransformData() {
@@ -524,7 +524,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param proxyHost
    */
@@ -533,7 +533,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -542,7 +542,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param proxyPort
    */
@@ -551,7 +551,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -560,7 +560,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param httpLogin
    */
@@ -569,7 +569,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Getter
+   * IGetter
    *
    * @return
    */
@@ -578,7 +578,7 @@ public class HTTPMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   /**
-   * Setter
+   * ISetter
    *
    * @param httpPassword
    */

@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,11 +44,11 @@ import static org.junit.Assert.fail;
 public class PipelineTestingUtil {
 
   public static List<Object[]> execute( BaseTransform transform,
-                                        TransformMetaInterface meta,
-                                        TransformDataInterface data,
+                                        ITransformMeta meta,
+                                        ITransformData data,
                                         int expectedRowsAmount,
                                         boolean checkIsDone ) throws Exception {
-    RowSet output = new BlockingRowSet( Math.max( 1, expectedRowsAmount ) );
+    IRowSet output = new BlockingRowSet( Math.max( 1, expectedRowsAmount ) );
     transform.setOutputRowSets( Collections.singletonList( output ) );
 
     int i = 0;

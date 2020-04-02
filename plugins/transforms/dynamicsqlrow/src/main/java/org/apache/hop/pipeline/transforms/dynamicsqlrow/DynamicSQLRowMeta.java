@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -32,10 +32,10 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.DynamicSQLRow",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
-public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMetaInterface<DynamicSQLRow, DynamicSQLRowData> {
+public class DynamicSQLRowMeta extends BaseTransformMeta implements ITransformMeta<DynamicSQLRow, DynamicSQLRowData> {
   private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -224,8 +224,8 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
     queryonlyonchange = false;
   }
 
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     if ( databaseMeta == null ) {
       return;
@@ -236,10 +236,10 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
 
     // First try without connecting to the database... (can be S L O W)
     // See if it's in the cache...
-    RowMetaInterface add = null;
+    IRowMeta add = null;
     String realSQL = sql;
     if ( replacevars ) {
-      realSQL = space.environmentSubstitute( realSQL );
+      realSQL = variables.environmentSubstitute( realSQL );
     }
     try {
       add = db.getQueryFields( realSQL, false );
@@ -251,7 +251,7 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
 
     if ( add != null ) { // Cache hit, just return it this...
       for ( int i = 0; i < add.size(); i++ ) {
-        ValueMetaInterface v = add.getValueMeta( i );
+        IValueMeta v = add.getValueMeta( i );
         v.setOrigin( name );
       }
       row.addRowMeta( add );
@@ -261,7 +261,7 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
         db.connect();
         add = db.getQueryFields( realSQL, false );
         for ( int i = 0; i < add.size(); i++ ) {
-          ValueMetaInterface v = add.getValueMeta( i );
+          IValueMeta v = add.getValueMeta( i );
           v.setOrigin( name );
         }
         row.addRowMeta( add );
@@ -288,8 +288,8 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -314,7 +314,7 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
           PKG, "DynamicSQLRowMeta.CheckResult.SQLFieldNameMissing" ), transformMeta );
       remarks.add( cr );
     } else {
-      ValueMetaInterface vfield = prev.searchValueMeta( sqlfieldname );
+      IValueMeta vfield = prev.searchValueMeta( sqlfieldname );
       if ( vfield == null ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -337,7 +337,7 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
 
           error_message = "";
 
-          RowMetaInterface r = db.getQueryFields( sql, true );
+          IRowMeta r = db.getQueryFields( sql, true );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -364,9 +364,9 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public DynamicSQLRow createTransform( TransformMeta transformMeta, DynamicSQLRowData transformDataInterface, int cnr, PipelineMeta tr,
+  public DynamicSQLRow createTransform( TransformMeta transformMeta, DynamicSQLRowData iTransformData, int cnr, PipelineMeta tr,
                                         Pipeline pipeline ) {
-    return new DynamicSQLRow( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new DynamicSQLRow( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public DynamicSQLRowData getTransformData() {
@@ -374,14 +374,14 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements TransformMet
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) throws HopTransformException {
 
-    RowMetaInterface out = prev.clone();
-    getFields( out, transformMeta.getName(), new RowMetaInterface[] { info, }, null, pipelineMeta, metaStore );
+    IRowMeta out = prev.clone();
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, pipelineMeta, metaStore );
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {
-        ValueMetaInterface outvalue = out.getValueMeta( i );
+        IValueMeta outvalue = out.getValueMeta( i );
         DatabaseImpact di =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transformMeta.getName(), databaseMeta

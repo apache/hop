@@ -25,7 +25,7 @@ package org.apache.hop.core.dnd;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
 
@@ -36,7 +36,7 @@ public class XMLTransfer extends ByteArrayTransfer {
 
   private static XMLTransfer _instance = new XMLTransfer();
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private XMLTransfer() {
     this.log = new LogChannel( "XML DND Transfer" );
@@ -53,7 +53,7 @@ public class XMLTransfer extends ByteArrayTransfer {
 
     try {
       byte[] buffer =
-        Base64.encodeBase64( ( (DragAndDropContainer) object ).getXML().getBytes( Const.XML_ENCODING ) );
+        Base64.encodeBase64( ( (DragAndDropContainer) object ).getXml().getBytes( Const.XML_ENCODING ) );
 
       super.javaToNative( buffer, transferData );
     } catch ( Exception e ) {

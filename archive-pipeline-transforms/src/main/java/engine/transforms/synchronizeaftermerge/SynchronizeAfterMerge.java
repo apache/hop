@@ -31,15 +31,15 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -54,16 +54,16 @@ import java.util.List;
  * @author Samatar
  * @since 13-10-2008
  */
-public class SynchronizeAfterMerge extends BaseTransform implements TransformInterface {
+public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   private SynchronizeAfterMergeMeta meta;
   private SynchronizeAfterMergeData data;
 
-  public SynchronizeAfterMerge( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SynchronizeAfterMerge( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( Object[] row ) throws HopException {
@@ -220,8 +220,8 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
 
             for ( int i = 0; i < data.valuenrs.length; i++ ) {
               if ( meta.getUpdate()[ i ].booleanValue() ) {
-                ValueMetaInterface valueMeta = data.inputRowMeta.getValueMeta( data.valuenrs[ i ] );
-                ValueMetaInterface retMeta = data.db.getReturnRowMeta().getValueMeta( i );
+                IValueMeta valueMeta = data.inputRowMeta.getValueMeta( data.valuenrs[ i ] );
+                IValueMeta retMeta = data.db.getReturnRowMeta().getValueMeta( i );
 
                 Object rowvalue = row[ data.valuenrs[ i ] ];
                 Object retvalue = add[ i ];
@@ -541,7 +541,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
   }
 
   // Lookup certain fields in a table
-  public String getLookupStatement( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public String getLookupStatement( IRowMeta rowMeta ) throws HopDatabaseException {
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
@@ -582,7 +582,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
   }
 
   // Lookup certain fields in a table
-  public String getUpdateStatement( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public String getUpdateStatement( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.updateParameterRowMeta = new RowMeta();
 
@@ -627,7 +627,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
     return sql;
   }
 
-  public String getDeleteStatement( RowMetaInterface rowMeta ) throws HopDatabaseException {
+  public String getDeleteStatement( IRowMeta rowMeta ) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.deleteParameterRowMeta = new RowMeta();
 
@@ -655,7 +655,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
     return sql;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SynchronizeAfterMergeMeta) smi;
     data = (SynchronizeAfterMergeData) sdi;
 
@@ -672,7 +672,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
 
       if ( meta.istablenameInField() ) {
-        // Cache the position of the table name field
+        // ICache the position of the table name field
         if ( data.indexOfTableNameField < 0 ) {
           data.indexOfTableNameField = data.inputRowMeta.indexOfValue( meta.gettablenameField() );
           if ( data.indexOfTableNameField < 0 ) {
@@ -691,7 +691,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
           data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
       }
 
-      // Cache the position of the operation order field
+      // ICache the position of the operation order field
       if ( data.indexOfOperationOrderField < 0 ) {
         data.indexOfOperationOrderField = data.inputRowMeta.indexOfValue( meta.getOperationOrderField() );
         if ( data.indexOfOperationOrderField < 0 ) {
@@ -741,10 +741,10 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
 
       // Insert the update fields: just names. Type doesn't matter!
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
+        IValueMeta insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
         if ( insValue == null ) { // Don't add twice!
           // we already checked that this value exists so it's probably safe to ignore lookup failure...
-          ValueMetaInterface insertValue = data.inputRowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
+          IValueMeta insertValue = data.inputRowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
           insertValue.setName( meta.getUpdateLookup()[ i ] );
           data.insertRowMeta.addValueMeta( insertValue );
         } else {
@@ -753,7 +753,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
         }
       }
 
-      // Cache the position of the compare fields in Row row
+      // ICache the position of the compare fields in Row row
       //
       data.valuenrs = new int[ meta.getUpdateLookup().length ];
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
@@ -845,7 +845,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SynchronizeAfterMergeMeta) smi;
     data = (SynchronizeAfterMergeData) sdi;
 
@@ -863,7 +863,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
         data.databaseMeta = meta.getDatabaseMeta();
 
         // if we are using Oracle then set releaseSavepoint to false
-        if ( data.databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
+        if ( data.databaseMeta.getIDatabase() instanceof OracleDatabaseMeta ) {
           data.releaseSavepoint = false;
         }
 
@@ -875,7 +875,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
         data.specialErrorHandling =
           getTransformMeta().isDoingErrorHandling() && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();
 
-        data.supportsSavepoints = meta.getDatabaseMeta().getDatabaseInterface().useSafePoints();
+        data.supportsSavepoints = meta.getDatabaseMeta().getIDatabase().useSafePoints();
 
         if ( data.batchMode && data.specialErrorHandling ) {
           data.batchMode = false;
@@ -908,7 +908,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements TransformInt
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     finishTransform();
     super.dispose( smi, sdi );
   }

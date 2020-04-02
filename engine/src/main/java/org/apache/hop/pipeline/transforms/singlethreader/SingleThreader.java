@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -35,11 +35,11 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInputData;
@@ -52,21 +52,21 @@ import java.util.ArrayList;
  * @author Matt
  * @since 22-nov-2005
  */
-public class SingleThreader extends BaseTransform implements TransformInterface {
+public class SingleThreader extends BaseTransform implements ITransform {
   private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private SingleThreaderMeta meta;
   private SingleThreaderData data;
 
-  public SingleThreader( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SingleThreader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Process rows in batches of N rows. The sub- pipeline will execute in a single thread.
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (SingleThreaderMeta) smi;
     setData( (SingleThreaderData) sdi );
     SingleThreaderData singleThreaderData = getData();
@@ -200,17 +200,17 @@ public class SingleThreader extends BaseTransform implements TransformInterface 
     if ( singleThreaderData.injectTransformMeta.isMappingInput() ) {
       MappingInputData mappingInputData =
         (MappingInputData) singleThreaderData.mappingPipeline.findDataInterface( singleThreaderData.injectTransformMeta.getName() );
-      mappingInputData.sourceTransforms = new TransformInterface[ 0 ];
+      mappingInputData.sourceTransforms = new ITransform[ 0 ];
       mappingInputData.valueRenames = new ArrayList<MappingValueRename>();
     }
 
     // Add row producer & row listener
     singleThreaderData.rowProducer = singleThreaderData.mappingPipeline.addRowProducer( meta.getInjectTransform(), 0 );
 
-    TransformInterface retrieveTransform = singleThreaderData.mappingPipeline.getTransformInterface( meta.getRetrieveTransform(), 0 );
+    ITransform retrieveTransform = singleThreaderData.mappingPipeline.getTransformInterface( meta.getRetrieveTransform(), 0 );
     retrieveTransform.addRowListener( new RowAdapter() {
       @Override
-      public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         // Simply pass it along to the next transforms after the SingleThreader
         //
         SingleThreader.this.putRow( rowMeta, row );
@@ -246,7 +246,7 @@ public class SingleThreader extends BaseTransform implements TransformInterface 
     PipelineTransformUtil.initServletConfig( getPipeline(), getData().getMappingPipeline() );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (SingleThreaderMeta) smi;
     setData( (SingleThreaderData) sdi );
     SingleThreaderData singleThreaderData = getData();
@@ -281,7 +281,7 @@ public class SingleThreader extends BaseTransform implements TransformInterface 
           }
 
           // OK, now prepare the execution of the mapping.
-          // This includes the allocation of RowSet buffers, the creation of the
+          // This includes the allocation of IRowSet buffers, the creation of the
           // sub- pipeline threads, etc.
           //
           prepareMappingExecution();
@@ -306,7 +306,7 @@ public class SingleThreader extends BaseTransform implements TransformInterface 
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     // dispose of the single threading execution engine
     //
     try {
@@ -320,7 +320,7 @@ public class SingleThreader extends BaseTransform implements TransformInterface 
     super.dispose( smi, sdi );
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( getData().mappingPipeline != null ) {
       getData().mappingPipeline.stopAll();
     }

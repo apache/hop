@@ -30,8 +30,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -89,9 +89,9 @@ public class XBase {
   }
 
   @SuppressWarnings( "fallthrough" )
-  public RowMetaInterface getFields() throws HopException {
+  public IRowMeta getFields() throws HopException {
     String debug = "get fields from XBase file";
-    RowMetaInterface row = new RowMeta();
+    IRowMeta row = new RowMeta();
 
     try {
       // Fetch all field information
@@ -105,7 +105,7 @@ public class XBase {
         }
 
         DBFField field = reader.getField( i );
-        ValueMetaInterface value = null;
+        IValueMeta value = null;
 
         datatype[ i ] = field.getDataType();
         switch ( datatype[ i ] ) {
@@ -154,7 +154,7 @@ public class XBase {
     return row;
   }
 
-  public Object[] getRow( RowMetaInterface fields ) throws HopException {
+  public Object[] getRow( IRowMeta fields ) throws HopException {
     return getRow( RowDataUtil.allocateRowData( fields.size() ) );
   }
 

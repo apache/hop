@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -57,7 +57,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.RowDenormaliser",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
-public class DenormaliserMeta extends BaseTransformMeta implements TransformMetaInterface<Denormaliser, DenormaliserData> {
+public class DenormaliserMeta extends BaseTransformMeta implements ITransformMeta<Denormaliser, DenormaliserData> {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -162,8 +162,8 @@ public class DenormaliserMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Remove the key value (there will be different entries for each output row)
     //
@@ -197,7 +197,7 @@ public class DenormaliserMeta extends BaseTransformMeta implements TransformMeta
     for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
       DenormaliserTargetField field = denormaliserTargetField[ i ];
       try {
-        ValueMetaInterface target =
+        IValueMeta target =
           ValueMetaFactory.createValueMeta( field.getTargetName(), field.getTargetType() );
         target.setLength( field.getTargetLength(), field.getTargetPrecision() );
         target.setOrigin( name );
@@ -294,8 +294,8 @@ public class DenormaliserMeta extends BaseTransformMeta implements TransformMeta
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -312,9 +312,9 @@ public class DenormaliserMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public Denormaliser createTransform( TransformMeta transformMeta, DenormaliserData transformDataInterface, int cnr,
+  public Denormaliser createTransform( TransformMeta transformMeta, DenormaliserData iTransformData, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Denormaliser( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new Denormaliser( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public DenormaliserData getTransformData() {

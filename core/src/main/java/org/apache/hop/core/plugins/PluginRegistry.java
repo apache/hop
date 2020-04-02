@@ -26,12 +26,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginClassMapException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -74,24 +74,24 @@ public class PluginRegistry {
 
   private static final PluginRegistry pluginRegistry = new PluginRegistry();
 
-  private static final List<PluginTypeInterface> pluginTypes = new ArrayList<>();
-  private static final List<PluginRegistryExtension> extensions = new ArrayList<>();
+  private static final List<IPluginType> pluginTypes = new ArrayList<>();
+  private static final List<IPluginRegistryExtension> extensions = new ArrayList<>();
   private static final String SUPPLEMENTALS_SUFFIX = "-supplementals";
 
-  public static final LogChannelInterface log = new LogChannel( "PluginRegistry", true );
+  public static final ILogChannel log = new LogChannel( "PluginRegistry", true );
 
   // the list of plugins
-  private final Map<Class<? extends PluginTypeInterface>, Set<PluginInterface>> pluginMap = new HashMap<>();
+  private final Map<Class<? extends IPluginType>, Set<IPlugin>> pluginMap = new HashMap<>();
 
-  private final Map<Class<? extends PluginTypeInterface>, Map<PluginInterface, URLClassLoader>> classLoaderMap = new HashMap<>();
-  private final Map<URLClassLoader, Set<PluginInterface>> inverseClassLoaderLookup = new HashMap<>();
+  private final Map<Class<? extends IPluginType>, Map<IPlugin, URLClassLoader>> classLoaderMap = new HashMap<>();
+  private final Map<URLClassLoader, Set<IPlugin>> inverseClassLoaderLookup = new HashMap<>();
   private final Map<String, URLClassLoader> classLoaderGroupsMap = new HashMap<>();
   private final Map<String, URLClassLoader> folderBasedClassLoaderMap = new HashMap<>();
 
-  private final Map<Class<? extends PluginTypeInterface>, Set<String>> categoryMap = new HashMap<>();
-  private final Map<PluginInterface, String[]> parentClassloaderPatternMap = new HashMap<>();
+  private final Map<Class<? extends IPluginType>, Set<String>> categoryMap = new HashMap<>();
+  private final Map<IPlugin, String[]> parentClassloaderPatternMap = new HashMap<>();
 
-  private final Map<Class<? extends PluginTypeInterface>, Set<PluginTypeListener>> listeners = new HashMap<>();
+  private final Map<Class<? extends IPluginType>, Set<IPluginTypeListener>> listeners = new HashMap<>();
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 3000;
@@ -110,7 +110,7 @@ public class PluginRegistry {
     return pluginRegistry;
   }
 
-  private static Comparator<String> getNaturalCategoriesOrderComparator( Class<? extends PluginTypeInterface> pluginType ) {
+  private static Comparator<String> getNaturalCategoriesOrderComparator( Class<? extends IPluginType> pluginType ) {
     PluginTypeCategoriesOrder naturalOrderAnnotation = pluginType.getAnnotation( PluginTypeCategoriesOrder.class );
     final String[] naturalOrder;
     if ( naturalOrderAnnotation != null ) {
@@ -133,7 +133,7 @@ public class PluginRegistry {
     };
   }
 
-  public void registerPluginType( Class<? extends PluginTypeInterface> pluginType ) {
+  public void registerPluginType( Class<? extends IPluginType> pluginType ) {
     lock.writeLock().lock();
     try {
       pluginMap.computeIfAbsent( pluginType, k -> new TreeSet<>( Plugin.nullStringComparator ) );
@@ -147,16 +147,16 @@ public class PluginRegistry {
     }
   }
 
-  public void removePlugin( Class<? extends PluginTypeInterface> pluginType, PluginInterface plugin ) {
+  public void removePlugin( Class<? extends IPluginType> pluginType, IPlugin plugin ) {
     lock.writeLock().lock();
     try {
       URLClassLoader ucl;
-      Set<PluginInterface> list = pluginMap.get( pluginType );
+      Set<IPlugin> list = pluginMap.get( pluginType );
       if ( list != null ) {
         list.remove( plugin );
       }
 
-      Map<PluginInterface, URLClassLoader> classLoaders = classLoaderMap.get( plugin.getPluginType() );
+      Map<IPlugin, URLClassLoader> classLoaders = classLoaderMap.get( plugin.getPluginType() );
       if ( classLoaders != null ) {
         classLoaders.remove( plugin );
       }
@@ -166,7 +166,7 @@ public class PluginRegistry {
         //
         ucl = classLoaderGroupsMap.remove( plugin.getClassLoaderGroup() );
         if ( ucl != null && classLoaders != null ) {
-          for ( PluginInterface p : inverseClassLoaderLookup.remove( ucl ) ) {
+          for ( IPlugin p : inverseClassLoaderLookup.remove( ucl ) ) {
             classLoaders.remove( p );
           }
           try {
@@ -182,9 +182,9 @@ public class PluginRegistry {
       }
     } finally {
       lock.writeLock().unlock();
-      Set<PluginTypeListener> listeners = this.listeners.get( pluginType );
+      Set<IPluginTypeListener> listeners = this.listeners.get( pluginType );
       if ( listeners != null ) {
-        for ( PluginTypeListener listener : listeners ) {
+        for ( IPluginTypeListener listener : listeners ) {
           listener.pluginRemoved( plugin );
         }
       }
@@ -194,7 +194,7 @@ public class PluginRegistry {
     }
   }
 
-  public void addParentClassLoaderPatterns( PluginInterface plugin, String[] patterns ) {
+  public void addParentClassLoaderPatterns( IPlugin plugin, String[] patterns ) {
     lock.writeLock().lock();
     try {
       parentClassloaderPatternMap.put( plugin, patterns );
@@ -203,7 +203,7 @@ public class PluginRegistry {
     }
   }
 
-  public void registerPlugin( Class<? extends PluginTypeInterface> pluginType, PluginInterface plugin )
+  public void registerPlugin( Class<? extends IPluginType> pluginType, IPlugin plugin )
     throws HopPluginException {
     boolean changed = false; // Is this an add or an update?
     lock.writeLock().lock();
@@ -214,7 +214,7 @@ public class PluginRegistry {
 
       // Keep the list of plugins sorted by name...
       //
-      Set<PluginInterface> list = pluginMap.computeIfAbsent( pluginType, k -> new TreeSet<>( Plugin.nullStringComparator ) );
+      Set<IPlugin> list = pluginMap.computeIfAbsent( pluginType, k -> new TreeSet<>( Plugin.nullStringComparator ) );
 
       if ( !list.add( plugin ) ) {
         list.remove( plugin );
@@ -230,9 +230,9 @@ public class PluginRegistry {
       }
     } finally {
       lock.writeLock().unlock();
-      Set<PluginTypeListener> listeners = this.listeners.get( pluginType );
+      Set<IPluginTypeListener> listeners = this.listeners.get( pluginType );
       if ( listeners != null ) {
-        for ( PluginTypeListener listener : listeners ) {
+        for ( IPluginTypeListener listener : listeners ) {
           // Changed or added?
           if ( changed ) {
             listener.pluginChanged( plugin );
@@ -250,7 +250,7 @@ public class PluginRegistry {
   /**
    * @return An unmodifiable list of plugin types
    */
-  public List<Class<? extends PluginTypeInterface>> getPluginTypes() {
+  public List<Class<? extends IPluginType>> getPluginTypes() {
     lock.readLock().lock();
     try {
       return Collections.unmodifiableList( new ArrayList<>( pluginMap.keySet() ) );
@@ -263,7 +263,7 @@ public class PluginRegistry {
    * @param type The plugin type to query
    * @return The list of plugins
    */
-  public <T extends PluginInterface, K extends PluginTypeInterface> List<T> getPlugins( Class<K> type ) {
+  public <T extends IPlugin, K extends IPluginType> List<T> getPlugins( Class<K> type ) {
     List<T> result;
     lock.readLock().lock();
     try {
@@ -285,7 +285,7 @@ public class PluginRegistry {
    * @param id         The ID to scan for
    * @return the plugin or null if nothing was found.
    */
-  public PluginInterface getPlugin( Class<? extends PluginTypeInterface> pluginType, String id ) {
+  public IPlugin getPlugin( Class<? extends IPluginType> pluginType, String id ) {
     if ( Utils.isEmpty( id ) ) {
       return null;
     }
@@ -304,9 +304,9 @@ public class PluginRegistry {
    * @param pluginCategory The category to look in
    * @return An unmodifiable list of plugins that belong to the specified type and category.
    */
-  public <T extends PluginTypeInterface> List<PluginInterface> getPluginsByCategory( Class<T> pluginType,
-                                                                                     String pluginCategory ) {
-    List<PluginInterface> plugins = getPlugins( pluginType ).stream()
+  public <T extends IPluginType> List<IPlugin> getPluginsByCategory( Class<T> pluginType,
+                                                                     String pluginCategory ) {
+    List<IPlugin> plugins = getPlugins( pluginType ).stream()
       .filter( plugin -> plugin.getCategory() != null && plugin.getCategory().equals( pluginCategory ) )
       .collect( Collectors.toList() );
 
@@ -320,7 +320,7 @@ public class PluginRegistry {
    * @return The list of categories for this plugin type. The list can be modified (sorted etc) but will not impact the
    * registry in any way.
    */
-  public List<String> getCategories( Class<? extends PluginTypeInterface> pluginType ) {
+  public List<String> getCategories( Class<? extends IPluginType> pluginType ) {
     lock.readLock().lock();
     try {
       return new ArrayList<>( categoryMap.get( pluginType ) );
@@ -336,7 +336,7 @@ public class PluginRegistry {
    * @return The instantiated class
    * @throws HopPluginException In case there was a loading problem.
    */
-  public Object loadClass( PluginInterface plugin ) throws HopPluginException {
+  public Object loadClass( IPlugin plugin ) throws HopPluginException {
     return loadClass( plugin, plugin.getMainType() );
   }
 
@@ -349,9 +349,9 @@ public class PluginRegistry {
    * @return the instantiated class.
    * @throws HopPluginException
    */
-  public <T> T loadClass( Class<? extends PluginTypeInterface> pluginType, Object object, Class<T> classType )
+  public <T> T loadClass( Class<? extends IPluginType> pluginType, Object object, Class<T> classType )
     throws HopPluginException {
-    PluginInterface plugin = getPlugin( pluginType, object );
+    IPlugin plugin = getPlugin( pluginType, object );
     if ( plugin == null ) {
       return null;
     }
@@ -367,16 +367,16 @@ public class PluginRegistry {
    * @return the instantiated class.
    * @throws HopPluginException
    */
-  public <T> T loadClass( Class<? extends PluginTypeInterface> pluginType, String pluginId, Class<T> classType )
+  public <T> T loadClass( Class<? extends IPluginType> pluginType, String pluginId, Class<T> classType )
     throws HopPluginException {
-    PluginInterface plugin = getPlugin( pluginType, pluginId );
+    IPlugin plugin = getPlugin( pluginType, pluginId );
     if ( plugin == null ) {
       return null;
     }
     return loadClass( plugin, classType );
   }
 
-  private HopURLClassLoader createClassLoader( PluginInterface plugin ) throws MalformedURLException,
+  private HopURLClassLoader createClassLoader( IPlugin plugin ) throws MalformedURLException,
     UnsupportedEncodingException {
     List<String> jarFiles = plugin.getLibraries();
     URL[] urls = new URL[ jarFiles.size() ];
@@ -393,7 +393,7 @@ public class PluginRegistry {
     }
   }
 
-  private void addToClassLoader( PluginInterface plugin, HopURLClassLoader ucl ) throws MalformedURLException,
+  private void addToClassLoader( IPlugin plugin, HopURLClassLoader ucl ) throws MalformedURLException,
     UnsupportedEncodingException {
     String[] patterns = parentClassloaderPatternMap.get( plugin );
 
@@ -417,7 +417,7 @@ public class PluginRegistry {
    * @param <T>        Type of the object factoried
    * @throws HopPluginException
    */
-  public <T> void addClassFactory( Class<? extends PluginTypeInterface> pluginType, Class<T> tClass, String id,
+  public <T> void addClassFactory( Class<? extends IPluginType> pluginType, Class<T> tClass, String id,
                                    Callable<T> callable ) throws HopPluginException {
 
     String key = createSupplemantalKey( pluginType.getName(), id );
@@ -443,14 +443,14 @@ public class PluginRegistry {
    * @throws HopPluginException In case there was a class loading problem somehow
    */
   @SuppressWarnings( "unchecked" )
-  public <T> T loadClass( PluginInterface plugin, Class<T> pluginClass ) throws HopPluginException {
+  public <T> T loadClass( IPlugin plugin, Class<T> pluginClass ) throws HopPluginException {
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
         PKG, "PluginRegistry.RuntimeError.NoValidTransformOrPlugin.PLUGINREGISTRY001" ) );
     }
 
-    if ( plugin instanceof ClassLoadingPluginInterface ) {
-      T aClass = ( (ClassLoadingPluginInterface) plugin ).loadClass( pluginClass );
+    if ( plugin instanceof IClassLoadingPlugin ) {
+      T aClass = ( (IClassLoadingPlugin) plugin ).loadClass( pluginClass );
       if ( aClass == null ) {
         throw new HopPluginClassMapException( BaseMessages
           .getString( PKG, "PluginRegistry.RuntimeError.NoValidClassRequested.PLUGINREGISTRY002", plugin.getName(),
@@ -511,7 +511,7 @@ public class PluginRegistry {
    *
    * @param type
    */
-  public static synchronized void addPluginType( PluginTypeInterface type ) {
+  public static synchronized void addPluginType( IPluginType type ) {
     pluginTypes.add( type );
   }
 
@@ -520,7 +520,7 @@ public class PluginRegistry {
    *
    * @return the list of added plugin types
    */
-  public static List<PluginTypeInterface> getAddedPluginTypes() {
+  public static List<IPluginType> getAddedPluginTypes() {
     return Collections.unmodifiableList( pluginTypes );
   }
 
@@ -541,10 +541,10 @@ public class PluginRegistry {
     // Find pluginRegistry extensions
     try {
       registry.registerType( PluginRegistryPluginType.getInstance() );
-      List<PluginInterface> plugins = registry.getPlugins( PluginRegistryPluginType.class );
-      for ( PluginInterface extensionPlugin : plugins ) {
+      List<IPlugin> plugins = registry.getPlugins( PluginRegistryPluginType.class );
+      for ( IPlugin extensionPlugin : plugins ) {
         log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION_START, extensionPlugin.getName() );
-        PluginRegistryExtension extension = (PluginRegistryExtension) registry.loadClass( extensionPlugin );
+        IPluginRegistryExtension extension = (IPluginRegistryExtension) registry.loadClass( extensionPlugin );
         extension.init( registry );
         extensions.add( extension );
         log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_STOP, extensionPlugin.getName() );
@@ -555,7 +555,7 @@ public class PluginRegistry {
     log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_STOP );
 
     log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START );
-    for ( final PluginTypeInterface pluginType : pluginTypes ) {
+    for ( final IPluginType pluginType : pluginTypes ) {
       log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START, pluginType.getName() );
       registry.registerType( pluginType );
       log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_STOP, pluginType.getName() );
@@ -569,7 +569,7 @@ public class PluginRegistry {
     }
   }
 
-  private void registerType( PluginTypeInterface pluginType ) throws HopPluginException {
+  private void registerType( IPluginType pluginType ) throws HopPluginException {
     registerPluginType( pluginType.getClass() );
 
     // Search plugins for this type...
@@ -577,7 +577,7 @@ public class PluginRegistry {
     long startScan = System.currentTimeMillis();
     pluginType.searchPlugins();
 
-    for ( PluginRegistryExtension ext : extensions ) {
+    for ( IPluginRegistryExtension ext : extensions ) {
       ext.searchForType( pluginType );
     }
 
@@ -658,10 +658,10 @@ public class PluginRegistry {
    * @return The ID of the plugin to which this class belongs (checks the plugin class maps) or null if nothing was
    * found.
    */
-  public String getPluginId( Class<? extends PluginTypeInterface> pluginType, Object pluginClass ) {
+  public String getPluginId( Class<? extends IPluginType> pluginType, Object pluginClass ) {
     String className = pluginClass.getClass().getName();
 
-    PluginInterface plugin = getPlugins( pluginType ).stream()
+    IPlugin plugin = getPlugins( pluginType ).stream()
       .filter( p -> p.getClassMap().values().contains( className ) )
       .findFirst()
       .orElse( null );
@@ -684,7 +684,7 @@ public class PluginRegistry {
    * @param pluginClass The class of this object is used to look around
    * @return the plugin or null if nothing could be found
    */
-  public PluginInterface getPlugin( Class<? extends PluginTypeInterface> pluginType, Object pluginClass ) {
+  public IPlugin getPlugin( Class<? extends IPluginType> pluginType, Object pluginClass ) {
     String pluginId = getPluginId( pluginType, pluginClass );
     if ( pluginId == null ) {
       return null;
@@ -699,7 +699,7 @@ public class PluginRegistry {
    * @param pluginName The name to look for
    * @return The plugin with the specified name or null if nothing was found.
    */
-  public PluginInterface findPluginWithName( Class<? extends PluginTypeInterface> pluginType, String pluginName ) {
+  public IPlugin findPluginWithName( Class<? extends IPluginType> pluginType, String pluginName ) {
     return getPlugins( pluginType ).stream()
       .filter( plugin -> plugin.getName().equals( pluginName ) )
       .findFirst()
@@ -713,8 +713,8 @@ public class PluginRegistry {
    * @param pluginDescription The description to look for
    * @return The plugin with the specified description or null if nothing was found.
    */
-  public PluginInterface findPluginWithDescription( Class<? extends PluginTypeInterface> pluginType,
-                                                    String pluginDescription ) {
+  public IPlugin findPluginWithDescription( Class<? extends IPluginType> pluginType,
+                                            String pluginDescription ) {
     return getPlugins( pluginType ).stream()
       .filter( plugin -> plugin.getDescription().equals( pluginDescription ) )
       .findFirst()
@@ -728,16 +728,16 @@ public class PluginRegistry {
    * @param pluginId   The name to look for
    * @return The plugin with the specified name or null if nothing was found.
    */
-  public PluginInterface findPluginWithId( Class<? extends PluginTypeInterface> pluginType, String pluginId ) {
+  public IPlugin findPluginWithId( Class<? extends IPluginType> pluginType, String pluginId ) {
     return getPlugin( pluginType, pluginId );
   }
 
   /**
    * @return a unique list of all the transform plugin package names
    */
-  public List<String> getPluginPackages( Class<? extends PluginTypeInterface> pluginType ) {
+  public List<String> getPluginPackages( Class<? extends IPluginType> pluginType ) {
     Set<String> list = new TreeSet<>();
-    for ( PluginInterface plugin : getPlugins( pluginType ) ) {
+    for ( IPlugin plugin : getPlugins( pluginType ) ) {
       for ( String className : plugin.getClassMap().values() ) {
         int lastIndex = className.lastIndexOf( "." );
         if ( lastIndex > -1 ) {
@@ -748,8 +748,8 @@ public class PluginRegistry {
     return new ArrayList<>( list );
   }
 
-  private RowMetaInterface getPluginInformationRowMeta() {
-    RowMetaInterface row = new RowMeta();
+  private IRowMeta getPluginInformationRowMeta() {
+    IRowMeta row = new RowMeta();
 
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.Type.Label" ) ) );
     row.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "PluginRegistry.Information.ID.Label" ) ) );
@@ -768,10 +768,10 @@ public class PluginRegistry {
    * @return a row buffer containing plugin information for the given plugin type
    * @throws HopPluginException
    */
-  public RowBuffer getPluginInformation( Class<? extends PluginTypeInterface> pluginType )
+  public RowBuffer getPluginInformation( Class<? extends IPluginType> pluginType )
     throws HopPluginException {
     RowBuffer rowBuffer = new RowBuffer( getPluginInformationRowMeta() );
-    for ( PluginInterface plugin : getPlugins( pluginType ) ) {
+    for ( IPlugin plugin : getPlugins( pluginType ) ) {
 
       Object[] row = new Object[ getPluginInformationRowMeta().size() ];
       int rowIndex = 0;
@@ -799,17 +799,17 @@ public class PluginRegistry {
    * @throws HopPluginException In case there is something wrong
    */
   @SuppressWarnings( "unchecked" )
-  public <T> T getClass( PluginInterface plugin, String className ) throws HopPluginException {
+  public <T> T getClass( IPlugin plugin, String className ) throws HopPluginException {
     try {
       if ( plugin.isNativePlugin() ) {
         return (T) Class.forName( className );
-      } else if ( ( plugin instanceof ClassLoadingPluginInterface ) && ( (ClassLoadingPluginInterface) plugin ).getClassLoader() != null ) {
-        return (T) ( (ClassLoadingPluginInterface) plugin ).getClassLoader().loadClass( className );
+      } else if ( ( plugin instanceof IClassLoadingPlugin ) && ( (IClassLoadingPlugin) plugin ).getClassLoader() != null ) {
+        return (T) ( (IClassLoadingPlugin) plugin ).getClassLoader().loadClass( className );
       } else {
         URLClassLoader ucl;
         lock.writeLock().lock();
         try {
-          Map<PluginInterface, URLClassLoader> classLoaders =
+          Map<IPlugin, URLClassLoader> classLoaders =
             classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
           ucl = classLoaders.get( plugin );
 
@@ -847,7 +847,7 @@ public class PluginRegistry {
    * @throws HopPluginException In case there is something wrong
    */
   @SuppressWarnings( "unchecked" )
-  public <T> T getClass( PluginInterface plugin, T classType ) throws HopPluginException {
+  public <T> T getClass( IPlugin plugin, T classType ) throws HopPluginException {
     String className = plugin.getClassMap().get( classType );
     if ( className == null ) {
       throw new HopPluginException( "Unable to find the classname for class type " + classType.getClass().getName() );
@@ -864,7 +864,7 @@ public class PluginRegistry {
    *                            <p/>
    *                            getClassLoader();
    */
-  public ClassLoader getClassLoader( PluginInterface plugin ) throws HopPluginException {
+  public ClassLoader getClassLoader( IPlugin plugin ) throws HopPluginException {
 
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
@@ -886,7 +886,7 @@ public class PluginRegistry {
             ucl = createClassLoader( plugin );
           } else {
             // See if we can find a class loader to re-use.
-            Map<PluginInterface, URLClassLoader> classLoaders =
+            Map<IPlugin, URLClassLoader> classLoaders =
               classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
             ucl = classLoaders.get( plugin );
 
@@ -930,8 +930,8 @@ public class PluginRegistry {
                   ucl = classLoaders.get( plugin );
                   if ( ucl == null ) {
                     if ( plugin.getLibraries().size() == 0 ) {
-                      if ( plugin instanceof ClassLoadingPluginInterface ) {
-                        return ( (ClassLoadingPluginInterface) plugin ).getClassLoader();
+                      if ( plugin instanceof IClassLoadingPlugin ) {
+                        return ( (IClassLoadingPlugin) plugin ).getClassLoader();
                       }
                     }
                     ucl = createClassLoader( plugin );
@@ -962,24 +962,24 @@ public class PluginRegistry {
   /**
    * Allows the tracking of plugins as they come and go.
    *
-   * @param typeToTrack extension of PluginTypeInterface to track.
+   * @param typeToTrack extension of IPluginType to track.
    * @param listener    receives notification when a plugin of the specified type is added/removed/modified
-   * @param <T>         extension of PluginTypeInterface
+   * @param <T>         extension of IPluginType
    */
-  public <T extends PluginTypeInterface> void addPluginListener( Class<T> typeToTrack, PluginTypeListener listener ) {
+  public <T extends IPluginType> void addPluginListener( Class<T> typeToTrack, IPluginTypeListener listener ) {
     lock.writeLock().lock();
     try {
-      Set<PluginTypeListener> list = listeners.computeIfAbsent( typeToTrack, k -> new HashSet<>() );
+      Set<IPluginTypeListener> list = listeners.computeIfAbsent( typeToTrack, k -> new HashSet<>() );
       list.add( listener );
     } finally {
       lock.writeLock().unlock();
     }
   }
 
-  public void addClassLoader( URLClassLoader ucl, PluginInterface plugin ) {
+  public void addClassLoader( URLClassLoader ucl, IPlugin plugin ) {
     lock.writeLock().lock();
     try {
-      Map<PluginInterface, URLClassLoader> classLoaders =
+      Map<IPlugin, URLClassLoader> classLoaders =
         classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
       classLoaders.put( plugin, ucl );
     } finally {
@@ -987,7 +987,7 @@ public class PluginRegistry {
     }
   }
 
-  public PluginTypeInterface getPluginType( Class<? extends PluginTypeInterface> pluginTypeClass )
+  public IPluginType getPluginType( Class<? extends IPluginType> pluginTypeClass )
     throws HopPluginException {
     try {
       // All these plugin type interfaces are singletons...
@@ -995,13 +995,13 @@ public class PluginRegistry {
       //
       Method method = pluginTypeClass.getMethod( "getInstance", new Class<?>[ 0 ] );
 
-      return (PluginTypeInterface) method.invoke( null, new Object[ 0 ] );
+      return (IPluginType) method.invoke( null, new Object[ 0 ] );
     } catch ( Exception e ) {
       throw new HopPluginException( "Unable to get instance of plugin type: " + pluginTypeClass.getName(), e );
     }
   }
 
-  public List<PluginInterface> findPluginsByFolder( URL folder ) {
+  public List<IPlugin> findPluginsByFolder( URL folder ) {
     String path = folder.getPath();
     try {
       path = folder.toURI().normalize().getPath();
@@ -1011,11 +1011,11 @@ public class PluginRegistry {
     if ( path.endsWith( "/" ) ) {
       path = path.substring( 0, path.length() - 1 );
     }
-    List<PluginInterface> result = new ArrayList<PluginInterface>();
+    List<IPlugin> result = new ArrayList<IPlugin>();
     lock.readLock().lock();
     try {
-      for ( Set<PluginInterface> typeInterfaces : pluginMap.values() ) {
-        for ( PluginInterface plugin : typeInterfaces ) {
+      for ( Set<IPlugin> typeInterfaces : pluginMap.values() ) {
+        for ( IPlugin plugin : typeInterfaces ) {
           URL pluginFolder = plugin.getPluginDirectory();
           try {
             if ( pluginFolder != null && pluginFolder.toURI().normalize().getPath().startsWith( path ) ) {
@@ -1058,14 +1058,14 @@ public class PluginRegistry {
     }
   }
 
-  public PluginInterface findPluginWithId( Class<? extends PluginTypeInterface> pluginType, String pluginId, boolean waitForPluginToBeAvailable ) {
-    PluginInterface pluginInterface = findPluginWithId( pluginType, pluginId );
+  public IPlugin findPluginWithId( Class<? extends IPluginType> pluginType, String pluginId, boolean waitForPluginToBeAvailable ) {
+    IPlugin pluginInterface = findPluginWithId( pluginType, pluginId );
     return waitForPluginToBeAvailable && pluginInterface == null
       ? waitForPluginToBeAvailable( pluginType, pluginId, WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT )
       : pluginInterface;
   }
 
-  private PluginInterface waitForPluginToBeAvailable( Class<? extends PluginTypeInterface> pluginType, String pluginId, int waitLimit ) {
+  private IPlugin waitForPluginToBeAvailable( Class<? extends IPluginType> pluginType, String pluginId, int waitLimit ) {
     int timeToSleep = 50;
     try {
       Thread.sleep( timeToSleep );
@@ -1075,7 +1075,7 @@ public class PluginRegistry {
       Thread.currentThread().interrupt();
       return null;
     }
-    PluginInterface pluginInterface = findPluginWithId( pluginType, pluginId );
+    IPlugin pluginInterface = findPluginWithId( pluginType, pluginId );
     return waitLimit <= 0 && pluginInterface == null
       ? null
       : pluginInterface != null
@@ -1090,8 +1090,8 @@ public class PluginRegistry {
    * @param pluginTypeClass The type of plugin to register
    * @param annotationClass The type of annotation to consider
    */
-  public void registerPluginClass( String pluginClassName, Class<? extends PluginTypeInterface> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
-    PluginTypeInterface pluginType = getPluginType( pluginTypeClass );
+  public void registerPluginClass( String pluginClassName, Class<? extends IPluginType> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
+    IPluginType pluginType = getPluginType( pluginTypeClass );
     try {
       Class<?> pluginClass = Class.forName( pluginClassName );
       Annotation annotation = pluginClass.getAnnotation( annotationClass );
@@ -1114,9 +1114,9 @@ public class PluginRegistry {
    * @param className       The main classname to search for
    * @return The plugin ID or null if nothing was found.
    */
-  public String findPluginIdWithMainClassName( Class<? extends PluginTypeInterface> pluginTypeClass, String className ) {
-    List<PluginInterface> plugins = getPlugins( pluginTypeClass );
-    for ( PluginInterface plugin : plugins ) {
+  public String findPluginIdWithMainClassName( Class<? extends IPluginType> pluginTypeClass, String className ) {
+    List<IPlugin> plugins = getPlugins( pluginTypeClass );
+    for ( IPlugin plugin : plugins ) {
       String mainClassName = plugin.getClassMap().get( plugin.getMainType() );
       if ( mainClassName != null && mainClassName.equals( className ) ) {
         return plugin.getIds()[ 0 ];

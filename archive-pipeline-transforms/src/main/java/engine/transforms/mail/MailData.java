@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.mail;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
@@ -37,7 +37,7 @@ import java.util.Properties;
  * @author Samatar
  * @since 28-07-2008
  */
-public class MailData extends BaseTransformData implements TransformDataInterface {
+public class MailData extends BaseTransformData implements ITransformData {
   public int indexOfDestination;
   public int indexOfDestinationCc;
   public int indexOfDestinationBCc;
@@ -69,7 +69,7 @@ public class MailData extends BaseTransformData implements TransformDataInterfac
 
   public MimeMultipart parts;
 
-  public RowMetaInterface previousRowMeta;
+  public IRowMeta previousRowMeta;
 
   public int indexOfReplyToAddresses;
 

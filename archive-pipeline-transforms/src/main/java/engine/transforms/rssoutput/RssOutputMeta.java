@@ -28,8 +28,8 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,8 +37,8 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -541,7 +541,7 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     partNrInFilename = value;
   }
 
-  public String[] getFiles( VariableSpace space ) throws HopTransformException {
+  public String[] getFiles( iVariables variables ) throws HopTransformException {
     int copies = 1;
     int parts = 1;
 
@@ -563,7 +563,7 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int part = 0; part < parts; part++ ) {
-        retval[ i ] = buildFilename( space, copy );
+        retval[ i ] = buildFilename( variables, copy );
         i++;
       }
     }
@@ -574,10 +574,10 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     return retval;
   }
 
-  private String getFilename( VariableSpace space ) throws HopTransformException {
+  private String getFilename( iVariables variables ) throws HopTransformException {
     FileObject file = null;
     try {
-      file = HopVFS.getFileObject( space.environmentSubstitute( getFileName() ) );
+      file = HopVFS.getFileObject( variables.environmentSubstitute( getFileName() ) );
       return HopVFS.getFilename( file );
     } catch ( Exception e ) {
       throw new HopTransformException( BaseMessages
@@ -592,12 +592,12 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public String buildFilename( VariableSpace space, int transformnr ) throws HopTransformException {
+  public String buildFilename( iVariables variables, int transformnr ) throws HopTransformException {
 
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = getFilename( space );
+    String retval = getFilename( variables );
 
     Date now = new Date();
 
@@ -835,7 +835,7 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -894,7 +894,7 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new RssOutputData();
   }
 
@@ -1150,8 +1150,8 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     this.channelcopyright = channelcopyright;
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new RssOutput( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new RssOutput( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 }

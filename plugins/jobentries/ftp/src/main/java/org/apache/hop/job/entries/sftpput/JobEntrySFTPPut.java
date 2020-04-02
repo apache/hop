@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.sftpput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -34,14 +34,14 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
   image = "SFTPPut.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileTransfer"
 )
-public class JobEntrySFTPPut extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntrySFTPPut extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntrySFTPPut.class; // for i18n purposes, needed by Translator!!
 
   private int afterFTPS;
@@ -881,7 +881,7 @@ public class JobEntrySFTPPut extends JobEntryBase implements Cloneable, JobEntry
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

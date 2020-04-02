@@ -26,14 +26,14 @@ import com.trilead.ssh2.Session;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -44,18 +44,18 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @since 03-Juin-2008
  */
 
-public class SSH extends BaseTransform implements TransformInterface {
+public class SSH extends BaseTransform implements ITransform {
   private static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
 
   private SSHMeta meta;
   private SSHData data;
 
-  public SSH( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+  public SSH( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 
@@ -106,7 +106,7 @@ public class SSH extends BaseTransform implements TransformInterface {
       }
     }
 
-    RowMetaInterface imeta = getInputRowMeta();
+    IRowMeta imeta = getInputRowMeta();
     if ( imeta == null ) {
       imeta = new RowMeta();
       this.setInputRowMeta( imeta );
@@ -198,7 +198,7 @@ public class SSH extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 
@@ -256,7 +256,7 @@ public class SSH extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 

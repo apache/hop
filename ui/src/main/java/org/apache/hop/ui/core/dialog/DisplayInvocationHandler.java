@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.eclipse.swt.widgets.Display;
 
 import java.lang.reflect.InvocationHandler;
@@ -34,7 +34,7 @@ import java.lang.reflect.Proxy;
 public class DisplayInvocationHandler<T> implements InvocationHandler {
   private final Display display;
   private final T delegate;
-  private final LogChannelInterface log;
+  private final ILogChannel log;
   private final boolean asyncForVoid;
 
   private class ResultHolder {
@@ -43,14 +43,14 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
   }
 
   @SuppressWarnings( "unchecked" )
-  public static <T> T forObject( Class<T> iface, T delegate, Display display, LogChannelInterface log,
+  public static <T> T forObject( Class<T> iface, T delegate, Display display, ILogChannel log,
                                  boolean asyncForVoid ) {
     return (T) Proxy.newProxyInstance( delegate.getClass().getClassLoader(), (Class<?>[]) ClassUtils.getAllInterfaces(
       delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<T>( display, delegate, log,
       asyncForVoid ) );
   }
 
-  public DisplayInvocationHandler( Display display, T delegate, LogChannelInterface log, boolean asyncForVoid ) {
+  public DisplayInvocationHandler( Display display, T delegate, ILogChannel log, boolean asyncForVoid ) {
     this.display = display;
     this.delegate = delegate;
     this.log = log;

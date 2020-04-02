@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DescriptionInterface;
+import org.apache.hop.core.IDescription;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
@@ -276,13 +276,13 @@ public class EnterTextDialog extends Dialog {
     dispose();
   }
 
-  public static final void editDescription( Shell shell, DescriptionInterface descriptionInterface,
+  public static final void editDescription( Shell shell, IDescription IDescription,
                                             String shellText, String message ) {
     EnterTextDialog textDialog =
-      new EnterTextDialog( shell, shellText, message, descriptionInterface.getDescription() );
+      new EnterTextDialog( shell, shellText, message, IDescription.getDescription() );
     String description = textDialog.open();
     if ( description != null ) {
-      descriptionInterface.setDescription( description );
+      IDescription.setDescription( description );
     }
   }
 

@@ -24,9 +24,9 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class PerformanceLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = PerformanceLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -69,8 +69,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
 
   private String logInterval;
 
-  private PerformanceLogTable( VariableSpace space, IMetaStore metaStore ) {
-    super( space, metaStore, null, null, null );
+  private PerformanceLogTable( IVariables variables, IMetaStore metaStore ) {
+    super( variables, metaStore, null, null, null );
   }
 
   @Override
@@ -113,7 +113,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof PerformanceLogTable ) ) {
       return;
     }
@@ -122,40 +122,40 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     super.replaceMeta( logTable );
   }
 
-  public static PerformanceLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
-    PerformanceLogTable table = new PerformanceLogTable( space, metaStore );
+  public static PerformanceLogTable getDefault( IVariables variables, IMetaStore metaStore ) {
+    PerformanceLogTable table = new PerformanceLogTable( variables, metaStore );
 
     //CHECKSTYLE:LineLength:OFF
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.BatchID" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.BatchID" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.SEQ_NR.id, true, false, "SEQ_NR", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.SeqNr" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.SeqNr" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.SeqNr" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.LOGDATE.id, true, false, "LOGDATE", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.PipelineName" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.PipelineName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.TRANSFORM_NAME.id, true, false, "TRANSFORM_NAME", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.TransformName" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.TRANSFORM_COPY.id, true, false, "TRANSFORM_COPY", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.TransformCopy" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformCopy" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.TransformCopy" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesRead" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesRead" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesWritten" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesWritten" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, false, "LINES_UPDATED", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesUpdated" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesUpdated" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, false, "LINES_INPUT", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesInput" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesInput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, false, "LINES_OUTPUT", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesOutput" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesOutput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, false, "LINES_REJECTED", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.LinesRejected" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.LinesRejected" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.Errors" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.Errors" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.Errors" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.INPUT_BUFFER_ROWS.id, true, false, "INPUT_BUFFER_ROWS", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.InputBufferRows" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.InputBufferRows" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.InputBufferRows" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.OUTPUT_BUFFER_ROWS.id, true, false, "OUTPUT_BUFFER_ROWS", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.OutputBufferRows" ),
-      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.OutputBufferRows" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.OutputBufferRows" ), IValueMeta.TYPE_INTEGER, 18 ) );
 
     table.findField( ID.ID_BATCH.id ).setKey( true );
     table.findField( ID.LOGDATE.id ).setLogDateField( true );
@@ -284,8 +284,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     return Const.HOP_PIPELINE_PERFORMANCE_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
     return indexes;
   }
 

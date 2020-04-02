@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-public class SingleByteCrLfMatcher implements CrLfMatcherInterface {
+public class SingleByteCrLfMatcher implements ICrLfMatcher {
 
   @Override
   public boolean isReturn( byte[] source, int location ) {

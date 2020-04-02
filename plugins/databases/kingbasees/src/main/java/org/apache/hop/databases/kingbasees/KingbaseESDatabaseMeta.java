@@ -24,11 +24,11 @@ package org.apache.hop.databases.kingbasees;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Firebird specific information through static final members
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "KingbaseES"
 )
 @GuiPlugin( id = "GUI-KingbaseDatabaseMeta" )
-public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * @return The extra option separator in database URL for this platform
    */
@@ -179,7 +179,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
@@ -196,7 +196,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
@@ -213,7 +213,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     String retval = "";
     retval += "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
@@ -223,7 +223,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -237,20 +237,20 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_TIMESTAMP:
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
         }
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_INTEGER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
@@ -276,7 +276,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
           }
         }
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         if ( length < 1 || length >= DatabaseMeta.CLOB_LENGTH ) {
           retval += "TEXT";
         } else {
@@ -308,7 +308,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   /*
    * (non-Javadoc)
    *
-   * @see com.kingbase.ketl.core.database.DatabaseInterface#getReservedWords()
+   * @see com.kingbase.ketl.core.database.IDatabase#getReservedWords()
    */
   @Override
   public String[] getReservedWords() {

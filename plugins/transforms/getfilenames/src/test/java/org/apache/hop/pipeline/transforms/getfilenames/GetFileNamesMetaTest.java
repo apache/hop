@@ -27,7 +27,7 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -84,13 +84,13 @@ public class GetFileNamesMetaTest {
     setterMap.put( "file_required", "setFileRequired" );
     setterMap.put( "include_subfolders", "setIncludeSubFolders" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     //Arrays need to be consistent length
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
-    FieldLoadSaveValidator<String[]> fileRequiredArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> fileRequiredArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new FileRequiredLoadSaveValidator(), 25 );
 
     fieldLoadSaveValidatorAttributeMap.put( "filterfiletype", new FileTypeFilterLoadSaveValidator() );
@@ -103,12 +103,12 @@ public class GetFileNamesMetaTest {
 
     LoadSaveTester<GetFileNamesMeta> loadSaveTester =
       new LoadSaveTester<>( GetFileNamesMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }
 
-  public class FileTypeFilterLoadSaveValidator implements FieldLoadSaveValidator<FileInputList.FileTypeFilter> {
+  public class FileTypeFilterLoadSaveValidator implements IFieldLoadSaveValidator<FileInputList.FileTypeFilter> {
 
     @Override
     public FileInputList.FileTypeFilter getTestObject() {
@@ -125,7 +125,7 @@ public class GetFileNamesMetaTest {
     }
   }
 
-  public class FileRequiredLoadSaveValidator implements FieldLoadSaveValidator<String> {
+  public class FileRequiredLoadSaveValidator implements IFieldLoadSaveValidator<String> {
 
     @Override
     public String getTestObject() {

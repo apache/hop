@@ -25,11 +25,11 @@ package org.apache.hop.core.logging;
 import java.util.Date;
 
 
-public class SimpleLoggingObject implements LoggingObjectInterface {
+public class SimpleLoggingObject implements ILoggingObject {
 
   private String objectName;
   private LoggingObjectType objectType;
-  private LoggingObjectInterface parent;
+  private ILoggingObject parent;
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
   private String containerObjectId;
   private Date registrationDate;
@@ -41,7 +41,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
    * @param loggingObjectType
    * @param parent
    */
-  public SimpleLoggingObject( String objectName, LoggingObjectType loggingObjectType, LoggingObjectInterface parent ) {
+  public SimpleLoggingObject( String objectName, LoggingObjectType loggingObjectType, ILoggingObject parent ) {
     this.objectName = objectName;
     this.objectType = loggingObjectType;
     this.parent = parent;
@@ -85,14 +85,14 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
    * @return the parent
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parent;
   }
 
   /**
    * @param parent the parent to set
    */
-  public void setParent( LoggingObjectInterface parent ) {
+  public void setParent( ILoggingObject parent ) {
     this.parent = parent;
   }
 

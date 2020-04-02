@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.cubeinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class CubeInputMetaTest {
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( CubeInputMeta.class, attributes, getterMap, setterMap,
-        new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+        new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }

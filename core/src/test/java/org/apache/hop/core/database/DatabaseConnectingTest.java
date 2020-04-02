@@ -25,7 +25,7 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -218,7 +218,7 @@ public class DatabaseConnectingTest {
     private final Connection sharedConnection;
     private boolean connected;
 
-    public DatabaseStub( LoggingObjectInterface parentObject,
+    public DatabaseStub( ILoggingObject parentObject,
                          DatabaseMeta databaseMeta, Connection sharedConnection ) {
       super( parentObject, databaseMeta );
       this.sharedConnection = sharedConnection;

@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +55,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
         documentationUrl = ""
 )
-public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements TransformMetaInterface<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
+public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements ITransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
   private static Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -117,8 +117,8 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
     this.transformCopyNr = transformCopyNr;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
   }
 
@@ -166,8 +166,8 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -203,9 +203,9 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
 
   }
 
-  public BlockUntilTransformsFinish createTransform( TransformMeta transformMeta, BlockUntilTransformsFinishData transformDataInterface, int cnr, PipelineMeta tr,
+  public BlockUntilTransformsFinish createTransform( TransformMeta transformMeta, BlockUntilTransformsFinishData iTransformData, int cnr, PipelineMeta tr,
                                                      Pipeline pipeline ) {
-    return new BlockUntilTransformsFinish( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new BlockUntilTransformsFinish( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public BlockUntilTransformsFinishData getTransformData() {

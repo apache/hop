@@ -40,7 +40,7 @@ import java.util.List;
  * @author Matt
  * @since 17-12-2003
  */
-public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface {
+public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   private static final HopTwoWayPasswordEncoder instance = new HopTwoWayPasswordEncoder();
   private static final int RADIX = 16;
   private String Seed;

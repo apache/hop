@@ -30,10 +30,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -75,7 +75,7 @@ public class FieldSplitterTest {
     smh =
       new TransformMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class,
         FieldSplitterData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -92,11 +92,11 @@ public class FieldSplitterTest {
   private FieldSplitterMeta mockProcessRowMeta() throws HopTransformException {
     FieldSplitterMeta processRowMeta = smh.processRowsTransformMetaInterface;
     doReturn( "field to split" ).when( processRowMeta ).getSplitField();
-    doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-      any( RowMetaInterface[].class ), any( TransformMeta.class ), any( VariableSpace.class ),
+    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
+      any( IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ),
       any( IMetaStore.class ) );
     doReturn( new String[] { "a", "b" } ).when( processRowMeta ).getFieldName();
-    doReturn( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } ).when( processRowMeta )
+    doReturn( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } ).when( processRowMeta )
       .getFieldType();
     doReturn( new String[] { "a=", "b=" } ).when( processRowMeta ).getFieldID();
     doReturn( new boolean[] { false, false } ).when( processRowMeta ).getFieldRemoveID();
@@ -126,8 +126,8 @@ public class FieldSplitterTest {
 
   @Test
   public void testSplitFields() throws HopException {
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.transformDataInterface );
+    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
     transform.setInputRowMeta( getInputRowMeta() );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
@@ -156,12 +156,12 @@ public class FieldSplitterTest {
     meta.setEnclosure( "" );
     meta.setSplitField( "split" );
     meta.setFieldName( new String[] { "key", "val" } );
-    meta.setFieldType( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } );
+    meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
 
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( meta, smh.transformDataInterface );
+    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init( meta, smh.iTransformData );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "key" ) );
     rowMeta.addValueMeta( new ValueMetaString( "val" ) );
     rowMeta.addValueMeta( new ValueMetaString( "split" ) );
@@ -170,11 +170,11 @@ public class FieldSplitterTest {
     transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "key", "string", "part1 part2" } ) );
     transform.addRowSetToOutputRowSets( new SingleRowRowSet() );
 
-    assertTrue( transform.processRow( meta, smh.transformDataInterface ) );
+    assertTrue( transform.processRow( meta, smh.iTransformData ) );
 
     RowSet rs = transform.getOutputRowSets().get( 0 );
     Object[] row = rs.getRow();
-    RowMetaInterface rm = rs.getRowMeta();
+    IRowMeta rm = rs.getRowMeta();
 
     assertArrayEquals(
       new Object[] { "key", "string", "part1", "part2" },

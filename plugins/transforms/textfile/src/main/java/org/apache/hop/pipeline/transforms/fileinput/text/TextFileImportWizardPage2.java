@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
@@ -119,12 +119,12 @@ public class TextFileImportWizardPage2 extends WizardPage {
 
   private PropsUI props;
   private java.util.List<String> rows;
-  private Vector<TextFileInputFieldInterface> fields;
+  private Vector<ITextFileInputField> fields;
 
   private Shell shell;
 
   public TextFileImportWizardPage2( String arg, PropsUI props, java.util.List<String> rows,
-                                    Vector<TextFileInputFieldInterface> fields ) {
+                                    Vector<ITextFileInputField> fields ) {
     super( arg );
     this.props = props;
     this.rows = rows;

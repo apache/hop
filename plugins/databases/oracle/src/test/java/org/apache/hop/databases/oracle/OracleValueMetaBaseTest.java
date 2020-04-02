@@ -15,10 +15,9 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.databases.oracle.OracleDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,7 +31,7 @@ public class OracleValueMetaBaseTest {
 	public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 	
 	private DatabaseMeta databaseMeta;
-	private ValueMetaInterface valueMetaBase;
+	private IValueMeta valueMetaBase;
 	private ResultSet resultSet;
 	
 	@BeforeClass
@@ -44,9 +43,9 @@ public class OracleValueMetaBaseTest {
 
 	@Before
 	public void setUp() throws HopException {	
-		valueMetaBase = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_NONE);
+		valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE);
 	    databaseMeta = spy(DatabaseMeta.class);
-	    databaseMeta.setDatabaseInterface(spy(OracleDatabaseMeta.class));		
+	    databaseMeta.setIDatabase(spy(OracleDatabaseMeta.class));
 		resultSet = mock(ResultSet.class);
 	}
 
@@ -55,7 +54,7 @@ public class OracleValueMetaBaseTest {
 		when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.VARBINARY);		
 		when(resultSet.getInt("COLUMN_SIZE")).thenReturn(16);
 		
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isString());
 		assertEquals(16, valueMeta.getLength());
 	}	
@@ -64,7 +63,7 @@ public class OracleValueMetaBaseTest {
 	public void testMetadataPreviewSqlLongVarBinaryToString() throws SQLException, HopDatabaseException {
 		when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.LONGVARBINARY);
 
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isString());
 	}
 	
@@ -75,9 +74,9 @@ public class OracleValueMetaBaseTest {
 		when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.NUMERIC);		
 		when(resultSet.getInt("COLUMN_SIZE")).thenReturn(38);
 		when(resultSet.getInt("DECIMAL_DIGITS")).thenReturn(0);
-		when(databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation()).thenReturn(true);
+		when(databaseMeta.getIDatabase().isStrictBigNumberInterpretation()).thenReturn(true);
 		
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isBigNumber());
 	}
 
@@ -87,9 +86,9 @@ public class OracleValueMetaBaseTest {
 		when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.NUMERIC);		
 		when(resultSet.getInt("COLUMN_SIZE")).thenReturn(38);
 		when(resultSet.getInt("DECIMAL_DIGITS")).thenReturn(0);
-		when(databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation()).thenReturn(false);
+		when(databaseMeta.getIDatabase().isStrictBigNumberInterpretation()).thenReturn(false);
 		
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isInteger());
 	}
 
@@ -100,7 +99,7 @@ public class OracleValueMetaBaseTest {
 		when(resultSet.getObject("DECIMAL_DIGITS")).thenReturn(mock(Object.class));
 		when(databaseMeta.supportsTimestampDataType()).thenReturn(true);
 		
-		ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
+		IValueMeta valueMeta = valueMetaBase.getMetadataPreview(databaseMeta, resultSet);
 		assertTrue(valueMeta.isDate());
 		assertEquals(-1, valueMeta.getPrecision());
 		assertEquals(19, valueMeta.getLength());

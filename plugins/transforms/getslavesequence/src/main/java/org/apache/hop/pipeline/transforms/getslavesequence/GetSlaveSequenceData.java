@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transforms.getslavesequence;
 
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class GetSlaveSequenceData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class GetSlaveSequenceData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public SlaveServer slaveServer;
   public long value;
   public long startValue;

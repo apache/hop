@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.junit.Test;
 
@@ -35,24 +35,24 @@ public class TransformErrorMetaTest {
 
   @Test
   public void testGetErrorRowMeta() {
-    VariableSpace vars = new Variables();
+    IVariables vars = new Variables();
     vars.setVariable( "VarNumberErrors", "nbrErrors" );
     vars.setVariable( "VarErrorDescription", "errorDescription" );
     vars.setVariable( "VarErrorFields", "errorFields" );
     vars.setVariable( "VarErrorCodes", "errorCodes" );
     TransformErrorMeta testObject = new TransformErrorMeta( vars, new TransformMeta(), new TransformMeta(),
       "${VarNumberErrors}", "${VarErrorDescription}", "${VarErrorFields}", "${VarErrorCodes}" );
-    RowMetaInterface result = testObject.getErrorRowMeta( 10, "some data was bad", "factId", "BAD131" );
+    IRowMeta result = testObject.getErrorRowMeta( 10, "some data was bad", "factId", "BAD131" );
 
     assertNotNull( result );
     assertEquals( 4, result.size() );
-    assertEquals( ValueMetaInterface.TYPE_INTEGER, result.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_INTEGER, result.getValueMeta( 0 ).getType() );
     assertEquals( "nbrErrors", result.getValueMeta( 0 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta( 1 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 1 ).getType() );
     assertEquals( "errorDescription", result.getValueMeta( 1 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta( 2 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 2 ).getType() );
     assertEquals( "errorFields", result.getValueMeta( 2 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta( 3 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 3 ).getType() );
     assertEquals( "errorCodes", result.getValueMeta( 3 ).getName() );
   }
 }

@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.writetolog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.job.Job;
 import org.junit.Before;
@@ -83,7 +83,7 @@ public class JobEntryWriteToLogTest {
     doReturn( parentJobLogLevel ).when( parentJob ).getLogLevel();
     jobEntry.setParentJob( parentJob );
 
-    LogChannelInterface logChannel = spy( jobEntry.createLogChannel() );
+    ILogChannel logChannel = spy( jobEntry.createLogChannel() );
     doReturn( logChannel ).when( jobEntry ).createLogChannel();
 
     jobEntry.evaluate( new Result() );

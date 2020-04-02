@@ -28,18 +28,18 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -69,17 +69,17 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class HTTP extends BaseTransform implements TransformInterface {
+public class HTTP extends BaseTransform implements ITransform {
   private static Class<?> PKG = HTTPMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   private HTTPMeta meta;
   private HTTPData data;
 
-  public HTTP( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+  public HTTP( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private Object[] execHttp( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private Object[] execHttp( IRowMeta rowMeta, Object[] row ) throws HopException {
     if ( first ) {
       first = false;
       data.argnrs = new int[ meta.getArgumentField().length ];
@@ -98,7 +98,7 @@ public class HTTP extends BaseTransform implements TransformInterface {
   }
 
   @VisibleForTesting
-  Object[] callHttpService( RowMetaInterface rowMeta, Object[] rowData ) throws HopException {
+  Object[] callHttpService( IRowMeta rowMeta, Object[] rowData ) throws HopException {
     HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
 
     if ( data.realConnectionTimeout > -1 ) {
@@ -247,7 +247,7 @@ public class HTTP extends BaseTransform implements TransformInterface {
     }
   }
 
-  private URIBuilder constructUrlBuilder( RowMetaInterface outputRowMeta, Object[] row ) throws HopValueException,
+  private URIBuilder constructUrlBuilder( IRowMeta outputRowMeta, Object[] row ) throws HopValueException,
     HopException {
     URIBuilder uriBuilder;
     try {
@@ -287,7 +287,7 @@ public class HTTP extends BaseTransform implements TransformInterface {
     return response.getAllHeaders();
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 
@@ -383,7 +383,7 @@ public class HTTP extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 
@@ -402,7 +402,7 @@ public class HTTP extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 

@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -62,7 +62,7 @@ public class StringEvaluator {
   private int count;
   private boolean tryTrimming;
 
-  private ValueMetaInterface stringMeta;
+  private IValueMeta stringMeta;
 
   private String[] dateFormats;
   private String[] numberFormats;
@@ -126,7 +126,7 @@ public class StringEvaluator {
 
   private void challengeConversions( String value ) {
     List<StringEvaluationResult> all = new ArrayList<StringEvaluationResult>( evaluationResults );
-    ValueMetaInterface stringMetaClone = null;
+    IValueMeta stringMetaClone = null;
     for ( StringEvaluationResult cmm : all ) {
       if ( cmm.getConversionMeta().isBoolean() ) {
         // Boolean conversion never fails.
@@ -292,7 +292,7 @@ public class StringEvaluator {
 
   public StringEvaluationResult getAdvicedResult() {
     if ( evaluationResults.isEmpty() ) {
-      ValueMetaInterface adviced = new ValueMetaString( "adviced" );
+      IValueMeta adviced = new ValueMetaString( "adviced" );
       adviced.setLength( maxLength );
       int nrNulls = 0;
       String min = null;
@@ -376,7 +376,7 @@ public class StringEvaluator {
       Collections.sort( evaluationResults, compare );
 
       StringEvaluationResult result = evaluationResults.get( 0 );
-      ValueMetaInterface conversionMeta = result.getConversionMeta();
+      IValueMeta conversionMeta = result.getConversionMeta();
       if ( conversionMeta.isNumber() && conversionMeta.getCurrencySymbol() == null ) {
         conversionMeta.setPrecision( maxPrecision );
         if ( maxPrecision > 0 && maxLength > 0 ) {
@@ -401,22 +401,22 @@ public class StringEvaluator {
 
     int[] trimTypes;
     if ( tryTrimming ) {
-      trimTypes = new int[] { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_BOTH, };
+      trimTypes = new int[] { IValueMeta.TRIM_TYPE_NONE, IValueMeta.TRIM_TYPE_BOTH, };
     } else {
-      trimTypes = new int[] { ValueMetaInterface.TRIM_TYPE_NONE, };
+      trimTypes = new int[] { IValueMeta.TRIM_TYPE_NONE, };
     }
 
     for ( int trimType : trimTypes ) {
       for ( String format : getDateFormats() ) {
-        ValueMetaInterface conversionMeta = new ValueMetaDate( "date" );
+        IValueMeta conversionMeta = new ValueMetaDate( "date" );
         conversionMeta.setConversionMask( format );
         conversionMeta.setTrimType( trimType );
         conversionMeta.setDateFormatLenient( false );
         evaluationResults.add( new StringEvaluationResult( conversionMeta ) );
       }
 
-      EvalResultBuilder numberUsBuilder = new EvalResultBuilder( "number-us", ValueMetaInterface.TYPE_NUMBER, 15, trimType, ".", "," );
-      EvalResultBuilder numberEuBuilder = new EvalResultBuilder( "number-eu", ValueMetaInterface.TYPE_NUMBER, 15, trimType, ",", "." );
+      EvalResultBuilder numberUsBuilder = new EvalResultBuilder( "number-us", IValueMeta.TYPE_NUMBER, 15, trimType, ".", "," );
+      EvalResultBuilder numberEuBuilder = new EvalResultBuilder( "number-eu", IValueMeta.TYPE_NUMBER, 15, trimType, ",", "." );
 
       for ( String format : getNumberFormats() ) {
 
@@ -433,7 +433,7 @@ public class StringEvaluator {
       // Try the locale's Currency
       DecimalFormat currencyFormat = ( (DecimalFormat) NumberFormat.getCurrencyInstance() );
 
-      ValueMetaInterface conversionMeta = new ValueMetaNumber( "number-currency" );
+      IValueMeta conversionMeta = new ValueMetaNumber( "number-currency" );
       // replace the universal currency symbol with the locale's currency symbol for user recognition
       String currencyMask = currencyFormat.toLocalizedPattern().replace( "\u00A4", currencyFormat.getCurrency().getSymbol() );
       conversionMeta.setConversionMask( currencyMask );
@@ -559,7 +559,7 @@ public class StringEvaluator {
 
     public StringEvaluationResult build() {
       try {
-        ValueMetaInterface meta = ValueMetaFactory.createValueMeta( name, type );
+        IValueMeta meta = ValueMetaFactory.createValueMeta( name, type );
         meta.setConversionMask( format );
         meta.setTrimType( trimType );
         meta.setDecimalSymbol( decimalSymbol );

@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.snappy;
 
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.xerial.snappy.SnappyInputStream;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.io.InputStream;
 
 public class SnappyCompressionInputStream extends CompressionInputStream {
 
-  public SnappyCompressionInputStream( InputStream in, CompressionProvider provider ) throws IOException {
+  public SnappyCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
     super( getDelegate( in ), provider );
   }
 

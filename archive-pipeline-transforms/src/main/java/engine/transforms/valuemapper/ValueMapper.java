@@ -30,8 +30,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -43,19 +43,19 @@ import java.util.Hashtable;
  * @author Matt
  * @since 3-apr-2006
  */
-public class ValueMapper extends BaseTransform implements TransformInterface {
+public class ValueMapper extends BaseTransform implements ITransform {
   private static Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
 
   private ValueMapperMeta meta;
   private ValueMapperData data;
   private boolean nonMatchActivated = false;
 
-  public ValueMapper( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ValueMapper( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 
@@ -169,14 +169,14 @@ public class ValueMapper extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 
     super.dispose( smi, sdi );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 

@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
@@ -41,9 +41,9 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.Redrawable;
+import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -51,11 +51,11 @@ import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
-import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogParentProvidedInterface;
+import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
@@ -64,14 +64,14 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobAdapter;
-import org.apache.hop.job.JobEntryListener;
+import org.apache.hop.job.IJobEntryListener;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.JobPainter;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUI;
@@ -82,13 +82,13 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
+import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
 import org.apache.hop.ui.hopgui.file.job.context.HopGuiJobContext;
 import org.apache.hop.ui.hopgui.file.job.context.HopGuiJobEntryContext;
@@ -170,9 +170,9 @@ import java.util.UUID;
  * @author Matt Created on 17-may-2003
  */
 public class HopGuiJobGraph extends HopGuiAbstractGraph
-  implements Redrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
-  HasLogChannelInterface, LogParentProvidedInterface,
-  HopFileTypeHandlerInterface,
+  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
+  IHasLogChannel, ILogParentProvided,
+  IHopFileTypeHandler,
   IGuiRefresher {
 
   private static Class<?> PKG = HopGuiJobGraph.class; // for i18n purposes, needed by Translator!!
@@ -203,7 +203,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   private static final int HOP_SEL_MARGIN = 9;
   private final HopDataOrchestrationPerspective perspective;
 
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
   protected JobMeta jobMeta;
 
@@ -392,7 +392,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUI.TOOLTIP_OFFSET, ConstUI.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
-    helpTip.addCheckBoxToolTipListener( new CheckBoxToolTipListener() {
+    helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
 
       public void checkBoxSelected( boolean enabled ) {
         hopUi.getProps().setShowingHelpToolTips( enabled );
@@ -2404,7 +2404,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       if ( referencedMeta == null ) {
         return; // Sorry, nothing loaded
       }
-      HopFileTypeInterface fileTypeHandler = hopUi.getPerspectiveManager().findFileTypeHandler( referencedMeta );
+      IHopFileType fileTypeHandler = hopUi.getPerspectiveManager().findFileTypeHandler( referencedMeta );
       fileTypeHandler.openFile( hopUi, referencedMeta.getFilename(), hopUi.getVariableSpace() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "The referenced file couldn't be loaded", e );
@@ -2442,7 +2442,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   }
 
   public Image getJobImage( Device device, int x, int y, float magnificationFactor ) {
-    GCInterface gc = new SWTGC( device, new Point( x, y ), iconsize );
+    IGC gc = new SWTGC( device, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
@@ -2817,7 +2817,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     }
   }
 
-  public EngineMetaInterface getMeta() {
+  public IEngineMeta getMeta() {
     return jobMeta;
   }
 
@@ -2947,7 +2947,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       if ( StringUtils.isEmpty( filename ) ) {
         throw new HopException( "Please give the job a filename" );
       }
-      String xml = jobMeta.getXML();
+      String xml = jobMeta.getXml();
       OutputStream out = HopVFS.getOutputStream( jobMeta.getFilename(), false );
       try {
         out.write( XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
@@ -3295,7 +3295,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
             }
 
             // Set the named parameters
-            Map<String, String> paramMap = executionConfiguration.getParams();
+            Map<String, String> paramMap = executionConfiguration.getParametersMap();
             Set<String> keys = paramMap.keySet();
             for ( String key : keys ) {
               job.getJobMeta().setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
@@ -3347,14 +3347,14 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     m.open();
   }
 
-  private JobEntryListener createRefreshJobEntryListener() {
-    return new JobEntryListener() {
+  private IJobEntryListener createRefreshJobEntryListener() {
+    return new IJobEntryListener() {
 
-      public void beforeExecution( Job job, JobEntryCopy jobEntryCopy, JobEntryInterface jobEntryInterface ) {
+      public void beforeExecution( Job job, JobEntryCopy jobEntryCopy, IJobEntry jobEntry ) {
         asyncRedraw();
       }
 
-      public void afterExecution( Job job, JobEntryCopy jobEntryCopy, JobEntryInterface jobEntryInterface,
+      public void afterExecution( Job job, JobEntryCopy jobEntryCopy, IJobEntry jobEntry,
                                   Result result ) {
         asyncRedraw();
       }
@@ -3385,10 +3385,10 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
-  public HasLogChannelInterface getLogChannelProvider() {
-    return new HasLogChannelInterface() {
+  public IHasLogChannel getLogChannelProvider() {
+    return new IHasLogChannel() {
       @Override
-      public LogChannelInterface getLogChannel() {
+      public ILogChannel getLogChannel() {
         return getJob() != null ? getJob().getLogChannel() : getJobMeta().getLogChannel();
       }
     };
@@ -3496,7 +3496,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     return job;
   }
 
-  @Override public LogChannelInterface getLogChannel() {
+  @Override public ILogChannel getLogChannel() {
     return log;
   }
 
@@ -3553,14 +3553,14 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 

@@ -27,9 +27,9 @@ import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFRecord;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -47,7 +47,7 @@ import java.util.zip.ZipInputStream;
  * @author Samatar Hassan
  * @since 24-May-2005
  */
-public class LDIFInputData extends BaseTransformData implements TransformDataInterface {
+public class LDIFInputData extends BaseTransformData implements ITransformData {
   public String thisline, nextline, lastline;
   // public Row previousRow;
   public int nr_repeats;
@@ -72,10 +72,10 @@ public class LDIFInputData extends BaseTransformData implements TransformDataInt
   public int itemCount;
   public int itemPosition;
   public long rownr;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public Object[] previousRow;
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta convertRowMeta;
   public int nrInputFields;
   public LDAPAttribute[] attributes_LDIF;
   public LDIFRecord recordLDIF;

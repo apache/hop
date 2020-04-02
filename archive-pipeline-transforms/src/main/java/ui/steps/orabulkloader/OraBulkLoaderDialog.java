@@ -30,13 +30,13 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.orabulkloader.OraBulkLoaderMeta;
@@ -95,7 +95,7 @@ import java.util.Set;
  *
  * @author Sven Boden
  */
-public class OraBulkLoaderDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -957,7 +957,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1178,7 +1178,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
                 String schemaTable =
                   ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
                     .environmentSubstitute( tableName ) );
-                RowMetaInterface r = db.getTableFields( schemaTable );
+                IRowMeta r = db.getTableFields( schemaTable );
                 if ( null != r ) {
                   String[] fieldNames = r.getFieldNames();
                   if ( null != fieldNames ) {
@@ -1503,11 +1503,11 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
 
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
-            if ( v.getType() == ValueMetaInterface.TYPE_DATE ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
+            if ( v.getType() == IValueMeta.TYPE_DATE ) {
               // The default is date mask.
               tableItem.setText( 3, BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateMask.Label" ) );
             } else {
@@ -1535,7 +1535,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TransformMeta.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
@@ -1572,8 +1572,8 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields;
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
 
     try {
       sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
@@ -1598,7 +1598,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements Transfor
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 

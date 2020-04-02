@@ -21,10 +21,10 @@ import com.google.common.cache.CacheBuilder;
 import java.util.Map;
 
 /**
- * This implementation of XmlMetaStoreCache stores the cache using soft references. But client is still able to clear it
+ * This implementation of IXmlMetaStoreCache stores the cache using soft references. But client is still able to clear it
  * manually.
  */
-public class AutomaticXmlMetaStoreCache extends BaseXmlMetaStoreCache implements XmlMetaStoreCache {
+public class AutomaticXmlMetaStoreCache extends BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
 
   @Override
   protected <K, V> Map<K, V> createStorage() {

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
@@ -54,16 +54,16 @@ public class ExcelWriterMetaInjection implements TransformMetaInjectionInterface
 
     TransformInjectionMetaEntry fieldsEntry =
       new TransformInjectionMetaEntry( "FIELDS",
-        ValueMetaInterface.TYPE_NONE, BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) );
+        IValueMeta.TYPE_NONE, BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) );
     all.add( fieldsEntry );
 
     TransformInjectionMetaEntry fieldEntry =
       new TransformInjectionMetaEntry( "FIELD",
-        ValueMetaInterface.TYPE_NONE, BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) );
+        IValueMeta.TYPE_NONE, BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) );
     fieldsEntry.getDetails().add( fieldEntry );
 
     for ( Entry entry : Entry.values() ) {
-      if ( entry.getValueType() != ValueMetaInterface.TYPE_NONE ) {
+      if ( entry.getValueType() != IValueMeta.TYPE_NONE ) {
         TransformInjectionMetaEntry metaEntry =
           new TransformInjectionMetaEntry( entry.name(), entry.getValueType(), entry.getDescription() );
         fieldEntry.getDetails().add( metaEntry );
@@ -157,30 +157,30 @@ public class ExcelWriterMetaInjection implements TransformMetaInjectionInterface
 
   private enum Entry {
 
-    FIELDS( ValueMetaInterface.TYPE_NONE,
+    FIELDS( IValueMeta.TYPE_NONE,
       BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) ),
-    FIELD( ValueMetaInterface.TYPE_NONE,
+    FIELD( IValueMeta.TYPE_NONE,
       BaseMessages.getString( PKG, "ExcelWriterMetaInjection.AllFields" ) ),
 
-    NAME( ValueMetaInterface.TYPE_STRING,
+    NAME( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterMetaInjection.FieldName" ) ),
-    TYPE( ValueMetaInterface.TYPE_STRING,
+    TYPE( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterMetaInjection.FieldType" ) ),
-    FORMAT( ValueMetaInterface.TYPE_STRING,
+    FORMAT( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.FormatColumn.Column" ) ),
-    STYLECELL( ValueMetaInterface.TYPE_STRING,
+    STYLECELL( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.UseStyleCell.Column" ) ),
-    FIELDTITLE( ValueMetaInterface.TYPE_STRING,
+    FIELDTITLE( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.TitleColumn.Column" ) ),
-    TITLESTYLE( ValueMetaInterface.TYPE_STRING,
+    TITLESTYLE( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.UseTitleStyleCell.Column" ) ),
-    FORMULA( ValueMetaInterface.TYPE_BOOLEAN,
+    FORMULA( IValueMeta.TYPE_BOOLEAN,
       BaseMessages.getString( PKG, "ExcelWriterDialog.FormulaField.Column" ) ),
-    HYPERLINKFIELD( ValueMetaInterface.TYPE_STRING,
+    HYPERLINKFIELD( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.HyperLinkField.Column" ) ),
-    CELLCOMMENT( ValueMetaInterface.TYPE_STRING,
+    CELLCOMMENT( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.CommentField.Column" ) ),
-    COMMENTAUTHOR( ValueMetaInterface.TYPE_STRING,
+    COMMENTAUTHOR( IValueMeta.TYPE_STRING,
       BaseMessages.getString( PKG, "ExcelWriterDialog.CommentAuthor.Column" ) );
 
 

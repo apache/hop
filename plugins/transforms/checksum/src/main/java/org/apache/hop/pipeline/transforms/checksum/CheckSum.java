@@ -30,10 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
@@ -46,7 +46,7 @@ import java.util.zip.CRC32;
  * @author Samatar Hassan
  * @since 30-06-2008
  */
-public class CheckSum extends BaseTransform implements TransformInterface {
+public class CheckSum extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -54,14 +54,14 @@ public class CheckSum extends BaseTransform implements TransformInterface {
 
   private CheckSumData data;
 
-  public CheckSum( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public CheckSum( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @SuppressWarnings( "deprecation" )
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (CheckSumMeta) smi;
     data = (CheckSumData) sdi;
 
@@ -275,7 +275,7 @@ public class CheckSum extends BaseTransform implements TransformInterface {
 
   @SuppressWarnings( "deprecation" )
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (CheckSumMeta) smi;
     data = (CheckSumData) sdi;
 

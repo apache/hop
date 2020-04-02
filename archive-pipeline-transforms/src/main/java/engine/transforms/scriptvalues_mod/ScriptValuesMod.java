@@ -31,16 +31,16 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.JavaScriptUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.mozilla.javascript.Context;
@@ -60,7 +60,7 @@ import java.util.Map;
  * @author Matt
  * @since 5-April-2003
  */
-public class ScriptValuesMod extends BaseTransform implements TransformInterface {
+public class ScriptValuesMod extends BaseTransform implements ITransform {
   private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
 
   private ScriptValuesMetaMod meta;
@@ -95,12 +95,12 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
 
   public Script script;
 
-  public ScriptValuesMod( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ScriptValuesMod( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private void determineUsedFields( RowMetaInterface row ) {
+  private void determineUsedFields( IRowMeta row ) {
     int nr = 0;
     // Count the occurrences of the values.
     // Perhaps we find values in comments, but we take no risk!
@@ -140,7 +140,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
     }
   }
 
-  private boolean addValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private boolean addValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     if ( first ) {
       first = false;
 
@@ -231,7 +231,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
         // Add the used fields...
         //
         for ( int i = 0; i < data.fields_used.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
           Object valueData = row[ data.fields_used[ i ] ];
 
           if ( meta.isCompatible() ) {
@@ -352,7 +352,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
         }
 
         for ( int i = 0; i < data.fields_used.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
           Object valueData = row[ data.fields_used[ i ] ];
 
           if ( meta.isCompatible() ) {
@@ -423,7 +423,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
         //
         if ( meta.isCompatible() ) {
           for ( int i = 0; i < data.values_used.length; i++ ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
+            IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
             outputRow[ data.fields_used[ i ] ] = valueMeta.getValueData( data.values_used[ i ] );
           }
 
@@ -431,7 +431,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
           //
           for ( Integer index : usedRowValues.keySet() ) {
             Value value = usedRowValues.get( index );
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( index );
+            IValueMeta valueMeta = rowMeta.getValueMeta( index );
             outputRow[ index ] = valueMeta.getValueData( value );
           }
 
@@ -489,11 +489,11 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
     }
   }
 
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return data.outputRowMeta;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     meta = (ScriptValuesMetaMod) smi;
     data = (ScriptValuesModData) sdi;
@@ -561,7 +561,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
     return bRC;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ScriptValuesMetaMod) smi;
     data = (ScriptValuesModData) sdi;
 
@@ -591,7 +591,7 @@ public class ScriptValuesMod extends BaseTransform implements TransformInterface
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     try {
       if ( data.cx != null ) {
         Context.exit();

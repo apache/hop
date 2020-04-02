@@ -24,7 +24,7 @@ package org.apache.hop.job.entries.pipeline;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -37,22 +37,22 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.JobEntryRunConfigurableInterface;
+import org.apache.hop.job.entry.IJobEntryRunConfigurable;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -62,7 +62,7 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.SlaveServerPipelineStatus;
@@ -81,7 +81,7 @@ import java.util.Map;
  * @author Matt Casters
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
-public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntryInterface, JobEntryRunConfigurableInterface {
+public class JobEntryPipeline extends JobEntryBase implements Cloneable, IJobEntry, IJobEntryRunConfigurable {
   private static Class<?> PKG = JobEntryPipeline.class; // for i18n purposes, needed by Translator!!
   public static final int IS_PENTAHO = 1;
 
@@ -441,7 +441,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
         resultRow = null;
       }
 
-      NamedParams namedParam = new NamedParamsDefault();
+      INamedParams namedParam = new NamedParamsDefault();
       if ( parameters != null ) {
         for ( int idx = 0; idx < parameters.length; idx++ ) {
           if ( !Utils.isEmpty( parameters[ idx ] ) ) {
@@ -621,14 +621,14 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
           // Remote execution...
           //
           executionConfiguration.setPreviousResult( previousResult.clone() );
-          executionConfiguration.setVariables( this );
+          executionConfiguration.setVariablesMap( this );
           executionConfiguration.setRemoteServer( remoteSlaveServer );
           executionConfiguration.setLogLevel( pipelineLogLevel );
           executionConfiguration.setLogFileName( realLogFilename );
           executionConfiguration.setSetAppendLogfile( setAppendLogfile );
           executionConfiguration.setSetLogfile( setLogfile );
 
-          Map<String, String> params = executionConfiguration.getParams();
+          Map<String, String> params = executionConfiguration.getParametersMap();
           for ( String param : pipelineMeta.listParameters() ) {
             String value =
               Const.NVL( pipelineMeta.getParameterValue( param ), Const.NVL(
@@ -749,7 +749,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
 
           // Inform the parent job we started something here...
           //
-          for ( DelegationListener delegationListener : parentJob.getDelegationListeners() ) {
+          for ( IDelegationListener delegationListener : parentJob.getDelegationListeners() ) {
             // TODO: copy some settings in the job execution configuration, not strictly needed
             // but the execution configuration information is useful in case of a job re-start
             //
@@ -842,11 +842,11 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
     result.setRows( newResult.getRows() );
   }
 
-  public PipelineMeta getPipelineMeta( IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public PipelineMeta getPipelineMeta( IMetaStore metaStore, IVariables variables ) throws HopException {
     try {
       PipelineMeta pipelineMeta = null;
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-      VariableSpace tmpSpace = r.resolveCurrentDirectory( space, parentJob, getFilename() );
+      IVariables tmpSpace = r.resolveCurrentDirectory( variables, parentJob, getFilename() );
 
       String realFilename = tmpSpace.environmentSubstitute( getFilename() );
 
@@ -858,11 +858,11 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
         //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
         // parent parameter.
 
-        TransformWithMappingMeta.replaceVariableValues( pipelineMeta, space, "Pipeline" );
+        TransformWithMappingMeta.replaceVariableValues( pipelineMeta, variables, "Pipeline" );
         if ( isPassingAllParameters() ) {
           // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
           // variables from the pipeline?' option is checked)
-          TransformWithMappingMeta.addMissingVariables( pipelineMeta, space );
+          TransformWithMappingMeta.addMissingVariables( pipelineMeta, variables );
         }
         // Pass the IMetaStore references
         //
@@ -889,15 +889,15 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
   }
 
   @Override
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
-    this.copyVariablesFrom( space );
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+    this.copyVariablesFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metaStore, this );
 
     return pipelineMeta.getSQLStatements();
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     if ( setLogfile ) {
       JobEntryValidatorUtils.andValidator().validate( this, "logfile", remarks,
@@ -937,7 +937,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space           The variable space to resolve (environment) variables with.
+   * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
@@ -945,8 +945,8 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
    * @throws HopException in case something goes wrong during the export
    */
   @Override
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
     // Try to load the pipeline from a file.
     // Modify this recursively too...
     //
@@ -954,8 +954,8 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
     //
     // First load the pipeline metadata...
     //
-    copyVariablesFrom( space );
-    PipelineMeta pipelineMeta = getPipelineMeta( metaStore, space );
+    copyVariablesFrom( variables );
+    PipelineMeta pipelineMeta = getPipelineMeta( metaStore, variables );
 
     // Also go down into the pipeline and export the files there. (mapping recursively down)
     //
@@ -1079,13 +1079,13 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore metaStore
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return getPipelineMeta( metaStore, space );
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+    return getPipelineMeta( metaStore, variables );
   }
 
   @Override
@@ -1098,7 +1098,7 @@ public class JobEntryPipeline extends JobEntryBase implements Cloneable, JobEntr
   }
 
   public void prepareFieldNamesParameters( String[] parameters, String[] parameterFieldNames, String[] parameterValues,
-                                           NamedParams namedParam, JobEntryPipeline jobEntryPipeline )
+                                           INamedParams namedParam, JobEntryPipeline jobEntryPipeline )
     throws UnknownParamException {
     for ( int idx = 0; idx < parameters.length; idx++ ) {
       // Grab the parameter value set in the Pipeline job entry

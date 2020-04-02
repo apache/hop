@@ -94,7 +94,7 @@ public class SlaveServerDetection {
     StringBuilder xml = new StringBuilder();
 
     xml.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( slaveServer.getXML() );
+    xml.append( slaveServer.getXml() );
     xml.append( XMLHandler.addTagValue( "active", active ) );
     xml.append( XMLHandler.addTagValue( "last_active_date", lastActiveDate ) );
     xml.append( XMLHandler.addTagValue( "last_inactive_date", lastInactiveDate ) );

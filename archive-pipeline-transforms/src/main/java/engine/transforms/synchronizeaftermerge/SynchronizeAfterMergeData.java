@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
@@ -42,7 +42,7 @@ import java.util.Map;
  * @author Samatar
  * @since 13-10-2008
  */
-public class SynchronizeAfterMergeData extends BaseTransformData implements TransformDataInterface {
+public class SynchronizeAfterMergeData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...
@@ -82,14 +82,14 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements Tran
 
   public boolean lookupFailure;
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
 
-  public RowMetaInterface deleteParameterRowMeta;
-  public RowMetaInterface updateParameterRowMeta;
-  public RowMetaInterface lookupParameterRowMeta;
-  public RowMetaInterface lookupReturnRowMeta;
-  public RowMetaInterface insertRowMeta;
+  public IRowMeta deleteParameterRowMeta;
+  public IRowMeta updateParameterRowMeta;
+  public IRowMeta lookupParameterRowMeta;
+  public IRowMeta lookupReturnRowMeta;
+  public IRowMeta insertRowMeta;
 
   public Map<String, Integer> commitCounterMap;
   public int commitSize;

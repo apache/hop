@@ -22,8 +22,8 @@
 
 package org.apache.hop.concurrency;
 
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.Test;
 
@@ -67,21 +67,21 @@ public class RowMetaConcurrencyTest {
       getters.add( new Getter( condition, rowMeta ) );
     }
 
-    ConcurrencyTestRunner<List<ValueMetaInterface>, ?> runner =
-      new ConcurrencyTestRunner<List<ValueMetaInterface>, Object>( adders, getters, condition );
+    ConcurrencyTestRunner<List<IValueMeta>, ?> runner =
+      new ConcurrencyTestRunner<List<IValueMeta>, Object>( adders, getters, condition );
     runner.runConcurrentTest();
 
     runner.checkNoExceptionRaised();
 
-    Set<ValueMetaInterface> results = new HashSet<ValueMetaInterface>( cycles * addersAmount );
-    for ( List<ValueMetaInterface> list : runner.getMonitoredTasksResults() ) {
+    Set<IValueMeta> results = new HashSet<IValueMeta>( cycles * addersAmount );
+    for ( List<IValueMeta> list : runner.getMonitoredTasksResults() ) {
       results.addAll( list );
     }
-    List<ValueMetaInterface> metas = rowMeta.getValueMetaList();
+    List<IValueMeta> metas = rowMeta.getValueMetaList();
 
     assertEquals( cycles * addersAmount, metas.size() );
     assertEquals( cycles * addersAmount, results.size() );
-    for ( ValueMetaInterface meta : metas ) {
+    for ( IValueMeta meta : metas ) {
       assertTrue( meta.getName(), results.remove( meta ) );
     }
     assertTrue( results.isEmpty() );
@@ -171,11 +171,11 @@ public class RowMetaConcurrencyTest {
       }
     }
     // adders should add all elements
-    Set<ValueMetaInterface> metas = new HashSet<ValueMetaInterface>( rowMeta.getValueMetaList() );
+    Set<IValueMeta> metas = new HashSet<IValueMeta>( rowMeta.getValueMetaList() );
     for ( Adder adder : adders ) {
-      ExecutionResult<List<ValueMetaInterface>> result =
-        (ExecutionResult<List<ValueMetaInterface>>) results.get( adder );
-      for ( ValueMetaInterface meta : result.getResult() ) {
+      ExecutionResult<List<IValueMeta>> result =
+        (ExecutionResult<List<IValueMeta>>) results.get( adder );
+      for ( IValueMeta meta : result.getResult() ) {
         assertTrue( meta.getName(), metas.remove( meta ) );
       }
     }
@@ -197,7 +197,7 @@ public class RowMetaConcurrencyTest {
       Random random = new Random();
       while ( condition.get() ) {
         int acc = 0;
-        for ( ValueMetaInterface meta : rowMeta.getValueMetaList() ) {
+        for ( IValueMeta meta : rowMeta.getValueMetaList() ) {
           // fake cycle to from eliminating this snippet by JIT
           acc += meta.getType() / 10;
         }
@@ -207,7 +207,7 @@ public class RowMetaConcurrencyTest {
     }
   }
 
-  private static class Adder extends StopOnErrorCallable<List<ValueMetaInterface>> {
+  private static class Adder extends StopOnErrorCallable<List<IValueMeta>> {
     private final RowMeta rowMeta;
     private final int cycles;
     private final String nameSeed;
@@ -220,11 +220,11 @@ public class RowMetaConcurrencyTest {
     }
 
     @Override
-    List<ValueMetaInterface> doCall() throws Exception {
+    List<IValueMeta> doCall() throws Exception {
       Random random = new Random();
-      List<ValueMetaInterface> result = new ArrayList<ValueMetaInterface>( cycles );
+      List<IValueMeta> result = new ArrayList<IValueMeta>( cycles );
       for ( int i = 0; ( i < cycles ) && condition.get(); i++ ) {
-        ValueMetaInterface added = new ValueMetaString( nameSeed + '_' + i );
+        IValueMeta added = new ValueMetaString( nameSeed + '_' + i );
         rowMeta.addValueMeta( added );
         result.add( added );
         Thread.sleep( random.nextInt( 100 ) );
@@ -271,7 +271,7 @@ public class RowMetaConcurrencyTest {
     Object doCall() throws Exception {
       Random random = new Random();
       for ( int i = 0; ( i < cycles ) && condition.get(); i++ ) {
-        List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>( rowMeta.getValueMetaList() );
+        List<IValueMeta> list = new ArrayList<IValueMeta>( rowMeta.getValueMetaList() );
         Collections.shuffle( list );
         rowMeta.setValueMetaList( list );
         Thread.sleep( random.nextInt( 100 ) );

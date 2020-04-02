@@ -22,19 +22,19 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.http.NameValuePair;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class HTTPData extends BaseTransformData implements TransformDataInterface {
+public class HTTPData extends BaseTransformData implements ITransformData {
   public int[] argnrs;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
   public int indexOfUrlField;
   public String realUrl;
   public String realProxyHost;

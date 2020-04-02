@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.changefileencoding;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -61,7 +61,7 @@ import java.util.ArrayList;
 
 @PluginDialog( id = "ChangeFileEncoding", image = "ChangeFileEncoding.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Change+file+encoding" )
-public class ChangeFileEncodingDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ChangeFileEncodingDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFileName;
@@ -478,7 +478,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements Tra
         String targetfilefield = wTargetFileName.getText();
         wFileName.removeAll();
         wTargetFileName.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wFileName.setItems( r.getFieldNames() );
           wTargetFileName.setItems( r.getFieldNames() );

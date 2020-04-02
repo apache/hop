@@ -25,7 +25,7 @@ package org.apache.hop.job.entries.ftpdelete;
 import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.ClassRule;
 
@@ -52,8 +52,8 @@ public class JobEntryFTPDeleteLoadSaveTest extends JobEntryLoadSaveTestSupport<J
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     validators.put( "fTPSConnectionType", new IntLoadSaveValidator( FTPSConnection.connection_type_Code.length ) );
 
     return validators;

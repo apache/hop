@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -310,7 +310,7 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
     } );
 
     // TODO check field type plugins
-    // ValueMetaInterface mft = new ValueMetaString( "f" );
+    // IValueMeta mft = new ValueMetaString( "f" );
     // ValueMetaFactory.createValueMeta( "INTEGER", 5 );
     // injector.setProperty( meta, "FIELD_TYPE", setValue( mft, "INTEGER" ), "f" );
     // assertEquals( 5, meta.inputFiles.inputFields[0].getType() );
@@ -328,7 +328,7 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_TRIM_TYPE", setValue( mftt, "left" ), "f" );
     assertEquals( 1, meta.inputFields[ 0 ].getTrimType() );
     injector.setProperty( meta, "FIELD_TRIM_TYPE", setValue( mftt, "right" ), "f" );

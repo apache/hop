@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -48,7 +48,7 @@ public class GetQueryFieldsProgressDialog {
   private Shell shell;
   private DatabaseMeta dbMeta;
   private String sql;
-  private RowMetaInterface result;
+  private IRowMeta result;
 
   private Database db;
 
@@ -62,7 +62,7 @@ public class GetQueryFieldsProgressDialog {
     this.sql = sql;
   }
 
-  public RowMetaInterface open() {
+  public IRowMeta open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );

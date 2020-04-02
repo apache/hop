@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.replacestring;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.replacestring.ReplaceStringMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -69,7 +69,7 @@ import java.util.Set;
  * @author Samatar Hassan
  * @since 28 September 2007
  */
-public class ReplaceStringDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlKey;
@@ -216,7 +216,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements Transfor
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -412,11 +412,11 @@ public class ReplaceStringDialog extends BaseTransformDialog implements Transfor
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
-            if ( v.getType() == ValueMetaInterface.TYPE_STRING ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
+            if ( v.getType() == IValueMeta.TYPE_STRING ) {
               // Only process strings
               tableItem.setText( 3, BaseMessages.getString( PKG, "System.Combo.No" ) );
               tableItem.setText( 6, BaseMessages.getString( PKG, "System.Combo.No" ) );

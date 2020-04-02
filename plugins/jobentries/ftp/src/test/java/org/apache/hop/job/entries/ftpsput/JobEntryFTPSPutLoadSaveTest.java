@@ -25,7 +25,7 @@ package org.apache.hop.job.entries.ftpsput;
 import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -94,13 +94,13 @@ public class JobEntryFTPSPutLoadSaveTest extends JobEntryLoadSaveTestSupport<Job
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidator = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidator = new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidator.put( "connection_type", new FTPSConnectionLoadSaveValidator() );
     return fieldLoadSaveValidator;
   }
 
-  public class FTPSConnectionLoadSaveValidator implements FieldLoadSaveValidator<Integer> {
+  public class FTPSConnectionLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
     @Override
     public Integer getTestObject() {
       return new Random().nextInt( FTPSConnection.connection_type_Code.length );

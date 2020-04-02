@@ -44,7 +44,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -52,10 +52,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.awt.*;
 import java.io.File;
@@ -70,19 +70,19 @@ import java.util.Locale;
  * @author Matt
  * @since 7-sep-2006
  */
-public class ExcelOutput extends BaseTransform implements TransformInterface {
+public class ExcelOutput extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExcelOutputMeta meta;
   private ExcelOutputData data;
 
-  public ExcelOutput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+  public ExcelOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 
@@ -274,7 +274,7 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
    * @param column     the excel column for getting the template format
    * @return <code>true</code> if write succeeded
    */
-  private boolean writeField( Object v, ValueMetaInterface vMeta, ExcelField excelField, int column ) {
+  private boolean writeField( Object v, IValueMeta vMeta, ExcelField excelField, int column ) {
     return writeField( v, vMeta, excelField, column, false );
   }
 
@@ -288,7 +288,7 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
    * @param isHeader   true if this is part of the header/footer
    * @return <code>true</code> if write succeeded
    */
-  private boolean writeField( Object v, ValueMetaInterface vMeta, ExcelField excelField, int column,
+  private boolean writeField( Object v, IValueMeta vMeta, ExcelField excelField, int column,
                               boolean isHeader ) {
     try {
       String hashName = vMeta.getName();
@@ -336,7 +336,7 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
         // Will write new row after existing ones in current column
         data.positionY = data.sheet.getColumn( data.positionX ).length;
         switch ( vMeta.getType() ) {
-          case ValueMetaInterface.TYPE_DATE: {
+          case IValueMeta.TYPE_DATE: {
             if ( v != null && vMeta.getDate( v ) != null ) {
               if ( cellFormat == null ) {
                 if ( excelField != null && excelField.getFormat() != null ) {
@@ -372,9 +372,9 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
           default:
             // fallthrough
             // Output the data value as a string
-          case ValueMetaInterface.TYPE_STRING:
-          case ValueMetaInterface.TYPE_BOOLEAN:
-          case ValueMetaInterface.TYPE_BINARY: {
+          case IValueMeta.TYPE_STRING:
+          case IValueMeta.TYPE_BOOLEAN:
+          case IValueMeta.TYPE_BINARY: {
             if ( cellFormat == null ) {
               cellFormat = new WritableCellFormat( data.writableFont );
               if ( data.rowFontBackgoundColour != null ) {
@@ -390,9 +390,9 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
             }
             break;
           }
-          case ValueMetaInterface.TYPE_NUMBER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_INTEGER: {
+          case IValueMeta.TYPE_NUMBER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_INTEGER: {
             if ( v != null ) {
               if ( cellFormat == null ) {
                 String format;
@@ -442,14 +442,14 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
       if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
           String fieldName = meta.getOutputFields()[ i ].getName();
-          ValueMetaInterface vMeta = new ValueMetaString( fieldName );
+          IValueMeta vMeta = new ValueMetaString( fieldName );
           writeField( fieldName, vMeta, null, i, true );
         }
       } else {
         if ( data.previousMeta != null ) { // Just put all field names in the header/footer
           for ( int i = 0; i < data.previousMeta.size(); i++ ) {
             String fieldName = data.previousMeta.getFieldNames()[ i ];
-            ValueMetaInterface vMeta = new ValueMetaString( fieldName );
+            IValueMeta vMeta = new ValueMetaString( fieldName );
             writeField( fieldName, vMeta, null, i, true );
           }
         }
@@ -685,7 +685,7 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 
@@ -743,7 +743,7 @@ public class ExcelOutput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 

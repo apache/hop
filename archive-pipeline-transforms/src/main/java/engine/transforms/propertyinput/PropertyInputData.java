@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.propertyinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.ini4j.Profile.Section;
 import org.ini4j.Wini;
 
@@ -46,10 +46,10 @@ import java.util.Properties;
  * @author Samatar Hassan
  * @since 24-Mars-2008
  */
-public class PropertyInputData extends BaseTransformData implements TransformDataInterface {
+public class PropertyInputData extends BaseTransformData implements ITransformData {
   public String thisline;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
   public Object[] previousRow;
   public int nr_repeats;
 
@@ -68,7 +68,7 @@ public class PropertyInputData extends BaseTransformData implements TransformDat
   public BufferedInputStream is;
   public long rownr;
   public Map<String, Object> rw;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta inputRowMeta;
   public int totalpreviousfields;
   public int indexOfFilenameField;
   public Object[] readrow;

@@ -79,14 +79,14 @@ public class TransformMetaTest {
   @Test
   public void transformMetaXmlConsistency() throws Exception {
     TransformMeta meta = new TransformMeta( "id", "name", null );
-    TransformMetaInterface smi = new Missing( meta.getName(), meta.getTransformPluginId() );
+    ITransformMeta smi = new Missing( meta.getName(), meta.getTransformPluginId() );
     meta.setTransformMetaInterface( smi );
     TransformMeta fromXml = TransformMeta.fromXml( meta.getXML() );
     assertThat( meta.getXML(), is( fromXml.getXML() ) );
   }
 
   private static TransformMeta createTestMeta() throws Exception {
-    TransformMetaInterface transformMetaInterface = mock( AbstractTransformMeta.class );
+    ITransformMeta transformMetaInterface = mock( AbstractTransformMeta.class );
     when( transformMetaInterface.clone() ).thenReturn( transformMetaInterface );
 
     TransformMeta meta = new TransformMeta( TRANSFORM_ID, "transformName", transformMetaInterface );
@@ -119,7 +119,7 @@ public class TransformMetaTest {
     return meta;
   }
 
-  private static RowDistributionInterface selectRowDistribution() {
+  private static IRowDistribution selectRowDistribution() {
     return new FakeRowDistribution();
   }
 

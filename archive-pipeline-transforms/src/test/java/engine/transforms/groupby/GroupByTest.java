@@ -29,8 +29,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -77,7 +77,7 @@ public class GroupByTest {
   public void setUp() throws Exception {
     mockHelper =
       new TransformMockHelper<>( "Group By", GroupByMeta.class, GroupByData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -92,12 +92,12 @@ public class GroupByTest {
     GroupByMeta groupByMeta = mock( GroupByMeta.class );
     GroupByData groupByData = mock( GroupByData.class );
 
-    GroupBy groupBySpy = Mockito.spy( new GroupBy( mockHelper.transformMeta, mockHelper.transformDataInterface, 0,
+    GroupBy groupBySpy = Mockito.spy( new GroupBy( mockHelper.transformMeta, mockHelper.iTransformData, 0,
       mockHelper.pipelineMeta, mockHelper.pipeline ) );
     doReturn( null ).when( groupBySpy ).getRow();
     doReturn( null ).when( groupBySpy ).getInputRowMeta();
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaInteger( "ROWNR" ) );
 
     List<RowSet> outputRowSets = new ArrayList<RowSet>();
@@ -150,27 +150,27 @@ public class GroupByTest {
       GroupByMeta.TYPE_GROUP_CONCAT_COMMA,
       GroupByMeta.TYPE_GROUP_CONCAT_STRING } );
 
-    meta.getFields( outputFields, "Group By Transform", (RowMetaInterface[]) null, (TransformMeta) null,
+    meta.getFields( outputFields, "Group By Transform", (IRowMeta[]) null, (TransformMeta) null,
       (Variables) null, (IMetaStore) null );
 
     assertEquals( outputFields.getValueMetaList().size(), 9 );
-    assertTrue( outputFields.getValueMeta( 0 ).getType() == ValueMetaInterface.TYPE_STRING );
+    assertTrue( outputFields.getValueMeta( 0 ).getType() == IValueMeta.TYPE_STRING );
     assertTrue( outputFields.getValueMeta( 0 ).getName().equals( "group_by_field" ) );
-    assertTrue( outputFields.getValueMeta( 1 ).getType() == ValueMetaInterface.TYPE_NUMBER );
+    assertTrue( outputFields.getValueMeta( 1 ).getType() == IValueMeta.TYPE_NUMBER );
     assertTrue( outputFields.getValueMeta( 1 ).getName().equals( "perc_field" ) );
-    assertTrue( outputFields.getValueMeta( 2 ).getType() == ValueMetaInterface.TYPE_NUMBER );
+    assertTrue( outputFields.getValueMeta( 2 ).getType() == IValueMeta.TYPE_NUMBER );
     assertTrue( outputFields.getValueMeta( 2 ).getName().equals( "stddev_field" ) );
-    assertTrue( outputFields.getValueMeta( 3 ).getType() == ValueMetaInterface.TYPE_NUMBER );
+    assertTrue( outputFields.getValueMeta( 3 ).getType() == IValueMeta.TYPE_NUMBER );
     assertTrue( outputFields.getValueMeta( 3 ).getName().equals( "median_field" ) );
-    assertTrue( outputFields.getValueMeta( 4 ).getType() == ValueMetaInterface.TYPE_INTEGER );
+    assertTrue( outputFields.getValueMeta( 4 ).getType() == IValueMeta.TYPE_INTEGER );
     assertTrue( outputFields.getValueMeta( 4 ).getName().equals( "count_distinct_field" ) );
-    assertTrue( outputFields.getValueMeta( 5 ).getType() == ValueMetaInterface.TYPE_INTEGER );
+    assertTrue( outputFields.getValueMeta( 5 ).getType() == IValueMeta.TYPE_INTEGER );
     assertTrue( outputFields.getValueMeta( 5 ).getName().equals( "count_any_field" ) );
-    assertTrue( outputFields.getValueMeta( 6 ).getType() == ValueMetaInterface.TYPE_INTEGER );
+    assertTrue( outputFields.getValueMeta( 6 ).getType() == IValueMeta.TYPE_INTEGER );
     assertTrue( outputFields.getValueMeta( 6 ).getName().equals( "count_all_field" ) );
-    assertTrue( outputFields.getValueMeta( 7 ).getType() == ValueMetaInterface.TYPE_STRING );
+    assertTrue( outputFields.getValueMeta( 7 ).getType() == IValueMeta.TYPE_STRING );
     assertTrue( outputFields.getValueMeta( 7 ).getName().equals( "concat_comma_field" ) );
-    assertTrue( outputFields.getValueMeta( 8 ).getType() == ValueMetaInterface.TYPE_STRING );
+    assertTrue( outputFields.getValueMeta( 8 ).getType() == IValueMeta.TYPE_STRING );
     assertTrue( outputFields.getValueMeta( 8 ).getName().equals( "concat_custom_field" ) );
   }
 
@@ -201,7 +201,7 @@ public class GroupByTest {
     when( listMock.size() ).thenReturn( 5001 );
     groupByData.bufferList = listMock;
     groupByData.rowsOnFile = 0;
-    RowMetaInterface inputRowMetaMock = mock( RowMetaInterface.class );
+    IRowMeta inputRowMetaMock = mock( IRowMeta.class );
     groupByData.inputRowMeta = inputRowMetaMock;
 
     GroupBy groupBySpy = Mockito.spy(

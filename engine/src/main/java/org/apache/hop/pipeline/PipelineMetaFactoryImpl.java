@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.w3c.dom.Node;
 
-public class PipelineMetaFactoryImpl implements PipelineMetaFactory {
+public class PipelineMetaFactoryImpl implements IPipelineMetaFactory {
 
   @Override
   public PipelineMeta create( Node pipelineNode ) throws HopXMLException, HopMissingPluginsException {

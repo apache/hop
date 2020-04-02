@@ -23,11 +23,11 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 import java.math.BigDecimal;
@@ -72,7 +72,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   public ValueMetaInternetAddress( String name ) {
-    super( name, ValueMetaInterface.TYPE_INET );
+    super( name, IValueMeta.TYPE_INET );
   }
 
   public InetAddress getInternetAddress( Object object ) throws HopValueException {
@@ -304,32 +304,32 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public Object convertDataFromString( String pol, ValueMetaInterface convertMeta, String nullIf, String ifNull,
+  public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
                                        int trim_type ) throws HopValueException {
     // null handling and conversion of value to null
     //
     String null_value = nullIf;
     if ( null_value == null ) {
       switch ( convertMeta.getType() ) {
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           null_value = Const.NULL_BOOLEAN;
           break;
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           null_value = Const.NULL_STRING;
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           null_value = Const.NULL_BIGNUMBER;
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           null_value = Const.NULL_NUMBER;
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           null_value = Const.NULL_INTEGER;
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           null_value = Const.NULL_DATE;
           break;
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           null_value = Const.NULL_BINARY;
           break;
         default:
@@ -381,7 +381,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     StringBuilder strpol;
     // Trimming
     switch ( trim_type ) {
-      case ValueMetaInterface.TRIM_TYPE_LEFT:
+      case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -389,7 +389,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
         pol = strpol.toString();
 
         break;
-      case ValueMetaInterface.TRIM_TYPE_RIGHT:
+      case IValueMeta.TRIM_TYPE_RIGHT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( strpol.length() - 1 ) == ' ' ) {
           strpol.deleteCharAt( strpol.length() - 1 );
@@ -397,7 +397,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
         pol = strpol.toString();
 
         break;
-      case ValueMetaInterface.TRIM_TYPE_BOTH:
+      case IValueMeta.TRIM_TYPE_BOTH:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -427,7 +427,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
    * @throws HopValueException in case there is a data conversion error
    */
   @Override
-  public Object convertData( ValueMetaInterface meta2, Object data2 ) throws HopValueException {
+  public Object convertData( IValueMeta meta2, Object data2 ) throws HopValueException {
     switch ( meta2.getType() ) {
       case TYPE_STRING:
         return convertStringToInternetAddress( meta2.getString( data2 ) );
@@ -457,13 +457,13 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public ValueMetaInterface getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
       if ( "INET".equalsIgnoreCase( rs.getString( "TYPE_NAME" ) ) ) {
-        ValueMetaInterface vmi = super.getMetadataPreview( databaseMeta, rs );
-        ValueMetaInterface valueMeta = new ValueMetaInternetAddress( name );
+        IValueMeta vmi = super.getMetadataPreview( databaseMeta, rs );
+        IValueMeta valueMeta = new ValueMetaInternetAddress( name );
         valueMeta.setLength( vmi.getLength() );
         valueMeta.setOriginalColumnType( vmi.getOriginalColumnType() );
         valueMeta.setOriginalColumnTypeName( vmi.getOriginalColumnTypeName() );
@@ -480,8 +480,8 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public ValueMetaInterface getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );
@@ -505,7 +505,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public Object getValueFromResultSet( DatabaseInterface databaseInterface, ResultSet resultSet, int index ) throws HopDatabaseException {
+  public Object getValueFromResultSet( IDatabase iDatabase, ResultSet resultSet, int index ) throws HopDatabaseException {
 
     try {
 
@@ -534,11 +534,11 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public String getDatabaseColumnTypeDefinition( DatabaseInterface databaseInterface, String tk, String pk,
+  public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
                                                  boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
 
     String retval = null;
-    if ( databaseInterface.isPostgresVariant() ) {
+    if ( iDatabase.isPostgresVariant() ) {
       if ( add_fieldname ) {
         retval = getName() + " ";
       } else {

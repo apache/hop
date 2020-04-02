@@ -23,8 +23,8 @@
 package org.apache.hop.lineage;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -50,7 +50,7 @@ public class PipelineDataLineage {
 
   private List<ValueLineage> valueLineages;
 
-  private Map<ValueMetaInterface, List<TransformMeta>> fieldTransformsMap;
+  private Map<IValueMeta, List<TransformMeta>> fieldTransformsMap;
 
   public PipelineDataLineage( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
@@ -121,7 +121,7 @@ public class PipelineDataLineage {
       } );
     }
 
-    fieldTransformsMap = new HashMap<ValueMetaInterface, List<TransformMeta>>();
+    fieldTransformsMap = new HashMap<IValueMeta, List<TransformMeta>>();
 
     List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
     for ( TransformMeta transformMeta : usedTransforms ) {
@@ -137,11 +137,11 @@ public class PipelineDataLineage {
    *                          etc.
    */
   private void calculateLineage( TransformMeta transformMeta ) throws HopTransformException {
-    RowMetaInterface outputMeta = pipelineMeta.getTransformFields( transformMeta );
+    IRowMeta outputMeta = pipelineMeta.getTransformFields( transformMeta );
 
     // The lineage is basically a calculation of origin for each output of a certain transform.
     //
-    for ( ValueMetaInterface valueMeta : outputMeta.getValueMetaList() ) {
+    for ( IValueMeta valueMeta : outputMeta.getValueMetaList() ) {
 
       TransformMeta originTransformMeta = pipelineMeta.findTransform( valueMeta.getOrigin(), transformMeta );
       if ( originTransformMeta != null ) {

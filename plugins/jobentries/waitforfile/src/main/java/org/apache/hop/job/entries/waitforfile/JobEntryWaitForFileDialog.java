@@ -27,8 +27,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryWaitForFileDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryWaitForFileDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryWaitForFile.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
@@ -110,7 +110,7 @@ public class JobEntryWaitForFileDialog extends JobEntryDialog implements JobEntr
 
   private boolean changed;
 
-  public JobEntryWaitForFileDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryWaitForFileDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryWaitForFile) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -118,7 +118,7 @@ public class JobEntryWaitForFileDialog extends JobEntryDialog implements JobEntr
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

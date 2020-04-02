@@ -28,8 +28,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.parallelgzipcsv.ParGzipCsvInputMeta;
 import org.apache.hop.pipeline.transforms.fileinput.EncodingType;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
@@ -90,7 +90,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-public class ParGzipCsvInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ParGzipCsvInputMeta inputMeta;
@@ -172,7 +172,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements Transf
     isReceivingInput = pipelineMeta.findNrPrevTransforms( transformMeta ) > 0;
     if ( isReceivingInput ) {
 
-      RowMetaInterface previousFields;
+      IRowMeta previousFields;
       try {
         previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
       } catch ( HopTransformException e ) {
@@ -501,12 +501,12 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements Transf
         String[] comboValues = new String[] {};
         int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
         switch ( type ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             comboValues = Const.getDateFormats();
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
             comboValues = Const.getNumberFormats();
             break;
           default:
@@ -821,7 +821,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements Transf
       for ( int i = 0; i < fieldNames.length; i++ ) {
         TableItem item = new TableItem( wFields.table, SWT.NONE );
         item.setText( 1, fieldNames[ i ] );
-        item.setText( 2, ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_STRING ) );
+        item.setText( 2, ValueMetaFactory.getValueMetaName( IValueMeta.TYPE_STRING ) );
       }
       wFields.removeEmptyRows();
       wFields.setRowNums();

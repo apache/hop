@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.jxl.XLSWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.poi.PoiWorkbook;
@@ -33,7 +33,7 @@ import java.io.InputStream;
 
 public class WorkbookFactory {
 
-  public static KWorkbook getWorkbook( SpreadSheetType type, String filename, String encoding ) throws HopException {
+  public static IKWorkbook getWorkbook( SpreadSheetType type, String filename, String encoding ) throws HopException {
     switch ( type ) {
       case JXL:
         return new XLSWorkbook( filename, encoding );
@@ -49,7 +49,7 @@ public class WorkbookFactory {
 
   }
 
-  public static KWorkbook getWorkbook( SpreadSheetType type, InputStream inputStream, String encoding ) throws HopException {
+  public static IKWorkbook getWorkbook( SpreadSheetType type, InputStream inputStream, String encoding ) throws HopException {
     switch ( type ) {
       case JXL:
         return new XLSWorkbook( inputStream, encoding );

@@ -27,11 +27,11 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -47,7 +47,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class PipelineLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = PipelineLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -84,8 +84,8 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
 
   private List<TransformMeta> transforms;
 
-  public PipelineLogTable( VariableSpace space, IMetaStore metaStore, List<TransformMeta> transforms ) {
-    super( space, metaStore, null, null, null );
+  public PipelineLogTable( IVariables variables, IMetaStore metaStore, List<TransformMeta> transforms ) {
+    super( variables, metaStore, null, null, null );
     this.transforms = transforms;
   }
 
@@ -144,7 +144,7 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof PipelineLogTable ) ) {
       return;
     }
@@ -154,50 +154,50 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static PipelineLogTable getDefault( VariableSpace space, IMetaStore metaStore,
+  public static PipelineLogTable getDefault( IVariables variables, IMetaStore metaStore,
                                              List<TransformMeta> transforms ) {
-    PipelineLogTable table = new PipelineLogTable( space, metaStore, transforms );
+    PipelineLogTable table = new PipelineLogTable( variables, metaStore, transforms );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.BatchID" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.BatchID" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.ChannelID" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ChannelID" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ChannelID" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.PIPELINE_NAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.PipelineName" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.PipelineName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.PipelineName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.STATUS.id, true, false, "STATUS", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.Status" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Status" ), ValueMetaInterface.TYPE_STRING, 15 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Status" ), IValueMeta.TYPE_STRING, 15 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, true, "LINES_READ", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesRead" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesRead" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, true, "LINES_WRITTEN", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesWritten" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesWritten" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, true, "LINES_UPDATED", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesUpdated" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesUpdated" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, true, "LINES_INPUT", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesInput" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesInput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, true, "LINES_OUTPUT", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesOutput" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesOutput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, true, "LINES_REJECTED", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LinesRejected" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LinesRejected" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.Errors" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Errors" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Errors" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.STARTDATE.id, true, false, "STARTDATE", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.StartDateRange" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.StartDateRange" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.StartDateRange" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.ENDDATE.id, true, false, "ENDDATE", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.EndDateRange" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.EndDateRange" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.EndDateRange" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.LOGDATE.id, true, false, "LOGDATE", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.DEPDATE.id, true, false, "DEPDATE", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.DepDate" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.DepDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.DepDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.REPLAYDATE.id, true, false, "REPLAYDATE", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.ReplayDate" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ReplayDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ReplayDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.LOG_FIELD.id, true, false, "LOG_FIELD", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.LogField" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.LogField" ), IValueMeta.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
     table.fields.add( new LogTableField( ID.EXECUTING_SERVER.id, false, false, "EXECUTING_SERVER", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.ExecutingServer" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ExecutingServer" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ExecutingServer" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.EXECUTING_USER.id, false, false, "EXECUTING_USER", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.ExecutingUser" ),
-      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ExecutingUser" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.ExecutingUser" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.CLIENT.id, false, false, "CLIENT", BaseMessages.getString( PKG, "PipelineLogTable.FieldName.Client" ),
-        BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Client" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+        BaseMessages.getString( PKG, "PipelineLogTable.FieldDescription.Client" ), IValueMeta.TYPE_STRING, 255 ) );
 
     table.findField( ID.ID_BATCH ).setKey( true );
     table.findField( ID.LOGDATE ).setLogDateField( true );
@@ -442,16 +442,16 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
     return Const.HOP_PIPELINE_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
 
     // First index : ID_BATCH if any is used.
     //
     if ( isBatchIdUsed() ) {
-      RowMetaInterface batchIndex = new RowMeta();
+      IRowMeta batchIndex = new RowMeta();
       LogTableField keyField = getKeyField();
 
-      ValueMetaInterface keyMeta = new ValueMetaBase( keyField.getFieldName(), keyField.getDataType() );
+      IValueMeta keyMeta = new ValueMetaBase( keyField.getFieldName(), keyField.getDataType() );
       keyMeta.setLength( keyField.getLength() );
       batchIndex.addValueMeta( keyMeta );
 
@@ -460,22 +460,22 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, LogTabl
 
     // The next index includes : ERRORS, STATUS, PIPELINE_NAME:
 
-    RowMetaInterface lookupIndex = new RowMeta();
+    IRowMeta lookupIndex = new RowMeta();
     LogTableField errorsField = findField( ID.ERRORS );
     if ( errorsField != null ) {
-      ValueMetaInterface valueMeta = new ValueMetaBase( errorsField.getFieldName(), errorsField.getDataType() );
+      IValueMeta valueMeta = new ValueMetaBase( errorsField.getFieldName(), errorsField.getDataType() );
       valueMeta.setLength( errorsField.getLength() );
       lookupIndex.addValueMeta( valueMeta );
     }
     LogTableField statusField = findField( ID.STATUS );
     if ( statusField != null ) {
-      ValueMetaInterface valueMeta = new ValueMetaBase( statusField.getFieldName(), statusField.getDataType() );
+      IValueMeta valueMeta = new ValueMetaBase( statusField.getFieldName(), statusField.getDataType() );
       valueMeta.setLength( statusField.getLength() );
       lookupIndex.addValueMeta( valueMeta );
     }
     LogTableField pipelineNameField = findField( ID.PIPELINE_NAME );
     if ( pipelineNameField != null ) {
-      ValueMetaInterface valueMeta = new ValueMetaBase( pipelineNameField.getFieldName(), pipelineNameField.getDataType() );
+      IValueMeta valueMeta = new ValueMetaBase( pipelineNameField.getFieldName(), pipelineNameField.getDataType() );
       valueMeta.setLength( pipelineNameField.getLength() );
       lookupIndex.addValueMeta( valueMeta );
     }

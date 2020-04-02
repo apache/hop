@@ -23,12 +23,11 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -43,154 +42,154 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
 
   @Test
   public void test() throws Exception {
-    check( "FILENAME", new StringGetter() {
+    check( "FILENAME", new IStringGetter() {
       public String get() {
         return meta.getFileName();
       }
     } );
-    check( "PASS_TO_SERVLET", new BooleanGetter() {
+    check( "PASS_TO_SERVLET", new IBooleanGetter() {
       public boolean get() {
         return meta.isServletOutput();
       }
     } );
-    check( "CREATE_PARENT_FOLDER", new BooleanGetter() {
+    check( "CREATE_PARENT_FOLDER", new IBooleanGetter() {
       public boolean get() {
         return meta.isCreateParentFolder();
       }
     } );
-    check( "EXTENSION", new StringGetter() {
+    check( "EXTENSION", new IStringGetter() {
       public String get() {
         return meta.getExtension();
       }
     } );
-    check( "SEPARATOR", new StringGetter() {
+    check( "SEPARATOR", new IStringGetter() {
       public String get() {
         return meta.getSeparator();
       }
     } );
-    check( "ENCLOSURE", new StringGetter() {
+    check( "ENCLOSURE", new IStringGetter() {
       public String get() {
         return meta.getEnclosure();
       }
     } );
-    check( "FORCE_ENCLOSURE", new BooleanGetter() {
+    check( "FORCE_ENCLOSURE", new IBooleanGetter() {
       public boolean get() {
         return meta.isEnclosureForced();
       }
     } );
-    check( "DISABLE_ENCLOSURE_FIX", new BooleanGetter() {
+    check( "DISABLE_ENCLOSURE_FIX", new IBooleanGetter() {
       public boolean get() {
         return meta.isEnclosureFixDisabled();
       }
     } );
-    check( "HEADER", new BooleanGetter() {
+    check( "HEADER", new IBooleanGetter() {
       public boolean get() {
         return meta.isHeaderEnabled();
       }
     } );
-    check( "FOOTER", new BooleanGetter() {
+    check( "FOOTER", new IBooleanGetter() {
       public boolean get() {
         return meta.isFooterEnabled();
       }
     } );
-    check( "FORMAT", new StringGetter() {
+    check( "FORMAT", new IStringGetter() {
       public String get() {
         return meta.getFileFormat();
       }
     } );
-    check( "COMPRESSION", new StringGetter() {
+    check( "COMPRESSION", new IStringGetter() {
       public String get() {
         return meta.getFileCompression();
       }
     } );
-    check( "SPLIT_EVERY", new IntGetter() {
+    check( "SPLIT_EVERY", new IIntGetter() {
       public int get() {
         return meta.getSplitEvery();
       }
     } );
-    check( "APPEND", new BooleanGetter() {
+    check( "APPEND", new IBooleanGetter() {
       public boolean get() {
         return meta.isFileAppended();
       }
     } );
-    check( "INC_TRANSFORMNR_IN_FILENAME", new BooleanGetter() {
+    check( "INC_TRANSFORMNR_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isTransformNrInFilename();
       }
     } );
-    check( "INC_PARTNR_IN_FILENAME", new BooleanGetter() {
+    check( "INC_PARTNR_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isPartNrInFilename();
       }
     } );
-    check( "INC_DATE_IN_FILENAME", new BooleanGetter() {
+    check( "INC_DATE_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isDateInFilename();
       }
     } );
-    check( "INC_TIME_IN_FILENAME", new BooleanGetter() {
+    check( "INC_TIME_IN_FILENAME", new IBooleanGetter() {
       public boolean get() {
         return meta.isTimeInFilename();
       }
     } );
-    check( "RIGHT_PAD_FIELDS", new BooleanGetter() {
+    check( "RIGHT_PAD_FIELDS", new IBooleanGetter() {
       public boolean get() {
         return meta.isPadded();
       }
     } );
-    check( "FAST_DATA_DUMP", new BooleanGetter() {
+    check( "FAST_DATA_DUMP", new IBooleanGetter() {
       public boolean get() {
         return meta.isFastDump();
       }
     } );
-    check( "ENCODING", new StringGetter() {
+    check( "ENCODING", new IStringGetter() {
       public String get() {
         return meta.getEncoding();
       }
     } );
-    check( "ADD_ENDING_LINE", new StringGetter() {
+    check( "ADD_ENDING_LINE", new IStringGetter() {
       public String get() {
         return meta.getEndedLine();
       }
     } );
-    check( "FILENAME_IN_FIELD", new BooleanGetter() {
+    check( "FILENAME_IN_FIELD", new IBooleanGetter() {
       public boolean get() {
         return meta.isFileNameInField();
       }
     } );
-    check( "FILENAME_FIELD", new StringGetter() {
+    check( "FILENAME_FIELD", new IStringGetter() {
       public String get() {
         return meta.getFileNameField();
       }
     } );
-    check( "NEW_LINE", new StringGetter() {
+    check( "NEW_LINE", new IStringGetter() {
       public String get() {
         return meta.getNewline();
       }
     } );
-    check( "ADD_TO_RESULT", new BooleanGetter() {
+    check( "ADD_TO_RESULT", new IBooleanGetter() {
       public boolean get() {
         return meta.isAddToResultFiles();
       }
     } );
-    check( "DO_NOT_CREATE_FILE_AT_STARTUP", new BooleanGetter() {
+    check( "DO_NOT_CREATE_FILE_AT_STARTUP", new IBooleanGetter() {
       public boolean get() {
         return meta.isDoNotOpenNewFileInit();
       }
     } );
-    check( "SPECIFY_DATE_FORMAT", new BooleanGetter() {
+    check( "SPECIFY_DATE_FORMAT", new IBooleanGetter() {
       public boolean get() {
         return meta.isSpecifyingFormat();
       }
     } );
-    check( "DATE_FORMAT", new StringGetter() {
+    check( "DATE_FORMAT", new IStringGetter() {
       public String get() {
         return meta.getDateTimeFormat();
       }
     } );
 
     /////////////////////////////
-    check( "OUTPUT_FIELDNAME", new StringGetter() {
+    check( "OUTPUT_FIELDNAME", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getName();
       }
@@ -199,48 +198,48 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
     // TODO check field type plugins
     skipPropertyTest( "OUTPUT_TYPE" );
 
-    check( "OUTPUT_FORMAT", new StringGetter() {
+    check( "OUTPUT_FORMAT", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getFormat();
       }
     } );
-    check( "OUTPUT_LENGTH", new IntGetter() {
+    check( "OUTPUT_LENGTH", new IIntGetter() {
       public int get() {
         return meta.getOutputFields()[ 0 ].getLength();
       }
     } );
-    check( "OUTPUT_PRECISION", new IntGetter() {
+    check( "OUTPUT_PRECISION", new IIntGetter() {
       public int get() {
         return meta.getOutputFields()[ 0 ].getPrecision();
       }
     } );
-    check( "OUTPUT_CURRENCY", new StringGetter() {
+    check( "OUTPUT_CURRENCY", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getCurrencySymbol();
       }
     } );
-    check( "OUTPUT_DECIMAL", new StringGetter() {
+    check( "OUTPUT_DECIMAL", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getDecimalSymbol();
       }
     } );
-    check( "OUTPUT_GROUP", new StringGetter() {
+    check( "OUTPUT_GROUP", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getGroupingSymbol();
       }
     } );
-    check( "OUTPUT_NULL", new StringGetter() {
+    check( "OUTPUT_NULL", new IStringGetter() {
       public String get() {
         return meta.getOutputFields()[ 0 ].getNullString();
       }
     } );
-    check( "RUN_AS_COMMAND", new BooleanGetter() {
+    check( "RUN_AS_COMMAND", new IBooleanGetter() {
       public boolean get() {
         return meta.isFileAsCommand();
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "left" ), "f" );
     assertEquals( 1, meta.getOutputFields()[ 0 ].getTrimType() );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "right" ), "f" );

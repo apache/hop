@@ -22,17 +22,17 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
-public class SplitFieldToRowsData extends BaseTransformData implements TransformDataInterface {
+public class SplitFieldToRowsData extends BaseTransformData implements ITransformData {
   public int fieldnr;
-  public RowMetaInterface outputRowMeta;
-  public ValueMetaInterface splitMeta;
+  public IRowMeta outputRowMeta;
+  public IValueMeta splitMeta;
   public long rownr;
   public Pattern delimiterPattern;
 

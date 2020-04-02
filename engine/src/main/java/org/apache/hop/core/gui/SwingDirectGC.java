@@ -47,7 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class SwingDirectGC implements GCInterface {
+public class SwingDirectGC implements IGC {
 
   private static SwingUniversalImage imageLocked;
 

@@ -28,7 +28,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.hop.core.AttributesInterface;
+import org.apache.hop.core.IAttributes;
 import org.apache.hop.metastore.api.BaseMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
@@ -59,11 +59,11 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
 
   static final String TYPE_PREFIX = "TYPE.";
 
-  private final AttributesInterface attributesInterface;
+  private final IAttributes IAttributes;
   private final ReadWriteLock lock;
 
-  public EmbeddedMetaStore( AttributesInterface attributesInterface ) {
-    this.attributesInterface = attributesInterface;
+  public EmbeddedMetaStore( IAttributes IAttributes ) {
+    this.IAttributes = IAttributes;
     this.lock = new ReentrantReadWriteLock();
   }
 
@@ -72,8 +72,8 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
     MetaStoreUtil.executeLockedOperation( writeLock(), new Callable<Void>() {
       @Override public Void call() throws Exception {
         String groupName = JsonElementType.groupName( namespace );
-        if ( !attributesInterface.getAttributesMap().containsKey( groupName ) ) {
-          attributesInterface.setAttributes( groupName, Maps.<String, String>newHashMap() );
+        if ( !IAttributes.getAttributesMap().containsKey( groupName ) ) {
+          IAttributes.setAttributes( groupName, Maps.<String, String>newHashMap() );
         }
         return null;
       }
@@ -83,7 +83,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
   @Override public List<String> getNamespaces() throws MetaStoreException {
     return MetaStoreUtil.executeLockedOperation( readLock(), new Callable<List<String>>() {
       @Override public List<String> call() throws Exception {
-        return FluentIterable.from( attributesInterface.getAttributesMap().keySet() )
+        return FluentIterable.from( IAttributes.getAttributesMap().keySet() )
           .filter( new Predicate<String>() {
             @Override public boolean apply( String groupName ) {
               return groupName.startsWith( METASTORE_PREFIX );
@@ -102,7 +102,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
   @Override public boolean namespaceExists( final String namespace ) throws MetaStoreException {
     return MetaStoreUtil.executeLockedOperation( readLock(), new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
-        return attributesInterface.getAttributesMap().containsKey( JsonElementType.groupName( namespace ) );
+        return IAttributes.getAttributesMap().containsKey( JsonElementType.groupName( namespace ) );
       }
     } );
   }
@@ -115,7 +115,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
           throw new MetaStoreDependenciesExistsException( dependencies,
             "Unable to delete the meta store namespace '" + namespace + "' as it still contains element types" );
         }
-        attributesInterface.getAttributesMap().remove( JsonElementType.groupName( namespace ) );
+        IAttributes.getAttributesMap().remove( JsonElementType.groupName( namespace ) );
         return null;
       }
     } );
@@ -150,7 +150,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
       @Override public JsonElementType call() throws Exception {
         JsonElementType type = newElementType( namespace );
         type.setId( elementTypeId );
-        String jsonData = attributesInterface.getAttribute( type.groupName(), type.key() );
+        String jsonData = IAttributes.getAttribute( type.groupName(), type.key() );
         return jsonData == null ? null : type.load( jsonData );
       }
     } );
@@ -159,7 +159,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
   @Override public List<String> getElementTypeIds( final String namespace ) throws MetaStoreException {
     return MetaStoreUtil.executeLockedOperation( readLock(), new Callable<List<String>>() {
       @Override public List<String> call() throws Exception {
-        Map<String, String> attributes = attributesInterface.getAttributes( JsonElementType.groupName( namespace ) );
+        Map<String, String> attributes = IAttributes.getAttributes( JsonElementType.groupName( namespace ) );
         return attributes == null ? ImmutableList.<String>of() : ImmutableList.copyOf( attributes.keySet() );
       }
     } );
@@ -207,8 +207,8 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
         @Override public Void call() throws Exception {
           List<String> dependencies = getElementIds( namespace, elementType );
           if ( dependencies.isEmpty() ) {
-            attributesInterface.getAttributesMap().remove( JsonElement.groupName( elementType ) );
-            Map<String, String> typeMap = attributesInterface.getAttributes( JsonElementType.groupName( namespace ) );
+            IAttributes.getAttributesMap().remove( JsonElement.groupName( elementType ) );
+            Map<String, String> typeMap = IAttributes.getAttributes( JsonElementType.groupName( namespace ) );
             if ( typeMap != null ) {
               typeMap.remove( elementType.getId() );
             }
@@ -267,7 +267,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
     return MetaStoreUtil.executeLockedOperation( readLock(), new Callable<List<String>>() {
         @Override public List<String> call() throws Exception {
           elementType.setNamespace( namespace );
-          Map<String, String> attributes = attributesInterface.getAttributes( JsonElement.groupName( elementType ) );
+          Map<String, String> attributes = IAttributes.getAttributes( JsonElement.groupName( elementType ) );
           return attributes == null ? ImmutableList.<String>of() : ImmutableList.copyOf( attributes.keySet() );
         }
       }
@@ -282,7 +282,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
         elementType.setNamespace( namespace );
         element.setId( elementId );
         element.setElementType( elementType );
-        String jsonData = attributesInterface.getAttribute( element.groupName(), element.key() );
+        String jsonData = IAttributes.getAttribute( element.groupName(), element.key() );
         return jsonData == null ? null : element.load( jsonData );
       }
     } );
@@ -314,7 +314,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
     MetaStoreUtil.executeLockedOperation( writeLock(), new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
         elementType.setNamespace( namespace );
-        Map<String, String> attributes = attributesInterface.getAttributes( JsonElement.groupName( elementType ) );
+        Map<String, String> attributes = IAttributes.getAttributes( JsonElement.groupName( elementType ) );
 
         return attributes != null && attributes.remove( elementId ) != null;
       }
@@ -327,9 +327,9 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
         String groupName = entry.groupName();
         String key = entry.key();
 
-        String existing = attributesInterface.getAttribute( groupName, key );
+        String existing = IAttributes.getAttribute( groupName, key );
         if ( existing == null ) {
-          attributesInterface.setAttribute( groupName, key, entry.jsonValue() );
+          IAttributes.setAttribute( groupName, key, entry.jsonValue() );
           return true;
         } else {
           return false;
@@ -341,7 +341,7 @@ public class EmbeddedMetaStore extends BaseMetaStore implements ReadWriteLock {
   private void update( final AttributesInterfaceEntry entry ) throws MetaStoreException {
     MetaStoreUtil.executeLockedOperation( writeLock(), new Callable<Void>() {
       @Override public Void call() throws Exception {
-        attributesInterface.setAttribute( entry.groupName(), entry.key(), entry.jsonValue() );
+        IAttributes.setAttribute( entry.groupName(), entry.key(), entry.jsonValue() );
         return null;
       }
     } );

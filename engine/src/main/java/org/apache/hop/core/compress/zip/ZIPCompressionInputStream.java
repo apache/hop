@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.zip;
 
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.zip.ZipInputStream;
 
 public class ZIPCompressionInputStream extends CompressionInputStream {
 
-  public ZIPCompressionInputStream( InputStream in, CompressionProvider provider ) throws IOException {
+  public ZIPCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
     super( getDelegate( in ), provider );
   }
 

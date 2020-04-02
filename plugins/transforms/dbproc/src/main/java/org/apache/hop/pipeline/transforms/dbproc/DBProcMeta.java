@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.dbproc;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -32,12 +32,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -62,7 +62,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
         documentationUrl = ""
 )
-public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterface<DBProc, DBProcData> {
+public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
 
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -258,20 +258,20 @@ public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterf
     for ( i = 0; i < nrargs; i++ ) {
       argument[ i ] = "arg" + i;
       argumentDirection[ i ] = "IN";
-      argumentType[ i ] = ValueMetaInterface.TYPE_NUMBER;
+      argumentType[ i ] = IValueMeta.TYPE_NUMBER;
     }
 
     resultName = "result";
-    resultType = ValueMetaInterface.TYPE_NUMBER;
+    resultType = IValueMeta.TYPE_NUMBER;
     autoCommit = true;
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     if ( !Utils.isEmpty( resultName ) ) {
-      ValueMetaInterface v;
+      IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( resultName, resultType );
         v.setOrigin( name );
@@ -283,7 +283,7 @@ public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterf
 
     for ( int i = 0; i < argument.length; i++ ) {
       if ( argumentDirection[ i ].equalsIgnoreCase( "OUT" ) ) {
-        ValueMetaInterface v;
+        IValueMeta v;
         try {
           v = ValueMetaFactory.createValueMeta( argument[ i ], argumentType[ i ] );
           v.setOrigin( name );
@@ -358,8 +358,8 @@ public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -376,7 +376,7 @@ public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterf
           boolean error_found = false;
 
           for ( int i = 0; i < argument.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( argument[ i ] );
+            IValueMeta v = prev.searchValueMeta( argument[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -400,47 +400,47 @@ public class DBProcMeta extends BaseTransformMeta implements TransformMetaInterf
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "DBProcMeta.CheckResult.AllArgumentsOK" ), transformMeta );
           }
           remarks.add( cr );
         } else {
           error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       }
     } else {
       error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DBProcMeta.CheckResult.ReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "DBProcMeta.CheckResult.NoInpuReceived" ), transformMeta );
       remarks.add( cr );
     }
 
   }
 
-  public DBProc createTransform( TransformMeta transformMeta, DBProcData transformDataInterface, int cnr,
+  public DBProc createTransform( TransformMeta transformMeta, DBProcData iTransformData, int cnr,
                                  PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DBProc( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new DBProc( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public DBProcData getTransformData() {

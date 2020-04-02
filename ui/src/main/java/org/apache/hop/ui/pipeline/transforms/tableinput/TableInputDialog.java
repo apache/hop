@@ -27,17 +27,17 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
-public class TableInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -471,7 +471,7 @@ public class TableInputDialog extends BaseTransformDialog implements TransformDi
     }
     wLimit.setText( Const.NVL( input.getRowLimit(), "" ) );
 
-    StreamInterface infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
+    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
     if ( infoStream.getTransformMeta() != null ) {
       wDatefrom.setText( infoStream.getTransformName() );
       wEachRow.setSelection( input.isExecuteEachInputRow() );
@@ -515,7 +515,7 @@ public class TableInputDialog extends BaseTransformDialog implements TransformDi
     meta.setSQL( preview && !Utils.isEmpty( wSQL.getSelectionText() ) ? wSQL.getSelectionText() : wSQL.getText() );
     meta.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     meta.setRowLimit( wLimit.getText() );
-    StreamInterface infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
+    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
     infoStream.setTransformMeta( pipelineMeta.findTransform( wDatefrom.getText() ) );
     meta.setExecuteEachInputRow( wEachRow.getSelection() );
     meta.setVariableReplacementActive( wVariables.getSelection() );
@@ -569,11 +569,11 @@ public class TableInputDialog extends BaseTransformDialog implements TransformDi
             db.shareVariablesWith( pipelineMeta );
             try {
               db.connect();
-              RowMetaInterface fields = db.getQueryFields( sql, false );
+              IRowMeta fields = db.getQueryFields( sql, false );
               if ( fields != null ) {
                 sql = "SELECT" + Const.CR;
                 for ( int i = 0; i < fields.size(); i++ ) {
-                  ValueMetaInterface field = fields.getValueMeta( i );
+                  IValueMeta field = fields.getValueMeta( i );
                   if ( i == 0 ) {
                     sql += "  ";
                   } else {

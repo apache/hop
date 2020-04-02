@@ -36,32 +36,32 @@ import java.util.Map.Entry;
 
 public class AuthenticationManager {
   private static final Class<?> PKG = AuthenticationManager.class;
-  private final Map<Class<?>, Map<Class<?>, Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>>> factoryMap =
-    new HashMap<Class<?>, Map<Class<?>, Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>>>();
-  private AuthenticationPerformerFactory authenticationPerformerFactory = new DefaultAuthenticationPerformerFactory();
-  private final List<AuthenticationProvider> authenticationProviders = new ArrayList<AuthenticationProvider>();
+  private final Map<Class<?>, Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>> factoryMap =
+    new HashMap<Class<?>, Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>>();
+  private IAuthenticationPerformerFactory authenticationPerformerFactory = new DefaultAuthenticationPerformerFactory();
+  private final List<IAuthenticationProvider> authenticationProviders = new ArrayList<IAuthenticationProvider>();
 
-  public void registerAuthenticationProvider( AuthenticationProvider authenticationProvider ) {
+  public void registerAuthenticationProvider( IAuthenticationProvider authenticationProvider ) {
     synchronized ( authenticationProviders ) {
       authenticationProviders.add( authenticationProvider );
     }
   }
 
-  public boolean unregisterAuthenticationProvider( AuthenticationProvider authenticationProvider ) {
+  public boolean unregisterAuthenticationProvider( IAuthenticationProvider authenticationProvider ) {
     synchronized ( authenticationProviders ) {
       return authenticationProviders.remove( authenticationProvider );
     }
   }
 
   public <ReturnType, CreateArgType, ConsumedType> void registerConsumerFactory(
-    AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> factory ) throws AuthenticationFactoryException {
+    IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> factory ) throws AuthenticationFactoryException {
     if ( !factory.getConsumedType().isInterface()
-      && !AuthenticationProvider.class.isAssignableFrom( factory.getConsumedType() ) ) {
+      && !IAuthenticationProvider.class.isAssignableFrom( factory.getConsumedType() ) ) {
       throw new AuthenticationFactoryException( BaseMessages.getString( PKG, "AuthenticationManager.ConsumedTypeError",
         factory ) );
     }
 
-    Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>> createTypeMap =
+    Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> createTypeMap =
       getRelevantConsumerFactoryMap( factory.getReturnType(), factory.getCreateArgType() );
     synchronized ( createTypeMap ) {
       createTypeMap.put( factory.getConsumedType(), factory );
@@ -69,31 +69,31 @@ public class AuthenticationManager {
   }
 
   public <ReturnType, ConsumedType> void registerConsumerClass(
-    Class<? extends AuthenticationConsumer<? extends ReturnType, ? extends ConsumedType>> consumerClass ) throws AuthenticationFactoryException {
+    Class<? extends IAuthenticationConsumer<? extends ReturnType, ? extends ConsumedType>> consumerClass ) throws AuthenticationFactoryException {
     registerConsumerFactory( new DefaultAuthenticationConsumerFactory( consumerClass ) );
   }
 
-  public <ReturnType, CreateArgType, ConsumedType> List<AuthenticationPerformer<ReturnType, CreateArgType>>
+  public <ReturnType, CreateArgType, ConsumedType> List<IAuthenticationPerformer<ReturnType, CreateArgType>>
   getSupportedAuthenticationPerformers( Class<ReturnType> returnType, Class<CreateArgType> createArgType ) {
-    Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>> createTypeMap =
+    Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> createTypeMap =
       getRelevantConsumerFactoryMap( returnType, createArgType );
     synchronized ( createTypeMap ) {
-      createTypeMap = new HashMap<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>( createTypeMap );
+      createTypeMap = new HashMap<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>( createTypeMap );
     }
 
-    List<AuthenticationProvider> authenticationProviders;
+    List<IAuthenticationProvider> authenticationProviders;
     synchronized ( this.authenticationProviders ) {
-      authenticationProviders = new ArrayList<AuthenticationProvider>( this.authenticationProviders );
+      authenticationProviders = new ArrayList<IAuthenticationProvider>( this.authenticationProviders );
     }
 
-    List<AuthenticationPerformer<ReturnType, CreateArgType>> result =
-      new ArrayList<AuthenticationPerformer<ReturnType, CreateArgType>>();
+    List<IAuthenticationPerformer<ReturnType, CreateArgType>> result =
+      new ArrayList<IAuthenticationPerformer<ReturnType, CreateArgType>>();
 
-    for ( Entry<Class<?>, AuthenticationConsumerFactory<?, ?, ?>> entry : createTypeMap.entrySet() ) {
-      for ( AuthenticationProvider provider : authenticationProviders ) {
+    for ( Entry<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> entry : createTypeMap.entrySet() ) {
+      for ( IAuthenticationProvider provider : authenticationProviders ) {
         @SuppressWarnings( "unchecked" )
-        AuthenticationPerformer<ReturnType, CreateArgType> authenticationPerformer =
-          (AuthenticationPerformer<ReturnType, CreateArgType>) authenticationPerformerFactory.create( provider, entry
+        IAuthenticationPerformer<ReturnType, CreateArgType> authenticationPerformer =
+          (IAuthenticationPerformer<ReturnType, CreateArgType>) authenticationPerformerFactory.create( provider, entry
             .getValue() );
         if ( authenticationPerformer != null && authenticationPerformer.getDisplayName() != null ) {
           result.add( authenticationPerformer );
@@ -101,11 +101,11 @@ public class AuthenticationManager {
       }
     }
 
-    Collections.sort( result, new Comparator<AuthenticationPerformer<ReturnType, CreateArgType>>() {
+    Collections.sort( result, new Comparator<IAuthenticationPerformer<ReturnType, CreateArgType>>() {
 
       @Override
-      public int compare( AuthenticationPerformer<ReturnType, CreateArgType> o1,
-                          AuthenticationPerformer<ReturnType, CreateArgType> o2 ) {
+      public int compare( IAuthenticationPerformer<ReturnType, CreateArgType> o1,
+                          IAuthenticationPerformer<ReturnType, CreateArgType> o2 ) {
         return o1.getDisplayName().toUpperCase().compareTo( o2.getDisplayName().toUpperCase() );
       }
     } );
@@ -113,11 +113,11 @@ public class AuthenticationManager {
     return result;
   }
 
-  public <ReturnType, CreateArgType, ConsumedType> AuthenticationPerformer<ReturnType, CreateArgType>
+  public <ReturnType, CreateArgType, ConsumedType> IAuthenticationPerformer<ReturnType, CreateArgType>
   getAuthenticationPerformer( Class<ReturnType> returnType, Class<CreateArgType> createArgType, String providerId ) {
-    List<AuthenticationPerformer<ReturnType, CreateArgType>> performers =
+    List<IAuthenticationPerformer<ReturnType, CreateArgType>> performers =
       getSupportedAuthenticationPerformers( returnType, createArgType );
-    for ( AuthenticationPerformer<ReturnType, CreateArgType> candidatePerformer : performers ) {
+    for ( IAuthenticationPerformer<ReturnType, CreateArgType> candidatePerformer : performers ) {
       if ( candidatePerformer.getAuthenticationProvider().getId().equals( providerId ) ) {
         return candidatePerformer;
       }
@@ -125,18 +125,18 @@ public class AuthenticationManager {
     return null;
   }
 
-  private <ReturnType, CreateArgType> Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>
+  private <ReturnType, CreateArgType> Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>
   getRelevantConsumerFactoryMap( Class<ReturnType> returnType, Class<CreateArgType> createArgType ) {
     synchronized ( factoryMap ) {
-      Map<Class<?>, Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>> returnTypeMap = factoryMap.get( returnType );
+      Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>> returnTypeMap = factoryMap.get( returnType );
       if ( returnTypeMap == null ) {
-        returnTypeMap = new HashMap<Class<?>, Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>>();
+        returnTypeMap = new HashMap<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>();
         factoryMap.put( returnType, returnTypeMap );
       }
 
-      Map<Class<?>, AuthenticationConsumerFactory<?, ?, ?>> createTypeMap = returnTypeMap.get( createArgType );
+      Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> createTypeMap = returnTypeMap.get( createArgType );
       if ( createTypeMap == null ) {
-        createTypeMap = new HashMap<Class<?>, AuthenticationConsumerFactory<?, ?, ?>>();
+        createTypeMap = new HashMap<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>();
         returnTypeMap.put( createArgType, createTypeMap );
       }
 
@@ -144,7 +144,7 @@ public class AuthenticationManager {
     }
   }
 
-  protected void setAuthenticationPerformerFactory( AuthenticationPerformerFactory authenticationPerformerFactory ) {
+  protected void setAuthenticationPerformerFactory( IAuthenticationPerformerFactory authenticationPerformerFactory ) {
     this.authenticationPerformerFactory = authenticationPerformerFactory;
   }
 }

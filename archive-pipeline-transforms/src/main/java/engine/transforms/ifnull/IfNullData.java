@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashMap;
 
@@ -32,10 +32,10 @@ import java.util.HashMap;
  * @author Samatar
  * @since 16-06-2008
  */
-public class IfNullData extends BaseTransformData implements TransformDataInterface {
+public class IfNullData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
 
   public int[] fieldnrs;
   public int fieldnr;

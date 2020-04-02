@@ -24,7 +24,7 @@ package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -36,14 +36,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class is an implementation of VariableSpace
+ * This class is an implementation of IVariables
  *
  * @author Sven Boden
  */
-public class Variables implements VariableSpace {
+public class Variables implements IVariables {
   private Map<String, String> properties;
 
-  private VariableSpace parent;
+  private IVariables parent;
 
   private Map<String, String> injection;
 
@@ -74,24 +74,24 @@ public class Variables implements VariableSpace {
   }
 
   @Override
-  public void copyVariablesFrom( VariableSpace space ) {
-    if ( space != null && this != space ) {
+  public void copyVariablesFrom( IVariables variables ) {
+    if ( variables != null && this != variables ) {
       // If space is not null and this variable is not already
       // the same object as the argument.
-      String[] variableNames = space.listVariables();
+      String[] variableNames = variables.listVariables();
       for ( int idx = 0; idx < variableNames.length; idx++ ) {
-        properties.put( variableNames[ idx ], space.getVariable( variableNames[ idx ] ) );
+        properties.put( variableNames[ idx ], variables.getVariable( variableNames[ idx ] ) );
       }
     }
   }
 
   @Override
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return parent;
   }
 
   @Override
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     this.parent = parent;
   }
 
@@ -121,7 +121,7 @@ public class Variables implements VariableSpace {
   }
 
   @Override
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     this.parent = parent;
 
     // Clone the system properties to avoid ConcurrentModificationException while iterating
@@ -177,7 +177,7 @@ public class Variables implements VariableSpace {
    * @throws HopValueException In case there is a String conversion error
    */
   @Override
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     if ( aString == null || aString.length() == 0 ) {
       return aString;
@@ -196,8 +196,8 @@ public class Variables implements VariableSpace {
   }
 
   @Override
-  public void shareVariablesWith( VariableSpace space ) {
-    // not implemented in here... done by pointing to the same VariableSpace
+  public void shareVariablesWith( IVariables variables ) {
+    // not implemented in here... done by pointing to the same IVariables
     // implementation
   }
 
@@ -232,12 +232,12 @@ public class Variables implements VariableSpace {
    *
    * @return a default variable space.
    */
-  public static synchronized VariableSpace getADefaultVariableSpace() {
-    VariableSpace space = new Variables();
+  public static synchronized IVariables getADefaultVariableSpace() {
+    IVariables variables = new Variables();
 
-    space.initializeVariablesFrom( null );
+    variables.initializeVariablesFrom( null );
 
-    return space;
+    return variables;
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests

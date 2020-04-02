@@ -23,14 +23,14 @@
 package org.apache.hop.job;
 
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
 
 import java.util.List;
 
 public class JobPainterExtension {
 
-  public GCInterface gc;
+  public IGC gc;
   public boolean shadow;
   public List<AreaOwner> areaOwners;
   public JobMeta jobMeta;
@@ -38,7 +38,7 @@ public class JobPainterExtension {
   public int x1, y1, x2, y2, mx, my;
   public Point offset;
 
-  public JobPainterExtension( GCInterface gc, boolean shadow, List<AreaOwner> areaOwners, JobMeta jobMeta,
+  public JobPainterExtension( IGC gc, boolean shadow, List<AreaOwner> areaOwners, JobMeta jobMeta,
                               JobHopMeta jobHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset ) {
     super();
     this.gc = gc;

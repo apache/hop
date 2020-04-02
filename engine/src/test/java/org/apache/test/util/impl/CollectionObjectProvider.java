@@ -22,11 +22,11 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.ObjectProvider;
+import org.apache.test.util.IObjectProvider;
 
 import java.util.Collection;
 
-public class CollectionObjectProvider<T> implements ObjectProvider<T> {
+public class CollectionObjectProvider<T> implements IObjectProvider<T> {
   private final Collection<T> objects;
 
   public CollectionObjectProvider( Collection<T> objects ) {

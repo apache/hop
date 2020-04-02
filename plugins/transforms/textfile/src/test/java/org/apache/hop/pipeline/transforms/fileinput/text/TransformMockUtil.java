@@ -22,13 +22,13 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 
 import java.lang.reflect.Constructor;
@@ -52,22 +52,22 @@ import static org.mockito.Mockito.when;
  */
 public class TransformMockUtil {
 
-  public static <T extends TransformMetaInterface, V extends BaseTransform> TransformMockHelper<T, TransformDataInterface> getTransformMockHelper( Class<T> meta, String name ) {
-    TransformMockHelper<T, TransformDataInterface> transformMockHelper = new TransformMockHelper<T, TransformDataInterface>( name, meta, TransformDataInterface.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any() ) ).thenReturn( transformMockHelper.logChannelInterface );
+  public static <T extends ITransformMeta, V extends BaseTransform> TransformMockHelper<T, ITransformData> getTransformMockHelper( Class<T> meta, String name ) {
+    TransformMockHelper<T, ITransformData> transformMockHelper = new TransformMockHelper<T, ITransformData>( name, meta, ITransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
+    when( transformMockHelper.logChannelFactory.create( any() ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
     return transformMockHelper;
   }
 
-  public static <T extends BaseTransform, K extends TransformMetaInterface, V extends TransformDataInterface> T getTransform( Class<T> klass, TransformMockHelper<K, V> mock )
+  public static <T extends BaseTransform, K extends ITransformMeta, V extends ITransformData> T getTransform( Class<T> klass, TransformMockHelper<K, V> mock )
     throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    Constructor<T> kons = klass.getConstructor( TransformMeta.class, TransformDataInterface.class, int.class, PipelineMeta.class, Pipeline.class );
-    T transform = kons.newInstance( mock.transformMeta, mock.transformDataInterface, 0, mock.pipelineMeta, mock.pipeline );
+    Constructor<T> kons = klass.getConstructor( TransformMeta.class, ITransformData.class, int.class, PipelineMeta.class, Pipeline.class );
+    T transform = kons.newInstance( mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline );
     return transform;
   }
 
-  public static <T extends BaseTransform, K extends TransformMetaInterface> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, String transformName )
+  public static <T extends BaseTransform, K extends ITransformMeta> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, String transformName )
     throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, transformName ) );
   }

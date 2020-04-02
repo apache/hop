@@ -28,16 +28,16 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Validator extends BaseTransform implements TransformInterface {
+public class Validator extends BaseTransform implements ITransform {
   private static Class<?> PKG = ValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public class FieldIndexes {
@@ -69,12 +69,12 @@ public class Validator extends BaseTransform implements TransformInterface {
   private ValidatorMeta meta;
   private ValidatorData data;
 
-  public Validator( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Validator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ValidatorMeta) smi;
     data = (ValidatorData) sdi;
 
@@ -218,7 +218,7 @@ public class Validator extends BaseTransform implements TransformInterface {
         List<Object> allowedValues = new ArrayList<Object>();
         Object[] allowedRowData = getRowFrom( allowedRowSet );
         while ( allowedRowData != null ) {
-          RowMetaInterface allowedRowMeta = allowedRowSet.getRowMeta();
+          IRowMeta allowedRowMeta = allowedRowSet.getRowMeta();
           if ( fieldIndex < 0 ) {
             fieldIndex = allowedRowMeta.indexOfValue( field.getSourcingField() );
             if ( fieldIndex < 0 ) {
@@ -249,7 +249,7 @@ public class Validator extends BaseTransform implements TransformInterface {
    * @param r            the input row (data)
    * @throws HopValidatorException in case there is a validation error, details are stored in the exception.
    */
-  private List<HopValidatorException> validateFields( RowMetaInterface inputRowMeta, Object[] r )
+  private List<HopValidatorException> validateFields( IRowMeta inputRowMeta, Object[] r )
     throws HopValueException {
     List<HopValidatorException> exceptions = new ArrayList<HopValidatorException>();
 
@@ -257,9 +257,9 @@ public class Validator extends BaseTransform implements TransformInterface {
       Validation field = meta.getValidations().get( i );
 
       int valueIndex = data.fieldIndexes[ i ];
-      ValueMetaInterface validatorMeta = data.constantsMeta[ i ];
+      IValueMeta validatorMeta = data.constantsMeta[ i ];
 
-      ValueMetaInterface valueMeta = inputRowMeta.getValueMeta( valueIndex );
+      IValueMeta valueMeta = inputRowMeta.getValueMeta( valueIndex );
       Object valueData = r[ valueIndex ];
 
       // Check for null
@@ -297,7 +297,7 @@ public class Validator extends BaseTransform implements TransformInterface {
 
       // Check the data type!
       //
-      if ( field.isDataTypeVerified() && field.getDataType() != ValueMetaInterface.TYPE_NONE ) {
+      if ( field.isDataTypeVerified() && field.getDataType() != IValueMeta.TYPE_NONE ) {
 
         // Same data type?
         //
@@ -534,7 +534,7 @@ public class Validator extends BaseTransform implements TransformInterface {
   }
 
   // package-local visibility for testing purposes
-  HopValidatorException assertNumeric( ValueMetaInterface valueMeta,
+  HopValidatorException assertNumeric( IValueMeta valueMeta,
                                        Object valueData,
                                        Validation field ) throws HopValueException {
     if ( valueMeta.isNumeric() || containsOnlyDigits( valueMeta.getString( valueData ) ) ) {
@@ -554,7 +554,7 @@ public class Validator extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ValidatorMeta) smi;
     data = (ValidatorData) sdi;
 
@@ -570,7 +570,7 @@ public class Validator extends BaseTransform implements TransformInterface {
       meta.searchInfoAndTargetTransforms( transforms );
 
       // initialize arrays of validation data
-      data.constantsMeta = new ValueMetaInterface[ meta.getValidations().size() ];
+      data.constantsMeta = new IValueMeta[ meta.getValidations().size() ];
       data.minimumValueAsString = new String[ meta.getValidations().size() ];
       data.maximumValueAsString = new String[ meta.getValidations().size() ];
       data.fieldsMinimumLengthAsInt = new int[ meta.getValidations().size() ];
@@ -620,7 +620,7 @@ public class Validator extends BaseTransform implements TransformInterface {
           data.regularExpressionNotAllowed[ i ] =
             environmentSubstitute( Const.NVL( field.getRegularExpressionNotAllowed(), "" ) );
 
-          ValueMetaInterface stringMeta = cloneValueMeta( data.constantsMeta[ i ], ValueMetaInterface.TYPE_STRING );
+          IValueMeta stringMeta = cloneValueMeta( data.constantsMeta[ i ], IValueMeta.TYPE_STRING );
           data.minimumValue[ i ] =
             Utils.isEmpty( data.minimumValueAsString[ i ] ) ? null : data.constantsMeta[ i ].convertData(
               stringMeta, data.minimumValueAsString[ i ] );
@@ -652,7 +652,7 @@ public class Validator extends BaseTransform implements TransformInterface {
                 stringMeta, environmentSubstitute( field.getAllowedValues()[ s ] ) );
           }
         } catch ( HopException e ) {
-          if ( field.getDataType() == ValueMetaInterface.TYPE_NONE ) {
+          if ( field.getDataType() == IValueMeta.TYPE_NONE ) {
             logError( BaseMessages.getString( PKG, "Validator.Exception.SpecifyDataType" ), e );
           } else {
             logError( BaseMessages.getString( PKG, "Validator.Exception.DataConversionErrorEncountered" ), e );
@@ -674,11 +674,11 @@ public class Validator extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  protected ValueMetaInterface createValueMeta( String name, int type ) throws HopPluginException {
+  protected IValueMeta createValueMeta( String name, int type ) throws HopPluginException {
     return ValueMetaFactory.createValueMeta( name, type );
   }
 
-  protected ValueMetaInterface cloneValueMeta( ValueMetaInterface valueMeta, int type ) throws HopPluginException {
+  protected IValueMeta cloneValueMeta( IValueMeta valueMeta, int type ) throws HopPluginException {
     return ValueMetaFactory.cloneValueMeta( valueMeta, type );
   }
 

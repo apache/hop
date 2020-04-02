@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.core.file.TextFileInputField;
@@ -79,7 +79,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
   public static void setUp() throws HopException {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputUnicodeTest" );
     Mockito.when(
-      transformMockHelper.logChannelInterfaceFactory.create( Matchers.any(), Matchers.any( LoggingObjectInterface.class ) ) )
+      transformMockHelper.logChannelFactory.create( Matchers.any(), Matchers.any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     Mockito.when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -178,13 +178,13 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
 
     CsvInput csvInput =
       new CsvInput(
-        transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
 
     csvInput.init( meta, data );
     csvInput.addRowListener( new RowAdapter() {
       @Override
-      public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
         for ( int i = 0; i < rowMeta.size(); i++ ) {
           Assert.assertEquals( "Value", row[ i ] );
         }

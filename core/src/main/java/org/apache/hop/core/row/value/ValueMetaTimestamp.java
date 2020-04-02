@@ -23,13 +23,13 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
 import org.apache.hop.core.util.Utils;
 
@@ -56,7 +56,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   public ValueMetaTimestamp( String name ) {
-    super( name, ValueMetaInterface.TYPE_TIMESTAMP );
+    super( name, IValueMeta.TYPE_TIMESTAMP );
   }
 
   @Override
@@ -271,32 +271,32 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public Object convertDataFromString( String pol, ValueMetaInterface convertMeta, String nullIf, String ifNull,
+  public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
                                        int trim_type ) throws HopValueException {
     // null handling and conversion of value to null
     //
     String nullValue = nullIf;
     if ( nullValue == null ) {
       switch ( convertMeta.getType() ) {
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           nullValue = Const.NULL_BOOLEAN;
           break;
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           nullValue = Const.NULL_STRING;
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           nullValue = Const.NULL_BIGNUMBER;
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           nullValue = Const.NULL_NUMBER;
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           nullValue = Const.NULL_INTEGER;
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           nullValue = Const.NULL_DATE;
           break;
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           nullValue = Const.NULL_BINARY;
           break;
         default:
@@ -348,7 +348,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     // Trimming
     StringBuilder strpol;
     switch ( trim_type ) {
-      case ValueMetaInterface.TRIM_TYPE_LEFT:
+      case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -356,14 +356,14 @@ public class ValueMetaTimestamp extends ValueMetaDate {
         pol = strpol.toString();
 
         break;
-      case ValueMetaInterface.TRIM_TYPE_RIGHT:
+      case IValueMeta.TRIM_TYPE_RIGHT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( strpol.length() - 1 ) == ' ' ) {
           strpol.deleteCharAt( strpol.length() - 1 );
         }
         pol = strpol.toString();
         break;
-      case ValueMetaInterface.TRIM_TYPE_BOTH:
+      case IValueMeta.TRIM_TYPE_BOTH:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -406,7 +406,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
    * @throws HopValueException in case there is a data conversion error
    */
   @Override
-  public Object convertData( ValueMetaInterface meta2, Object data2 ) throws HopValueException {
+  public Object convertData( IValueMeta meta2, Object data2 ) throws HopValueException {
     switch ( meta2.getType() ) {
       case TYPE_TIMESTAMP:
         return ( (ValueMetaTimestamp) meta2 ).getTimestamp( data2 );
@@ -438,13 +438,13 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public ValueMetaInterface getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
       if ( java.sql.Types.TIMESTAMP == rs.getInt( "COLUMN_TYPE" ) ) {
-        ValueMetaInterface vmi = super.getMetadataPreview( databaseMeta, rs );
-        ValueMetaInterface valueMeta;
+        IValueMeta vmi = super.getMetadataPreview( databaseMeta, rs );
+        IValueMeta valueMeta;
         if ( databaseMeta.supportsTimestampDataType() ) {
           valueMeta = new ValueMetaTimestamp( name );
         } else {
@@ -466,14 +466,14 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public ValueMetaInterface getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );
       if ( type == java.sql.Types.TIMESTAMP ) {
         int length = rm.getScale( index );
-        ValueMetaInterface valueMeta;
+        IValueMeta valueMeta;
         if ( databaseMeta.supportsTimestampDataType() ) {
           valueMeta = new ValueMetaTimestamp( name );
         } else {
@@ -495,7 +495,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public Object getValueFromResultSet( DatabaseInterface databaseInterface, ResultSet resultSet, int index )
+  public Object getValueFromResultSet( IDatabase iDatabase, ResultSet resultSet, int index )
     throws HopDatabaseException {
 
     try {

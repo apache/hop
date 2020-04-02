@@ -23,11 +23,11 @@
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.postgresql.PGConnection;
 
 import java.io.OutputStream;
@@ -38,7 +38,7 @@ import java.io.OutputStream;
  * @author Sven Boden
  * @since 20-feb-2005
  */
-public class PGBulkLoaderData extends BaseTransformData implements TransformDataInterface {
+public class PGBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 
   public int[] keynrs; // nr of keylookup -value in row...
@@ -59,8 +59,8 @@ public class PGBulkLoaderData extends BaseTransformData implements TransformData
 
   public int[] dateFormatChoices;
 
-  public ValueMetaInterface dateMeta;
-  public ValueMetaInterface dateTimeMeta;
+  public IValueMeta dateMeta;
+  public IValueMeta dateTimeMeta;
 
   /**
    * Default constructor.

@@ -52,17 +52,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class RowMeta implements RowMetaInterface {
+public class RowMeta implements IRowMeta {
   public static final String XML_META_TAG = "row-meta";
   public static final String XML_DATA_TAG = "row-data";
 
   private final ReentrantReadWriteLock lock;
   private final RowMetaCache cache;
-  List<ValueMetaInterface> valueMetaList;
+  List<IValueMeta> valueMetaList;
   List<Integer> needRealClone;
 
   public RowMeta() {
-    this( new ArrayList<ValueMetaInterface>(), new RowMetaCache() );
+    this( new ArrayList<IValueMeta>(), new RowMetaCache() );
   }
 
   /**
@@ -72,15 +72,15 @@ public class RowMeta implements RowMetaInterface {
    * @throws HopPluginException
    */
   private RowMeta( RowMeta rowMeta, Integer targetType ) throws HopPluginException {
-    this( new ArrayList<ValueMetaInterface>( rowMeta.valueMetaList.size() ), new RowMetaCache( rowMeta.cache ) );
-    for ( ValueMetaInterface valueMetaInterface : rowMeta.valueMetaList ) {
+    this( new ArrayList<IValueMeta>( rowMeta.valueMetaList.size() ), new RowMetaCache( rowMeta.cache ) );
+    for ( IValueMeta iValueMeta : rowMeta.valueMetaList ) {
       valueMetaList.add( ValueMetaFactory
-        .cloneValueMeta( valueMetaInterface, targetType == null ? valueMetaInterface.getType() : targetType ) );
+        .cloneValueMeta( iValueMeta, targetType == null ? iValueMeta.getType() : targetType ) );
     }
     this.needRealClone = rowMeta.needRealClone;
   }
 
-  private RowMeta( List<ValueMetaInterface> valueMetaList, RowMetaCache rowMetaCache ) {
+  private RowMeta( List<IValueMeta> valueMetaList, RowMetaCache rowMetaCache ) {
     lock = new ReentrantReadWriteLock();
     this.cache = rowMetaCache;
     this.valueMetaList = valueMetaList;
@@ -107,7 +107,7 @@ public class RowMeta implements RowMetaInterface {
    * @throws if the target type could not be loaded from the plugin registry
    */
   @Override
-  public RowMetaInterface cloneToType( int targetType ) throws HopValueException {
+  public IRowMeta cloneToType( int targetType ) throws HopValueException {
     lock.readLock().lock();
     try {
       return new RowMeta( this, targetType );
@@ -124,7 +124,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       boolean notFirst = false;
-      for ( ValueMetaInterface valueMeta : valueMetaList ) {
+      for ( IValueMeta valueMeta : valueMetaList ) {
         if ( notFirst ) {
           buffer.append( ", " );
         } else {
@@ -142,8 +142,8 @@ public class RowMeta implements RowMetaInterface {
    * @return the list of value metadata
    */
   @Override
-  public List<ValueMetaInterface> getValueMetaList() {
-    List<ValueMetaInterface> copy;
+  public List<IValueMeta> getValueMetaList() {
+    List<IValueMeta> copy;
 
     lock.readLock().lock();
     try {
@@ -159,13 +159,13 @@ public class RowMeta implements RowMetaInterface {
    * @param valueMetaList the list of valueMeta to set
    */
   @Override
-  public void setValueMetaList( List<ValueMetaInterface> valueMetaList ) {
+  public void setValueMetaList( List<IValueMeta> valueMetaList ) {
     lock.writeLock().lock();
     try {
       this.valueMetaList = valueMetaList;
       this.cache.invalidate();
       for ( int i = 0, len = valueMetaList.size(); i < len; i++ ) {
-        ValueMetaInterface valueMeta = valueMetaList.get( i );
+        IValueMeta valueMeta = valueMetaList.get( i );
         cache.storeMapping( valueMeta.getName(), i );
       }
       this.needRealClone = null;
@@ -201,7 +201,7 @@ public class RowMeta implements RowMetaInterface {
   }
 
   @Override
-  public boolean exists( ValueMetaInterface meta ) {
+  public boolean exists( IValueMeta meta ) {
     return ( meta != null ) && searchValueMeta( meta.getName() ) != null;
   }
 
@@ -211,11 +211,11 @@ public class RowMeta implements RowMetaInterface {
    * @param meta The metadata value to add
    */
   @Override
-  public void addValueMeta( ValueMetaInterface meta ) {
+  public void addValueMeta( IValueMeta meta ) {
     if ( meta != null ) {
       lock.writeLock().lock();
       try {
-        ValueMetaInterface newMeta;
+        IValueMeta newMeta;
         Integer existsIdx = cache.findAndCompare( meta.getName(), valueMetaList );
         if ( existsIdx == null ) {
           newMeta = meta;
@@ -240,11 +240,11 @@ public class RowMeta implements RowMetaInterface {
    * @param meta  The metadata value to add to the row
    */
   @Override
-  public void addValueMeta( int index, ValueMetaInterface meta ) {
+  public void addValueMeta( int index, IValueMeta meta ) {
     if ( meta != null ) {
       lock.writeLock().lock();
       try {
-        ValueMetaInterface newMeta;
+        IValueMeta newMeta;
         Integer existsIdx = cache.findAndCompare( meta.getName(), valueMetaList );
         if ( existsIdx == null ) {
           newMeta = meta;
@@ -267,7 +267,7 @@ public class RowMeta implements RowMetaInterface {
    * @return The value metadata specified by the index.
    */
   @Override
-  public ValueMetaInterface getValueMeta( int index ) {
+  public IValueMeta getValueMeta( int index ) {
     lock.readLock().lock();
     try {
       if ( ( index >= 0 ) && ( index < valueMetaList.size() ) ) {
@@ -287,12 +287,12 @@ public class RowMeta implements RowMetaInterface {
    * @param valueMeta the metadata to replace with
    */
   @Override
-  public void setValueMeta( int index, ValueMetaInterface valueMeta ) {
+  public void setValueMeta( int index, IValueMeta valueMeta ) {
     if ( valueMeta != null ) {
       lock.writeLock().lock();
       try {
-        ValueMetaInterface old = valueMetaList.get( index );
-        ValueMetaInterface newMeta = valueMeta;
+        IValueMeta old = valueMetaList.get( index );
+        IValueMeta newMeta = valueMeta;
 
         // try to check if a ValueMeta with the same name already exists
         int existsIndex = indexOfValue( valueMeta.getName() );
@@ -323,7 +323,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getString( dataRow[ index ] );
   }
 
@@ -340,7 +340,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getInteger( dataRow[ index ] );
   }
 
@@ -357,7 +357,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getNumber( dataRow[ index ] );
   }
 
@@ -374,7 +374,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getDate( dataRow[ index ] );
   }
 
@@ -391,7 +391,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getBigNumber( dataRow[ index ] );
   }
 
@@ -408,7 +408,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getBoolean( dataRow[ index ] );
   }
 
@@ -425,7 +425,7 @@ public class RowMeta implements RowMetaInterface {
     if ( dataRow == null ) {
       return null;
     }
-    ValueMetaInterface meta = getValueMeta( index );
+    IValueMeta meta = getValueMeta( index );
     return meta.getBinary( dataRow[ index ] );
   }
 
@@ -465,7 +465,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( Integer i : list ) {
-        ValueMetaInterface valueMeta = valueMetaList.get( i );
+        IValueMeta valueMeta = valueMetaList.get( i );
         newObjects[ i ] = valueMeta.cloneValueData( objects[ i ] );
       }
       return newObjects;
@@ -475,14 +475,14 @@ public class RowMeta implements RowMetaInterface {
   }
 
   @VisibleForTesting
-  List<Integer> getOrCreateValuesThatNeedRealClone( List<ValueMetaInterface> values ) {
+  List<Integer> getOrCreateValuesThatNeedRealClone( List<IValueMeta> values ) {
     lock.writeLock().lock();
     try {
       if ( needRealClone == null ) {
         int len = values.size();
         needRealClone = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ ) {
-          ValueMetaInterface valueMeta = values.get( i );
+          IValueMeta valueMeta = values.get( i );
           if ( valueMeta.requiresRealClone() ) {
             needRealClone.add( i );
           }
@@ -562,7 +562,7 @@ public class RowMeta implements RowMetaInterface {
    * @return The value metadata or null if nothing was found
    */
   @Override
-  public ValueMetaInterface searchValueMeta( String valueName ) {
+  public IValueMeta searchValueMeta( String valueName ) {
     lock.readLock().lock();
     try {
       Integer index = indexOfValue( valueName );
@@ -576,7 +576,7 @@ public class RowMeta implements RowMetaInterface {
   }
 
   @Override
-  public void addRowMeta( RowMetaInterface rowMeta ) {
+  public void addRowMeta( IRowMeta rowMeta ) {
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       addValueMeta( rowMeta.getValueMeta( i ) );
     }
@@ -589,7 +589,7 @@ public class RowMeta implements RowMetaInterface {
    * @param r The row to be merged with this row
    */
   @Override
-  public void mergeRowMeta( RowMetaInterface r ) {
+  public void mergeRowMeta( IRowMeta r ) {
     mergeRowMeta( r, null );
   }
 
@@ -602,11 +602,11 @@ public class RowMeta implements RowMetaInterface {
    * @param originTransformName The name to use as the origin transform
    */
   @Override
-  public void mergeRowMeta( RowMetaInterface r, String originTransformName ) {
+  public void mergeRowMeta( IRowMeta r, String originTransformName ) {
     lock.writeLock().lock();
     try {
       for ( int x = 0; x < r.size(); x++ ) {
-        ValueMetaInterface field = r.getValueMeta( x );
+        IValueMeta field = r.getValueMeta( x );
         if ( searchValueMeta( field.getName() ) == null ) {
           addValueMeta( field ); // Not in list yet: add
         } else {
@@ -620,7 +620,7 @@ public class RowMeta implements RowMetaInterface {
     }
   }
 
-  private ValueMetaInterface renameValueMetaIfInRow( ValueMetaInterface valueMeta, String originTransform ) {
+  private IValueMeta renameValueMetaIfInRow( IValueMeta valueMeta, String originTransform ) {
     // We want to rename the field to Name[2], Name[3], ...
     //
     int index = 1;
@@ -633,7 +633,7 @@ public class RowMeta implements RowMetaInterface {
     // Create a copy of the valueMeta object to make sure we don't rename any other value meta objects.
     // It's only being renamed because of the addition to THIS row metadata object, not another.
     //
-    ValueMetaInterface copy = valueMeta.clone();
+    IValueMeta copy = valueMeta.clone();
 
     // OK, this is the new name and origin to pick
     //
@@ -739,7 +739,7 @@ public class RowMeta implements RowMetaInterface {
     for ( int i = 0; i < nr; i++ ) {
       try {
         int type = inputStream.readInt();
-        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( type );
+        IValueMeta valueMeta = ValueMetaFactory.createValueMeta( type );
         valueMeta.readMetaData( inputStream );
         addValueMeta( valueMeta );
       } catch ( EOFException e ) {
@@ -825,7 +825,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       boolean notFirst = false;
-      for ( ValueMetaInterface valueMeta : valueMetaList ) {
+      for ( IValueMeta valueMeta : valueMetaList ) {
         if ( notFirst ) {
           buffer.append( ", " );
         } else {
@@ -880,7 +880,7 @@ public class RowMeta implements RowMetaInterface {
       String[] retval = new String[ size ];
 
       for ( int i = 0; i < size; i++ ) {
-        ValueMetaInterface v = getValueMeta( i );
+        IValueMeta v = getValueMeta( i );
         retval[ i ] = Const.rightPad( v.getName(), maxlen ) + "   (" + v.getTypeDesc() + ")";
       }
 
@@ -905,7 +905,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( int fieldnr : fieldnrs ) {
-        ValueMetaInterface valueMeta = getValueMeta( fieldnr );
+        IValueMeta valueMeta = getValueMeta( fieldnr );
 
         int cmp = valueMeta.compare( rowData1[ fieldnr ], rowData2[ fieldnr ] );
         if ( cmp != 0 ) {
@@ -934,7 +934,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( int fieldnr : fieldnrs ) {
-        ValueMetaInterface valueMeta = getValueMeta( fieldnr );
+        IValueMeta valueMeta = getValueMeta( fieldnr );
 
         int cmp = valueMeta.compare( rowData1[ fieldnr ], rowData2[ fieldnr ] );
         if ( cmp != 0 ) {
@@ -966,7 +966,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( int i = 0; i < len; i++ ) {
-        ValueMetaInterface valueMeta = getValueMeta( fieldnrs1[ i ] );
+        IValueMeta valueMeta = getValueMeta( fieldnrs1[ i ] );
 
         int cmp = valueMeta.compare( rowData1[ fieldnrs1[ i ] ], rowData2[ fieldnrs2[ i ] ] );
         if ( cmp != 0 ) {
@@ -993,14 +993,14 @@ public class RowMeta implements RowMetaInterface {
    * @throws HopValueException
    */
   @Override
-  public int compare( Object[] rowData1, RowMetaInterface rowMeta2, Object[] rowData2, int[] fieldnrs1,
+  public int compare( Object[] rowData1, IRowMeta rowMeta2, Object[] rowData2, int[] fieldnrs1,
                       int[] fieldnrs2 ) throws HopValueException {
     int len = ( fieldnrs1.length < fieldnrs2.length ) ? fieldnrs1.length : fieldnrs2.length;
     lock.readLock().lock();
     try {
       for ( int i = 0; i < len; i++ ) {
-        ValueMetaInterface valueMeta1 = getValueMeta( fieldnrs1[ i ] );
-        ValueMetaInterface valueMeta2 = rowMeta2.getValueMeta( fieldnrs2[ i ] );
+        IValueMeta valueMeta1 = getValueMeta( fieldnrs1[ i ] );
+        IValueMeta valueMeta2 = rowMeta2.getValueMeta( fieldnrs2[ i ] );
 
         int cmp = valueMeta1.compare( rowData1[ fieldnrs1[ i ] ], valueMeta2, rowData2[ fieldnrs2[ i ] ] );
         if ( cmp != 0 ) {
@@ -1028,7 +1028,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( int i = 0; i < size(); i++ ) {
-        ValueMetaInterface valueMeta = getValueMeta( i );
+        IValueMeta valueMeta = getValueMeta( i );
 
         int cmp = valueMeta.compare( rowData1[ i ], rowData2[ i ] );
         if ( cmp != 0 ) {
@@ -1059,7 +1059,7 @@ public class RowMeta implements RowMetaInterface {
     lock.readLock().lock();
     try {
       for ( int i = 0; i < size(); i++ ) {
-        ValueMetaInterface valueMeta = getValueMeta( i );
+        IValueMeta valueMeta = getValueMeta( i );
         hash ^= valueMeta.hashCode( rowData[ i ] );
       }
 
@@ -1121,7 +1121,7 @@ public class RowMeta implements RowMetaInterface {
    * @param row      the row of data
    * @return a serialized form of the data as a byte array
    */
-  public static byte[] extractData( RowMetaInterface metadata, Object[] row ) {
+  public static byte[] extractData( IRowMeta metadata, Object[] row ) {
     try {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       DataOutputStream dataOutputStream = new DataOutputStream( byteArrayOutputStream );
@@ -1141,7 +1141,7 @@ public class RowMeta implements RowMetaInterface {
    * @param metadata the metadata to use
    * @return a new row of data
    */
-  public static Object[] getRow( RowMetaInterface metadata, byte[] data ) {
+  public static Object[] getRow( IRowMeta metadata, byte[] data ) {
     try {
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream( data );
       DataInputStream dataInputStream = new DataInputStream( byteArrayInputStream );
@@ -1186,8 +1186,8 @@ public class RowMeta implements RowMetaInterface {
 
     int nrValues = XMLHandler.countNodes( node, ValueMetaBase.XML_META_TAG );
     for ( int i = 0; i < nrValues; i++ ) {
-      ValueMetaInterface valueMetaSource = new ValueMetaBase( XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_META_TAG, i ) );
-      ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( valueMetaSource.getName(), valueMetaSource.getType(),
+      IValueMeta valueMetaSource = new ValueMetaBase( XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_META_TAG, i ) );
+      IValueMeta valueMeta = ValueMetaFactory.createValueMeta( valueMetaSource.getName(), valueMetaSource.getType(),
         valueMetaSource.getLength(), valueMetaSource.getPrecision() );
       ValueMetaFactory.cloneInfo( valueMetaSource, valueMeta );
       addValueMeta( valueMeta );
@@ -1281,7 +1281,7 @@ public class RowMeta implements RowMetaInterface {
       storeMapping( current, index );
     }
 
-    Integer findAndCompare( String name, List<? extends ValueMetaInterface> metas ) {
+    Integer findAndCompare( String name, List<? extends IValueMeta> metas ) {
       if ( Utils.isEmpty( name ) ) {
         return null;
       }
@@ -1289,7 +1289,7 @@ public class RowMeta implements RowMetaInterface {
       name = name.toLowerCase();
       Integer index = mapping.get( name );
       if ( index != null ) {
-        ValueMetaInterface value = metas.get( index );
+        IValueMeta value = metas.get( index );
         if ( !name.equalsIgnoreCase( value.getName() ) ) {
           mapping.remove( name );
           index = null;

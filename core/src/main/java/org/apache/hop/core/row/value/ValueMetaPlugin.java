@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * Classes annotated with "ValueMetaPlugin" are automatically recognized and registered as a new data type in the form
- * of a ValueMetaInterface class.
+ * of a IValueMeta class.
  *
  * @author matt
  */

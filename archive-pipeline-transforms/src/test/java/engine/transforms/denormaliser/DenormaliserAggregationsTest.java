@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -60,7 +60,7 @@ public class DenormaliserAggregationsTest {
     mockHelper =
       new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormaliser", DenormaliserMeta.class,
         DenormaliserData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -142,11 +142,11 @@ public class DenormaliserAggregationsTest {
    *
    * @return
    */
-  RowMetaInterface testSumPreconditions( String agg ) {
+  IRowMeta testSumPreconditions( String agg ) {
 
     // create rmi for one string and 2 integers
-    RowMetaInterface rmi = new RowMeta();
-    List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>();
+    IRowMeta rmi = new RowMeta();
+    List<IValueMeta> list = new ArrayList<IValueMeta>();
     list.add( new ValueMetaString( "a" ) );
     list.add( new ValueMetaInteger( "b" ) );
     list.add( new ValueMetaInteger( "d" ) );
@@ -186,7 +186,7 @@ public class DenormaliserAggregationsTest {
     Object[] rowData = new Object[ 10 ];
     data.targetResult = new Object[ 1 ];
     // this removal of input rows?
-    RowMetaInterface rmi = testSumPreconditions( "-" );
+    IRowMeta rmi = testSumPreconditions( "-" );
     data.removeNrs = new int[] { 0 };
     Object[] outputRowData = transform.buildResult( rmi, rowData );
 

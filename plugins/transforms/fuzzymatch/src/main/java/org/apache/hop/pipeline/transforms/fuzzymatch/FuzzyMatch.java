@@ -31,23 +31,23 @@ import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.util.Iterator;
 
@@ -57,15 +57,15 @@ import java.util.Iterator;
  * @author Samatar
  * @since 03-mars-2008
  */
-public class FuzzyMatch extends BaseTransform implements TransformInterface {
+public class FuzzyMatch extends BaseTransform implements ITransform {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
 
   private FuzzyMatchMeta meta;
   private FuzzyMatchData data;
 
-  public FuzzyMatch( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public FuzzyMatch( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean readLookupValues() throws HopException {
@@ -83,7 +83,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
     boolean firstRun = true;
     // Which row set do we read from?
     //
-    RowSet rowSet = findInputRowSet( data.infoStream.getTransformName() );
+    IRowSet rowSet = findInputRowSet( data.infoStream.getTransformName() );
     Object[] rowData = getRowFrom( rowSet ); // rows are originating from "lookup_from"
 
     while ( rowData != null ) {
@@ -97,15 +97,15 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
             PKG, "FuzzyMatch.Exception.CouldnotFindLookField", meta.getLookupField() ) );
         }
         data.infoCache = new RowMeta();
-        ValueMetaInterface keyValueMeta = data.infoMeta.getValueMeta( indexOfLookupField );
-        keyValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        IValueMeta keyValueMeta = data.infoMeta.getValueMeta( indexOfLookupField );
+        keyValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         data.infoCache.addValueMeta( keyValueMeta );
         // Add key
         data.indexOfCachedFields[ 0 ] = indexOfLookupField;
 
         // Check additional fields
         if ( data.addAdditionalFields ) {
-          ValueMetaInterface additionalFieldValueMeta;
+          IValueMeta additionalFieldValueMeta;
           for ( int i = 0; i < meta.getValue().length; i++ ) {
             int fi = i + 1;
             data.indexOfCachedFields[ fi ] = data.infoMeta.indexOfValue( meta.getValue()[ i ] );
@@ -115,7 +115,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
                 PKG, "FuzzyMatch.Exception.CouldnotFindLookField", meta.getValue()[ i ] ) );
             }
             additionalFieldValueMeta = data.infoMeta.getValueMeta( data.indexOfCachedFields[ fi ] );
-            additionalFieldValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+            additionalFieldValueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
             data.infoCache.addValueMeta( additionalFieldValueMeta );
           }
           data.nrCachedFields += meta.getValue().length;
@@ -134,7 +134,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
       if ( rowData[ data.indexOfCachedFields[ 0 ] ] == null ) {
         storeData[ 0 ] = "";
       } else {
-        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ 0 ] );
+        IValueMeta fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ 0 ] );
         if ( fromStreamRowMeta.isStorageBinaryString() ) {
           storeData[ 0 ] = fromStreamRowMeta.convertToNormalStorageType( rowData[ data.indexOfCachedFields[ 0 ] ] );
         } else {
@@ -144,7 +144,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
 
       // Add additional fields?
       for ( int i = 1; i < data.nrCachedFields; i++ ) {
-        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ i ] );
+        IValueMeta fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ i ] );
         if ( fromStreamRowMeta.isStorageBinaryString() ) {
           storeData[ i ] = fromStreamRowMeta.convertToNormalStorageType( rowData[ data.indexOfCachedFields[ i ] ] );
         } else {
@@ -168,13 +168,13 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private Object[] lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     if ( first ) {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new RowMetaInterface[] { data.infoMeta }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metaStore );
 
       // Check lookup field
       data.indexOfMainField = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getMainStreamField() ) );
@@ -454,7 +454,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
 
@@ -522,7 +522,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
 
@@ -617,7 +617,7 @@ public class FuzzyMatch extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
     data.look.clear();

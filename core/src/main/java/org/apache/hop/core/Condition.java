@@ -24,12 +24,12 @@ package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
  * @since 8-06-2004
  */
 
-public class Condition implements Cloneable, XMLInterface {
+public class Condition implements Cloneable, IXml {
   public static final String XML_TAG = "condition";
 
   public static final String[] operators = new String[] { "-", "OR", "AND", "NOT", "OR NOT", "AND NOT", "XOR" };
@@ -317,7 +317,7 @@ public class Condition implements Cloneable, XMLInterface {
    * @param r       the row data
    * @return true if the condition evaluates to true.
    **/
-  public boolean evaluate( RowMetaInterface rowMeta, Object[] r ) {
+  public boolean evaluate( IRowMeta rowMeta, Object[] r ) {
     // Start of evaluate
     boolean retval = false;
 
@@ -345,7 +345,7 @@ public class Condition implements Cloneable, XMLInterface {
         }
 
         // Get fieldnrs left field
-        ValueMetaInterface fieldMeta = null;
+        IValueMeta fieldMeta = null;
         Object field = null;
         if ( left_fieldnr >= 0 ) {
           fieldMeta = rowMeta.getValueMeta( left_fieldnr );
@@ -361,7 +361,7 @@ public class Condition implements Cloneable, XMLInterface {
         }
 
         // Get fieldnrs right exact
-        ValueMetaInterface fieldMeta2 = right_exact != null ? right_exact.getValueMeta() : null;
+        IValueMeta fieldMeta2 = right_exact != null ? right_exact.getValueMeta() : null;
         Object field2 = right_exact != null ? right_exact.getValueData() : null;
         if ( field2 == null && right_fieldnr >= 0 ) {
           fieldMeta2 = rowMeta.getValueMeta( right_fieldnr );
@@ -737,7 +737,7 @@ public class Condition implements Cloneable, XMLInterface {
   }
 
   @Override
-  public String getXML() throws HopValueException {
+  public String getXml() throws HopValueException {
     return getXML( 0 );
   }
 

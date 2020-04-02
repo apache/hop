@@ -45,7 +45,7 @@ import java.net.URLEncoder;
 import java.util.UUID;
 
 
-public class StartPipelineServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static Class<?> PKG = StartPipelineServlet.class;
 

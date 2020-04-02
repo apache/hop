@@ -32,21 +32,21 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
@@ -204,22 +204,22 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Clear the sortedDescending flag on fields used within the condition - otherwise the comparisons will be
     // inverted!!
     String[] conditionField = condition.getUsedFields();
     for ( int i = 0; i < conditionField.length; i++ ) {
       int idx = rowMeta.indexOfValue( conditionField[ i ] );
       if ( idx >= 0 ) {
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( idx );
+        IValueMeta valueMeta = rowMeta.getValueMeta( idx );
         valueMeta.setSortedDescending( false );
       }
     }
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -296,12 +296,12 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
     return Optional.empty();
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new FilterRows( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new FilterRows( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new FilterRowsData();
   }
 
@@ -370,7 +370,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
    * @param prev
    * @return
    */
-  public List<String> getOrphanFields( Condition condition, RowMetaInterface prev ) {
+  public List<String> getOrphanFields( Condition condition, IRowMeta prev ) {
     List<String> orphans = new ArrayList<>();
     if ( condition == null || prev == null ) {
       return orphans;
@@ -380,7 +380,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
       if ( Utils.isEmpty( key[ i ] ) ) {
         continue;
       }
-      ValueMetaInterface v = prev.searchValueMeta( key[ i ] );
+      IValueMeta v = prev.searchValueMeta( key[ i ] );
       if ( v == null ) {
         orphans.add( key[ i ] );
       }

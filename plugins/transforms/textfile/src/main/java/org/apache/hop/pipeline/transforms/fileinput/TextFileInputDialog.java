@@ -27,14 +27,14 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.gui.ITextFileInputField;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -107,7 +107,7 @@ import java.util.Vector;
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-public class TextFileInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
@@ -367,7 +367,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
   private Listener lsMinWidth;
 
   // Wizard info...
-  private Vector<TextFileInputFieldInterface> fields;
+  private Vector<ITextFileInputField> fields;
 
   private String[] dateLocale;
 
@@ -672,7 +672,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
           }
         } else {
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          CompressionProvider provider =
+          ICompressionProvider provider =
             CompressionProviderFactory.getInstance().getCompressionProviderByName( wCompression.getText() );
 
           List<String> filterExtensions = new ArrayList<>();
@@ -2644,7 +2644,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
         fileInputStream = HopVFS.getInputStream( fileObject );
         Table table = wFields.table;
 
-        CompressionProvider provider =
+        ICompressionProvider provider =
           CompressionProviderFactory.getInstance().createCompressionProviderInstance( meta.getFileCompression() );
         inputStream = provider.createInputStream( fileInputStream );
 
@@ -2903,7 +2903,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
       try {
         fi = HopVFS.getInputStream( file );
 
-        CompressionProvider provider =
+        ICompressionProvider provider =
           CompressionProviderFactory.getInstance().createCompressionProviderInstance( meta.getFileCompression() );
         f = provider.createInputStream( fi );
 
@@ -2982,7 +2982,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
         public boolean performFinish() {
           wFields.clearAll( false );
 
-          for ( TextFileInputFieldInterface field1 : fields ) {
+          for ( ITextFileInputField field1 : fields ) {
             TextFileInputField field = (TextFileInputField) field1;
             if ( !field.isIgnored() && field.getLength() > 0 ) {
               TableItem item = new TableItem( wFields.table, SWT.NONE );
@@ -3032,8 +3032,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
     }
   }
 
-  private Vector<TextFileInputFieldInterface> getFields( TextFileInputMeta info, List<String> rows ) {
-    Vector<TextFileInputFieldInterface> fields = new Vector<TextFileInputFieldInterface>();
+  private Vector<ITextFileInputField> getFields( TextFileInputMeta info, List<String> rows ) {
+    Vector<ITextFileInputField> fields = new Vector<ITextFileInputField>();
 
     int maxsize = 0;
     for ( String row : rows ) {
@@ -3107,20 +3107,20 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
 
       item.setText( 5, "" );
       item.setText( 6, "" );
-      item.setText( 12, ValueMetaString.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_BOTH ) );
+      item.setText( 12, ValueMetaString.getTrimTypeDesc( IValueMeta.TRIM_TYPE_BOTH ) );
 
       int type = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
       switch ( type ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           item.setText( 3, "" );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           item.setText( 3, "0" );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           item.setText( 3, "0.#####" );
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           break;
         default:
           break;
@@ -3128,7 +3128,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
     }
 
     for ( int i = 0; i < input.getInputFields().length; i++ ) {
-      input.getInputFields()[ i ].setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+      input.getInputFields()[ i ].setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     }
 
     wFields.optWidth( true );

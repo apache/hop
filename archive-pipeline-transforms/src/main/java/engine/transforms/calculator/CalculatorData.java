@@ -23,11 +23,11 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,34 +36,34 @@ import java.util.Map;
  * @author Matt
  * @since 8-sep-2005
  */
-public class CalculatorData extends BaseTransformData implements TransformDataInterface {
-  private RowMetaInterface outputRowMeta;
-  private RowMetaInterface calcRowMeta;
+public class CalculatorData extends BaseTransformData implements ITransformData {
+  private IRowMeta outputRowMeta;
+  private IRowMeta calcRowMeta;
 
   private Calculator.FieldIndexes[] fieldIndexes;
 
   private int[] tempIndexes;
 
-  private final Map<Integer, ValueMetaInterface> resultMetaMapping;
+  private final Map<Integer, IValueMeta> resultMetaMapping;
 
   public CalculatorData() {
     super();
-    resultMetaMapping = new HashMap<Integer, ValueMetaInterface>();
+    resultMetaMapping = new HashMap<Integer, IValueMeta>();
   }
 
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return outputRowMeta;
   }
 
-  public void setOutputRowMeta( RowMetaInterface outputRowMeta ) {
+  public void setOutputRowMeta( IRowMeta outputRowMeta ) {
     this.outputRowMeta = outputRowMeta;
   }
 
-  public RowMetaInterface getCalcRowMeta() {
+  public IRowMeta getCalcRowMeta() {
     return calcRowMeta;
   }
 
-  public void setCalcRowMeta( RowMetaInterface calcRowMeta ) {
+  public void setCalcRowMeta( IRowMeta calcRowMeta ) {
     this.calcRowMeta = calcRowMeta;
   }
 
@@ -83,9 +83,9 @@ public class CalculatorData extends BaseTransformData implements TransformDataIn
     this.tempIndexes = tempIndexes;
   }
 
-  public ValueMetaInterface getValueMetaFor( int resultType, String name ) throws HopPluginException {
+  public IValueMeta getValueMetaFor( int resultType, String name ) throws HopPluginException {
     // don't need any synchronization as data instance belongs only to one transform instance
-    ValueMetaInterface meta = resultMetaMapping.get( resultType );
+    IValueMeta meta = resultMetaMapping.get( resultType );
     if ( meta == null ) {
       meta = ValueMetaFactory.createValueMeta( name, resultType );
       resultMetaMapping.put( resultType, meta );

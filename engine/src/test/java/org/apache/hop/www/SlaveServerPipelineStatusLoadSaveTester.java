@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,10 +38,10 @@ public class SlaveServerPipelineStatusLoadSaveTester extends LoadSaveBase<SlaveS
   }
 
   public SlaveServerPipelineStatusLoadSaveTester( Class<SlaveServerPipelineStatus> clazz, List<String> commonAttributes,
-                                                  Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap ) {
+                                                  Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap ) {
     super( clazz, commonAttributes, new ArrayList<>(), new HashMap<>(),
       new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-      new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
   public void testSerialization() throws HopException {
@@ -50,7 +50,7 @@ public class SlaveServerPipelineStatusLoadSaveTester extends LoadSaveBase<SlaveS
 
   protected void testXmlRoundTrip() throws HopException {
     SlaveServerPipelineStatus metaToSave = createMeta();
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     String xml = metaToSave.getXML();

@@ -28,7 +28,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog( id = "BlockingTransform", image = "BLK.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Blocking+transform" )
-public class BlockingTransformDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class BlockingTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BlockingTransformDialog.class; // for i18n purposes, needed by Translator!!
 
   private BlockingTransformMeta input;

@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.logging;
 
-public class LogChannelFactory implements LogChannelInterfaceFactory {
+public class LogChannelFactory implements ILogChannelFactory {
   public LogChannel create( Object subject ) {
     return new LogChannel( subject );
   }
@@ -31,11 +31,11 @@ public class LogChannelFactory implements LogChannelInterfaceFactory {
     return new LogChannel( subject, gatheringMetrics );
   }
 
-  public LogChannel create( Object subject, LoggingObjectInterface parentObject ) {
+  public LogChannel create( Object subject, ILoggingObject parentObject ) {
     return new LogChannel( subject, parentObject );
   }
 
-  public LogChannel create( Object subject, LoggingObjectInterface parentObject, boolean gatheringMetrics ) {
+  public LogChannel create( Object subject, ILoggingObject parentObject, boolean gatheringMetrics ) {
     return new LogChannel( subject, parentObject, gatheringMetrics );
   }
 }

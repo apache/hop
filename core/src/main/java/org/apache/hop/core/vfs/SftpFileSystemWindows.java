@@ -36,8 +36,8 @@ import org.apache.commons.vfs2.provider.sftp.SftpClientFactory;
 import org.apache.commons.vfs2.provider.sftp.SftpFileProvider;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystem;
 import org.apache.commons.vfs2.util.UserAuthenticatorUtils;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +49,7 @@ import java.util.Map;
 
 class SftpFileSystemWindows extends SftpFileSystem {
 
-  private static final LogChannelInterface log = new LogChannel( "SftpFileSystemWindows" );
+  private static final ILogChannel log = new LogChannel( "SftpFileSystemWindows" );
   private static final String WHO_AMI_GROUPS_FO_LIST = "Whoami /GROUPS /FO LIST"; //windows command for getting croups for current user
   private static final String WHO_AMI = "Whoami "; ////windows command for getting current user
   private static final String ICACLS = "icacls "; //windows command for getting permissions for file

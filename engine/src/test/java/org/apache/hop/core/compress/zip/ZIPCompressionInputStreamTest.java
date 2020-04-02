@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.zip;
 
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -66,7 +66,7 @@ public class ZIPCompressionInputStreamTest {
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    CompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
     ByteArrayInputStream in = new ByteArrayInputStream( "Test".getBytes() );
     inStream = new ZIPCompressionInputStream( in, provider ) {
     };
@@ -83,7 +83,7 @@ public class ZIPCompressionInputStreamTest {
 
   @Test
   public void getZIPCompressionProvider() {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 
@@ -99,7 +99,7 @@ public class ZIPCompressionInputStreamTest {
 
   @Test
   public void testRead() throws IOException {
-    CompressionProvider provider = inStream.getCompressionProvider();
+    ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = new ByteArrayInputStream( "Test".getBytes() );
     inStream = new ZIPCompressionInputStream( in, provider ) {
     };

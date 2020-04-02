@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.excelinput.ods;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.IKSheet;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVFS;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OdfWorkbook implements KWorkbook {
+public class OdfWorkbook implements IKWorkbook {
 
   private String filename;
   private String encoding;
@@ -70,7 +70,7 @@ public class OdfWorkbook implements KWorkbook {
   }
 
   @Override
-  public KSheet getSheet( String sheetName ) {
+  public IKSheet getSheet( String sheetName ) {
     OdfSheet sheet = openSheetsMap.get( sheetName );
     if ( sheet == null ) {
       OdfTable table = document.getTableByName( sheetName );
@@ -106,7 +106,7 @@ public class OdfWorkbook implements KWorkbook {
     return document.getTableList().size();
   }
 
-  public KSheet getSheet( int sheetNr ) {
+  public IKSheet getSheet( int sheetNr ) {
     OdfTable table = document.getTableList().get( sheetNr );
     if ( table == null ) {
       return null;

@@ -27,14 +27,14 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IEngineMetric;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -142,7 +142,7 @@ public class HopGuiPipelineGridDelegate {
 
     //ignore whitespace for transformName column valueMeta, causing sorting to ignore whitespace
     String transformNameColumnName = BaseMessages.getString( PKG, "PipelineLog.Column.TransformName" );
-    ValueMetaInterface valueMeta = new ValueMetaString( transformNameColumnName );
+    IValueMeta valueMeta = new ValueMetaString( transformNameColumnName );
     valueMeta.setIgnoreWhitespace( true );
     ColumnInfo transformNameColumnInfo =
       new ColumnInfo( transformNameColumnName, ColumnInfo.COLUMN_TYPE_TEXT, false,
@@ -205,7 +205,7 @@ public class HopGuiPipelineGridDelegate {
     pipelineGridView.setLayoutData( fdView );
 
     ColumnInfo numberColumn = pipelineGridView.getNumberColumn();
-    ValueMetaInterface numberColumnValueMeta = new ValueMetaString( "#", HopGuiPipelineGridDelegate::subTransformCompare );
+    IValueMeta numberColumnValueMeta = new ValueMetaString( "#", HopGuiPipelineGridDelegate::subTransformCompare );
     numberColumn.setValueMeta( numberColumnValueMeta );
 
     // Timer updates the view every UPDATE_TIME_VIEW interval
@@ -342,7 +342,7 @@ public class HopGuiPipelineGridDelegate {
       for ( IEngineMetric metric : usedMetrics ) {
         ColumnInfo column = new ColumnInfo( metric.getHeader(), ColumnInfo.COLUMN_TYPE_TEXT, metric.isNumeric(), true );
         column.setToolTip( metric.getTooltip() );
-        ValueMetaInterface stringMeta = new ValueMetaString( metric.getCode() );
+        IValueMeta stringMeta = new ValueMetaString( metric.getCode() );
         ValueMetaInteger valueMeta = new ValueMetaInteger( metric.getCode(), 15, 0 );
         valueMeta.setConversionMask( " #" );
         stringMeta.setConversionMetadata( valueMeta );
@@ -353,7 +353,7 @@ public class HopGuiPipelineGridDelegate {
 
       // Also add the status and speed
       //
-      ValueMetaInterface stringMeta = new ValueMetaString( "speed" );
+      IValueMeta stringMeta = new ValueMetaString( "speed" );
       ValueMetaInteger speedMeta = new ValueMetaInteger( "speed", 15, 0 );
       speedMeta.setConversionMask( " ###,###,###,##0" );
       stringMeta.setConversionMetadata( speedMeta );
@@ -403,7 +403,7 @@ public class HopGuiPipelineGridDelegate {
     }
   }
 
-  private void updateRowFromBaseTransform( TransformInterface baseTransform, TableItem row ) {
+  private void updateRowFromBaseTransform( ITransform baseTransform, TableItem row ) {
     TransformStatus transformStatus = new TransformStatus( baseTransform );
 
     String[] fields = transformStatus.getPipelineLogFields();

@@ -22,7 +22,7 @@
 
 package org.apache.hop.job.entries.evaluatetablecontent;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -31,14 +31,14 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -65,7 +65,7 @@ import java.util.List;
 		  image = "EvalTableContent.svg",
 		  categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions"
 )
-public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryEvalTableContent.class; // for i18n purposes, needed by Translator!!
 
   private boolean addRowsResult;
@@ -328,7 +328,7 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
               rowsCount = ar.size();
 
               // ad rows to result
-              RowMetaInterface rowMeta = db.getQueryFields( countSQLStatement, false );
+              IRowMeta rowMeta = db.getQueryFields( countSQLStatement, false );
 
               List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
               for ( int i = 0; i < ar.size(); i++ ) {
@@ -419,7 +419,7 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
+  public void check( List<ICheckResult> remarks, JobMeta jobMeta, IVariables variables,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

@@ -23,20 +23,20 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
-public class ValueMetaInteger extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaInteger extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaInteger() {
     this( null );
   }
 
   public ValueMetaInteger( String name ) {
-    super( name, ValueMetaInterface.TYPE_INTEGER );
+    super( name, IValueMeta.TYPE_INTEGER );
   }
 
   public ValueMetaInteger( String name, int length, int precision ) {
-    super( name, ValueMetaInterface.TYPE_INTEGER, length, precision );
+    super( name, IValueMeta.TYPE_INTEGER, length, precision );
   }
 
   @Override

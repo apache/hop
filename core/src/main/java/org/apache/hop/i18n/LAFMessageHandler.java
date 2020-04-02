@@ -45,7 +45,7 @@ public class LAFMessageHandler extends GlobalMessages {
     reinit();
   }
 
-  public static synchronized MessageHandler getInstance() {
+  public static synchronized IMessageHandler getInstance() {
     if ( GMinstance == null ) {
       GMinstance = new LAFMessageHandler();
     }

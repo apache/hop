@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class MappingIODefinitionLoadSaveValidator implements FieldLoadSaveValidator<MappingIODefinition> {
+public class MappingIODefinitionLoadSaveValidator implements IFieldLoadSaveValidator<MappingIODefinition> {
   final Random rand = new Random();
 
   @Override

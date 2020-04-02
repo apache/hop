@@ -29,9 +29,9 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -52,12 +52,12 @@ import static java.util.stream.Stream.concat;
 import static org.apache.hop.core.util.serialization.TransformMetaProps.TRANSFORM_TAG;
 
 /**
- * A slim representation of TransformMetaInterface properties, used as a
+ * A slim representation of ITransformMeta properties, used as a
  * way to leverage alternative serialization strategies (e.g. {@link MetaXmlSerializer}
  * <p>
  * Public methods allow conversion:
- * {@link #from(TransformMetaInterface)} and
- * {@link #to(TransformMetaInterface)}
+ * {@link #from(ITransformMeta)} and
+ * {@link #to(ITransformMeta)}
  * <p>
  * <p>
  * Internally, the TransformMetaProps holds a list of {@link PropGroup} elements, each corresponding
@@ -66,7 +66,7 @@ import static org.apache.hop.core.util.serialization.TransformMetaProps.TRANSFOR
  * InjectionDeep not yet supported.
  */
 @XmlRootElement( name = TRANSFORM_TAG )
-public class TransformMetaProps<Meta extends TransformMetaInterface> {
+public class TransformMetaProps<Meta extends ITransformMeta> {
 
   static final String TRANSFORM_TAG = "transform-props";
 
@@ -74,7 +74,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
   private List<String> secureFields;
 
   private Meta transformMeta;
-  private VariableSpace variableSpace = new Variables();
+  private IVariables variables = new Variables();
 
   @SuppressWarnings( "unused" )
   private TransformMetaProps() {
@@ -91,7 +91,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
    * Retuns an instance of this class with transformMeta properties mapped
    * to a list of {@link PropGroup}
    */
-  public static <Meta extends TransformMetaInterface> TransformMetaProps from( Meta transformMeta ) {
+  public static <Meta extends ITransformMeta> TransformMetaProps from( Meta transformMeta ) {
     TransformMetaProps propMap = new TransformMetaProps( transformMeta );
     propMap.transformMeta = transformMeta;
 
@@ -108,7 +108,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
    * Sets the properties of this TransformMetaProps on {@param transformMetaInterface}
    * <p>
    * This method mutates the transformMeta, as opposed to returning a new instance, to match
-   * more cleanly to Hop's {@link TransformMetaInterface#loadXML} design, which loads props into
+   * more cleanly to Hop's {@link ITransformMeta#loadXML} design, which loads props into
    * an instance.
    */
   public Meta to( Meta meta ) {
@@ -123,9 +123,9 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
    * Allows specifying a variable space to be used when applying property values to
    * a transformMeta.
    */
-  public TransformMetaProps withVariables( VariableSpace space ) {
+  public TransformMetaProps withVariables( IVariables variables ) {
     TransformMetaProps propCopy = from( this.transformMeta );
-    propCopy.variableSpace = space;
+    propCopy.variables = variables;
     return propCopy;
   }
 
@@ -172,7 +172,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
     return field -> field.getAnnotation( InjectionDeep.class ) != null;
   }
 
-  private Function<BeanInjectionInfo.Property, Prop> getProp( TransformMetaInterface transformMeta,
+  private Function<BeanInjectionInfo.Property, Prop> getProp( ITransformMeta transformMeta,
                                                               BeanInjector injector ) {
     return prop ->
       new Prop( prop.getName(),
@@ -181,7 +181,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
   }
 
   @SuppressWarnings( "unchecked" )
-  private List<Object> getPropVal( TransformMetaInterface transformMeta, BeanInjector injector,
+  private List<Object> getPropVal( ITransformMeta transformMeta, BeanInjector injector,
                                    BeanInjectionInfo.Property prop ) {
     try {
       List ret;
@@ -211,7 +211,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
     return ret;
   }
 
-  private void assignValueForProp( BeanInjectionInfo.Property beanInfoProp, TransformMetaInterface transformMetaInterface,
+  private void assignValueForProp( BeanInjectionInfo.Property beanInfoProp, ITransformMeta transformMetaInterface,
                                    BeanInjector injector ) {
     List<Prop> props = groups.stream()
       .filter( group -> beanInfoProp.getGroupName().equals( group.name ) )
@@ -233,7 +233,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
   }
 
   private void injectVal( BeanInjectionInfo.Property beanInfoProp, Prop prop,
-                          TransformMetaInterface transformMetaInterface,
+                          ITransformMeta transformMetaInterface,
                           BeanInjector injector ) {
 
     if ( prop.value == null || prop.value.size() == 0 ) {
@@ -256,7 +256,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
 
   private Object envSubs( Object value ) {
     if ( value instanceof String ) {
-      return variableSpace.environmentSubstitute( value.toString() );
+      return variables.environmentSubstitute( value.toString() );
     }
     return value;
   }
@@ -288,7 +288,7 @@ public class TransformMetaProps<Meta extends TransformMetaInterface> {
   }
 
   /**
-   * Represents a single property from a TransformMetaInterface impl.
+   * Represents a single property from a ITransformMeta impl.
    * Values are captured as a List<Object> to consistently handle both List properties and single items.
    */
   private static class Prop {

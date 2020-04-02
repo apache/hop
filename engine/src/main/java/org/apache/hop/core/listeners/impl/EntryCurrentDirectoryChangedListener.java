@@ -25,7 +25,7 @@ package org.apache.hop.core.listeners.impl;
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
+import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.variables.Variables;
 
 import java.util.function.Consumer;
@@ -34,24 +34,24 @@ import java.util.function.Supplier;
 /**
  * Updates directory references referencing {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
  */
-public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryChangedListener {
+public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryChangedListener {
 
-  public interface PathReference {
+  public interface IPathReference {
     String getPath();
 
     void setPath( String path );
   }
 
-  private PathReference[] references;
+  private IPathReference[] references;
 
-  public EntryCurrentDirectoryChangedListener( PathReference... refs ) {
+  public EntryCurrentDirectoryChangedListener( IPathReference... refs ) {
     references = refs;
   }
 
   public EntryCurrentDirectoryChangedListener(
     Supplier<String> pathGetter,
     Consumer<String> pathSetter ) {
-    this( new PathReference() {
+    this( new IPathReference() {
 
       @Override
       public String getPath() {
@@ -67,7 +67,7 @@ public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryCha
 
   @Override
   public void directoryChanged( Object origin, String oldCurrentDir, String newCurrentDir ) {
-    for ( PathReference ref : references ) {
+    for ( IPathReference ref : references ) {
       String path = ref.getPath();
       if ( StringUtils.contains( path, Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )
         && !Objects.equal( oldCurrentDir, newCurrentDir ) ) {

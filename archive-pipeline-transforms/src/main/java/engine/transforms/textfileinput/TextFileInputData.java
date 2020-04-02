@@ -27,9 +27,9 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayList;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
 
 import java.io.InputStreamReader;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public class TextFileInputData extends BaseTransformData implements TransformDataInterface {
+public class TextFileInputData extends BaseTransformData implements ITransformData {
 
   public List<TextFileLine> lineBuffer;
 
@@ -93,7 +93,7 @@ public class TextFileInputData extends BaseTransformData implements TransformDat
 
   public TextFileFilterProcessor filterProcessor;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public StringBuilder lineStringBuilder;
 
@@ -101,7 +101,7 @@ public class TextFileInputData extends BaseTransformData implements TransformDat
 
   public int fileType;
 
-  public RowMetaInterface convertRowMeta;
+  public IRowMeta convertRowMeta;
 
   public RowSet rowSet;
 

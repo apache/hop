@@ -13,5 +13,5 @@ public interface IPartitionSchemaSelection {
    * @return
    * @throws HopException
    */
-  public String schemaFieldSelection( Shell shell, PartitionSettings partitionSettings ) throws HopException;
+  String schemaFieldSelection( Shell shell, PartitionSettings partitionSettings ) throws HopException;
 }

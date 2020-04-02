@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.numberrange;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.numberrange.NumberRangeMeta;
 import org.apache.hop.pipeline.transforms.numberrange.NumberRangeRule;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
  *
  * @author ronny.roeller@fredhopper.com
  */
-public class NumberRangeDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
 
   private NumberRangeMeta input;
@@ -379,7 +379,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements TransformD
       if ( inputFieldControl.getText() != null ) {
         fieldvalue = inputFieldControl.getText();
       }
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         inputFieldControl.setItems( r.getFieldNames() );
       }

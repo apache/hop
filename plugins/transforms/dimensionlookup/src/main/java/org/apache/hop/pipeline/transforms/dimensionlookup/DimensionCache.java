@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,7 +41,7 @@ import java.util.List;
  * @author matt
  */
 public class DimensionCache implements Comparator<Object[]> {
-  private RowMetaInterface rowMeta;
+  private IRowMeta rowMeta;
   private List<Object[]> rowCache;
   private int[] keyIndexes;
   private int fromDateIndex;
@@ -55,7 +55,7 @@ public class DimensionCache implements Comparator<Object[]> {
    * @param fromDateIndex the field index where the start of the date range can be found
    * @param toDateIndex   the field index where the end of the date range can be found
    */
-  public DimensionCache( RowMetaInterface rowMeta, int[] keyIndexes, int fromDateIndex, int toDateIndex ) {
+  public DimensionCache( IRowMeta rowMeta, int[] keyIndexes, int fromDateIndex, int toDateIndex ) {
     this.rowMeta = rowMeta;
     this.keyIndexes = keyIndexes;
     this.fromDateIndex = fromDateIndex;
@@ -195,8 +195,8 @@ public class DimensionCache implements Comparator<Object[]> {
 
       // Then see if the start of the date range of o2 falls between the start and end of o2
       //
-      ValueMetaInterface fromDateMeta = rowMeta.getValueMeta( fromDateIndex );
-      ValueMetaInterface toDateMeta = rowMeta.getValueMeta( toDateIndex );
+      IValueMeta fromDateMeta = rowMeta.getValueMeta( fromDateIndex );
+      IValueMeta toDateMeta = rowMeta.getValueMeta( toDateIndex );
 
       Date fromDate = fromDateMeta.getDate( o1[ fromDateIndex ] );
       Date toDate = toDateMeta.getDate( o1[ toDateIndex ] );
@@ -233,14 +233,14 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * @return the rowMeta
    */
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
   /**
    * @param rowMeta the rowMeta to set
    */
-  public void setRowMeta( RowMetaInterface rowMeta ) {
+  public void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 

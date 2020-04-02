@@ -96,7 +96,7 @@ public class FixedTableDraw extends Canvas {
 
     potential_click = -1;
 
-    // Cache displayed text...
+    // ICache displayed text...
     cache_image = null;
     prev_fromx = -1;
     prev_tox = -1;

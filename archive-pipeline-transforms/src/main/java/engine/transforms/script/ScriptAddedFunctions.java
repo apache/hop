@@ -34,9 +34,9 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 
 import javax.mail.Message;
@@ -102,7 +102,7 @@ public class ScriptAddedFunctions {
 
   // This is only used for reading, so no concurrency problems.
   // todo: move in the real variables of the transform.
-  // private static VariableSpace variables = Variables.getADefaultVariableSpace();
+  // private static iVariables variables = Variables.getADefaultVariableSpace();
 
   // Functions to Add
   // date2num, num2date,
@@ -1781,7 +1781,7 @@ public class ScriptAddedFunctions {
             // stale values
             scm.setVariable( sArg1, sArg2 );
 
-            VariableSpace parentSpace = scm.getParentVariableSpace();
+            iVariables parentSpace = scm.getParentVariableSpace();
             while ( parentSpace != null ) {
               parentSpace.setVariable( sArg1, sArg2 );
               parentSpace = parentSpace.getParentVariableSpace();
@@ -1790,7 +1790,7 @@ public class ScriptAddedFunctions {
             // Upto the root... this should be the default.
             scm.setVariable( sArg1, sArg2 );
 
-            VariableSpace parentSpace = scm.getParentVariableSpace();
+            iVariables parentSpace = scm.getParentVariableSpace();
             while ( parentSpace != null ) {
               parentSpace.setVariable( sArg1, sArg2 );
               parentSpace = parentSpace.getParentVariableSpace();
@@ -1799,7 +1799,7 @@ public class ScriptAddedFunctions {
             // Upto the parent
             scm.setVariable( sArg1, sArg2 );
 
-            VariableSpace parentSpace = scm.getParentVariableSpace();
+            iVariables parentSpace = scm.getParentVariableSpace();
             if ( parentSpace != null ) {
               parentSpace.setVariable( sArg1, sArg2 );
             }
@@ -1807,10 +1807,10 @@ public class ScriptAddedFunctions {
             // Upto the grand parent
             scm.setVariable( sArg1, sArg2 );
 
-            VariableSpace parentSpace = scm.getParentVariableSpace();
+            iVariables parentSpace = scm.getParentVariableSpace();
             if ( parentSpace != null ) {
               parentSpace.setVariable( sArg1, sArg2 );
-              VariableSpace grandParentSpace = parentSpace.getParentVariableSpace();
+              iVariables grandParentSpace = parentSpace.getParentVariableSpace();
               if ( grandParentSpace != null ) {
                 grandParentSpace.setVariable( sArg1, sArg2 );
               }
@@ -1863,7 +1863,7 @@ public class ScriptAddedFunctions {
   }
 
   // Return the output row metadata
-  public static RowMetaInterface getOutputRowMeta( ScriptEngine actualContext, Bindings actualObject,
+  public static IRowMeta getOutputRowMeta( ScriptEngine actualContext, Bindings actualObject,
                                                    Object[] ArgList, Object FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {
@@ -1885,7 +1885,7 @@ public class ScriptAddedFunctions {
   }
 
   // Return the input row metadata
-  public static RowMetaInterface getInputRowMeta( ScriptEngine actualContext, Bindings actualObject,
+  public static IRowMeta getInputRowMeta( ScriptEngine actualContext, Bindings actualObject,
                                                   Object[] ArgList, Object FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {

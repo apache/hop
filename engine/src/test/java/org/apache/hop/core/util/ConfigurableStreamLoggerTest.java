@@ -20,8 +20,8 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class ConfigurableStreamLoggerTest {
 
 
   private ConfigurableStreamLogger streamLogger;
-  private LogChannelInterface log;
+  private ILogChannel log;
   private InputStream is;
 
   @Before

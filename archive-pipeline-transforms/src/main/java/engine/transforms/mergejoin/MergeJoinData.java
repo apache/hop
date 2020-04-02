@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
@@ -34,10 +34,10 @@ import java.util.List;
  * @since 24-nov-2005
  */
 
-public class MergeJoinData extends BaseTransformData implements TransformDataInterface {
+public class MergeJoinData extends BaseTransformData implements ITransformData {
   public Object[] one, two;
-  public RowMetaInterface oneMeta, twoMeta;
-  public RowMetaInterface outputRowMeta; // just for speed: oneMeta+twoMeta
+  public IRowMeta oneMeta, twoMeta;
+  public IRowMeta outputRowMeta; // just for speed: oneMeta+twoMeta
   public Object[] one_dummy, two_dummy;
   public List<Object[]> ones, twos;
   public Object[] one_next, two_next;

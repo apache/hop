@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.symmetriccrypto.symmetriccrypto;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCrypto;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
 
@@ -35,8 +35,8 @@ import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.Sym
  * @author Samatar
  * @since 5-apr-2003
  */
-public class SymmetricCryptoData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class SymmetricCryptoData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public int indexOfSecretkeyField;
   public int indexOfMessage;
   public SymmetricCryptoMeta CryptMeta;

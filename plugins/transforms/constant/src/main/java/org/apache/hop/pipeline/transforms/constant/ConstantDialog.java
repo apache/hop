@@ -28,7 +28,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -40,7 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-public class ConstantDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;

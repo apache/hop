@@ -24,7 +24,7 @@ package org.apache.hop.base;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.MetaStoreConst;
@@ -41,7 +41,7 @@ public abstract class AbstractBaseCommandExecutor {
 
   public static final String YES = "Y";
 
-  private LogChannelInterface log;
+  private ILogChannel log;
   private Class<?> pkgClazz;
   DelegatingMetaStore metaStore;
 
@@ -130,11 +130,11 @@ public abstract class AbstractBaseCommandExecutor {
     return YES.equalsIgnoreCase( value ) || Boolean.parseBoolean( value ); // both are NPE safe, both are case-insensitive
   }
 
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 

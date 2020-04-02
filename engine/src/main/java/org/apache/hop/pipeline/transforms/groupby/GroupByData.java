@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -40,16 +40,16 @@ import java.util.Set;
  * @author Matt
  * @since 24-jan-2005
  */
-public class GroupByData extends BaseTransformData implements TransformDataInterface {
+public class GroupByData extends BaseTransformData implements ITransformData {
   public Object[] previous;
 
   /**
    * target value meta for aggregation fields
    */
-  public RowMetaInterface aggMeta;
+  public IRowMeta aggMeta;
   public Object[] agg;
-  public RowMetaInterface groupMeta;
-  public RowMetaInterface groupAggMeta; // for speed: groupMeta+aggMeta
+  public IRowMeta groupMeta;
+  public IRowMeta groupAggMeta; // for speed: groupMeta+aggMeta
   public int[] groupnrs;
   /**
    * array, length is equal to aggMeta value
@@ -80,8 +80,8 @@ public class GroupByData extends BaseTransformData implements TransformDataInter
 
   public boolean hasOutput;
 
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public List<Integer> cumulativeSumSourceIndexes;
   public List<Integer> cumulativeSumTargetIndexes;
@@ -95,8 +95,8 @@ public class GroupByData extends BaseTransformData implements TransformDataInter
 
   public long[] previousAvgCount;
 
-  public ValueMetaInterface valueMetaInteger;
-  public ValueMetaInterface valueMetaNumber;
+  public IValueMeta valueMetaInteger;
+  public IValueMeta valueMetaNumber;
 
   public double[] mean;
 

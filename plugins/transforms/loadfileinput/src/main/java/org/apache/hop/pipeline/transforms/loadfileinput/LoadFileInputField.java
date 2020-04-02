@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -77,7 +77,7 @@ public class LoadFileInputField implements Cloneable {
     this.name = fieldname;
     this.elementtype = ELEMENT_TYPE_FILECONTENT;
     this.length = -1;
-    this.type = ValueMetaInterface.TYPE_STRING;
+    this.type = IValueMeta.TYPE_STRING;
     this.format = "";
     this.trimtype = TYPE_TRIM_NONE;
     this.groupSymbol = "";

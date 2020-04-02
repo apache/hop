@@ -24,24 +24,24 @@ package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -59,7 +59,7 @@ import java.util.Map;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         documentationUrl = ""
 )
-public class GetFilesRowsCountMeta extends BaseTransformMeta implements TransformMetaInterface<GetFilesRowsCount, GetFilesRowsCountData> {
+public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
@@ -505,25 +505,25 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements Transfor
 
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
-    ValueMetaInterface v =
-      new ValueMetaInteger( space.environmentSubstitute( rowsCountFieldName ) );
-    v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+    IValueMeta v =
+      new ValueMetaInteger( variables.environmentSubstitute( rowsCountFieldName ) );
+    v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
     v.setOrigin( name );
     r.addValueMeta( v );
 
     if ( includeFilesCount ) {
-      v = new ValueMetaInteger( space.environmentSubstitute( filesCountFieldName ) );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+      v = new ValueMetaInteger( variables.environmentSubstitute( filesCountFieldName ) );
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
   }
 
-  public FileInputList getFiles( VariableSpace space ) {
+  public FileInputList getFiles( IVariables variables ) {
     return FileInputList.createFileList(
-      space, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
+      variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
   }
 
   private boolean[] includeSubFolderBoolean() {
@@ -535,8 +535,8 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements Transfor
     return includeSubFolderBoolean;
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -582,9 +582,9 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements Transfor
 
   }
 
-  public GetFilesRowsCount createTransform( TransformMeta transformMeta, GetFilesRowsCountData transformDataInterface, int cnr, PipelineMeta tr,
+  public GetFilesRowsCount createTransform( TransformMeta transformMeta, GetFilesRowsCountData iTransformData, int cnr, PipelineMeta tr,
                                             Pipeline pipeline ) {
-    return new GetFilesRowsCount( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new GetFilesRowsCount( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public GetFilesRowsCountData getTransformData() {
@@ -597,14 +597,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements Transfor
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
+   * @param iResourceNaming
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -612,8 +612,8 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements Transfor
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
-          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
+          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName[ i ] ), variables );
+          fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

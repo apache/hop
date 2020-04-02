@@ -28,21 +28,21 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -93,7 +93,7 @@ import java.util.Set;
  *
  * @author Matt Casters
  */
-public class TableOutputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -775,7 +775,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -889,7 +889,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
       try {
         String field = wNameField.getText();
         String partfield = wPartField.getText();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wNameField.setItems( r.getFieldNames() );
           wPartField.setItems( r.getFieldNames() );
@@ -917,8 +917,8 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields;
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
 
     try {
       sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
@@ -932,7 +932,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
-    TransformMetaInterface transformMetaInterface = transformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = transformMeta.getTransformMetaInterface();
     try {
       targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {
@@ -944,7 +944,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
@@ -1070,13 +1070,13 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
 
     if ( !Utils.isEmpty( tableName ) ) {
       DatabaseMeta dbmeta = pipelineMeta.findDatabase( connectionName );
-      if ( dbmeta != null && !dbmeta.getDatabaseInterface().supportsStandardTableOutput() ) {
-        showUnsupportedConnectionMessageBox( dbmeta.getDatabaseInterface() );
+      if ( dbmeta != null && !dbmeta.getIDatabase().supportsStandardTableOutput() ) {
+        showUnsupportedConnectionMessageBox( dbmeta.getIDatabase() );
       }
     }
   }
 
-  protected void showUnsupportedConnectionMessageBox( DatabaseInterface dbi ) {
+  protected void showUnsupportedConnectionMessageBox( IDatabase dbi ) {
     String title = BaseMessages.getString( PKG, "TableOutput.UnsupportedConnection.DialogTitle" );
     String message = dbi.getUnsupportedTableOutputMessage();
     String close = BaseMessages.getString( PKG, "System.Button.Close" );
@@ -1105,7 +1105,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
               try {
                 db.connect();
 
-                RowMetaInterface r =
+                IRowMeta r =
                   db.getTableFieldsMeta(
                     pipelineMeta.environmentSubstitute( schemaName ),
                     pipelineMeta.environmentSubstitute( tableName ) );
@@ -1407,7 +1407,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
    */
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }
@@ -1426,7 +1426,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
     try {
       TableOutputMeta info = new TableOutputMeta();
       getInfo( info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
       if ( info.isTableNameInField() && !info.isTableNameInTable() && info.getTableNameField().length() > 0 ) {
         int idx = prev.indexOfValue( info.getTableNameField() );
         if ( idx >= 0 ) {
@@ -1437,12 +1437,12 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
 
       if ( info.specifyFields() ) {
         // Only use the fields that were specified.
-        RowMetaInterface prevNew = new RowMeta();
+        IRowMeta prevNew = new RowMeta();
 
         for ( int i = 0; i < info.getFieldDatabase().length; i++ ) {
-          ValueMetaInterface insValue = prev.searchValueMeta( info.getFieldStream()[ i ] );
+          IValueMeta insValue = prev.searchValueMeta( info.getFieldStream()[ i ] );
           if ( insValue != null ) {
-            ValueMetaInterface insertValue = insValue.clone();
+            IValueMeta insertValue = insValue.clone();
             insertValue.setName( info.getFieldDatabase()[ i ] );
             prevNew.addValueMeta( insertValue );
           } else {
@@ -1459,7 +1459,7 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
       // Add the auto-increment field too if any is present.
       //
       if ( info.isReturningGeneratedKeys() && !Utils.isEmpty( info.getGeneratedKeyField() ) ) {
-        ValueMetaInterface valueMeta = new ValueMetaInteger( info.getGeneratedKeyField() );
+        IValueMeta valueMeta = new ValueMetaInteger( info.getGeneratedKeyField() );
         valueMeta.setLength( 15 );
         prev.addValueMeta( 0, valueMeta );
         autoInc = true;
@@ -1502,8 +1502,8 @@ public class TableOutputDialog extends BaseTransformDialog implements TransformD
     mb.open();
   }
 
-  private static boolean isValidRowMeta( RowMetaInterface rowMeta ) {
-    for ( ValueMetaInterface value : rowMeta.getValueMetaList() ) {
+  private static boolean isValidRowMeta( IRowMeta rowMeta ) {
+    for ( IValueMeta value : rowMeta.getValueMetaList() ) {
       String name = value.getName();
       if ( name == null || name.isEmpty() ) {
         return false;

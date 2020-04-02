@@ -35,14 +35,14 @@ import static org.mockito.Mockito.when;
 @Ignore
 public abstract class XmlMetaStoreCacheTestBase {
 
-  private XmlMetaStoreCache simpleXmlMetaStoreCache;
+  private IXmlMetaStoreCache simpleXmlMetaStoreCache;
 
   @Before
   public void before() {
     simpleXmlMetaStoreCache = createMetaStoreCache();
   }
 
-  protected abstract XmlMetaStoreCache createMetaStoreCache();
+  protected abstract IXmlMetaStoreCache createMetaStoreCache();
 
   @Test
   public void registerElementTypeIdForName() {

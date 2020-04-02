@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.file;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.List;
 
@@ -40,8 +40,8 @@ import java.util.List;
  */
 public class BaseFileInputTransformUtils {
 
-  public static void handleMissingFiles( FileInputList files, LogChannelInterface log, boolean isErrorIgnored,
-                                         FileErrorHandler errorHandler ) throws HopException {
+  public static void handleMissingFiles( FileInputList files, ILogChannel log, boolean isErrorIgnored,
+                                         IFileErrorHandler errorHandler ) throws HopException {
     List<FileObject> nonExistantFiles = files.getNonExistantFiles();
 
     if ( !nonExistantFiles.isEmpty() ) {
@@ -81,8 +81,8 @@ public class BaseFileInputTransformUtils {
    * @param fieldName
    * @return Index in row meta of value meta with <code>fieldName</code>
    */
-  public static int addValueMeta( String transformName, RowMetaInterface rowMeta, String fieldName ) {
-    ValueMetaInterface valueMeta = new ValueMetaString( fieldName );
+  public static int addValueMeta( String transformName, IRowMeta rowMeta, String fieldName ) {
+    IValueMeta valueMeta = new ValueMetaString( fieldName );
     valueMeta.setOrigin( transformName );
     // add if doesn't exist
     int index = -1;

@@ -22,7 +22,7 @@
 
 package org.apache.test.util;
 
-import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class GetterSetterTester<T> {
-  private final Map<String, ObjectTester<?>> objectTesterMap;
+  private final Map<String, IObjectTester<?>> objectTesterMap;
   private final Class<? extends T> clazz;
   private final Map<String, String> getterMap;
   private final Map<String, String> setterMap;
@@ -43,26 +43,26 @@ public class GetterSetterTester<T> {
     this.clazz = clazz;
     this.getterMap = getterMap;
     this.setterMap = setterMap;
-    objectTesterMap = new HashMap<String, ObjectTester<?>>();
+    objectTesterMap = new HashMap<String, IObjectTester<?>>();
   }
 
   public void test( Object objectUnderTest ) {
     JavaBeanManipulator<T> manipulator =
       new JavaBeanManipulator<T>( clazz, new ArrayList<>( objectTesterMap.keySet() ), getterMap, setterMap );
-    for ( Entry<String, ObjectTester<?>> entry : objectTesterMap.entrySet() ) {
+    for ( Entry<String, IObjectTester<?>> entry : objectTesterMap.entrySet() ) {
       String attribute = entry.getKey();
       @SuppressWarnings( "unchecked" )
-      ObjectTester<Object> tester = (ObjectTester<Object>) entry.getValue();
+      IObjectTester<Object> tester = (IObjectTester<Object>) entry.getValue();
       for ( Object testObject : tester.getTestObjects() ) {
         @SuppressWarnings( "unchecked" )
-        Setter<Object> setter = (Setter<Object>) manipulator.getSetter( attribute );
+        ISetter<Object> setter = (ISetter<Object>) manipulator.getSetter( attribute );
         setter.set( objectUnderTest, testObject );
         tester.validate( testObject, manipulator.getGetter( attribute ).get( objectUnderTest ) );
       }
     }
   }
 
-  public void addObjectTester( String attribute, ObjectTester<?> objectTester ) {
+  public void addObjectTester( String attribute, IObjectTester<?> objectTester ) {
     objectTesterMap.put( attribute, objectTester );
   }
 }

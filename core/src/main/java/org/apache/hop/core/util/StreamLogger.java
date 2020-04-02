@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,17 +35,17 @@ public class StreamLogger implements Runnable {
 
   private String type;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private Boolean errorStream;
 
   private String lastLine;
 
-  public StreamLogger( LogChannelInterface log, InputStream is, String type ) {
+  public StreamLogger( ILogChannel log, InputStream is, String type ) {
     this( log, is, type, false );
   }
 
-  public StreamLogger( LogChannelInterface log, InputStream is, String type, Boolean errorStream ) {
+  public StreamLogger( ILogChannel log, InputStream is, String type, Boolean errorStream ) {
     this.log = log;
     this.is = is;
     this.type = type;

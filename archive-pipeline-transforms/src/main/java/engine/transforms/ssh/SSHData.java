@@ -29,13 +29,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.CharArrayWriter;
 import java.io.InputStream;
@@ -44,7 +44,7 @@ import java.io.InputStream;
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class SSHData extends BaseTransformData implements TransformDataInterface {
+public class SSHData extends BaseTransformData implements ITransformData {
   public int indexOfCommand;
   public Connection conn;
   public boolean wroteOneRow;
@@ -56,7 +56,7 @@ public class SSHData extends BaseTransformData implements TransformDataInterface
   public String stdOutField;
   public String stdTypeField;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public SSHData() {
     super();
@@ -69,7 +69,7 @@ public class SSHData extends BaseTransformData implements TransformDataInterface
   }
 
   public static Connection OpenConnection( String serveur, int port, String username, String password,
-                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, VariableSpace space, String proxyhost,
+                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, iVariables variables, String proxyhost,
                                            int proxyport, String proxyusername, String proxypassword ) throws HopException {
     Connection conn = null;
     char[] content = null;
@@ -119,7 +119,7 @@ public class SSHData extends BaseTransformData implements TransformDataInterface
       // authenticate
       if ( useKey ) {
         isAuthenticated =
-          conn.authenticateWithPublicKey( username, content, space.environmentSubstitute( passPhrase ) );
+          conn.authenticateWithPublicKey( username, content, variables.environmentSubstitute( passPhrase ) );
       } else {
         isAuthenticated = conn.authenticateWithPassword( username, password );
       }

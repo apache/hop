@@ -22,20 +22,20 @@
 
 package org.apache.hop.pipeline.transforms.edi2xml;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
-public class Edi2XmlData extends BaseTransformData implements TransformDataInterface {
+public class Edi2XmlData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
 
   public int inputFieldIndex = -1;
   public int outputFieldIndex = -1;
-  public ValueMetaInterface inputMeta;
-  public ValueMetaInterface outputMeta;
+  public IValueMeta inputMeta;
+  public IValueMeta outputMeta;
 
   public Edi2XmlData() {
     super();

@@ -25,7 +25,7 @@ package org.apache.hop.core.plugins;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -34,9 +34,9 @@ import java.util.List;
 /**
  * This class represents the job entry dialog fragment type.
  */
-@PluginMainClassType( JobEntryDialogInterface.class )
+@PluginMainClassType( IJobEntryDialog.class )
 @PluginAnnotationType( PluginDialog.class )
-public class JobEntryDialogFragmentType extends BaseFragmentType implements PluginTypeInterface {
+public class JobEntryDialogFragmentType extends BaseFragmentType implements IPluginType {
 
   private static JobEntryDialogFragmentType jobEntryDialogFragmentType;
 

@@ -31,14 +31,14 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
+import org.apache.hop.ui.core.widget.ITextVarButtonRenderCallback;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -84,7 +84,7 @@ import java.util.Map;
   pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryCopyFilesDialog extends JobEntryDialog implements IJobEntryDialog {
   private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator!!
 
   protected static final String[] FILETYPES = new String[] { BaseMessages.getString(
@@ -115,7 +115,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
   private ToolItem deleteToolItem; // Delete
 
-  public JobEntryCopyFilesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryCopyFilesDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCopyFiles) jobEntryInt;
 
@@ -345,7 +345,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
     setComboValues( colinf[ 0 ] );
 
-    TextVarButtonRenderCallback callback = new TextVarButtonRenderCallback() {
+    ITextVarButtonRenderCallback callback = new ITextVarButtonRenderCallback() {
       public boolean shouldRenderButton() {
         String envType = wFields.getActiveTableItem().getText( wFields.getActiveTableColumn() - 1 );
         return !STATIC_ENVIRONMENT.equalsIgnoreCase( envType );
@@ -427,7 +427,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
   }
 
   @Override
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     initUI();
     BaseTransformDialog.setSize( shell );
     shell.open();

@@ -30,8 +30,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -43,14 +43,14 @@ import static org.mockito.Mockito.when;
 
 public class PrioritizeStreamsTest {
 
-  private static TransformMockHelper<PrioritizeStreamsMeta, TransformDataInterface> transformMockHelper;
+  private static TransformMockHelper<PrioritizeStreamsMeta, ITransformData> transformMockHelper;
 
   @BeforeClass
   public static void setup() {
     transformMockHelper =
-      new TransformMockHelper<PrioritizeStreamsMeta, TransformDataInterface>( "Priority Streams Test",
-        PrioritizeStreamsMeta.class, TransformDataInterface.class );
-    when( transformMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+      new TransformMockHelper<PrioritizeStreamsMeta, ITransformData>( "Priority Streams Test",
+        PrioritizeStreamsMeta.class, ITransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -75,7 +75,7 @@ public class PrioritizeStreamsTest {
     try {
       transform.processRow( meta, data );
     } catch ( NullPointerException e ) {
-      fail( "NullPointerException detecded, seems that RowMetaInterface was not set for RowSet you are attempting"
+      fail( "NullPointerException detecded, seems that IRowMeta was not set for RowSet you are attempting"
         + "to read from." );
     }
 
@@ -85,8 +85,8 @@ public class PrioritizeStreamsTest {
 
   private class PrioritizeStreamsInner extends PrioritizeStreams {
 
-    public PrioritizeStreamsInner( TransformMockHelper<PrioritizeStreamsMeta, TransformDataInterface> transformMockHelper ) {
-      super( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+    public PrioritizeStreamsInner( TransformMockHelper<PrioritizeStreamsMeta, ITransformData> transformMockHelper ) {
+      super( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     }
 
@@ -99,7 +99,7 @@ public class PrioritizeStreamsTest {
     }
 
     @Override
-    protected void checkInputLayoutValid( RowMetaInterface referenceRowMeta, RowMetaInterface compareRowMeta ) {
+    protected void checkInputLayoutValid( IRowMeta referenceRowMeta, IRowMeta compareRowMeta ) {
       // always true.
     }
 
@@ -110,7 +110,7 @@ public class PrioritizeStreamsTest {
     }
 
     @Override
-    public void putRow( RowMetaInterface rmi, Object[] input ) {
+    public void putRow( IRowMeta rmi, Object[] input ) {
       if ( rmi == null ) {
         throw new NullPointerException();
       }

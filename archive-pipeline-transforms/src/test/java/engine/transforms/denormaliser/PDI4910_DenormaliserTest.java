@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -52,7 +52,7 @@ public class PDI4910_DenormaliserTest {
   @Before
   public void init() {
     mockHelper = new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormalizer", DenormaliserMeta.class, DenormaliserData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
   }
 
@@ -91,7 +91,7 @@ public class PDI4910_DenormaliserTest {
     transformMeta.setDenormaliserTargetField( denormaliserTargetFields );
 
     // init row meta
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( 0, new ValueMetaInteger( "key" ) );
     rowMeta.addValueMeta( 1, new ValueMetaString( "stringDate1" ) );
     rowMeta.addValueMeta( 2, new ValueMetaString( "stringDate2" ) );
@@ -111,7 +111,7 @@ public class PDI4910_DenormaliserTest {
 
     // call tested method
     Method deNormalise =
-      denormaliser.getClass().getDeclaredMethod( "deNormalise", RowMetaInterface.class, Object[].class );
+      denormaliser.getClass().getDeclaredMethod( "deNormalise", IRowMeta.class, Object[].class );
     Assert.assertNotNull( "Can't find a method 'deNormalise' in class Denormalizer", deNormalise );
     deNormalise.setAccessible( true );
     deNormalise.invoke( denormaliser, rowMeta, rowData );

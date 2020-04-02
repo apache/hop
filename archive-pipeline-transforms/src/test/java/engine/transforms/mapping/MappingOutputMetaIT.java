@@ -23,10 +23,10 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta;
@@ -44,17 +44,17 @@ import static org.mockito.Mockito.mock;
 public class MappingOutputMetaIT {
 
   private IMetaStore metaStore = mock( IMetaStore.class );
-  private VariableSpace space = mock( VariableSpace.class );
+  private iVariables variables = mock( iVariables.class );
   private TransformMeta nextTransform = mock( TransformMeta.class );
-  private RowMetaInterface[] info = new RowMetaInterface[] { mock( RowMetaInterface.class ) };
+  private IRowMeta[] info = new IRowMeta[] { mock( IRowMeta.class ) };
 
   @Test
   @Ignore // TODO figure out what's going on here!
   public void testGetFields_OutputValueRenames_WillRenameOutputIfValueMetaExist() throws HopTransformException {
-    ValueMetaInterface valueMeta1 = new ValueMetaBase( "valueMeta1" );
-    ValueMetaInterface valueMeta2 = new ValueMetaBase( "valueMeta2" );
+    IValueMeta valueMeta1 = new ValueMetaBase( "valueMeta1" );
+    IValueMeta valueMeta2 = new ValueMetaBase( "valueMeta2" );
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( valueMeta1 );
     rowMeta.addValueMeta( valueMeta2 );
 
@@ -62,7 +62,7 @@ public class MappingOutputMetaIT {
     outputValueRenames.add( new MappingValueRename( "valueMeta2", "valueMeta1" ) );
     MappingOutputMeta meta = new MappingOutputMeta();
     meta.setOutputValueRenames( outputValueRenames );
-    meta.getFields( rowMeta, null, info, nextTransform, space, metaStore );
+    meta.getFields( rowMeta, null, info, nextTransform, variables, metaStore );
 
     //we must not add additional field
     assertEquals( 2, rowMeta.getValueMetaList().size() );

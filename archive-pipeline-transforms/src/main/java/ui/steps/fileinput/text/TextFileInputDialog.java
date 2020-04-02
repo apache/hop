@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
@@ -112,7 +112,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-public class TextFileInputDialog extends BaseTransformDialog implements TransformDialogInterface,
+public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog,
   GetFieldsCapableTransformDialog<TextFileInputMeta>, CsvInputAwareTransformDialog {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -2989,20 +2989,20 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
 
       item.setText( 5, "" );
       item.setText( 6, "" );
-      item.setText( 12, ValueMetaString.getTrimTypeDesc( ValueMetaInterface.TRIM_TYPE_BOTH ) );
+      item.setText( 12, ValueMetaString.getTrimTypeDesc( IValueMeta.TRIM_TYPE_BOTH ) );
 
       int type = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
       switch ( type ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           item.setText( 3, "" );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           item.setText( 3, "0" );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           item.setText( 3, "0.#####" );
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           break;
         default:
           break;
@@ -3010,7 +3010,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements Transfor
     }
 
     for ( int i = 0; i < input.inputFields.length; i++ ) {
-      input.inputFields[ i ].setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+      input.inputFields[ i ].setTrimType( IValueMeta.TRIM_TYPE_BOTH );
     }
 
     wFields.optWidth( true );

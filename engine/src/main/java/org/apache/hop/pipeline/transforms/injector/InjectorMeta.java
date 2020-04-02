@@ -23,24 +23,24 @@
 package org.apache.hop.pipeline.transforms.injector;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -54,7 +54,7 @@ import java.util.List;
  *
  * @since 22-jun-2006
  */
-public class InjectorMeta extends BaseTransformMeta implements TransformMetaInterface<Injector, InjectorData> {
+public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<Injector, InjectorData> {
 
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -177,10 +177,10 @@ public class InjectorMeta extends BaseTransformMeta implements TransformMetaInte
     allocate( 0 );
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < this.fieldname.length; i++ ) {
-      ValueMetaInterface v;
+      IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( this.fieldname[ i ], type[ i ], length[ i ], precision[ i ] );
         inputRowMeta.addValueMeta( v );
@@ -190,26 +190,26 @@ public class InjectorMeta extends BaseTransformMeta implements TransformMetaInte
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "InjectorMeta.CheckResult.TransformExpectingNoReadingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "InjectorMeta.CheckResult.NoInputReceivedError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, InjectorData transformDataInterface, int cnr,
-                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Injector( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, InjectorData iTransformData, int cnr,
+                                     PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new Injector( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public InjectorData getTransformData() {

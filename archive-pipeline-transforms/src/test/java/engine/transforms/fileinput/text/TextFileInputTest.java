@@ -32,7 +32,7 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.variables.Variables;
@@ -41,7 +41,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
@@ -279,7 +279,7 @@ public class TextFileInputTest {
     TextFileInput input = Mockito.spy( TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" ) );
 
     RowSet rowset = Mockito.mock( RowSet.class );
-    RowMetaInterface rwi = Mockito.mock( RowMetaInterface.class );
+    IRowMeta rwi = Mockito.mock( IRowMeta.class );
     Object[] obj1 = new Object[ 2 ];
     Object[] obj2 = new Object[ 2 ];
     Mockito.doReturn( rowset ).when( input ).findInputRowSet( null );
@@ -397,9 +397,9 @@ public class TextFileInputTest {
   }
 
   public static class TestTextFileInput extends TextFileInput {
-    public TestTextFileInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+    public TestTextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

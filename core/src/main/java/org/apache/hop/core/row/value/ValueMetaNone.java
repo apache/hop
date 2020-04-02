@@ -23,16 +23,16 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
-public class ValueMetaNone extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaNone extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaNone() {
     this( null );
   }
 
   public ValueMetaNone( String name ) {
-    super( name, ValueMetaInterface.TYPE_NONE );
+    super( name, IValueMeta.TYPE_NONE );
   }
 
   @Override

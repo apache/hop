@@ -24,10 +24,10 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -43,7 +43,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class MetricsLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = MetricsLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -70,8 +70,8 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     }
   }
 
-  private MetricsLogTable( VariableSpace space, IMetaStore metaStore ) {
-    super( space, metaStore, null, null, null );
+  private MetricsLogTable( IVariables variables, IMetaStore metaStore ) {
+    super( variables, metaStore, null, null, null );
   }
 
   @Override
@@ -112,7 +112,7 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof MetricsLogTable ) ) {
       return;
     }
@@ -121,28 +121,28 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     super.replaceMeta( logTable );
   }
 
-  public static MetricsLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
-    MetricsLogTable table = new MetricsLogTable( space, metaStore );
+  public static MetricsLogTable getDefault( IVariables variables, IMetaStore metaStore ) {
+    MetricsLogTable table = new MetricsLogTable( variables, metaStore );
 
     //CHECKSTYLE:LineLength:OFF
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.IdBatch" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.IdBatch" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.ChannelId" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.ChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.METRICS_DATE.id, true, false, "METRICS_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDate" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.METRICS_CODE.id, true, false, "METRICS_CODE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsCode" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsCode" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.METRICS_DESCRIPTION.id, true, false, "METRICS_DESCRIPTION", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDescription" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDescription" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.METRICS_SUBJECT.id, true, false, "METRICS_SUBJECT", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsSubject" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsSubject" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsSubject" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.METRICS_TYPE.id, true, false, "METRICS_TYPE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsType" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsType" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsType" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.METRICS_VALUE.id, true, false, "METRICS_VALUE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsValue" ),
-      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsValue" ), ValueMetaInterface.TYPE_INTEGER, 12 ) );
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsValue" ), IValueMeta.TYPE_INTEGER, 12 ) );
 
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
     table.findField( ID.ID_BATCH.id ).setKey( true );
@@ -161,7 +161,7 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     if ( subject == null || subject instanceof LoggingMetric ) {
 
       LoggingMetric loggingMetric = (LoggingMetric) subject;
-      MetricsSnapshotInterface snapshot = null;
+      IMetricsSnapshot snapshot = null;
       if ( subject != null ) {
         snapshot = loggingMetric.getSnapshot();
       }
@@ -236,8 +236,8 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     return Const.HOP_METRICS_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
     return indexes;
   }
 

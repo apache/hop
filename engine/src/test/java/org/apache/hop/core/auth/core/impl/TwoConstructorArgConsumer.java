@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
-public class TwoConstructorArgConsumer implements AuthenticationConsumer<Object, Object> {
+public class TwoConstructorArgConsumer implements IAuthenticationConsumer<Object, Object> {
   public TwoConstructorArgConsumer( String one, Integer two ) {
 
   }

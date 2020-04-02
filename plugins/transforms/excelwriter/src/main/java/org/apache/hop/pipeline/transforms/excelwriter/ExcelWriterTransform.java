@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -35,10 +35,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -69,7 +69,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 
 @SuppressWarnings( "deprecation" )
-public class ExcelWriterTransform extends BaseTransform implements TransformInterface {
+public class ExcelWriterTransform extends BaseTransform implements ITransform {
 
   public static final String STREAMER_FORCE_RECALC_PROP_NAME = "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
 
@@ -78,12 +78,12 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
 
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
 
-  public ExcelWriterTransform( TransformMeta s, TransformDataInterface transformDataInterface, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, transformDataInterface, c, t, dis );
+  public ExcelWriterTransform( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, iTransformData, c, t, dis );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
 
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriterTransformData) sdi;
@@ -375,7 +375,7 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
   }
 
   //VisibleForTesting
-  void writeField( Object v, ValueMetaInterface vMeta, ExcelWriterTransformField excelField, Row xlsRow,
+  void writeField( Object v, IValueMeta vMeta, ExcelWriterTransformField excelField, Row xlsRow,
                    int posX, Object[] row, int fieldNr, boolean isTitle ) throws HopException {
     try {
       boolean cellExisted = true;
@@ -494,19 +494,19 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
       } else {
         // static content case
         switch ( vMeta.getType() ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             if ( v != null && vMeta.getDate( v ) != null ) {
               cell.setCellValue( vMeta.getDate( v ) );
             }
             break;
-          case ValueMetaInterface.TYPE_BOOLEAN:
+          case IValueMeta.TYPE_BOOLEAN:
             if ( v != null ) {
               cell.setCellValue( vMeta.getBoolean( v ) );
             }
             break;
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
-          case ValueMetaInterface.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
             if ( v != null ) {
               cell.setCellValue( vMeta.getNumber( v ) );
             }
@@ -789,14 +789,14 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
       if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
           String fieldName = !Utils.isEmpty( meta.getOutputFields()[ i ].getTitle() ) ? meta.getOutputFields()[ i ].getTitle() : meta.getOutputFields()[ i ].getName();
-          ValueMetaInterface vMeta = new ValueMetaString( fieldName );
+          IValueMeta vMeta = new ValueMetaString( fieldName );
           writeField( fieldName, vMeta, meta.getOutputFields()[ i ], xlsRow, posX++, null, -1, true );
         }
         // Just put all field names in
       } else if ( data.inputRowMeta != null ) {
         for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
           String fieldName = data.inputRowMeta.getFieldNames()[ i ];
-          ValueMetaInterface vMeta = new ValueMetaString( fieldName );
+          IValueMeta vMeta = new ValueMetaString( fieldName );
           writeField( fieldName, vMeta, null, xlsRow, posX++, null, -1, true );
         }
       }
@@ -810,11 +810,11 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
   /**
    * pipeline run initialize, may create the output file if specified by user options
    *
-   * @see BaseTransform#init(TransformMetaInterface,
-   * TransformDataInterface)
+   * @see BaseTransform#init(ITransformMeta,
+   * ITransformData)
    */
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriterTransformData) sdi;
     if ( super.init( smi, sdi ) ) {
@@ -838,11 +838,11 @@ public class ExcelWriterTransform extends BaseTransform implements TransformInte
   /**
    * pipeline run end
    *
-   * @see BaseTransform#dispose(TransformMetaInterface,
-   * TransformDataInterface)
+   * @see BaseTransform#dispose(ITransformMeta,
+   * ITransformData)
    */
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriterTransformData) sdi;
     clearWorkbookMem();

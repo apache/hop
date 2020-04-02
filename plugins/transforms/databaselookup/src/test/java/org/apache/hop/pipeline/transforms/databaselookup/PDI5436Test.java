@@ -23,19 +23,19 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -84,7 +84,7 @@ public class PDI5436Test {
     smh =
       new TransformMockHelper<>( "Database Lookup", DatabaseLookupMeta.class,
         DatabaseLookupData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -97,19 +97,19 @@ public class PDI5436Test {
   private RowMeta mockInputRowMeta() {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaString nameMeta = new ValueMetaString( "name" );
-    nameMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    nameMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     nameMeta.setStorageMetadata( new ValueMetaString( "name" ) );
     inputRowMeta.addValueMeta( nameMeta );
     ValueMetaString idMeta = new ValueMetaString( "id" );
-    idMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    idMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     idMeta.setStorageMetadata( new ValueMetaString( "id" ) );
     inputRowMeta.addValueMeta( idMeta );
 
     return inputRowMeta;
   }
 
-  private RowSet mockInputRowSet() {
-    RowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name".getBytes(), "1".getBytes() } } );
+  private IRowSet mockInputRowSet() {
+    IRowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name".getBytes(), "1".getBytes() } } );
     inputRowSet.setRowMeta( mockInputRowMeta() );
     return inputRowSet;
   }
@@ -119,11 +119,11 @@ public class PDI5436Test {
     doReturn( mock( DatabaseMeta.class ) ).when( transformMeta ).getDatabaseMeta();
     doReturn( new String[] { "=" } ).when( transformMeta ).getKeyCondition();
 
-    doCallRealMethod().when( transformMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-      any( RowMetaInterface[].class ), any( TransformMeta.class ), any( VariableSpace.class ),
+    doCallRealMethod().when( transformMeta ).getFields( any( IRowMeta.class ), anyString(),
+      any( IRowMeta[].class ), any( TransformMeta.class ), any( IVariables.class ),
       any( IMetaStore.class ) );
     doReturn( new String[] { "value" } ).when( transformMeta ).getReturnValueNewName();
-    doReturn( new int[] { ValueMetaInterface.TYPE_STRING } ).when( transformMeta ).getReturnValueDefaultType();
+    doReturn( new int[] { IValueMeta.TYPE_STRING } ).when( transformMeta ).getReturnValueDefaultType();
     doReturn( true ).when( transformMeta ).isCached();
     doReturn( true ).when( transformMeta ).isLoadingAllDataInCache();
     doReturn( new String[] { "id" } ).when( transformMeta ).getStreamKeyField1();
@@ -131,7 +131,7 @@ public class PDI5436Test {
     doReturn( new String[] { "id" } ).when( transformMeta ).getTableKeyField();
     doReturn( new String[] { "value" } ).when( transformMeta ).getReturnValueField();
     doReturn( new String[] { "" } ).when( transformMeta ).getReturnValueDefault();
-    doReturn( new int[] { ValueMetaInterface.TYPE_STRING } ).when( transformMeta ).getReturnValueDefaultType();
+    doReturn( new int[] { IValueMeta.TYPE_STRING } ).when( transformMeta ).getReturnValueDefaultType();
     when( transformMeta.getStreamKeyField2() ).thenReturn( new String[] { "a", "b", "c" } );
 
     return transformMeta;
@@ -154,14 +154,14 @@ public class PDI5436Test {
 
   @Test
   public void testCacheAllTable() throws HopException {
-    DatabaseLookup transformSpy = spy( new DatabaseLookup( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline ) );
+    DatabaseLookup transformSpy = spy( new DatabaseLookup( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
 
     Database database = mockDatabase();
     doReturn( database ).when( transformSpy ).getDatabase( any( DatabaseMeta.class ) );
 
     transformSpy.addRowSetToInputRowSets( mockInputRowSet() );
     transformSpy.setInputRowMeta( mockInputRowMeta() );
-    RowSet outputRowSet = new QueueRowSet();
+    IRowSet outputRowSet = new QueueRowSet();
     transformSpy.addRowSetToOutputRowSets( outputRowSet );
 
     DatabaseLookupMeta meta = mockTransformMeta();
@@ -169,6 +169,6 @@ public class PDI5436Test {
 
     Assert.assertTrue( "Transform init failed", transformSpy.init( meta, data ) );
     Assert.assertTrue( "Error processing row", transformSpy.processRow( meta, data ) );
-    Assert.assertEquals( "Cache lookup failed", "value", outputRowSet.getRow()[ 2 ] );
+    Assert.assertEquals( "ICache lookup failed", "value", outputRowSet.getRow()[ 2 ] );
   }
 }

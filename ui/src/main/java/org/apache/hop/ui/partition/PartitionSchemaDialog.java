@@ -23,7 +23,7 @@
 package org.apache.hop.ui.partition;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
@@ -99,14 +99,14 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
   private PartitionSchema originalSchema;
   private String result;
 
-  private VariableSpace variableSpace;
+  private IVariables variables;
 
-  public PartitionSchemaDialog( Shell par, IMetaStore metaStore, PartitionSchema partitionSchema, VariableSpace variableSpace ) {
+  public PartitionSchemaDialog( Shell par, IMetaStore metaStore, PartitionSchema partitionSchema, IVariables variables ) {
     super( par, SWT.NONE );
     this.metaStore = metaStore;
     this.partitionSchema = (PartitionSchema) partitionSchema.clone();
     this.originalSchema = partitionSchema;
-    this.variableSpace = variableSpace;
+    this.variables = variables;
 
     props = PropsUI.getInstance();
     result = null;
@@ -205,7 +205,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
     fdlNumber.right = new FormAttachment( middle, 0 );
     wlNumber.setLayoutData( fdlNumber );
 
-    wNumber = new TextVar( variableSpace, shell, SWT.LEFT | SWT.BORDER | SWT.SINGLE, BaseMessages.getString( PKG, "PartitionSchemaDialog.Number.Tooltip" ) );
+    wNumber = new TextVar( variables, shell, SWT.LEFT | SWT.BORDER | SWT.SINGLE, BaseMessages.getString( PKG, "PartitionSchemaDialog.Number.Tooltip" ) );
     props.setLook( wNumber );
     FormData fdNumber = new FormData();
     fdNumber.top = new FormAttachment( wlNumber, 0, SWT.CENTER );

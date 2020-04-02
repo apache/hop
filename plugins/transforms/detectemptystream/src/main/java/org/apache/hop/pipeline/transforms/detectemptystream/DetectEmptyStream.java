@@ -29,10 +29,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 /**
  * Detect empty stream. Pass one row data to the next transforms.
@@ -40,14 +40,14 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Samatar
  * @since 30-08-2008
  */
-public class DetectEmptyStream extends BaseTransform implements TransformInterface {
+public class DetectEmptyStream extends BaseTransform implements ITransform {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   private DetectEmptyStreamData data;
 
-  public DetectEmptyStream( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public DetectEmptyStream( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -61,7 +61,7 @@ public class DetectEmptyStream extends BaseTransform implements TransformInterfa
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     data = (DetectEmptyStreamData) sdi;
 
     Object[] r = getRow(); // get row, set busy!
@@ -89,7 +89,7 @@ public class DetectEmptyStream extends BaseTransform implements TransformInterfa
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     data = (DetectEmptyStreamData) sdi;
 
     if ( super.init( smi, sdi ) ) {

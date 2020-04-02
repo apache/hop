@@ -22,11 +22,11 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.widget.GetCaretPositionInterface;
-import org.apache.hop.ui.core.widget.InsertTextInterface;
+import org.apache.hop.ui.core.widget.IGetCaretPosition;
+import org.apache.hop.ui.core.widget.IInsertText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
@@ -42,17 +42,17 @@ public class VariableButtonListenerFactory {
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            VariableSpace space ) {
-    return getSelectionAdapter( composite, destination, null, null, space );
+                                                            IVariables variables ) {
+    return getSelectionAdapter( composite, destination, null, null, variables );
   }
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
-                                                            final VariableSpace space ) {
+                                                            final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface,
+                                                            final IVariables variables ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        String[] keys = space.listVariables();
+        String[] keys = variables.listVariables();
         Arrays.sort( keys );
 
         int size = keys.length;
@@ -62,7 +62,7 @@ public class VariableButtonListenerFactory {
 
         for ( int i = 0; i < keys.length; i++ ) {
           key[ i ] = keys[ i ];
-          val[ i ] = space.getVariable( key[ i ] );
+          val[ i ] = variables.getVariable( key[ i ] );
           str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
         }
 

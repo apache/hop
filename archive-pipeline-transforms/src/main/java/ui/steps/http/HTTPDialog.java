@@ -24,12 +24,12 @@ package org.apache.hop.ui.pipeline.transforms.http;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.http.HTTPMeta;
 import org.apache.hop.ui.core.PropsUI;
@@ -74,7 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class HTTPDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class HTTPDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = HTTPMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlUrl;
@@ -738,7 +738,7 @@ public class HTTPDialog extends BaseTransformDialog implements TransformDialogIn
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1023,7 +1023,7 @@ public class HTTPDialog extends BaseTransformDialog implements TransformDialogIn
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, null );
       }
@@ -1036,7 +1036,7 @@ public class HTTPDialog extends BaseTransformDialog implements TransformDialogIn
 
   private void getHeadersFields() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wHeaders, 1, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, null );
       }

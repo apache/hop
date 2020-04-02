@@ -26,16 +26,16 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.eobjects.sassy.SasColumnType;
@@ -52,20 +52,20 @@ import java.util.ArrayList;
  * @version 4.3
  * @since 9-OCT-2011
  */
-public class SasInput extends BaseTransform implements TransformInterface {
+public class SasInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
   // by Translator!!
 
   private SasInputMeta meta;
   private SasInputData data;
 
-  public SasInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SasInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SasInputMeta) smi;
     data = (SasInputData) sdi;
 
@@ -118,8 +118,8 @@ public class SasInput extends BaseTransform implements TransformInterface {
           + data.fileLayout.size() );
       }
       for ( int i = 0; i < data.fileLayout.size(); i++ ) {
-        ValueMetaInterface first = data.fileLayout.getValueMeta( i );
-        ValueMetaInterface second = data.helper.getRowMeta().getValueMeta( i );
+        IValueMeta first = data.fileLayout.getValueMeta( i );
+        IValueMeta second = data.helper.getRowMeta().getValueMeta( i );
         if ( !first.getName().equalsIgnoreCase( second.getName() ) ) {
           throw new HopException( "Field nr "
             + i + " in file '" + filename + "' is called '" + second.getName() + "' while it was called '"
@@ -191,10 +191,10 @@ public class SasInput extends BaseTransform implements TransformInterface {
             int fieldIndex = data.fieldIndexes.get( i );
             int type = data.fileLayout.getValueMeta( fieldIndex ).getType();
             switch ( type ) {
-              case ValueMetaInterface.TYPE_STRING:
+              case IValueMeta.TYPE_STRING:
                 row[ outputIndex++ ] = rowData[ fieldIndex ];
                 break;
-              case ValueMetaInterface.TYPE_NUMBER:
+              case IValueMeta.TYPE_NUMBER:
                 Double value = (Double) rowData[ fieldIndex ];
                 if ( value.equals( Double.NaN ) ) {
                   value = null;
@@ -224,12 +224,12 @@ public class SasInput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  protected void convertData( RowMetaInterface source, Object[] sourceData, RowMetaInterface target ) throws HopException {
+  protected void convertData( IRowMeta source, Object[] sourceData, IRowMeta target ) throws HopException {
     int targetIndex = getInputRowMeta().size();
     for ( int i = 0; i < data.fieldIndexes.size(); i++ ) {
       int fieldIndex = data.fieldIndexes.get( i );
-      ValueMetaInterface sourceValueMeta = source.getValueMeta( fieldIndex );
-      ValueMetaInterface targetValueMeta = target.getValueMeta( targetIndex );
+      IValueMeta sourceValueMeta = source.getValueMeta( fieldIndex );
+      IValueMeta targetValueMeta = target.getValueMeta( targetIndex );
       sourceData[ targetIndex ] = targetValueMeta.convertData( sourceValueMeta, sourceData[ targetIndex ] );
 
       targetIndex++;
@@ -237,7 +237,7 @@ public class SasInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
   }
 
 }

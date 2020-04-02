@@ -27,8 +27,8 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputField;
 import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -86,7 +86,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class PropertyInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
@@ -1275,7 +1275,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements Transfor
     try {
       String value = wFilenameField.getText();
       wFilenameField.removeAll();
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -1298,7 +1298,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements Transfor
   private void get() {
     if ( !gotPreviousfields ) {
       gotPreviousfields = true;
-      RowMetaInterface fields = new RowMeta();
+      IRowMeta fields = new RowMeta();
 
       try {
         PropertyInputMeta meta = new PropertyInputMeta();
@@ -1308,7 +1308,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements Transfor
 
         if ( inputList.getFiles().size() > 0 ) {
 
-          ValueMetaInterface field =
+          IValueMeta field =
             new ValueMetaString( PropertyInputField.getColumnDesc( 0 ) );
           fields.addValueMeta( field );
           field = new ValueMetaString( PropertyInputField.getColumnDesc( 1 ) );
@@ -1327,7 +1327,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements Transfor
         wFields.removeAll();
 
         for ( int j = 0; j < fields.size(); j++ ) {
-          ValueMetaInterface field = fields.getValueMeta( j );
+          IValueMeta field = fields.getValueMeta( j );
           wFields.add( new String[] {
             field.getName(), field.getName(), field.getTypeDesc(), "", "-1", "", "", "", "", "none", "N" } );
         }

@@ -1,7 +1,7 @@
 package org.apache.hop.pipeline.engine;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -19,7 +19,7 @@ public class PipelineEngineFactory {
     // Load this engine from the plugin registry
     //
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    PluginInterface plugin = pluginRegistry.findPluginWithId( PipelineEnginePluginType.class, enginePluginId );
+    IPlugin plugin = pluginRegistry.findPluginWithId( PipelineEnginePluginType.class, enginePluginId );
     if (plugin==null) {
       throw new HopException( "Unable to find pipeline engine plugin type with ID '"+enginePluginId+"'" );
     }

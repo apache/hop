@@ -27,13 +27,13 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.webservices.WebServiceField;
 import org.apache.hop.pipeline.transforms.webservices.WebServiceMeta;
@@ -90,7 +90,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-public class WebServiceDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator!!
 
   private WebServiceMeta meta;
@@ -421,7 +421,7 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
             e.printStackTrace();
           }
         }
-        RowMetaInterface r = getInWebServiceFields();
+        IRowMeta r = getInWebServiceFields();
         if ( r != null ) {
           BaseTransformDialog.getFieldsFromPrevious(
             r, fieldInTableView, 2, new int[] { 2 }, new int[] {}, -1, -1, null );
@@ -463,7 +463,7 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
     tabItemFieldIn.setControl( vCompositeTabField );
 
     if ( inWsdlParamContainer != null ) {
-      RowMetaInterface r = getInWebServiceFields();
+      IRowMeta r = getInWebServiceFields();
       for ( int i = 0; i < r.size(); ++i ) {
         String wsName = r.getValueMeta( i ).getName();
         TableItem vTableItem = new TableItem( fieldInTableView.table, SWT.NONE );
@@ -549,7 +549,7 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
             e.printStackTrace();
           }
         }
-        RowMetaInterface r = getOutWebServiceFields();
+        IRowMeta r = getOutWebServiceFields();
         if ( r != null ) {
           BaseTransformDialog.getFieldsFromPrevious(
             r, fieldOutTableView, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
@@ -585,7 +585,7 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
     tabItemFieldOut.setControl( vCompositeTabFieldOut );
 
     if ( fieldOutTableView.table.getItemCount() == 0 && outWsdlParamContainer != null ) {
-      RowMetaInterface r = getOutWebServiceFields();
+      IRowMeta r = getOutWebServiceFields();
       for ( int i = 0; i < r.size(); ++i ) {
         String wsName = r.getValueMeta( i ).getName();
         String wsType = r.getValueMeta( i ).getTypeDesc();
@@ -610,14 +610,14 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
     fieldOutTableView.optWidth( true );
   }
 
-  private RowMetaInterface getInWebServiceFields() {
-    RowMetaInterface r = null;
+  private IRowMeta getInWebServiceFields() {
+    IRowMeta r = null;
     if ( inWsdlParamContainer != null ) {
       r = new RowMeta();
       String[] params = inWsdlParamContainer.getParamNames();
       // If we have already saved fields mapping, we only show these mappings
       for ( int cpt = 0; cpt < params.length; cpt++ ) {
-        ValueMetaInterface value =
+        IValueMeta value =
           new ValueMeta( params[ cpt ], XsdType.xsdTypeToHopType( inWsdlParamContainer
             .getParamType( params[ cpt ] ) ) );
         r.addValueMeta( value );
@@ -626,14 +626,14 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
     return r;
   }
 
-  private RowMetaInterface getOutWebServiceFields() {
-    RowMetaInterface r = null;
+  private IRowMeta getOutWebServiceFields() {
+    IRowMeta r = null;
     if ( outWsdlParamContainer != null ) {
       r = new RowMeta();
       String[] outParams = outWsdlParamContainer.getParamNames();
       // If we have already saved fields mapping, we only show these mappings
       for ( int cpt = 0; cpt < outParams.length; cpt++ ) {
-        ValueMetaInterface value =
+        IValueMeta value =
           new ValueMeta( outParams[ cpt ], XsdType.xsdTypeToHopType( outWsdlParamContainer
             .getParamType( outParams[ cpt ] ) ) );
         r.addValueMeta( value );
@@ -1316,7 +1316,7 @@ public class WebServiceDialog extends BaseTransformDialog implements TransformDi
   /**
    * Fields from previous transform
    */
-  private RowMetaInterface prevFields;
+  private IRowMeta prevFields;
 
   /*
    * Previous fields are read asynchonous because this might take some time and the user is able to do other things,

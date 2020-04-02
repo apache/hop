@@ -55,7 +55,7 @@ public class RowTest {
     Object[] rowData1 =
       new Object[] { "sampleString", fmt.parse( "2007/05/07 13:04:13.203" ), new Double( 9123.00 ),
         new Long( 12345 ), new BigDecimal( "123456789012345678.9349" ), Boolean.TRUE, };
-    RowMetaInterface rowMeta1 = createTestRowMetaNormalStringConversion1();
+    IRowMeta rowMeta1 = createTestRowMetaNormalStringConversion1();
 
     assertEquals( "sampleString", rowMeta1.getString( rowData1, 0 ) );
     assertEquals( "2007/05/07 13:04:13.203", rowMeta1.getString( rowData1, 1 ) );
@@ -68,7 +68,7 @@ public class RowTest {
     Object[] rowData2 =
       new Object[] { null, fmt.parse( "20070507130413" ), new Double( 9123.9 ), new Long( 12345 ),
         new BigDecimal( "123456789012345678.9349" ), Boolean.FALSE, };
-    RowMetaInterface rowMeta2 = createTestRowMetaNormalStringConversion2();
+    IRowMeta rowMeta2 = createTestRowMetaNormalStringConversion2();
 
     assertTrue( rowMeta2.getString( rowData2, 0 ) == null );
     assertEquals( "20070507130413", rowMeta2.getString( rowData2, 1 ) );
@@ -88,7 +88,7 @@ public class RowTest {
       new Date[] { fmt.parse( "2007/05/07 13:04:13.203" ), null, fmt.parse( "2007/05/05 05:15:49.349" ),
         fmt.parse( "2007/05/05 19:08:44.736" ), };
 
-    RowMetaInterface rowMeta = createTestRowMetaIndexedStringConversion1( colors, dates );
+    IRowMeta rowMeta = createTestRowMetaIndexedStringConversion1( colors, dates );
 
     Object[] rowData1 = new Object[] { Integer.valueOf( 0 ), Integer.valueOf( 0 ), };
     Object[] rowData2 = new Object[] { Integer.valueOf( 1 ), Integer.valueOf( 1 ), };
@@ -114,7 +114,7 @@ public class RowTest {
 
   @Test
   public void testExtractDataWithTimestampConversion() throws Exception {
-    RowMetaInterface rowMeta = createTestRowMetaNormalTimestampConversion();
+    IRowMeta rowMeta = createTestRowMetaNormalTimestampConversion();
     Timestamp constTimestamp = Timestamp.valueOf( "2012-04-05 04:03:02.123456" );
     Timestamp constTimestampForDate = Timestamp.valueOf( "2012-04-05 04:03:02.123" );
 
@@ -126,7 +126,7 @@ public class RowTest {
 
   }
 
-  private void makeTestExtractDataWithTimestampConversion( RowMetaInterface rowMeta, String str, Date date,
+  private void makeTestExtractDataWithTimestampConversion( IRowMeta rowMeta, String str, Date date,
                                                            Timestamp constTimestamp ) throws HopEOFException, HopFileException, IOException {
     Object[] rowData = new Object[] { str, date };
     byte[] result = RowMeta.extractData( rowMeta, rowData );
@@ -139,97 +139,97 @@ public class RowTest {
 
   }
 
-  private RowMetaInterface createTestRowMetaNormalStringConversion1() {
-    RowMetaInterface rowMeta = new RowMeta();
+  private IRowMeta createTestRowMetaNormalStringConversion1() {
+    IRowMeta rowMeta = new RowMeta();
 
     // A string object
-    ValueMetaInterface meta1 = new ValueMetaString( "stringValue", 30, 0 );
+    IValueMeta meta1 = new ValueMetaString( "stringValue", 30, 0 );
     rowMeta.addValueMeta( meta1 );
 
-    ValueMetaInterface meta2 = new ValueMetaDate( "dateValue", ValueMetaInterface.TYPE_DATE );
+    IValueMeta meta2 = new ValueMetaDate( "dateValue", IValueMeta.TYPE_DATE );
     rowMeta.addValueMeta( meta2 );
 
-    ValueMetaInterface meta3 = new ValueMetaNumber( "numberValue", 5, 2 );
+    IValueMeta meta3 = new ValueMetaNumber( "numberValue", 5, 2 );
     meta3.setConversionMask( "#,##0.00" );
     meta3.setDecimalSymbol( "." );
     meta3.setGroupingSymbol( "," );
     rowMeta.addValueMeta( meta3 );
 
-    ValueMetaInterface meta4 = new ValueMetaInteger( "integerValue", 7, 0 );
+    IValueMeta meta4 = new ValueMetaInteger( "integerValue", 7, 0 );
     meta4.setConversionMask( "0000000" );
     meta4.setDecimalSymbol( "." );
     meta4.setGroupingSymbol( "," );
     rowMeta.addValueMeta( meta4 );
 
-    ValueMetaInterface meta5 = new ValueMetaBigNumber( "bigNumberValue", 30, 7 );
+    IValueMeta meta5 = new ValueMetaBigNumber( "bigNumberValue", 30, 7 );
     meta5.setDecimalSymbol( "." );
     rowMeta.addValueMeta( meta5 );
 
-    ValueMetaInterface meta6 = new ValueMetaBoolean( "booleanValue" );
+    IValueMeta meta6 = new ValueMetaBoolean( "booleanValue" );
     rowMeta.addValueMeta( meta6 );
 
     return rowMeta;
   }
 
-  private RowMetaInterface createTestRowMetaNormalTimestampConversion() {
-    RowMetaInterface rowMeta = new RowMeta();
+  private IRowMeta createTestRowMetaNormalTimestampConversion() {
+    IRowMeta rowMeta = new RowMeta();
 
     // A string object
-    ValueMetaInterface meta1 = new ValueMetaString( "stringValue" );
+    IValueMeta meta1 = new ValueMetaString( "stringValue" );
     rowMeta.addValueMeta( meta1 );
 
-    ValueMetaInterface meta2 = new ValueMetaTimestamp( "timestampValue" );
+    IValueMeta meta2 = new ValueMetaTimestamp( "timestampValue" );
     rowMeta.addValueMeta( meta2 );
 
     return rowMeta;
   }
 
-  private RowMetaInterface createTestRowMetaNormalStringConversion2() {
-    RowMetaInterface rowMeta = new RowMeta();
+  private IRowMeta createTestRowMetaNormalStringConversion2() {
+    IRowMeta rowMeta = new RowMeta();
 
     // A string object
-    ValueMetaInterface meta1 = new ValueMetaString( "stringValue", 30, 0 );
-    meta1.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
+    IValueMeta meta1 = new ValueMetaString( "stringValue", 30, 0 );
+    meta1.setStorageType( IValueMeta.STORAGE_TYPE_INDEXED );
     rowMeta.addValueMeta( meta1 );
 
-    ValueMetaInterface meta2 = new ValueMetaDate( "dateValue" );
+    IValueMeta meta2 = new ValueMetaDate( "dateValue" );
     meta2.setConversionMask( "yyyyMMddHHmmss" );
     rowMeta.addValueMeta( meta2 );
 
-    ValueMetaInterface meta3 = new ValueMetaNumber( "numberValue", 5, 2 );
+    IValueMeta meta3 = new ValueMetaNumber( "numberValue", 5, 2 );
     meta3.setConversionMask( "###,##0.##" );
     meta3.setDecimalSymbol( "," );
     meta3.setGroupingSymbol( "." );
     rowMeta.addValueMeta( meta3 );
 
-    ValueMetaInterface meta4 = new ValueMetaInteger( "integerValue", 7, 0 );
+    IValueMeta meta4 = new ValueMetaInteger( "integerValue", 7, 0 );
     meta4.setConversionMask( "0000000" );
     meta4.setDecimalSymbol( "," );
     meta4.setGroupingSymbol( "." );
     rowMeta.addValueMeta( meta4 );
 
-    ValueMetaInterface meta5 = new ValueMetaBigNumber( "bigNumberValue", 30, 7 );
+    IValueMeta meta5 = new ValueMetaBigNumber( "bigNumberValue", 30, 7 );
     meta5.setDecimalSymbol( "." );
     rowMeta.addValueMeta( meta5 );
 
-    ValueMetaInterface meta6 = new ValueMetaBoolean( "booleanValue", 3, 0 );
+    IValueMeta meta6 = new ValueMetaBoolean( "booleanValue", 3, 0 );
     rowMeta.addValueMeta( meta6 );
 
     return rowMeta;
   }
 
-  private RowMetaInterface createTestRowMetaIndexedStringConversion1( String[] colors, Date[] dates ) {
-    RowMetaInterface rowMeta = new RowMeta();
+  private IRowMeta createTestRowMetaIndexedStringConversion1( String[] colors, Date[] dates ) {
+    IRowMeta rowMeta = new RowMeta();
 
     // A string object, indexed.
-    ValueMetaInterface meta1 = new ValueMetaString( "stringValue", 30, 0 );
+    IValueMeta meta1 = new ValueMetaString( "stringValue", 30, 0 );
     meta1.setIndex( colors );
-    meta1.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
+    meta1.setStorageType( IValueMeta.STORAGE_TYPE_INDEXED );
     rowMeta.addValueMeta( meta1 );
 
-    ValueMetaInterface meta2 = new ValueMetaDate( "dateValue" );
+    IValueMeta meta2 = new ValueMetaDate( "dateValue" );
     meta2.setIndex( dates );
-    meta2.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
+    meta2.setStorageType( IValueMeta.STORAGE_TYPE_INDEXED );
     rowMeta.addValueMeta( meta2 );
 
     return rowMeta;

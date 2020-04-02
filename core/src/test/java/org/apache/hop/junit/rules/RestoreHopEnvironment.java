@@ -93,7 +93,7 @@ public class RestoreHopEnvironment extends ExternalResource {
     if ( HopLogStore.isInitialized() ) {
       HopLogStore.getInstance().reset();
     }
-    HopLogStore.setLogChannelInterfaceFactory( new LogChannelFactory() );
+    HopLogStore.setLogChannelFactory( new LogChannelFactory() );
     if ( Props.isInitialized() ) {
       Props.getInstance().reset();
     }

@@ -30,18 +30,18 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -192,8 +192,8 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Get a unique list of the occurrences of the type
     //
@@ -213,7 +213,7 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
 
     // Then add the type field!
     //
-    ValueMetaInterface typefield_value = new ValueMetaString( typeField );
+    IValueMeta typefield_value = new ValueMetaString( typeField );
     typefield_value.setOrigin( name );
     typefield_value.setLength( maxlen );
     row.addValueMeta( typefield_value );
@@ -225,7 +225,7 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
     for ( int i = 0; i < norm_occ.size(); i++ ) {
       String normname = norm_occ.get( i );
       String fieldname = field_occ.get( i );
-      ValueMetaInterface v = row.searchValueMeta( fieldname );
+      IValueMeta v = row.searchValueMeta( fieldname );
       if ( v != null ) {
         v = v.clone();
       } else {
@@ -266,8 +266,8 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     String error_message = "";
@@ -287,7 +287,7 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
       for ( int i = 0; i < normaliserFields.length; i++ ) {
         String lufield = normaliserFields[ i ].getName();
 
-        ValueMetaInterface v = prev.searchValueMeta( lufield );
+        IValueMeta v = prev.searchValueMeta( lufield );
         if ( v == null ) {
           if ( first ) {
             first = false;
@@ -327,13 +327,13 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new Normaliser( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new Normaliser( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new NormaliserData();
   }
 

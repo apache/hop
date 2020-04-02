@@ -23,10 +23,10 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -80,7 +80,7 @@ public class TransformFieldsDialog extends Dialog {
 
   private Listener lsEdit, lsCancel;
 
-  private RowMetaInterface input;
+  private IRowMeta input;
 
   private Shell shell;
 
@@ -90,7 +90,7 @@ public class TransformFieldsDialog extends Dialog {
 
   private SelectionAdapter lsDef;
 
-  private VariableSpace variables;
+  private IVariables variables;
 
   private String shellText;
 
@@ -98,11 +98,11 @@ public class TransformFieldsDialog extends Dialog {
 
   private boolean showEditButton = true;
 
-  public TransformFieldsDialog( Shell parent, VariableSpace space, int style, String transformName, RowMetaInterface input ) {
+  public TransformFieldsDialog( Shell parent, IVariables variables, int style, String transformName, IRowMeta input ) {
     super( parent, style );
     this.transformName = transformName;
     this.input = input;
-    this.variables = space;
+    this.variables = variables;
     props = PropsUI.getInstance();
 
     shellText = BaseMessages.getString( PKG, "TransformFieldsDialog.Title" );
@@ -297,7 +297,7 @@ public class TransformFieldsDialog extends Dialog {
 
     for ( i = 0; i < input.size(); i++ ) {
       TableItem item = wFields.table.getItem( i );
-      ValueMetaInterface v = input.getValueMeta( i );
+      IValueMeta v = input.getValueMeta( i );
       int idx = 1;
       if ( v.getName() != null ) {
         item.setText( idx++, v.getName() );

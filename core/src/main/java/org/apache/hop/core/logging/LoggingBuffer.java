@@ -51,7 +51,7 @@ public class LoggingBuffer {
 
   private HopLogLayout layout;
 
-  private List<HopLoggingEventListener> eventListeners;
+  private List<IHopLoggingEventListener> eventListeners;
 
   private LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
@@ -332,16 +332,16 @@ public class LoggingBuffer {
     eventListeners.forEach( event -> event.eventAdded( loggingEvent ) );
   }
 
-  public void addLoggingEventListener( HopLoggingEventListener listener ) {
+  public void addLoggingEventListener( IHopLoggingEventListener listener ) {
     eventListeners.add( listener );
   }
 
-  public void removeLoggingEventListener( HopLoggingEventListener listener ) {
+  public void removeLoggingEventListener( IHopLoggingEventListener listener ) {
     eventListeners.remove( listener );
   }
 
   private boolean isGeneral( String logChannelId ) {
-    LoggingObjectInterface loggingObject = loggingRegistry.getLoggingObject( logChannelId );
+    ILoggingObject loggingObject = loggingRegistry.getLoggingObject( logChannelId );
     return loggingObject != null && LoggingObjectType.GENERAL.equals( loggingObject.getObjectType() );
   }
 

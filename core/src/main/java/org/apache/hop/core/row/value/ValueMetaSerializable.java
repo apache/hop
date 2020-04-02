@@ -22,16 +22,16 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
-public class ValueMetaSerializable extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaSerializable extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaSerializable() {
     this( null );
   }
 
   public ValueMetaSerializable( String name ) {
-    super( name, ValueMetaInterface.TYPE_SERIALIZABLE );
+    super( name, IValueMeta.TYPE_SERIALIZABLE );
   }
 
 }

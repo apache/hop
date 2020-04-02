@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class is an implementation of NamedParams.
+ * This class is an implementation of INamedParams.
  *
  * @author Sven Boden
  */
-public class NamedParamsDefault implements NamedParams {
+public class NamedParamsDefault implements INamedParams {
   /**
    * Map to store named parameters in.
    */
@@ -162,7 +162,7 @@ public class NamedParamsDefault implements NamedParams {
   }
 
   @Override
-  public void copyParametersFrom( NamedParams aParam ) {
+  public void copyParametersFrom( INamedParams aParam ) {
     if ( params != null && aParam != null ) {
       params.clear();
       String[] keys = aParam.listParameters();
@@ -197,7 +197,7 @@ public class NamedParamsDefault implements NamedParams {
   }
 
   @Override
-  public void mergeParametersWith( NamedParams aParam, boolean replace ) {
+  public void mergeParametersWith( INamedParams aParam, boolean replace ) {
     if ( params != null && aParam != null && aParam.listParameters() != null ) {
       for ( String key : aParam.listParameters() ) {
         if ( replace || !params.containsKey( key ) ) {

@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -55,7 +55,7 @@ public class StringOperationsTest {
     smh =
       new TransformMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
         StringOperationsData.class );
-    when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( smh.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
@@ -67,7 +67,7 @@ public class StringOperationsTest {
 
   private RowSet mockInputRowSet() {
     ValueMetaString valueMeta = new ValueMetaString( "Value" );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     valueMeta.setStorageMetadata( new ValueMetaString( "Value" ) );
 
     RowMeta inputRowMeta = new RowMeta();
@@ -119,7 +119,7 @@ public class StringOperationsTest {
 
   @Test
   public void testProcessBinaryInput() throws HopException {
-    StringOperations transform = new StringOperations( smh.transformMeta, smh.transformDataInterface, 0, smh.pipelineMeta, smh.pipeline );
+    StringOperations transform = new StringOperations( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
 
     RowSet outputRowSet = new QueueRowSet();

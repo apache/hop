@@ -26,9 +26,9 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.spreadsheet.IKSheet;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
@@ -39,9 +39,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PoiWorkbook implements KWorkbook {
+public class PoiWorkbook implements IKWorkbook {
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private Workbook workbook;
   private String filename;
@@ -54,7 +54,7 @@ public class PoiWorkbook implements KWorkbook {
   public PoiWorkbook( String filename, String encoding ) throws HopException {
     this.filename = filename;
     this.encoding = encoding;
-    this.log = HopLogStore.getLogChannelInterfaceFactory().create( this );
+    this.log = HopLogStore.getLogChannelFactory().create( this );
     try {
       FileObject fileObject = HopVFS.getFileObject( filename );
       if ( fileObject instanceof LocalFile ) {
@@ -110,7 +110,7 @@ public class PoiWorkbook implements KWorkbook {
   }
 
   @Override
-  public KSheet getSheet( String sheetName ) {
+  public IKSheet getSheet( String sheetName ) {
     Sheet sheet = workbook.getSheet( sheetName );
     if ( sheet == null ) {
       return null;
@@ -139,7 +139,7 @@ public class PoiWorkbook implements KWorkbook {
     return workbook.getNumberOfSheets();
   }
 
-  public KSheet getSheet( int sheetNr ) {
+  public IKSheet getSheet( int sheetNr ) {
     Sheet sheet = workbook.getSheetAt( sheetNr );
     if ( sheet == null ) {
       return null;

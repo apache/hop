@@ -7,7 +7,7 @@ import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
@@ -64,8 +64,8 @@ public class HopGuiJobContext extends BaseGuiContextHandler implements IGuiConte
     // Also add all the entry creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> entryPlugins = registry.getPlugins( JobEntryPluginType.class );
-    for ( PluginInterface entryPlugin : entryPlugins ) {
+    List<IPlugin> entryPlugins = registry.getPlugins( JobEntryPluginType.class );
+    for ( IPlugin entryPlugin : entryPlugins ) {
       if (!entryPlugin.getIds()[0].equals( JobMeta.STRING_SPECIAL )) {
         GuiAction createEntryAction =
           new GuiAction( "jobgraph-create-job-entry-" + entryPlugin.getIds()[ 0 ], GuiActionType.Create, entryPlugin.getName(), entryPlugin.getDescription(), entryPlugin.getImageFile(),

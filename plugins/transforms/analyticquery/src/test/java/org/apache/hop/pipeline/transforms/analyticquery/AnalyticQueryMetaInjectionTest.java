@@ -39,27 +39,27 @@ public class AnalyticQueryMetaInjectionTest extends BaseMetadataInjectionTest<An
 
   @Test
   public void test() throws Exception {
-    check( "GROUP_FIELDS", new StringGetter() {
+    check( "GROUP_FIELDS", new IStringGetter() {
       public String get() {
         return meta.getGroupField()[ 0 ];
       }
     } );
-    check( "OUTPUT.AGGREGATE_FIELD", new StringGetter() {
+    check( "OUTPUT.AGGREGATE_FIELD", new IStringGetter() {
       public String get() {
         return meta.getAggregateField()[ 0 ];
       }
     } );
-    check( "OUTPUT.SUBJECT_FIELD", new StringGetter() {
+    check( "OUTPUT.SUBJECT_FIELD", new IStringGetter() {
       public String get() {
         return meta.getSubjectField()[ 0 ];
       }
     } );
-    check( "OUTPUT.AGGREGATE_TYPE", new IntGetter() {
+    check( "OUTPUT.AGGREGATE_TYPE", new IIntGetter() {
       public int get() {
         return meta.getAggregateType()[ 0 ];
       }
     } );
-    check( "OUTPUT.VALUE_FIELD", new IntGetter() {
+    check( "OUTPUT.VALUE_FIELD", new IIntGetter() {
       public int get() {
         return meta.getValueField()[ 0 ];
       }

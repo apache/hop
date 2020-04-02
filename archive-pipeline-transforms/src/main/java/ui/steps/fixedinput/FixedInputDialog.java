@@ -24,8 +24,8 @@ package org.apache.hop.ui.pipeline.transforms.fixedinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.fixedinput.FixedFileInputField;
 import org.apache.hop.pipeline.transforms.fixedinput.FixedInputMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -81,7 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FixedInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FixedInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FixedInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private FixedInputMeta inputMeta;
@@ -444,12 +444,12 @@ public class FixedInputDialog extends BaseTransformDialog implements TransformDi
         String[] comboValues = new String[] {};
         int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
         switch ( type ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             comboValues = Const.getDateFormats();
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
             comboValues = Const.getNumberFormats();
             break;
           default:
@@ -741,8 +741,8 @@ public class FixedInputDialog extends BaseTransformDialog implements TransformDi
         FixedFileInputField field = new FixedFileInputField();
         field.setName( "Field" + 1 ); // TODO: i18n, see also FixedTableDraw class for other references of this String
         // --> getNewFieldname() method
-        field.setType( ValueMetaInterface.TYPE_STRING );
-        field.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+        field.setType( IValueMeta.TYPE_STRING );
+        field.setTrimType( IValueMeta.TRIM_TYPE_NONE );
         field.setWidth( Const.toInt( info.getLineWidth(), 80 ) );
         field.setLength( -1 );
         field.setPrecision( -1 );
@@ -856,7 +856,7 @@ public class FixedInputDialog extends BaseTransformDialog implements TransformDi
 
     FixedFileInputField field = new FixedFileInputField();
     field.setName( "Field1" );
-    field.setType( ValueMetaInterface.TYPE_STRING );
+    field.setType( IValueMeta.TYPE_STRING );
     field.setWidth( lineWidth );
     //CHECKSTYLE:Indentation:OFF
     oneMeta.getFieldDefinition()[ 0 ] = field;
@@ -885,7 +885,7 @@ public class FixedInputDialog extends BaseTransformDialog implements TransformDi
 
     // The rows are in the pipeline...
     //
-    RowMetaInterface previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
+    IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta( wTransformName.getText() );
     List<Object[]> previewRowsData = progressDialog.getPreviewRows( wTransformName.getText() );
     for ( int i = 0; i < previewRowsData.size(); i++ ) {
       String line = previewRowsMeta.getString( previewRowsData.get( i ), 0 );

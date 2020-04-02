@@ -6,7 +6,7 @@ import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -59,8 +59,8 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
     // Also add all the transform creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> transformPlugins = registry.getPlugins( TransformPluginType.class );
-    for ( PluginInterface transformPlugin : transformPlugins ) {
+    List<IPlugin> transformPlugins = registry.getPlugins( TransformPluginType.class );
+    for ( IPlugin transformPlugin : transformPlugins ) {
       GuiAction createTransformAction =
         new GuiAction( "pipeline-graph-create-transform-" + transformPlugin.getIds()[ 0 ], GuiActionType.Create, transformPlugin.getName(), transformPlugin.getDescription(), transformPlugin.getImageFile(),
           (shiftClicked, controlClicked, t) -> {

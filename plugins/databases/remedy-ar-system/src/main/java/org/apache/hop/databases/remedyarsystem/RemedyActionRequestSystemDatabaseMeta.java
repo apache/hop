@@ -22,7 +22,7 @@
 
 package org.apache.hop.databases.remedyarsystem;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.GenericDatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -40,14 +40,14 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
   typeDescription = "Remedy Action Request System"
 )
 @GuiPlugin( id = "GUI-RemedyActionRequestSystemDatabaseMeta" )
-public class RemedyActionRequestSystemDatabaseMeta extends GenericDatabaseMeta implements DatabaseInterface {
+public class RemedyActionRequestSystemDatabaseMeta extends GenericDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
-   * @see DatabaseInterface#getNotFoundTK(boolean)
+   * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override
   public int getNotFoundTK( boolean useAutoinc ) {

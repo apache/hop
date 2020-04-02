@@ -27,19 +27,19 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -184,12 +184,12 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
-      ValueMetaInterface v;
+      IValueMeta v;
       if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
-        v = new ValueMetaString( space.environmentSubstitute( fieldOutStream[ i ] ) );
+        v = new ValueMetaString( variables.environmentSubstitute( fieldOutStream[ i ] ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         inputRowMeta.addValueMeta( v );
@@ -198,13 +198,13 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
         if ( v == null ) {
           continue;
         }
-        v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+        v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
     }
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -221,7 +221,7 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
-        ValueMetaInterface v = prev.searchValueMeta( field );
+        IValueMeta v = prev.searchValueMeta( field );
         if ( v == null ) {
           if ( first ) {
             first = false;
@@ -247,9 +247,9 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
-        ValueMetaInterface v = prev.searchValueMeta( field );
+        IValueMeta v = prev.searchValueMeta( field );
         if ( v != null ) {
-          if ( v.getType() != ValueMetaInterface.TYPE_STRING ) {
+          if ( v.getType() != IValueMeta.TYPE_STRING ) {
             if ( first ) {
               first = false;
               error_message +=
@@ -286,12 +286,12 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new StringCut( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new StringCut( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new StringCutData();
   }
 

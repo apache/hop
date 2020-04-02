@@ -25,15 +25,15 @@ package org.apache.hop.pipeline.transforms.stringoperations;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -43,16 +43,16 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Samatar Hassan
  * @since 02 April 2009
  */
-public class StringOperations extends BaseTransform implements TransformInterface {
+public class StringOperations extends BaseTransform implements ITransform {
   private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
   private StringOperationsMeta meta;
 
   private StringOperationsData data;
 
-  public StringOperations( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public StringOperations( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private String processString( String string, int trimType, int lowerUpper, int padType, String padChar, int padLen,
@@ -185,7 +185,7 @@ public class StringOperations extends BaseTransform implements TransformInterfac
     return rcode;
   }
 
-  private Object[] processRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private Object[] processRow( IRowMeta rowMeta, Object[] row ) throws HopException {
 
     Object[] RowData = new Object[ data.outputRowMeta.size() ];
     // Copy the input fields.
@@ -203,7 +203,7 @@ public class StringOperations extends BaseTransform implements TransformInterfac
           // Update field
           RowData[ data.inStreamNrs[ i ] ] = value;
           data.outputRowMeta.getValueMeta( data.inStreamNrs[ i ] )
-            .setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+            .setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         } else {
           // create a new Field
           RowData[ data.inputFieldsNr + j ] = value;
@@ -214,7 +214,7 @@ public class StringOperations extends BaseTransform implements TransformInterfac
     return RowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (StringOperationsMeta) smi;
     data = (StringOperationsData) sdi;
 
@@ -338,7 +338,7 @@ public class StringOperations extends BaseTransform implements TransformInterfac
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     boolean rCode = true;
 
     meta = (StringOperationsMeta) smi;
@@ -351,7 +351,7 @@ public class StringOperations extends BaseTransform implements TransformInterfac
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (StringOperationsMeta) smi;
     data = (StringOperationsData) sdi;
 

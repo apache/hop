@@ -29,9 +29,9 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -72,7 +72,7 @@ public class WebServer {
   private static final int DEFAULT_DETECTION_TIMER = 20000;
   private static Class<?> PKG = WebServer.class; // for i18n purposes, needed by Translator!!
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   public static final int PORT = 80;
 
@@ -94,13 +94,13 @@ public class WebServer {
 
   private SslConfiguration sslConfig;
 
-  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile ) throws Exception {
     this( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, join, passwordFile, null );
   }
 
-  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile, SslConfiguration sslConfig ) throws Exception {
     this.log = log;
@@ -135,13 +135,13 @@ public class WebServer {
     }
   }
 
-  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> slaveServers, String hostname, int port )
     throws Exception {
     this( log, pipelineMap, jobMap, socketRepository, slaveServers, hostname, port, true );
   }
 
-  public WebServer( LogChannelInterface log, PipelineMap pipelineMap, JobMap jobMap,
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, JobMap jobMap,
                     SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port,
                     boolean join ) throws Exception {
     this( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, join, null, null );
@@ -218,10 +218,10 @@ public class WebServer {
     root.addServlet( new ServletHolder( rootServlet ), "/*" );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
+    for ( IPlugin plugin : plugins ) {
 
-      HopServerPluginInterface servlet = pluginRegistry.loadClass( plugin, HopServerPluginInterface.class );
+      IHopServerPlugin servlet = pluginRegistry.loadClass( plugin, IHopServerPlugin.class );
       servlet.setup( pipelineMap, jobMap, socketRepository, detections );
       servlet.setJettyMode( true );
 
@@ -272,7 +272,7 @@ public class WebServer {
     server.start();
   }
 
-  public String getContextPath( HopServerPluginInterface servlet ) {
+  public String getContextPath( IHopServerPlugin servlet ) {
     String contextPath = servlet.getContextPath();
     if ( !contextPath.startsWith( "/hop" ) ) {
       contextPath = "/hop" + contextPath;
@@ -476,11 +476,11 @@ public class WebServer {
     this.passwordFile = passwordFile;
   }
 
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 

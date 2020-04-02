@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
 
 /**
  * Just a small wrapper class to allow us to pass a few extra details along with a metrics snapshot (like the batch id)
@@ -31,13 +31,13 @@ import org.apache.hop.core.metrics.MetricsSnapshotInterface;
  */
 public class LoggingMetric {
   private long batchId;
-  private MetricsSnapshotInterface snapshot;
+  private IMetricsSnapshot snapshot;
 
   /**
    * @param batchId
    * @param snapshot
    */
-  public LoggingMetric( long batchId, MetricsSnapshotInterface snapshot ) {
+  public LoggingMetric( long batchId, IMetricsSnapshot snapshot ) {
     this.batchId = batchId;
     this.snapshot = snapshot;
   }
@@ -59,14 +59,14 @@ public class LoggingMetric {
   /**
    * @return the snapshot
    */
-  public MetricsSnapshotInterface getSnapshot() {
+  public IMetricsSnapshot getSnapshot() {
     return snapshot;
   }
 
   /**
    * @param snapshot the snapshot to set
    */
-  public void setSnapshot( MetricsSnapshotInterface snapshot ) {
+  public void setSnapshot( IMetricsSnapshot snapshot ) {
     this.snapshot = snapshot;
   }
 

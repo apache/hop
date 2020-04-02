@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.randomccnumber;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Generate random credit card number.
@@ -32,12 +32,12 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Samatar
  * @since 01-4-2010
  */
-public class RandomCCNumberGeneratorData extends BaseTransformData implements TransformDataInterface {
+public class RandomCCNumberGeneratorData extends BaseTransformData implements ITransformData {
 
   public int[] cardTypes;
   public int[] cardSize;
   public int[] cardLen;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public boolean addCardTypeOutput;
   public boolean addCardLengthOutput;

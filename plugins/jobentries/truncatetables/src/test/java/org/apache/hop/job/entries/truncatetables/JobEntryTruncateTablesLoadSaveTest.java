@@ -25,7 +25,7 @@ package org.apache.hop.job.entries.truncatetables;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 
@@ -49,8 +49,8 @@ public class JobEntryTruncateTablesLoadSaveTest extends JobEntryLoadSaveTestSupp
   }
 
   @Override
-  protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     int entries = new Random().nextInt( 20 ) + 1;
     validators.put( "tableNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
     validators.put( "schemaNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );

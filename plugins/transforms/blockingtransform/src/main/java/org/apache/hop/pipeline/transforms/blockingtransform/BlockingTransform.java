@@ -27,16 +27,16 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -52,7 +52,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * A transform that blocks throughput until the input ends, then it will either output the last row or the complete input.
  */
-public class BlockingTransform extends BaseTransform implements TransformInterface {
+public class BlockingTransform extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -60,12 +60,12 @@ public class BlockingTransform extends BaseTransform implements TransformInterfa
   private BlockingTransformData data;
   private Object[] lastRow;
 
-  public BlockingTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public BlockingTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                             Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private boolean addBuffer( RowMetaInterface rowMeta, Object[] r ) {
+  private boolean addBuffer( IRowMeta rowMeta, Object[] r ) {
     if ( r != null ) {
       data.buffer.add( r ); // Save row
     }
@@ -222,7 +222,7 @@ public class BlockingTransform extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     if ( ( data.dis != null ) && ( data.dis.size() > 0 ) ) {
       for ( DataInputStream is : data.dis ) {
         BaseTransform.closeQuietly( is );
@@ -243,7 +243,7 @@ public class BlockingTransform extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (BlockingTransformMeta) smi;
     data = (BlockingTransformData) sdi;
 
@@ -255,7 +255,7 @@ public class BlockingTransform extends BaseTransform implements TransformInterfa
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
 
     boolean err = true;
     Object[] r = getRow(); // Get row from input rowset & set row busy!

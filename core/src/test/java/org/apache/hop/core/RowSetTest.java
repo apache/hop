@@ -23,9 +23,9 @@
 package org.apache.hop.core;
 
 
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -35,17 +35,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test class for the basic functionality of RowSet.
+ * Test class for the basic functionality of IRowSet.
  *
  * @author Sven Boden
  */
 public class RowSetTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  public RowMetaInterface createRowMetaInterface() {
-    RowMetaInterface rm = new RowMeta();
+  public IRowMeta createRowMetaInterface() {
+    IRowMeta rm = new RowMeta();
 
-    ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
+    IValueMeta[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
       rm.addValueMeta( valuesMeta[ i ] );
@@ -59,7 +59,7 @@ public class RowSetTest {
    */
   @Test
   public void testBasicCreation() {
-    RowSet set = new BlockingRowSet( 10 );
+    IRowSet set = new BlockingRowSet( 10 );
 
     assertTrue( !set.isDone() );
     // TODO assertTrue(set.isEmpty());
@@ -72,9 +72,9 @@ public class RowSetTest {
    */
   @Test
   public void testFuntionality1() {
-    RowSet set = new BlockingRowSet( 3 );
+    IRowSet set = new BlockingRowSet( 3 );
 
-    RowMetaInterface rm = createRowMetaInterface();
+    IRowMeta rm = createRowMetaInterface();
 
     Object[] r1 = new Object[] { new Long( 1L ) };
     Object[] r2 = new Object[] { new Long( 2L ) };
@@ -118,7 +118,7 @@ public class RowSetTest {
     assertEquals( 3, set.size() );
 
     /*********************************************************************
-     * This was made in more restrict in v2.5.0 with a new RowSet implementation. After v2.5.0 you may not try to put
+     * This was made in more restrict in v2.5.0 with a new IRowSet implementation. After v2.5.0 you may not try to put
      * more rows in a rowset then it can hold (this functionality was also never used in PDI anyway).
      *
      * // Add another row. State: 2 3 4 5 // Note that we can still add rows after the set is full. set.putRow(r5);
@@ -164,7 +164,7 @@ public class RowSetTest {
     assertEquals( 0, set.size() );
 
     /*********************************************************************
-     * This was changed v2.5.0 with a new RowSet // Pop off row. State: try { r = set.getRow();
+     * This was changed v2.5.0 with a new IRowSet // Pop off row. State: try { r = set.getRow();
      * fail("expected NoSuchElementException"); } catch ( IndexOutOfBoundsException ex ) { } assertTrue(set.isEmpty());
      * assertTrue(!set.isFull()); assertEquals(0, set.size());
      **********************************************************************/
@@ -175,7 +175,7 @@ public class RowSetTest {
    */
   @Test
   public void testNames() {
-    RowSet set = new BlockingRowSet( 3 );
+    IRowSet set = new BlockingRowSet( 3 );
 
     set.setThreadNameFromToCopy( "from", 2, "to", 3 );
 

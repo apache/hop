@@ -31,14 +31,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.DelegationListener;
+import org.apache.hop.job.IDelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
@@ -46,10 +46,10 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutor;
 
 import java.util.ArrayList;
@@ -66,15 +66,15 @@ import java.util.ArrayList;
  * @author Matt
  * @since 22-nov-2005
  */
-public class JobExecutor extends BaseTransform implements TransformInterface {
+public class JobExecutor extends BaseTransform implements ITransform {
   private static Class<?> PKG = JobExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   private JobExecutorMeta meta;
   private JobExecutorData data;
 
-  public JobExecutor( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public JobExecutor( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -82,7 +82,7 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the JobExecutor.
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     try {
       meta = (JobExecutorMeta) smi;
       data = (JobExecutorData) sdi;
@@ -227,7 +227,7 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
 
     // Inform the parent pipeline we delegated work here...
     //
-    for ( DelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
+    for ( IDelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
       // TODO: copy some settings in the job execution configuration, not strictly needed
       // but the execution configuration information is useful in case of a job re-start on HopServer
       //
@@ -315,7 +315,7 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
         Object[] targetRow = RowDataUtil.allocateRowData( data.resultRowsOutputRowMeta.size() );
 
         for ( int i = 0; i < meta.getResultRowsField().length; i++ ) {
-          ValueMetaInterface valueMeta = row.getRowMeta().getValueMeta( i );
+          IValueMeta valueMeta = row.getRowMeta().getValueMeta( i );
           if ( valueMeta.getType() != meta.getResultRowsType()[ i ] ) {
             throw new HopException( BaseMessages.getString(
               PKG, "JobExecutor.IncorrectDataTypePassed", valueMeta.getTypeDesc(),
@@ -344,7 +344,7 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
   }
 
   @VisibleForTesting
-  Job createJob( JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
+  Job createJob( JobMeta jobMeta, ILoggingObject parentLogging ) {
     return new Job( jobMeta, parentLogging );
   }
 
@@ -382,7 +382,7 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
       parameters.getVariable(), parameters.getInput(), meta.getParameters().isInheritingAllVariables() );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (JobExecutorMeta) smi;
     data = (JobExecutorData) sdi;
 
@@ -433,13 +433,13 @@ public class JobExecutor extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     data.groupBuffer = null;
 
     super.dispose( smi, sdi );
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( data.executorJob != null ) {
       data.executorJob.stopAll();
     }

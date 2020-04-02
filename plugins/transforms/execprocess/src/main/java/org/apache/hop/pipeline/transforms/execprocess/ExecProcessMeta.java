@@ -23,17 +23,17 @@
 package org.apache.hop.pipeline.transforms.execprocess;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -57,7 +57,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.ExecProcess",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
 )
-public class ExecProcessMeta extends BaseTransformMeta implements TransformMetaInterface<ExecProcess, ExecProcessData> {
+public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -209,27 +209,27 @@ public class ExecProcessMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void getFields(RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                        VariableSpace space, IMetaStore metaStore) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore) throws HopTransformException {
     // Output fields (String)
-    String realOutputFieldname = space.environmentSubstitute(resultfieldname);
+    String realOutputFieldname = variables.environmentSubstitute(resultfieldname);
     if (!Utils.isEmpty(realOutputFieldname)) {
-      ValueMetaInterface v = new ValueMetaString(realOutputFieldname);
+      IValueMeta v = new ValueMetaString(realOutputFieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realerrofieldname = space.environmentSubstitute(errorfieldname);
+    String realerrofieldname = variables.environmentSubstitute(errorfieldname);
     if (!Utils.isEmpty(realerrofieldname)) {
-      ValueMetaInterface v = new ValueMetaString(realerrofieldname);
+      IValueMeta v = new ValueMetaString(realerrofieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realexitvaluefieldname = space.environmentSubstitute(exitvaluefieldname);
+    String realexitvaluefieldname = variables.environmentSubstitute(exitvaluefieldname);
     if (!Utils.isEmpty(realexitvaluefieldname)) {
-      ValueMetaInterface v = new ValueMetaInteger(realexitvaluefieldname);
-      v.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0);
+      IValueMeta v = new ValueMetaInteger(realexitvaluefieldname);
+      v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
@@ -289,8 +289,8 @@ public class ExecProcessMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore) {
     CheckResult cr;
     String error_message = "";
@@ -328,9 +328,9 @@ public class ExecProcessMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ExecProcess createTransform( TransformMeta transformMeta, ExecProcessData transformDataInterface, int cnr,
+  public ExecProcess createTransform( TransformMeta transformMeta, ExecProcessData iTransformData, int cnr,
                                       PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecProcess( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ExecProcess( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.ifnull;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -46,18 +46,18 @@ import java.util.List;
  * @since 30-06-2008
  */
 
-public class IfNull extends BaseTransform implements TransformInterface {
+public class IfNull extends BaseTransform implements ITransform {
   private static Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
 
   private IfNullMeta meta;
   private IfNullData data;
 
-  public IfNull( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public IfNull( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (IfNullMeta) smi;
     data = (IfNullData) sdi;
 
@@ -79,7 +79,7 @@ public class IfNull extends BaseTransform implements TransformInterface {
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
       if ( meta.isSelectFields() ) {
         // Consider only selected fields
@@ -116,8 +116,8 @@ public class IfNull extends BaseTransform implements TransformInterface {
 
           // return all type codes
           HashSet<String> AlllistTypes = new HashSet<String>();
-          for ( int i = 0; i < ValueMetaInterface.typeCodes.length; i++ ) {
-            AlllistTypes.add( ValueMetaInterface.typeCodes[ i ] );
+          for ( int i = 0; i < IValueMeta.typeCodes.length; i++ ) {
+            AlllistTypes.add( IValueMeta.typeCodes[ i ] );
           }
 
           for ( int i = 0; i < meta.getValueTypes().length; i++ ) {
@@ -134,7 +134,7 @@ public class IfNull extends BaseTransform implements TransformInterface {
 
           HashSet<Integer> fieldsSelectedIndex = new HashSet<Integer>();
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
-            ValueMetaInterface fieldMeta = data.outputRowMeta.getValueMeta( i );
+            IValueMeta fieldMeta = data.outputRowMeta.getValueMeta( i );
             if ( data.ListTypes.containsKey( fieldMeta.getTypeDesc() ) ) {
               fieldsSelectedIndex.add( i );
             }
@@ -194,10 +194,10 @@ public class IfNull extends BaseTransform implements TransformInterface {
   private void updateFields( Object[] r ) throws Exception {
     // Loop through fields
     for ( int i = 0; i < data.fieldnr; i++ ) {
-      ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.fieldnrs[ i ] );
+      IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( data.fieldnrs[ i ] );
       if ( data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] ).isNull( r[ data.fieldnrs[ i ] ] ) ) {
         if ( meta.isSelectValuesType() ) {
-          ValueMetaInterface fieldMeta = data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] );
+          IValueMeta fieldMeta = data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] );
           int pos = data.ListTypes.get( fieldMeta.getTypeDesc() );
 
           replaceNull(
@@ -221,14 +221,14 @@ public class IfNull extends BaseTransform implements TransformInterface {
     }
   }
 
-  public void replaceNull( Object[] row, ValueMetaInterface sourceValueMeta, int i, String realReplaceByValue,
+  public void replaceNull( Object[] row, IValueMeta sourceValueMeta, int i, String realReplaceByValue,
                            String realconversionMask, boolean setEmptystring ) throws Exception {
     if ( setEmptystring ) {
       row[ i ] = StringUtil.EMPTY_STRING;
     } else {
       // DO CONVERSION OF THE DEFAULT VALUE ...
       // Entered by user
-      ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( i );
+      IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( i );
       if ( !Utils.isEmpty( realconversionMask ) ) {
         sourceValueMeta.setConversionMask( realconversionMask );
       }
@@ -236,7 +236,7 @@ public class IfNull extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (IfNullMeta) smi;
     data = (IfNullData) sdi;
 

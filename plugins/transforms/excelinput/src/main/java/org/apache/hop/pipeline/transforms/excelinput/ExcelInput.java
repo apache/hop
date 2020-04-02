@@ -25,17 +25,17 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -43,12 +43,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler;
-import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLineNumber;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -65,16 +65,16 @@ import java.util.TimeZone;
  * @author timh
  * @since 19-NOV-2003
  */
-public class ExcelInput extends BaseTransform implements TransformInterface {
+public class ExcelInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ExcelInputMeta meta;
 
   private ExcelInputData data;
 
-  public ExcelInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ExcelInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
     setZipBombConfiguration();
   }
 
@@ -91,7 +91,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     boolean errorHandled = false;
 
     // Set values in the row...
-    KCell cell = null;
+    IKCell cell = null;
 
     for ( int i = startcolumn; i < excelInputRow.cells.length && i - startcolumn < meta.getField().length; i++ ) {
       cell = excelInputRow.cells[ i ];
@@ -103,8 +103,8 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
         continue;
       }
 
-      ValueMetaInterface targetMeta = data.outputRowMeta.getValueMeta( rowcolumn );
-      ValueMetaInterface sourceMeta = null;
+      IValueMeta targetMeta = data.outputRowMeta.getValueMeta( rowcolumn );
+      IValueMeta sourceMeta = null;
 
       try {
         checkType( cell, targetMeta );
@@ -181,7 +181,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
         // Null stays null folks.
         //
         if ( sourceMeta != null && sourceMeta.getType() != targetMeta.getType() && r[ rowcolumn ] != null ) {
-          ValueMetaInterface sourceMetaCopy = sourceMeta.clone();
+          IValueMeta sourceMetaCopy = sourceMeta.clone();
           sourceMetaCopy.setConversionMask( field.getFormat() );
           sourceMetaCopy.setGroupingSymbol( field.getGroupSymbol() );
           sourceMetaCopy.setDecimalSymbol( field.getDecimalSymbol() );
@@ -190,13 +190,13 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
           switch ( targetMeta.getType() ) {
             // Use case: we find a numeric value: convert it using the supplied format to the desired data type...
             //
-            case ValueMetaInterface.TYPE_NUMBER:
-            case ValueMetaInterface.TYPE_INTEGER:
+            case IValueMeta.TYPE_NUMBER:
+            case IValueMeta.TYPE_INTEGER:
               switch ( field.getType() ) {
-                case ValueMetaInterface.TYPE_DATE:
+                case IValueMeta.TYPE_DATE:
                   // number to string conversion (20070522.00 --> "20070522")
                   //
-                  ValueMetaInterface valueMetaNumber = new ValueMetaNumber( "num" );
+                  IValueMeta valueMetaNumber = new ValueMetaNumber( "num" );
                   valueMetaNumber.setConversionMask( "#" );
                   Object string = sourceMetaCopy.convertData( valueMetaNumber, r[ rowcolumn ] );
 
@@ -307,31 +307,31 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     return r;
   }
 
-  private void checkType( KCell cell, ValueMetaInterface v ) throws HopException {
+  private void checkType( IKCell cell, IValueMeta v ) throws HopException {
     if ( !meta.isStrictTypes() ) {
       return;
     }
     switch ( cell.getType() ) {
       case BOOLEAN:
-        if ( !( v.getType() == ValueMetaInterface.TYPE_STRING || v.getType() == ValueMetaInterface.TYPE_NONE || v
-          .getType() == ValueMetaInterface.TYPE_BOOLEAN ) ) {
+        if ( !( v.getType() == IValueMeta.TYPE_STRING || v.getType() == IValueMeta.TYPE_NONE || v
+          .getType() == IValueMeta.TYPE_BOOLEAN ) ) {
           throw new HopException( BaseMessages.getString( PKG, "ExcelInput.Exception.InvalidTypeBoolean", v
             .getTypeDesc() ) );
         }
         break;
 
       case DATE:
-        if ( !( v.getType() == ValueMetaInterface.TYPE_STRING || v.getType() == ValueMetaInterface.TYPE_NONE || v
-          .getType() == ValueMetaInterface.TYPE_DATE ) ) {
+        if ( !( v.getType() == IValueMeta.TYPE_STRING || v.getType() == IValueMeta.TYPE_NONE || v
+          .getType() == IValueMeta.TYPE_DATE ) ) {
           throw new HopException( BaseMessages.getString( PKG, "ExcelInput.Exception.InvalidTypeDate", cell
             .getContents(), v.getTypeDesc() ) );
         }
         break;
 
       case LABEL:
-        if ( v.getType() == ValueMetaInterface.TYPE_BOOLEAN
-          || v.getType() == ValueMetaInterface.TYPE_DATE || v.getType() == ValueMetaInterface.TYPE_INTEGER
-          || v.getType() == ValueMetaInterface.TYPE_NUMBER ) {
+        if ( v.getType() == IValueMeta.TYPE_BOOLEAN
+          || v.getType() == IValueMeta.TYPE_DATE || v.getType() == IValueMeta.TYPE_INTEGER
+          || v.getType() == IValueMeta.TYPE_NUMBER ) {
           throw new HopException( BaseMessages.getString( PKG, "ExcelInput.Exception.InvalidTypeLabel", cell
             .getContents(), v.getTypeDesc() ) );
         }
@@ -342,9 +342,9 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
         break;
 
       case NUMBER:
-        if ( !( v.getType() == ValueMetaInterface.TYPE_STRING
-          || v.getType() == ValueMetaInterface.TYPE_NONE || v.getType() == ValueMetaInterface.TYPE_INTEGER
-          || v.getType() == ValueMetaInterface.TYPE_BIGNUMBER || v.getType() == ValueMetaInterface.TYPE_NUMBER ) ) {
+        if ( !( v.getType() == IValueMeta.TYPE_STRING
+          || v.getType() == IValueMeta.TYPE_NONE || v.getType() == IValueMeta.TYPE_INTEGER
+          || v.getType() == IValueMeta.TYPE_BIGNUMBER || v.getType() == IValueMeta.TYPE_NUMBER ) ) {
           throw new HopException( BaseMessages.getString( PKG, "ExcelInput.Exception.InvalidTypeNumber", cell
             .getContents(), v.getTypeDesc() ) );
         }
@@ -356,7 +356,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 
@@ -371,7 +371,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
         data.files.getFiles().clear();
 
         int idx = -1;
-        RowSet rowSet = findInputRowSet( meta.getAcceptingTransformName() );
+        IRowSet rowSet = findInputRowSet( meta.getAcceptingTransformName() );
         Object[] fileRow = getRowFrom( rowSet );
         while ( fileRow != null ) {
           if ( idx < 0 ) {
@@ -429,7 +429,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
       // OK, see if we need to repeat values.
       if ( data.previousRow != null ) {
         for ( int i = 0; i < meta.getField().length; i++ ) {
-          ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( i );
+          IValueMeta valueMeta = data.outputRowMeta.getValueMeta( i );
           Object valueData = r[ i ];
 
           if ( valueMeta.isNull( valueData ) && meta.getField()[ i ].isRepeated() ) {
@@ -570,7 +570,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
       }
 
       String sheetName = data.sheetNames[ data.sheetnr ];
-      KSheet sheet = data.workbook.getSheet( sheetName );
+      IKSheet sheet = data.workbook.getSheet( sheetName );
       if ( sheet != null ) {
         // at what row do we continue reading?
         if ( data.rownr < 0 ) {
@@ -586,7 +586,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
 
         // Build a new row and fill in the data from the sheet...
         try {
-          KCell[] line = sheet.getRow( data.rownr );
+          IKCell[] line = sheet.getRow( data.rownr );
           // Already increase cursor 1 row
           int lineNr = ++data.rownr;
           // Excel starts counting at 0
@@ -664,7 +664,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     return retval;
   }
 
-  private boolean isLineEmpty( KCell[] line ) {
+  private boolean isLineEmpty( IKCell[] line ) {
     if ( line.length == 0 ) {
       return true;
     }
@@ -698,7 +698,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
   }
 
   private void initErrorHandling() {
-    List<FileErrorHandler> errorHandlers = new ArrayList<>( 2 );
+    List<IFileErrorHandler> errorHandlers = new ArrayList<>( 2 );
 
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       errorHandlers.add( new FileErrorHandlerContentLineNumber(
@@ -759,7 +759,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     ZipSecureFile.setMaxTextSize( maxTextSize );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 
@@ -821,7 +821,7 @@ public class ExcelInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( ITransformMeta smi, ITransformData sdi ) {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 

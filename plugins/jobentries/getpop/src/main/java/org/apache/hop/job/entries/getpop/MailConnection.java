@@ -29,7 +29,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -138,7 +138,7 @@ public class MailConnection {
    */
   private Folder destinationIMAPFolder = null;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   /**
    * Construct a new Database MailConnection
@@ -151,7 +151,7 @@ public class MailConnection {
    * @param useproxy      specify if we use proxy authentication
    * @param proxyusername proxy authorised user
    */
-  public MailConnection( LogChannelInterface log, int protocol, String server, int port, String username,
+  public MailConnection( ILogChannel log, int protocol, String server, int port, String username,
                          String password, boolean usessl, boolean useproxy, String proxyusername ) throws HopException {
 
     this.log = log;

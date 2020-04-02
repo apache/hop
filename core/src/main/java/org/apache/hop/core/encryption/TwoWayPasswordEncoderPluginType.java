@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -37,9 +37,9 @@ import java.util.Map;
  * @author matt
  */
 
-@PluginMainClassType( TwoWayPasswordEncoderInterface.class )
+@PluginMainClassType( ITwoWayPasswordEncoder.class )
 @PluginAnnotationType( TwoWayPasswordEncoderPlugin.class )
-public class TwoWayPasswordEncoderPluginType extends BasePluginType implements PluginTypeInterface {
+public class TwoWayPasswordEncoderPluginType extends BasePluginType implements IPluginType {
 
   private static TwoWayPasswordEncoderPluginType twoWayPasswordEncoderPluginType;
 

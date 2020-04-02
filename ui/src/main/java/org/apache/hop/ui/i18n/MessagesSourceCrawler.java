@@ -27,7 +27,7 @@ import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -79,7 +79,7 @@ public class MessagesSourceCrawler {
   private Pattern stringPkgPattern;
   private List<Pattern> classPkgPatterns;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   public MessagesSourceCrawler() {
     this.scanPhrases = new ArrayList<>();
@@ -98,7 +98,7 @@ public class MessagesSourceCrawler {
     );
   }
 
-  public MessagesSourceCrawler( LogChannelInterface log, String rootFolder, BundlesStore bundlesStore ) throws HopException {
+  public MessagesSourceCrawler( ILogChannel log, String rootFolder, BundlesStore bundlesStore ) throws HopException {
     this();
     this.log = log;
     this.bundlesStore = bundlesStore;
@@ -643,14 +643,14 @@ public class MessagesSourceCrawler {
    *
    * @return value of log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 
   /**
    * @param log The log to set
    */
-  public void setLog( LogChannelInterface log ) {
+  public void setLog( ILogChannel log ) {
     this.log = log;
   }
 }

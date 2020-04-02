@@ -29,8 +29,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntrySQLDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntrySQL.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] {
@@ -138,7 +138,7 @@ public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogI
   private TextVar wFilename;
   private FormData fdlFilename, fdbFilename, fdFilename;
 
-  public JobEntrySQLDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntrySQLDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySQL) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -146,7 +146,7 @@ public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogI
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

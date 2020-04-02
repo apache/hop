@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,23 +46,23 @@ import static org.mockito.Mockito.when;
 public class RowProducerTest {
 
   RowProducer rowProducer;
-  TransformInterface transformInterface;
-  RowSet rowSet;
-  RowMetaInterface rowMeta;
+  ITransform iTransform;
+  IRowSet rowSet;
+  IRowMeta rowMeta;
   Object[] rowData;
 
   @Before
   public void setUp() throws Exception {
-    transformInterface = mock( TransformInterface.class );
-    rowSet = mock( RowSet.class );
-    rowProducer = new RowProducer( transformInterface, rowSet );
-    rowMeta = mock( RowMetaInterface.class );
+    iTransform = mock( ITransform.class );
+    rowSet = mock( IRowSet.class );
+    rowProducer = new RowProducer( iTransform, rowSet );
+    rowMeta = mock( IRowMeta.class );
     rowData = new Object[] {};
   }
 
   @Test
   public void testPutRow2Arg() throws Exception {
-    when( rowSet.putRowWait( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), any( TimeUnit.class ) ) )
+    when( rowSet.putRowWait( any( IRowMeta.class ), any( Object[].class ), anyLong(), any( TimeUnit.class ) ) )
       .thenReturn( true );
     rowProducer.putRow( rowMeta, rowData );
     verify( rowSet, times( 1 ) ).putRowWait( rowMeta, rowData, Long.MAX_VALUE, TimeUnit.DAYS );
@@ -71,7 +71,7 @@ public class RowProducerTest {
 
   @Test
   public void testPutRow3Arg() throws Exception {
-    when( rowSet.putRowWait( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), any( TimeUnit.class ) ) )
+    when( rowSet.putRowWait( any( IRowMeta.class ), any( Object[].class ), anyLong(), any( TimeUnit.class ) ) )
       .thenReturn( true );
 
     rowProducer.putRow( rowMeta, rowData, false );
@@ -95,17 +95,17 @@ public class RowProducerTest {
     assertEquals( rowSet, rowProducer.getRowSet() );
     rowProducer.setRowSet( null );
     assertNull( rowProducer.getRowSet() );
-    RowSet newRowSet = mock( RowSet.class );
+    IRowSet newRowSet = mock( IRowSet.class );
     rowProducer.setRowSet( newRowSet );
     assertEquals( newRowSet, rowProducer.getRowSet() );
   }
 
   @Test
   public void testGetSetTransformInterface() throws Exception {
-    assertEquals( transformInterface, rowProducer.getTransformInterface() );
+    assertEquals( iTransform, rowProducer.getTransformInterface() );
     rowProducer.setTransformInterface( null );
     assertNull( rowProducer.getTransformInterface() );
-    TransformInterface newTransformInterface = mock( TransformInterface.class );
+    ITransform newTransformInterface = mock( ITransform.class );
     rowProducer.setTransformInterface( newTransformInterface );
     assertEquals( newTransformInterface, rowProducer.getTransformInterface() );
   }

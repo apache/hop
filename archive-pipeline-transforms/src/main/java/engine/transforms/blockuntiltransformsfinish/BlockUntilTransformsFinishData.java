@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,13 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Samatar
  * @since 16-06-2008
  */
-public class BlockUntilTransformsFinishData extends BaseTransformData implements TransformDataInterface {
+public class BlockUntilTransformsFinishData extends BaseTransformData implements ITransformData {
 
   /**
    *
    */
   boolean continueLoop;
-  public ConcurrentHashMap<Integer, TransformInterface> transformInterfaces;
+  public ConcurrentHashMap<Integer, ITransform> transformInterfaces;
 
   public BlockUntilTransformsFinishData() {
     super();

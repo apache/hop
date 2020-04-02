@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 
-public abstract class BodyHttpServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = 6576714217004890327L;
   private final PackageMessages messages;

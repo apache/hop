@@ -31,12 +31,12 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -64,7 +64,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.TableOutput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
 )
-public class TableOutputMeta extends BaseTransformMeta implements TransformMetaInterface<TableOutput, TableOutputData>, ProvidesModelerMeta {
+public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
@@ -481,23 +481,23 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     return retval.toString();
   }
 
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Just add the returning key field...
     if ( returningGeneratedKeys && generatedKeyField != null && generatedKeyField.length() > 0 ) {
-      ValueMetaInterface key =
-        new ValueMetaInteger( space.environmentSubstitute( generatedKeyField ) );
+      IValueMeta key =
+        new ValueMetaInteger( variables.environmentSubstitute( generatedKeyField ) );
       key.setOrigin( origin );
       row.addValueMeta( key );
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ConnectionExists" ), transformMeta );
       remarks.add( cr );
 
@@ -507,7 +507,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
         db.connect();
 
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "TableOutputMeta.CheckResult.ConnectionOk" ), transformMeta );
         remarks.add( cr );
 
@@ -519,14 +519,14 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
           // Check if this table exists...
           if ( db.checkTableExists( realSchemaName, realTableName ) ) {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "TableOutputMeta.CheckResult.TableAccessible", schemaTable ), transformMeta );
             remarks.add( cr );
 
-            RowMetaInterface r = db.getTableFieldsMeta( realSchemaName, realTableName );
+            IRowMeta r = db.getTableFieldsMeta( realSchemaName, realTableName );
             if ( r != null ) {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "TableOutputMeta.CheckResult.TableOk", schemaTable ), transformMeta );
               remarks.add( cr );
 
@@ -536,14 +536,14 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
               // Now see what we can find as previous transform...
               if ( prev != null && prev.size() > 0 ) {
                 cr =
-                  new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                  new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                     PKG, "TableOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
                 remarks.add( cr );
 
                 if ( !specifyFields() ) {
                   // Starting from prev...
                   for ( int i = 0; i < prev.size(); i++ ) {
-                    ValueMetaInterface pv = prev.getValueMeta( i );
+                    IValueMeta pv = prev.getValueMeta( i );
                     int idx = r.indexOfValue( pv.getName() );
                     if ( idx < 0 ) {
                       error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
@@ -555,11 +555,11 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
                       BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.FieldsNotFoundInOutput", error_message );
 
-                    cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                      new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.AllFieldsFoundInOutput" ), transformMeta );
                     remarks.add( cr );
                   }
@@ -577,11 +577,11 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
                       BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotInTable", error_message );
 
-                    cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                      new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.AllFieldsFoundInOutput" ), transformMeta );
                     remarks.add( cr );
                   }
@@ -591,7 +591,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
                 if ( !specifyFields() ) {
                   // Starting from table fields in r...
                   for ( int i = 0; i < getFieldDatabase().length; i++ ) {
-                    ValueMetaInterface rv = r.getValueMeta( i );
+                    IValueMeta rv = r.getValueMeta( i );
                     int idx = prev.indexOfValue( rv.getName() );
                     if ( idx < 0 ) {
                       error_message += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
@@ -602,11 +602,11 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
                     error_message =
                       BaseMessages.getString( PKG, "TableOutputMeta.CheckResult.FieldsNotFound", error_message );
 
-                    cr = new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, error_message, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                      new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.AllFieldsFound" ), transformMeta );
                     remarks.add( cr );
                   }
@@ -624,42 +624,42 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
                       BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotFound", error_message );
 
-                    cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+                      new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                         PKG, "TableOutputMeta.CheckResult.AllFieldsFound" ), transformMeta );
                     remarks.add( cr );
                   }
                 }
               } else {
                 cr =
-                  new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+                  new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
                     PKG, "TableOutputMeta.CheckResult.NoFields" ), transformMeta );
                 remarks.add( cr );
               }
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+                new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
                   PKG, "TableOutputMeta.CheckResult.TableNotAccessible" ), transformMeta );
               remarks.add( cr );
             }
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+              new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
                 PKG, "TableOutputMeta.CheckResult.TableError", schemaTable ), transformMeta );
             remarks.add( cr );
           }
         } else {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
               PKG, "TableOutputMeta.CheckResult.NoTableName" ), transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "TableOutputMeta.CheckResult.UndefinedError", e.getMessage() ), transformMeta );
         remarks.add( cr );
       } finally {
@@ -667,7 +667,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
       }
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.NoConnection" ), transformMeta );
       remarks.add( cr );
     }
@@ -675,20 +675,20 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public TransformInterface createTransform( TransformMeta transformMeta, TableOutputData transformDataInterface, int cnr,
-                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TableOutput( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, TableOutputData iTransformData, int cnr,
+                                     PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new TableOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public TableOutputData getTransformData() {
@@ -696,7 +696,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
@@ -709,7 +709,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     // The values that are entering this transform are in "prev":
     if ( prev != null ) {
       for ( int i = 0; i < prev.size(); i++ ) {
-        ValueMetaInterface v = prev.getValueMeta( i );
+        IValueMeta v = prev.getValueMeta( i );
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
@@ -720,12 +720,12 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     return getSQLStatements( pipelineMeta, transformMeta, prev, null, false, null );
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev, String tk,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
                                         boolean use_autoinc, String pk ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -765,9 +765,9 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     return retval;
   }
 
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
-    String realTableName = space.environmentSubstitute( tableName );
-    String realSchemaName = space.environmentSubstitute( schemaName );
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
+    String realTableName = variables.environmentSubstitute( tableName );
+    String realSchemaName = variables.environmentSubstitute( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -818,7 +818,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     this.fieldStream = fieldStream;
   }
 
-  @Override public RowMeta getRowMeta( TransformDataInterface transformData ) {
+  @Override public RowMeta getRowMeta( ITransformData transformData ) {
     return (RowMeta) ( (TableOutputData) transformData ).insertRowMeta;
   }
 
@@ -867,7 +867,7 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
 
   public boolean supportsErrorHandling() {
     if ( databaseMeta != null ) {
-      return databaseMeta.getDatabaseInterface().supportsErrorHandling();
+      return databaseMeta.getIDatabase().supportsErrorHandling();
     } else {
       return true;
     }

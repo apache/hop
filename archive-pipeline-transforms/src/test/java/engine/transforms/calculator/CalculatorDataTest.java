@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,8 +41,8 @@ public class CalculatorDataTest {
     HopEnvironment.init();
 
     CalculatorData data = new CalculatorData();
-    ValueMetaInterface valueMeta = data.getValueMetaFor( ValueMetaInterface.TYPE_INTEGER, null );
-    ValueMetaInterface shouldBeTheSame = data.getValueMetaFor( ValueMetaInterface.TYPE_INTEGER, null );
+    IValueMeta valueMeta = data.getValueMetaFor( IValueMeta.TYPE_INTEGER, null );
+    IValueMeta shouldBeTheSame = data.getValueMetaFor( IValueMeta.TYPE_INTEGER, null );
     assertTrue( "CalculatorData should cache loaded value meta instances", valueMeta == shouldBeTheSame );
   }
 }

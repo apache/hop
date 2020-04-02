@@ -24,8 +24,8 @@ package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.SortedFileOutputStream;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -144,7 +144,7 @@ public class Props implements Cloneable {
   private static final String STRING_MAX_LOG_LINE_TIMEOUT_MINUTES = "MaxLogLineTimeOutMinutes";
   public static final String STRING_RECENT_SEARCHES = "RecentSearches";
 
-  protected LogChannelInterface log;
+  protected ILogChannel log;
   protected Properties properties;
 
   protected ArrayList<ObjectUsageCount> pluginHistory;
@@ -375,7 +375,7 @@ public class Props implements Cloneable {
    * @param value The value to determine the argument number for
    * @return The argument number
    */
-  public static final int getArgumentNumber( ValueMetaInterface value ) {
+  public static final int getArgumentNumber( IValueMeta value ) {
     if ( value != null && value.getName().startsWith( Props.STRING_ARGUMENT_NAME_PREFIX ) ) {
       return Const.toInt( value.getName().substring( Props.STRING_ARGUMENT_NAME_PREFIX.length() ), -1 );
     }
@@ -385,7 +385,7 @@ public class Props implements Cloneable {
   public static final String[] convertArguments( RowMetaAndData row ) {
     String[] args = new String[ 10 ];
     for ( int i = 0; i < row.size(); i++ ) {
-      ValueMetaInterface valueMeta = row.getValueMeta( i );
+      IValueMeta valueMeta = row.getValueMeta( i );
       int argNr = getArgumentNumber( valueMeta );
       if ( argNr >= 0 && argNr < 10 ) {
         try {

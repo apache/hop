@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -59,7 +59,7 @@ import java.util.List;
         description = "BaseTransform.TypeTooltipDesc.Calculator",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
-public class CalculatorMeta extends BaseTransformMeta implements TransformMetaInterface<Calculator, CalculatorData> {
+public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<Calculator, CalculatorData> {
 
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -157,25 +157,25 @@ public class CalculatorMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     for ( CalculatorMetaFunction fn : calculation ) {
       if ( !fn.isRemovedFromResult() ) {
         if ( !Utils.isEmpty( fn.getFieldName() ) ) { // It's a new field!
-          ValueMetaInterface v = getValueMeta( fn, origin );
+          IValueMeta v = getValueMeta( fn, origin );
           row.addValueMeta( v );
         }
       }
     }
   }
 
-  private ValueMetaInterface getValueMeta( CalculatorMetaFunction fn, String origin ) {
-    ValueMetaInterface v;
+  private IValueMeta getValueMeta( CalculatorMetaFunction fn, String origin ) {
+    IValueMeta v;
     // What if the user didn't specify a data type?
     // In that case we look for the default data type
     //
     int defaultResultType = fn.getValueType();
-    if ( defaultResultType == ValueMetaInterface.TYPE_NONE ) {
+    if ( defaultResultType == IValueMeta.TYPE_NONE ) {
       defaultResultType = CalculatorMetaFunction.getCalcFunctionDefaultResultType( fn.getCalcType() );
     }
     try {
@@ -195,12 +195,12 @@ public class CalculatorMeta extends BaseTransformMeta implements TransformMetaIn
     return v;
   }
 
-  public RowMetaInterface getAllFields( RowMetaInterface inputRowMeta ) {
-    RowMetaInterface rowMeta = inputRowMeta.clone();
+  public IRowMeta getAllFields( IRowMeta inputRowMeta ) {
+    IRowMeta rowMeta = inputRowMeta.clone();
 
     for ( CalculatorMetaFunction fn : getCalculation() ) {
       if ( !Utils.isEmpty( fn.getFieldName() ) ) { // It's a new field!
-        ValueMetaInterface v = getValueMeta( fn, null );
+        IValueMeta v = getValueMeta( fn, null );
         rowMeta.addValueMeta( v );
       }
     }
@@ -208,41 +208,41 @@ public class CalculatorMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "CalculatorMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
 
       if ( prev == null || prev.size() == 0 ) {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
             PKG, "CalculatorMeta.CheckResult.ExpectedInputError" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "CalculatorMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "CalculatorMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public Calculator createTransform( TransformMeta transformMeta, CalculatorData transformDataInterface, int cnr, PipelineMeta tr,
+  public Calculator createTransform( TransformMeta transformMeta, CalculatorData iTransformData, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new Calculator( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new Calculator( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override

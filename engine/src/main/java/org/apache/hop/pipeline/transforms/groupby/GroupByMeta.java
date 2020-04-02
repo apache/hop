@@ -23,27 +23,27 @@
 package org.apache.hop.pipeline.transforms.groupby;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -52,7 +52,7 @@ import java.util.List;
  * Created on 02-jun-2003
  */
 
-public class GroupByMeta extends BaseTransformMeta implements TransformMetaInterface<GroupBy, GroupByData> {
+public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
 
   private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -440,17 +440,17 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
   }
 
   @Override
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) {
     // re-assemble a new row of metadata
     //
-    RowMetaInterface fields = new RowMeta();
+    IRowMeta fields = new RowMeta();
 
     if ( !passAllRows ) {
       // Add the grouping fields in the correct order...
       //
       for ( int i = 0; i < groupField.length; i++ ) {
-        ValueMetaInterface valueMeta = rowMeta.searchValueMeta( groupField[ i ] );
+        IValueMeta valueMeta = rowMeta.searchValueMeta( groupField[ i ] );
         if ( valueMeta != null ) {
           fields.addValueMeta( valueMeta );
         }
@@ -464,10 +464,10 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
     // Re-add aggregates
     //
     for ( int i = 0; i < subjectField.length; i++ ) {
-      ValueMetaInterface subj = rowMeta.searchValueMeta( subjectField[ i ] );
+      IValueMeta subj = rowMeta.searchValueMeta( subjectField[ i ] );
       if ( subj != null || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
         String valueName = aggregateField[ i ];
-        int valueType = ValueMetaInterface.TYPE_NONE;
+        int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
@@ -487,20 +487,20 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
           case TYPE_GROUP_COUNT_DISTINCT:
           case TYPE_GROUP_COUNT_ANY:
           case TYPE_GROUP_COUNT_ALL:
-            valueType = ValueMetaInterface.TYPE_INTEGER;
+            valueType = IValueMeta.TYPE_INTEGER;
             break;
           case TYPE_GROUP_CONCAT_COMMA:
-            valueType = ValueMetaInterface.TYPE_STRING;
+            valueType = IValueMeta.TYPE_STRING;
             break;
           case TYPE_GROUP_STANDARD_DEVIATION:
           case TYPE_GROUP_MEDIAN:
           case TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
           case TYPE_GROUP_PERCENTILE:
           case TYPE_GROUP_PERCENTILE_NEAREST_RANK:
-            valueType = ValueMetaInterface.TYPE_NUMBER;
+            valueType = IValueMeta.TYPE_NUMBER;
             break;
           case TYPE_GROUP_CONCAT_STRING:
-            valueType = ValueMetaInterface.TYPE_STRING;
+            valueType = IValueMeta.TYPE_STRING;
             break;
           default:
             break;
@@ -508,26 +508,26 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
 
         // Change type from integer to number in case off averages for cumulative average
         //
-        if ( aggregateType[ i ] == TYPE_GROUP_CUMULATIVE_AVERAGE && valueType == ValueMetaInterface.TYPE_INTEGER ) {
-          valueType = ValueMetaInterface.TYPE_NUMBER;
+        if ( aggregateType[ i ] == TYPE_GROUP_CUMULATIVE_AVERAGE && valueType == IValueMeta.TYPE_INTEGER ) {
+          valueType = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
         } else if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
           || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
-          length = ValueMetaInterface.DEFAULT_INTEGER_LENGTH;
+          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
           precision = 0;
         } else if ( aggregateType[ i ] == TYPE_GROUP_SUM
-          && valueType != ValueMetaInterface.TYPE_INTEGER && valueType != ValueMetaInterface.TYPE_NUMBER
-          && valueType != ValueMetaInterface.TYPE_BIGNUMBER ) {
+          && valueType != IValueMeta.TYPE_INTEGER && valueType != IValueMeta.TYPE_NUMBER
+          && valueType != IValueMeta.TYPE_BIGNUMBER ) {
           // If it ain't numeric, we change it to Number
           //
-          valueType = ValueMetaInterface.TYPE_NUMBER;
+          valueType = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
         }
 
-        if ( valueType != ValueMetaInterface.TYPE_NONE ) {
-          ValueMetaInterface v;
+        if ( valueType != IValueMeta.TYPE_NONE ) {
+          IValueMeta v;
           try {
             v = ValueMetaFactory.createValueMeta( valueName, valueType );
           } catch ( HopPluginException e ) {
@@ -548,8 +548,8 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
     if ( passAllRows ) {
       // If we pass all rows, we can add a line nr in the group...
       if ( addingLineNrInGroup && !Utils.isEmpty( lineNrInGroupField ) ) {
-        ValueMetaInterface lineNr = new ValueMetaInteger( lineNrInGroupField );
-        lineNr.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
+        IValueMeta lineNr = new ValueMetaInteger( lineNrInGroupField );
+        lineNr.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
         lineNr.setOrigin( origin );
         fields.addValueMeta( lineNr );
       }
@@ -598,28 +598,28 @@ public class GroupByMeta extends BaseTransformMeta implements TransformMetaInter
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "GroupByMeta.CheckResult.ReceivingInfoOK" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "GroupByMeta.CheckResult.NoInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public TransformInterface createTransform( TransformMeta transformMeta, GroupByData transformDataInterface, int cnr,
-                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GroupBy( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+  public ITransform createTransform( TransformMeta transformMeta, GroupByData iTransformData, int cnr,
+                                     PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new GroupBy( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

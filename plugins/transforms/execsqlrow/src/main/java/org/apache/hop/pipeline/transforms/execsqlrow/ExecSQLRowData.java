@@ -24,19 +24,19 @@ package org.apache.hop.pipeline.transforms.execsqlrow;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 20-jan-2005
  */
-public class ExecSQLRowData extends BaseTransformData implements TransformDataInterface {
+public class ExecSQLRowData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;
   public int indexOfSQLFieldname;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public ExecSQLRowData() {
     super();

@@ -24,20 +24,20 @@ package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -49,7 +49,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-public class DenormaliserDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   public static final String STRING_SORT_WARNING_PARAMETER = "PivotSortWarning";
@@ -493,7 +493,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements Transform
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wGroup, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
       }
@@ -509,12 +509,12 @@ public class DenormaliserDialog extends BaseTransformDialog implements Transform
     wGroup.removeEmptyRows();
     final String[] groupingFields = wGroup.getItems( 0 );
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wTarget, 2, new int[] {}, new int[] {}, -1, -1, new TableItemInsertListener() {
+          r, wTarget, 2, new int[] {}, new int[] {}, -1, -1, new ITableItemInsertListener() {
             @Override
-            public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
               if ( Const.indexOfString( v.getName(), groupingFields ) < 0 ) { // Not a grouping field
                 if ( !wKeyField.getText().equalsIgnoreCase( v.getName() ) ) { // Not the key field
                   int nr = tableItem.getParent().indexOf( tableItem ) + 1;
@@ -546,7 +546,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements Transform
       String keyValue = wKeyField.getText();
       try {
         wKeyField.removeAll();
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
 
         if ( r != null ) {
           r.getFieldNames();

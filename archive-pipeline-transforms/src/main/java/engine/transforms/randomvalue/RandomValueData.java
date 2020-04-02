@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.randomvalue;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.UUID4Util;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.crypto.KeyGenerator;
 import java.util.Random;
@@ -34,10 +34,10 @@ import java.util.Random;
  * @author Samatar Hassan
  * @since 24-jan-2005
  */
-public class RandomValueData extends BaseTransformData implements TransformDataInterface {
+public class RandomValueData extends BaseTransformData implements ITransformData {
   public boolean readsRows;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public UUID4Util u4;
   /* Generating a random Message Authentication Code (MAC MD5) */

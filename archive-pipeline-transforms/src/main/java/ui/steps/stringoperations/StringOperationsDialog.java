@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.stringoperations;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.stringoperations.StringOperationsMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -70,7 +70,7 @@ import java.util.Set;
  * @author Samatar Hassan
  * @since 02 April 2009
  */
-public class StringOperationsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -279,7 +279,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements Trans
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
             if ( row != null ) {
               // Remember these fields...
               for ( int i = 0; i < row.size(); i++ ) {
@@ -415,11 +415,11 @@ public class StringOperationsDialog extends BaseTransformDialog implements Trans
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
-            if ( v.getType() == ValueMetaInterface.TYPE_STRING ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
+            if ( v.getType() == IValueMeta.TYPE_STRING ) {
               // Only process strings
               tableItem.setText( 3, BaseMessages.getString( PKG, "StringOperationsMeta.TrimType.None" ) );
               tableItem.setText( 4, BaseMessages.getString( PKG, "StringOperationsMeta.LowerUpper.None" ) );

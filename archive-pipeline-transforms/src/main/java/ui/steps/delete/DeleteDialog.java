@@ -27,13 +27,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.delete.DeleteMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -76,7 +76,7 @@ import java.util.Set;
  * @author Tom
  * @since 28-March-2006
  */
-public class DeleteDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -310,7 +310,7 @@ public class DeleteDialog extends BaseTransformDialog implements TransformDialog
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -485,7 +485,7 @@ public class DeleteDialog extends BaseTransformDialog implements TransformDialog
               try {
                 db.connect();
 
-                RowMetaInterface r =
+                IRowMeta r =
                   db.getTableFieldsMeta(
                     pipelineMeta.environmentSubstitute( schemaName ),
                     pipelineMeta.environmentSubstitute( tableName ) );
@@ -628,10 +628,10 @@ public class DeleteDialog extends BaseTransformDialog implements TransformDialog
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, "=" );
             return true;
           }

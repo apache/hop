@@ -63,12 +63,12 @@ public class ConstantTest {
   public void setUp() throws Exception {
 
     mockHelper = new TransformMockHelper<>( "Add Constants", ConstantMeta.class, ConstantData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
-    doReturn( rowMetaAndData ).when( mockHelper.transformDataInterface ).getConstants();
-    constantSpy = Mockito.spy( new Constant( mockHelper.transformMeta, mockHelper.transformDataInterface, 0,
+    doReturn( rowMetaAndData ).when( mockHelper.iTransformData ).getConstants();
+    constantSpy = Mockito.spy( new Constant( mockHelper.transformMeta, mockHelper.iTransformData, 0,
       mockHelper.pipelineMeta, mockHelper.pipeline ) );
   }
 

@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This implementation provides a simple XmlMetaStoreCache.
+ * This implementation provides a simple IXmlMetaStoreCache.
  * It uses strong references thus client should clear it manually.
  */
-public class PersistentXmlMetaStoreCache extends BaseXmlMetaStoreCache implements XmlMetaStoreCache {
+public class PersistentXmlMetaStoreCache extends BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
 
   @Override
   protected <K, V> Map<K, V> createStorage() {

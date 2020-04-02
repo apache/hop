@@ -34,7 +34,7 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 
-public class GetSlavesServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = GetSlavesServlet.class; // for i18n purposes,
   // needed by
   // Translator!!

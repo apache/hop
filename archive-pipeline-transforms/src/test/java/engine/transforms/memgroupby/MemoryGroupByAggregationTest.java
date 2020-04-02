@@ -39,8 +39,8 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -350,7 +350,7 @@ public class MemoryGroupByAggregationTest {
     // Spy on transform, regrettable but we need to easily inject rows
     MemoryGroupBy transform = spy( new MemoryGroupBy( transformMeta, data, 0, pipelineMeta, mock( Pipeline.class ) ) );
     transform.copyVariablesFrom( variables );
-    doNothing().when( transform ).putRow( (RowMetaInterface) any(), (Object[]) any() );
+    doNothing().when( transform ).putRow( (IRowMeta) any(), (Object[]) any() );
     doNothing().when( transform ).setOutputDone();
 
     // Process rows
@@ -359,7 +359,7 @@ public class MemoryGroupByAggregationTest {
       doReturn( row ).when( transform ).getRow();
       assertThat( transform.processRow( meta, data ), is( true ) );
     }
-    verify( transform, never() ).putRow( (RowMetaInterface) any(), (Object[]) any() );
+    verify( transform, never() ).putRow( (IRowMeta) any(), (Object[]) any() );
 
     // Mark stop
     doReturn( null ).when( transform ).getRow();
@@ -367,14 +367,14 @@ public class MemoryGroupByAggregationTest {
     verify( transform ).setOutputDone();
 
     // Collect output
-    ArgumentCaptor<RowMetaInterface> rowMetaCaptor = ArgumentCaptor.forClass( RowMetaInterface.class );
+    ArgumentCaptor<IRowMeta> rowMetaCaptor = ArgumentCaptor.forClass( IRowMeta.class );
     ArgumentCaptor<Object[]> rowCaptor = ArgumentCaptor.forClass( Object[].class );
     verify( transform ).putRow( rowMetaCaptor.capture(), rowCaptor.capture() );
 
     return new RowMetaAndData( rowMetaCaptor.getValue(), rowCaptor.getValue() );
   }
 
-  private void addColumn( ValueMetaInterface meta, Object... values ) {
+  private void addColumn( IValueMeta meta, Object... values ) {
     int column = rowMeta.size();
 
     rowMeta.addValueMeta( meta );

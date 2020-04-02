@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 
 /**
  * Processor of Filters. Kind of inversion principle, and to make unit testing easier.
@@ -41,7 +41,7 @@ public class TextFileFilterProcessor {
   /**
    * @param filters The filters to process
    */
-  public TextFileFilterProcessor( TextFileFilter[] filters, VariableSpace space ) {
+  public TextFileFilterProcessor( TextFileFilter[] filters, IVariables variables ) {
     this.filters = filters;
     this.stopProcessing = false;
 
@@ -51,7 +51,7 @@ public class TextFileFilterProcessor {
     } else {
       filtersString = new String[ filters.length ];
       for ( int f = 0; f < filters.length; f++ ) {
-        filtersString[ f ] = space.environmentSubstitute( filters[ f ].getFilterString() );
+        filtersString[ f ] = variables.environmentSubstitute( filters[ f ].getFilterString() );
       }
     }
   }

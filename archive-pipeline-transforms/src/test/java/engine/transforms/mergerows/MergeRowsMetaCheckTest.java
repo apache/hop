@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.mergerows;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
@@ -55,11 +55,11 @@ public class MergeRowsMetaCheckTest {
   private TransformMeta comparisonTransformMeta;
   private List<CheckResultInterface> remarks;
 
-  protected RowMetaInterface generateRowMetaEmpty() {
+  protected IRowMeta generateRowMetaEmpty() {
     return new RowMeta();
   }
 
-  protected RowMetaInterface generateRowMeta10Strings() {
+  protected IRowMeta generateRowMeta10Strings() {
     RowMeta output = new RowMeta();
     for ( int i = 0; i < 10; i++ ) {
       output.addValueMeta( new ValueMetaString( "row_" + ( i + 1 ) ) );
@@ -67,7 +67,7 @@ public class MergeRowsMetaCheckTest {
     return output;
   }
 
-  protected RowMetaInterface generateRowMeta10MixedTypes() {
+  protected IRowMeta generateRowMeta10MixedTypes() {
     RowMeta output = new RowMeta();
     for ( int i = 0; i < 10; i++ ) {
       if ( i < 5 ) {

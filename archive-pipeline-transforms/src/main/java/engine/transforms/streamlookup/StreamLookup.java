@@ -30,16 +30,16 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashIndex;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -56,15 +56,15 @@ import java.util.Collections;
  * @author Matt
  * @since 26-apr-2003
  */
-public class StreamLookup extends BaseTransform implements TransformInterface {
+public class StreamLookup extends BaseTransform implements ITransform {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private StreamLookupMeta meta;
   private StreamLookupData data;
 
-  public StreamLookup( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public StreamLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private void handleNullIf() {
@@ -73,39 +73,39 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
     for ( int i = 0; i < meta.getValue().length; i++ ) {
       if ( meta.getValueDefaultType()[ i ] < 0 ) {
         //CHECKSTYLE:Indentation:OFF
-        meta.getValueDefaultType()[ i ] = ValueMetaInterface.TYPE_STRING;
+        meta.getValueDefaultType()[ i ] = IValueMeta.TYPE_STRING;
       }
       data.nullIf[ i ] = null;
       switch ( meta.getValueDefaultType()[ i ] ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           if ( Utils.isEmpty( meta.getValueDefault()[ i ] ) ) {
             data.nullIf[ i ] = null;
           } else {
             data.nullIf[ i ] = meta.getValueDefault()[ i ];
           }
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           try {
             data.nullIf[ i ] = DateFormat.getInstance().parse( meta.getValueDefault()[ i ] );
           } catch ( Exception e ) {
             // Ignore errors
           }
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           try {
             data.nullIf[ i ] = Double.parseDouble( meta.getValueDefault()[ i ] );
           } catch ( Exception e ) {
             // Ignore errors
           }
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           try {
             data.nullIf[ i ] = Long.parseLong( meta.getValueDefault()[ i ] );
           } catch ( Exception e ) {
             // Ignore errors
           }
           break;
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           if ( "TRUE".equalsIgnoreCase( meta.getValueDefault()[ i ] )
             || "Y".equalsIgnoreCase( meta.getValueDefault()[ i ] ) ) {
             data.nullIf[ i ] = Boolean.TRUE;
@@ -113,7 +113,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
             data.nullIf[ i ] = Boolean.FALSE;
           }
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           try {
             data.nullIf[ i ] = new BigDecimal( meta.getValueDefault()[ i ] );
           } catch ( Exception e ) {
@@ -165,8 +165,8 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
         data.hasLookupRows = true;
 
         data.infoMeta = rowSet.getRowMeta().clone();
-        RowMetaInterface cacheKeyMeta = new RowMeta();
-        RowMetaInterface cacheValueMeta = new RowMeta();
+        IRowMeta cacheKeyMeta = new RowMeta();
+        IRowMeta cacheValueMeta = new RowMeta();
 
         // Look up the keys in the source rows
         for ( int i = 0; i < meta.getKeylookup().length; i++ ) {
@@ -182,9 +182,9 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
           data.keyTypes = cacheKeyMeta.clone();
         }
 
-        // Cache keys are stored as normal types, not binary
+        // ICache keys are stored as normal types, not binary
         for ( int i = 0; i < keyNrs.length; i++ ) {
-          cacheKeyMeta.getValueMeta( i ).setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          cacheKeyMeta.getValueMeta( i ).setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         }
 
         for ( int v = 0; v < meta.getValue().length; v++ ) {
@@ -202,7 +202,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
 
       Object[] keyData = new Object[ keyNrs.length ];
       for ( int i = 0; i < keyNrs.length; i++ ) {
-        ValueMetaInterface keyMeta = data.keyTypes.getValueMeta( i );
+        IValueMeta keyMeta = data.keyTypes.getValueMeta( i );
         // Convert keys to normal storage type
         keyData[ i ] = keyMeta.convertToNormalStorageType( rowData[ keyNrs[ i ] ] );
       }
@@ -221,7 +221,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private Object[] lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  private Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
     // See if we need to stop.
     if ( isStopped() ) {
       return null;
@@ -256,8 +256,8 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
     // Handle conflicting types (Number-Integer-String conversion to lookup type in hashtable)
     if ( data.keyTypes != null ) {
       for ( int i = 0; i < data.lookupMeta.size(); i++ ) {
-        ValueMetaInterface inputValue = data.lookupMeta.getValueMeta( i );
-        ValueMetaInterface lookupValue = data.keyTypes.getValueMeta( i );
+        IValueMeta inputValue = data.lookupMeta.getValueMeta( i );
+        IValueMeta lookupValue = data.keyTypes.getValueMeta( i );
         if ( inputValue.getType() != lookupValue.getType() ) {
           try {
             // Change the input value to match the lookup value
@@ -292,7 +292,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
     return RowDataUtil.addRowData( row, rowMeta.size(), add );
   }
 
-  private void addToCache( RowMetaInterface keyMeta, Object[] keyData, RowMetaInterface valueMeta,
+  private void addToCache( IRowMeta keyMeta, Object[] keyData, IRowMeta valueMeta,
                            Object[] valueData ) throws HopValueException {
     if ( meta.isMemoryPreservationActive() ) {
       if ( meta.isUsingSortedList() ) {
@@ -335,7 +335,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
     }
   }
 
-  private Object[] getFromCache( RowMetaInterface keyMeta, Object[] keyData ) throws HopValueException {
+  private Object[] getFromCache( IRowMeta keyMeta, Object[] keyData ) throws HopValueException {
     if ( meta.isMemoryPreservationActive() ) {
       if ( meta.isUsingSortedList() ) {
         KeyValue keyValue = new KeyValue( keyData, null );
@@ -372,7 +372,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (StreamLookupMeta) smi;
     data = (StreamLookupData) sdi;
 
@@ -436,7 +436,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new RowMetaInterface[] { data.infoMeta }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metaStore );
 
       // Handle the NULL values (not found...)
       handleNullIf();
@@ -461,7 +461,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (StreamLookupMeta) smi;
     data = (StreamLookupData) sdi;
 
@@ -475,7 +475,7 @@ public class StreamLookup extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     // Recover memory immediately, allow in-memory data to be garbage collected
     //
     data.look = null;

@@ -27,12 +27,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChangedFlag implements ChangedFlagInterface {
-  private Set<HopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<HopObserver, Boolean>() );
+public class ChangedFlag implements IChanged {
+  private Set<IHopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<IHopObserver, Boolean>() );
 
   private AtomicBoolean changed = new AtomicBoolean();
 
-  public void addObserver( HopObserver o ) {
+  public void addObserver( IHopObserver o ) {
     if ( o == null ) {
       throw new NullPointerException();
     }
@@ -40,23 +40,23 @@ public class ChangedFlag implements ChangedFlagInterface {
     validateAdd( o );
   }
 
-  private synchronized void validateAdd( HopObserver o ) {
+  private synchronized void validateAdd( IHopObserver o ) {
     if ( !obs.contains( o ) ) {
       obs.add( o );
     }
   }
 
-  public void deleteObserver( HopObserver o ) {
+  public void deleteObserver( IHopObserver o ) {
     obs.remove( o );
   }
 
   public void notifyObservers( Object arg ) {
 
-    HopObserver[] lobs;
+    IHopObserver[] lobs;
     if ( !changed.get() ) {
       return;
     }
-    lobs = obs.toArray( new HopObserver[ obs.size() ] );
+    lobs = obs.toArray( new IHopObserver[ obs.size() ] );
     clearChanged();
     for ( int i = lobs.length - 1; i >= 0; i-- ) {
       lobs[ i ].update( this, arg );

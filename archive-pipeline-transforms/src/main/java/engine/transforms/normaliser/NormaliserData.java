@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 import java.util.Map;
@@ -33,14 +33,14 @@ import java.util.Map;
  * @author Matt
  * @since 24-jan-2005
  */
-public class NormaliserData extends BaseTransformData implements TransformDataInterface {
+public class NormaliserData extends BaseTransformData implements ITransformData {
   public List<String> type_occ;
   public int maxlen;
   public List<Integer> copy_fieldnrs;
   Map<String, List<Integer>> typeToFieldIndex;
 
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public NormaliserData() {
     super();

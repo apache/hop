@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
@@ -99,7 +99,7 @@ public class PipelineExecutorMetaTest {
 
     // don't want the random value given by the default getTestObject...
     IntLoadSaveValidator intValidator = spy( new IntLoadSaveValidator() );
-    doReturn( ValueMetaInterface.TYPE_INTEGER ).when( intValidator ).getTestObject();
+    doReturn( IValueMeta.TYPE_INTEGER ).when( intValidator ).getTestObject();
 
     FieldLoadSaveValidator<int[]> intArrayLoadSaveValidator =
       new PrimitiveIntArrayLoadSaveValidator( intValidator, 1 );
@@ -192,7 +192,7 @@ public class PipelineExecutorMetaTest {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta = spy( meta );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     TransformMeta nextTransform = mock( TransformMeta.class );
 
     meta.setExecutionResultTargetTransformMeta( nextTransform );
@@ -206,7 +206,7 @@ public class PipelineExecutorMetaTest {
 
     // make sure we get the name of the parent transform meta... used for the origin transform
     verify( parent ).getName();
-    ArgumentCaptor<ValueMetaInterface> argumentCaptor = ArgumentCaptor.forClass( ValueMetaInterface.class );
+    ArgumentCaptor<IValueMeta> argumentCaptor = ArgumentCaptor.forClass( IValueMeta.class );
     verify( row ).addValueMeta( argumentCaptor.capture() );
     assertEquals( "parent transform", argumentCaptor.getValue().getOrigin() );
   }
@@ -216,7 +216,7 @@ public class PipelineExecutorMetaTest {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta = spy( meta );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
     TransformMeta nextTransform = mock( TransformMeta.class );
 
     meta.setResultFilesTargetTransformMeta( nextTransform );
@@ -230,7 +230,7 @@ public class PipelineExecutorMetaTest {
 
     // make sure we get the name of the parent transform meta... used for the origin transform
     verify( parent ).getName();
-    ArgumentCaptor<ValueMetaInterface> argumentCaptor = ArgumentCaptor.forClass( ValueMetaInterface.class );
+    ArgumentCaptor<IValueMeta> argumentCaptor = ArgumentCaptor.forClass( IValueMeta.class );
     verify( row ).addValueMeta( argumentCaptor.capture() );
     assertEquals( "parent transform", argumentCaptor.getValue().getOrigin() );
   }
@@ -249,7 +249,7 @@ public class PipelineExecutorMetaTest {
     meta.setOutputRowsPrecision( outputFieldPrecision );
     meta = spy( meta );
 
-    RowMetaInterface row = mock( RowMetaInterface.class );
+    IRowMeta row = mock( IRowMeta.class );
 
     TransformMeta parent = mock( TransformMeta.class );
     doReturn( parent ).when( meta ).getParentTransformMeta();
@@ -259,7 +259,7 @@ public class PipelineExecutorMetaTest {
 
     // make sure we get the name of the parent transform meta... used for the origin transform
     verify( parent, times( outputFieldNames.length ) ).getName();
-    ArgumentCaptor<ValueMetaInterface> argumentCaptor = ArgumentCaptor.forClass( ValueMetaInterface.class );
+    ArgumentCaptor<IValueMeta> argumentCaptor = ArgumentCaptor.forClass( IValueMeta.class );
     verify( row, times( outputFieldNames.length ) ).addValueMeta( argumentCaptor.capture() );
     assertEquals( "parent transform", argumentCaptor.getValue().getOrigin() );
   }
@@ -273,9 +273,9 @@ public class PipelineExecutorMetaTest {
 
     // Test null
     meta.getFields( null, null, null, nextTransform, null, null );
-    verify( meta, never() ).addFieldToRow( any( RowMetaInterface.class ), anyString(), anyInt() );
+    verify( meta, never() ).addFieldToRow( any( IRowMeta.class ), anyString(), anyInt() );
 
-    RowMetaInterface rowMeta = mock( RowMetaInterface.class );
+    IRowMeta rowMeta = mock( IRowMeta.class );
     meta.getFields( rowMeta, null, null, nextTransform, null, null );
     verify( rowMeta, never() ).clear();
 

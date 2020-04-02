@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
 /**
  * Implements common functionality needed by partitioner plugins.
  */
-public abstract class BasePartitioner implements Partitioner {
+public abstract class BasePartitioner implements IPartitioner {
 
   protected TransformPartitioningMeta meta;
   protected int nrPartitions = -1;
@@ -47,8 +47,8 @@ public abstract class BasePartitioner implements Partitioner {
    *
    * @see java.lang.Object#clone()
    */
-  public Partitioner clone() {
-    Partitioner partitioner = getInstance();
+  public IPartitioner clone() {
+    IPartitioner partitioner = getInstance();
     partitioner.setId( id );
     partitioner.setDescription( description );
     partitioner.setMeta( meta );
@@ -79,7 +79,7 @@ public abstract class BasePartitioner implements Partitioner {
    * @param rowMeta the row meta
    * @throws HopException the kettle exception
    */
-  public void init( RowMetaInterface rowMeta ) throws HopException {
+  public void init( IRowMeta rowMeta ) throws HopException {
 
     if ( nrPartitions < 0 ) {
       nrPartitions = meta.getPartitionSchema().calculatePartitionIds().size();
@@ -99,7 +99,7 @@ public abstract class BasePartitioner implements Partitioner {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#setMeta(org.apache.hop.pipeline.transform.TransformPartitioningMeta)
+   * @see org.apache.hop.pipeline.IPartitioner#setMeta(org.apache.hop.pipeline.transform.TransformPartitioningMeta)
    */
   public void setMeta( TransformPartitioningMeta meta ) {
     this.meta = meta;
@@ -108,14 +108,14 @@ public abstract class BasePartitioner implements Partitioner {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#getInstance()
+   * @see org.apache.hop.pipeline.IPartitioner#getInstance()
    */
-  public abstract Partitioner getInstance();
+  public abstract IPartitioner getInstance();
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#getDescription()
+   * @see org.apache.hop.pipeline.IPartitioner#getDescription()
    */
   public String getDescription() {
     return description;
@@ -124,7 +124,7 @@ public abstract class BasePartitioner implements Partitioner {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#setDescription(java.lang.String)
+   * @see org.apache.hop.pipeline.IPartitioner#setDescription(java.lang.String)
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -133,7 +133,7 @@ public abstract class BasePartitioner implements Partitioner {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#getId()
+   * @see org.apache.hop.pipeline.IPartitioner#getId()
    */
   public String getId() {
     return id;
@@ -142,7 +142,7 @@ public abstract class BasePartitioner implements Partitioner {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.Partitioner#setId(java.lang.String)
+   * @see org.apache.hop.pipeline.IPartitioner#setId(java.lang.String)
    */
   public void setId( String id ) {
     this.id = id;

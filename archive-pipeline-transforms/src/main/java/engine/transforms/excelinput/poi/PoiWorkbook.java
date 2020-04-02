@@ -54,7 +54,7 @@ public class PoiWorkbook implements KWorkbook {
   public PoiWorkbook( String filename, String encoding ) throws HopException {
     this.filename = filename;
     this.encoding = encoding;
-    this.log = HopLogStore.getLogChannelInterfaceFactory().create( this );
+    this.log = HopLogStore.getLogChannelFactory().create( this );
     try {
       FileObject fileObject = HopVFS.getFileObject( filename );
       if ( fileObject instanceof LocalFile ) {

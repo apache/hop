@@ -37,7 +37,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -50,7 +50,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.databases.oracle.OracleDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -136,7 +135,7 @@ public class OracleDatabaseMetaTest {
     v.setVariable( "FOOVARIABLE", "FOOVALUE" );
     
     DatabaseMeta dm = new DatabaseMeta();
-    dm.setDatabaseInterface( nativeMeta );
+    dm.setIDatabase( nativeMeta );
     assertEquals( "TABLESPACE FOOVALUE", nativeMeta.getTablespaceDDL( v, dm, "${FOOVARIABLE}" ) );
     assertEquals( "", nativeMeta.getTablespaceDDL( v, dm, "" ) );
     assertFalse( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
@@ -281,7 +280,7 @@ public class OracleDatabaseMetaTest {
   public void testCheckIndexExists() throws Exception {
     String expectedSQL = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = 'FOO'";
     Database db = Mockito.mock( Database.class );
-    RowMetaInterface rm = Mockito.mock( RowMetaInterface.class );
+    IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
     Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );

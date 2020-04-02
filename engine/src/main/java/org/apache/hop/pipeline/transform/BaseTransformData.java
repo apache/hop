@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transform;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * This class is the base class for the TransformDataInterface and contains the methods to set and retrieve the status of the
+ * This class is the base class for the ITransformData and contains the methods to set and retrieve the status of the
  * transform data.
  *
  * @author Matt
  * @since 20-jan-2005
  */
-public abstract class BaseTransformData implements TransformDataInterface {
+public abstract class BaseTransformData implements ITransformData {
 
   /**
    * The pkg used for i18n

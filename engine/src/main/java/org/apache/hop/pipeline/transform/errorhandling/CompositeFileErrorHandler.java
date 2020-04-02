@@ -27,40 +27,40 @@ import org.apache.hop.core.exception.HopException;
 
 import java.util.List;
 
-public class CompositeFileErrorHandler implements FileErrorHandler {
-  private List<FileErrorHandler> handlers;
+public class CompositeFileErrorHandler implements IFileErrorHandler {
+  private List<IFileErrorHandler> handlers;
 
-  public CompositeFileErrorHandler( List<FileErrorHandler> handlers ) {
+  public CompositeFileErrorHandler( List<IFileErrorHandler> handlers ) {
     super();
     this.handlers = handlers;
   }
 
   public void handleFile( FileObject file ) throws HopException {
-    for ( FileErrorHandler handler : handlers ) {
+    for ( IFileErrorHandler handler : handlers ) {
       handler.handleFile( file );
     }
   }
 
   public void handleLineError( long lineNr, String filePart ) throws HopException {
-    for ( FileErrorHandler handler : handlers ) {
+    for ( IFileErrorHandler handler : handlers ) {
       handler.handleLineError( lineNr, filePart );
     }
   }
 
   public void close() throws HopException {
-    for ( FileErrorHandler handler : handlers ) {
+    for ( IFileErrorHandler handler : handlers ) {
       handler.close();
     }
   }
 
   public void handleNonExistantFile( FileObject file ) throws HopException {
-    for ( FileErrorHandler handler : handlers ) {
+    for ( IFileErrorHandler handler : handlers ) {
       handler.handleNonExistantFile( file );
     }
   }
 
   public void handleNonAccessibleFile( FileObject file ) throws HopException {
-    for ( FileErrorHandler handler : handlers ) {
+    for ( IFileErrorHandler handler : handlers ) {
       handler.handleNonAccessibleFile( file );
     }
   }

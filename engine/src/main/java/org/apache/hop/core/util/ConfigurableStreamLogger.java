@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 
 import java.io.BufferedReader;
@@ -41,14 +41,14 @@ public class ConfigurableStreamLogger implements Runnable {
   private InputStream is;
   private String type;
   private LogLevel logLevel;
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   /**
    * @param in       the InputStream
    * @param logLevel the logLevel. Refer to org.apache.hop.core.logging.LogWriter for constants
    * @param type     the label for logger entries.
    */
-  public ConfigurableStreamLogger( LogChannelInterface logChannel, final InputStream in, final LogLevel logLevel,
+  public ConfigurableStreamLogger( ILogChannel logChannel, final InputStream in, final LogLevel logLevel,
                                    final String type ) {
     this.log = logChannel;
     this.is = in;

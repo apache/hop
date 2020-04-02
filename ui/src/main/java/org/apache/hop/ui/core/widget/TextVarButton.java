@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -39,37 +39,37 @@ import org.eclipse.swt.widgets.Text;
 
 public class TextVarButton extends TextVar {
 
-  public TextVarButton( VariableSpace space, Composite composite, int flags ) {
-    super( space, composite, flags );
+  public TextVarButton( IVariables variables, Composite composite, int flags ) {
+    super( variables, composite, flags );
   }
 
-  public TextVarButton( VariableSpace space, Composite composite, int flags, String toolTipText ) {
-    super( space, composite, flags, toolTipText );
+  public TextVarButton( IVariables variables, Composite composite, int flags, String toolTipText ) {
+    super( variables, composite, flags, toolTipText );
   }
 
-  public TextVarButton( VariableSpace space, Composite composite, int flags,
-                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    super( space, composite, flags, getCaretPositionInterface, insertTextInterface );
+  public TextVarButton( IVariables variables, Composite composite, int flags,
+                        IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
+    super( variables, composite, flags, getCaretPositionInterface, insertTextInterface );
   }
 
-  public TextVarButton( VariableSpace space, Composite composite, int flags,
-                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+  public TextVarButton( IVariables variables, Composite composite, int flags,
+                        IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface,
                         SelectionListener selectionListener ) {
-    super( composite, space, flags, getCaretPositionInterface, insertTextInterface, selectionListener );
+    super( composite, variables, flags, getCaretPositionInterface, insertTextInterface, selectionListener );
   }
 
-  public TextVarButton( VariableSpace space, Composite composite, int flags, String toolTipText,
-                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    super( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface );
+  public TextVarButton( IVariables variables, Composite composite, int flags, String toolTipText,
+                        IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
+    super( variables, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface );
   }
 
-  protected void initialize( VariableSpace space, Composite composite, int flags, String toolTipText,
-                             GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+  protected void initialize( IVariables variables, Composite composite, int flags, String toolTipText,
+                             IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface,
                              SelectionListener selectionListener ) {
     this.toolTipText = toolTipText;
     this.getCaretPositionInterface = getCaretPositionInterface;
     this.insertTextInterface = insertTextInterface;
-    this.variables = space;
+    this.variables = variables;
 
     PropsUI.getInstance().setLook( this );
 

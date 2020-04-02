@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class NamedFieldsMapping implements FieldsMapping {
+public class NamedFieldsMapping implements IFieldsMapping {
 
   private final int[] actualToMetaFieldMapping;
 

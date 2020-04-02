@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,10 +33,10 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class SortedMergeData extends BaseTransformData implements TransformDataInterface {
+public class SortedMergeData extends BaseTransformData implements ITransformData {
   public int[] fieldIndices;
   // public RowComparator rowComparator;
-  public RowMetaInterface rowMeta;
+  public IRowMeta rowMeta;
   public List<RowSetRow> sortedBuffer;
   public Comparator<RowSetRow> comparator;
 

@@ -30,15 +30,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -54,18 +54,18 @@ import java.nio.ByteBuffer;
  * @author Matt
  * @since 2007-07-06
  */
-public class FixedInput extends BaseTransform implements TransformInterface {
+public class FixedInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = FixedInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private FixedInputMeta meta;
   private FixedInputData data;
 
-  public FixedInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public FixedInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (FixedInputMeta) smi;
     data = (FixedInputData) sdi;
 
@@ -79,8 +79,8 @@ public class FixedInput extends BaseTransform implements TransformInterface {
       // Pretend it's a lazy conversion object anyway and get the native type during conversion.
       //
       data.convertRowMeta = data.outputRowMeta.clone();
-      for ( ValueMetaInterface valueMeta : data.convertRowMeta.getValueMetaList() ) {
-        valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      for ( IValueMeta valueMeta : data.convertRowMeta.getValueMetaList() ) {
+        valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
       }
 
       if ( meta.isHeaderPresent() ) {
@@ -186,7 +186,7 @@ public class FixedInput extends BaseTransform implements TransformInterface {
             // The convert object uses binary storage as such we just have to ask the native type from it.
             // That will do the actual conversion.
             //
-            ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
+            IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
             outputRowData[ outputIndex++ ] = sourceValueMeta.convertBinaryStringToNativeType( field );
           }
         } else {
@@ -240,7 +240,7 @@ public class FixedInput extends BaseTransform implements TransformInterface {
     return new FileInputStream( FileUtils.toFile( url ) );
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (FixedInputMeta) smi;
     data = (FixedInputData) sdi;
 
@@ -311,7 +311,7 @@ public class FixedInput extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
 
     try {
       if ( data.fc != null ) {

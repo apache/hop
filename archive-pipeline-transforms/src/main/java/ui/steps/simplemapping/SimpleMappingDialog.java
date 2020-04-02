@@ -27,13 +27,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mapping.MappingParameters;
@@ -77,7 +77,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleMappingDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SimpleMappingDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
   private SimpleMappingMeta mappingMeta;
@@ -545,7 +545,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements Transfor
 
   }
 
-  public RowMetaInterface getFieldsFromTransform( boolean parent, boolean input ) throws HopException {
+  public IRowMeta getFieldsFromTransform( boolean parent, boolean input ) throws HopException {
     if ( input ) {
       // INPUT
       //
@@ -636,8 +636,8 @@ public class SimpleMappingDialog extends BaseTransformDialog implements Transfor
           if ( input ) {
             // INPUT
             //
-            RowMetaInterface sourceRowMeta = getFieldsFromTransform( true, input );
-            RowMetaInterface targetRowMeta = getFieldsFromTransform( false, input );
+            IRowMeta sourceRowMeta = getFieldsFromTransform( true, input );
+            IRowMeta targetRowMeta = getFieldsFromTransform( false, input );
             String[] sourceFields = sourceRowMeta.getFieldNames();
             String[] targetFields = targetRowMeta.getFieldNames();
 
@@ -668,7 +668,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements Transfor
           } else {
             // OUTPUT
             //
-            RowMetaInterface sourceRowMeta = getFieldsFromTransform( true, input );
+            IRowMeta sourceRowMeta = getFieldsFromTransform( true, input );
             BaseTransformDialog.getFieldsFromPrevious(
               sourceRowMeta, wFieldMappings, 1, new int[] { 1, }, new int[] {}, -1, -1, null );
           }

@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.eclipse.swt.SWT;
@@ -59,19 +59,19 @@ public class ColumnInfo {
   private int width = -1;
   private boolean autoResize = true;
 
-  private ValueMetaInterface valueMeta;
+  private IValueMeta valueMeta;
 
   private SelectionListener selButton;
   private SelectionListener textVarButtonSelectionListener;
 
-  private TextVarButtonRenderCallback renderTextVarButtonCallback;
+  private ITextVarButtonRenderCallback renderTextVarButtonCallback;
 
-  private FieldDisabledListener disabledListener;
+  private IFieldDisabledListener disabledListener;
 
   private boolean usingVariables;
   private boolean passwordField;
 
-  private ComboValuesSelectionListener comboValuesSelectionListener;
+  private IComboValuesSelectionListener comboValuesSelectionListener;
   private int fieldTypeColumn;
 
   /**
@@ -117,7 +117,7 @@ public class ColumnInfo {
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
    * @param numeric true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                ValueMetaInterface.TYPE_INTEGER is the default.
+   *                IValueMeta.TYPE_INTEGER is the default.
    */
   public ColumnInfo( String colname, int coltype, boolean numeric ) {
     this( colname, coltype );
@@ -154,7 +154,7 @@ public class ColumnInfo {
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
    * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                ValueMetaInterface.TYPE_INTEGER is the default.
+   *                IValueMeta.TYPE_INTEGER is the default.
    * @param ro      true if the column is read-only.
    */
   public ColumnInfo( String colname, int coltype, boolean num, boolean ro ) {
@@ -168,7 +168,7 @@ public class ColumnInfo {
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
    * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                ValueMetaInterface.TYPE_INTEGER is the default.
+   *                IValueMeta.TYPE_INTEGER is the default.
    * @param ro      true if the column is read-only.
    * @param width   The column width
    */
@@ -286,14 +286,14 @@ public class ColumnInfo {
   /**
    * @return the valueMeta
    */
-  public ValueMetaInterface getValueMeta() {
+  public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
   /**
    * @param valueMeta the valueMeta to set
    */
-  public void setValueMeta( ValueMetaInterface valueMeta ) {
+  public void setValueMeta( IValueMeta valueMeta ) {
     this.valueMeta = valueMeta;
   }
 
@@ -336,28 +336,28 @@ public class ColumnInfo {
   /**
    * @return the comboValuesSelectionListener
    */
-  public ComboValuesSelectionListener getComboValuesSelectionListener() {
+  public IComboValuesSelectionListener getComboValuesSelectionListener() {
     return comboValuesSelectionListener;
   }
 
   /**
    * @param comboValuesSelectionListener the comboValuesSelectionListener to set
    */
-  public void setComboValuesSelectionListener( ComboValuesSelectionListener comboValuesSelectionListener ) {
+  public void setComboValuesSelectionListener( IComboValuesSelectionListener comboValuesSelectionListener ) {
     this.comboValuesSelectionListener = comboValuesSelectionListener;
   }
 
   /**
    * @return the disabledListener
    */
-  public FieldDisabledListener getDisabledListener() {
+  public IFieldDisabledListener getDisabledListener() {
     return disabledListener;
   }
 
   /**
    * @param disabledListener the disabledListener to set
    */
-  public void setDisabledListener( FieldDisabledListener disabledListener ) {
+  public void setDisabledListener( IFieldDisabledListener disabledListener ) {
     this.disabledListener = disabledListener;
   }
 
@@ -369,7 +369,7 @@ public class ColumnInfo {
     this.textVarButtonSelectionListener = textVarButtonSelectionListener;
   }
 
-  public void setRenderTextVarButtonCallback( TextVarButtonRenderCallback callback ) {
+  public void setRenderTextVarButtonCallback( ITextVarButtonRenderCallback callback ) {
     this.renderTextVarButtonCallback = callback;
   }
 

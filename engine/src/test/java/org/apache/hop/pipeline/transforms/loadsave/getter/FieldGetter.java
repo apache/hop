@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave.getter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-public class FieldGetter<T> implements Getter<T> {
+public class FieldGetter<T> implements IGetter<T> {
   private final Field field;
 
   public FieldGetter( Field field ) {

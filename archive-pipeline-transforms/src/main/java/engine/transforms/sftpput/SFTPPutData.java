@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.sftpput;
 
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Send file to SFTP host.
@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Samatar Hassan
  * @since 30-April-2012
  */
-public class SFTPPutData extends BaseTransformData implements TransformDataInterface {
+public class SFTPPutData extends BaseTransformData implements ITransformData {
 
   // SFTP connection
   public SFTPClient sftpclient;

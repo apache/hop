@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
@@ -32,25 +32,25 @@ import java.util.BitSet;
  */
 class EqIndex extends Index {
 
-  static Index nonEqualityIndex( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  static Index nonEqualityIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
     return new EqIndex( column, valueMeta, rowsAmount, true );
   }
 
 
   private final boolean isMatchingNonEquality;
 
-  EqIndex( int column, ValueMetaInterface valueMeta, int rowsAmount ) {
+  EqIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
     this( column, valueMeta, rowsAmount, false );
   }
 
-  private EqIndex( int column, ValueMetaInterface valueMeta, int rowsAmount, boolean isMatchingNonEquality ) {
+  private EqIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingNonEquality ) {
     super( column, valueMeta, rowsAmount );
     this.isMatchingNonEquality = isMatchingNonEquality;
   }
 
   @Override
   void doApply( SearchingContext context,
-                ValueMetaInterface lookupMeta, Object lookupValue ) throws HopException {
+                IValueMeta lookupMeta, Object lookupValue ) throws HopException {
     int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, -1 ) );
     final int length = values.length;
     if ( firstValue == length || valueMeta.compare( values[ firstValue ].key, lookupValue ) != 0 ) {

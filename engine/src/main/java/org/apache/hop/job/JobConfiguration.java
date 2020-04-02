@@ -50,7 +50,7 @@ public class JobConfiguration {
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( jobMeta.getXML() );
+    xml.append( jobMeta.getXml() );
     xml.append( jobExecutionConfiguration.getXML() );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );

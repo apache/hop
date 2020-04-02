@@ -23,19 +23,19 @@
 package org.apache.hop.job.entry;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.hop.base.BaseMeta;
-import org.apache.hop.core.AttributesInterface;
+import org.apache.hop.base.IBaseMeta;
+import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.attributes.AttributesUtil;
-import org.apache.hop.core.changed.ChangedFlagInterface;
+import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.missing.MissingEntry;
@@ -54,13 +54,13 @@ import java.util.Map;
  * @since 01-10-2003
  */
 
-public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterface, ChangedFlagInterface,
-  AttributesInterface, BaseMeta {
+public class JobEntryCopy implements Cloneable, IXml, IGUIPosition, IChanged,
+  IAttributes, IBaseMeta {
   public static final String XML_TAG = "entry";
 
   private static final String XML_ATTRIBUTE_JOB_ENTRY_COPY = AttributesUtil.XML_TAG + "_kjc";
 
-  private JobEntryInterface entry;
+  private IJobEntry entry;
 
   private String suggestion = "";
 
@@ -85,12 +85,12 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     clear();
   }
 
-  public JobEntryCopy( JobEntryInterface entry ) {
+  public JobEntryCopy( IJobEntry entry ) {
     this();
     setEntry( entry );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
     retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
@@ -113,12 +113,12 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     try {
       String stype = XMLHandler.getTagValue( entrynode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
-      PluginInterface jobPlugin = registry.findPluginWithId( JobEntryPluginType.class, stype, true );
+      IPlugin jobPlugin = registry.findPluginWithId( JobEntryPluginType.class, stype, true );
       if ( jobPlugin == null ) {
         String name = XMLHandler.getTagValue( entrynode, "name" );
         entry = new MissingEntry( name, stype );
       } else {
-        entry = registry.loadClass( jobPlugin, JobEntryInterface.class );
+        entry = registry.loadClass( jobPlugin, IJobEntry.class );
       }
       // Get an empty JobEntry of the appropriate class...
       if ( entry != null ) {
@@ -175,7 +175,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
   }
 
   public void replaceMeta( JobEntryCopy jobEntryCopy ) {
-    entry = (JobEntryInterface) jobEntryCopy.entry.clone();
+    entry = (IJobEntry) jobEntryCopy.entry.clone();
     nr = jobEntryCopy.nr; // Copy nr. 0 is the base copy...
 
     selected = jobEntryCopy.selected;
@@ -191,7 +191,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     JobEntryCopy ge = (JobEntryCopy) clone();
 
     // Copy underlying object as well...
-    ge.entry = (JobEntryInterface) entry.clone();
+    ge.entry = (IJobEntry) entry.clone();
 
     return ge;
   }
@@ -209,7 +209,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     return entry.getName().hashCode() ^ Integer.valueOf( getNr() ).hashCode();
   }
 
-  public void setEntry( JobEntryInterface je ) {
+  public void setEntry( IJobEntry je ) {
     entry = je;
     if ( entry != null ) {
       if ( entry.getPluginId() == null ) {
@@ -219,15 +219,15 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     }
   }
 
-  public JobEntryInterface getEntry() {
+  public IJobEntry getEntry() {
     return entry;
   }
 
   /**
-   * @return entry in JobEntryInterface.typeCode[] for native jobs, entry.getTypeCode() for plugins
+   * @return entry in IJobEntry.typeCode[] for native jobs, entry.getTypeCode() for plugins
    */
   public String getTypeDesc() {
-    PluginInterface plugin =
+    IPlugin plugin =
       PluginRegistry.getInstance().findPluginWithId( JobEntryPluginType.class, entry.getPluginId() );
     return plugin.getDescription();
   }
@@ -434,9 +434,9 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
 
   private void setDeprecationAndSuggestedJobEntry() {
     PluginRegistry registry = PluginRegistry.getInstance();
-    final List<PluginInterface> deprecatedJobEntries = registry.getPluginsByCategory( JobEntryPluginType.class,
+    final List<IPlugin> deprecatedJobEntries = registry.getPluginsByCategory( JobEntryPluginType.class,
       BaseMessages.getString( JobMeta.class, "JobCategory.Category.Deprecated" ) );
-    for ( PluginInterface p : deprecatedJobEntries ) {
+    for ( IPlugin p : deprecatedJobEntries ) {
       String[] ids = p.getIds();
       if ( !ArrayUtils.isEmpty( ids ) && ids[ 0 ].equals( this.entry != null ? this.entry.getPluginId() : "" ) ) {
         this.isDeprecated = true;

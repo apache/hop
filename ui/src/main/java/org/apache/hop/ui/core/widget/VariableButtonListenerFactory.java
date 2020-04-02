@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,14 +38,14 @@ public class VariableButtonListenerFactory {
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            final VariableSpace space ) {
-    return getSelectionAdapter( composite, destination, null, null, space );
+                                                            final IVariables variables ) {
+    return getSelectionAdapter( composite, destination, null, null, variables );
   }
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
-                                                            final VariableSpace space ) {
+                                                            final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface,
+                                                            final IVariables variables ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         // Before focus is lost, we get the position of where the selected variable needs to be inserted.
@@ -54,7 +54,7 @@ public class VariableButtonListenerFactory {
           position = getCaretPositionInterface.getCaretPosition();
         }
 
-        String variableName = getVariableName( composite.getShell(), space );
+        String variableName = getVariableName( composite.getShell(), variables );
         if ( variableName != null ) {
           String var = "${" + variableName + "}";
           if ( insertTextInterface == null ) {
@@ -69,8 +69,8 @@ public class VariableButtonListenerFactory {
   }
 
   // Listen to the Variable... button
-  public static final String getVariableName( Shell shell, VariableSpace space ) {
-    String[] keys = space.listVariables();
+  public static final String getVariableName( Shell shell, IVariables variables ) {
+    String[] keys = variables.listVariables();
     Arrays.sort( keys );
 
     int size = keys.length;
@@ -80,7 +80,7 @@ public class VariableButtonListenerFactory {
 
     for ( int i = 0; i < keys.length; i++ ) {
       key[ i ] = keys[ i ];
-      val[ i ] = space.getVariable( key[ i ] );
+      val[ i ] = variables.getVariable( key[ i ] );
       str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
     }
 

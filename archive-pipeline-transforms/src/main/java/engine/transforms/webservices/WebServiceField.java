@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
 
 public class WebServiceField implements Cloneable {
@@ -82,6 +82,6 @@ public class WebServiceField implements Cloneable {
    * @return
    */
   public boolean isComplex() {
-    return getType() == ValueMetaInterface.TYPE_NONE;
+    return getType() == IValueMeta.TYPE_NONE;
   }
 }

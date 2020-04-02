@@ -37,7 +37,7 @@ import static org.apache.hop.core.logging.LoggingObjectType.JOBENTRY;
 import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
 import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
 
-public class Slf4jLoggingEventListener implements HopLoggingEventListener {
+public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 
   @VisibleForTesting Logger pipelineLogger = LoggerFactory.getLogger( "org.apache.hop.pipeline.Pipeline" );
 
@@ -45,7 +45,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
 
   @VisibleForTesting Logger diLogger = LoggerFactory.getLogger( "org.apache.hop" );
 
-  @VisibleForTesting Function<String, LoggingObjectInterface> logObjProvider =
+  @VisibleForTesting Function<String, ILoggingObject> logObjProvider =
     ( objId ) -> LoggingRegistry.getInstance().getLoggingObject( objId );
 
   private static final String SEPARATOR = "/";
@@ -60,7 +60,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
     checkNotNull( messageObject, "Expected log message to be defined." );
     if ( messageObject instanceof LogMessage ) {
       LogMessage message = (LogMessage) messageObject;
-      LoggingObjectInterface loggingObject = logObjProvider.apply( message.getLogChannelId() );
+      ILoggingObject loggingObject = logObjProvider.apply( message.getLogChannelId() );
 
       if ( loggingObject == null ) {
         // this can happen if logObject has been discarded while log events are still in flight.
@@ -74,7 +74,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
     }
   }
 
-  private void logToLogger( Logger logger, LogLevel logLevel, LoggingObjectInterface loggingObject,
+  private void logToLogger( Logger logger, LogLevel logLevel, ILoggingObject loggingObject,
                             LogMessage message ) {
     logToLogger( logger, logLevel,
       "[" + getDetailedSubject( loggingObject ) + "]  " + message.getMessage() );
@@ -105,7 +105,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
     }
   }
 
-  private String getDetailedSubject( LoggingObjectInterface loggingObject ) {
+  private String getDetailedSubject( ILoggingObject loggingObject ) {
     LinkedList<String> subjects = new LinkedList<>();
     while ( loggingObject != null ) {
       if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == JOB ) {

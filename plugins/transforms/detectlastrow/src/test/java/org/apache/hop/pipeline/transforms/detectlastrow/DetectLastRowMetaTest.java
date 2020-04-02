@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.detectlastrow;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
@@ -73,7 +73,7 @@ public class DetectLastRowMetaTest {
 
     assertEquals( 1, rowMeta.size() );
     assertEquals( "The Result", rowMeta.getValueMeta( 0 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );
   }
 
   @Test

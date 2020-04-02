@@ -24,13 +24,13 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogLayout;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogParentProvidedInterface;
+import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -67,12 +67,12 @@ public class HopGuiLogBrowser {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private StyledText text;
-  private LogParentProvidedInterface logProvider;
+  private ILogParentProvided logProvider;
   private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
   private AtomicBoolean paused;
 
-  public HopGuiLogBrowser( final StyledText text, final LogParentProvidedInterface logProvider ) {
+  public HopGuiLogBrowser( final StyledText text, final ILogParentProvided logProvider ) {
     this.text = text;
     this.logProvider = logProvider;
     this.paused = new AtomicBoolean( false );
@@ -102,12 +102,12 @@ public class HopGuiLogBrowser {
 
         text.getDisplay().asyncExec( new Runnable() {
           public void run() {
-            HasLogChannelInterface provider = logProvider.getLogChannelProvider();
+            IHasLogChannel provider = logProvider.getLogChannelProvider();
 
             if ( provider != null && !text.isDisposed() && !busy.get() && !paused.get() && text.isVisible() ) {
               busy.set( true );
 
-              LogChannelInterface logChannel = provider.getLogChannel();
+              ILogChannel logChannel = provider.getLogChannel();
               String parentLogChannelId = logChannel.getLogChannelId();
               LoggingRegistry registry = LoggingRegistry.getInstance();
               Date registryModDate = registry.getLastModificationTime();
@@ -247,7 +247,7 @@ public class HopGuiLogBrowser {
     return text;
   }
 
-  public LogParentProvidedInterface getLogProvider() {
+  public ILogParentProvided getLogProvider() {
     return logProvider;
   }
 

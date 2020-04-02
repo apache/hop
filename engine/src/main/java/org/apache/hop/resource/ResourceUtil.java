@@ -25,7 +25,7 @@ package org.apache.hop.resource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -47,16 +47,16 @@ public class ResourceUtil {
    *
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
-   * @param space                   the space to use for variable replacement
+   * @param variables                   the space to use for variable replacement
    * @param metaStore               the metaStore to load from
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
    * @throws HopException in case anything goes wrong during serialization
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
-                                                                         ResourceExportInterface resourceExportInterface, VariableSpace space,
+                                                                         IResourceExport resourceExportInterface, IVariables variables,
                                                                          IMetaStore metaStore ) throws HopException {
     return serializeResourceExportInterface(
-      zipFilename, resourceExportInterface, space, metaStore, null, null );
+      zipFilename, resourceExportInterface, variables, metaStore, null, null );
   }
 
   /**
@@ -65,14 +65,14 @@ public class ResourceUtil {
    *
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
-   * @param space                   the space to use for variable replacement
+   * @param variables                   the space to use for variable replacement
    * @param injectXML               The XML to inject into the resulting ZIP archive (optional, can be null)
    * @param injectFilename          The name of the file for the XML to inject in the ZIP archive (optional, can be null)
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
    * @throws HopException in case anything goes wrong during serialization
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
-                                                                         ResourceExportInterface resourceExportInterface, VariableSpace space,
+                                                                         IResourceExport resourceExportInterface, IVariables variables,
                                                                          IMetaStore metaStore, String injectXML, String injectFilename ) throws HopException {
 
     ZipOutputStream out = null;
@@ -87,16 +87,16 @@ public class ResourceUtil {
         definitions.put( injectFilename, resourceDefinition );
       }
 
-      ResourceNamingInterface namingInterface = new SequenceResourceNaming();
+      IResourceNaming namingInterface = new SequenceResourceNaming();
 
       String topLevelResource =
-        resourceExportInterface.exportResources( space, definitions, namingInterface, metaStore );
+        resourceExportInterface.exportResources( variables, definitions, namingInterface, metaStore );
 
       if ( topLevelResource != null && !definitions.isEmpty() ) {
 
         // Create the ZIP file...
         //
-        FileObject fileObject = HopVFS.getFileObject( zipFilename, space );
+        FileObject fileObject = HopVFS.getFileObject( zipFilename, variables );
 
         // Store the XML in the definitions in a ZIP file...
         //
@@ -138,7 +138,7 @@ public class ResourceUtil {
   }
 
   public static String getExplanation( String zipFilename, String launchFile,
-                                       ResourceExportInterface resourceExportInterface ) {
+                                       IResourceExport resourceExportInterface ) {
 
     String commandString = "";
     if ( Const.isWindows() ) {

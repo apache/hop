@@ -23,9 +23,9 @@
 package org.apache.hop.core.lifecycle;
 
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,27 +47,27 @@ import static org.mockito.Mockito.when;
 public class HopLifecycleSupportTest {
 
   private PluginRegistry registry;
-  private List<PluginInterface> registeredPlugins;
-  private ArgumentCaptor<PluginTypeListener> typeListenerRegistration;
+  private List<IPlugin> registeredPlugins;
+  private ArgumentCaptor<IPluginTypeListener> typeListenerRegistration;
 
   @Before
   public void setUpPluginRegistry() throws Exception {
     // Intercept access to registry
     registry = LifecycleSupport.registry = HopLifecycleSupport.registry = mock( PluginRegistry.class );
-    registeredPlugins = new ArrayList<PluginInterface>();
+    registeredPlugins = new ArrayList<IPlugin>();
     when( registry.getPlugins( HopLifecyclePluginType.class ) ).thenReturn( registeredPlugins );
-    typeListenerRegistration = ArgumentCaptor.forClass( PluginTypeListener.class );
+    typeListenerRegistration = ArgumentCaptor.forClass( IPluginTypeListener.class );
     doNothing().when( registry ).addPluginListener( eq( HopLifecyclePluginType.class ), typeListenerRegistration.capture() );
   }
 
   @Test
   public void testOnEnvironmentInit() throws Exception {
-    final List<HopLifecycleListener> listeners = new ArrayList<HopLifecycleListener>();
+    final List<IHopLifecycleListener> listeners = new ArrayList<IHopLifecycleListener>();
     listeners.add( createLifecycleListener() );
     HopLifecycleSupport kettleLifecycleSupport = new HopLifecycleSupport();
     assertNotNull( typeListenerRegistration.getValue() );
 
-    HopLifecycleListener preInit = createLifecycleListener();
+    IHopLifecycleListener preInit = createLifecycleListener();
     listeners.add( preInit );
     doAnswer( new Answer() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
@@ -80,22 +80,22 @@ public class HopLifecycleSupportTest {
 
     // Init environment
     kettleLifecycleSupport.onEnvironmentInit();
-    for ( HopLifecycleListener listener : listeners ) {
+    for ( IHopLifecycleListener listener : listeners ) {
       verify( listener ).onEnvironmentInit();
     }
     verifyNoMoreInteractions( listeners.toArray() );
 
-    HopLifecycleListener postInit = createLifecycleListener();
+    IHopLifecycleListener postInit = createLifecycleListener();
     verify( postInit ).onEnvironmentInit();
 
     verifyNoMoreInteractions( listeners.toArray() );
   }
 
-  private HopLifecycleListener createLifecycleListener() throws org.apache.hop.core.exception.HopPluginException {
-    PluginInterface pluginInterface = mock( PluginInterface.class );
-    HopLifecycleListener kettleLifecycleListener = mock( HopLifecycleListener.class );
+  private IHopLifecycleListener createLifecycleListener() throws org.apache.hop.core.exception.HopPluginException {
+    IPlugin pluginInterface = mock( IPlugin.class );
+    IHopLifecycleListener kettleLifecycleListener = mock( IHopLifecycleListener.class );
     registeredPlugins.add( pluginInterface );
-    when( registry.loadClass( pluginInterface, HopLifecycleListener.class ) ).thenReturn( kettleLifecycleListener );
+    when( registry.loadClass( pluginInterface, IHopLifecycleListener.class ) ).thenReturn( kettleLifecycleListener );
     when( registry.loadClass( pluginInterface ) ).thenReturn( kettleLifecycleListener );
     if ( !typeListenerRegistration.getAllValues().isEmpty() ) {
       typeListenerRegistration.getValue().pluginAdded( pluginInterface );

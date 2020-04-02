@@ -22,19 +22,19 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopPipelineException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Assert;
 import org.junit.Before;
@@ -92,7 +92,7 @@ public class PipelinePartitioningTest {
   private final String SP21 = "2.b";
 
   @Mock
-  LogChannelInterface log;
+  ILogChannel log;
 
   Pipeline pipeline;
 
@@ -181,21 +181,21 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_1_x2();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 3 transforms: one producer and 2 copies of consumer", 3, pipeline.getTransforms().size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne = getTransformByName( S10 );
+    ITransform transformOne = getTransformByName( S10 );
     assertTrue( "1 transform have no input row sets", transformOne.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 2 output rowsets", 2, transformOne.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( S20 );
+    ITransform transformTwo0 = getTransformByName( S20 );
     Assert.assertEquals( "2.0 transform have 12 input row sets", 1, transformTwo0.getInputRowSets().size() );
     Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    TransformInterface transformTwo1 = getTransformByName( S21 );
+    ITransform transformTwo1 = getTransformByName( S21 );
     Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
     Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
@@ -210,25 +210,25 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_x2_x2();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 4 transforms: 2 copies of producer and 2 copies of consumer", 4, pipeline.getTransforms().size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( S10 );
+    ITransform transformOne0 = getTransformByName( S10 );
     assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformOne1 = getTransformByName( S11 );
+    ITransform transformOne1 = getTransformByName( S11 );
     assertTrue( "1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( S20 );
+    ITransform transformTwo0 = getTransformByName( S20 );
     Assert.assertEquals( "2.0 transform have 1 input row sets", 1, transformTwo0.getInputRowSets().size() );
     Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    TransformInterface transformTwo1 = getTransformByName( S21 );
+    ITransform transformTwo1 = getTransformByName( S21 );
     Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
     Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
@@ -243,21 +243,21 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_x2_1();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 4 transforms: 2 copies of producer and 2 copies of consumer", 3, pipeline.getTransforms().size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( S10 );
+    ITransform transformOne0 = getTransformByName( S10 );
     assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformOne1 = getTransformByName( S11 );
+    ITransform transformOne1 = getTransformByName( S11 );
     assertTrue( "1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( S20 );
+    ITransform transformTwo0 = getTransformByName( S20 );
     Assert.assertEquals( "2.0 transform have 2 input row sets", 2, transformTwo0.getInputRowSets().size() );
     Assert.assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
   }
@@ -272,22 +272,22 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_1_cl1();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 3 transforms: 1 producer and 2 copies of consumer since it is partitioned", 3, pipeline.getTransforms()
       .size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( S10 );
+    ITransform transformOne0 = getTransformByName( S10 );
     assertTrue( "1 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    ITransform transformTwo0 = getTransformByName( SP20 );
     assertEquals( "2.0 transform have one input row sets", 1, transformTwo0.getInputRowSets().size() );
     assertTrue( "2.0 transform have no output rowsets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    TransformInterface transformTwo1 = getTransformByName( SP21 );
+    ITransform transformTwo1 = getTransformByName( SP21 );
     Assert.assertEquals( "2.1 transform have 1 input row sets", 1, transformTwo1.getInputRowSets().size() );
     Assert.assertTrue( "2.1 transform have no output row sets", transformTwo1.getOutputRowSets().isEmpty() );
   }
@@ -302,26 +302,26 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_cl1_cl1();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 3 transforms: 1 producer and 2 copies of consumer since it is partitioned", 4, pipeline.getTransforms()
       .size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( SP10 );
+    ITransform transformOne0 = getTransformByName( SP10 );
     assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1.0 transform have 1 output rowsets", 1, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformOne1 = getTransformByName( SP11 );
+    ITransform transformOne1 = getTransformByName( SP11 );
     assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
     assertEquals( "1.1 transform have 1 output rowsets", 1, transformOne1.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    ITransform transformTwo0 = getTransformByName( SP20 );
     assertEquals( "2.0 transform have 2 input row sets", 1, transformTwo0.getInputRowSets().size() );
     assertTrue( "2.0 transform have no output rowsets", transformTwo0.getOutputRowSets().isEmpty() );
 
-    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    ITransform transformTwo2 = getTransformByName( SP21 );
     assertTrue( "2.2 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
     assertEquals( "2.2 transform have 2 output rowsets", 1, transformTwo2.getInputRowSets().size() );
   }
@@ -337,26 +337,26 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_cl1_cl2();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
     assertEquals( "We have 4 transforms: 2 producer copies and 2 copies of consumer since they both partitioned", 4, pipeline
       .getTransforms().size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( SP10 );
+    ITransform transformOne0 = getTransformByName( SP10 );
     assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1.0 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformOne1 = getTransformByName( SP11 );
+    ITransform transformOne1 = getTransformByName( SP11 );
     assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
     assertEquals( "1.1 transform have 2 output rowsets", 2, transformOne1.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    ITransform transformTwo0 = getTransformByName( SP20 );
     assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
     assertEquals( "2.0 transform have 1 input rowsets", 2, transformTwo0.getInputRowSets().size() );
 
-    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    ITransform transformTwo2 = getTransformByName( SP21 );
     assertTrue( "2.1 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
     assertEquals( "2.2 transform have 2 input rowsets", 2, transformTwo2.getInputRowSets().size() );
   }
@@ -371,32 +371,32 @@ public class PipelinePartitioningTest {
     prepareTransformMetas_x2_cl1();
 
     pipeline.prepareExecution();
-    List<RowSet> rowsets = pipeline.getRowsets();
+    List<IRowSet> rowsets = pipeline.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
     assertEquals( "We have 4 transforms: 2 producer copies and 2 copies of consumer since consumer is partitioned", 4, pipeline
       .getTransforms().size() );
 
     // Ok, examine initialized transforms now.
-    TransformInterface transformOne0 = getTransformByName( S10 );
+    ITransform transformOne0 = getTransformByName( S10 );
     assertTrue( "1.0 transform have no input row sets", transformOne0.getInputRowSets().isEmpty() );
     assertEquals( "1.0 transform have 2 output rowsets", 2, transformOne0.getOutputRowSets().size() );
 
-    TransformInterface transformOne1 = getTransformByName( S11 );
+    ITransform transformOne1 = getTransformByName( S11 );
     assertTrue( "1.1 transform have no input row sets", transformOne1.getInputRowSets().isEmpty() );
     assertEquals( "1.1 transform have 2 output rowsets", 2, transformOne1.getOutputRowSets().size() );
 
-    TransformInterface transformTwo0 = getTransformByName( SP20 );
+    ITransform transformTwo0 = getTransformByName( SP20 );
     assertTrue( "2.0 transform have no output row sets", transformTwo0.getOutputRowSets().isEmpty() );
     assertEquals( "2.0 transform have 2 input rowsets", 2, transformTwo0.getInputRowSets().size() );
 
-    TransformInterface transformTwo2 = getTransformByName( SP21 );
+    ITransform transformTwo2 = getTransformByName( SP21 );
     assertTrue( "2.1 transform have no output row sets", transformTwo2.getOutputRowSets().isEmpty() );
     assertEquals( "2.2 transform have 2 input rowsets", 2, transformTwo2.getInputRowSets().size() );
   }
 
-  private TransformInterface getTransformByName( String name ) {
-    List<TransformMetaDataCombi<TransformInterface, TransformMetaInterface, TransformDataInterface>> combiList = pipeline.getTransforms();
+  private ITransform getTransformByName( String name ) {
+    List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> combiList = pipeline.getTransforms();
     for ( TransformMetaDataCombi item : combiList ) {
       if ( item.transform.toString().equals( name ) ) {
         return item.transform;

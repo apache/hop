@@ -23,8 +23,8 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -54,13 +54,13 @@ public class RowMetaAndDataTest {
   public void prepare() throws Exception {
     rowsMeta = new RowMeta();
 
-    ValueMetaInterface valueMetaString = new ValueMetaString( "str" );
+    IValueMeta valueMetaString = new ValueMetaString( "str" );
     rowsMeta.addValueMeta( valueMetaString );
 
-    ValueMetaInterface valueMetaBoolean = new ValueMetaBoolean( "bool" );
+    IValueMeta valueMetaBoolean = new ValueMetaBoolean( "bool" );
     rowsMeta.addValueMeta( valueMetaBoolean );
 
-    ValueMetaInterface valueMetaInteger = new ValueMetaInteger( "int" );
+    IValueMeta valueMetaInteger = new ValueMetaInteger( "int" );
     rowsMeta.addValueMeta( valueMetaInteger );
   }
 
@@ -68,7 +68,7 @@ public class RowMetaAndDataTest {
   public void testMergeRowAndMetaData() {
     row = new RowMetaAndData( rowsMeta, "text", true, 1 );
     RowMeta addRowMeta = new RowMeta();
-    ValueMetaInterface valueMetaString = new ValueMetaString( "str" );
+    IValueMeta valueMetaString = new ValueMetaString( "str" );
     addRowMeta.addValueMeta( valueMetaString );
 
     RowMetaAndData addRow = new RowMetaAndData( addRowMeta, "text1" );

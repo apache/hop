@@ -26,12 +26,12 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
-public class JoinRowsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class JoinRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlSortDir;
@@ -205,7 +205,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements TransformDial
     wPrefix.setLayoutData( fdPrefix );
     wPrefix.setText( BaseMessages.getString( PKG, "JoinRowsDialog.Prefix.Label" ) );
 
-    // Cache size...
+    // ICache size...
     wlCache = new Label( shell, SWT.RIGHT );
     wlCache.setText( BaseMessages.getString( PKG, "JoinRowsDialog.Cache.Label" ) );
     props.setLook( wlCache );
@@ -256,7 +256,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements TransformDial
     fdlCondition.top = new FormAttachment( wMainTransform, margin );
     wlCondition.setLayoutData( fdlCondition );
 
-    RowMetaInterface inputfields = null;
+    IRowMeta inputfields = null;
     try {
       inputfields = pipelineMeta.getPrevTransformFields( transformName );
     } catch ( HopException ke ) {

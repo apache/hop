@@ -23,19 +23,19 @@
 package org.apache.hop.pipeline.transforms.tableexists;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class TableExistsData extends BaseTransformData implements TransformDataInterface {
+public class TableExistsData extends BaseTransformData implements ITransformData {
   public Database db;
   public int indexOfTablename;
   public String realSchemaname;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public TableExistsData() {
     super();

@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 
 import java.util.Date;
 
-public class LoggingObject implements LoggingObjectInterface {
+public class LoggingObject implements ILoggingObject {
 
   private String logChannelId;
   private LoggingObjectType objectType;
@@ -38,7 +38,7 @@ public class LoggingObject implements LoggingObjectInterface {
 
   private String containerObjectId;
 
-  private LoggingObjectInterface parent;
+  private ILoggingObject parent;
 
   private Date registrationDate;
 
@@ -46,8 +46,8 @@ public class LoggingObject implements LoggingObjectInterface {
   private boolean forcingSeparateLogging;
 
   public LoggingObject( Object object ) {
-    if ( object instanceof LoggingObjectInterface ) {
-      grabLoggingObjectInformation( (LoggingObjectInterface) object );
+    if ( object instanceof ILoggingObject ) {
+      grabLoggingObjectInformation( (ILoggingObject) object );
     } else {
       grabObjectInformation( object );
     }
@@ -105,8 +105,8 @@ public class LoggingObject implements LoggingObjectInterface {
           return false;
         }
 
-        LoggingObjectInterface parent1 = loggingObject.getParent();
-        LoggingObjectInterface parent2 = getParent();
+        ILoggingObject parent1 = loggingObject.getParent();
+        ILoggingObject parent2 = getParent();
 
         if ( ( parent1 != null && parent2 == null ) || ( parent1 == null && parent2 != null ) ) {
           return false;
@@ -128,7 +128,7 @@ public class LoggingObject implements LoggingObjectInterface {
     return false;
   }
 
-  private void grabLoggingObjectInformation( LoggingObjectInterface loggingObject ) {
+  private void grabLoggingObjectInformation( ILoggingObject loggingObject ) {
     objectType = loggingObject.getObjectType();
     objectName = loggingObject.getObjectName();
     filename = loggingObject.getFilename();
@@ -158,16 +158,16 @@ public class LoggingObject implements LoggingObjectInterface {
       return;
     }
 
-    if ( parentObject instanceof LoggingObjectInterface ) {
+    if ( parentObject instanceof ILoggingObject ) {
 
-      parent = (LoggingObjectInterface) parentObject;
+      parent = (ILoggingObject) parentObject;
 
       // See if the parent is already in the logging registry.
       // This prevents the logging registry from hanging onto Pipeline and Job objects that would continue to consume
       // memory
       //
       if ( parent.getLogChannelId() != null ) {
-        LoggingObjectInterface parentLoggingObject =
+        ILoggingObject parentLoggingObject =
           LoggingRegistry.getInstance().getLoggingObject( parent.getLogChannelId() );
         if ( parentLoggingObject != null ) {
           parent = parentLoggingObject;
@@ -181,7 +181,7 @@ public class LoggingObject implements LoggingObjectInterface {
     // Extract the hierarchy information from the parentObject...
     //
     LoggingObject check = new LoggingObject( parentObject );
-    LoggingObjectInterface loggingObject = registry.findExistingLoggingSource( check );
+    ILoggingObject loggingObject = registry.findExistingLoggingSource( check );
     if ( loggingObject == null ) {
       String logChannelId = registry.registerLoggingSource( check );
       loggingObject = check;
@@ -241,14 +241,14 @@ public class LoggingObject implements LoggingObjectInterface {
    * @return the parent
    */
   @Override
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return parent;
   }
 
   /**
    * @param parent the parent to set
    */
-  public void setParent( LoggingObjectInterface parent ) {
+  public void setParent( ILoggingObject parent ) {
     this.parent = parent;
   }
 

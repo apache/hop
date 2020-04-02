@@ -31,71 +31,71 @@ public interface IMetaStoreElementType {
    *
    * @return The namespace to which the element type belongs.
    */
-  public String getNamespace();
+  String getNamespace();
 
   /**
    * Associates the specified namespace for the element type.
    *
    * @param namespace The namespace to set.
    */
-  public void setNamespace( String namespace );
+  void setNamespace( String namespace );
 
   /**
    * @return The name of the IMetaStore this element type belongs to.
    */
-  public String getMetaStoreName();
+  String getMetaStoreName();
 
   /**
    * @param metaStoreName The name of the IMetaStore this element type belongs to.
    */
-  public void setMetaStoreName( String metaStoreName );
+  void setMetaStoreName( String metaStoreName );
 
   /**
    * Gets the identifier of the element type. This identifier is unique in a namespace.
    *
    * @return The ID of the element type, unique in a namespace
    */
-  public String getId();
+  String getId();
 
   /**
    * Set the identifier for this element type.
    *
    * @param id the id to set
    */
-  public void setId( String id );
+  void setId( String id );
 
   /**
    * Gets the name of the element type.
    *
    * @return The name of the element type
    */
-  public String getName();
+  String getName();
 
   /**
    * Sets the name for the element type.
    *
    * @param name The element type name to set
    */
-  public void setName( String name );
+  void setName( String name );
 
   /**
    * Gets the description of the element type.
    *
    * @return The description of the element type
    */
-  public String getDescription();
+  String getDescription();
 
   /**
    * Sets the description of the element type.
    *
    * @param description the description to set
    */
-  public void setDescription( String description );
+  void setDescription( String description );
 
   /**
    * Persists the element type definition to the underlying metastore.
    *
    * @throws MetaStoreException In case there is an error in the underlying store.
    */
-  public void save() throws MetaStoreException;
+  void save() throws MetaStoreException;
 }

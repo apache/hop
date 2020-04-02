@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.filestoresult;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -54,7 +54,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Job",
         documentationUrl = ""
 )
-public class FilesToResultMeta extends BaseTransformMeta implements TransformMetaInterface<FilesToResult, FilesToResultData> {
+public class FilesToResultMeta extends BaseTransformMeta implements ITransformMeta<FilesToResult, FilesToResultData> {
   private static Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator!!
 
   private String filenameField;
@@ -123,31 +123,31 @@ public class FilesToResultMeta extends BaseTransformMeta implements TransformMet
     fileType = ResultFile.FILE_TYPE_GENERAL;
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "FilesToResultMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "FilesToResultMeta.CheckResult.NoInputReceivedError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public FilesToResult createTransform( TransformMeta transformMeta, FilesToResultData transformDataInterface, int cnr, PipelineMeta tr,
+  public FilesToResult createTransform( TransformMeta transformMeta, FilesToResultData iTransformData, int cnr, PipelineMeta tr,
                                         Pipeline pipeline ) {
-    return new FilesToResult( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new FilesToResult( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public FilesToResultData getTransformData() {

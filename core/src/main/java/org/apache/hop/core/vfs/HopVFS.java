@@ -35,7 +35,7 @@ import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.UUIDUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.configuration.HopFileSystemConfigBuilderFactory;
 import org.apache.hop.core.vfs.configuration.HopGenericFileSystemConfigBuilder;
@@ -62,7 +62,7 @@ public class HopVFS {
   private static final int TIMEOUT_LIMIT = 9000;
   private static final int TIME_TO_SLEEP_TRANSFORM = 50;
 
-  private static VariableSpace defaultVariableSpace;
+  private static IVariables defaultVariableSpace;
 
   static {
     // Create a new empty variable space...
@@ -108,15 +108,15 @@ public class HopVFS {
     return getFileObject( vfsFilename, defaultVariableSpace );
   }
 
-  public static FileObject getFileObject( String vfsFilename, VariableSpace space ) throws HopFileException {
-    return getFileObject( vfsFilename, space, null );
+  public static FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
+    return getFileObject( vfsFilename, variables, null );
   }
 
   public static FileObject getFileObject( String vfsFilename, FileSystemOptions fsOptions ) throws HopFileException {
     return getFileObject( vfsFilename, defaultVariableSpace, fsOptions );
   }
 
-  public static FileObject getFileObject( String vfsFilename, VariableSpace space, FileSystemOptions fsOptions ) throws HopFileException {
+  public static FileObject getFileObject( String vfsFilename, IVariables variables, FileSystemOptions fsOptions ) throws HopFileException {
     try {
       fsOptionsForScheme = fsOptions;
       FileSystemManager fsManager = getInstance().getFileSystemManager();
@@ -132,7 +132,7 @@ public class HopVFS {
       boolean relativeFilename = true;
       String[] initialSchemes = fsManager.getSchemes();
 
-      relativeFilename = checkForScheme( initialSchemes, relativeFilename, vfsFilename, space, fsOptionsForScheme );
+      relativeFilename = checkForScheme( initialSchemes, relativeFilename, vfsFilename, variables, fsOptionsForScheme );
 
       int timeOut = TIMEOUT_LIMIT;
 
@@ -147,7 +147,7 @@ public class HopVFS {
         try {
           Thread.sleep( TIME_TO_SLEEP_TRANSFORM );
           timeOut -= TIME_TO_SLEEP_TRANSFORM;
-          relativeFilename = checkForScheme( schemes, relativeFilename, vfsFilename, space, fsOptionsForScheme );
+          relativeFilename = checkForScheme( schemes, relativeFilename, vfsFilename, variables, fsOptionsForScheme );
         } catch ( InterruptedException e ) {
           relativeFilename = false;
           Thread.currentThread().interrupt();
@@ -180,13 +180,13 @@ public class HopVFS {
   }
 
   protected static boolean checkForScheme( String[] initialSchemes, boolean relativeFilename, String vfsFilename,
-                                           VariableSpace space, FileSystemOptions fsOptions )
+                                           IVariables variables, FileSystemOptions fsOptions )
     throws IOException {
     for ( int i = 0; i < initialSchemes.length && relativeFilename; i++ ) {
       if ( vfsFilename.startsWith( initialSchemes[ i ] + ":" ) ) {
         relativeFilename = false;
         // We have a VFS URL, load any options for the file system driver
-        fsOptionsForScheme = buildFsOptions( space, fsOptions, vfsFilename, initialSchemes[ i ] );
+        fsOptionsForScheme = buildFsOptions( variables, fsOptions, vfsFilename, initialSchemes[ i ] );
       }
     }
     return relativeFilename;
@@ -202,7 +202,7 @@ public class HopVFS {
     return vfsFilename.replaceAll( ":[^:@/]+@", ":<password>@" );
   }
 
-  private static FileSystemOptions buildFsOptions( VariableSpace varSpace, FileSystemOptions sourceOptions,
+  private static FileSystemOptions buildFsOptions( IVariables varSpace, FileSystemOptions sourceOptions,
                                                    String vfsFilename, String scheme ) throws IOException {
     if ( varSpace == null || vfsFilename == null ) {
       // We cannot extract settings from a non-existant variable space
@@ -244,14 +244,14 @@ public class HopVFS {
     return getTextFileContent( vfsFilename, null, charSetName );
   }
 
-  public static String getTextFileContent( String vfsFilename, VariableSpace space, String charSetName ) throws HopFileException {
+  public static String getTextFileContent( String vfsFilename, IVariables variables, String charSetName ) throws HopFileException {
     try {
       InputStream inputStream = null;
 
-      if ( space == null ) {
+      if ( variables == null ) {
         inputStream = getInputStream( vfsFilename );
       } else {
-        inputStream = getInputStream( vfsFilename, space );
+        inputStream = getInputStream( vfsFilename, variables );
       }
       InputStreamReader reader = new InputStreamReader( inputStream, charSetName );
       int c;
@@ -272,10 +272,10 @@ public class HopVFS {
     return fileExists( vfsFilename, null );
   }
 
-  public static boolean fileExists( String vfsFilename, VariableSpace space ) throws HopFileException {
+  public static boolean fileExists( String vfsFilename, IVariables variables ) throws HopFileException {
     FileObject fileObject = null;
     try {
-      fileObject = getFileObject( vfsFilename, space );
+      fileObject = getFileObject( vfsFilename, variables );
       return fileObject.exists();
     } catch ( IOException e ) {
       throw new HopFileException( e );
@@ -298,9 +298,9 @@ public class HopVFS {
     return getInputStream( vfsFilename, defaultVariableSpace );
   }
 
-  public static InputStream getInputStream( String vfsFilename, VariableSpace space ) throws HopFileException {
+  public static InputStream getInputStream( String vfsFilename, IVariables variables ) throws HopFileException {
     try {
-      FileObject fileObject = getFileObject( vfsFilename, space );
+      FileObject fileObject = getFileObject( vfsFilename, variables );
 
       return getInputStream( fileObject );
     } catch ( IOException e ) {
@@ -341,19 +341,19 @@ public class HopVFS {
     return getOutputStream( vfsFilename, defaultVariableSpace, append );
   }
 
-  public static OutputStream getOutputStream( String vfsFilename, VariableSpace space, boolean append ) throws HopFileException {
+  public static OutputStream getOutputStream( String vfsFilename, IVariables variables, boolean append ) throws HopFileException {
     try {
-      FileObject fileObject = getFileObject( vfsFilename, space );
+      FileObject fileObject = getFileObject( vfsFilename, variables );
       return getOutputStream( fileObject, append );
     } catch ( IOException e ) {
       throw new HopFileException( e );
     }
   }
 
-  public static OutputStream getOutputStream( String vfsFilename, VariableSpace space,
+  public static OutputStream getOutputStream( String vfsFilename, IVariables variables,
                                               FileSystemOptions fsOptions, boolean append ) throws HopFileException {
     try {
-      FileObject fileObject = getFileObject( vfsFilename, space, fsOptions );
+      FileObject fileObject = getFileObject( vfsFilename, variables, fsOptions );
       return getOutputStream( fileObject, append );
     } catch ( IOException e ) {
       throw new HopFileException( e );
@@ -417,13 +417,13 @@ public class HopVFS {
    *
    * @param prefix        - file name
    * @param suffix        - file extension
-   * @param variableSpace is used to get system variables
+   * @param variables is used to get system variables
    * @return FileObject
    * @throws HopFileException
    */
-  public static FileObject createTempFile( String prefix, Suffix suffix, VariableSpace variableSpace )
+  public static FileObject createTempFile( String prefix, Suffix suffix, IVariables variables )
     throws HopFileException {
-    return createTempFile( prefix, suffix, TEMP_DIR, variableSpace );
+    return createTempFile( prefix, suffix, TEMP_DIR, variables );
   }
 
   /**
@@ -444,16 +444,16 @@ public class HopVFS {
   /**
    * @param prefix    - file name
    * @param directory path to directory where file will be created
-   * @param space     is used to get system variables
+   * @param variables     is used to get system variables
    * @return FileObject
    * @throws HopFileException
    */
-  public static FileObject createTempFile( String prefix, Suffix suffix, String directory, VariableSpace space )
+  public static FileObject createTempFile( String prefix, Suffix suffix, String directory, IVariables variables )
     throws HopFileException {
-    return createTempFile( prefix, suffix.ext, directory, space );
+    return createTempFile( prefix, suffix.ext, directory, variables );
   }
 
-  public static FileObject createTempFile( String prefix, String suffix, String directory, VariableSpace space ) throws HopFileException {
+  public static FileObject createTempFile( String prefix, String suffix, String directory, IVariables variables ) throws HopFileException {
     try {
       FileObject fileObject;
       do {
@@ -465,7 +465,7 @@ public class HopVFS {
         String filename =
           new StringBuilder( 50 ).append( directory ).append( '/' ).append( prefix ).append( '_' ).append(
             UUIDUtil.getUUIDAsString() ).append( suffix ).toString();
-        fileObject = getFileObject( filename, space );
+        fileObject = getFileObject( filename, variables );
       } while ( fileObject.exists() );
       return fileObject;
     } catch ( IOException e ) {

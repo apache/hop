@@ -25,15 +25,15 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 import java.lang.reflect.Array;
 import java.util.Random;
 
-public class ArrayLoadSaveValidator<ObjectType> implements FieldLoadSaveValidator<ObjectType[]> {
-  private final FieldLoadSaveValidator<ObjectType> validator;
+public class ArrayLoadSaveValidator<ObjectType> implements IFieldLoadSaveValidator<ObjectType[]> {
+  private final IFieldLoadSaveValidator<ObjectType> validator;
   private final Integer elements;
 
-  public ArrayLoadSaveValidator( FieldLoadSaveValidator<ObjectType> fieldValidator ) {
+  public ArrayLoadSaveValidator( IFieldLoadSaveValidator<ObjectType> fieldValidator ) {
     this( fieldValidator, null );
   }
 
-  public ArrayLoadSaveValidator( FieldLoadSaveValidator<ObjectType> fieldValidator, Integer elements ) {
+  public ArrayLoadSaveValidator( IFieldLoadSaveValidator<ObjectType> fieldValidator, Integer elements ) {
     validator = fieldValidator;
     this.elements = elements;
   }

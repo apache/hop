@@ -27,8 +27,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
  */
 @PluginDialog( id = "ADD_RESULT_FILENAMES", image = "AddResultFileNames.svg", pluginType = PluginDialog.PluginType.JOBENTRY,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Add+filenames+to+result" )
-public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
@@ -93,7 +93,7 @@ public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements 
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryAddResultFilenames jobEntry;
+  private JobEntryAddResultFilenamesI jobEntry;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -120,16 +120,16 @@ public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements 
   private Button wbaFilename; // Add or change
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
-  public JobEntryAddResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryAddResultFilenamesDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntryAddResultFilenames) jobEntryInt;
+    jobEntry = (JobEntryAddResultFilenamesI) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryAddResultFilenames.Name.Default" ) );
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

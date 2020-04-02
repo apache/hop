@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.util.Assert;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -53,7 +53,7 @@ public class PluginWidgetFactory {
 
   private final Shell shell;
 
-  private final VariableSpace varSpace;
+  private final IVariables varSpace;
 
   private int margin = DEFAULT_MARGIN;
 
@@ -65,10 +65,10 @@ public class PluginWidgetFactory {
    * Constructor.
    *
    * @param shell    the shell to set.
-   * @param varSpace the variableSpace to be used. e.g. for TextVar
+   * @param varSpace the variables to be used. e.g. for TextVar
    * @throws IllegalArgumentException if shell is null.
    */
-  public PluginWidgetFactory( final Shell shell, final VariableSpace varSpace ) throws IllegalArgumentException {
+  public PluginWidgetFactory( final Shell shell, final IVariables varSpace ) throws IllegalArgumentException {
     Assert.assertNotNull( shell, "Shell cannot be null" );
     Assert.assertNotNull( varSpace, "pipelineMeta cannot be null" );
 

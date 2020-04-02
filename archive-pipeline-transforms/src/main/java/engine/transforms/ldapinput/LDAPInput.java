@@ -27,15 +27,15 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -49,18 +49,18 @@ import java.util.HashSet;
  * @author Samatar
  * @since 21-09-2007
  */
-public class LDAPInput extends BaseTransform implements TransformInterface {
+public class LDAPInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = LDAPInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private LDAPInputMeta meta;
   private LDAPInputData data;
 
-  public LDAPInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public LDAPInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     if ( !data.dynamic ) {
       if ( first ) {
@@ -75,7 +75,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
 
         // Create convert meta-data objects that will contain Date & Number formatters
         //
-        data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+        data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
         // Search records once
         search( data.staticSearchBase, data.staticFilter );
@@ -163,7 +163,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+      data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
       if ( meta.isDynamicSearch() ) {
         data.indexOfSearchBaseField = getInputRowMeta().indexOfValue( meta.getDynamicSearchFieldName() );
@@ -266,7 +266,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
         outputRowData[ fIndex ] = new Long( data.rownr );
       }
 
-      RowMetaInterface irow = getInputRowMeta();
+      IRowMeta irow = getInputRowMeta();
 
       data.previousRow = irow == null ? outputRowData : irow.cloneRow( outputRowData ); // copy it to make
       // surely the next transform doesn't change it in between...
@@ -282,7 +282,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
 
   private Object getAttributeValue( LDAPInputField field, Attribute attr, int i, Object outputRowData ) throws Exception {
 
-    if ( field.getType() == ValueMetaInterface.TYPE_BINARY ) {
+    if ( field.getType() == IValueMeta.TYPE_BINARY ) {
       // It's a binary field
       // no need to convert, just return the value as it
       try {
@@ -294,7 +294,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
 
     String retval = null;
     if ( field.getReturnType() == LDAPInputField.FETCH_ATTRIBUTE_AS_BINARY
-      && field.getType() == ValueMetaInterface.TYPE_STRING ) {
+      && field.getType() == IValueMeta.TYPE_STRING ) {
       // Convert byte[] to string
       return LDAPConnection.extractBytesAndConvertToString( attr, field.isObjectSid() );
     }
@@ -319,8 +319,8 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
 
     // DO CONVERSIONS...
     //
-    ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( i );
-    ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( i );
+    IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( i );
+    IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( i );
     return targetValueMeta.convertData( sourceValueMeta, retval );
 
   }
@@ -404,7 +404,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LDAPInputMeta) smi;
     data = (LDAPInputData) sdi;
 
@@ -434,7 +434,7 @@ public class LDAPInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LDAPInputMeta) smi;
     data = (LDAPInputData) sdi;
     if ( data.connection != null ) {

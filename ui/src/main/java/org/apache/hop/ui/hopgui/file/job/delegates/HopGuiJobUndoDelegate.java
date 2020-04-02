@@ -29,7 +29,7 @@ import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 
 public class HopGuiJobUndoDelegate {
@@ -46,7 +46,7 @@ public class HopGuiJobUndoDelegate {
     this.jobGraph = jobGraph;
   }
 
-  public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta ) {
+  public void undoJobAction( IHopFileTypeHandler handler, JobMeta jobMeta ) {
     ChangeAction changeAction = jobMeta.previousUndo();
     if ( changeAction == null ) {
       return;
@@ -56,7 +56,7 @@ public class HopGuiJobUndoDelegate {
   }
 
 
-  public void undoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
+  public void undoJobAction( IHopFileTypeHandler handler, JobMeta jobMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       // We created a new transform : undo this...
       case NewJobEntry:
@@ -195,7 +195,7 @@ public class HopGuiJobUndoDelegate {
     }
   }
 
-  public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta ) {
+  public void redoJobAction( IHopFileTypeHandler handler, JobMeta jobMeta ) {
     ChangeAction changeAction = jobMeta.nextUndo();
     if ( changeAction == null ) {
       return;
@@ -204,7 +204,7 @@ public class HopGuiJobUndoDelegate {
     handler.updateGui();
   }
 
-  public void redoJobAction( HopFileTypeHandlerInterface handler, JobMeta jobMeta, ChangeAction changeAction ) {
+  public void redoJobAction( IHopFileTypeHandler handler, JobMeta jobMeta, ChangeAction changeAction ) {
     switch ( changeAction.getType() ) {
       case NewJobEntry:
         // re-delete the transform at correct location:

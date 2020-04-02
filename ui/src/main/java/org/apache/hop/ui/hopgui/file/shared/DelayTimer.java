@@ -36,7 +36,7 @@ public class DelayTimer implements Runnable {
   private int delayInMiliseconds;
   private boolean stopped;
 
-  private List<DelayListener> delayListeners;
+  private List<IDelayListener> delayListeners;
   /**
    * Default prolonger should not prolong  delay.
    */
@@ -51,17 +51,17 @@ public class DelayTimer implements Runnable {
 
   public DelayTimer( int delayInMiliseconds ) {
     this.delayInMiliseconds = delayInMiliseconds;
-    this.delayListeners = new ArrayList<DelayListener>();
+    this.delayListeners = new ArrayList<IDelayListener>();
 
     stopped = false;
   }
 
-  public DelayTimer( int delayInMilliseconds, DelayListener delayListener ) {
+  public DelayTimer( int delayInMilliseconds, IDelayListener delayListener ) {
     this( delayInMilliseconds );
     addDelayListener( delayListener );
   }
 
-  public DelayTimer( int delayInMilliseconds, DelayListener delayListener, Callable<Boolean> prolonger ) {
+  public DelayTimer( int delayInMilliseconds, IDelayListener delayListener, Callable<Boolean> prolonger ) {
     this( delayInMilliseconds, delayListener );
     this.prolonger = prolonger;
   }
@@ -83,7 +83,7 @@ public class DelayTimer implements Runnable {
     }
     // Fire the listeners...
     //
-    for ( DelayListener delayListener : delayListeners ) {
+    for ( IDelayListener delayListener : delayListeners ) {
       delayListener.expired();
     }
   }
@@ -104,7 +104,7 @@ public class DelayTimer implements Runnable {
     stopped = true;
   }
 
-  public void addDelayListener( DelayListener delayListener ) {
+  public void addDelayListener( IDelayListener delayListener ) {
     delayListeners.add( delayListener );
   }
 

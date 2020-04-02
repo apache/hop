@@ -22,7 +22,7 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.plugins.IValueMetaConverter;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -35,7 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * This class is intended to facilitate any needed conversions of a ValueMetaInterface field from one type to another.
+ * This class is intended to facilitate any needed conversions of a IValueMeta field from one type to another.
  * It was initially implemented for Orc storage in the pentaho-hadoop-shims project.  This class is added here because
  * the converstions are not dependendant on orc in any way.
  * <p>
@@ -72,26 +72,26 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     }
 
     switch ( sourceValueMetaType ) {
-      case ValueMetaInterface.TYPE_INET:
+      case IValueMeta.TYPE_INET:
         return convertFromInetMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         return convertFromStringMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return convertFromIntegerMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         return convertFromNumberMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         return convertFromBigNumberMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_TIMESTAMP:
         return convertFromTimestampMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
 
         return convertFromDateMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         return convertFromBooleanMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         return convertFromBinaryMetaInterface( targetValueMetaType, value );
-      case ValueMetaInterface.TYPE_SERIALIZABLE:
+      case IValueMeta.TYPE_SERIALIZABLE:
         return convertFromSerializableMetaInterface( targetValueMetaType, value );
       default:
         throwBadConversionCombination( sourceValueMetaType, targetValueMetaType, value );
@@ -114,17 +114,17 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_INET:
+        case IValueMeta.TYPE_INET:
           try {
             return InetAddress.getByName( value.toString() );
           } catch ( UnknownHostException e ) {
             return null;
           }
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return new String( stringValue );
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           return Long.parseLong( stripDecimal( stringValue ) );
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           Double doubleValue = Double.parseDouble( stringValue );
           if ( getPrecision() > 0 ) {
             BigDecimal bigDecimal = new BigDecimal( doubleValue );
@@ -132,21 +132,21 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
             doubleValue = bigDecimal.doubleValue();
           }
           return doubleValue;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           return new BigDecimal( stringValue );
-        case ValueMetaInterface.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_TIMESTAMP:
           return new Timestamp( ( datePattern.parse( stringValue ) ).getTime() );
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return datePattern.parse( stringValue );
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           return Boolean.parseBoolean( stringValue );
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           return stringValue.getBytes();
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_STRING, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_STRING, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_STRING, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_STRING, targetValueMetaType, value, e );
     }
     return null;
   }
@@ -168,19 +168,19 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     try {
       Date dateValue = (Date) value;
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           return dateValue.getTime();
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return datePattern.format( dateValue );
-        case ValueMetaInterface.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_TIMESTAMP:
           return new Timestamp( dateValue.getTime() );
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return new Date( dateValue.getTime() );
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_DATE, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_DATE, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_DATE, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_DATE, targetValueMetaType, value, e );
     }
     return null;
   }
@@ -199,9 +199,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return Double.toString( (Double) value );
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           Double doubleValue = (Double) value;
           if ( getPrecision() > 0 ) {
             BigDecimal bigDecimal = new BigDecimal( doubleValue );
@@ -209,15 +209,15 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
             doubleValue = bigDecimal.doubleValue();
           }
           return doubleValue;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           return ( (Double) value ).longValue();
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           return new BigDecimal( (Double) value );
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_NUMBER, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_NUMBER, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_NUMBER, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_NUMBER, targetValueMetaType, value, e );
     }
     return null;
   }
@@ -237,15 +237,15 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return Boolean.toString( (Boolean) value );
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           return (Boolean) value;
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_BOOLEAN, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_BOOLEAN, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_BOOLEAN, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_BOOLEAN, targetValueMetaType, value, e );
     }
 
     return null;
@@ -266,11 +266,11 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return Long.toString( (Long) value );
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           return (Long) value;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           Double doubleValue = ( (Long) value ).doubleValue();
           if ( getPrecision() > 0 ) {
             BigDecimal bigDecimal = new BigDecimal( doubleValue );
@@ -278,17 +278,17 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
             doubleValue = bigDecimal.doubleValue();
           }
           return doubleValue;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
            return BigDecimal.valueOf( (long) value );
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return new Date( (long) value );
-        case ValueMetaInterface.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_TIMESTAMP:
           return new Timestamp( (long) value );
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_INTEGER, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_INTEGER, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_INTEGER, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_INTEGER, targetValueMetaType, value, e );
     }
     return value;
   }
@@ -309,9 +309,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return value.toString();
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           Double doubleValue = ( (BigDecimal) value ).doubleValue();
           if ( getPrecision() > 0 ) {
             BigDecimal bigDecimal = new BigDecimal( doubleValue );
@@ -319,13 +319,13 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
             doubleValue = bigDecimal.doubleValue();
           }
           return doubleValue;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           return new BigDecimal( ( (BigDecimal) value ).toString() );
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_BIGNUMBER, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_BIGNUMBER, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_BIGNUMBER, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_BIGNUMBER, targetValueMetaType, value, e );
     }
 
     return value;
@@ -347,20 +347,20 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     Date dateValue;
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           dateValue = new Date( ( (Timestamp) value ).getTime() );
           return datePattern.format( dateValue );
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           return ( (Timestamp) value ).getTime();
-        case ValueMetaInterface.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_TIMESTAMP:
           return new Timestamp( ( (Timestamp) value ).getTime() );
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return new Date( ( (Timestamp) value ).getTime() );
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_NUMBER, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_NUMBER, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_TIMESTAMP, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_TIMESTAMP, targetValueMetaType, value, e );
     }
 
     return value;
@@ -382,19 +382,19 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     InetAddress origInetAddress = (InetAddress) value;
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_INET:
+        case IValueMeta.TYPE_INET:
           try {
             return InetAddress.getByName( origInetAddress.getHostAddress() );
           } catch ( UnknownHostException e ) {
             return null;
           }
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           return origInetAddress.getHostAddress();
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_INET, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_INET, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_INET, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_INET, targetValueMetaType, value, e );
     }
 
     return null;
@@ -415,16 +415,16 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           if ( value instanceof byte[] ) {
             return value;
           }
           return ( (ByteBuffer) value ).array();
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_BINARY, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_BINARY, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_BINARY, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_BINARY, targetValueMetaType, value, e );
     }
     return null;
   }
@@ -444,13 +444,13 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     try {
       switch ( targetValueMetaType ) {
-        case ValueMetaInterface.TYPE_SERIALIZABLE:
+        case IValueMeta.TYPE_SERIALIZABLE:
           return value;
         default:
-          throwBadConversionCombination( ValueMetaInterface.TYPE_SERIALIZABLE, targetValueMetaType, value );
+          throwBadConversionCombination( IValueMeta.TYPE_SERIALIZABLE, targetValueMetaType, value );
       }
     } catch ( Exception e ) {
-      throwErroredConversion( ValueMetaInterface.TYPE_SERIALIZABLE, targetValueMetaType, value, e );
+      throwErroredConversion( IValueMeta.TYPE_SERIALIZABLE, targetValueMetaType, value, e );
     }
     return null;
   }
@@ -459,8 +459,8 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     throws ValueMetaConversionException {
 
     handleConversionError(
-      "Error.  Can not convert from " + ValueMetaInterface.getTypeDescription( sourceValueMetaType ) + " to "
-        + ValueMetaInterface.getTypeDescription( targetValueMetaType ) + ".  Actual value type = '" + sourceValue
+      "Error.  Can not convert from " + IValueMeta.getTypeDescription( sourceValueMetaType ) + " to "
+        + IValueMeta.getTypeDescription( targetValueMetaType ) + ".  Actual value type = '" + sourceValue
         .getClass()
         + "'.    value = '" + sourceValue + "'." );
   }
@@ -468,8 +468,8 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
   private void throwErroredConversion( int sourceValueMetaType, int targetValueMetaType, Object sourceValue,
                                        Exception e ) throws ValueMetaConversionException {
     handleConversionError(
-      "Error trying to convert from " + ValueMetaInterface.getTypeDescription( sourceValueMetaType ) + " to "
-        + ValueMetaInterface.getTypeDescription( targetValueMetaType ) + ".  value = '" + sourceValue + "'.  Error:  "
+      "Error trying to convert from " + IValueMeta.getTypeDescription( sourceValueMetaType ) + " to "
+        + IValueMeta.getTypeDescription( targetValueMetaType ) + ".  value = '" + sourceValue + "'.  Error:  "
         + e.getClass() + ":  " + e.getMessage(), e );
   }
 

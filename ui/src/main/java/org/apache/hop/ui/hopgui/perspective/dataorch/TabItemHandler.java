@@ -1,18 +1,18 @@
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.custom.CTabItem;
 
 import java.util.Objects;
 
 public class TabItemHandler {
   private CTabItem tabItem;
-  private HopFileTypeHandlerInterface typeHandler;
+  private IHopFileTypeHandler typeHandler;
 
   public TabItemHandler() {
   }
 
-  public TabItemHandler( CTabItem tabItem, HopFileTypeHandlerInterface typeHandler ) {
+  public TabItemHandler( CTabItem tabItem, IHopFileTypeHandler typeHandler ) {
     this.tabItem = tabItem;
     this.typeHandler = typeHandler;
   }
@@ -53,14 +53,14 @@ public class TabItemHandler {
    *
    * @return value of typeHandler
    */
-  public HopFileTypeHandlerInterface getTypeHandler() {
+  public IHopFileTypeHandler getTypeHandler() {
     return typeHandler;
   }
 
   /**
    * @param typeHandler The typeHandler to set
    */
-  public void setTypeHandler( HopFileTypeHandlerInterface typeHandler ) {
+  public void setTypeHandler( IHopFileTypeHandler typeHandler ) {
     this.typeHandler = typeHandler;
   }
 }

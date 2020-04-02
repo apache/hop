@@ -40,7 +40,7 @@ package org.apache.hop.job.entries.ftpput;
 import com.enterprisedt.net.ftp.FTPClient;
 import com.enterprisedt.net.ftp.FTPException;
 import com.enterprisedt.net.ftp.FTPFile;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.IOException;
@@ -66,9 +66,9 @@ public class PDIFTPClient extends FTPClient {
   private boolean sizeSupported = true;
 
   private static Class<?> PKG = PDIFTPClient.class; // for i18n purposes, needed by Translator!!
-  private LogChannelInterface log;
+  private ILogChannel log;
 
-  public PDIFTPClient( LogChannelInterface log ) {
+  public PDIFTPClient( ILogChannel log ) {
     super();
     this.log = log;
     log.logBasic( BaseMessages.getString( PKG, "PDIFTPClient.DEBUG.Using.Overridden.FTPClient" ) );

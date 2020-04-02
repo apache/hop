@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Data class for the Abort transform.
  *
  * @author Sven Boden
  */
-public class AbortData extends BaseTransformData implements TransformDataInterface {
+public class AbortData extends BaseTransformData implements ITransformData {
   /**
    * Default constructor for AbortData.
    */

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -56,15 +56,15 @@ public class CalculatorMetaFunctionTest {
 
   @Test
   public void testGetCalcFunctionDefaultResultType() {
-    assertEquals( ValueMetaInterface.TYPE_NONE,
+    assertEquals( IValueMeta.TYPE_NONE,
       CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MIN_VALUE ) );
-    assertEquals( ValueMetaInterface.TYPE_NONE,
+    assertEquals( IValueMeta.TYPE_NONE,
       CalculatorMetaFunction.getCalcFunctionDefaultResultType( Integer.MAX_VALUE ) );
-    assertEquals( ValueMetaInterface.TYPE_NONE,
+    assertEquals( IValueMeta.TYPE_NONE,
       CalculatorMetaFunction.getCalcFunctionDefaultResultType( -1 ) );
-    assertEquals( ValueMetaInterface.TYPE_STRING,
+    assertEquals( IValueMeta.TYPE_STRING,
       CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_CONSTANT ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER,
+    assertEquals( IValueMeta.TYPE_NUMBER,
       CalculatorMetaFunction.getCalcFunctionDefaultResultType( CalculatorMetaFunction.CALC_ADD ) );
   }
 }

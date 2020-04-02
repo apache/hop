@@ -23,7 +23,7 @@
 package org.apache.hop.core.extension;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 public class ExtensionPointHandler {
 
@@ -36,7 +36,7 @@ public class ExtensionPointHandler {
    * @param object The parent object that is passed to the plugin
    * @throws HopException In case something goes wrong in the plugin and we need to stop what we're doing.
    */
-  public static void callExtensionPoint( final LogChannelInterface log, final String id, final Object object )
+  public static void callExtensionPoint( final ILogChannel log, final String id, final Object object )
     throws HopException {
     ExtensionPointMap.getInstance().callExtensionPoint( log, id, object );
   }

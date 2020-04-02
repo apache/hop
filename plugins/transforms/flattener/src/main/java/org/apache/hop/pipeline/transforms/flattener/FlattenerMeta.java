@@ -23,14 +23,14 @@
 package org.apache.hop.pipeline.transforms.flattener;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -57,7 +57,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = ""
 )
-public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInterface<Flattener, FlattenerData> {
+public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<Flattener, FlattenerData> {
   private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -110,8 +110,8 @@ public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // Remove the key value (there will be different entries for each output row)
     //
@@ -122,11 +122,11 @@ public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInt
           PKG, "FlattenerMeta.Exception.UnableToLocateFieldInInputFields", fieldName ) );
       }
 
-      ValueMetaInterface v = row.getValueMeta( idx );
+      IValueMeta v = row.getValueMeta( idx );
       row.removeValueMeta( idx );
 
       for ( int i = 0; i < targetField.length; i++ ) {
-        ValueMetaInterface value = v.clone();
+        IValueMeta value = v.clone();
         value.setName( targetField[ i ] );
         value.setOrigin( name );
 
@@ -172,8 +172,8 @@ public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInt
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -191,9 +191,9 @@ public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public Flattener createTransform( TransformMeta transformMeta, FlattenerData transformDataInterface, int cnr,
+  public Flattener createTransform( TransformMeta transformMeta, FlattenerData iTransformData, int cnr,
                                     PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Flattener( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new Flattener( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public FlattenerData getTransformData() {

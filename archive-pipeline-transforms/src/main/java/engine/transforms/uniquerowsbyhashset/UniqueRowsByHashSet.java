@@ -28,30 +28,30 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
-public class UniqueRowsByHashSet extends BaseTransform implements TransformInterface {
+public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
   private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
 
   private UniqueRowsByHashSetMeta meta;
   private UniqueRowsByHashSetData data;
 
-  public UniqueRowsByHashSet( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public UniqueRowsByHashSet( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (UniqueRowsByHashSetMeta) getTransformMeta().getTransformMetaInterface();
-    data = (UniqueRowsByHashSetData) transformDataInterface; // create new data object.
+    data = (UniqueRowsByHashSetData) iTransformData; // create new data object.
   }
 
   private boolean isUniqueRow( Object[] row ) {
     return data.seen.add( new RowKey( row, data ) );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (UniqueRowsByHashSetMeta) smi;
     data = (UniqueRowsByHashSetData) sdi;
 
@@ -72,7 +72,7 @@ public class UniqueRowsByHashSet extends BaseTransform implements TransformInter
 
       data.storeValues = meta.getStoreValues();
 
-      // Cache lookup of fields
+      // ICache lookup of fields
       data.fieldnrs = new int[ meta.getCompareFields().length ];
 
       for ( int i = 0; i < meta.getCompareFields().length; i++ ) {
@@ -115,7 +115,7 @@ public class UniqueRowsByHashSet extends BaseTransform implements TransformInter
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (UniqueRowsByHashSetMeta) smi;
     data = (UniqueRowsByHashSetData) sdi;
 

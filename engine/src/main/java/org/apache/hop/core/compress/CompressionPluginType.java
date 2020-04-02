@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -34,9 +34,9 @@ import java.util.Map;
 /**
  * This class represents the compression plugin type.
  */
-@PluginMainClassType( CompressionProvider.class )
+@PluginMainClassType( ICompressionProvider.class )
 @PluginAnnotationType( CompressionPlugin.class )
-public class CompressionPluginType extends BasePluginType implements PluginTypeInterface {
+public class CompressionPluginType extends BasePluginType implements IPluginType {
   protected static CompressionPluginType pluginType;
 
   private CompressionPluginType() {

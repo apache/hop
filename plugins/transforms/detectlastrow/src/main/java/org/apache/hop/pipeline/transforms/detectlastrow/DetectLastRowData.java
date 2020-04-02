@@ -22,18 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.detectlastrow;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03June2008
  */
-public class DetectLastRowData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class DetectLastRowData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public int NrPrevFields;
-  public RowMetaInterface previousRowMeta;
+  public IRowMeta previousRowMeta;
 
   private final Object[] trueArray = new Object[] { Boolean.TRUE };
 

@@ -23,20 +23,20 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.RowSet;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.NonAccessibleFileObject;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -78,16 +78,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class BaseTransformTest {
-  private TransformMockHelper<TransformMetaInterface, TransformDataInterface> mockHelper;
+  private TransformMockHelper<ITransformMeta, ITransformData> mockHelper;
 
-  @Mock RowHandler rowHandler;
+  @Mock IRowHandler rowHandler;
 
   @Before
   public void setup() {
     mockHelper =
-      new TransformMockHelper<>( "BASE TRANSFORM", TransformMetaInterface.class,
-        TransformDataInterface.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+      new TransformMockHelper<>( "BASE TRANSFORM", ITransformMeta.class,
+        ITransformData.class );
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
   }
 
@@ -110,11 +110,11 @@ public class BaseTransformTest {
     TransformPartitioningMeta transformPartitioningMeta = spy( new TransformPartitioningMeta() );
     BasePartitioner partitioner = mock( BasePartitioner.class );
 
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenAnswer(
-      new Answer<LogChannelInterface>() {
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
+      new Answer<ILogChannel>() {
 
         @Override
-        public LogChannelInterface answer( InvocationOnMock invocation ) throws Throwable {
+        public ILogChannel answer( InvocationOnMock invocation ) throws Throwable {
           ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
           return mockHelper.logChannelInterface;
         }
@@ -126,17 +126,17 @@ public class BaseTransformTest {
     when( partitioner.getNrPartitions() ).thenReturn( 2 );
 
     Object object0 = "name0";
-    ValueMetaInterface meta0 = new ValueMetaString( object0.toString() );
+    IValueMeta meta0 = new ValueMetaString( object0.toString() );
 
     Object object1 = "name1";
-    ValueMetaInterface meta2 = new ValueMetaString( object1.toString() );
+    IValueMeta meta2 = new ValueMetaString( object1.toString() );
 
-    RowMetaInterface rowMeta0 = new RowMeta();
+    IRowMeta rowMeta0 = new RowMeta();
     rowMeta0.addValueMeta( meta0 );
 
     Object[] objects0 = { object0 };
 
-    RowMetaInterface rowMeta1 = new RowMeta();
+    IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta( meta2 );
 
     Object[] objects1 = { object1 };
@@ -146,11 +146,11 @@ public class BaseTransformTest {
 
     BlockingRowSet[] rowSet =
       { new BlockingRowSet( 2 ), new BlockingRowSet( 2 ), new BlockingRowSet( 2 ), new BlockingRowSet( 2 ) };
-    List<RowSet> outputRowSets = new ArrayList<RowSet>();
+    List<IRowSet> outputRowSets = new ArrayList<IRowSet>();
     outputRowSets.addAll( Arrays.asList( rowSet ) );
 
-    BaseTransform<TransformMetaInterface, TransformDataInterface> baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    BaseTransform<ITransformMeta, ITransformData> baseTransform =
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setStopped( false );
     baseTransform.setRepartitioning( TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL );
     baseTransform.setOutputRowSets( outputRowSets );
@@ -165,16 +165,16 @@ public class BaseTransformTest {
 
   @Test
   public void testBaseTransformGetLogLevelWontThrowNPEWithNullLog() {
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenAnswer(
-      new Answer<LogChannelInterface>() {
+    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
+      new Answer<ILogChannel>() {
 
         @Override
-        public LogChannelInterface answer( InvocationOnMock invocation ) throws Throwable {
+        public ILogChannel answer( InvocationOnMock invocation ) throws Throwable {
           ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
           return mockHelper.logChannelInterface;
         }
       } );
-    new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline )
+    new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline )
       .getLogLevel();
   }
 
@@ -182,7 +182,7 @@ public class BaseTransformTest {
   public void testTransformListenersConcurrentModification() throws InterruptedException {
     // Create a base transform
     final BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
     // Create thread to dynamically add listeners
     final AtomicBoolean done = new AtomicBoolean( false );
@@ -190,7 +190,7 @@ public class BaseTransformTest {
       @Override
       public void run() {
         while ( !done.get() ) {
-          baseTransform.addTransformListener( mock( TransformListener.class ) );
+          baseTransform.addTransformListener( mock( ITransformListener.class ) );
           synchronized ( done ) {
             done.notify();
           }
@@ -229,8 +229,8 @@ public class BaseTransformTest {
 
   @Test
   public void resultFilesMapIsSafeForConcurrentModification() throws Exception {
-    final BaseTransform<TransformMetaInterface, TransformDataInterface> transform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    final BaseTransform<ITransformMeta, ITransformData> transform =
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
     final AtomicBoolean complete = new AtomicBoolean( false );
 
@@ -266,32 +266,32 @@ public class BaseTransformTest {
 
   @Test
   public void outputRowMetasAreNotSharedAmongSeveralStreams() throws Exception {
-    RowSet rs1 = new SingleRowRowSet();
-    RowSet rs2 = new SingleRowRowSet();
+    IRowSet rs1 = new SingleRowRowSet();
+    IRowSet rs2 = new SingleRowRowSet();
 
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
-    BaseTransform<TransformMetaInterface, TransformDataInterface> baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    BaseTransform<ITransformMeta, ITransformData> baseTransform =
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setStopped( false );
     baseTransform.setRepartitioning( TransformPartitioningMeta.PARTITIONING_METHOD_NONE );
     baseTransform.setOutputRowSets( Arrays.asList( rs1, rs2 ) );
 
-    for ( RowSet rowSet : baseTransform.getOutputRowSets() ) {
+    for ( IRowSet rowSet : baseTransform.getOutputRowSets() ) {
       assertNull( "RowMeta should be null, since no calls were done", rowSet.getRowMeta() );
     }
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "string" ) );
     rowMeta.addValueMeta( new ValueMetaInteger( "integer" ) );
 
     baseTransform.putRow( rowMeta, new Object[] { "a", 1 } );
 
-    RowMetaInterface meta1 = rs1.getRowMeta();
-    RowMetaInterface meta2 = rs2.getRowMeta();
+    IRowMeta meta1 = rs1.getRowMeta();
+    IRowMeta meta2 = rs2.getRowMeta();
     assertNotNull( meta1 );
     assertNotNull( meta2 );
     // content is same
-    for ( ValueMetaInterface meta : meta1.getValueMetaList() ) {
+    for ( IValueMeta meta : meta1.getValueMetaList() ) {
       assertTrue( meta.getName(), meta2.exists( meta ) );
     }
     // whereas instances differ
@@ -300,7 +300,7 @@ public class BaseTransformTest {
 
   @Test
   public void testBuildLog() throws HopValueException {
-    BaseTransform testObject = new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta,
+    BaseTransform testObject = new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
       mockHelper.pipeline );
     Date startDate = new Date( (long) 123 );
     Date endDate = new Date( (long) 125 );
@@ -308,30 +308,30 @@ public class BaseTransformTest {
 
     assertNotNull( result );
     assertEquals( 9, result.size() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, result.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 0 ).getType() );
     assertEquals( "myTransformName", result.getString( 0, "default" ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 1 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 1 ).getType() );
     assertEquals( new Double( 13.0 ), Double.valueOf( result.getNumber( 1, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 2 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 2 ).getType() );
     assertEquals( new Double( 123 ), Double.valueOf( result.getNumber( 2, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 3 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 3 ).getType() );
     assertEquals( new Double( 234 ), Double.valueOf( result.getNumber( 3, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 4 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 4 ).getType() );
     assertEquals( new Double( 345 ), Double.valueOf( result.getNumber( 4, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 5 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 5 ).getType() );
     assertEquals( new Double( 456 ), Double.valueOf( result.getNumber( 5, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_NUMBER, result.getValueMeta( 6 ).getType() );
+    assertEquals( IValueMeta.TYPE_NUMBER, result.getValueMeta( 6 ).getType() );
     assertEquals( new Double( 567 ), Double.valueOf( result.getNumber( 6, 0.1 ) ) );
-    assertEquals( ValueMetaInterface.TYPE_DATE, result.getValueMeta( 7 ).getType() );
+    assertEquals( IValueMeta.TYPE_DATE, result.getValueMeta( 7 ).getType() );
     assertEquals( startDate, result.getDate( 7, Calendar.getInstance().getTime() ) );
-    assertEquals( ValueMetaInterface.TYPE_DATE, result.getValueMeta( 8 ).getType() );
+    assertEquals( IValueMeta.TYPE_DATE, result.getValueMeta( 8 ).getType() );
     assertEquals( endDate, result.getDate( 8, Calendar.getInstance().getTime() ) );
   }
 
   @Test
   public void getRowWithRowHandler() throws HopException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface,
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData,
         0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
     baseTransform.getRow();
@@ -341,44 +341,44 @@ public class BaseTransformTest {
   @Test
   public void putRowWithRowHandler() throws HopException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface,
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData,
         0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
 
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta iRowMeta = mock( IRowMeta.class );
     Object[] objects = new Object[] { "foo", "bar" };
-    baseTransform.putRow( rowMetaInterface, objects );
-    verify( rowHandler, times( 1 ) ).putRow( rowMetaInterface, objects );
+    baseTransform.putRow( iRowMeta, objects );
+    verify( rowHandler, times( 1 ) ).putRow( iRowMeta, objects );
   }
 
   @Test
   public void putErrorWithRowHandler() throws HopException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface,
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData,
         0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta iRowMeta = mock( IRowMeta.class );
     Object[] objects = new Object[] { "foo", "bar" };
-    baseTransform.putError( rowMetaInterface, objects, 3l, "desc",
+    baseTransform.putError( iRowMeta, objects, 3l, "desc",
       "field1,field2", "errorCode" );
     verify( rowHandler, times( 1 ) ).putError(
-      rowMetaInterface, objects, 3l, "desc",
+      iRowMeta, objects, 3l, "desc",
       "field1,field2", "errorCode" );
   }
 
   @Test
   public void putGetFromPutToDefaultRowHandlerMethods() throws HopException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface,
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData,
         0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
     baseTransform.setRowHandler( rowHandlerWithDefaultMethods() );
 
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
+    IRowMeta iRowMeta = mock( IRowMeta.class );
     Object[] objects = new Object[] { "foo", "bar" };
 
     try {
-      baseTransform.putRowTo( rowMetaInterface, objects, new QueueRowSet() );
+      baseTransform.putRowTo( iRowMeta, objects, new QueueRowSet() );
       fail( "Expected default exception for putRowTo" );
     } catch ( UnsupportedOperationException uoe ) {
       assertTrue( uoe.getMessage().contains( this.getClass().getName() ) );
@@ -392,17 +392,17 @@ public class BaseTransformTest {
   }
 
 
-  private RowHandler rowHandlerWithDefaultMethods() {
-    return new RowHandler() {
+  private IRowHandler rowHandlerWithDefaultMethods() {
+    return new IRowHandler() {
       @Override public Object[] getRow() throws HopException {
         return new Object[ 0 ];
       }
 
-      @Override public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+      @Override public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
 
       }
 
-      @Override public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
+      @Override public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                                       String fieldNames, String errorCodes ) throws HopTransformException {
 
       }
@@ -412,11 +412,11 @@ public class BaseTransformTest {
   @Test
   public void notEmptyFieldName() throws HopTransformException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
 
-    RowMetaInterface rowMeta = new RowMeta();
-    rowMeta.addValueMeta( new ValueMetaBase( "name", ValueMetaInterface.TYPE_INTEGER ) );
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta( new ValueMetaBase( "name", IValueMeta.TYPE_INTEGER ) );
 
     baseTransform.putRow( rowMeta, new Object[] {
       0 } );
@@ -425,11 +425,11 @@ public class BaseTransformTest {
   @Test( expected = HopTransformException.class )
   public void nullFieldName() throws HopTransformException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
 
-    RowMetaInterface rowMeta = new RowMeta();
-    rowMeta.addValueMeta( new ValueMetaBase( null, ValueMetaInterface.TYPE_INTEGER ) );
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta( new ValueMetaBase( null, IValueMeta.TYPE_INTEGER ) );
 
     baseTransform.putRow( rowMeta, new Object[] {
       0 } );
@@ -438,11 +438,11 @@ public class BaseTransformTest {
   @Test( expected = HopTransformException.class )
   public void emptyFieldName() throws HopTransformException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
 
-    RowMetaInterface rowMeta = new RowMeta();
-    rowMeta.addValueMeta( new ValueMetaBase( "", ValueMetaInterface.TYPE_INTEGER ) );
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta( new ValueMetaBase( "", IValueMeta.TYPE_INTEGER ) );
 
     baseTransform.putRow( rowMeta, new Object[] {
       0 } );
@@ -451,11 +451,11 @@ public class BaseTransformTest {
   @Test( expected = HopTransformException.class )
   public void blankFieldName() throws HopTransformException {
     BaseTransform baseTransform =
-      new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     baseTransform.setRowHandler( rowHandler );
 
-    RowMetaInterface rowMeta = new RowMeta();
-    rowMeta.addValueMeta( new ValueMetaBase( "  ", ValueMetaInterface.TYPE_INTEGER ) );
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta( new ValueMetaBase( "  ", IValueMeta.TYPE_INTEGER ) );
 
     baseTransform.putRow( rowMeta, new Object[] {
       0 } );
@@ -466,12 +466,12 @@ public class BaseTransformTest {
     Pipeline pipelineMock = mock( Pipeline.class );
     when( pipelineMock.isSafeModeEnabled() ).thenReturn( true );
     BaseTransform baseTransformSpy =
-      spy( new BaseTransform( mockHelper.transformMeta, mockHelper.transformDataInterface,
+      spy( new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformData,
         0, mockHelper.pipelineMeta, pipelineMock ) );
     doNothing().when( baseTransformSpy ).waitUntilPipelineIsStarted();
 
     BlockingRowSet rowSet = new BlockingRowSet( 1 );
-    List<ValueMetaInterface> valueMetaList = Arrays.asList( new ValueMetaInteger( "x" ), new ValueMetaString( "a" ) );
+    List<IValueMeta> valueMetaList = Arrays.asList( new ValueMetaInteger( "x" ), new ValueMetaString( "a" ) );
     RowMeta rowMeta = new RowMeta();
     rowMeta.setValueMetaList( valueMetaList );
     final Object[] row = new Object[] {};

@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.univariatestats;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Holds temporary data and has routines for computing derived statistics.
@@ -32,17 +32,17 @@ import org.apache.hop.pipeline.transform.TransformDataInterface;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class UnivariateStatsData extends BaseTransformData implements TransformDataInterface {
+public class UnivariateStatsData extends BaseTransformData implements ITransformData {
 
   // this class contains intermediate results,
   // info about the input format, derived output
   // format etc.
 
   // the input data format
-  protected RowMetaInterface m_inputRowMeta;
+  protected IRowMeta m_inputRowMeta;
 
   // the output data format
-  protected RowMetaInterface m_outputRowMeta;
+  protected IRowMeta m_outputRowMeta;
 
   /**
    * contains the FieldIndexs - one for each UnivariateStatsMetaFunction
@@ -77,36 +77,36 @@ public class UnivariateStatsData extends BaseTransformData implements TransformD
   /**
    * Get the meta data for the input format
    *
-   * @return a <code>RowMetaInterface</code> value
+   * @return a <code>IRowMeta</code> value
    */
-  public RowMetaInterface getInputRowMeta() {
+  public IRowMeta getInputRowMeta() {
     return m_inputRowMeta;
   }
 
   /**
    * Save the meta data for the input format. (I'm not sure that this is really needed)
    *
-   * @param rmi a <code>RowMetaInterface</code> value
+   * @param rmi a <code>IRowMeta</code> value
    */
-  public void setInputRowMeta( RowMetaInterface rmi ) {
+  public void setInputRowMeta( IRowMeta rmi ) {
     m_inputRowMeta = rmi;
   }
 
   /**
    * Get the meta data for the output format
    *
-   * @return a <code>RowMetaInterface</code> value
+   * @return a <code>IRowMeta</code> value
    */
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return m_outputRowMeta;
   }
 
   /**
    * Set the meta data for the output format
    *
-   * @param rmi a <code>RowMetaInterface</code> value
+   * @param rmi a <code>IRowMeta</code> value
    */
-  public void setOutputRowMeta( RowMetaInterface rmi ) {
+  public void setOutputRowMeta( IRowMeta rmi ) {
     m_outputRowMeta = rmi;
   }
 }

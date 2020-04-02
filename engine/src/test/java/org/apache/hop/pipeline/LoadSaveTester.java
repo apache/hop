@@ -25,19 +25,19 @@ package org.apache.hop.pipeline;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
+public class LoadSaveTester<T extends IPartitioner> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes, List<String> xmlAttributes,
                          List<String> repoAttributes, Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
@@ -53,7 +53,7 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
 
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXML() + "</transform>";
@@ -65,7 +65,7 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
 
   protected void testClone() {
     T metaToSave = createMeta();
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     @SuppressWarnings( "unchecked" )

@@ -43,9 +43,9 @@ public class Slf4jLoggingEventListenerTest {
 
   @Mock private Logger pipelineLogger, jobLogger, diLogger;
   @Mock private HopLoggingEvent logEvent;
-  @Mock private LoggingObjectInterface loggingObject;
+  @Mock private ILoggingObject loggingObject;
   @Mock private LogMessage message;
-  @Mock private Function<String, LoggingObjectInterface> logObjProvider;
+  @Mock private Function<String, ILoggingObject> logObjProvider;
 
   private String logChannelId = "logChannelId";
   private String msgText = "message";

@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class BaseXmlMetaStoreCache implements XmlMetaStoreCache {
+public abstract class BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
 
   private final Map<String, Long> processedFiles = new HashMap<String, Long>();
 

@@ -23,20 +23,20 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
-public class ValueMetaBinary extends ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaBinary extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBinary() {
     this( null );
   }
 
   public ValueMetaBinary( String name ) {
-    super( name, ValueMetaInterface.TYPE_BINARY );
+    super( name, IValueMeta.TYPE_BINARY );
   }
 
   public ValueMetaBinary( String name, int length, int precision ) {
-    super( name, ValueMetaInterface.TYPE_BINARY, length, precision );
+    super( name, IValueMeta.TYPE_BINARY, length, precision );
   }
 
   @Override

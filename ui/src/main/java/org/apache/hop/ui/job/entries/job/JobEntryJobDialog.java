@@ -34,15 +34,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -76,7 +76,7 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDialogInterface {
+public class JobEntryJobDialog extends JobEntryBaseDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryJob.class; // for i18n purposes, needed by Translator!!
 
   protected JobEntryJob jobEntry;
@@ -90,12 +90,12 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     BaseMessages.getString( PKG, "JobJob.Fileformat.LOG" ),
     BaseMessages.getString( PKG, "JobJob.Fileformat.All" ) };
 
-  public JobEntryJobDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryJobDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryJob) jobEntryInt;
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     display = parent.getDisplay();
 
@@ -304,7 +304,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
             if ( answer == SWT.YES ) {
 
               HopGui hopGui = HopGui.getInstance();
-              HopFileTypeHandlerInterface typeHandler = HopDataOrchestrationPerspective.getInstance().getJobFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              IHopFileTypeHandler typeHandler = HopDataOrchestrationPerspective.getInstance().getJobFileType().newFile( hopGui, hopGui.getVariableSpace() );
               typeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               hopGui.fileDelegate.fileSave();

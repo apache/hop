@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.execsqlrow;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,49 +40,49 @@ public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
   @Test
   public void test() throws Exception {
-    check( "SQL_FIELD_NAME", new StringGetter() {
+    check( "SQL_FIELD_NAME", new IStringGetter() {
       @Override
       public String get() {
         return meta.getSqlFieldName();
       }
     } );
-    check( "COMMIT_SIZE", new IntGetter() {
+    check( "COMMIT_SIZE", new IIntGetter() {
       @Override
       public int get() {
         return meta.getCommitSize();
       }
     } );
-    check( "READ_SQL_FROM_FILE", new BooleanGetter() {
+    check( "READ_SQL_FROM_FILE", new IBooleanGetter() {
       @Override
       public boolean get() {
         return meta.isSqlFromfile();
       }
     } );
-    check( "SEND_SINGLE_STATEMENT", new BooleanGetter() {
+    check( "SEND_SINGLE_STATEMENT", new IBooleanGetter() {
       @Override
       public boolean get() {
         return meta.IsSendOneStatement();
       }
     } );
-    check( "UPDATE_STATS", new StringGetter() {
+    check( "UPDATE_STATS", new IStringGetter() {
       @Override
       public String get() {
         return meta.getUpdateField();
       }
     } );
-    check( "INSERT_STATS", new StringGetter() {
+    check( "INSERT_STATS", new IStringGetter() {
       @Override
       public String get() {
         return meta.getInsertField();
       }
     } );
-    check( "DELETE_STATS", new StringGetter() {
+    check( "DELETE_STATS", new IStringGetter() {
       @Override
       public String get() {
         return meta.getDeleteField();
       }
     } );
-    check( "READ_STATS", new StringGetter() {
+    check( "READ_STATS", new IStringGetter() {
       @Override
       public String get() {
         return meta.getReadField();
@@ -95,7 +95,7 @@ public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
     DatabaseMeta.createFactory( metaStore ).saveElement( dbMeta );
     meta.setMetaStore( metaStore );
 
-    ValueMetaInterface valueMeta = new ValueMetaString( "DBMETA" );
+    IValueMeta valueMeta = new ValueMetaString( "DBMETA" );
     injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );
     assertEquals( "testDBMeta", meta.getDatabaseMeta().getName() );
   }

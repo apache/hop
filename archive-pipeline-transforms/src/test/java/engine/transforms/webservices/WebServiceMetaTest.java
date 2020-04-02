@@ -26,8 +26,8 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
@@ -108,8 +108,8 @@ public class WebServiceMetaTest {
   public void testGetFields() throws Exception {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     webServiceMeta.setDefault();
-    RowMetaInterface rmi = mock( RowMetaInterface.class );
-    RowMetaInterface rmi2 = mock( RowMetaInterface.class );
+    IRowMeta rmi = mock( IRowMeta.class );
+    IRowMeta rmi2 = mock( IRowMeta.class );
     TransformMeta nextTransform = mock( TransformMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
     WebServiceField field1 = new WebServiceField();
@@ -125,14 +125,14 @@ public class WebServiceMetaTest {
     field3.setWsName( "field3WS" );
     field3.setXsdType( "string" );
     webServiceMeta.setFieldsOut( Arrays.asList( field1, field2, field3 ) );
-    webServiceMeta.getFields( rmi, "idk", new RowMetaInterface[] { rmi2 }, nextTransform, new Variables(), metastore );
+    webServiceMeta.getFields( rmi, "idk", new IRowMeta[] { rmi2 }, nextTransform, new Variables(), metastore );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field1" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field2" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field3" ) ) );
   }
 
-  private Matcher<ValueMetaInterface> matchValueMetaString( final String fieldName ) {
-    return new BaseMatcher<ValueMetaInterface>() {
+  private Matcher<IValueMeta> matchValueMetaString( final String fieldName ) {
+    return new BaseMatcher<IValueMeta>() {
       @Override public boolean matches( Object item ) {
         return fieldName.equals( ( (ValueMetaString) item ).getName() );
       }
@@ -148,8 +148,8 @@ public class WebServiceMetaTest {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     TransformMeta transformMeta = mock( TransformMeta.class );
-    RowMetaInterface prev = mock( RowMetaInterface.class );
-    RowMetaInterface info = mock( RowMetaInterface.class );
+    IRowMeta prev = mock( IRowMeta.class );
+    IRowMeta info = mock( IRowMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
     String[] input = { "one" };
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();

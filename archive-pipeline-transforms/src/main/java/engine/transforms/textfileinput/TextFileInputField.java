@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 
@@ -110,10 +110,10 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     this.name = fieldname;
     this.position = position;
     this.length = length;
-    this.type = ValueMetaInterface.TYPE_STRING;
+    this.type = IValueMeta.TYPE_STRING;
     this.ignore = false;
     this.format = "";
-    this.trimtype = ValueMetaInterface.TRIM_TYPE_NONE;
+    this.trimtype = IValueMeta.TRIM_TYPE_NONE;
     this.groupSymbol = "";
     this.decimalSymbol = "";
     this.currencySymbol = "";
@@ -321,13 +321,13 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
       samples[ i ] = Const.trim( samples[ i ] );
     }
 
-    trimtype = ValueMetaInterface.TRIM_TYPE_NONE;
+    trimtype = IValueMeta.TRIM_TYPE_NONE;
 
     if ( spaces_before ) {
-      trimtype |= ValueMetaInterface.TRIM_TYPE_LEFT;
+      trimtype |= IValueMeta.TRIM_TYPE_LEFT;
     }
     if ( spaces_after ) {
-      trimtype |= ValueMetaInterface.TRIM_TYPE_RIGHT;
+      trimtype |= IValueMeta.TRIM_TYPE_RIGHT;
     }
   }
 
@@ -340,7 +340,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     daf.setLenient( false );
 
     // Start with a string...
-    type = ValueMetaInterface.TYPE_STRING;
+    type = IValueMeta.TYPE_STRING;
 
     // If we have no samples, we assume a String...
     if ( samples == null ) {
@@ -402,7 +402,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
         }
       }
 
-      type = ValueMetaInterface.TYPE_DATE;
+      type = IValueMeta.TYPE_DATE;
       format = date_formats[ first ];
 
       return;
@@ -534,14 +534,14 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
         }
       }
 
-      type = ValueMetaInterface.TYPE_NUMBER;
+      type = IValueMeta.TYPE_NUMBER;
       format = number_formats[ first ];
       precision = maxprecision[ first ];
 
       // Wait a minute!!! What about Integers?
       // OK, only if the precision is 0 and the length <19 (java long integer)
       /*
-       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=ValueMetaInterface.TYPE_INTEGER;
+       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=IValueMeta.TYPE_INTEGER;
        * decimalSymbol=""; groupSymbol=""; }
        */
 
@@ -551,7 +551,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     //
     // Assume it's a string...
     //
-    type = ValueMetaInterface.TYPE_STRING;
+    type = IValueMeta.TYPE_STRING;
     format = "";
     precision = -1;
     decimalSymbol = "";

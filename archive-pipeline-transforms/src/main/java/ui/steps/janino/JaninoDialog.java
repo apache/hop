@@ -24,13 +24,13 @@ package org.apache.hop.ui.pipeline.transforms.janino;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.janino.JaninoMetaFunction;
@@ -62,7 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class JaninoDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class JaninoDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;
@@ -178,7 +178,7 @@ public class JaninoDialog extends BaseTransformDialog implements TransformDialog
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {

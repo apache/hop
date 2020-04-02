@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.databasejoin;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
@@ -33,12 +33,12 @@ import java.sql.PreparedStatement;
  * @author Matt
  * @since 24-jan-2005
  */
-public class DatabaseJoinData extends BaseTransformData implements TransformDataInterface {
+public class DatabaseJoinData extends BaseTransformData implements ITransformData {
   public Database db;
   public PreparedStatement pstmt;
 
-  RowMetaInterface outputRowMeta;
-  RowMetaInterface lookupRowMeta;
+  IRowMeta outputRowMeta;
+  IRowMeta lookupRowMeta;
 
   public int[] keynrs; // parameter value index in an input row...
   public Object[] notfound; // Values in case nothing is found...

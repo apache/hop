@@ -28,13 +28,13 @@ import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.update.UpdateMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -74,7 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class UpdateDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class UpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -468,7 +468,7 @@ public class UpdateDialog extends BaseTransformDialog implements TransformDialog
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -629,7 +629,7 @@ public class UpdateDialog extends BaseTransformDialog implements TransformDialog
               try {
                 db.connect();
 
-                RowMetaInterface r =
+                IRowMeta r =
                   db.getTableFieldsMeta(
                     pipelineMeta.environmentSubstitute( schemaName ),
                     pipelineMeta.environmentSubstitute( tableName ) );
@@ -828,10 +828,10 @@ public class UpdateDialog extends BaseTransformDialog implements TransformDialog
 
   private void get() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             tableItem.setText( 2, "=" );
             return true;
           }
@@ -847,7 +847,7 @@ public class UpdateDialog extends BaseTransformDialog implements TransformDialog
 
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }
@@ -868,7 +868,7 @@ public class UpdateDialog extends BaseTransformDialog implements TransformDialog
 
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transforminfo = new TransformMeta( BaseMessages.getString( PKG, "UpdateDialog.TransformMeta.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       SQLStatement sql = info.getSQLStatements( pipelineMeta, transforminfo, prev, metaStore );
       if ( !sql.hasError() ) {

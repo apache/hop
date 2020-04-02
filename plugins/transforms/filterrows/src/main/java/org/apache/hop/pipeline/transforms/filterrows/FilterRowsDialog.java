@@ -26,14 +26,14 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
-public class FilterRowsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTrueTo;
@@ -195,7 +195,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements TransformDi
     fdlCondition.top = new FormAttachment( wFalseTo, margin );
     wlCondition.setLayoutData( fdlCondition );
 
-    RowMetaInterface inputfields = null;
+    IRowMeta inputfields = null;
     try {
       inputfields = pipelineMeta.getPrevTransformFields( transformName );
     } catch ( HopException ke ) {
@@ -272,7 +272,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements TransformDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    List<StreamInterface> targetStreams = input.getTransformIOMeta().getTargetStreams();
+    List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
 
     wTrueTo.setText( Const.NVL( targetStreams.get( 0 ).getTransformName(), "" ) );
     wFalseTo.setText( Const.NVL( targetStreams.get( 1 ).getTransformName(), "" ) );
@@ -306,7 +306,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements TransformDi
         falseTransformName = null;
       }
 
-      List<StreamInterface> targetStreams = input.getTransformIOMeta().getTargetStreams();
+      List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
 
       targetStreams.get( 0 ).setTransformMeta( pipelineMeta.findTransform( trueTransformName ) );
       targetStreams.get( 1 ).setTransformMeta( pipelineMeta.findTransform( falseTransformName ) );

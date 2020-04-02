@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.security.MessageDigest;
 
@@ -34,13 +34,13 @@ import java.security.MessageDigest;
  * @author Samatar Hassan
  * @since 16-06-2008
  */
-public class CheckSumData extends BaseTransformData implements TransformDataInterface {
+public class CheckSumData extends BaseTransformData implements ITransformData {
 
   public int[] fieldnrs;
 
   public int fieldnr;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public int nrInfields;
 
   public MessageDigest digest;

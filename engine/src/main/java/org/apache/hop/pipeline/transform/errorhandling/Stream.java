@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transform.errorhandling;
 import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class Stream implements StreamInterface {
+public class Stream implements IStream {
 
   private String description;
   private StreamType streamType;
@@ -48,7 +48,7 @@ public class Stream implements StreamInterface {
     this.subject = subject;
   }
 
-  public Stream( StreamInterface stream ) {
+  public Stream( IStream stream ) {
     this( stream.getStreamType(), stream.getTransformMeta(), stream.getDescription(), stream.getStreamIcon(),
       stream.getSubject() );
   }
@@ -63,14 +63,14 @@ public class Stream implements StreamInterface {
 
   @Override
   public boolean equals( Object obj ) {
-    if ( !( obj instanceof StreamInterface ) ) {
+    if ( !( obj instanceof IStream ) ) {
       return false;
     }
     if ( obj == this ) {
       return true;
     }
 
-    StreamInterface stream = (StreamInterface) obj;
+    IStream stream = (IStream) obj;
 
     if ( description.equals( stream.getDescription() ) ) {
       return true;

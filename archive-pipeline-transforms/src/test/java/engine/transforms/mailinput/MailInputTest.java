@@ -42,7 +42,7 @@ public class MailInputTest {
   public void setUp() throws Exception {
     mockHelper =
       new TransformMockHelper<MailInputMeta, MailInputData>( "MailInput", MailInputMeta.class, MailInputData.class );
-    when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( mockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -58,7 +58,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForIMAP() {
     MailInput transform =
-      new MailInput( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new MailInput( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -77,7 +77,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForPOP3() {
     MailInput transform =
-      new MailInput( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new MailInput( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -96,7 +96,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstLimitOverride() {
     MailInput transform =
-      new MailInput( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new MailInput( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -117,7 +117,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForMBOXIgnored() {
     MailInput transform =
-      new MailInput( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new MailInput( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );

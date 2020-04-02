@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.switchcase;
 
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,17 +35,17 @@ import java.util.Set;
  * @author Matt
  * @since 24-jan-2005
  */
-public class SwitchCaseData extends BaseTransformData implements TransformDataInterface {
+public class SwitchCaseData extends BaseTransformData implements ITransformData {
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public KeyToRowSetMap outputMap;
-  public ValueMetaInterface valueMeta;
+  public IValueMeta valueMeta;
   public final Set<RowSet> nullRowSetSet = new HashSet<RowSet>();
   public int fieldIndex;
-  public ValueMetaInterface inputValueMeta;
+  public IValueMeta inputValueMeta;
   // we expect only one default set for now
   public final Set<RowSet> defaultRowSetSet = new HashSet<RowSet>( 1, 1 );
-  public ValueMetaInterface stringValueMeta;
+  public IValueMeta stringValueMeta;
 
   public SwitchCaseData() {
     super();

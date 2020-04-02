@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.filterrows;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
@@ -33,21 +33,21 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ import java.util.Optional;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
         documentationUrl = ""
 )
-public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaInterface<FilterRows, FilterRowsData> {
+public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<FilterRows, FilterRowsData> {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -129,7 +129,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
     retval.append( "    <compare>" ).append( Const.CR );
 
     if ( condition != null ) {
-      retval.append( condition.getXML() );
+      retval.append( condition.getXml() );
     }
 
     retval.append( "    </compare>" ).append( Const.CR );
@@ -202,28 +202,28 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
 
   @Override
   public void searchInfoAndTargetTransforms( List<TransformMeta> transforms ) {
-    List<StreamInterface> targetStreams = getTransformIOMeta().getTargetStreams();
-    for ( StreamInterface stream : targetStreams ) {
+    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
+    for ( IStream stream : targetStreams ) {
       stream.setTransformMeta( TransformMeta.findTransform( transforms, (String) stream.getSubject() ) );
     }
   }
 
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Clear the sortedDescending flag on fields used within the condition - otherwise the comparisons will be
     // inverted!!
     String[] conditionField = condition.getUsedFields();
     for ( int i = 0; i < conditionField.length; i++ ) {
       int idx = rowMeta.indexOfValue( conditionField[ i ] );
       if ( idx >= 0 ) {
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( idx );
+        IValueMeta valueMeta = rowMeta.getValueMeta( idx );
         valueMeta.setSortedDescending( false );
       }
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -233,11 +233,11 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
 
     if ( condition.isEmpty() ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "FilterRowsMeta.CheckResult.NoConditionSpecified" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "FilterRowsMeta.CheckResult.ConditionSpecified" ), transformMeta );
     }
     remarks.add( cr );
@@ -245,7 +245,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
     // Look up fields in the input stream <prev>
     if ( prev != null && prev.size() > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "FilterRowsMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
@@ -256,10 +256,10 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
         for ( String field : orphanFields ) {
           error_message += "\t\t" + field + Const.CR;
         }
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
             "FilterRowsMeta.CheckResult.AllFieldsFoundInInputStream" ), transformMeta );
       }
       remarks.add( cr );
@@ -267,19 +267,19 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
       error_message =
         BaseMessages.getString( PKG, "FilterRowsMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
           + Const.CR;
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "FilterRowsMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "FilterRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }
@@ -291,7 +291,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
       int trueTargetIdx = Const.indexOfString( targetTransformName, output );
       if ( trueTargetIdx < 0 ) {
         return Optional.of( new CheckResult(
-          CheckResultInterface.TYPE_RESULT_ERROR,
+          ICheckResult.TYPE_RESULT_ERROR,
           BaseMessages.getString( PKG, "FilterRowsMeta.CheckResult.TargetTransformInvalid", target, targetTransformName ),
           transformMeta
         ) );
@@ -300,9 +300,9 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
     return Optional.empty();
   }
 
-  public FilterRows createTransform( TransformMeta transformMeta, FilterRowsData transformDataInterface, int cnr, PipelineMeta tr,
+  public FilterRows createTransform( TransformMeta transformMeta, FilterRowsData iTransformData, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new FilterRows( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new FilterRows( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   public FilterRowsData getTransformData() {
@@ -312,8 +312,8 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
   /**
    * Returns the Input/Output metadata for this transform.
    */
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
 
       ioMeta = new TransformIOMeta( true, true, false, false, false, false );
@@ -337,12 +337,12 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
    *
    * @param stream The optional stream to handle.
    */
-  public void handleStreamSelection( StreamInterface stream ) {
+  public void handleStreamSelection( IStream stream ) {
     // This transform targets another transform.
     // Make sure that we don't specify the same transform for true and false...
     // If the user requests false, we blank out true and vice versa
     //
-    List<StreamInterface> targets = getTransformIOMeta().getTargetStreams();
+    List<IStream> targets = getTransformIOMeta().getTargetStreams();
     int index = targets.indexOf( stream );
     if ( index == 0 ) {
       // True
@@ -374,7 +374,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
    * @param prev
    * @return
    */
-  public List<String> getOrphanFields( Condition condition, RowMetaInterface prev ) {
+  public List<String> getOrphanFields( Condition condition, IRowMeta prev ) {
     List<String> orphans = new ArrayList<>();
     if ( condition == null || prev == null ) {
       return orphans;
@@ -384,7 +384,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
       if ( Utils.isEmpty( key[ i ] ) ) {
         continue;
       }
-      ValueMetaInterface v = prev.searchValueMeta( key[ i ] );
+      IValueMeta v = prev.searchValueMeta( key[ i ] );
       if ( v == null ) {
         orphans.add( key[ i ] );
       }
@@ -411,7 +411,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   private String getTargetTransformName( int streamIndex ) {
-    StreamInterface stream = getTransformIOMeta().getTargetStreams().get( streamIndex );
+    IStream stream = getTransformIOMeta().getTargetStreams().get( streamIndex );
     return java.util.stream.Stream.of( stream.getTransformName(), stream.getSubject() )
       .filter( Objects::nonNull )
       .findFirst().map( Object::toString ).orElse( null );
@@ -420,7 +420,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaIn
   public String getConditionXML() {
     String conditionXML = null;
     try {
-      conditionXML = condition.getXML();
+      conditionXML = condition.getXml();
     } catch ( HopValueException e ) {
       log.logError( e.getMessage() );
     }

@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
@@ -45,7 +45,7 @@ public class TextFileInputMetaTest {
   private static final String FILE_NAME_VALID_PATH = "path/to/file";
 
   private TextFileInputMeta inputMeta;
-  private VariableSpace variableSpace;
+  private iVariables variables;
 
   @Before
   public void setUp() throws Exception {
@@ -58,12 +58,12 @@ public class TextFileInputMetaTest {
     inputMeta = new TextFileInputMeta();
     inputMeta.setParentTransformMeta( parentTransformMeta );
     inputMeta = spy( inputMeta );
-    variableSpace = mock( VariableSpace.class );
+    variables = mock( iVariables.class );
 
-    doReturn( "<def>" ).when( variableSpace ).environmentSubstitute( anyString() );
-    doReturn( FILE_NAME_VALID_PATH ).when( variableSpace ).environmentSubstitute( FILE_NAME_VALID_PATH );
+    doReturn( "<def>" ).when( variables ).environmentSubstitute( anyString() );
+    doReturn( FILE_NAME_VALID_PATH ).when( variables ).environmentSubstitute( FILE_NAME_VALID_PATH );
     FileObject mockedFileObject = mock( FileObject.class );
-    doReturn( mockedFileObject ).when( inputMeta ).getFileObject( anyString(), eq( variableSpace ) );
+    doReturn( mockedFileObject ).when( inputMeta ).getFileObject( anyString(), eq( variables ) );
   }
 
   @Test

@@ -22,16 +22,16 @@
 
 package org.apache.hop.pipeline.transforms.rowsfromresult;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class RowsFromResultData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class RowsFromResultData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
 
   public RowsFromResultData() {
     super();

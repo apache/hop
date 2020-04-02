@@ -22,13 +22,13 @@
 
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
-public class SetValueFieldData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface convertRowMeta;
+public class SetValueFieldData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
 
   public int[] indexOfField;
   public int[] indexOfReplaceByValue;

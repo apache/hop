@@ -38,12 +38,12 @@ public class AppendMetaInjectionTest extends BaseMetadataInjectionTest<AppendMet
 
   @Test
   public void test() throws Exception {
-    check( "HEAD_TRANSFORM", new StringGetter() {
+    check( "HEAD_TRANSFORM", new IStringGetter() {
       public String get() {
         return meta.headTransformName;
       }
     } );
-    check( "TAIL_TRANSFORM", new StringGetter() {
+    check( "TAIL_TRANSFORM", new IStringGetter() {
       public String get() {
         return meta.tailTransformName;
       }

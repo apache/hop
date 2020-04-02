@@ -28,7 +28,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
@@ -73,7 +73,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private final Button wEdit;
 
   private IMetaStore metaStore;
-  private VariableSpace space;
+  private IVariables variables;
   private ClassLoader classLoader;
   private MetaStoreManager<T> manager;
 
@@ -83,16 +83,16 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private Label wLabel;
   private ComboVar wCombo;
 
-  public MetaSelectionLine( VariableSpace space, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
+  public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
     super( parentComposite, SWT.NONE );
-    this.space = space;
+    this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metaStore = metaStore;
     this.managedClass = managedClass;
     this.parentComposite = parentComposite;
     this.props = PropsUI.getInstance();
 
-    this.manager = new MetaStoreManager<>( space, metaStore, managedClass );
+    this.manager = new MetaStoreManager<>( variables, metaStore, managedClass );
 
     props.setLook( this );
 
@@ -145,7 +145,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     if ( flags != SWT.NONE ) {
       textFlags = flags;
     }
-    wCombo = new ComboVar( this.space, this, textFlags, toolTipText );
+    wCombo = new ComboVar( this.variables, this, textFlags, toolTipText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( middle, margin );
     fdText.right = new FormAttachment( wEdit, -margin );
@@ -333,15 +333,15 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
    *
    * @return value of space
    */
-  public VariableSpace getSpace() {
-    return space;
+  public IVariables getSpace() {
+    return variables;
   }
 
   /**
-   * @param space The space to set
+   * @param variables The space to set
    */
-  public void setSpace( VariableSpace space ) {
-    this.space = space;
+  public void setSpace( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**

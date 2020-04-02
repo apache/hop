@@ -22,12 +22,11 @@
 
 package org.apache.hop.databases.mssqlnative;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -40,7 +39,7 @@ public class MSSQLServerNativeDatabaseMetaTest {
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
-  private DatabaseInterface databaseInterface;
+  private IDatabase iDatabase;
 
   @Test
   public void testMSSQLOverrides() throws Exception {
@@ -69,16 +68,16 @@ public class MSSQLServerNativeDatabaseMetaTest {
   @Test
   public void setSQLServerInstanceTest() {
     DatabaseMeta dbmeta = new DatabaseMeta();
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
+    IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
-    dbmeta.setDatabaseInterface( mssqlServerDatabaseMeta );
+    dbmeta.setIDatabase( mssqlServerDatabaseMeta );
     dbmeta.setSQLServerInstance( "" );
     assertEquals( null , dbmeta.getSQLServerInstance());
     dbmeta.setSQLServerInstance( "instance1" );
     assertEquals(  "instance1" , dbmeta.getSQLServerInstance());
-    dbmeta.setDatabaseInterface( mssqlServerNativeDatabaseMeta );
+    dbmeta.setIDatabase( mssqlServerNativeDatabaseMeta );
     dbmeta.setSQLServerInstance( "" );
     assertEquals( null , dbmeta.getSQLServerInstance());
     dbmeta.setSQLServerInstance( "instance1" );
@@ -88,9 +87,9 @@ public class MSSQLServerNativeDatabaseMetaTest {
 /*  @Ignore
   @Test
   public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
+    IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
 
     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,

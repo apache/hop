@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -48,91 +48,91 @@ public class TextFileInputMetaInjection implements TransformMetaInjectionInterfa
 
   enum Entry implements TransformMetaInjectionEntryInterface {
 
-    FILE_TYPE( ValueMetaInterface.TYPE_STRING, "File type (CSV/Fixed)" ), SEPARATOR(
-      ValueMetaInterface.TYPE_STRING, "The field separator" ), ENCLOSURE(
-      ValueMetaInterface.TYPE_STRING, "The field enclosure" ), ESCAPE_CHAR(
-      ValueMetaInterface.TYPE_STRING, "The escape character" ), BREAK_IN_ENCLOSURE(
-      ValueMetaInterface.TYPE_STRING, "Is a break allowed in an enclosure? (Y/N)" ), HEADER_PRESENT(
-      ValueMetaInterface.TYPE_STRING, "Is there a header present? (Y/N)" ), NR_HEADER_LINES(
-      ValueMetaInterface.TYPE_STRING, "The number of header lines" ), HAS_FOOTER(
-      ValueMetaInterface.TYPE_STRING, "Is there a footer present? (Y/N)" ), NR_FOOTER_LINES(
-      ValueMetaInterface.TYPE_STRING, "The number of footer lines" ), HAS_WRAPPED_LINES(
-      ValueMetaInterface.TYPE_STRING, "Are the lines wrapped? (Y/N)" ), NR_WRAPS(
-      ValueMetaInterface.TYPE_STRING, "The number of times a line is wrapped" ), HAS_PAGED_LAYOUT(
-      ValueMetaInterface.TYPE_STRING, "Is the layout paged? (Y/N)" ), NR_DOC_HEADER_LINES(
-      ValueMetaInterface.TYPE_STRING, "The number of document header lines" ), NR_LINES_PER_PAGE(
-      ValueMetaInterface.TYPE_STRING, "The number of lines per page" ), COMPRESSION_TYPE(
-      ValueMetaInterface.TYPE_STRING, "The compression type used (None, Zip or GZip)" ), NO_EMPTY_LINES(
-      ValueMetaInterface.TYPE_STRING, "Skip empty lines? (Y/N)" ), INCLUDE_FILENAME(
-      ValueMetaInterface.TYPE_STRING, "Include filename in the output? (Y/N)" ), FILENAME_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The name of the filename field in the output" ), INCLUDE_ROW_NUMBER(
-      ValueMetaInterface.TYPE_STRING, "Include a row number in the output? (Y/N)" ), ROW_NUMBER_BY_FILE(
-      ValueMetaInterface.TYPE_STRING, "Reset the row number for each file? (Y/N)" ), ROW_NUMBER_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The name of the row number field in the output" ), FILE_FORMAT(
-      ValueMetaInterface.TYPE_STRING, "File format (DOS, UNIX, mixed)" ), ENCODING(
-      ValueMetaInterface.TYPE_STRING,
+    FILE_TYPE( IValueMeta.TYPE_STRING, "File type (CSV/Fixed)" ), SEPARATOR(
+      IValueMeta.TYPE_STRING, "The field separator" ), ENCLOSURE(
+      IValueMeta.TYPE_STRING, "The field enclosure" ), ESCAPE_CHAR(
+      IValueMeta.TYPE_STRING, "The escape character" ), BREAK_IN_ENCLOSURE(
+      IValueMeta.TYPE_STRING, "Is a break allowed in an enclosure? (Y/N)" ), HEADER_PRESENT(
+      IValueMeta.TYPE_STRING, "Is there a header present? (Y/N)" ), NR_HEADER_LINES(
+      IValueMeta.TYPE_STRING, "The number of header lines" ), HAS_FOOTER(
+      IValueMeta.TYPE_STRING, "Is there a footer present? (Y/N)" ), NR_FOOTER_LINES(
+      IValueMeta.TYPE_STRING, "The number of footer lines" ), HAS_WRAPPED_LINES(
+      IValueMeta.TYPE_STRING, "Are the lines wrapped? (Y/N)" ), NR_WRAPS(
+      IValueMeta.TYPE_STRING, "The number of times a line is wrapped" ), HAS_PAGED_LAYOUT(
+      IValueMeta.TYPE_STRING, "Is the layout paged? (Y/N)" ), NR_DOC_HEADER_LINES(
+      IValueMeta.TYPE_STRING, "The number of document header lines" ), NR_LINES_PER_PAGE(
+      IValueMeta.TYPE_STRING, "The number of lines per page" ), COMPRESSION_TYPE(
+      IValueMeta.TYPE_STRING, "The compression type used (None, Zip or GZip)" ), NO_EMPTY_LINES(
+      IValueMeta.TYPE_STRING, "Skip empty lines? (Y/N)" ), INCLUDE_FILENAME(
+      IValueMeta.TYPE_STRING, "Include filename in the output? (Y/N)" ), FILENAME_FIELD(
+      IValueMeta.TYPE_STRING, "The name of the filename field in the output" ), INCLUDE_ROW_NUMBER(
+      IValueMeta.TYPE_STRING, "Include a row number in the output? (Y/N)" ), ROW_NUMBER_BY_FILE(
+      IValueMeta.TYPE_STRING, "Reset the row number for each file? (Y/N)" ), ROW_NUMBER_FIELD(
+      IValueMeta.TYPE_STRING, "The name of the row number field in the output" ), FILE_FORMAT(
+      IValueMeta.TYPE_STRING, "File format (DOS, UNIX, mixed)" ), ENCODING(
+      IValueMeta.TYPE_STRING,
       "Encoding type (for allowed values see: http://wiki.pentaho.com/display/EAI/Text+File+Input)" ), ROW_LIMIT(
-      ValueMetaInterface.TYPE_STRING, "The maximum number of lines to read." ), DATE_FORMAT_LENIENT(
-      ValueMetaInterface.TYPE_STRING, "Use a lenient date parsing algorithm? (Y/N)" ), DATE_FORMAT_LOCALE(
-      ValueMetaInterface.TYPE_STRING, "The date format locale" ), ACCEPT_FILE_NAMES(
-      ValueMetaInterface.TYPE_STRING, "Accept file names? (Y/N)" ), ACCEPT_FILE_TRANSFORM(
-      ValueMetaInterface.TYPE_STRING, "The source transform for the file names" ), ACCEPT_FILE_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The input field for the file names" ), PASS_THROUGH_FIELDS(
-      ValueMetaInterface.TYPE_STRING, "Pass through fields? (Y/N)" ), ADD_FILES_TO_RESULT(
-      ValueMetaInterface.TYPE_STRING, "Add file names to the result files? (Y/N)" ), FILE_SHORT_FILE_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The short file output fieldname" ), FILE_PATH_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The path output fieldname" ), FILE_HIDDEN_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The hidden output fieldname" ), FILE_LAST_MODIFICATION_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The last modification time output fieldname" ), FILE_URI_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The URI output fieldname" ), FILE_EXTENSION_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The extension output fieldname" ), FILE_SIZE_FIELDNAME(
-      ValueMetaInterface.TYPE_STRING, "The file size output fieldname" ), SKIP_BAD_FILES(
-      ValueMetaInterface.TYPE_STRING, "Skip bad files? (Y/N)" ), FILE_ERROR_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The output field for the error files" ), FILE_ERROR_MESSAGE_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The output field for the file error messages" ), IGNORE_ERRORS(
-      ValueMetaInterface.TYPE_STRING, "Ignore errors? (Y/N)" ), ERROR_COUNT_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The output field for the number of errors" ), ERROR_FIELDS_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The output field for the fields in error" ), ERROR_TEXT_FIELD(
-      ValueMetaInterface.TYPE_STRING, "The output field for the error text" ), WARNING_FILES_TARGET_DIR(
-      ValueMetaInterface.TYPE_STRING, "The target directory for the warning files" ), WARNING_FILES_EXTENTION(
-      ValueMetaInterface.TYPE_STRING, "The warning files' extension" ), ERROR_FILES_TARGET_DIR(
-      ValueMetaInterface.TYPE_STRING, "The target directory for the error files" ), ERROR_FILES_EXTENTION(
-      ValueMetaInterface.TYPE_STRING, "The error files' extension" ), LINE_NR_FILES_TARGET_DIR(
-      ValueMetaInterface.TYPE_STRING, "The target directory for the line number files" ),
-    LINE_NR_FILES_EXTENTION( ValueMetaInterface.TYPE_STRING, "The line number files' extension" ),
-    ERROR_LINES_SKIPPED( ValueMetaInterface.TYPE_STRING, "Skip error lines? (Y/N)" ),
+      IValueMeta.TYPE_STRING, "The maximum number of lines to read." ), DATE_FORMAT_LENIENT(
+      IValueMeta.TYPE_STRING, "Use a lenient date parsing algorithm? (Y/N)" ), DATE_FORMAT_LOCALE(
+      IValueMeta.TYPE_STRING, "The date format locale" ), ACCEPT_FILE_NAMES(
+      IValueMeta.TYPE_STRING, "Accept file names? (Y/N)" ), ACCEPT_FILE_TRANSFORM(
+      IValueMeta.TYPE_STRING, "The source transform for the file names" ), ACCEPT_FILE_FIELD(
+      IValueMeta.TYPE_STRING, "The input field for the file names" ), PASS_THROUGH_FIELDS(
+      IValueMeta.TYPE_STRING, "Pass through fields? (Y/N)" ), ADD_FILES_TO_RESULT(
+      IValueMeta.TYPE_STRING, "Add file names to the result files? (Y/N)" ), FILE_SHORT_FILE_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The short file output fieldname" ), FILE_PATH_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The path output fieldname" ), FILE_HIDDEN_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The hidden output fieldname" ), FILE_LAST_MODIFICATION_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The last modification time output fieldname" ), FILE_URI_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The URI output fieldname" ), FILE_EXTENSION_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The extension output fieldname" ), FILE_SIZE_FIELDNAME(
+      IValueMeta.TYPE_STRING, "The file size output fieldname" ), SKIP_BAD_FILES(
+      IValueMeta.TYPE_STRING, "Skip bad files? (Y/N)" ), FILE_ERROR_FIELD(
+      IValueMeta.TYPE_STRING, "The output field for the error files" ), FILE_ERROR_MESSAGE_FIELD(
+      IValueMeta.TYPE_STRING, "The output field for the file error messages" ), IGNORE_ERRORS(
+      IValueMeta.TYPE_STRING, "Ignore errors? (Y/N)" ), ERROR_COUNT_FIELD(
+      IValueMeta.TYPE_STRING, "The output field for the number of errors" ), ERROR_FIELDS_FIELD(
+      IValueMeta.TYPE_STRING, "The output field for the fields in error" ), ERROR_TEXT_FIELD(
+      IValueMeta.TYPE_STRING, "The output field for the error text" ), WARNING_FILES_TARGET_DIR(
+      IValueMeta.TYPE_STRING, "The target directory for the warning files" ), WARNING_FILES_EXTENTION(
+      IValueMeta.TYPE_STRING, "The warning files' extension" ), ERROR_FILES_TARGET_DIR(
+      IValueMeta.TYPE_STRING, "The target directory for the error files" ), ERROR_FILES_EXTENTION(
+      IValueMeta.TYPE_STRING, "The error files' extension" ), LINE_NR_FILES_TARGET_DIR(
+      IValueMeta.TYPE_STRING, "The target directory for the line number files" ),
+    LINE_NR_FILES_EXTENTION( IValueMeta.TYPE_STRING, "The line number files' extension" ),
+    ERROR_LINES_SKIPPED( IValueMeta.TYPE_STRING, "Skip error lines? (Y/N)" ),
 
-    FILENAME_LINES( ValueMetaInterface.TYPE_NONE, "The list of file definitions" ), FILENAME_LINE(
-      ValueMetaInterface.TYPE_NONE, "One file definition line" ), FILENAME(
-      ValueMetaInterface.TYPE_STRING, "The filename or directory" ), FILEMASK(
-      ValueMetaInterface.TYPE_STRING, "The file mask (regex)" ), EXCLUDE_FILEMASK(
-      ValueMetaInterface.TYPE_STRING, "The mask for the files to exclude (regex)" ), FILE_REQUIRED(
-      ValueMetaInterface.TYPE_STRING, "Is this a required file (Y/N)" ), INCLUDE_SUBFOLDERS(
-      ValueMetaInterface.TYPE_STRING, "Include sub-folders when searching files? (Y/N)" ),
+    FILENAME_LINES( IValueMeta.TYPE_NONE, "The list of file definitions" ), FILENAME_LINE(
+      IValueMeta.TYPE_NONE, "One file definition line" ), FILENAME(
+      IValueMeta.TYPE_STRING, "The filename or directory" ), FILEMASK(
+      IValueMeta.TYPE_STRING, "The file mask (regex)" ), EXCLUDE_FILEMASK(
+      IValueMeta.TYPE_STRING, "The mask for the files to exclude (regex)" ), FILE_REQUIRED(
+      IValueMeta.TYPE_STRING, "Is this a required file (Y/N)" ), INCLUDE_SUBFOLDERS(
+      IValueMeta.TYPE_STRING, "Include sub-folders when searching files? (Y/N)" ),
 
-    FIELDS( ValueMetaInterface.TYPE_NONE, "The fields" ), FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
-    FIELD_NAME( ValueMetaInterface.TYPE_STRING, "Name" ), FIELD_POSITION(
-      ValueMetaInterface.TYPE_STRING, "Position" ), FIELD_LENGTH( ValueMetaInterface.TYPE_STRING, "Length" ),
-    FIELD_TYPE( ValueMetaInterface.TYPE_STRING, "Data type (String, Number, ...)" ), FIELD_IGNORE(
-      ValueMetaInterface.TYPE_STRING, "Ignore? (Y/N)" ),
-    FIELD_FORMAT( ValueMetaInterface.TYPE_STRING, "Format" ), FIELD_TRIM_TYPE(
-      ValueMetaInterface.TYPE_STRING, "Trim type (none, left, right, both)" ), FIELD_PRECISION(
-      ValueMetaInterface.TYPE_STRING, "Precision" ), FIELD_DECIMAL(
-      ValueMetaInterface.TYPE_STRING, "Decimal symbol" ), FIELD_GROUP(
-      ValueMetaInterface.TYPE_STRING, "Grouping symbol" ), FIELD_CURRENCY(
-      ValueMetaInterface.TYPE_STRING, "Currency symbol" ), FIELD_REPEAT(
-      ValueMetaInterface.TYPE_STRING, "Repeat values? (Y/N)" ), FIELD_NULL_STRING(
-      ValueMetaInterface.TYPE_STRING, "The null string" ), FIELD_IF_NULL(
-      ValueMetaInterface.TYPE_STRING, "The default value if null" ),
+    FIELDS( IValueMeta.TYPE_NONE, "The fields" ), FIELD( IValueMeta.TYPE_NONE, "One field" ),
+    FIELD_NAME( IValueMeta.TYPE_STRING, "Name" ), FIELD_POSITION(
+      IValueMeta.TYPE_STRING, "Position" ), FIELD_LENGTH( IValueMeta.TYPE_STRING, "Length" ),
+    FIELD_TYPE( IValueMeta.TYPE_STRING, "Data type (String, Number, ...)" ), FIELD_IGNORE(
+      IValueMeta.TYPE_STRING, "Ignore? (Y/N)" ),
+    FIELD_FORMAT( IValueMeta.TYPE_STRING, "Format" ), FIELD_TRIM_TYPE(
+      IValueMeta.TYPE_STRING, "Trim type (none, left, right, both)" ), FIELD_PRECISION(
+      IValueMeta.TYPE_STRING, "Precision" ), FIELD_DECIMAL(
+      IValueMeta.TYPE_STRING, "Decimal symbol" ), FIELD_GROUP(
+      IValueMeta.TYPE_STRING, "Grouping symbol" ), FIELD_CURRENCY(
+      IValueMeta.TYPE_STRING, "Currency symbol" ), FIELD_REPEAT(
+      IValueMeta.TYPE_STRING, "Repeat values? (Y/N)" ), FIELD_NULL_STRING(
+      IValueMeta.TYPE_STRING, "The null string" ), FIELD_IF_NULL(
+      IValueMeta.TYPE_STRING, "The default value if null" ),
 
     // The filters
     //
-    FILTERS( ValueMetaInterface.TYPE_NONE, "The filter definitions" ), FILTER(
-      ValueMetaInterface.TYPE_NONE, "One filter definition" ), FILTER_POSITION(
-      ValueMetaInterface.TYPE_STRING, "Position" ), FILTER_STRING(
-      ValueMetaInterface.TYPE_STRING, "Filter string" ), FILTER_LAST_LINE(
-      ValueMetaInterface.TYPE_STRING, "Stop reading when filter found? (Y/N)" ), FILTER_POSITIVE(
-      ValueMetaInterface.TYPE_STRING, "Only match the filter lines? (Y/N)" );
+    FILTERS( IValueMeta.TYPE_NONE, "The filter definitions" ), FILTER(
+      IValueMeta.TYPE_NONE, "One filter definition" ), FILTER_POSITION(
+      IValueMeta.TYPE_STRING, "Position" ), FILTER_STRING(
+      IValueMeta.TYPE_STRING, "Filter string" ), FILTER_LAST_LINE(
+      IValueMeta.TYPE_STRING, "Stop reading when filter found? (Y/N)" ), FILTER_POSITIVE(
+      IValueMeta.TYPE_STRING, "Only match the filter lines? (Y/N)" );
 
     private int valueType;
     private String description;

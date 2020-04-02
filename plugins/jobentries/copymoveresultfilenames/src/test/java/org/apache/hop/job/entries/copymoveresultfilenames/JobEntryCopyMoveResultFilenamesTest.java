@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class JobEntryCopyMoveResultFilenamesTest extends JobEntryLoadSaveTestSupport<JobEntryCopyMoveResultFilenames> {
+public class JobEntryCopyMoveResultFilenamesTest extends JobEntryLoadSaveTestSupport<JobEntryCopyMoveResultFilenamesI> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<JobEntryCopyMoveResultFilenames> getJobEntryClass() {
-    return JobEntryCopyMoveResultFilenames.class;
+  protected Class<JobEntryCopyMoveResultFilenamesI> getJobEntryClass() {
+    return JobEntryCopyMoveResultFilenamesI.class;
   }
 
   @Override

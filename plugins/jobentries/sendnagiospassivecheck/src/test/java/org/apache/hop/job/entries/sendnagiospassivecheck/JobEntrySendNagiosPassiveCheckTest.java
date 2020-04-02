@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class JobEntrySendNagiosPassiveCheckTest extends JobEntryLoadSaveTestSupport<JobEntrySendNagiosPassiveCheck> {
+public class JobEntrySendNagiosPassiveCheckTest extends JobEntryLoadSaveTestSupport<JobEntrySendNagiosPassiveICheck> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<JobEntrySendNagiosPassiveCheck> getJobEntryClass() {
-    return JobEntrySendNagiosPassiveCheck.class;
+  protected Class<JobEntrySendNagiosPassiveICheck> getJobEntryClass() {
+    return JobEntrySendNagiosPassiveICheck.class;
   }
 
   @Override

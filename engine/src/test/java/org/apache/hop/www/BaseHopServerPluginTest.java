@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,13 +49,13 @@ public class BaseHopServerPluginTest {
 
   HttpServletRequest req = mock( HttpServletRequest.class );
   HttpServletResponse resp = mock( HttpServletResponse.class );
-  LogChannelInterface log = mock( LogChannelInterface.class );
-  HopServerRequestHandler.WriterResponse writerResponse = mock( HopServerRequestHandler.WriterResponse.class );
-  HopServerRequestHandler.OutputStreamResponse outputStreamResponse = mock( HopServerRequestHandler.OutputStreamResponse.class );
+  ILogChannel log = mock( ILogChannel.class );
+  IHopServerRequestHandler.IWriterResponse writerResponse = mock( IHopServerRequestHandler.IWriterResponse.class );
+  IHopServerRequestHandler.IOutputStreamResponse outputStreamResponse = mock( IHopServerRequestHandler.IOutputStreamResponse.class );
   PrintWriter printWriter = mock( PrintWriter.class );
   javax.servlet.ServletOutputStream outputStream = mock( javax.servlet.ServletOutputStream.class );
 
-  ArgumentCaptor<HopServerRequestHandler.CarteRequest> carteReqCaptor = ArgumentCaptor.forClass( HopServerRequestHandler.CarteRequest.class );
+  ArgumentCaptor<IHopServerRequestHandler.ICarteRequest> carteReqCaptor = ArgumentCaptor.forClass( IHopServerRequestHandler.ICarteRequest.class );
 
   BaseHopServerPlugin baseHopServerPlugin;
 
@@ -63,7 +63,7 @@ public class BaseHopServerPluginTest {
   public void before() {
     baseHopServerPlugin = spy( new BaseHopServerPlugin() {
       @Override
-      public void handleRequest( CarteRequest request ) throws IOException {
+      public void handleRequest( ICarteRequest request ) throws IOException {
       }
 
       @Override
@@ -93,13 +93,13 @@ public class BaseHopServerPluginTest {
     verify( log ).logDebug( baseHopServerPlugin.getService() );
     verify( baseHopServerPlugin ).handleRequest( carteReqCaptor.capture() );
 
-    HopServerRequestHandler.CarteRequest carteRequest = carteReqCaptor.getValue();
+    IHopServerRequestHandler.ICarteRequest carteRequest = carteReqCaptor.getValue();
 
     testCarteRequest( carteRequest );
     testCarteResponse( carteRequest.respond( 200 ) );
   }
 
-  private void testCarteResponse( HopServerRequestHandler.CarteResponse response ) throws IOException {
+  private void testCarteResponse( IHopServerRequestHandler.ICarteResponse response ) throws IOException {
     when( resp.getWriter() ).thenReturn( printWriter );
     when( resp.getOutputStream() ).thenReturn( outputStream );
 
@@ -118,7 +118,7 @@ public class BaseHopServerPluginTest {
     verify( printWriter ).println( "Message" );
   }
 
-  private void testCarteRequest( HopServerRequestHandler.CarteRequest carteRequest ) {
+  private void testCarteRequest( IHopServerRequestHandler.ICarteRequest carteRequest ) {
     when( req.getMethod() ).thenReturn( "POST" );
     when( req.getHeader( "Connection" ) ).thenReturn( "Keep-Alive" );
     when( req.getParameter( "param1" ) ).thenReturn( "val1" );

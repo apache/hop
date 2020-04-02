@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class SelectValuesData extends BaseTransformData implements TransformDataInterface {
+public class SelectValuesData extends BaseTransformData implements ITransformData {
   public int[] fieldnrs;
   public int[] extraFieldnrs;
   public int[] removenrs;
@@ -40,11 +40,11 @@ public class SelectValuesData extends BaseTransformData implements TransformData
   public boolean firstdeselect;
   public boolean firstmetadata;
 
-  public RowMetaInterface selectRowMeta;
-  public RowMetaInterface deselectRowMeta;
-  public RowMetaInterface metadataRowMeta;
+  public IRowMeta selectRowMeta;
+  public IRowMeta deselectRowMeta;
+  public IRowMeta metadataRowMeta;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   // The MODE, default = select...
   public boolean select; // "normal" selection of fields.

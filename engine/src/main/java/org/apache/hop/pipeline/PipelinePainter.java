@@ -30,14 +30,14 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EFont;
-import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
-import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
+import org.apache.hop.core.gui.IPrimitiveGC.EColor;
+import org.apache.hop.core.gui.IPrimitiveGC.EFont;
+import org.apache.hop.core.gui.IPrimitiveGC.EImage;
+import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
 import org.apache.hop.core.gui.Rectangle;
-import org.apache.hop.core.gui.ScrollBarInterface;
+import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -46,11 +46,11 @@ import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 
 import java.util.List;
 import java.util.Map;
@@ -85,8 +85,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     new String[] { "  400% ", "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
 
 
-  public PipelinePainter( GCInterface gc, PipelineMeta pipelineMeta, Point area, ScrollBarInterface hori,
-                          ScrollBarInterface vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
+  public PipelinePainter( IGC gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
+                          IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                           int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
                           boolean slowTransformIndicatorEnabled, double zoomFactor ) {
@@ -103,8 +103,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     transformLogMap = null;
   }
 
-  public PipelinePainter( GCInterface gc, PipelineMeta pipelineMeta, Point area, ScrollBarInterface hori,
-                          ScrollBarInterface vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
+  public PipelinePainter( IGC gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
+                          IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                           int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
 
@@ -574,7 +574,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     boolean isDeprecated = transformMeta.isDeprecated();
     int alpha = gc.getAlpha();
 
-    TransformIOMetaInterface ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
+    ITransformIOMeta ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
 
     Point pt = transformMeta.getLocation();
     if ( pt == null ) {
@@ -777,12 +777,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Check to see if the source transform is an info transform for the target transform.
     //
-    TransformIOMetaInterface ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
-    List<StreamInterface> infoStreams = ioMeta.getInfoStreams();
+    ITransformIOMeta ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
+    List<IStream> infoStreams = ioMeta.getInfoStreams();
     if ( !infoStreams.isEmpty() ) {
       // Check this situation, the source transform can't run in multiple copies!
       //
-      for ( StreamInterface stream : infoStreams ) {
+      for ( IStream stream : infoStreams ) {
         if ( fs.getName().equalsIgnoreCase( stream.getTransformName() ) ) {
           // This is the info transform over this hop!
           //
@@ -874,8 +874,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         Const.indexOfString( ts.getName(), fs.getTransformMetaInterface().getTransformIOMeta().getTargetTransformNames() ) >= 0;
 
       if ( targetHop ) {
-        TransformIOMetaInterface ioMeta = fs.getTransformMetaInterface().getTransformIOMeta();
-        StreamInterface targetStream = ioMeta.findTargetStream( ts );
+        ITransformIOMeta ioMeta = fs.getTransformMetaInterface().getTransformIOMeta();
+        IStream targetStream = ioMeta.findTargetStream( ts );
         if ( targetStream != null ) {
           EImage hopsIcon = BasePainter.getStreamIconImage( targetStream.getStreamIcon() );
           Point bounds = gc.getImageBounds( hopsIcon );
@@ -925,7 +925,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         mx += 16;
       }
 
-      TransformIOMetaInterface ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
+      ITransformIOMeta ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
       String[] infoTransformNames = ioMeta.getInfoTransformNames();
 
       if ( ( candidateHopType == StreamType.INFO && ts.equals( endHopTransform ) && fs.equals( startHopTransform ) )

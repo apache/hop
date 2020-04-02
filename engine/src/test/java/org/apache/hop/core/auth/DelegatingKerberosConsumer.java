@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.AuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingKerberosConsumer implements
-  AuthenticationConsumer<Object, KerberosAuthenticationProvider> {
-  private AuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate;
+  IAuthenticationConsumer<Object, KerberosAuthenticationProvider> {
+  private IAuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate;
 
-  public DelegatingKerberosConsumer( AuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate ) {
+  public DelegatingKerberosConsumer( IAuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate ) {
     this.delegate = delegate;
   }
 

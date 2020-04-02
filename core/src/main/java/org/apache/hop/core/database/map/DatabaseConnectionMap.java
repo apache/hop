@@ -23,7 +23,7 @@
 package org.apache.hop.core.database.map;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseTransactionListener;
+import org.apache.hop.core.database.IDatabaseTransaction;
 import org.apache.hop.core.util.Utils;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DatabaseConnectionMap {
   private final ConcurrentMap<String, Database> map;
   private final AtomicInteger transactionId;
-  private final Map<String, List<DatabaseTransactionListener>> transactionListenersMap;
+  private final Map<String, List<IDatabaseTransaction>> transactionListenersMap;
 
   private static final DatabaseConnectionMap connectionMap = new DatabaseConnectionMap();
 
@@ -59,7 +59,7 @@ public class DatabaseConnectionMap {
   private DatabaseConnectionMap() {
     map = new ConcurrentHashMap<String, Database>();
     transactionId = new AtomicInteger( 0 );
-    transactionListenersMap = new HashMap<String, List<DatabaseTransactionListener>>();
+    transactionListenersMap = new HashMap<String, List<IDatabaseTransaction>>();
   }
 
   /**
@@ -119,20 +119,20 @@ public class DatabaseConnectionMap {
     return Integer.toString( transactionId.incrementAndGet() );
   }
 
-  public void addPipelineactionListener( String transactionId, DatabaseTransactionListener listener ) {
-    List<DatabaseTransactionListener> transactionListeners = getTransactionListeners( transactionId );
+  public void addPipelineactionListener( String transactionId, IDatabaseTransaction listener ) {
+    List<IDatabaseTransaction> transactionListeners = getTransactionListeners( transactionId );
     transactionListeners.add( listener );
   }
 
-  public void removeTransactionListener( String transactionId, DatabaseTransactionListener listener ) {
-    List<DatabaseTransactionListener> transactionListeners = getTransactionListeners( transactionId );
+  public void removeTransactionListener( String transactionId, IDatabaseTransaction listener ) {
+    List<IDatabaseTransaction> transactionListeners = getTransactionListeners( transactionId );
     transactionListeners.remove( listener );
   }
 
-  public List<DatabaseTransactionListener> getTransactionListeners( String transactionId ) {
-    List<DatabaseTransactionListener> transactionListeners = transactionListenersMap.get( transactionId );
+  public List<IDatabaseTransaction> getTransactionListeners( String transactionId ) {
+    List<IDatabaseTransaction> transactionListeners = transactionListenersMap.get( transactionId );
     if ( transactionListeners == null ) {
-      transactionListeners = new ArrayList<DatabaseTransactionListener>();
+      transactionListeners = new ArrayList<IDatabaseTransaction>();
       transactionListenersMap.put( transactionId, transactionListeners );
     }
     return transactionListeners;

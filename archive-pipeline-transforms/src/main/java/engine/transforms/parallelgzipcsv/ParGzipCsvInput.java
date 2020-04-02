@@ -28,15 +28,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -51,18 +51,18 @@ import java.util.zip.GZIPInputStream;
  * @author Matt
  * @since 2007-07-05
  */
-public class ParGzipCsvInput extends BaseTransform implements TransformInterface {
+public class ParGzipCsvInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ParGzipCsvInputMeta meta;
   private ParGzipCsvInputData data;
 
-  public ParGzipCsvInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ParGzipCsvInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ParGzipCsvInputMeta) smi;
     data = (ParGzipCsvInputData) sdi;
 
@@ -87,8 +87,8 @@ public class ParGzipCsvInput extends BaseTransform implements TransformInterface
       // Pretend it's a lazy conversion object anyway and get the native type during conversion.
       //
       data.convertRowMeta = data.outputRowMeta.clone();
-      for ( ValueMetaInterface valueMeta : data.convertRowMeta.getValueMetaList() ) {
-        valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      for ( IValueMeta valueMeta : data.convertRowMeta.getValueMetaList() ) {
+        valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
       }
 
       // Calculate the indexes for the filename and row number fields
@@ -256,7 +256,7 @@ public class ParGzipCsvInput extends BaseTransform implements TransformInterface
       .toString( data.filenames.length ) ) );
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     try {
       closeFile(); // close the final file
     } catch ( Exception ignored ) {
@@ -608,7 +608,7 @@ public class ParGzipCsvInput extends BaseTransform implements TransformInterface
             // The convert object uses binary storage as such we just have to ask the native type from it.
             // That will do the actual conversion.
             //
-            ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
+            IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
             outputRowData[ outputIndex++ ] = sourceValueMeta.convertBinaryStringToNativeType( field );
           }
         } else {
@@ -677,7 +677,7 @@ public class ParGzipCsvInput extends BaseTransform implements TransformInterface
 
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ParGzipCsvInputMeta) smi;
     data = (ParGzipCsvInputData) sdi;
 

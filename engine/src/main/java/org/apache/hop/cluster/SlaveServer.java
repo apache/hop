@@ -32,15 +32,15 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -122,7 +122,7 @@ import java.util.Random;
   description = "Defines a Hop Slave Server",
   iconImage = "ui/images/slave.svg"
 )
-public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<SlaveServer> {
+public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<SlaveServer> {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SLAVESERVER = "Slave Server";
@@ -156,7 +156,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     }
   }
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private String name;
 
@@ -193,7 +193,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
   @MetaStoreAttribute
   private boolean master;
 
-  private VariableSpace variables = new Variables();
+  private IVariables variables = new Variables();
 
   private Date changedDate;
 
@@ -262,11 +262,11 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     }
   }
 
-  public LogChannelInterface getLogChannel() {
+  public ILogChannel getLogChannel() {
     return log;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
@@ -952,8 +952,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     this.name = name;
   }
 
-  public void copyVariablesFrom( VariableSpace space ) {
-    variables.copyVariablesFrom( space );
+  public void copyVariablesFrom( IVariables variables ) {
+    variables.copyVariablesFrom( variables );
   }
 
   public String environmentSubstitute( String aString ) {
@@ -964,16 +964,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return variables.environmentSubstitute( aString );
   }
 
-  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
+  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
     return variables.fieldSubstitute( aString, rowMeta, rowData );
   }
 
-  public VariableSpace getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return variables.getParentVariableSpace();
   }
 
-  public void setParentVariableSpace( VariableSpace parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
     variables.setParentVariableSpace( parent );
   }
 
@@ -995,7 +995,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     return defaultValue;
   }
 
-  public void initializeVariablesFrom( VariableSpace parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
     variables.initializeVariablesFrom( parent );
   }
 
@@ -1007,8 +1007,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     variables.setVariable( variableName, variableValue );
   }
 
-  public void shareVariablesWith( VariableSpace space ) {
-    variables = space;
+  public void shareVariablesWith( IVariables variables ) {
+    variables = variables;
   }
 
   public void injectVariables( Map<String, String> prop ) {
@@ -1109,7 +1109,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * @param carteObjectId the HopServer object ID
    * @param pipelineName     the pipeline name
    */
-  public void monitorRemotePipeline( LogChannelInterface log, String carteObjectId, String pipelineName ) {
+  public void monitorRemotePipeline( ILogChannel log, String carteObjectId, String pipelineName ) {
     monitorRemotePipeline( log, carteObjectId, pipelineName, 5 );
   }
 
@@ -1121,7 +1121,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * @param pipelineName        the pipeline name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemotePipeline( LogChannelInterface log, String carteObjectId, String pipelineName, int sleepTimeSeconds ) {
+  public void monitorRemotePipeline( ILogChannel log, String carteObjectId, String pipelineName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {
@@ -1192,7 +1192,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * @param carteObjectId the HopServer object ID
    * @param jobName       the job name
    */
-  public void monitorRemoteJob( LogChannelInterface log, String carteObjectId, String jobName ) {
+  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String jobName ) {
     monitorRemoteJob( log, carteObjectId, jobName, 5 );
   }
 
@@ -1204,7 +1204,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
    * @param jobName          the job name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemoteJob( LogChannelInterface log, String carteObjectId, String jobName, int sleepTimeSeconds ) {
+  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String jobName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {

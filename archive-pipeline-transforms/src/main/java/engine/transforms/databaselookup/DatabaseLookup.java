@@ -31,8 +31,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -40,8 +40,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
@@ -55,15 +55,15 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DatabaseLookup extends BaseTransform implements TransformInterface {
+public class DatabaseLookup extends BaseTransform implements ITransform {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseLookupMeta meta;
   private DatabaseLookupData data;
 
-  public DatabaseLookup( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public DatabaseLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -74,7 +74,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
    * @throws HopException In case something goes wrong.
    */
   @VisibleForTesting
-  synchronized Object[] lookupValues( RowMetaInterface inputRowMeta, Object[] row ) throws HopException {
+  synchronized Object[] lookupValues( IRowMeta inputRowMeta, Object[] row ) throws HopException {
     Object[] outputRow = RowDataUtil.resizeArray( row, data.outputRowMeta.size() );
 
     Object[] lookupRow = new Object[ data.lookupMeta.size() ];
@@ -82,28 +82,28 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
 
     for ( int i = 0; i < meta.getStreamKeyField1().length; i++ ) {
       if ( data.keynrs[ i ] >= 0 ) {
-        ValueMetaInterface input = inputRowMeta.getValueMeta( data.keynrs[ i ] );
-        ValueMetaInterface value = data.lookupMeta.getValueMeta( lookupIndex );
+        IValueMeta input = inputRowMeta.getValueMeta( data.keynrs[ i ] );
+        IValueMeta value = data.lookupMeta.getValueMeta( lookupIndex );
         lookupRow[ lookupIndex ] = row[ data.keynrs[ i ] ];
 
         // Try to convert type if needed
         if ( input.getType() != value.getType()
-          || ValueMetaInterface.STORAGE_TYPE_BINARY_STRING == input.getStorageType() ) {
+          || IValueMeta.STORAGE_TYPE_BINARY_STRING == input.getStorageType() ) {
           lookupRow[ lookupIndex ] = value.convertData( input, lookupRow[ lookupIndex ] );
-          value.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          value.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         }
         lookupIndex++;
       }
       if ( data.keynrs2[ i ] >= 0 ) {
-        ValueMetaInterface input = inputRowMeta.getValueMeta( data.keynrs2[ i ] );
-        ValueMetaInterface value = data.lookupMeta.getValueMeta( lookupIndex );
+        IValueMeta input = inputRowMeta.getValueMeta( data.keynrs2[ i ] );
+        IValueMeta value = data.lookupMeta.getValueMeta( lookupIndex );
         lookupRow[ lookupIndex ] = row[ data.keynrs2[ i ] ];
 
         // Try to convert type if needed
         if ( input.getType() != value.getType()
-          || ValueMetaInterface.STORAGE_TYPE_BINARY_STRING == input.getStorageType() ) {
+          || IValueMeta.STORAGE_TYPE_BINARY_STRING == input.getStorageType() ) {
           lookupRow[ lookupIndex ] = value.convertData( input, lookupRow[ lookupIndex ] );
-          value.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          value.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         }
         lookupIndex++;
       }
@@ -182,8 +182,8 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
         // that should not be a problem.
         //
         for ( int i = 0; i < types.length; i++ ) {
-          ValueMetaInterface returned = data.db.getReturnRowMeta().getValueMeta( i );
-          ValueMetaInterface expected = data.returnMeta.getValueMeta( i );
+          IValueMeta returned = data.db.getReturnRowMeta().getValueMeta( i );
+          IValueMeta expected = data.returnMeta.getValueMeta( i );
 
           if ( returned != null && types[ i ] > 0 && types[ i ] != returned.getType() ) {
             // Set the type to the default return type
@@ -216,11 +216,11 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
       meta.getDatabaseMeta().getQuotedSchemaTableCombination(
         environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTablename() ) );
 
-    RowMetaInterface fields = data.db.getTableFields( schemaTable );
+    IRowMeta fields = data.db.getTableFields( schemaTable );
     if ( fields != null ) {
       // Fill in the types...
       for ( int i = 0; i < keyFields.length; i++ ) {
-        ValueMetaInterface key = fields.searchValueMeta( keyFields[ i ] );
+        IValueMeta key = fields.searchValueMeta( keyFields[ i ] );
         if ( key != null ) {
           data.keytypes[ i ] = key.getType();
         } else {
@@ -234,11 +234,11 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
       final String[] returnFields = meta.getReturnValueField();
       final int returnFieldsOffset = getInputRowMeta().size();
       for ( int i = 0; i < returnFields.length; i++ ) {
-        ValueMetaInterface returnValueMeta = fields.searchValueMeta( returnFields[ i ] );
+        IValueMeta returnValueMeta = fields.searchValueMeta( returnFields[ i ] );
         if ( returnValueMeta != null ) {
-          ValueMetaInterface v = data.outputRowMeta.getValueMeta( returnFieldsOffset + i );
+          IValueMeta v = data.outputRowMeta.getValueMeta( returnFieldsOffset + i );
           if ( v.getType() != returnValueMeta.getType() ) {
-            ValueMetaInterface clone = returnValueMeta.clone();
+            IValueMeta clone = returnValueMeta.clone();
             clone.setName( v.getName() );
             data.outputRowMeta.setValueMeta( returnFieldsOffset + i, clone );
           }
@@ -258,8 +258,8 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
 
     for ( int i = 0; i < returnFields.length; i++ ) {
       if ( !Utils.isEmpty( meta.getReturnValueDefault()[ i ] ) ) {
-        ValueMetaInterface stringMeta = new ValueMetaString( "string" );
-        ValueMetaInterface returnMeta = data.outputRowMeta.getValueMeta( i + getInputRowMeta().size() );
+        IValueMeta stringMeta = new ValueMetaString( "string" );
+        IValueMeta returnMeta = data.outputRowMeta.getValueMeta( i + getInputRowMeta().size() );
         data.nullif[ i ] = returnMeta.convertData( stringMeta, meta.getReturnValueDefault()[ i ] );
       } else {
         data.nullif[ i ] = null;
@@ -274,22 +274,22 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
 
     for ( int i = 0; i < meta.getStreamKeyField1().length; i++ ) {
       if ( data.keynrs[ i ] >= 0 ) {
-        ValueMetaInterface inputValueMeta = getInputRowMeta().getValueMeta( data.keynrs[ i ] );
+        IValueMeta inputValueMeta = getInputRowMeta().getValueMeta( data.keynrs[ i ] );
 
         // Try to convert type if needed in a clone, we don't want to
         // change the type in the original row
         //
-        ValueMetaInterface value = ValueMetaFactory.cloneValueMeta( inputValueMeta, data.keytypes[ i ] );
+        IValueMeta value = ValueMetaFactory.cloneValueMeta( inputValueMeta, data.keytypes[ i ] );
 
         data.lookupMeta.addValueMeta( value );
       }
       if ( data.keynrs2[ i ] >= 0 ) {
-        ValueMetaInterface inputValueMeta = getInputRowMeta().getValueMeta( data.keynrs2[ i ] );
+        IValueMeta inputValueMeta = getInputRowMeta().getValueMeta( data.keynrs2[ i ] );
 
         // Try to convert type if needed in a clone, we don't want to
         // change the type in the original row
         //
-        ValueMetaInterface value = ValueMetaFactory.cloneValueMeta( inputValueMeta, data.keytypes[ i ] );
+        IValueMeta value = ValueMetaFactory.cloneValueMeta( inputValueMeta, data.keytypes[ i ] );
 
         data.lookupMeta.addValueMeta( value );
       }
@@ -301,13 +301,13 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
     data.returnMeta = new RowMeta();
 
     for ( int i = 0; i < meta.getReturnValueField().length; i++ ) {
-      ValueMetaInterface v = data.outputRowMeta.getValueMeta( getInputRowMeta().size() + i ).clone();
+      IValueMeta v = data.outputRowMeta.getValueMeta( getInputRowMeta().size() + i ).clone();
       data.returnMeta.addValueMeta( v );
     }
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
       setOutputDone();
@@ -479,7 +479,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
 
   private void putToDefaultCache( Database db, List<Object[]> rows ) {
     final int keysAmount = meta.getStreamKeyField1().length;
-    RowMetaInterface prototype = copyValueMetasFrom( db.getReturnRowMeta(), keysAmount );
+    IRowMeta prototype = copyValueMetasFrom( db.getReturnRowMeta(), keysAmount );
 
     // Copy the data into 2 parts: key and value...
     //
@@ -487,7 +487,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
       int index = 0;
       // not sure it is efficient to re-create the same on every row,
       // but this was done earlier, so I'm keeping this behaviour
-      RowMetaInterface keyMeta = prototype.clone();
+      IRowMeta keyMeta = prototype.clone();
       Object[] keyData = new Object[ keysAmount ];
       for ( int i = 0; i < keysAmount; i++ ) {
         keyData[ i ] = row[ index++ ];
@@ -505,7 +505,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
     }
   }
 
-  private RowMetaInterface copyValueMetasFrom( RowMetaInterface source, int n ) {
+  private IRowMeta copyValueMetasFrom( IRowMeta source, int n ) {
     RowMeta result = new RowMeta();
     for ( int i = 0; i < n; i++ ) {
       // don't need cloning here,
@@ -520,7 +520,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
 
     // all keys have the same row meta,
     // it is useless to re-create it each time
-    RowMetaInterface returnRowMeta = db.getReturnRowMeta();
+    IRowMeta returnRowMeta = db.getReturnRowMeta();
     cacheBuilder.setKeysMeta( returnRowMeta.clone() );
 
     final int keysAmount = meta.getStreamKeyField1().length;
@@ -544,7 +544,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
    * Stop the running query
    */
   @Override
-  public void stopRunning( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public void stopRunning( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 
@@ -557,7 +557,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 
@@ -600,7 +600,7 @@ public class DatabaseLookup extends BaseTransform implements TransformInterface 
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 

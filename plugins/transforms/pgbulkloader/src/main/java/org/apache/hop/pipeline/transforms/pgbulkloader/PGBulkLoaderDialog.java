@@ -30,15 +30,15 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -49,7 +49,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -92,7 +92,7 @@ import java.util.Set;
 		  pluginType = PluginDialog.PluginType.TRANSFORM,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class PGBulkLoaderDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -442,7 +442,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -623,8 +623,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
 
     // Determine the source and target fields...
     //
-    RowMetaInterface sourceFields;
-    RowMetaInterface targetFields;
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
 
     try {
       sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
@@ -637,7 +637,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
-    TransformMetaInterface transformMetaInterface = transformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = transformMeta.getTransformMetaInterface();
     try {
       targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {
@@ -649,7 +649,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
 
     String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
-      ValueMetaInterface value = sourceFields.getValueMeta( i );
+      IValueMeta value = sourceFields.getValueMeta( i );
       inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
@@ -829,11 +829,11 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
 
   private void getUpdate() {
     try {
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
-            if ( v.getType() == ValueMetaInterface.TYPE_DATE ) {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
+          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
+            if ( v.getType() == IValueMeta.TYPE_DATE ) {
               // The default is date mask.
               tableItem.setText( 3, BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateMask.Label" ) );
             } else {
@@ -861,7 +861,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TransformMeta.Title" ), name, info );
-      RowMetaInterface prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
       SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
@@ -911,7 +911,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements Transform
                 String schemaTable =
                   ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
                     .environmentSubstitute( tableName ) );
-                RowMetaInterface r = db.getTableFields( schemaTable );
+                IRowMeta r = db.getTableFields( schemaTable );
                 if ( null != r ) {
                   String[] fieldNames = r.getFieldNames();
                   if ( null != fieldNames ) {

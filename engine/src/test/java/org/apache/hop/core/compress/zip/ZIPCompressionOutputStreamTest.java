@@ -24,7 +24,7 @@ package org.apache.hop.core.compress.zip;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -70,7 +70,7 @@ public class ZIPCompressionOutputStreamTest {
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    CompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
     internalStream = new ByteArrayOutputStream();
     outStream = new ZIPCompressionOutputStream( internalStream, provider );
   }
@@ -87,13 +87,13 @@ public class ZIPCompressionOutputStreamTest {
 
   @Test
   public void getCompressionProvider() {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 
   @Test
   public void testClose() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new ZIPCompressionOutputStream( out, provider );
     outStream.close();
@@ -101,7 +101,7 @@ public class ZIPCompressionOutputStreamTest {
 
   @Test
   public void testAddEntryAndWrite() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new ZIPCompressionOutputStream( out, provider );
     outStream.addEntry( "./test.zip", null );

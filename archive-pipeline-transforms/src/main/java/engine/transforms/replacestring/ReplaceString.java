@@ -26,16 +26,16 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 28 September 2008
  */
-public class ReplaceString extends BaseTransform implements TransformInterface {
+public class ReplaceString extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -58,9 +58,9 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
 
   private ReplaceStringData data;
 
-  public ReplaceString( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public ReplaceString( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   public static String replaceString( String originalString, Pattern pattern, String replaceByString ) {
@@ -124,14 +124,14 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
     return getInputRowMeta().getString( row, data.replaceFieldIndex[ index ] );
   }
 
-  synchronized Object[] getOneRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
+  synchronized Object[] getOneRow( IRowMeta rowMeta, Object[] row ) throws HopException {
 
     Object[] rowData = RowDataUtil.resizeArray( row, data.outputRowMeta.size() );
     int index = 0;
     Set<Integer> numFieldsAlreadyBeenTransformed = new HashSet<Integer>();
     for ( int i = 0; i < data.numFields; i++ ) {
 
-      RowMetaInterface currentRowMeta =
+      IRowMeta currentRowMeta =
         ( numFieldsAlreadyBeenTransformed.contains( data.inStreamNrs[ i ] ) ) ? data.outputRowMeta : getInputRowMeta();
       String value =
         replaceString( currentRowMeta.getString( rowData, data.inStreamNrs[ i ] ), data.patterns[ i ],
@@ -149,7 +149,7 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
 
@@ -184,7 +184,7 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
         }
 
         // check field type
-        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).getType() != ValueMetaInterface.TYPE_STRING ) {
+        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).getType() != IValueMeta.TYPE_STRING ) {
           throw new HopTransformException( BaseMessages.getString(
             PKG, "ReplaceString.Exception.FieldTypeNotString", meta.getFieldInStream()[ i ] ) );
         }
@@ -246,7 +246,7 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
 
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
@@ -258,7 +258,7 @@ public class ReplaceString extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
 

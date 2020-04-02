@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobExecutionConfiguration;
@@ -83,8 +83,8 @@ public class HopGuiJobRunDelegate {
     // Remember the variables set previously
     //
     Map<String, String> variableMap = new HashMap<>();
-    variableMap.putAll( executionConfiguration.getVariables() ); // the default
-    executionConfiguration.setVariables( variableMap );
+    variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
+    executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( jobMeta );
     executionConfiguration.setSafeModeEnabled( safe );
     executionConfiguration.setStartCopyName( startCopyName );
@@ -99,15 +99,15 @@ public class HopGuiJobRunDelegate {
 
       // Set the variables that where specified...
       //
-      for ( String varName : executionConfiguration.getVariables().keySet() ) {
-        String varValue = executionConfiguration.getVariables().get( varName );
+      for ( String varName : executionConfiguration.getVariablesMap().keySet() ) {
+        String varValue = executionConfiguration.getVariablesMap().get( varName );
         jobMeta.setVariable( varName, varValue );
       }
 
       // Set and activate the parameters...
       //
-      for ( String paramName : executionConfiguration.getParams().keySet() ) {
-        String paramValue = executionConfiguration.getParams().get( paramName );
+      for ( String paramName : executionConfiguration.getParametersMap().keySet() ) {
+        String paramValue = executionConfiguration.getParametersMap().get( paramName );
         jobMeta.setParameterValue( paramName, paramValue );
       }
       jobMeta.activateParameters();
@@ -130,7 +130,7 @@ public class HopGuiJobRunDelegate {
       jobMeta.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
       jobMeta.setExpandingRemoteJob( executionConfiguration.isExpandingRemoteJob() );
 
-      LogChannelInterface log = jobGraph.getJobMeta().getLogChannel();
+      ILogChannel log = jobGraph.getJobMeta().getLogChannel();
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobMetaExecutionStart.id, jobMeta );
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobExecutionConfiguration.id, executionConfiguration );
 

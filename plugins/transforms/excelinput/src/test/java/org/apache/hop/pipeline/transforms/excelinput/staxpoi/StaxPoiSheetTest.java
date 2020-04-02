@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -159,7 +159,7 @@ public class StaxPoiSheetTest {
         Collections.singletonMap( 165, "M/D/YYYY" ) ) );
     StaxPoiSheet spSheet = spy( new StaxPoiSheet( reader, sheetName, sheetId ) );
     doReturn( true ).when( spSheet ).isDateCell( any() );
-    KCell cell = spSheet.getRow( 1 )[ 0 ];
+    IKCell cell = spSheet.getRow( 1 )[ 0 ];
     assertNotNull( cell );
     assertEquals( KCellType.DATE, cell.getType() );
     cell = spSheet.getRow( 2 )[ 0 ];
@@ -180,8 +180,8 @@ public class StaxPoiSheetTest {
 
   @Test
   public void testReadSameRow() throws Exception {
-    KSheet sheet1 = getSampleSheet();
-    KCell[] row = sheet1.getRow( 3 );
+    IKSheet sheet1 = getSampleSheet();
+    IKCell[] row = sheet1.getRow( 3 );
     assertEquals( "Two", row[ 1 ].getValue() );
     row = sheet1.getRow( 3 );
     assertEquals( "Two", row[ 1 ].getValue() );
@@ -189,8 +189,8 @@ public class StaxPoiSheetTest {
 
   @Test
   public void testReadRowRA() throws Exception {
-    KSheet sheet1 = getSampleSheet();
-    KCell[] row = sheet1.getRow( 4 );
+    IKSheet sheet1 = getSampleSheet();
+    IKCell[] row = sheet1.getRow( 4 );
     assertEquals( "Three", row[ 1 ].getValue() );
     row = sheet1.getRow( 2 );
     assertEquals( "One", row[ 1 ].getValue() );
@@ -198,16 +198,16 @@ public class StaxPoiSheetTest {
 
   @Test
   public void testReadEmptyRow() throws Exception {
-    KSheet sheet1 = getSampleSheet();
-    KCell[] row = sheet1.getRow( 0 );
+    IKSheet sheet1 = getSampleSheet();
+    IKCell[] row = sheet1.getRow( 0 );
     assertEquals( "empty row expected", 0, row.length );
   }
 
   @Test
   public void testReadCells() throws Exception {
-    KSheet sheet = getSampleSheet();
+    IKSheet sheet = getSampleSheet();
 
-    KCell cell = sheet.getCell( 1, 2 );
+    IKCell cell = sheet.getCell( 1, 2 );
     assertEquals( "One", cell.getValue() );
     assertEquals( KCellType.LABEL, cell.getType() );
 
@@ -222,10 +222,10 @@ public class StaxPoiSheetTest {
 
   @Test
   public void testReadData() throws Exception {
-    KSheet sheet1 = getSampleSheet();
+    IKSheet sheet1 = getSampleSheet();
     assertEquals( 5, sheet1.getRows() );
 
-    KCell[] row = sheet1.getRow( 2 );
+    IKCell[] row = sheet1.getRow( 2 );
     assertEquals( KCellType.LABEL, row[ 1 ].getType() );
     assertEquals( "One", row[ 1 ].getValue() );
     assertEquals( KCellType.DATE, row[ 2 ].getType() );
@@ -334,7 +334,7 @@ public class StaxPoiSheetTest {
       mock( SharedStringsTable.class ),
       mock( StylesTable.class ) );
     StaxPoiSheet spSheet = new StaxPoiSheet( reader, sheetName, sheetId );
-    KCell[] rowCells = spSheet.getRow( 0 );
+    IKCell[] rowCells = spSheet.getRow( 0 );
     assertEquals( "Test1", rowCells[ 0 ].getValue() );
     assertEquals( KCellType.STRING_FORMULA, rowCells[ 0 ].getType() );
     assertEquals( "Test2", rowCells[ 1 ].getValue() );
@@ -366,7 +366,7 @@ public class StaxPoiSheetTest {
       mockXSSFReader( sheetId, SHEET_NO_USED_RANGE_SPECIFIED, sharedStringsTableMock, mock( StylesTable.class ) );
     StaxPoiSheet spSheet = new StaxPoiSheet( reader, sheetName, sheetId );
     // The first row is empty - it should have empty rowCells
-    KCell[] rowCells = spSheet.getRow( 0 );
+    IKCell[] rowCells = spSheet.getRow( 0 );
     assertEquals( 0, rowCells.length );
     // The second row - is the header - just skip it
     rowCells = spSheet.getRow( 1 );

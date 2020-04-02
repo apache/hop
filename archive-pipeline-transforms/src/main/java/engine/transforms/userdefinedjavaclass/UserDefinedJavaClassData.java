@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Map;
 
-public class UserDefinedJavaClassData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface inputRowMeta;
-  public RowMetaInterface outputRowMeta;
+public class UserDefinedJavaClassData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
   public Map<String, String> parameterMap;
   public Map<String, String> infoMap;
   public Map<String, String> targetMap;

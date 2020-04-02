@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.http;
 
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -58,7 +58,7 @@ import static org.powermock.reflect.Whitebox.setInternalState;
 public class HTTPTest {
 
   private LogChannelInterface log = mock( LogChannelInterface.class );
-  private RowMetaInterface rmi = mock( RowMetaInterface.class );
+  private IRowMeta rmi = mock( IRowMeta.class );
   private HTTPData data = mock( HTTPData.class );
   private HTTPMeta meta = mock( HTTPMeta.class );
   private HTTP http = mock( HTTP.class );
@@ -96,7 +96,7 @@ public class HTTPTest {
 
     doReturn( false ).when( log ).isDetailed();
 
-    doCallRealMethod().when( http ).callHttpService( any( RowMetaInterface.class ), any( Object[].class ) );
+    doCallRealMethod().when( http ).callHttpService( any( IRowMeta.class ), any( Object[].class ) );
     doReturn( HttpURLConnection.HTTP_OK ).when( http ).requestStatusCode( any( CloseableHttpResponse.class ) );
     doReturn( new Header[ 0 ] ).when( http ).searchForHeaders( any( CloseableHttpResponse.class ) );
     setInternalState( http, "log", log );

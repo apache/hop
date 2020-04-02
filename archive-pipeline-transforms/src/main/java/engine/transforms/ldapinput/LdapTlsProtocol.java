@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
 
 import javax.naming.NamingException;
@@ -37,9 +37,9 @@ import java.util.Map;
 public class LdapTlsProtocol extends LdapSslProtocol {
   private StartTlsResponse startTlsResponse;
 
-  public LdapTlsProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
+  public LdapTlsProtocol( LogChannelInterface log, iVariables variables, LdapMeta meta,
                           Collection<String> binaryAttributes ) {
-    super( log, variableSpace, meta, binaryAttributes );
+    super( log, variables, meta, binaryAttributes );
   }
 
   @Override

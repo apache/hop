@@ -23,15 +23,15 @@
 package org.apache.hop.core.hash;
 
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 
 public class ByteArrayHashIndex {
 
   private static final int STANDARD_INDEX_SIZE = 512;
   private static final float STANDARD_LOAD_FACTOR = 0.78f;
 
-  private RowMetaInterface keyRowMeta;
+  private IRowMeta keyRowMeta;
   private ByteArrayHashIndexEntry[] index;
   private int size;
   private int resizeThresHold;
@@ -41,7 +41,7 @@ public class ByteArrayHashIndex {
    *
    * @param rowMeta
    */
-  public ByteArrayHashIndex( RowMetaInterface keyRowMeta, int size ) {
+  public ByteArrayHashIndex( IRowMeta keyRowMeta, int size ) {
     this.keyRowMeta = keyRowMeta;
 
     // Find a suitable capacity being a factor of 2:
@@ -56,7 +56,7 @@ public class ByteArrayHashIndex {
     index = new ByteArrayHashIndexEntry[ factor2Size ];
   }
 
-  public ByteArrayHashIndex( RowMetaInterface keyRowMeta ) {
+  public ByteArrayHashIndex( IRowMeta keyRowMeta ) {
     this( keyRowMeta, STANDARD_INDEX_SIZE );
   }
 
@@ -210,7 +210,7 @@ public class ByteArrayHashIndex {
     }
   }
 
-  public static int generateHashCode( byte[] key, RowMetaInterface rowMeta ) throws HopValueException {
+  public static int generateHashCode( byte[] key, IRowMeta rowMeta ) throws HopValueException {
     Object[] rowData = RowMeta.getRow( rowMeta, key );
     return rowMeta.hashCode( rowData );
   }

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -54,7 +54,7 @@ public class NeIndexTest extends IndexTestBase<EqIndex> {
   }
 
   @Override
-  EqIndex createIndexInstance( int column, ValueMetaInterface meta, int rowsAmount ) throws Exception {
+  EqIndex createIndexInstance( int column, IValueMeta meta, int rowsAmount ) throws Exception {
     return (EqIndex) EqIndex.nonEqualityIndex( column, meta, rowsAmount );
   }
 

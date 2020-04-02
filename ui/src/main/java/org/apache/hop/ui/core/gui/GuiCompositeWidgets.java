@@ -6,7 +6,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -33,19 +33,19 @@ public class GuiCompositeWidgets {
 
   private static final String LABEL_ID_PREFIX = "label-";
 
-  private VariableSpace space;
+  private IVariables variables;
   private Map<String, Control> labelsMap;
   private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
   private int maxNrItems;
   private int nrItems;
 
-  public GuiCompositeWidgets( VariableSpace space ) {
-    this(space, 0);
+  public GuiCompositeWidgets( IVariables variables ) {
+    this(variables, 0);
   }
 
-  public GuiCompositeWidgets( VariableSpace space, int maxNrItems ) {
-    this.space = space;
+  public GuiCompositeWidgets( IVariables variables, int maxNrItems ) {
+    this.variables = variables;
     this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
@@ -121,7 +121,7 @@ public class GuiCompositeWidgets {
       switch ( guiElements.getType() ) {
         case TEXT:
           if ( guiElements.isVariablesEnabled() ) {
-            TextVar textVar = new TextVar( space, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
+            TextVar textVar = new TextVar( variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
             props.setLook( textVar );
             if ( guiElements.isPassword() ) {
               textVar.setEchoChar( '*' );
@@ -458,15 +458,15 @@ public class GuiCompositeWidgets {
    *
    * @return value of space
    */
-  public VariableSpace getSpace() {
-    return space;
+  public IVariables getSpace() {
+    return variables;
   }
 
   /**
-   * @param space The space to set
+   * @param variables The space to set
    */
-  public void setSpace( VariableSpace space ) {
-    this.space = space;
+  public void setSpace( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**

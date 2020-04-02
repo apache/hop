@@ -27,8 +27,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -54,7 +54,7 @@ public class HopServerSingleton {
   private static HopServerSingleton hopServerSingleton;
   private static HopServer hopServer;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private PipelineMap pipelineMap;
   private JobMap jobMap;
@@ -118,7 +118,7 @@ public class HopServerSingleton {
     }
   }
 
-  public static void installPurgeTimer( final SlaveServerConfig config, final LogChannelInterface log,
+  public static void installPurgeTimer( final SlaveServerConfig config, final ILogChannel log,
                                         final PipelineMap pipelineMap, final JobMap jobMap ) {
 
     final int objectTimeout;
@@ -294,7 +294,7 @@ public class HopServerSingleton {
     return HopServerSingleton.hopServer;
   }
 
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     return log;
   }
 }

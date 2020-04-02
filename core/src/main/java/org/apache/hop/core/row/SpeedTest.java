@@ -41,14 +41,14 @@ public class SpeedTest {
   private Object[] rowMixed100;
   private Object[] rowMixed1000;
 
-  private RowMetaInterface metaString10;
-  private RowMetaInterface metaMixed10;
+  private IRowMeta metaString10;
+  private IRowMeta metaMixed10;
 
-  private RowMetaInterface metaString100;
-  private RowMetaInterface metaMixed100;
+  private IRowMeta metaString100;
+  private IRowMeta metaMixed100;
 
-  private RowMetaInterface metaString1000;
-  private RowMetaInterface metaMixed1000;
+  private IRowMeta metaString1000;
+  private IRowMeta metaMixed1000;
 
   public SpeedTest() {
     rowString10 = new Object[ 10 ];
@@ -82,30 +82,30 @@ public class SpeedTest {
 
   }
 
-  private static void populateMetaAndData( int i, Object[] rowString10, RowMetaInterface metaString10,
-                                           Object[] rowMixed10, RowMetaInterface metaMixed10 ) {
+  private static void populateMetaAndData( int i, Object[] rowString10, IRowMeta metaString10,
+                                           Object[] rowMixed10, IRowMeta metaMixed10 ) {
     rowString10[ i ] = StringUtil.generateRandomString( 20, "", "", false );
-    ValueMetaInterface meta = new ValueMetaString( "String" + ( i + 1 ), 20, 0 );
+    IValueMeta meta = new ValueMetaString( "String" + ( i + 1 ), 20, 0 );
     metaString10.addValueMeta( meta );
 
     rowMixed10[ i * 5 + 0 ] = StringUtil.generateRandomString( 20, "", "", false );
-    ValueMetaInterface meta0 = new ValueMetaString( "String" + ( i * 5 + 1 ), 20, 0 );
+    IValueMeta meta0 = new ValueMetaString( "String" + ( i * 5 + 1 ), 20, 0 );
     metaMixed10.addValueMeta( meta0 );
 
     rowMixed10[ i * 5 + 1 ] = new Date();
-    ValueMetaInterface meta1 = new ValueMetaDate( "String" + ( i * 5 + 1 ) );
+    IValueMeta meta1 = new ValueMetaDate( "String" + ( i * 5 + 1 ) );
     metaMixed10.addValueMeta( meta1 );
 
     rowMixed10[ i * 5 + 2 ] = new Double( Math.random() * 1000000 );
-    ValueMetaInterface meta2 = new ValueMetaNumber( "String" + ( i * 5 + 1 ), 12, 4 );
+    IValueMeta meta2 = new ValueMetaNumber( "String" + ( i * 5 + 1 ), 12, 4 );
     metaMixed10.addValueMeta( meta2 );
 
     rowMixed10[ i * 5 + 3 ] = new Long( (long) ( Math.random() * 1000000 ) );
-    ValueMetaInterface meta3 = new ValueMetaInteger( "String" + ( i * 5 + 1 ), 8, 0 );
+    IValueMeta meta3 = new ValueMetaInteger( "String" + ( i * 5 + 1 ), 8, 0 );
     metaMixed10.addValueMeta( meta3 );
 
     rowMixed10[ i * 5 + 4 ] = Boolean.valueOf( Math.random() > 0.5 ? true : false );
-    ValueMetaInterface meta4 = new ValueMetaBoolean( "String" + ( i * 5 + 1 ) );
+    IValueMeta meta4 = new ValueMetaBoolean( "String" + ( i * 5 + 1 ) );
     metaMixed10.addValueMeta( meta4 );
   }
 

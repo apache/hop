@@ -28,21 +28,21 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
@@ -399,27 +399,27 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
     allocate( 0 );
   }
 
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] infos, TransformMeta nextTransforms,
-                         VariableSpace space, IMetaStore metaStores ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] infos, TransformMeta nextTransforms,
+                         iVariables variables, IMetaStore metaStores ) throws HopTransformException {
     try {
       if ( !Utils.isEmpty( resultfieldname ) ) {
         if ( replacefields ) {
           int replaceIndex = inputRowMeta.indexOfValue( resultfieldname );
           if ( replaceIndex < 0 ) {
-            ValueMetaInterface v =
-              new ValueMetaBoolean( space.environmentSubstitute( resultfieldname ) );
+            IValueMeta v =
+              new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
             v.setOrigin( name );
             inputRowMeta.addValueMeta( v );
           } else {
-            ValueMetaInterface valueMeta = inputRowMeta.getValueMeta( replaceIndex );
-            ValueMetaInterface replaceMeta =
-              ValueMetaFactory.cloneValueMeta( valueMeta, ValueMetaInterface.TYPE_BOOLEAN );
+            IValueMeta valueMeta = inputRowMeta.getValueMeta( replaceIndex );
+            IValueMeta replaceMeta =
+              ValueMetaFactory.cloneValueMeta( valueMeta, IValueMeta.TYPE_BOOLEAN );
             replaceMeta.setOrigin( name );
             inputRowMeta.setValueMeta( replaceIndex, replaceMeta );
           }
         } else {
-          ValueMetaInterface v =
-            new ValueMetaBoolean( space.environmentSubstitute( resultfieldname ) );
+          IValueMeta v =
+            new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
           v.setOrigin( name );
           inputRowMeta.addValueMeta( v );
         }
@@ -436,8 +436,8 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
             if ( replaceIndex < 0 ) {
               inputRowMeta.addValueMeta( constructValueMeta( null, fieldName[ i ], i, name ) );
             } else {
-              ValueMetaInterface valueMeta = inputRowMeta.getValueMeta( replaceIndex );
-              ValueMetaInterface replaceMeta = constructValueMeta( valueMeta, fieldName[ i ], i, name );
+              IValueMeta valueMeta = inputRowMeta.getValueMeta( replaceIndex );
+              IValueMeta replaceMeta = constructValueMeta( valueMeta, fieldName[ i ], i, name );
               inputRowMeta.setValueMeta( replaceIndex, replaceMeta );
             }
           } else {
@@ -450,13 +450,13 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  private ValueMetaInterface constructValueMeta( ValueMetaInterface sourceValueMeta, String fieldName, int i,
+  private IValueMeta constructValueMeta( IValueMeta sourceValueMeta, String fieldName, int i,
                                                  String name ) throws HopPluginException {
     int type = fieldType[ i ];
-    if ( type == ValueMetaInterface.TYPE_NONE ) {
-      type = ValueMetaInterface.TYPE_STRING;
+    if ( type == IValueMeta.TYPE_NONE ) {
+      type = IValueMeta.TYPE_STRING;
     }
-    ValueMetaInterface v;
+    IValueMeta v;
     if ( sourceValueMeta == null ) {
       v = ValueMetaFactory.createValueMeta( fieldName, type );
     } else {
@@ -523,7 +523,7 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -569,12 +569,12 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
 
   }
 
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RegexEval( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new RegexEval( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new RegexEvalData();
   }
 

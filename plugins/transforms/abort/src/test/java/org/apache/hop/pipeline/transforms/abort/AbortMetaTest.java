@@ -28,7 +28,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
@@ -59,9 +59,9 @@ public class AbortMetaTest {
     setterMap.put( "always_log_rows", "setAlwaysLogRows" );
     setterMap.put( "abort_option", "setAbortOption" );
 
-    Map<String, FieldLoadSaveValidator<?>> attributeValidators = Collections.emptyMap();
+    Map<String, IFieldLoadSaveValidator<?>> attributeValidators = Collections.emptyMap();
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
     typeValidators.put( AbortMeta.AbortOption.class.getCanonicalName(),
       new EnumLoadSaveValidator<>( AbortMeta.AbortOption.ABORT ) );
 

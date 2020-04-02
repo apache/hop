@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.TimedRow;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,7 +60,7 @@ public class DefaultCache implements DatabaseLookupData.Cache {
   }
 
   @Override
-  public Object[] getRowFromCache( RowMetaInterface lookupMeta, Object[] lookupRow ) throws HopException {
+  public Object[] getRowFromCache( IRowMeta lookupMeta, Object[] lookupRow ) throws HopException {
     if ( data.allEquals ) {
       // only do the map lookup when all equals otherwise conditions >, <, <> will give wrong results
       TimedRow timedRow = map.get( new RowMetaAndData( data.lookupMeta, lookupRow ) );
@@ -79,9 +79,9 @@ public class DefaultCache implements DatabaseLookupData.Cache {
           boolean match = true;
           int lookupIndex = 0;
           for ( int i = 0; i < data.conditions.length && match; i++ ) {
-            ValueMetaInterface cmpMeta = lookupMeta.getValueMeta( lookupIndex );
+            IValueMeta cmpMeta = lookupMeta.getValueMeta( lookupIndex );
             Object cmpData = lookupRow[ lookupIndex ];
-            ValueMetaInterface keyMeta = key.getValueMeta( i );
+            IValueMeta keyMeta = key.getValueMeta( i );
             Object keyData = key.getData()[ i ];
 
             switch ( data.conditions[ i ] ) {
@@ -111,7 +111,7 @@ public class DefaultCache implements DatabaseLookupData.Cache {
                 break;
               case DatabaseLookupMeta.CONDITION_BETWEEN:
                 // Between key >= cmp && key <= cmp2
-                ValueMetaInterface cmpMeta2 = lookupMeta.getValueMeta( lookupIndex + 1 );
+                IValueMeta cmpMeta2 = lookupMeta.getValueMeta( lookupIndex + 1 );
                 Object cmpData2 = lookupRow[ lookupIndex + 1 ];
                 match = ( keyMeta.compare( keyData, cmpMeta, cmpData ) >= 0 );
                 if ( match ) {
@@ -142,7 +142,7 @@ public class DefaultCache implements DatabaseLookupData.Cache {
   }
 
   @Override
-  public void storeRowInCache( DatabaseLookupMeta meta, RowMetaInterface lookupMeta, Object[] lookupRow,
+  public void storeRowInCache( DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow,
                                Object[] add ) {
     RowMetaAndData rowMetaAndData = new RowMetaAndData( lookupMeta, lookupRow );
     // DEinspanjer 2009-02-01 XXX: I want to write a test case to prove this point before checking in.

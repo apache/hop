@@ -28,8 +28,8 @@ import org.apache.hop.core.util.SocketUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntryDialog;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
@@ -73,8 +73,8 @@ import org.eclipse.swt.widgets.Shell;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntrySendNagiosPassiveCheck.class; // for i18n purposes, needed by Translator!!
+public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog implements IJobEntryDialog {
+  private static Class<?> PKG = JobEntrySendNagiosPassiveICheck.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
 
@@ -104,7 +104,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
 
   private Listener lsOK, lsCancel;
 
-  private JobEntrySendNagiosPassiveCheck jobEntry;
+  private JobEntrySendNagiosPassiveICheck jobEntry;
 
   private Shell shell;
 
@@ -153,16 +153,16 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
   private CCombo wLevelMode;
   private FormData fdlLevelMode, fdLevelMode;
 
-  public JobEntrySendNagiosPassiveCheckDialog( Shell parent, JobEntryInterface jobEntryInt,
+  public JobEntrySendNagiosPassiveCheckDialog( Shell parent, IJobEntry jobEntryInt,
                                                JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntrySendNagiosPassiveCheck) jobEntryInt;
+    jobEntry = (JobEntrySendNagiosPassiveICheck) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Name.Default" ) );
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -357,7 +357,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     fdlEncryptionMode.top = new FormAttachment( wSenderServiceName, margin );
     wlEncryptionMode.setLayoutData( fdlEncryptionMode );
     wEncryptionMode = new CCombo( wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wEncryptionMode.setItems( JobEntrySendNagiosPassiveCheck.encryption_mode_Desc );
+    wEncryptionMode.setItems( JobEntrySendNagiosPassiveICheck.encryption_mode_Desc );
 
     props.setLook( wEncryptionMode );
     fdEncryptionMode = new FormData();
@@ -381,7 +381,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     fdlLevelMode.top = new FormAttachment( wEncryptionMode, margin );
     wlLevelMode.setLayoutData( fdlLevelMode );
     wLevelMode = new CCombo( wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wLevelMode.setItems( JobEntrySendNagiosPassiveCheck.level_type_Desc );
+    wLevelMode.setItems( JobEntrySendNagiosPassiveICheck.level_type_Desc );
 
     props.setLook( wLevelMode );
     fdLevelMode = new FormData();
@@ -535,7 +535,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     String hostname = jobMeta.environmentSubstitute( wServerName.getText() );
     int nrPort =
       Const.toInt(
-        jobMeta.environmentSubstitute( "" + wPort.getText() ), JobEntrySendNagiosPassiveCheck.DEFAULT_PORT );
+        jobMeta.environmentSubstitute( "" + wPort.getText() ), JobEntrySendNagiosPassiveICheck.DEFAULT_PORT );
     int realConnectionTimeOut = Const.toInt( jobMeta.environmentSubstitute( wConnectionTimeOut.getText() ), -1 );
 
     try {
@@ -580,8 +580,8 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     wSenderServerName.setText( Const.NVL( jobEntry.getSenderServerName(), "" ) );
     wSenderServiceName.setText( Const.NVL( jobEntry.getSenderServiceName(), "" ) );
     wMessage.setText( Const.NVL( jobEntry.getMessage(), "" ) );
-    wEncryptionMode.setText( JobEntrySendNagiosPassiveCheck.getEncryptionModeDesc( jobEntry.getEncryptionMode() ) );
-    wLevelMode.setText( JobEntrySendNagiosPassiveCheck.getLevelDesc( jobEntry.getLevel() ) );
+    wEncryptionMode.setText( JobEntrySendNagiosPassiveICheck.getEncryptionModeDesc( jobEntry.getEncryptionMode() ) );
+    wLevelMode.setText( JobEntrySendNagiosPassiveICheck.getLevelDesc( jobEntry.getLevel() ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -610,8 +610,8 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     jobEntry.setSenderServiceName( wSenderServiceName.getText() );
     jobEntry.setMessage( wMessage.getText() );
     jobEntry
-      .setEncryptionMode( JobEntrySendNagiosPassiveCheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
-    jobEntry.setLevel( JobEntrySendNagiosPassiveCheck.getLevelByDesc( wLevelMode.getText() ) );
+      .setEncryptionMode( JobEntrySendNagiosPassiveICheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
+    jobEntry.setLevel( JobEntrySendNagiosPassiveICheck.getLevelByDesc( wLevelMode.getText() ) );
     jobEntry.setPassword( wPassword.getText() );
 
     dispose();

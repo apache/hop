@@ -27,17 +27,17 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
@@ -51,7 +51,7 @@ import java.util.List;
  *
  * @author matt
  */
-public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
+public class JobEntryLogTable extends BaseLogTable implements Cloneable, ILogTable {
 
   private static Class<?> PKG = JobEntryLogTable.class; // for i18n purposes, needed by Translator!!
 
@@ -76,8 +76,8 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
     }
   }
 
-  private JobEntryLogTable( VariableSpace space, IMetaStore metaStore ) {
-    super( space, metaStore, null, null, null );
+  private JobEntryLogTable( IVariables variables, IMetaStore metaStore ) {
+    super( variables, metaStore, null, null, null );
   }
 
   @Override
@@ -109,7 +109,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
   }
 
   @Override
-  public void replaceMeta( LogTableCoreInterface logTableInterface ) {
+  public void replaceMeta( ILogTableCore logTableInterface ) {
     if ( !( logTableInterface instanceof JobEntryLogTable ) ) {
       return;
     }
@@ -133,43 +133,43 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static JobEntryLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
-    JobEntryLogTable table = new JobEntryLogTable( space, metaStore );
+  public static JobEntryLogTable getDefault( IVariables variables, IMetaStore metaStore ) {
+    JobEntryLogTable table = new JobEntryLogTable( variables, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.IdBatch" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.IdBatch" ), IValueMeta.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.ChannelId" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.ChannelId" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LogDate" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogDate" ), IValueMeta.TYPE_DATE, -1 ) );
     table.fields.add( new LogTableField( ID.JOBNAME.id, true, false, "PIPELINE_NAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobName" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.JOBENTRYNAME.id, true, false, "JOBENTRYNAME", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.JobEntryName" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobEntryName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.JobEntryName" ), IValueMeta.TYPE_STRING, 255 ) );
     table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesRead" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesRead" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesWritten" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesWritten" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, false, "LINES_UPDATED", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesUpdated" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesUpdated" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, false, "LINES_INPUT", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesInput" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesInput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, false, "LINES_OUTPUT", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesOutput" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesOutput" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, false, "LINES_REJECTED", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LinesRejected" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LinesRejected" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.Errors" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.Errors" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.Errors" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.RESULT.id, true, false, "RESULT", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.Result" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.Result" ), ValueMetaInterface.TYPE_BOOLEAN, -1 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.Result" ), IValueMeta.TYPE_BOOLEAN, -1 ) );
     table.fields.add( new LogTableField( ID.NR_RESULT_ROWS.id, true, false, "NR_RESULT_ROWS", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.NrResultRows" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.NrResultRows" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.NrResultRows" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.NR_RESULT_FILES.id, true, false, "NR_RESULT_FILES", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.NrResultFiles" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.NrResultFiles" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.NrResultFiles" ), IValueMeta.TYPE_INTEGER, 18 ) );
     table.fields.add( new LogTableField( ID.LOG_FIELD.id, false, false, "LOG_FIELD", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.LogField" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.LogField" ), IValueMeta.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
     table.fields.add( new LogTableField( ID.COPY_NR.id, false, false, "COPY_NR", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.CopyNr" ),
-      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.CopyNr" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+      BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.CopyNr" ), IValueMeta.TYPE_INTEGER, 8 ) );
 
     table.findField( ID.JOBNAME.id ).setNameField( true );
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
@@ -201,7 +201,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
           Object value = null;
           if ( subject != null ) {
 
-            JobEntryInterface jobEntry = jobEntryCopy.getEntry();
+            IJobEntry jobEntry = jobEntryCopy.getEntry();
             JobTracker jobTracker = parentJob.getJobTracker();
             JobTracker entryTracker = jobTracker.findJobTracker( jobEntryCopy );
             JobEntryResult jobEntryResult = null;
@@ -306,14 +306,14 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
     return Const.HOP_JOBENTRY_LOG_TABLE;
   }
 
-  public List<RowMetaInterface> getRecommendedIndexes() {
-    List<RowMetaInterface> indexes = new ArrayList<RowMetaInterface>();
+  public List<IRowMeta> getRecommendedIndexes() {
+    List<IRowMeta> indexes = new ArrayList<IRowMeta>();
     LogTableField keyField = getKeyField();
 
     if ( keyField.isEnabled() ) {
-      RowMetaInterface batchIndex = new RowMeta();
+      IRowMeta batchIndex = new RowMeta();
 
-      ValueMetaInterface keyMeta = new ValueMetaBase( keyField.getFieldName(), keyField.getDataType() );
+      IValueMeta keyMeta = new ValueMetaBase( keyField.getFieldName(), keyField.getDataType() );
       keyMeta.setLength( keyField.getLength() );
       batchIndex.addValueMeta( keyMeta );
 

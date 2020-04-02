@@ -20,7 +20,7 @@
 
 package org.apache.hop.ui.util;
 
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,7 +40,7 @@ public class HelpUtils {
 
   private static final Class<?> PKG = HelpUtils.class;
 
-  public static Button createHelpButton( final Composite parent, final String title, final PluginInterface plugin ) {
+  public static Button createHelpButton( final Composite parent, final String title, final IPlugin plugin ) {
     Button button = newButton( parent );
     button.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -75,7 +75,7 @@ public class HelpUtils {
     return button;
   }
 
-  public static String getHelpDialogTitle( PluginInterface plugin ) {
+  public static String getHelpDialogTitle( IPlugin plugin ) {
     if ( plugin == null ) {
       return "";
     }
@@ -89,14 +89,14 @@ public class HelpUtils {
     return msg;
   }
 
-  public static boolean isPluginDocumented( PluginInterface plugin ) {
+  public static boolean isPluginDocumented( IPlugin plugin ) {
     if ( plugin == null ) {
       return false;
     }
     return !StringUtil.isEmpty( plugin.getDocumentationUrl() );
   }
 
-  public static ShowHelpDialog openHelpDialog( Shell shell, PluginInterface plugin ) {
+  public static ShowHelpDialog openHelpDialog( Shell shell, IPlugin plugin ) {
     if ( shell == null || plugin == null ) {
       return null;
     }

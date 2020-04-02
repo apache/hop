@@ -28,8 +28,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -59,7 +59,7 @@ import java.util.List;
  */
 @PluginDialog( id = "Append", image = "Append.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Append+streams" )
-public class AppendDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlHeadHop;
@@ -226,9 +226,9 @@ public class AppendDialog extends BaseTransformDialog implements TransformDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    List<StreamInterface> infoStreams = input.getTransformIOMeta().getInfoStreams();
-    StreamInterface headStream = infoStreams.get( 0 );
-    StreamInterface tailStream = infoStreams.get( 1 );
+    List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
+    IStream headStream = infoStreams.get( 0 );
+    IStream tailStream = infoStreams.get( 1 );
 
     wHeadHop.setText( Const.NVL( headStream.getTransformName(), "" ) );
     wTailHop.setText( Const.NVL( tailStream.getTransformName(), "" ) );
@@ -248,9 +248,9 @@ public class AppendDialog extends BaseTransformDialog implements TransformDialog
       return;
     }
 
-    List<StreamInterface> infoStreams = input.getTransformIOMeta().getInfoStreams();
-    StreamInterface headStream = infoStreams.get( 0 );
-    StreamInterface tailStream = infoStreams.get( 1 );
+    List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
+    IStream headStream = infoStreams.get( 0 );
+    IStream tailStream = infoStreams.get( 1 );
 
     headStream.setTransformMeta( pipelineMeta.findTransform( wHeadHop.getText() ) );
     tailStream.setTransformMeta( pipelineMeta.findTransform( wTailHop.getText() ) );

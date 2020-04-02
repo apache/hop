@@ -42,17 +42,17 @@ public class RowMetaAddRemoveValueTest {
   @Test
   public void testAddRemoveValue() throws Exception {
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
 
     // Add values
 
-    ValueMetaInterface a = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_STRING );
+    IValueMeta a = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_STRING );
     rowMeta.addValueMeta( a );
     assertEquals( 1, rowMeta.size() );
-    ValueMetaInterface b = ValueMetaFactory.createValueMeta( "b", ValueMetaInterface.TYPE_INTEGER );
+    IValueMeta b = ValueMetaFactory.createValueMeta( "b", IValueMeta.TYPE_INTEGER );
     rowMeta.addValueMeta( b );
     assertEquals( 2, rowMeta.size() );
-    ValueMetaInterface c = ValueMetaFactory.createValueMeta( "c", ValueMetaInterface.TYPE_DATE );
+    IValueMeta c = ValueMetaFactory.createValueMeta( "c", IValueMeta.TYPE_DATE );
     rowMeta.addValueMeta( c );
     assertEquals( 3, rowMeta.size() );
 
@@ -60,7 +60,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 1, rowMeta.indexOfValue( "b" ) );
     assertEquals( 2, rowMeta.indexOfValue( "c" ) );
 
-    ValueMetaInterface d = ValueMetaFactory.createValueMeta( "d", ValueMetaInterface.TYPE_NUMBER );
+    IValueMeta d = ValueMetaFactory.createValueMeta( "d", IValueMeta.TYPE_NUMBER );
     rowMeta.addValueMeta( 0, d );
     assertEquals( 4, rowMeta.size() );
 
@@ -69,7 +69,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 2, rowMeta.indexOfValue( "b" ) );
     assertEquals( 3, rowMeta.indexOfValue( "c" ) );
 
-    ValueMetaInterface e = ValueMetaFactory.createValueMeta( "e", ValueMetaInterface.TYPE_BIGNUMBER );
+    IValueMeta e = ValueMetaFactory.createValueMeta( "e", IValueMeta.TYPE_BIGNUMBER );
     rowMeta.addValueMeta( 2, e );
     assertEquals( 5, rowMeta.size() );
 
@@ -110,17 +110,17 @@ public class RowMetaAddRemoveValueTest {
   @Test
   public void testAddRemoveRenameValue() throws Exception {
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
 
     // Add values
 
-    ValueMetaInterface a = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_STRING );
+    IValueMeta a = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_STRING );
     rowMeta.addValueMeta( a );
     assertEquals( 1, rowMeta.size() );
-    ValueMetaInterface b = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_INTEGER );
+    IValueMeta b = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_INTEGER );
     rowMeta.addValueMeta( b );
     assertEquals( 2, rowMeta.size() );
-    ValueMetaInterface c = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_DATE );
+    IValueMeta c = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_DATE );
     rowMeta.addValueMeta( c );
     assertEquals( 3, rowMeta.size() );
 
@@ -128,7 +128,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 1, rowMeta.indexOfValue( "a_1" ) );
     assertEquals( 2, rowMeta.indexOfValue( "a_2" ) );
 
-    ValueMetaInterface d = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_NUMBER );
+    IValueMeta d = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_NUMBER );
     rowMeta.addValueMeta( 0, d );
     assertEquals( 4, rowMeta.size() );
 
@@ -137,7 +137,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 2, rowMeta.indexOfValue( "a_1" ) );
     assertEquals( 3, rowMeta.indexOfValue( "a_2" ) );
 
-    ValueMetaInterface e = ValueMetaFactory.createValueMeta( "a", ValueMetaInterface.TYPE_BIGNUMBER );
+    IValueMeta e = ValueMetaFactory.createValueMeta( "a", IValueMeta.TYPE_BIGNUMBER );
     rowMeta.addValueMeta( 2, e );
     assertEquals( 5, rowMeta.size() );
 
@@ -178,17 +178,17 @@ public class RowMetaAddRemoveValueTest {
   @Test
   public void testAddRemoveValueCaseInsensitive() throws Exception {
 
-    RowMetaInterface rowMeta = new RowMeta();
+    IRowMeta rowMeta = new RowMeta();
 
     // Add values
 
-    ValueMetaInterface a = ValueMetaFactory.createValueMeta( "A", ValueMetaInterface.TYPE_STRING );
+    IValueMeta a = ValueMetaFactory.createValueMeta( "A", IValueMeta.TYPE_STRING );
     rowMeta.addValueMeta( a );
     assertEquals( 1, rowMeta.size() );
-    ValueMetaInterface b = ValueMetaFactory.createValueMeta( "b", ValueMetaInterface.TYPE_INTEGER );
+    IValueMeta b = ValueMetaFactory.createValueMeta( "b", IValueMeta.TYPE_INTEGER );
     rowMeta.addValueMeta( b );
     assertEquals( 2, rowMeta.size() );
-    ValueMetaInterface c = ValueMetaFactory.createValueMeta( "C", ValueMetaInterface.TYPE_DATE );
+    IValueMeta c = ValueMetaFactory.createValueMeta( "C", IValueMeta.TYPE_DATE );
     rowMeta.addValueMeta( c );
     assertEquals( 3, rowMeta.size() );
 
@@ -196,7 +196,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 1, rowMeta.indexOfValue( "B" ) );
     assertEquals( 2, rowMeta.indexOfValue( "c" ) );
 
-    ValueMetaInterface d = ValueMetaFactory.createValueMeta( "d", ValueMetaInterface.TYPE_NUMBER );
+    IValueMeta d = ValueMetaFactory.createValueMeta( "d", IValueMeta.TYPE_NUMBER );
     rowMeta.addValueMeta( 0, d );
     assertEquals( 4, rowMeta.size() );
 
@@ -205,7 +205,7 @@ public class RowMetaAddRemoveValueTest {
     assertEquals( 2, rowMeta.indexOfValue( "B" ) );
     assertEquals( 3, rowMeta.indexOfValue( "c" ) );
 
-    ValueMetaInterface e = ValueMetaFactory.createValueMeta( "E", ValueMetaInterface.TYPE_BIGNUMBER );
+    IValueMeta e = ValueMetaFactory.createValueMeta( "E", IValueMeta.TYPE_BIGNUMBER );
     rowMeta.addValueMeta( 2, e );
     assertEquals( 5, rowMeta.size() );
 

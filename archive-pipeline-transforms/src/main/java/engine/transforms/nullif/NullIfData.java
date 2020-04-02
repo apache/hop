@@ -22,20 +22,20 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class NullIfData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
+public class NullIfData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
   public int[] keynr;
   public Object[] nullValue;
-  public ValueMetaInterface[] nullValueMeta;
+  public IValueMeta[] nullValueMeta;
 
   public NullIfData() {
     super();

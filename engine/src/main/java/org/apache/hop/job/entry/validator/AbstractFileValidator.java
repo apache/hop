@@ -22,37 +22,37 @@
 
 package org.apache.hop.job.entry.validator;
 
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
+import org.apache.hop.core.variables.IVariables;
 
 import java.util.List;
 
-public abstract class AbstractFileValidator implements JobEntryValidator {
+public abstract class AbstractFileValidator implements IJobEntryValidator {
 
-  private static final String KEY_VARIABLE_SPACE = "org.apache.hop.job.entries.file.variableSpace";
+  private static final String KEY_VARIABLE_SPACE = "org.apache.hop.job.entries.file.variables";
 
-  public static ValidatorContext putVariableSpace( VariableSpace variableSpace ) {
+  public static ValidatorContext putVariableSpace( IVariables variables ) {
     ValidatorContext context = new ValidatorContext();
-    context.put( KEY_VARIABLE_SPACE, variableSpace );
+    context.put( KEY_VARIABLE_SPACE, variables );
     return context;
   }
 
-  protected VariableSpace getVariableSpace( CheckResultSourceInterface source, String propertyName,
-                                            List<CheckResultInterface> remarks, ValidatorContext context ) {
+  protected IVariables getVariableSpace( ICheckResultSource source, String propertyName,
+                                         List<ICheckResult> remarks, ValidatorContext context ) {
     Object obj = context.get( KEY_VARIABLE_SPACE );
-    if ( obj instanceof VariableSpace ) {
-      return (VariableSpace) obj;
+    if ( obj instanceof IVariables ) {
+      return (IVariables) obj;
     } else {
       JobEntryValidatorUtils.addGeneralRemark(
         source, propertyName, getName(), remarks, "messages.failed.missingKey",
-        CheckResultInterface.TYPE_RESULT_ERROR );
+        ICheckResult.TYPE_RESULT_ERROR );
       return null;
     }
   }
 
-  public static void putVariableSpace( ValidatorContext context, VariableSpace variableSpace ) {
-    context.put( KEY_VARIABLE_SPACE, variableSpace );
+  public static void putVariableSpace( ValidatorContext context, IVariables variables ) {
+    context.put( KEY_VARIABLE_SPACE, variables );
   }
 
   public AbstractFileValidator() {

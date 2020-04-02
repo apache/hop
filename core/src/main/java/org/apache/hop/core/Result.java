@@ -24,8 +24,8 @@ package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
 
@@ -614,7 +614,7 @@ public class Result implements Cloneable {
 
       xml.append( XMLHandler.openTag( XML_ROWS_TAG ) );
       boolean firstRow = true;
-      RowMetaInterface rowMeta = null;
+      IRowMeta rowMeta = null;
       for ( RowMetaAndData row : rows ) {
         if ( firstRow ) {
           firstRow = false;

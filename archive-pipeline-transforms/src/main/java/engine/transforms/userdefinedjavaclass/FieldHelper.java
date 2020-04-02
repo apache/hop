@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,11 +40,11 @@ import java.util.regex.Pattern;
 
 public class FieldHelper {
   private int index = -1;
-  private ValueMetaInterface meta;
+  private IValueMeta meta;
 
   private static Class<?> PKG = FieldHelper.class; // for i18n purposes, needed by Translator!!
 
-  public FieldHelper( RowMetaInterface rowMeta, String fieldName ) {
+  public FieldHelper( IRowMeta rowMeta, String fieldName ) {
     this.meta = rowMeta.searchValueMeta( fieldName );
     this.index = rowMeta.indexOfValue( fieldName );
     if ( this.index == -1 ) {
@@ -113,7 +113,7 @@ public class FieldHelper {
     return meta.getString( dataRow[ index ] );
   }
 
-  public ValueMetaInterface getValueMeta() {
+  public IValueMeta getValueMeta() {
     return meta;
   }
 
@@ -138,38 +138,38 @@ public class FieldHelper {
     return sb.toString();
   }
 
-  public static String getGetSignature( String accessor, ValueMetaInterface v ) {
+  public static String getGetSignature( String accessor, IValueMeta v ) {
     StringBuilder sb = new StringBuilder();
 
     switch ( v.getType() ) {
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         sb.append( "BigDecimal " );
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         sb.append( "byte[] " );
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         sb.append( "Boolean " );
         break;
-      case ValueMetaInterface.TYPE_DATE:
+      case IValueMeta.TYPE_DATE:
         sb.append( "Date " );
         break;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         sb.append( "Long " );
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
+      case IValueMeta.TYPE_NUMBER:
         sb.append( "Double " );
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         sb.append( "String " );
         break;
-      case ValueMetaInterface.TYPE_INET:
+      case IValueMeta.TYPE_INET:
         sb.append( "InetAddress " );
         break;
-      case ValueMetaInterface.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_TIMESTAMP:
         sb.append( "Timestamp " );
         break;
-      case ValueMetaInterface.TYPE_SERIALIZABLE:
+      case IValueMeta.TYPE_SERIALIZABLE:
       default:
         sb.append( "Object " );
         break;
@@ -188,9 +188,9 @@ public class FieldHelper {
     return sb.toString();
   }
 
-  public static String getNativeDataTypeSimpleName( ValueMetaInterface v ) {
+  public static String getNativeDataTypeSimpleName( IValueMeta v ) {
     try {
-      return v.getType() != ValueMetaInterface.TYPE_BINARY ? v.getNativeDataTypeClass().getSimpleName() : "Binary";
+      return v.getType() != IValueMeta.TYPE_BINARY ? v.getNativeDataTypeClass().getSimpleName() : "Binary";
     } catch ( HopValueException e ) {
       LogChannelInterface log = new LogChannel( v );
       log.logDebug( BaseMessages.getString( PKG, "FieldHelper.Log.UnknownNativeDataTypeSimpleName" ) );

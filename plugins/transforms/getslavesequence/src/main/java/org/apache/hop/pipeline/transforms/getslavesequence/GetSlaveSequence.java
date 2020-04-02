@@ -25,16 +25,16 @@ package org.apache.hop.pipeline.transforms.getslavesequence;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 /**
  * Adds a sequential number to a stream of rows.
@@ -42,18 +42,18 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  * @author Matt
  * @since 13-may-2003
  */
-public class GetSlaveSequence extends BaseTransform implements TransformInterface {
+public class GetSlaveSequence extends BaseTransform implements ITransform {
   private static Class<?> PKG = GetSlaveSequence.class; // i18n
 
   private GetSlaveSequenceMeta meta;
   private GetSlaveSequenceData data;
 
-  public GetSlaveSequence( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr,
+  public GetSlaveSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public Object[] addSequence( RowMetaInterface inputRowMeta, Object[] inputRowData ) throws HopException {
+  public Object[] addSequence( IRowMeta inputRowMeta, Object[] inputRowData ) throws HopException {
     Object next = null;
 
     // Are we still in the sequence range?
@@ -82,7 +82,7 @@ public class GetSlaveSequence extends BaseTransform implements TransformInterfac
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (GetSlaveSequenceMeta) smi;
     data = (GetSlaveSequenceData) sdi;
 
@@ -131,7 +131,7 @@ public class GetSlaveSequence extends BaseTransform implements TransformInterfac
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (GetSlaveSequenceMeta) smi;
     data = (GetSlaveSequenceData) sdi;
 

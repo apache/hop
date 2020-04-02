@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -35,7 +35,7 @@ import java.text.SimpleDateFormat;
  * @author Matt
  * @since 24-jan-2005
  */
-public class SQLFileOutputData extends BaseTransformData implements TransformDataInterface {
+public class SQLFileOutputData extends BaseTransformData implements ITransformData {
   public int splitnr;
 
   public Database db;
@@ -45,16 +45,16 @@ public class SQLFileOutputData extends BaseTransformData implements TransformDat
   public OutputStreamWriter writer;
 
   public OutputStream fos;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   /**
-   * Cache of the data formatter object
+   * ICache of the data formatter object
    */
   public SimpleDateFormat dateFormater;
 
   public boolean sendToErrorRow;
 
-  public RowMetaInterface insertRowMeta;
+  public IRowMeta insertRowMeta;
 
   public SQLFileOutputData() {
     super();

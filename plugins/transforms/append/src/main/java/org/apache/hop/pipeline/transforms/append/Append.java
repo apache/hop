@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.append;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.List;
 
@@ -43,19 +43,19 @@ import java.util.List;
  * @author Sven Boden
  * @since 3-june-2007
  */
-public class Append extends BaseTransform implements TransformInterface {
+public class Append extends BaseTransform implements ITransform {
   private static Class<?> PKG = Append.class; // for i18n purposes, needed by Translator!!
 
   private AppendMeta meta;
   private AppendData data;
 
-  public Append( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Append( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (AppendMeta) smi;
     data = (AppendData) sdi;
 
@@ -112,10 +112,10 @@ public class Append extends BaseTransform implements TransformInterface {
   }
 
   /**
-   * @see TransformInterface#init(TransformMetaInterface, TransformDataInterface)
+   * @see ITransform#init(ITransformMeta, ITransformData)
    */
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (AppendMeta) smi;
     data = (AppendData) sdi;
 
@@ -124,9 +124,9 @@ public class Append extends BaseTransform implements TransformInterface {
       data.processTail = false;
       data.firstTail = true;
 
-      List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
-      StreamInterface headStream = infoStreams.get( 0 );
-      StreamInterface tailStream = infoStreams.get( 1 );
+      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+      IStream headStream = infoStreams.get( 0 );
+      IStream tailStream = infoStreams.get( 1 );
       if ( meta.headTransformName != null ) {
         headStream.setTransformMeta( getPipelineMeta().findTransform( meta.headTransformName ) );
       }
@@ -158,7 +158,7 @@ public class Append extends BaseTransform implements TransformInterface {
    * @return true when templates are compatible.
    * @throws HopRowException in case there is a compatibility error.
    */
-  protected void checkInputLayoutValid( RowMetaInterface referenceRowMeta, RowMetaInterface compareRowMeta ) throws HopRowException {
+  protected void checkInputLayoutValid( IRowMeta referenceRowMeta, IRowMeta compareRowMeta ) throws HopRowException {
     if ( referenceRowMeta != null && compareRowMeta != null ) {
       BaseTransform.safeModeChecking( referenceRowMeta, compareRowMeta );
     }

@@ -22,7 +22,7 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -44,9 +44,9 @@ public class SocketRepository {
    */
   private Map<Integer, SocketRepositoryEntry> socketMap;
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
-  public SocketRepository( LogChannelInterface log ) {
+  public SocketRepository( ILogChannel log ) {
     this.log = log;
     socketMap = new HashMap<Integer, SocketRepositoryEntry>();
   }

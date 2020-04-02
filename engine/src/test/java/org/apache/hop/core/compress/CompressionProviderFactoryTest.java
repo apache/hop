@@ -74,7 +74,7 @@ public class CompressionProviderFactoryTest {
 
   @Test
   public void testCreateCoreProviders() {
-    CompressionProvider provider = factory.createCompressionProviderInstance( "None" );
+    ICompressionProvider provider = factory.createCompressionProviderInstance( "None" );
     assertNotNull( provider );
     assertTrue( provider.getClass().isAssignableFrom( NoneCompressionProvider.class ) );
     assertEquals( "None", provider.getName() );
@@ -150,9 +150,9 @@ public class CompressionProviderFactoryTest {
       }
     };
 
-    Collection<CompressionProvider> providers = factory.getCompressionProviders();
+    Collection<ICompressionProvider> providers = factory.getCompressionProviders();
     assertNotNull( providers );
-    for ( CompressionProvider provider : providers ) {
+    for ( ICompressionProvider provider : providers ) {
       assertNotNull( foundProvider.get( provider.getName() ) );
       foundProvider.put( provider.getName(), true );
     }
@@ -167,7 +167,7 @@ public class CompressionProviderFactoryTest {
 
   @Test
   public void getNonExistentProvider() {
-    CompressionProvider provider = factory.createCompressionProviderInstance( "Fake" );
+    ICompressionProvider provider = factory.createCompressionProviderInstance( "Fake" );
     assertNull( provider );
     provider = factory.getCompressionProviderByName( null );
     assertNull( provider );

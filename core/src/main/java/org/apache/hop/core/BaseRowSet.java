@@ -22,7 +22,7 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 
 import java.util.concurrent.TimeUnit;
@@ -32,13 +32,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Contains the base RowSet class to help implement RowSet variants.
+ * Contains the base IRowSet class to help implement IRowSet variants.
  *
  * @author Matt
  * @since 22-01-2010
  */
-abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
-  protected RowMetaInterface rowMeta;
+abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
+  protected IRowMeta rowMeta;
 
   protected AtomicBoolean done;
   protected volatile String originTransformName;
@@ -50,7 +50,7 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   private ReadWriteLock lock;
 
   public BaseRowSet() {
-    // not done putting data into this RowSet
+    // not done putting data into this IRowSet
     done = new AtomicBoolean( false );
 
     originTransformCopy = new AtomicInteger( 0 );
@@ -63,7 +63,7 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
    * That way, re-partitioning is always done in the same way.
    */
   @Override
-  public int compareTo( RowSet rowSet ) {
+  public int compareTo( IRowSet rowSet ) {
     lock.readLock().lock();
     String target;
 
@@ -87,19 +87,19 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.RowMetaInterface, java.lang.Object[])
+   * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.IRowMeta, java.lang.Object[])
    */
   @Override
-  public abstract boolean putRow( RowMetaInterface rowMeta, Object[] rowData );
+  public abstract boolean putRow( IRowMeta rowMeta, Object[] rowData );
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#putRowWait(org.apache.hop.core.row.RowMetaInterface, java.lang.Object[],
+   * @see org.apache.hop.core.RowSetInterface#putRowWait(org.apache.hop.core.row.IRowMeta, java.lang.Object[],
    * long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public abstract boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu );
+  public abstract boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu );
 
   // default getRow with wait time = 100ms
   //
@@ -257,17 +257,17 @@ abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
    * @see org.apache.hop.core.RowSetInterface#getRowMeta()
    */
   @Override
-  public RowMetaInterface getRowMeta() {
+  public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#setRowMeta(org.apache.hop.core.row.RowMetaInterface)
+   * @see org.apache.hop.core.RowSetInterface#setRowMeta(org.apache.hop.core.row.IRowMeta)
    */
   @Override
-  public void setRowMeta( RowMetaInterface rowMeta ) {
+  public void setRowMeta( IRowMeta rowMeta ) {
     this.rowMeta = rowMeta;
   }
 

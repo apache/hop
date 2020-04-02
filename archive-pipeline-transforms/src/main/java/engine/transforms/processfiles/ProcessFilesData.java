@@ -24,13 +24,13 @@ package org.apache.hop.pipeline.transforms.processfiles;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class ProcessFilesData extends BaseTransformData implements TransformDataInterface {
+public class ProcessFilesData extends BaseTransformData implements ITransformData {
   public int indexOfSourceFilename;
   public int indexOfTargetFilename;
   public FileObject sourceFile;

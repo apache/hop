@@ -27,13 +27,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mapping.MappingMeta;
@@ -84,7 +84,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MappingDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class MappingDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MappingMeta.class; // for i18n purposes, needed by Translator!!
 
   private MappingMeta mappingMeta;
@@ -619,7 +619,7 @@ public class MappingDialog extends BaseTransformDialog implements TransformDialo
 
   }
 
-  public RowMetaInterface getFieldsFromTransform( String transformName, boolean getPipelineTransform, boolean mappingInput ) throws HopException {
+  public IRowMeta getFieldsFromTransform( String transformName, boolean getPipelineTransform, boolean mappingInput ) throws HopException {
     if ( !( mappingInput ^ getPipelineTransform ) ) {
       if ( Utils.isEmpty( transformName ) ) {
         // If we don't have a specified transformName we return the input row
@@ -892,8 +892,8 @@ public class MappingDialog extends BaseTransformDialog implements TransformDialo
       @Override
       public void widgetSelected( SelectionEvent arg0 ) {
         try {
-          RowMetaInterface sourceRowMeta = getFieldsFromTransform( wInputTransform.getText(), true, input );
-          RowMetaInterface targetRowMeta = getFieldsFromTransform( wOutputTransform.getText(), false, input );
+          IRowMeta sourceRowMeta = getFieldsFromTransform( wInputTransform.getText(), true, input );
+          IRowMeta targetRowMeta = getFieldsFromTransform( wOutputTransform.getText(), false, input );
           String[] sourceFields = sourceRowMeta.getFieldNames();
           String[] targetFields = targetRowMeta.getFieldNames();
 
@@ -1149,7 +1149,7 @@ public class MappingDialog extends BaseTransformDialog implements TransformDialo
       TransformMeta mappingInputTransform = mappingPipelineMeta.findMappingInputTransform( sourceTransformName );
       if ( mappingInputTransform != null ) {
         TransformMeta mappingOutputTransform = pipelineMeta.findMappingOutputTransform( targetTransformname );
-        RowMetaInterface requiredFields = mappingOutputTransform.getTransformMetaInterface().getRequiredFields( pipelineMeta );
+        IRowMeta requiredFields = mappingOutputTransform.getTransformMetaInterface().getRequiredFields( pipelineMeta );
         if ( requiredFields != null && requiredFields.size() > 0 ) {
           enabled = true;
         }

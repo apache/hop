@@ -23,11 +23,11 @@
 package org.apache.hop.core.util;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
-public class GenericTransformData extends BaseTransformData implements TransformDataInterface {
+public class GenericTransformData extends BaseTransformData implements ITransformData {
 
 }

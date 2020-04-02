@@ -31,9 +31,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -43,8 +43,8 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformInterface;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.AfterClass;
@@ -119,7 +119,7 @@ public class CheckSumTest {
     return new Pipeline( pipelineMeta );
   }
 
-  private RowMeta createStringRowMeta( ValueMetaInterface meta ) throws Exception {
+  private RowMeta createStringRowMeta( IValueMeta meta ) throws Exception {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( meta );
     return rowMeta;
@@ -143,17 +143,17 @@ public class CheckSumTest {
     }
 
     @Override
-    public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       written.add( row );
     }
 
     @Override
-    public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       read.add( row );
     }
 
     @Override
-    public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+    public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
       error.add( row );
     }
   }
@@ -165,14 +165,14 @@ public class CheckSumTest {
    * @param compatibilityMode Use compatibility mode for CheckSum
    * @param input             String to calculate checksum for
    * @param meta              meta to be used
-   * @return RowListener with results.
+   * @return IRowListener with results.
    */
-  private MockRowListener executeHexTest( int checkSumType, boolean compatibilityMode, Object input, ValueMetaInterface meta, boolean oldChecksumBehaviour ) throws Exception {
+  private MockRowListener executeHexTest( int checkSumType, boolean compatibilityMode, Object input, IValueMeta meta, boolean oldChecksumBehaviour ) throws Exception {
     Pipeline pipeline = buildHexadecimalChecksumPipeline( checkSumType, compatibilityMode, oldChecksumBehaviour );
 
     pipeline.prepareExecution();
 
-    TransformInterface output = pipeline.getRunThread( "Output", 0 );
+    ITransform output = pipeline.getRunThread( "Output", 0 );
     MockRowListener listener = new MockRowListener();
     output.addRowListener( listener );
 

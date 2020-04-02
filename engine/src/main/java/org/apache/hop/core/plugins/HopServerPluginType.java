@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
-import org.apache.hop.www.HopServerPluginInterface;
+import org.apache.hop.www.IHopServerPlugin;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -34,9 +34,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( HopServerPluginInterface.class )
+@PluginMainClassType( IHopServerPlugin.class )
 @PluginAnnotationType( HopServerServlet.class )
-public class HopServerPluginType extends BasePluginType implements PluginTypeInterface {
+public class HopServerPluginType extends BasePluginType implements IPluginType {
 
   private static HopServerPluginType hopServerPluginType;
 

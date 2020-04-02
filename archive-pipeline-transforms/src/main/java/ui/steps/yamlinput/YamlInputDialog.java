@@ -27,15 +27,15 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlInputField;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlInputMeta;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlReader;
@@ -81,7 +81,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 
-public class YamlInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class YamlInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -997,7 +997,7 @@ public class YamlInputDialog extends BaseTransformDialog implements TransformDia
 
       wYAMLLField.removeAll();
 
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -1077,7 +1077,7 @@ public class YamlInputDialog extends BaseTransformDialog implements TransformDia
         RowMeta row = yaml.getFields();
 
         for ( int i = 0; i < row.size(); i++ ) {
-          ValueMetaInterface value = row.getValueMeta( i );
+          IValueMeta value = row.getValueMeta( i );
 
           TableItem item = new TableItem( wFields.table, SWT.NONE );
           item.setText( 1, value.getName() );

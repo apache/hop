@@ -27,8 +27,8 @@ import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
@@ -39,12 +39,12 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
  * @author Matt
  * @since 4-apr-2003
  */
-public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> implements TransformInterface {
+public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> implements ITransform {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  public TextFileInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -25,8 +25,8 @@ package org.apache.hop.core;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -54,15 +54,15 @@ public class ResultFileTest {
     Date timeAfterFile = Calendar.getInstance().getTime();
 
     assertNotNull( resultFile );
-    RowMetaInterface rm = resultFile.getRow().getRowMeta();
+    IRowMeta rm = resultFile.getRow().getRowMeta();
     assertEquals( 7, rm.getValueMetaList().size() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 4 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 5 ).getType() );
-    assertEquals( ValueMetaInterface.TYPE_DATE, rm.getValueMeta( 6 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 4 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 5 ).getType() );
+    assertEquals( IValueMeta.TYPE_DATE, rm.getValueMeta( 6 ).getType() );
 
     assertEquals( ResultFile.FILE_TYPE_GENERAL, resultFile.getType() );
     assertEquals( "myOrigin", resultFile.getOrigin() );

@@ -23,11 +23,11 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.gui.GUIPositionInterface;
-import org.apache.hop.core.gui.GUISizeInterface;
+import org.apache.hop.core.gui.IGUIPosition;
+import org.apache.hop.core.gui.IGUISize;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
 /**
@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * @author Matt
  * @since 28-11-2003
  */
-public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterface, GUISizeInterface {
+public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
   public static final String XML_TAG = "notepad";
 
   public static final int COLOR_RGB_BLACK_RED = 0;
@@ -324,7 +324,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
     return note;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
     retval.append( "    <notepad>" ).append( Const.CR );

@@ -31,16 +31,16 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -53,15 +53,15 @@ import java.util.Enumeration;
  * @author Samatar
  * @since 24-05-2007
  */
-public class LDIFInput extends BaseTransform implements TransformInterface {
+public class LDIFInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private LDIFInputMeta meta;
   private LDIFInputData data;
 
-  public LDIFInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public LDIFInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] getOneRow() throws HopException {
@@ -159,8 +159,8 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
 
         // Do conversions
         //
-        ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + i );
-        ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + i );
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + i );
+        IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + i );
         outputRowData[ data.totalpreviousfields + i ] = targetValueMeta.convertData( sourceValueMeta, Value );
 
         // Do we need to repeat this field if it is null?
@@ -222,7 +222,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
       if ( meta.getRootUriField() != null && meta.getRootUriField().length() > 0 ) {
         outputRowData[ rowIndex++ ] = data.rootUriName;
       }
-      RowMetaInterface irow = getInputRowMeta();
+      IRowMeta irow = getInputRowMeta();
 
       data.previousRow = irow == null ? outputRowData : irow.cloneRow( outputRowData ); // copy it to make
       // surely the next transform doesn't change it in between...
@@ -238,7 +238,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
 
     Object[] r = null;
 
@@ -316,7 +316,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
           data.totalpreviousfields = data.inputRowMeta.size();
 
           // Create convert meta-data objects that will contain Date & Number formatters
-          data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+          data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
           // Check is filename field is provided
           if ( Utils.isEmpty( meta.getDynamicFilenameField() ) ) {
@@ -439,7 +439,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LDIFInputMeta) smi;
     data = (LDIFInputData) sdi;
 
@@ -457,7 +457,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
           meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
 
           // Create convert meta-data objects that will contain Date & Number formatters
-          data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+          data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
           data.nrInputFields = meta.getInputFields().length;
           data.multiValueSeparator = environmentSubstitute( meta.getMultiValuedSeparator() );
@@ -474,7 +474,7 @@ public class LDIFInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (LDIFInputMeta) smi;
     data = (LDIFInputData) sdi;
     if ( data.file != null ) {

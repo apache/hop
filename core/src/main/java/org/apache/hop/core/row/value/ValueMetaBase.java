@@ -24,18 +24,18 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.PrimitiveGCInterface;
+import org.apache.hop.core.gui.IPrimitiveGC;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
@@ -73,7 +73,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class ValueMetaBase implements ValueMetaInterface {
+public class ValueMetaBase implements IValueMeta {
 
   // region Default Numeric Types Parse Format
   public static final String DEFAULT_INTEGER_PARSE_MASK = Const.NVL(
@@ -157,10 +157,10 @@ public class ValueMetaBase implements ValueMetaInterface {
   protected DecimalFormat decimalFormat;
   protected boolean decimalFormatChanged;
 
-  protected ValueMetaInterface storageMetadata;
+  protected IValueMeta storageMetadata;
   protected boolean identicalFormat;
 
-  protected ValueMetaInterface conversionMetadata;
+  protected IValueMeta conversionMetadata;
 
   boolean singleByteEncoding;
 
@@ -183,7 +183,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected final Comparator<Object> comparator;
 
-  private static final LogChannelInterface log = HopLogStore.getLogChannelInterfaceFactory().create( "ValueMetaBase" );
+  private static final ILogChannel log = HopLogStore.getLogChannelFactory().create( "ValueMetaBase" );
 
   /**
    * The trim type codes
@@ -201,11 +201,11 @@ public class ValueMetaBase implements ValueMetaInterface {
   // endregion
 
   public ValueMetaBase() {
-    this( null, ValueMetaInterface.TYPE_NONE, -1, -1 );
+    this( null, IValueMeta.TYPE_NONE, -1, -1 );
   }
 
   public ValueMetaBase( String name ) {
-    this( name, ValueMetaInterface.TYPE_NONE, -1, -1 );
+    this( name, IValueMeta.TYPE_NONE, -1, -1 );
   }
 
   public ValueMetaBase( String name, int type ) {
@@ -1609,25 +1609,25 @@ public class ValueMetaBase implements ValueMetaInterface {
 
     if ( storageType == STORAGE_TYPE_NORMAL ) {
       switch ( getType() ) {
-        case ValueMetaInterface.TYPE_STRING:
-        case ValueMetaInterface.TYPE_NUMBER:
-        case ValueMetaInterface.TYPE_INTEGER:
-        case ValueMetaInterface.TYPE_BOOLEAN:
-        case ValueMetaInterface.TYPE_BIGNUMBER: // primitive data types: we can only
+        case IValueMeta.TYPE_STRING:
+        case IValueMeta.TYPE_NUMBER:
+        case IValueMeta.TYPE_INTEGER:
+        case IValueMeta.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BIGNUMBER: // primitive data types: we can only
           // overwrite these, not change them
           return object;
 
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           return new Date( ( (Date) object ).getTime() ); // just to make sure: very
         // inexpensive too.
 
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           byte[] origin = (byte[]) object;
           byte[] target = new byte[ origin.length ];
           System.arraycopy( origin, 0, target, 0, origin.length );
           return target;
 
-        case ValueMetaInterface.TYPE_SERIALIZABLE:
+        case IValueMeta.TYPE_SERIALIZABLE:
           // Let's not create a copy but simply return the same value.
           //
           return object;
@@ -3446,7 +3446,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * Convert the String description of a type to an integer type.
    *
    * @param desc The description of the type to convert
-   * @return The integer type of the given String. (ValueMetaInterface.TYPE_...)
+   * @return The integer type of the given String. (IValueMeta.TYPE_...)
    */
   public static final int getType( String desc ) {
 
@@ -3463,7 +3463,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * Convert the String description of a storage type to an integer type.
    *
    * @param desc The description of the storage type to convert
-   * @return The integer storage type of the given String. (ValueMetaInterface.STORAGE_TYPE_...) or -1 if the storage
+   * @return The integer storage type of the given String. (IValueMeta.STORAGE_TYPE_...) or -1 if the storage
    * type code not be found.
    */
   public static final int getStorageType( String desc ) {
@@ -3692,7 +3692,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @throws HopValueException In case we get conversion errors
    */
   @Override
-  public int compare( Object data1, ValueMetaInterface meta2, Object data2 ) throws HopValueException {
+  public int compare( Object data1, IValueMeta meta2, Object data2 ) throws HopValueException {
     if ( meta2 == null ) {
       throw new HopValueException( toStringMeta()
         + " : Second meta data (meta2) is null, please check one of the previous transforms." );
@@ -3717,7 +3717,7 @@ public class ValueMetaBase implements ValueMetaInterface {
               // BACKLOG-18754 - if there is a storage conversion mask, we should use
               // it as the mask for meta2 (meta2 can have specific storage type and type, so
               // it can't be used directly to convert data2 to binary string)
-              ValueMetaInterface meta2StorageMask = meta2.clone();
+              IValueMeta meta2StorageMask = meta2.clone();
               meta2StorageMask.setConversionMask( storageMetadata.getConversionMask() );
               return compare( data1, meta2StorageMask.convertToBinaryStringStorageType( data2 ) );
             } else {
@@ -3739,7 +3739,7 @@ public class ValueMetaBase implements ValueMetaInterface {
           default:
             throw new HopValueException( toStringMeta() + " : Unknown storage type : " + getStorageType() );
         }
-      } else if ( ValueMetaInterface.TYPE_INTEGER == getType() && ValueMetaInterface.TYPE_NUMBER == meta2.getType() ) {
+      } else if ( IValueMeta.TYPE_INTEGER == getType() && IValueMeta.TYPE_NUMBER == meta2.getType() ) {
         // BACKLOG-18738
         // compare Double to Integer
         return -meta2.compare( data2, meta2.convertData( this, data1 ) );
@@ -3764,7 +3764,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @throws HopValueException in case there is a data conversion error
    */
   @Override
-  public Object convertData( ValueMetaInterface meta2, Object data2 ) throws HopValueException {
+  public Object convertData( IValueMeta meta2, Object data2 ) throws HopValueException {
     switch ( getType() ) {
       case TYPE_NONE:
       case TYPE_STRING:
@@ -3797,7 +3797,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @throws HopValueException in case there is a data conversion error
    */
   @Override
-  public Object convertDataCompatible( ValueMetaInterface meta2, Object data2 ) throws HopValueException {
+  public Object convertDataCompatible( IValueMeta meta2, Object data2 ) throws HopValueException {
     switch ( getType() ) {
       case TYPE_STRING:
         return meta2.getCompatibleString( data2 );
@@ -3871,12 +3871,12 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @param convertMeta the metadata of the object (only string type) to be converted
    * @param nullIf      set the object to null if pos equals nullif (IgnoreCase)
    * @param ifNull      set the object to ifNull when pol is empty or null
-   * @param trim_type   the trim type to be used (ValueMetaInterface.TRIM_TYPE_XXX)
+   * @param trim_type   the trim type to be used (IValueMeta.TRIM_TYPE_XXX)
    * @return the object in the data type of this value metadata object
    * @throws HopValueException in case there is a data conversion error
    */
   @Override
-  public Object convertDataFromString( String pol, ValueMetaInterface convertMeta, String nullIf, String ifNull,
+  public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
                                        int trim_type ) throws HopValueException {
     if ( convertMeta == null ) {
       throw new HopValueException( "API coding error: convertMeta input parameter should not be equals to null" );
@@ -3889,25 +3889,25 @@ public class ValueMetaBase implements ValueMetaInterface {
 
     if ( null_value == null ) {
       switch ( inValueType ) {
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           null_value = Const.NULL_BOOLEAN;
           break;
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           null_value = Const.NULL_STRING;
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           null_value = Const.NULL_BIGNUMBER;
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           null_value = Const.NULL_NUMBER;
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           null_value = Const.NULL_INTEGER;
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           null_value = Const.NULL_DATE;
           break;
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           null_value = Const.NULL_BINARY;
           break;
         default:
@@ -3931,7 +3931,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
     // See if the polled value is empty
     // In that case, we have a null value on our hands...
-    boolean isStringValue = outValueType == ValueMetaInterface.TYPE_STRING;
+    boolean isStringValue = outValueType == IValueMeta.TYPE_STRING;
     Object emptyValue = isStringValue ? Const.NULL_STRING : null;
 
     Boolean isEmptyAndNullDiffer = convertStringToBoolean(
@@ -3970,7 +3970,7 @@ public class ValueMetaBase implements ValueMetaInterface {
     // Trimming
     StringBuilder strpol;
     switch ( trim_type ) {
-      case ValueMetaInterface.TRIM_TYPE_LEFT:
+      case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -3978,7 +3978,7 @@ public class ValueMetaBase implements ValueMetaInterface {
         pol = strpol.toString();
 
         break;
-      case ValueMetaInterface.TRIM_TYPE_RIGHT:
+      case IValueMeta.TRIM_TYPE_RIGHT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( strpol.length() - 1 ) == ' ' ) {
           strpol.deleteCharAt( strpol.length() - 1 );
@@ -3986,7 +3986,7 @@ public class ValueMetaBase implements ValueMetaInterface {
         pol = strpol.toString();
 
         break;
-      case ValueMetaInterface.TRIM_TYPE_BOTH:
+      case IValueMeta.TRIM_TYPE_BOTH:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
           strpol.deleteCharAt( 0 );
@@ -4096,7 +4096,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @return the storageMetadata
    */
   @Override
-  public ValueMetaInterface getStorageMetadata() {
+  public IValueMeta getStorageMetadata() {
     return storageMetadata;
   }
 
@@ -4104,7 +4104,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @param storageMetadata the storageMetadata to set
    */
   @Override
-  public void setStorageMetadata( ValueMetaInterface storageMetadata ) {
+  public void setStorageMetadata( IValueMeta storageMetadata ) {
     this.storageMetadata = storageMetadata;
     compareStorageAndActualFormat();
   }
@@ -4241,7 +4241,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @return the conversionMetadata
    */
   @Override
-  public ValueMetaInterface getConversionMetadata() {
+  public IValueMeta getConversionMetadata() {
     return conversionMetadata;
   }
 
@@ -4249,7 +4249,7 @@ public class ValueMetaBase implements ValueMetaInterface {
    * @param conversionMetadata the conversionMetadata to set
    */
   @Override
-  public void setConversionMetadata( ValueMetaInterface conversionMetadata ) {
+  public void setConversionMetadata( IValueMeta conversionMetadata ) {
     this.conversionMetadata = conversionMetadata;
   }
 
@@ -4507,7 +4507,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   }
 
   @Override
-  public void drawValue( PrimitiveGCInterface gc, Object value ) throws HopValueException {
+  public void drawValue( IPrimitiveGC gc, Object value ) throws HopValueException {
     // Just draw the string by default.
     //
     gc.drawText( getString( value ), 0, 0 );
@@ -4515,12 +4515,12 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   @SuppressWarnings( "fallthrough" )
   @Override
-  public ValueMetaInterface getValueFromSQLType( DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
-                                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
     try {
       int length = -1;
       int precision = -1;
-      int valtype = ValueMetaInterface.TYPE_NONE;
+      int valtype = IValueMeta.TYPE_NONE;
       boolean isClob = false;
 
       int type = rm.getColumnType( index );
@@ -4536,7 +4536,7 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.VARCHAR:
         case java.sql.Types.NVARCHAR:
         case java.sql.Types.LONGVARCHAR: // Character Large Object
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           if ( !ignoreLength ) {
             length = rm.getColumnDisplaySize( index );
           }
@@ -4544,7 +4544,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
         case java.sql.Types.CLOB:
         case java.sql.Types.NCLOB:
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           length = DatabaseMeta.CLOB_LENGTH;
           isClob = true;
           break;
@@ -4553,30 +4553,30 @@ public class ValueMetaBase implements ValueMetaInterface {
           // verify Unsigned BIGINT overflow!
           //
           if ( signed ) {
-            valtype = ValueMetaInterface.TYPE_INTEGER;
+            valtype = IValueMeta.TYPE_INTEGER;
             precision = 0; // Max 9.223.372.036.854.775.807
             length = 15;
           } else {
-            valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+            valtype = IValueMeta.TYPE_BIGNUMBER;
             precision = 0; // Max 18.446.744.073.709.551.615
             length = 16;
           }
           break;
 
         case java.sql.Types.INTEGER:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 2.147.483.647
           length = 9;
           break;
 
         case java.sql.Types.SMALLINT:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 32.767
           length = 4;
           break;
 
         case java.sql.Types.TINYINT:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 127
           length = 2;
           break;
@@ -4586,7 +4586,7 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.FLOAT:
         case java.sql.Types.REAL:
         case java.sql.Types.NUMERIC:
-          valtype = ValueMetaInterface.TYPE_NUMBER;
+          valtype = IValueMeta.TYPE_NUMBER;
           length = rm.getPrecision( index );
           precision = rm.getScale( index );
           if ( length >= 126 ) {
@@ -4603,7 +4603,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
 
             // If we're dealing with PostgreSQL and double precision types
-            if ( databaseMeta.getDatabaseInterface().isPostgresVariant() && type == java.sql.Types.DOUBLE
+            if ( databaseMeta.getIDatabase().isPostgresVariant() && type == java.sql.Types.DOUBLE
               && precision >= 16 && length >= 16 ) {
               precision = -1;
               length = -1;
@@ -4611,7 +4611,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
-            if ( databaseMeta.getDatabaseInterface().isMySQLVariant() ) {
+            if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
               if ( precision >= length ) {
                 precision = -1;
                 length = -1;
@@ -4620,42 +4620,42 @@ public class ValueMetaBase implements ValueMetaInterface {
 
             // if the length or precision needs a BIGNUMBER
             if ( length > 15 || precision > 15 ) {
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
             }
           } else {
             if ( precision == 0 ) {
               if ( length <= 18 && length > 0 ) { // Among others Oracle is affected
                 // here.
-                valtype = ValueMetaInterface.TYPE_INTEGER; // Long can hold up to 18
+                valtype = IValueMeta.TYPE_INTEGER; // Long can hold up to 18
                 // significant digits
               } else if ( length > 18 ) {
-                valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+                valtype = IValueMeta.TYPE_BIGNUMBER;
               }
             } else { // we have a precision: keep NUMBER or change to BIGNUMBER?
               if ( length > 15 || precision > 15 ) {
-                valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+                valtype = IValueMeta.TYPE_BIGNUMBER;
               }
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface().isPostgresVariant() ) {
+          if ( databaseMeta.getIDatabase().isPostgresVariant() ) {
             // undefined size => arbitrary precision
             if ( type == java.sql.Types.NUMERIC && length == 0 && precision == 0 ) {
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
+          if ( databaseMeta.getIDatabase().isOracleVariant() ) {
             if ( precision == 0 && length == 38 ) {
-              valtype = databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
+              valtype = databaseMeta.getIDatabase().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
             }
             if ( precision <= 0 && length <= 0 ) {
               // undefined size: BIGNUMBER,
               // precision on Oracle can be 38, too
               // big for a Number type
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
             }
@@ -4665,23 +4665,23 @@ public class ValueMetaBase implements ValueMetaInterface {
 
         case java.sql.Types.TIMESTAMP:
           if ( databaseMeta.supportsTimestampDataType() ) {
-            valtype = ValueMetaInterface.TYPE_TIMESTAMP;
+            valtype = IValueMeta.TYPE_TIMESTAMP;
             length = rm.getScale( index );
           }
           break;
 
         case java.sql.Types.DATE:
-          if ( databaseMeta.getDatabaseInterface().isTeradataVariant() ) {
+          if ( databaseMeta.getIDatabase().isTeradataVariant() ) {
             precision = 1;
           }
         case java.sql.Types.TIME:
-          valtype = ValueMetaInterface.TYPE_DATE;
+          valtype = IValueMeta.TYPE_DATE;
           //
-          if ( databaseMeta.getDatabaseInterface().isMySQLVariant() ) {
+          if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
             String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && rm.getColumnTypeName( index ).equalsIgnoreCase( "YEAR" ) ) {
-              valtype = ValueMetaInterface.TYPE_INTEGER;
+              valtype = IValueMeta.TYPE_INTEGER;
               precision = 0;
               length = 4;
               break;
@@ -4691,31 +4691,31 @@ public class ValueMetaBase implements ValueMetaInterface {
 
         case java.sql.Types.BOOLEAN:
         case java.sql.Types.BIT:
-          valtype = ValueMetaInterface.TYPE_BOOLEAN;
+          valtype = IValueMeta.TYPE_BOOLEAN;
           break;
 
         case java.sql.Types.BINARY:
         case java.sql.Types.BLOB:
         case java.sql.Types.VARBINARY:
         case java.sql.Types.LONGVARBINARY:
-          valtype = ValueMetaInterface.TYPE_BINARY;
+          valtype = IValueMeta.TYPE_BINARY;
 
           if ( databaseMeta.isDisplaySizeTwiceThePrecision()
             && ( 2 * rm.getPrecision( index ) ) == rm.getColumnDisplaySize( index ) ) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = rm.getPrecision( index );
-          } else if ( ( databaseMeta.getDatabaseInterface().isOracleVariant() )
+          } else if ( ( databaseMeta.getIDatabase().isOracleVariant() )
             && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
-            valtype = ValueMetaInterface.TYPE_STRING;
+            valtype = IValueMeta.TYPE_STRING;
             length = rm.getColumnDisplaySize( index );
           } else if ( databaseMeta.isMySQLVariant()
             && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getDatabaseInterface().isSQLiteVariant() ) {
-            valtype = ValueMetaInterface.TYPE_STRING;
+          } else if ( databaseMeta.getIDatabase().isSQLiteVariant() ) {
+            valtype = IValueMeta.TYPE_STRING;
           } else {
             length = -1;
           }
@@ -4723,12 +4723,12 @@ public class ValueMetaBase implements ValueMetaInterface {
           break;
 
         default:
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           precision = rm.getScale( index );
           break;
       }
 
-      ValueMetaInterface v = ValueMetaFactory.createValueMeta( name, valtype );
+      IValueMeta v = ValueMetaFactory.createValueMeta( name, valtype );
       v.setLength( length );
       v.setPrecision( precision );
       v.setLargeTextField( isClob );
@@ -4737,24 +4737,24 @@ public class ValueMetaBase implements ValueMetaInterface {
 
       // See if we need to enable lazy conversion...
       //
-      if ( lazyConversion && valtype == ValueMetaInterface.TYPE_STRING ) {
-        v.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      if ( lazyConversion && valtype == IValueMeta.TYPE_STRING ) {
+        v.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
         // TODO set some encoding to go with this.
 
         // Also set the storage metadata. a copy of the parent, set to String too.
         //
         try {
-          ValueMetaInterface storageMetaData = ValueMetaFactory.cloneValueMeta( v, ValueMetaInterface.TYPE_STRING );
-          storageMetaData.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          IValueMeta storageMetaData = ValueMetaFactory.cloneValueMeta( v, IValueMeta.TYPE_STRING );
+          storageMetaData.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
           v.setStorageMetadata( storageMetaData );
         } catch ( Exception e ) {
           throw new SQLException( e );
         }
       }
 
-      ValueMetaInterface newV = null;
+      IValueMeta newV = null;
       try {
-        newV = databaseMeta.getDatabaseInterface().customizeValueFromSQLType( v, rm, index );
+        newV = databaseMeta.getIDatabase().customizeValueFromSQLType( v, rm, index );
       } catch ( SQLException e ) {
         throw new SQLException( e );
       }
@@ -4764,7 +4764,7 @@ public class ValueMetaBase implements ValueMetaInterface {
     }
   }
 
-  protected void getOriginalColumnMetadata( ValueMetaInterface v, ResultSetMetaData rm, int index, boolean ignoreLength )
+  protected void getOriginalColumnMetadata( IValueMeta v, ResultSetMetaData rm, int index, boolean ignoreLength )
     throws SQLException {
     // Grab the comment as a description to the field as well.
     String comments = rm.getColumnLabel( index );
@@ -4809,7 +4809,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   }
 
   @Override
-  public ValueMetaInterface getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
@@ -4824,7 +4824,7 @@ public class ValueMetaBase implements ValueMetaInterface {
       String originalColumnLabel = rs.getString( "REMARKS" );
       int length = -1;
       int precision = -1;
-      int valtype = ValueMetaInterface.TYPE_NONE;
+      int valtype = IValueMeta.TYPE_NONE;
       boolean isClob = false;
 
       switch ( originalColumnType ) {
@@ -4832,13 +4832,13 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.VARCHAR:
         case java.sql.Types.NVARCHAR:
         case java.sql.Types.LONGVARCHAR: // Character Large Object
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           length = originalColumnDisplaySize;
           break;
 
         case java.sql.Types.CLOB:
         case java.sql.Types.NCLOB:
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           length = DatabaseMeta.CLOB_LENGTH;
           isClob = true;
           break;
@@ -4846,25 +4846,25 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.BIGINT:
           // SQL BigInt is equivalent to a Java Long
           // And a Java Long is equivalent to a PDI Integer.
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 9.223.372.036.854.775.807
           length = 15;
           break;
 
         case java.sql.Types.INTEGER:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 2.147.483.647
           length = 9;
           break;
 
         case java.sql.Types.SMALLINT:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 32.767
           length = 4;
           break;
 
         case java.sql.Types.TINYINT:
-          valtype = ValueMetaInterface.TYPE_INTEGER;
+          valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 127
           length = 2;
           break;
@@ -4874,7 +4874,7 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.FLOAT:
         case java.sql.Types.REAL:
         case java.sql.Types.NUMERIC:
-          valtype = ValueMetaInterface.TYPE_NUMBER;
+          valtype = IValueMeta.TYPE_NUMBER;
           length = originalPrecision;
           precision = originalScale;
           if ( length >= 126 ) {
@@ -4891,7 +4891,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
 
             // If we're dealing with PostgreSQL and double precision types
-            if ( databaseMeta.getDatabaseInterface().isPostgresVariant() && originalColumnType == java.sql.Types.DOUBLE
+            if ( databaseMeta.getIDatabase().isPostgresVariant() && originalColumnType == java.sql.Types.DOUBLE
               && precision >= 16 && length >= 16 ) {
               precision = -1;
               length = -1;
@@ -4912,42 +4912,42 @@ public class ValueMetaBase implements ValueMetaInterface {
 
             // if the length or precision needs a BIGNUMBER
             if ( length > 15 || precision > 15 ) {
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
             }
           } else {
             if ( precision == 0 ) {
               if ( length <= 18 && length > 0 ) { // Among others Oracle is affected
                 // here.
-                valtype = ValueMetaInterface.TYPE_INTEGER; // Long can hold up to 18
+                valtype = IValueMeta.TYPE_INTEGER; // Long can hold up to 18
                 // significant digits
               } else if ( length > 18 ) {
-                valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+                valtype = IValueMeta.TYPE_BIGNUMBER;
               }
             } else { // we have a precision: keep NUMBER or change to BIGNUMBER?
               if ( length > 15 || precision > 15 ) {
-                valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+                valtype = IValueMeta.TYPE_BIGNUMBER;
               }
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface().isPostgresVariant() ) {
+          if ( databaseMeta.getIDatabase().isPostgresVariant() ) {
             // undefined size => arbitrary precision
             if ( originalColumnType == java.sql.Types.NUMERIC && length == 0 && precision == 0 ) {
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
+          if ( databaseMeta.getIDatabase().isOracleVariant() ) {
             if ( precision == 0 && length == 38 ) {
-              valtype = databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
+              valtype = databaseMeta.getIDatabase().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
             }
             if ( precision <= 0 && length <= 0 ) {
               // undefined size: BIGNUMBER,
               // precision on Oracle can be 38, too
               // big for a Number type
-              valtype = ValueMetaInterface.TYPE_BIGNUMBER;
+              valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
             }
@@ -4957,23 +4957,23 @@ public class ValueMetaBase implements ValueMetaInterface {
 
         case java.sql.Types.TIMESTAMP:
           if ( databaseMeta.supportsTimestampDataType() ) {
-            valtype = ValueMetaInterface.TYPE_TIMESTAMP;
+            valtype = IValueMeta.TYPE_TIMESTAMP;
             length = originalScale;
           }
           break;
 
         case java.sql.Types.DATE:
-          if ( databaseMeta.getDatabaseInterface().isTeradataVariant() ) {
+          if ( databaseMeta.getIDatabase().isTeradataVariant() ) {
             precision = 1;
           }
         case java.sql.Types.TIME:
-          valtype = ValueMetaInterface.TYPE_DATE;
+          valtype = IValueMeta.TYPE_DATE;
           //
           if ( databaseMeta.isMySQLVariant() ) {
             String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && "YEAR".equalsIgnoreCase( originalColumnTypeName ) ) {
-              valtype = ValueMetaInterface.TYPE_INTEGER;
+              valtype = IValueMeta.TYPE_INTEGER;
               precision = 0;
               length = 4;
               break;
@@ -4983,35 +4983,35 @@ public class ValueMetaBase implements ValueMetaInterface {
 
         case java.sql.Types.BOOLEAN:
         case java.sql.Types.BIT:
-          valtype = ValueMetaInterface.TYPE_BOOLEAN;
+          valtype = IValueMeta.TYPE_BOOLEAN;
           break;
 
         case java.sql.Types.BINARY:
         case java.sql.Types.BLOB:
         case java.sql.Types.VARBINARY:
         case java.sql.Types.LONGVARBINARY:
-          valtype = ValueMetaInterface.TYPE_BINARY;
+          valtype = IValueMeta.TYPE_BINARY;
 
           
-          DatabaseInterface db = databaseMeta.getDatabaseInterface();
+          IDatabase db = databaseMeta.getIDatabase();
           boolean isOracle= db.isOracleVariant();
           
           if ( databaseMeta.isDisplaySizeTwiceThePrecision()
             && ( 2 * originalPrecision ) == originalColumnDisplaySize ) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = originalPrecision;
-          } else if ( ( databaseMeta.getDatabaseInterface().isOracleVariant() )
+          } else if ( ( databaseMeta.getIDatabase().isOracleVariant() )
             && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
-            valtype = ValueMetaInterface.TYPE_STRING;
+            valtype = IValueMeta.TYPE_STRING;
             length = originalColumnDisplaySize;
           } else if ( databaseMeta.isMySQLVariant()
             && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getDatabaseInterface().isSQLiteVariant() ) {
-            valtype = ValueMetaInterface.TYPE_STRING;
+          } else if ( databaseMeta.getIDatabase().isSQLiteVariant() ) {
+            valtype = IValueMeta.TYPE_STRING;
           } else {
             length = -1;
           }
@@ -5019,12 +5019,12 @@ public class ValueMetaBase implements ValueMetaInterface {
           break;
 
         default:
-          valtype = ValueMetaInterface.TYPE_STRING;
+          valtype = IValueMeta.TYPE_STRING;
           precision = originalScale;
           break;
       }
 
-      ValueMetaInterface v = ValueMetaFactory.createValueMeta( name, valtype );
+      IValueMeta v = ValueMetaFactory.createValueMeta( name, valtype );
       v.setLength( length );
       v.setPrecision( precision );
       v.setLargeTextField( isClob );
@@ -5046,40 +5046,40 @@ public class ValueMetaBase implements ValueMetaInterface {
   /**
    * Get a value from a result set column based on the current value metadata
    *
-   * @param databaseInterface the database metadata to use
+   * @param iDatabase the database metadata to use
    * @param resultSet         The JDBC result set to read from
    * @param index             The column index (1-based)
    * @return The Hop native data type based on the value metadata
    * @throws HopDatabaseException in case something goes wrong.
    */
   @Override
-  public Object getValueFromResultSet( DatabaseInterface databaseInterface, ResultSet resultSet, int index )
+  public Object getValueFromResultSet( IDatabase iDatabase, ResultSet resultSet, int index )
     throws HopDatabaseException {
     try {
       Object data = null;
 
       switch ( getType() ) {
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           data = Boolean.valueOf( resultSet.getBoolean( index + 1 ) );
           break;
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           data = new Double( resultSet.getDouble( index + 1 ) );
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           data = resultSet.getBigDecimal( index + 1 );
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           data = Long.valueOf( resultSet.getLong( index + 1 ) );
           break;
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           if ( isStorageBinaryString() ) {
             data = resultSet.getBytes( index + 1 );
           } else {
             data = resultSet.getString( index + 1 );
           }
           break;
-        case ValueMetaInterface.TYPE_BINARY:
-          if ( databaseInterface.supportsGetBlob() ) {
+        case IValueMeta.TYPE_BINARY:
+          if ( iDatabase.supportsGetBlob() ) {
             Blob blob = resultSet.getBlob( index + 1 );
             if ( blob != null ) {
               data = blob.getBytes( 1L, (int) blob.length() );
@@ -5091,13 +5091,13 @@ public class ValueMetaBase implements ValueMetaInterface {
           }
           break;
 
-        case ValueMetaInterface.TYPE_DATE:
-          if ( getPrecision() != 1 && databaseInterface.supportsTimeStampToDateConversion() ) {
+        case IValueMeta.TYPE_DATE:
+          if ( getPrecision() != 1 && iDatabase.supportsTimeStampToDateConversion() ) {
             data = resultSet.getTimestamp( index + 1 );
             break; // Timestamp extends java.util.Date
-          } else if ( databaseInterface.isNetezzaVariant() ) {
+          } else if ( iDatabase.isNetezzaVariant() ) {
             // PDI-10877 workaround for IBM netezza jdbc 'special' implementation
-            data = getNetezzaDateValueWorkaround( databaseInterface, resultSet, index + 1 );
+            data = getNetezzaDateValueWorkaround( iDatabase, resultSet, index + 1 );
             break;
           } else {
             data = resultSet.getDate( index + 1 );
@@ -5117,7 +5117,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   }
 
-  private Object getNetezzaDateValueWorkaround( DatabaseInterface databaseInterface, ResultSet resultSet, int index )
+  private Object getNetezzaDateValueWorkaround( IDatabase iDatabase, ResultSet resultSet, int index )
     throws SQLException, HopDatabaseException {
     Object data = null;
     int type = resultSet.getMetaData().getColumnType( index );
@@ -5138,7 +5138,7 @@ public class ValueMetaBase implements ValueMetaInterface {
                                          Object data ) throws HopDatabaseException {
     try {
       switch ( getType() ) {
-        case ValueMetaInterface.TYPE_NUMBER:
+        case IValueMeta.TYPE_NUMBER:
           if ( !isNull( data ) ) {
             double num = getNumber( data ).doubleValue();
             if ( databaseMeta.supportsFloatRoundingOnUpdate() && getPrecision() >= 0 ) {
@@ -5149,7 +5149,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             preparedStatement.setNull( index, java.sql.Types.DOUBLE );
           }
           break;
-        case ValueMetaInterface.TYPE_INTEGER:
+        case IValueMeta.TYPE_INTEGER:
           if ( !isNull( data ) ) {
             if ( databaseMeta.supportsSetLong() ) {
               preparedStatement.setLong( index, getInteger( data ).longValue() );
@@ -5165,7 +5165,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             preparedStatement.setNull( index, java.sql.Types.INTEGER );
           }
           break;
-        case ValueMetaInterface.TYPE_STRING:
+        case IValueMeta.TYPE_STRING:
           if ( !isNull( data ) ) {
             if ( getLength() == DatabaseMeta.CLOB_LENGTH ) {
               setLength( databaseMeta.getMaxTextFieldLength() );
@@ -5197,7 +5197,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             preparedStatement.setNull( index, java.sql.Types.VARCHAR );
           }
           break;
-        case ValueMetaInterface.TYPE_DATE:
+        case IValueMeta.TYPE_DATE:
           if ( !isNull( data ) ) {
             // Environment variable to disable timezone setting for the database updates
             // When it is set, timezone will not be taken into account and the value will be converted
@@ -5239,7 +5239,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
           }
           break;
-        case ValueMetaInterface.TYPE_BOOLEAN:
+        case IValueMeta.TYPE_BOOLEAN:
           if ( databaseMeta.supportsBooleanDataType() ) {
             if ( !isNull( data ) ) {
               preparedStatement.setBoolean( index, getBoolean( data ).booleanValue() );
@@ -5254,14 +5254,14 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
           }
           break;
-        case ValueMetaInterface.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
           if ( !isNull( data ) ) {
             preparedStatement.setBigDecimal( index, getBigNumber( data ) );
           } else {
             preparedStatement.setNull( index, java.sql.Types.DECIMAL );
           }
           break;
-        case ValueMetaInterface.TYPE_BINARY:
+        case IValueMeta.TYPE_BINARY:
           if ( !isNull( data ) ) {
             preparedStatement.setBytes( index, getBinary( data ) );
           } else {
@@ -5293,7 +5293,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   }
 
   @Override
-  public String getDatabaseColumnTypeDefinition( DatabaseInterface databaseInterface, String tk, String pk,
+  public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
                                                  boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
     return null; // No default suggestions...
   }

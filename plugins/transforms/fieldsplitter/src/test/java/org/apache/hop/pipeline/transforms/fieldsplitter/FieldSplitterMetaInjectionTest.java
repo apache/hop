@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -42,78 +42,78 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_TO_SPLIT", new StringGetter() {
+    check( "FIELD_TO_SPLIT", new IStringGetter() {
       public String get() {
         return meta.getSplitField();
       }
     } );
-    check( "DELIMITER", new StringGetter() {
+    check( "DELIMITER", new IStringGetter() {
       public String get() {
         return meta.getDelimiter();
       }
     } );
-    check( "ENCLOSURE", new StringGetter() {
+    check( "ENCLOSURE", new IStringGetter() {
       public String get() {
         return meta.getEnclosure();
       }
     } );
-    check( "NAME", new StringGetter() {
+    check( "NAME", new IStringGetter() {
       public String get() {
         return meta.getFieldName()[ 0 ];
       }
     } );
-    check( "ID", new StringGetter() {
+    check( "ID", new IStringGetter() {
       public String get() {
         return meta.getFieldID()[ 0 ];
       }
     } );
-    check( "REMOVE_ID", new BooleanGetter() {
+    check( "REMOVE_ID", new IBooleanGetter() {
       public boolean get() {
         return meta.getFieldRemoveID()[ 0 ];
       }
     } );
-    check( "FORMAT", new StringGetter() {
+    check( "FORMAT", new IStringGetter() {
       public String get() {
         return meta.getFieldFormat()[ 0 ];
       }
     } );
-    check( "GROUPING", new StringGetter() {
+    check( "GROUPING", new IStringGetter() {
       public String get() {
         return meta.getFieldGroup()[ 0 ];
       }
     } );
-    check( "DECIMAL", new StringGetter() {
+    check( "DECIMAL", new IStringGetter() {
       public String get() {
         return meta.getFieldDecimal()[ 0 ];
       }
     } );
-    check( "CURRENCY", new StringGetter() {
+    check( "CURRENCY", new IStringGetter() {
       public String get() {
         return meta.getFieldCurrency()[ 0 ];
       }
     } );
-    check( "LENGTH", new IntGetter() {
+    check( "LENGTH", new IIntGetter() {
       public int get() {
         return meta.getFieldLength()[ 0 ];
       }
     } );
-    check( "PRECISION", new IntGetter() {
+    check( "PRECISION", new IIntGetter() {
       public int get() {
         return meta.getFieldPrecision()[ 0 ];
       }
     } );
-    check( "NULL_IF", new StringGetter() {
+    check( "NULL_IF", new IStringGetter() {
       public String get() {
         return meta.getFieldNullIf()[ 0 ];
       }
     } );
-    check( "DEFAULT", new StringGetter() {
+    check( "DEFAULT", new IStringGetter() {
       public String get() {
         return meta.getFieldIfNull()[ 0 ];
       }
     } );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "none" ), "f" );
     assertEquals( 0, meta.getFieldTrimType()[ 0 ] );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "left" ), "f" );

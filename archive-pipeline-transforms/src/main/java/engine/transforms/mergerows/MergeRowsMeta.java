@@ -30,11 +30,11 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,10 +42,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
@@ -225,8 +225,8 @@ public class MergeRowsMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //
@@ -243,7 +243,7 @@ public class MergeRowsMeta extends BaseTransformMeta implements TransformMetaInt
     if ( Utils.isEmpty( flagField ) ) {
       throw new HopTransformException( BaseMessages.getString( PKG, "MergeRowsMeta.Exception.FlagFieldNotSpecified" ) );
     }
-    ValueMetaInterface flagFieldValue = new ValueMetaString( flagField );
+    IValueMeta flagFieldValue = new ValueMetaString( flagField );
     flagFieldValue.setOrigin( name );
     r.addValueMeta( flagFieldValue );
 
@@ -251,7 +251,7 @@ public class MergeRowsMeta extends BaseTransformMeta implements TransformMetaInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -276,8 +276,8 @@ public class MergeRowsMeta extends BaseTransformMeta implements TransformMetaInt
       remarks.add( cr );
     }
 
-    RowMetaInterface referenceRowMeta = null;
-    RowMetaInterface compareRowMeta = null;
+    IRowMeta referenceRowMeta = null;
+    IRowMeta compareRowMeta = null;
     try {
       referenceRowMeta = pipelineMeta.getPrevTransformFields( referenceStream.getTransformName() );
       compareRowMeta = pipelineMeta.getPrevTransformFields( compareStream.getTransformName() );
@@ -308,13 +308,13 @@ public class MergeRowsMeta extends BaseTransformMeta implements TransformMetaInt
   }
 
   @Override
-  public TransformInterface getTransform( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new MergeRows( transformMeta, transformDataInterface, cnr, tr, pipeline );
+    return new MergeRows( transformMeta, iTransformData, cnr, tr, pipeline );
   }
 
   @Override
-  public TransformDataInterface getTransformData() {
+  public ITransformData getTransformData() {
     return new MergeRowsData();
   }
 

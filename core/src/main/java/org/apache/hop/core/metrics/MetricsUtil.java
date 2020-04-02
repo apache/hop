@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.metrics;
 
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.IMetrics;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.core.logging.MetricsInterface;
 import org.apache.hop.core.logging.MetricsRegistry;
 
 import java.util.ArrayList;
@@ -47,12 +47,12 @@ public class MetricsUtil {
   public static List<MetricsDuration> getDuration( String logChannelId, Metrics metric ) {
     List<MetricsDuration> durations = new ArrayList<MetricsDuration>();
 
-    Queue<MetricsSnapshotInterface> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
-    MetricsSnapshotInterface start = null;
+    Queue<IMetricsSnapshot> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
+    IMetricsSnapshot start = null;
 
-    Iterator<MetricsSnapshotInterface> iterator = metrics.iterator();
+    Iterator<IMetricsSnapshot> iterator = metrics.iterator();
     while ( iterator.hasNext() ) {
-      MetricsSnapshotInterface snapshot = iterator.next();
+      IMetricsSnapshot snapshot = iterator.next();
       if ( snapshot.getMetric().equals( metric ) ) {
         if ( snapshot.getMetric().getType() == MetricsSnapshotType.START ) {
           if ( start != null ) {
@@ -95,7 +95,7 @@ public class MetricsUtil {
 
     List<String> logChannelIds = LoggingRegistry.getInstance().getLogChannelChildren( parentLogChannelId );
     for ( String logChannelId : logChannelIds ) {
-      LoggingObjectInterface object = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+      ILoggingObject object = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
       if ( object != null ) {
         durations.addAll( getDurations( logChannelId ) );
       }
@@ -111,28 +111,28 @@ public class MetricsUtil {
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDurations( String logChannelId ) {
-    Map<String, MetricsSnapshotInterface> last = new HashMap<String, MetricsSnapshotInterface>();
+    Map<String, IMetricsSnapshot> last = new HashMap<String, IMetricsSnapshot>();
     Map<String, MetricsDuration> map = new HashMap<String, MetricsDuration>();
 
-    Queue<MetricsSnapshotInterface> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
+    Queue<IMetricsSnapshot> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
 
-    Iterator<MetricsSnapshotInterface> iterator = metrics.iterator();
+    Iterator<IMetricsSnapshot> iterator = metrics.iterator();
     while ( iterator.hasNext() ) {
-      MetricsSnapshotInterface snapshot = iterator.next();
+      IMetricsSnapshot snapshot = iterator.next();
 
       // Do we have a start point in the map?
       //
       String key =
         snapshot.getMetric().getDescription()
           + ( snapshot.getSubject() == null ? "" : ( " - " + snapshot.getSubject() ) );
-      MetricsSnapshotInterface lastSnapshot = last.get( key );
+      IMetricsSnapshot lastSnapshot = last.get( key );
       if ( lastSnapshot == null ) {
         lastSnapshot = snapshot;
         last.put( key, lastSnapshot );
       } else {
         // If we have a START-STOP range, calculate the duration and add it to the duration map...
         //
-        MetricsInterface metric = lastSnapshot.getMetric();
+        IMetrics metric = lastSnapshot.getMetric();
         if ( metric.getType() == MetricsSnapshotType.START
           && snapshot.getMetric().getType() == MetricsSnapshotType.STOP ) {
           long extraDuration = snapshot.getDate().getTime() - lastSnapshot.getDate().getTime();
@@ -158,17 +158,17 @@ public class MetricsUtil {
     return new ArrayList<MetricsDuration>( map.values() );
   }
 
-  public static List<MetricsSnapshotInterface> getResultsList( Metrics metric ) {
-    List<MetricsSnapshotInterface> snapshots = new ArrayList<MetricsSnapshotInterface>();
+  public static List<IMetricsSnapshot> getResultsList( Metrics metric ) {
+    List<IMetricsSnapshot> snapshots = new ArrayList<IMetricsSnapshot>();
 
-    Map<String, Map<String, MetricsSnapshotInterface>> snapshotMaps =
+    Map<String, Map<String, IMetricsSnapshot>> snapshotMaps =
       MetricsRegistry.getInstance().getSnapshotMaps();
-    Iterator<Map<String, MetricsSnapshotInterface>> mapsIterator = snapshotMaps.values().iterator();
+    Iterator<Map<String, IMetricsSnapshot>> mapsIterator = snapshotMaps.values().iterator();
     while ( mapsIterator.hasNext() ) {
-      Map<String, MetricsSnapshotInterface> map = mapsIterator.next();
-      Iterator<MetricsSnapshotInterface> snapshotIterator = map.values().iterator();
+      Map<String, IMetricsSnapshot> map = mapsIterator.next();
+      Iterator<IMetricsSnapshot> snapshotIterator = map.values().iterator();
       while ( snapshotIterator.hasNext() ) {
-        MetricsSnapshotInterface snapshot = snapshotIterator.next();
+        IMetricsSnapshot snapshot = snapshotIterator.next();
         if ( snapshot.getMetric().equals( metric ) ) {
           snapshots.add( snapshot );
         }
@@ -179,14 +179,14 @@ public class MetricsUtil {
   }
 
   public static Long getResult( Metrics metric ) {
-    Map<String, Map<String, MetricsSnapshotInterface>> snapshotMaps =
+    Map<String, Map<String, IMetricsSnapshot>> snapshotMaps =
       MetricsRegistry.getInstance().getSnapshotMaps();
-    Iterator<Map<String, MetricsSnapshotInterface>> mapsIterator = snapshotMaps.values().iterator();
+    Iterator<Map<String, IMetricsSnapshot>> mapsIterator = snapshotMaps.values().iterator();
     while ( mapsIterator.hasNext() ) {
-      Map<String, MetricsSnapshotInterface> map = mapsIterator.next();
-      Iterator<MetricsSnapshotInterface> snapshotIterator = map.values().iterator();
+      Map<String, IMetricsSnapshot> map = mapsIterator.next();
+      Iterator<IMetricsSnapshot> snapshotIterator = map.values().iterator();
       while ( snapshotIterator.hasNext() ) {
-        MetricsSnapshotInterface snapshot = snapshotIterator.next();
+        IMetricsSnapshot snapshot = snapshotIterator.next();
         if ( snapshot.getMetric().equals( metric ) ) {
           return snapshot.getValue();
         }

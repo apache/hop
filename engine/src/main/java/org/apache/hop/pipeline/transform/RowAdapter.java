@@ -23,16 +23,16 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * RowAdapter is an adapter class for receiving row events. The methods in this class are empty. This class exists as
- * convenience for creating row listener objects that may not need to implement all the methods of the RowListener
+ * convenience for creating row listener objects that may not need to implement all the methods of the IRowListener
  * interface
  *
- * @see RowListener
+ * @see IRowListener
  */
-public class RowAdapter implements RowListener {
+public class RowAdapter implements IRowListener {
 
   /**
    * Instantiates a new row adapter.
@@ -41,30 +41,30 @@ public class RowAdapter implements RowListener {
   }
 
   /**
-   * Empty method implementing the RowListener.errorRowWrittenEvent interface method
+   * Empty method implementing the IRowListener.errorRowWrittenEvent interface method
    *
-   * @see org.apache.hop.pipeline.transform.RowListener#errorRowWrittenEvent(org.apache.hop.core.row.RowMetaInterface,
+   * @see IRowListener#errorRowWrittenEvent(IRowMeta,
    * java.lang.Object[])
    */
-  public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
   }
 
   /**
-   * Empty method implementing the RowListener.rowReadEvent interface method
+   * Empty method implementing the IRowListener.rowReadEvent interface method
    *
-   * @see org.apache.hop.pipeline.transform.RowListener#rowReadEvent(org.apache.hop.core.row.RowMetaInterface,
+   * @see IRowListener#rowReadEvent(IRowMeta,
    * java.lang.Object[])
    */
-  public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
   }
 
   /**
-   * Empty method implementing the RowListener.rowWrittenEvent interface method
+   * Empty method implementing the IRowListener.rowWrittenEvent interface method
    *
-   * @see org.apache.hop.pipeline.transform.RowListener#rowWrittenEvent(org.apache.hop.core.row.RowMetaInterface,
+   * @see IRowListener#rowWrittenEvent(IRowMeta,
    * java.lang.Object[])
    */
-  public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+  public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
   }
 
 }

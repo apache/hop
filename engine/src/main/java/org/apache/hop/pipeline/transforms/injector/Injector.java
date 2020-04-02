@@ -27,10 +27,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
 /**
  * Executor class to allow a java program to inject rows of data into a pipeline. This transform can be used as a
@@ -38,16 +38,16 @@ import org.apache.hop.pipeline.transform.TransformMetaInterface;
  *
  * @since 22-jun-2006
  */
-public class Injector extends BaseTransform implements TransformInterface {
+public class Injector extends BaseTransform implements ITransform {
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 
-  public Injector( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Injector( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
-    // Get a row from the previous transform OR from an extra RowSet
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+    // Get a row from the previous transform OR from an extra IRowSet
     //
     Object[] row = getRow();
 

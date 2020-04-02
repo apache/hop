@@ -27,16 +27,16 @@ import org.apache.hop.core.exception.HopFileNotFoundException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -49,7 +49,7 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Calculator extends BaseTransform implements TransformInterface {
+public class Calculator extends BaseTransform implements ITransform {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public class FieldIndexes {
@@ -62,13 +62,13 @@ public class Calculator extends BaseTransform implements TransformInterface {
   private CalculatorMeta meta;
   private CalculatorData data;
 
-  public Calculator( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Calculator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (CalculatorMeta) smi;
     data = (CalculatorData) sdi;
 
@@ -191,7 +191,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
    * @return A row including the calculations, excluding the temporary values
    * @throws HopValueException in case there is a calculation error.
    */
-  private Object[] calcFields( RowMetaInterface inputRowMeta, Object[] r ) throws HopValueException,
+  private Object[] calcFields( IRowMeta inputRowMeta, Object[] r ) throws HopValueException,
     HopFileNotFoundException {
     // First copy the input data to the new result...
     Object[] calcData = RowDataUtil.resizeArray( r, data.getCalcRowMeta().size() );
@@ -199,12 +199,12 @@ public class Calculator extends BaseTransform implements TransformInterface {
     for ( int i = 0, index = inputRowMeta.size() + i; i < meta.getCalculation().length; i++, index++ ) {
       CalculatorMetaFunction fn = meta.getCalculation()[ i ];
       if ( !Utils.isEmpty( fn.getFieldName() ) ) {
-        ValueMetaInterface targetMeta = data.getCalcRowMeta().getValueMeta( index );
+        IValueMeta targetMeta = data.getCalcRowMeta().getValueMeta( index );
 
         // Get the metadata & the data...
-        // ValueMetaInterface metaTarget = data.calcRowMeta.getValueMeta(i);
+        // IValueMeta metaTarget = data.calcRowMeta.getValueMeta(i);
 
-        ValueMetaInterface metaA = null;
+        IValueMeta metaA = null;
         Object dataA = null;
 
         if ( data.getFieldIndexes()[ i ].indexA >= 0 ) {
@@ -212,7 +212,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
           dataA = calcData[ data.getFieldIndexes()[ i ].indexA ];
         }
 
-        ValueMetaInterface metaB = null;
+        IValueMeta metaB = null;
         Object dataB = null;
 
         if ( data.getFieldIndexes()[ i ].indexB >= 0 ) {
@@ -220,7 +220,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
           dataB = calcData[ data.getFieldIndexes()[ i ].indexB ];
         }
 
-        ValueMetaInterface metaC = null;
+        IValueMeta metaC = null;
         Object dataC = null;
 
         if ( data.getFieldIndexes()[ i ].indexC >= 0 ) {
@@ -240,7 +240,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
         if ( metaA != null ) {
           resultType = metaA.getType();
         } else {
-          resultType = ValueMetaInterface.TYPE_NONE;
+          resultType = IValueMeta.TYPE_NONE;
         }
 
         switch ( calcType ) {
@@ -254,19 +254,19 @@ public class Calculator extends BaseTransform implements TransformInterface {
           case CalculatorMetaFunction.CALC_ADD: // A + B
             calcData[ index ] = ValueDataUtil.plus( metaA, dataA, metaB, dataB );
             if ( metaA.isString() || metaB.isString() ) {
-              resultType = ValueMetaInterface.TYPE_STRING;
+              resultType = IValueMeta.TYPE_STRING;
             }
             break;
           case CalculatorMetaFunction.CALC_SUBTRACT: // A - B
             calcData[ index ] = ValueDataUtil.minus( metaA, dataA, metaB, dataB );
             if ( metaA.isDate() ) {
-              resultType = ValueMetaInterface.TYPE_INTEGER;
+              resultType = IValueMeta.TYPE_INTEGER;
             }
             break;
           case CalculatorMetaFunction.CALC_MULTIPLY: // A * B
             calcData[ index ] = ValueDataUtil.multiply( metaA, dataA, metaB, dataB );
             if ( metaA.isString() || metaB.isString() ) {
-              resultType = ValueMetaInterface.TYPE_STRING;
+              resultType = IValueMeta.TYPE_STRING;
             }
             break;
           case CalculatorMetaFunction.CALC_DIVIDE: // A / B
@@ -427,7 +427,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
           case CalculatorMetaFunction.CALC_ADD3: // A + B + C
             calcData[ index ] = ValueDataUtil.plus3( metaA, dataA, metaB, dataB, metaC, dataC );
             if ( metaA.isString() || metaB.isString() || metaC.isString() ) {
-              resultType = ValueMetaInterface.TYPE_STRING;
+              resultType = IValueMeta.TYPE_STRING;
             }
             break;
           case CalculatorMetaFunction.CALC_INITCAP: // InitCap( A )
@@ -604,7 +604,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
         // If we don't have a target data type, throw an error.
         // Otherwise the result is non-deterministic.
         //
-        if ( targetMeta.getType() == ValueMetaInterface.TYPE_NONE ) {
+        if ( targetMeta.getType() == IValueMeta.TYPE_NONE ) {
           throw new HopValueException( BaseMessages.getString( PKG, "Calculator.Log.NoType" )
             + ( i + 1 ) + " : " + fn.getFieldName() + " = " + fn.getCalcTypeDesc() + " / "
             + fn.getCalcTypeLongDesc() );
@@ -614,7 +614,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
         //
         if ( calcData[ index ] != null ) {
           if ( targetMeta.getType() != resultType ) {
-            ValueMetaInterface resultMeta;
+            IValueMeta resultMeta;
             try {
               // clone() is not necessary as one data instance belongs to one transform instance and no race condition occurs
               resultMeta = data.getValueMetaFor( resultType, "result" );
@@ -643,7 +643,7 @@ public class Calculator extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (CalculatorMeta) smi;
     data = (CalculatorData) sdi;
 

@@ -27,16 +27,16 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -59,18 +59,18 @@ import java.util.PriorityQueue;
  * @since 24-nov-2006
  */
 
-public class MultiMergeJoin extends BaseTransform implements TransformInterface {
+public class MultiMergeJoin extends BaseTransform implements ITransform {
   private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private MultiMergeJoinMeta meta;
   private MultiMergeJoinData data;
 
-  public MultiMergeJoin( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MultiMergeJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  private boolean processFirstRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  private boolean processFirstRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
@@ -122,7 +122,7 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
     RowSet rowSet;
     Object[] row;
     data.rows = new Object[ streamSize ][];
-    data.metas = new RowMetaInterface[ streamSize ];
+    data.metas = new IRowMeta[ streamSize ];
     data.rowLengths = new int[ streamSize ];
     MultiMergeJoinData.QueueComparator comparator = new MultiMergeJoinData.QueueComparator( data );
     data.queue = new PriorityQueue<MultiMergeJoinData.QueueEntry>( streamSize, comparator );
@@ -133,7 +133,7 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
     data.keyNrs = new int[ streamSize ][];
     data.dummy = new Object[ streamSize ][];
 
-    RowMetaInterface rowMeta;
+    IRowMeta rowMeta;
     data.outputRowMeta = new RowMeta();
     for ( int i = 0, j = 0; i < inputTransformNames.length; i++ ) {
       inputTransformName = inputTransformNames[ i ];
@@ -189,7 +189,7 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
@@ -376,9 +376,9 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
   }
 
   /**
-   * @see TransformInterface#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.TransformDataInterface)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
@@ -417,15 +417,15 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
    * @param row2 Row to compare to
    * @return true when templates are compatible.
    */
-  protected boolean isInputLayoutValid( RowMetaInterface[] rows ) {
+  protected boolean isInputLayoutValid( IRowMeta[] rows ) {
     if ( rows != null ) {
       // Compare the key types
       String[] keyFields = meta.getKeyFields();
       /*
        * int nrKeyFields = keyFields.length;
        *
-       * for (int i=0;i<nrKeyFields;i++) { ValueMetaInterface v1 = rows[0].searchValueMeta(keyFields[i]); if (v1 ==
-       * null) { return false; } for (int j = 1; j < rows.length; j++) { ValueMetaInterface v2 =
+       * for (int i=0;i<nrKeyFields;i++) { IValueMeta v1 = rows[0].searchValueMeta(keyFields[i]); if (v1 ==
+       * null) { return false; } for (int j = 1; j < rows.length; j++) { IValueMeta v2 =
        * rows[j].searchValueMeta(keyFields[i]); if (v2 == null) { return false; } if ( v1.getType()!=v2.getType() ) {
        * return false; } } }
        */
@@ -452,9 +452,9 @@ public class MultiMergeJoin extends BaseTransform implements TransformInterface 
 
       // check:3 compare the key types
       for ( int i = 0; i < prevCount; i++ ) {
-        ValueMetaInterface preValue = null;
+        IValueMeta preValue = null;
         for ( int j = 0; j < rows.length; j++ ) {
-          ValueMetaInterface v = rows[ j ].searchValueMeta( keyList.get( j )[ i ] );
+          IValueMeta v = rows[ j ].searchValueMeta( keyList.get( j )[ i ] );
           if ( v == null ) {
             return false;
           }

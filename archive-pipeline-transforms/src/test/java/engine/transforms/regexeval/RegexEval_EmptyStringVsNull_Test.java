@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.regexeval;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith( PowerMockRunner.class )
 public class RegexEval_EmptyStringVsNull_Test {
-  private TransformMockHelper<RegexEvalMeta, TransformDataInterface> helper;
+  private TransformMockHelper<RegexEvalMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -99,7 +99,7 @@ public class RegexEval_EmptyStringVsNull_Test {
     meta.allocate( 2 );
     meta.getFieldName()[ 0 ] = "string";
     meta.getFieldName()[ 1 ] = "matcher";
-    meta.setFieldType( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } );
+    meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
     meta.setResultFieldName( "string" );
     meta.setReplacefields( true );
     meta.setMatcher( "matcher" );

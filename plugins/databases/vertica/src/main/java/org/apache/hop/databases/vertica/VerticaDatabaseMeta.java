@@ -24,11 +24,11 @@ package org.apache.hop.databases.vertica;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Vertica Analytic Database information through static final members
@@ -43,7 +43,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   typeDescription = "Vertica"
 )
 @GuiPlugin( id = "GUI-VerticaDatabaseMeta" )
-public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
@@ -95,7 +95,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
       + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
@@ -113,7 +113,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
       + tablename + " ALTER COLUMN "
@@ -121,7 +121,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
@@ -134,24 +134,24 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
     int type = v.getType();
     switch ( type ) {
-      case ValueMetaInterface.TYPE_DATE:
-      case ValueMetaInterface.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP:
         retval += "TIMESTAMP";
         break;
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         retval += "BOOLEAN";
         break;
-      case ValueMetaInterface.TYPE_NUMBER:
-      case ValueMetaInterface.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER:
+      case IValueMeta.TYPE_BIGNUMBER:
         retval += "FLOAT";
         break;
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         retval += "INTEGER";
         break;
-      case ValueMetaInterface.TYPE_STRING:
+      case IValueMeta.TYPE_STRING:
         retval += ( length < 1 ) ? "VARCHAR" : "VARCHAR(" + length + ")";
         break;
-      case ValueMetaInterface.TYPE_BINARY:
+      case IValueMeta.TYPE_BINARY:
         retval += ( length < 1 ) ? "VARBINARY" : "VARBINARY(" + length + ")";
         break;
       default:

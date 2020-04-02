@@ -22,24 +22,24 @@
 package org.apache.hop.base;
 
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.changed.ChangedFlagInterface;
-import org.apache.hop.core.changed.HopObserver;
+import org.apache.hop.core.changed.IChanged;
+import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.listeners.ContentChangedListener;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
-import org.apache.hop.core.listeners.FilenameChangedListener;
-import org.apache.hop.core.listeners.NameChangedListener;
+import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
+import org.apache.hop.core.listeners.IFilenameChangedListener;
+import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.undo.ChangeAction;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -144,7 +144,7 @@ public class AbstractMetaTest {
     meta.fireNameChangedListeners( "a", "b" );
     meta.addNameChangedListener( null );
     meta.fireNameChangedListeners( "a", "b" );
-    NameChangedListener listener = mock( NameChangedListener.class );
+    INameChangedListener listener = mock( INameChangedListener.class );
     meta.addNameChangedListener( listener );
     meta.fireNameChangedListeners( "b", "a" );
     verify( listener, times( 1 ) ).nameChanged( meta, "b", "a" );
@@ -160,7 +160,7 @@ public class AbstractMetaTest {
     meta.fireFilenameChangedListeners( "a", "b" );
     meta.addFilenameChangedListener( null );
     meta.fireFilenameChangedListeners( "a", "b" );
-    FilenameChangedListener listener = mock( FilenameChangedListener.class );
+    IFilenameChangedListener listener = mock( IFilenameChangedListener.class );
     meta.addFilenameChangedListener( listener );
     meta.fireFilenameChangedListeners( "b", "a" );
     verify( listener, times( 1 ) ).filenameChanged( meta, "b", "a" );
@@ -173,7 +173,7 @@ public class AbstractMetaTest {
   @Test
   public void testAddRemoveFireContentChangedListener() throws Exception {
     assertTrue( meta.getContentChangedListeners().isEmpty() );
-    ContentChangedListener listener = mock( ContentChangedListener.class );
+    IContentChangedListener listener = mock( IContentChangedListener.class );
     meta.addContentChangedListener( listener );
     assertFalse( meta.getContentChangedListeners().isEmpty() );
     meta.fireContentChangedListeners();
@@ -195,7 +195,7 @@ public class AbstractMetaTest {
     meta.fireNameChangedListeners( "a", "b" );
     meta.addCurrentDirectoryChangedListener( null );
     meta.fireCurrentDirectoryChanged( "a", "b" );
-    CurrentDirectoryChangedListener listener = mock( CurrentDirectoryChangedListener.class );
+    ICurrentDirectoryChangedListener listener = mock( ICurrentDirectoryChangedListener.class );
     meta.addCurrentDirectoryChangedListener( listener );
     meta.fireCurrentDirectoryChanged( "b", "a" );
     verify( listener, times( 1 ) ).directoryChanged( meta, "b", "a" );
@@ -330,7 +330,7 @@ public class AbstractMetaTest {
   @Test
   public void testCopyVariablesFrom() throws Exception {
     assertNull( meta.getVariable( "var1" ) );
-    VariableSpace vars = mock( VariableSpace.class );
+    IVariables vars = mock( IVariables.class );
     when( vars.getVariable( "var1" ) ).thenReturn( "x" );
     when( vars.listVariables() ).thenReturn( new String[] { "var1" } );
     meta.copyVariablesFrom( vars );
@@ -340,7 +340,7 @@ public class AbstractMetaTest {
   @Test
   public void testEnvironmentSubstitute() throws Exception {
     // This is just a delegate method, verify it's called
-    VariableSpace vars = mock( VariableSpace.class );
+    IVariables vars = mock( IVariables.class );
     // This method is reused by the stub to set the mock as the variables object
     meta.setInternalHopVariables( vars );
 
@@ -354,11 +354,11 @@ public class AbstractMetaTest {
   @Test
   public void testFieldSubstitute() throws Exception {
     // This is just a delegate method, verify it's called
-    VariableSpace vars = mock( VariableSpace.class );
+    IVariables vars = mock( IVariables.class );
     // This method is reused by the stub to set the mock as the variables object
     meta.setInternalHopVariables( vars );
 
-    RowMetaInterface rowMeta = mock( RowMetaInterface.class );
+    IRowMeta rowMeta = mock( IRowMeta.class );
     Object[] data = new Object[ 0 ];
     meta.fieldSubstitute( "?{param}", rowMeta, data );
     verify( vars, times( 1 ) ).fieldSubstitute( "?{param}", rowMeta, data );
@@ -367,9 +367,9 @@ public class AbstractMetaTest {
   @Test
   public void testGetSetParentVariableSpace() throws Exception {
     assertNull( meta.getParentVariableSpace() );
-    VariableSpace variableSpace = mock( VariableSpace.class );
-    meta.setParentVariableSpace( variableSpace );
-    assertEquals( variableSpace, meta.getParentVariableSpace() );
+    IVariables variables = mock( IVariables.class );
+    meta.setParentVariableSpace( variables );
+    assertEquals( variables, meta.getParentVariableSpace() );
   }
 
   @Test
@@ -411,7 +411,7 @@ public class AbstractMetaTest {
     meta.eraseParameters();
     assertNull( meta.getParameterValue( "var1" ) );
 
-    NamedParams newParams = new NamedParamsDefault();
+    INamedParams newParams = new NamedParamsDefault();
     newParams.addParameterDefinition( "var3", "default", "description" );
     newParams.setParameterValue( "var3", "a" );
     meta.copyParametersFrom( newParams );
@@ -458,7 +458,7 @@ public class AbstractMetaTest {
 
   @Test
   public void testAddDeleteModifyObserver() throws Exception {
-    HopObserver observer = mock( HopObserver.class );
+    IHopObserver observer = mock( IHopObserver.class );
     meta.addObserver( observer );
     Object event = new Object();
     meta.notifyObservers( event );
@@ -466,7 +466,7 @@ public class AbstractMetaTest {
     verify( observer, never() ).update( meta, event );
     meta.setChanged( true );
     meta.notifyObservers( event );
-    verify( observer, times( 1 ) ).update( any( ChangedFlagInterface.class ), anyObject() );
+    verify( observer, times( 1 ) ).update( any( IChanged.class ), anyObject() );
   }
 
   @Test
@@ -508,13 +508,13 @@ public class AbstractMetaTest {
   @Test
   public void testInitializeShareInjectVariables() {
     meta.initializeVariablesFrom( null );
-    VariableSpace parent = mock( VariableSpace.class );
+    IVariables parent = mock( IVariables.class );
     when( parent.getVariable( "var1" ) ).thenReturn( "x" );
     when( parent.listVariables() ).thenReturn( new String[] { "var1" } );
     meta.initializeVariablesFrom( parent );
     assertEquals( "x", meta.getVariable( "var1" ) );
     assertNotNull( meta.listVariables() );
-    VariableSpace newVars = mock( VariableSpace.class );
+    IVariables newVars = mock( IVariables.class );
     when( newVars.getVariable( "var2" ) ).thenReturn( "y" );
     when( newVars.listVariables() ).thenReturn( new String[] { "var2" } );
     meta.shareVariablesWith( newVars );
@@ -575,22 +575,22 @@ public class AbstractMetaTest {
 
     // Reuse this method to set a mock internal variable space
     @Override
-    public void setInternalHopVariables( VariableSpace var ) {
+    public void setInternalHopVariables( IVariables var ) {
       this.variables = var;
     }
 
     @Override
-    protected void setInternalFilenameHopVariables( VariableSpace var ) {
+    protected void setInternalFilenameHopVariables( IVariables var ) {
 
     }
 
     @Override
-    protected void setInternalNameHopVariable( VariableSpace var ) {
+    protected void setInternalNameHopVariable( IVariables var ) {
 
     }
 
     @Override
-    public String getXML() throws HopException {
+    public String getXml() throws HopException {
       return null;
     }
 
@@ -643,7 +643,7 @@ public class AbstractMetaTest {
         switch ( randomNum ) {
           case 0: {
             try {
-              metaToWork.addFilenameChangedListener( mock( FilenameChangedListener.class ) );
+              metaToWork.addFilenameChangedListener( mock( IFilenameChangedListener.class ) );
             } catch ( Throwable ex ) {
               message = "Exception adding listener.";
             }
@@ -651,7 +651,7 @@ public class AbstractMetaTest {
           }
           case 1: {
             try {
-              metaToWork.removeFilenameChangedListener( mock( FilenameChangedListener.class ) );
+              metaToWork.removeFilenameChangedListener( mock( IFilenameChangedListener.class ) );
             } catch ( Throwable ex ) {
               message = "Exception removing listener.";
             }

@@ -25,7 +25,7 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
@@ -33,12 +33,12 @@ import org.apache.hop.i18n.BaseMessages;
 /**
  * @author matt
  */
-public class DatabaseFactory implements DatabaseFactoryInterface {
+public class DatabaseFactory implements IDatabaseFactory {
 
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
   private boolean success;
 
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Database factory", LoggingObjectType.GENERAL, null );
 
   public DatabaseFactory() {
@@ -81,7 +81,7 @@ public class DatabaseFactory implements DatabaseFactoryInterface {
   private StringBuilder appendConnectionInfo( StringBuilder report, Database db, DatabaseMeta databaseMeta ) {
 
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have hostname and port fields
-    if ( databaseMeta.getDatabaseInterface() instanceof GenericDatabaseMeta ) {
+    if ( databaseMeta.getIDatabase() instanceof GenericDatabaseMeta ) {
       String customUrl = databaseMeta.getManualUrl();
       String customDriverClass = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
 

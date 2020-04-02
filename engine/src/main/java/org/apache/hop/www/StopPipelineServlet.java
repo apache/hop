@@ -37,7 +37,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 
 
-public class StopPipelineServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static Class<?> PKG = StopPipelineServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;

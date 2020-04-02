@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
@@ -61,7 +61,7 @@ public class TransformStatus {
   private boolean paused;
   private long accumlatedRuntime;
 
-  private RowMetaInterface sampleRowMeta;
+  private IRowMeta sampleRowMeta;
   private List<Object[]> sampleRows;
   private final DecimalFormat speedDf = new DecimalFormat( "#,###,###,###,##0" );
 
@@ -69,11 +69,11 @@ public class TransformStatus {
     sampleRows = Collections.synchronizedList( new LinkedList<Object[]>() );
   }
 
-  public TransformStatus( TransformInterface baseTransform ) {
+  public TransformStatus( ITransform baseTransform ) {
     updateAll( baseTransform );
   }
 
-  public synchronized void updateAll( TransformInterface baseTransform ) {
+  public synchronized void updateAll( ITransform baseTransform ) {
     // Proc: nr of lines processed: input + output!
 
     this.transformName = baseTransform.getTransformName();
@@ -467,11 +467,11 @@ public class TransformStatus {
     this.paused = paused;
   }
 
-  public RowMetaInterface getSampleRowMeta() {
+  public IRowMeta getSampleRowMeta() {
     return sampleRowMeta;
   }
 
-  public void setSampleRowMeta( RowMetaInterface sampleRowMeta ) {
+  public void setSampleRowMeta( IRowMeta sampleRowMeta ) {
     this.sampleRowMeta = sampleRowMeta;
   }
 

@@ -22,9 +22,9 @@ package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -64,10 +64,10 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
   @Test
   public void testXMLParsingWithNoDataFormatLocale() throws IOException {
-    ValueMetaInterface r1 = new ValueMetaString( "value" );
+    IValueMeta r1 = new ValueMetaString( "value" );
     r1.setDateFormatLocale( null );
-    RowMetaInterface row = new RowMeta();
-    row.setValueMetaList( new ArrayList<ValueMetaInterface>( Arrays.asList( r1 ) ) );
+    IRowMeta row = new RowMeta();
+    row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
 
     row.getMetaXML();
   }
@@ -125,7 +125,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ), any( Calendar.class ) );
   }
@@ -137,7 +137,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
-    valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
 
     verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ) );
   }

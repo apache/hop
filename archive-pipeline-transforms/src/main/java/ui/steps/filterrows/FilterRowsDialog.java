@@ -26,12 +26,12 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
-public class FilterRowsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTrueTo;
@@ -196,7 +196,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements TransformDi
     fdlCondition.top = new FormAttachment( wFalseTo, margin );
     wlCondition.setLayoutData( fdlCondition );
 
-    RowMetaInterface inputfields = null;
+    IRowMeta inputfields = null;
     try {
       inputfields = pipelineMeta.getPrevTransformFields( transformName );
     } catch ( HopException ke ) {

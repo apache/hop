@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
 public class TypeFieldDefinition {
@@ -68,9 +68,9 @@ public class TypeFieldDefinition {
 
   public String getTypeDescription() {
     switch ( type ) {
-      case ValueMetaInterface.TYPE_BOOLEAN:
+      case IValueMeta.TYPE_BOOLEAN:
         return "boolean";
-      case ValueMetaInterface.TYPE_INTEGER:
+      case IValueMeta.TYPE_INTEGER:
         return "int";
       default:
         return ValueMetaFactory.getValueMetaName( type );

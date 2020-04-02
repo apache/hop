@@ -27,9 +27,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -38,8 +38,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -58,7 +58,7 @@ import java.util.Set;
  * @author Matt
  * @since 17-jan-2006
  */
-public class Denormaliser extends BaseTransform implements TransformInterface {
+public class Denormaliser extends BaseTransform implements ITransform {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private DenormaliserMeta meta;
@@ -66,18 +66,18 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  private Map<String, ValueMetaInterface> conversionMetaCache = new HashMap<String, ValueMetaInterface>();
+  private Map<String, IValueMeta> conversionMetaCache = new HashMap<String, IValueMeta>();
 
-  public Denormaliser( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public Denormaliser( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
 
     meta = (DenormaliserMeta) getTransformMeta().getTransformMetaInterface();
-    data = (DenormaliserData) transformDataInterface;
+    data = (DenormaliserData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     Object[] r = getRow(); // get row!
 
     if ( r == null ) {
@@ -224,7 +224,7 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
    * @return
    * @throws HopValueException
    */
-  Object[] buildResult( RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  Object[] buildResult( IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     // Deleting objects: we need to create a new object array
     // It's useless to call RowDataUtil.resizeArray
     //
@@ -267,7 +267,7 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
           if ( resultValue == null ) {
             resultValue = Long.valueOf( 0 );
           }
-          if ( field.getTargetType() != ValueMetaInterface.TYPE_INTEGER ) {
+          if ( field.getTargetType() != IValueMeta.TYPE_INTEGER ) {
             resultValue =
               data.outputRowMeta.getValueMeta( outputIndex ).convertData(
                 new ValueMetaInteger( "num_values_aggregation" ), resultValue );
@@ -287,12 +287,12 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
   }
 
   private Object getZero( int field ) throws HopValueException {
-    ValueMetaInterface vm = data.outputRowMeta.getValueMeta( field );
+    IValueMeta vm = data.outputRowMeta.getValueMeta( field );
     return ValueDataUtil.getZeroForValueMetaType( vm );
   }
 
   // Is the row r of the same group as previous?
-  private boolean sameGroup( RowMetaInterface rowMeta, Object[] previous, Object[] rowData ) throws HopValueException {
+  private boolean sameGroup( IRowMeta rowMeta, Object[] previous, Object[] rowData ) throws HopValueException {
     return rowMeta.compare( previous, rowData, data.groupnrs ) == 0;
   }
 
@@ -324,8 +324,8 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
    * @param r
    * @throws HopValueException
    */
-  void deNormalise( RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.keyFieldNr );
+  void deNormalise( IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+    IValueMeta valueMeta = rowMeta.getValueMeta( data.keyFieldNr );
     Object valueData = rowData[ data.keyFieldNr ];
 
     String key = valueMeta.getCompatibleString( valueData );
@@ -350,12 +350,12 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
 
       // This is the value we need to de-normalise, convert, aggregate.
       //
-      ValueMetaInterface sourceMeta = rowMeta.getValueMeta( data.fieldNameIndex[ idx ] );
+      IValueMeta sourceMeta = rowMeta.getValueMeta( data.fieldNameIndex[ idx ] );
       Object sourceData = rowData[ data.fieldNameIndex[ idx ] ];
       Object targetData;
       // What is the target value metadata??
       //
-      ValueMetaInterface targetMeta =
+      IValueMeta targetMeta =
         data.outputRowMeta.getValueMeta( data.inputRowMeta.size() - data.removeNrs.length + idx );
       // What was the previous target in the result row?
       //
@@ -364,7 +364,7 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
       // clone source meta as it can be used by other transforms ans set conversion meta
       // to convert date to target format
       // See PDI-4910 for details
-      ValueMetaInterface origSourceMeta = sourceMeta;
+      IValueMeta origSourceMeta = sourceMeta;
       if ( targetMeta.isDate() ) {
         sourceMeta = origSourceMeta.clone();
         sourceMeta.setConversionMetadata( getConversionMeta( field.getTargetFormat() ) );
@@ -432,7 +432,7 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (DenormaliserMeta) smi;
     data = (DenormaliserData) sdi;
 
@@ -457,8 +457,8 @@ public class Denormaliser extends BaseTransform implements TransformInterface {
    * @param mask
    * @return
    */
-  private ValueMetaInterface getConversionMeta( String mask ) {
-    ValueMetaInterface meta = null;
+  private IValueMeta getConversionMeta( String mask ) {
+    IValueMeta meta = null;
     if ( !Utils.isEmpty( mask ) ) {
       meta = conversionMetaCache.get( mask );
       if ( meta == null ) {

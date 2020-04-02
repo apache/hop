@@ -30,9 +30,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -42,10 +42,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -57,9 +57,9 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.common.CsvInputAwareImportProgressDialog;
-import org.apache.hop.ui.pipeline.transform.common.CsvInputAwareTransformDialog;
-import org.apache.hop.ui.pipeline.transform.common.GetFieldsCapableTransformDialog;
+import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
+import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
+import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -80,8 +80,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public class CsvInputDialog extends BaseTransformDialog implements TransformDialogInterface,
-  GetFieldsCapableTransformDialog<CsvInputMeta>, CsvInputAwareTransformDialog {
+public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
+  IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private CsvInputMeta inputMeta;
@@ -180,7 +180,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
     isReceivingInput = pipelineMeta.findNrPrevTransforms( transformMeta ) > 0;
     if ( isReceivingInput ) {
 
-      RowMetaInterface previousFields;
+      IRowMeta previousFields;
       try {
         previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
       } catch ( HopTransformException e ) {
@@ -544,18 +544,18 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
           BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_TRIM_TYPE" ) ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ), };
 
-    colinf[ 2 ].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
+    colinf[ 2 ].setComboValuesSelectionListener( new IComboValuesSelectionListener() {
 
       public String[] getComboValues( TableItem tableItem, int rowNr, int colNr ) {
         String[] comboValues = new String[] {};
         int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
         switch ( type ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             comboValues = Const.getDateFormats();
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
             comboValues = Const.getNumberFormats();
             break;
           default:
@@ -912,7 +912,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
 
   @Override
   public String[] getFieldNames( final CsvInputMeta meta ) {
-    return getFieldNames( (CsvInputAwareMeta) meta );
+    return getFieldNames( (ICsvInputAwareMeta) meta );
   }
 
   @Override
@@ -922,7 +922,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
 
   @Override
   public String loadFieldsImpl( final CsvInputMeta meta, final int samples ) {
-    return loadFieldsImpl( (CsvInputAwareMeta) meta, samples );
+    return loadFieldsImpl( (ICsvInputAwareMeta) meta, samples );
   }
 
   // Preview the data
@@ -999,7 +999,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
       // TransformMeta transformMeta = new TransformMeta(transformName, meta);
       StringBuffer buffer = new StringBuffer();
       final List<Object[]> rowsData = new ArrayList<Object[]>();
-      final RowMetaInterface rowMeta = new RowMeta();
+      final IRowMeta rowMeta = new RowMeta();
 
       try {
 
@@ -1008,10 +1008,10 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
         PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, meta, transformName );
         final Pipeline pipeline = new Pipeline( previewPipelineMeta );
         pipeline.prepareExecution();
-        TransformInterface transform = pipeline.getRunThread( transformName, 0 );
+        ITransform transform = pipeline.getRunThread( transformName, 0 );
         transform.addRowListener( new RowAdapter() {
           @Override
-          public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+          public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
             rowsData.add( row );
 
             // If we have enough rows we can stop
@@ -1074,8 +1074,8 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
   }
 
   @Override
-  public CsvInputAwareImportProgressDialog getCsvImportProgressDialog(
-    final CsvInputAwareMeta meta, final int samples, final InputStreamReader reader ) {
+  public ICsvInputAwareImportProgressDialog getCsvImportProgressDialog(
+    final ICsvInputAwareMeta meta, final int samples, final InputStreamReader reader ) {
     return new TextFileCSVImportProgressDialog( getShell(), (CsvInputMeta) meta, pipelineMeta, reader, samples, true );
   }
 
@@ -1090,7 +1090,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
   }
 
   @Override
-  public InputStream getInputStream( final CsvInputAwareMeta meta ) {
+  public InputStream getInputStream( final ICsvInputAwareMeta meta ) {
     InputStream inputStream = null;
     try {
       FileObject fileObject = meta.getHeaderFileObject( getPipelineMeta() );

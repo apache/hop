@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.metastore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
@@ -49,14 +49,14 @@ import java.util.List;
 public class MetaStoreManager<T extends IHopMetaStoreElement> {
 
   private IMetaStore metaStore;
-  private VariableSpace space;
+  private IVariables variables;
   private ClassLoader classLoader;
 
   private Class<T> managedClass;
   private PropsUI props;
 
-  public MetaStoreManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass ) {
-    this.space = space;
+  public MetaStoreManager( IVariables variables, IMetaStore metaStore, Class<T> managedClass ) {
+    this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metaStore = metaStore;
     this.managedClass = managedClass;
@@ -140,7 +140,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
         Shell.class,
         IMetaStore.class,
         managedClass,
-        VariableSpace.class
+        IVariables.class
       };
       constructorParameters = new Object[] {
         hopGui.getShell(), metaStore, element, hopGui.getVariableSpace()
@@ -148,7 +148,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       constructor = dialogClass.getDeclaredConstructor( constructorArguments );
     }
     if (constructor==null) {
-      throw new HopException( "Unable to find dialog class ("+dialogClassName+") constructor with arguments: Shell, IMetaStore, T and optionally VariableSpace");
+      throw new HopException( "Unable to find dialog class ("+dialogClassName+") constructor with arguments: Shell, IMetaStore, T and optionally IVariables");
     }
 
     IMetaStoreDialog dialog = constructor.newInstance( constructorParameters );
@@ -228,15 +228,15 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
    *
    * @return value of space
    */
-  public VariableSpace getSpace() {
-    return space;
+  public IVariables getSpace() {
+    return variables;
   }
 
   /**
-   * @param space The space to set
+   * @param variables The space to set
    */
-  public void setSpace( VariableSpace space ) {
-    this.space = space;
+  public void setSpace( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**

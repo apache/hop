@@ -25,7 +25,7 @@ package org.apache.hop.ui.pipeline.transforms.rssinput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.rssinput.RssInputField;
 import org.apache.hop.pipeline.transforms.rssinput.RssInputMeta;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -73,7 +73,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class RssInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class RssInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RssInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -684,7 +684,7 @@ public class RssInputDialog extends BaseTransformDialog implements TransformDial
 
       wUrlField.removeAll();
 
-      RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         r.getFieldNames();
 

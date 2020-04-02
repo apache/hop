@@ -34,7 +34,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
@@ -49,7 +49,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 
-public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
+public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
@@ -279,7 +279,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
             pipelineStatus.setLogDate( pipeline.getLogDate() );
 
             for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-              TransformInterface baseTransform = pipeline.getRunThread( i );
+              ITransform baseTransform = pipeline.getRunThread( i );
               if ( ( baseTransform.isRunning() ) || baseTransform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
                 TransformStatus transformStatus = new TransformStatus( baseTransform );
                 pipelineStatus.getTransformStatusList().add( transformStatus );
@@ -417,7 +417,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
 
           boolean evenRow = true;
           for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-            TransformInterface transform = pipeline.getRunThread( i );
+            ITransform transform = pipeline.getRunThread( i );
             if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
               TransformStatus transformStatus = new TransformStatus( transform );
               boolean snif = false;
@@ -522,7 +522,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements HopServ
   }
 
   public String toString() {
-    return "Pipeline Status Handler";
+    return "Pipeline Status IHandler";
   }
 
   public String getService() {

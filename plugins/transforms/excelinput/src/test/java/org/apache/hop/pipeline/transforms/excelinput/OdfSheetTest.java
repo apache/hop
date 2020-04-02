@@ -21,8 +21,8 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.IKCell;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfSheet;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,8 +31,8 @@ import static org.junit.Assert.assertEquals;
 
 public class OdfSheetTest {
 
-  private KWorkbook ods341;
-  private KWorkbook ods24;
+  private IKWorkbook ods341;
+  private IKWorkbook ods24;
 
   @Before
   public void init() throws HopException {
@@ -72,7 +72,7 @@ public class OdfSheetTest {
   private void checkCellCount( OdfSheet sheet, int expected, String failMsg ) {
     int rowNo = sheet.getRows();
     for ( int i = 0; i < rowNo; i++ ) {
-      KCell[] row = sheet.getRow( i );
+      IKCell[] row = sheet.getRow( i );
       assertEquals( failMsg + "; Row content: " + rowToString( row ), expected, row.length );
     }
   }
@@ -81,12 +81,12 @@ public class OdfSheetTest {
     int rowNo = sheet.getRows();
     assertEquals( "Row count mismatch", expected.length, rowNo );
     for ( int i = 0; i < rowNo; i++ ) {
-      KCell[] row = sheet.getRow( i );
+      IKCell[] row = sheet.getRow( i );
       assertEquals( failMsg + "; Row content: " + rowToString( row ), expected[ i ], row.length );
     }
   }
 
-  private String rowToString( KCell[] row ) {
+  private String rowToString( IKCell[] row ) {
     if ( row == null || row.length == 0 ) {
       return "";
     }
@@ -97,7 +97,7 @@ public class OdfSheetTest {
     return result;
   }
 
-  private String cellToStr( KCell cell ) {
+  private String cellToStr( IKCell cell ) {
     String result = "null";
     if ( cell != null ) {
       result = cell.getContents();

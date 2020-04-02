@@ -22,12 +22,12 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
 
@@ -38,7 +38,7 @@ import java.util.List;
  * @author Matt
  * @since 24-jan-2005
  */
-public class MappingData extends BaseTransformData implements TransformDataInterface {
+public class MappingData extends BaseTransformData implements ITransformData {
   public Pipeline mappingPipeline;
   public MappingInput mappingInput;
   public MappingOutput mappingOutput;
@@ -46,7 +46,7 @@ public class MappingData extends BaseTransformData implements TransformDataInter
   public List<String> renameFieldNames;
   public boolean wasStarted;
   public PipelineMeta mappingPipelineMeta;
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
   public List<MappingValueRename> inputRenameList;
   protected int linesReadTransformNr = -1;
   protected int linesInputTransformNr = -1;

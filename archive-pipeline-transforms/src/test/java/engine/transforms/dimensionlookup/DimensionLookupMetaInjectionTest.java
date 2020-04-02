@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -180,7 +180,7 @@ public class DimensionLookupMetaInjectionTest extends BaseMetadataInjectionTest<
       }
     }, "My Connection" );
 
-    ValueMetaInterface mftt = new ValueMetaString( "f" );
+    IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "ALTERNATIVE_START_OPTION", setValue( mftt, DimensionLookupMeta
       .getStartDateAlternativeCode( 0 ) ), "f" );
     Assert.assertEquals( 0, meta.getStartDateAlternative() );

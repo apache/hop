@@ -13,11 +13,11 @@ import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
 import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
@@ -40,10 +40,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
     ) );
   }
 
-  public static void init( List<PluginTypeInterface> pluginTypes ) throws HopException {
+  public static void init( List<IPluginType> pluginTypes ) throws HopException {
     pluginTypes.forEach( PluginRegistry::addPluginType );
 
-    for ( PluginTypeInterface pluginType : pluginTypes ) {
+    for ( IPluginType pluginType : pluginTypes ) {
       pluginType.searchPlugins();
     }
 
@@ -62,8 +62,8 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       GuiRegistry guiRegistry = GuiRegistry.getInstance();
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
 
-      List<PluginInterface> guiPlugins = pluginRegistry.getPlugins( GuiPluginType.class );
-      for ( PluginInterface guiPlugin : guiPlugins ) {
+      List<IPlugin> guiPlugins = pluginRegistry.getPlugins( GuiPluginType.class );
+      for ( IPlugin guiPlugin : guiPlugins ) {
         ClassLoader classLoader = pluginRegistry.getClassLoader( guiPlugin );
         Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray( new Class<?>[ 0 ] );
         String parentClassName = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
@@ -166,10 +166,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       // Get all the file handler plugins
       //
       PluginRegistry registry = PluginRegistry.getInstance();
-      List<PluginInterface> plugins = registry.getPlugins( HopFileTypePluginType.class );
-      for ( PluginInterface plugin : plugins ) {
+      List<IPlugin> plugins = registry.getPlugins( HopFileTypePluginType.class );
+      for ( IPlugin plugin : plugins ) {
         try {
-          HopFileTypeInterface hopFileTypeInterface = registry.loadClass( plugin, HopFileTypeInterface.class );
+          IHopFileType hopFileTypeInterface = registry.loadClass( plugin, IHopFileType.class );
           HopFileTypeRegistry.getInstance().registerHopFile( hopFileTypeInterface );
         } catch ( HopPluginException e ) {
           throw new HopException( "Unable to load plugin with ID '" + plugin.getIds()[ 0 ] + "' and type : " + plugin.getPluginType().getName(), e );

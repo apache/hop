@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -31,22 +31,22 @@ import org.eclipse.swt.widgets.Text;
 
 public class PasswordTextVar extends TextVar {
 
-  public PasswordTextVar( VariableSpace space, Composite composite, int flags ) {
-    super( space, composite, flags | SWT.PASSWORD, null, null, null );
+  public PasswordTextVar( IVariables variables, Composite composite, int flags ) {
+    super( variables, composite, flags | SWT.PASSWORD, null, null, null );
   }
 
-  public PasswordTextVar( VariableSpace space, Composite composite, int flags, String toolTipText ) {
-    super( space, composite, flags | SWT.PASSWORD, toolTipText, null, null );
+  public PasswordTextVar( IVariables variables, Composite composite, int flags, String toolTipText ) {
+    super( variables, composite, flags | SWT.PASSWORD, toolTipText, null, null );
   }
 
-  public PasswordTextVar( VariableSpace space, Composite composite, int flags,
-                          GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    super( space, composite, flags | SWT.PASSWORD, null, getCaretPositionInterface, insertTextInterface );
+  public PasswordTextVar( IVariables variables, Composite composite, int flags,
+                          IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
+    super( variables, composite, flags | SWT.PASSWORD, null, getCaretPositionInterface, insertTextInterface );
   }
 
-  public PasswordTextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-                          GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    super( space, composite, flags | SWT.PASSWORD, toolTipText, getCaretPositionInterface, insertTextInterface );
+  public PasswordTextVar( IVariables variables, Composite composite, int flags, String toolTipText,
+                          IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
+    super( variables, composite, flags | SWT.PASSWORD, toolTipText, getCaretPositionInterface, insertTextInterface );
   }
 
   @Override

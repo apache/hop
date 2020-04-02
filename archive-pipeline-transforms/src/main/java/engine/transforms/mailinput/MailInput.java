@@ -35,8 +35,8 @@ import org.apache.hop.job.entries.getpop.MailConnectionMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -55,7 +55,7 @@ import java.util.List;
  * @since 21-08-2009
  */
 
-public class MailInput extends BaseTransform implements TransformInterface {
+public class MailInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MailInputMeta meta;
@@ -63,12 +63,12 @@ public class MailInput extends BaseTransform implements TransformInterface {
 
   private MessageParser instance = new MessageParser();
 
-  public MailInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public MailInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (MailInputMeta) smi;
     data = (MailInputData) sdi;
 
@@ -372,7 +372,7 @@ public class MailInput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MailInputMeta) smi;
     data = (MailInputData) sdi;
 
@@ -496,7 +496,7 @@ public class MailInput extends BaseTransform implements TransformInterface {
     return 0;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (MailInputMeta) smi;
     data = (MailInputData) sdi;
 

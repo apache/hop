@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,7 +57,7 @@ public class GetSlavesServletTest {
   @Test
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
   public void testUpdateActivityStatusInDoGet() throws Exception {
-    LogChannelInterface log = mock( LogChannelInterface.class );
+    ILogChannel log = mock( ILogChannel.class );
     ServletOutputStream outputStream = mock( ServletOutputStream.class );
     SlaveServerDetection activeServerDetection = mock( SlaveServerDetection.class );
     SlaveServerDetection inactiveServerDetection = mock( SlaveServerDetection.class );

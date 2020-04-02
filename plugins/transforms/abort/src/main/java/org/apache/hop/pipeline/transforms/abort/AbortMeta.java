@@ -23,20 +23,20 @@
 package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -49,7 +49,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
 @Transform( id = "Abort", i18nPackageName = "org.apache.hop.pipeline.transforms.abort",
   name = "Abort.Name", description = "Abort.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
-public class AbortMeta extends BaseTransformMeta implements TransformMetaInterface<Abort, AbortData> {
+public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 
   private static final Class<?> PKG = AbortMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -77,28 +77,28 @@ public class AbortMeta extends BaseTransformMeta implements TransformMetaInterfa
   private AbortOption abortOption;
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: no values are added to the row in the transform
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     // See if we have input streams leading to this transform!
     if ( input.length == 0 ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "AbortMeta.CheckResult.NoInputReceivedError" ), transforminfo );
       remarks.add( cr );
     }
   }
 
   @Override
-  public Abort createTransform( TransformMeta transformMeta, AbortData transformDataInterface, int copyNr,
+  public Abort createTransform( TransformMeta transformMeta, AbortData iTransformData, int copyNr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Abort( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    return new Abort( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Metrics implements MetricsInterface {
+public class Metrics implements IMetrics {
 
   // Database
   //
@@ -193,24 +193,24 @@ public class Metrics implements MetricsInterface {
 
   @Override
   public boolean equals( Object obj ) {
-    if ( !( obj instanceof MetricsInterface ) ) {
+    if ( !( obj instanceof IMetrics ) ) {
       return false;
     }
     if ( this == obj ) {
       return true;
     }
 
-    return ( (MetricsInterface) obj ).getCode().equalsIgnoreCase( code );
+    return ( (IMetrics) obj ).getCode().equalsIgnoreCase( code );
   }
 
-  public static List<MetricsInterface> getDefaultMetrics() {
-    List<MetricsInterface> metrics = new ArrayList<MetricsInterface>();
+  public static List<IMetrics> getDefaultMetrics() {
+    List<IMetrics> metrics = new ArrayList<IMetrics>();
 
     for ( Field field : Metrics.class.getDeclaredFields() ) {
       if ( field.getType().equals( Metrics.class ) && field.getName().startsWith( "METRIC_" ) ) {
         field.setAccessible( true );
         try {
-          metrics.add( (MetricsInterface) field.get( null ) );
+          metrics.add( (IMetrics) field.get( null ) );
         } catch ( Exception e ) {
           e.printStackTrace(); // it either works or doesn't, seems more like a JRE problem if it doesn't.
         }

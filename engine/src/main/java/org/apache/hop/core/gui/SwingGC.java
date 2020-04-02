@@ -50,7 +50,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 
-public class SwingGC implements GCInterface {
+public class SwingGC implements IGC {
 
   private static SwingUniversalImage imageLocked;
 

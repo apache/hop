@@ -13,7 +13,7 @@ import java.util.List;
 public class HopFileTypeRegistry {
   private static HopFileTypeRegistry hopFileTypeRegistry;
 
-  private List<HopFileTypeInterface> hopFileTypes;
+  private List<IHopFileType> hopFileTypes;
 
   private HopFileTypeRegistry() {
     hopFileTypes = new ArrayList<>();
@@ -26,11 +26,11 @@ public class HopFileTypeRegistry {
     return hopFileTypeRegistry;
   }
 
-  public List<HopFileTypeInterface> getFileTypes() {
+  public List<IHopFileType> getFileTypes() {
     return hopFileTypes;
   }
 
-  public void registerHopFile( HopFileTypeInterface hopFileTypeInterface ) {
+  public void registerHopFile( IHopFileType hopFileTypeInterface ) {
     if ( !hopFileTypes.contains( hopFileTypeInterface ) ) {
       hopFileTypes.add( hopFileTypeInterface );
     }
@@ -38,19 +38,19 @@ public class HopFileTypeRegistry {
 
   /**
    * This method first tries to find a HopFile by looking at the extension.
-   * If none can be found the content is looked at by each HopFileTypeInterface
+   * If none can be found the content is looked at by each IHopFileType
    *
    * @param filename The filename to search with
-   * @return The HopFileTypeInterface we can use to open the file itself.
+   * @return The IHopFileType we can use to open the file itself.
    * @throws HopException
    */
-  public HopFileTypeInterface findHopFileType( String filename ) throws HopException {
-    for ( HopFileTypeInterface hopFile : hopFileTypes ) {
+  public IHopFileType findHopFileType( String filename ) throws HopException {
+    for ( IHopFileType hopFile : hopFileTypes ) {
       if ( hopFile.isHandledBy( filename, false ) ) {
         return hopFile;
       }
     }
-    for ( HopFileTypeInterface hopFile : hopFileTypes ) {
+    for ( IHopFileType hopFile : hopFileTypes ) {
       if ( hopFile.isHandledBy( filename, true ) ) {
         return hopFile;
       }
@@ -65,7 +65,7 @@ public class HopFileTypeRegistry {
    */
   public String[] getFilterExtensions() {
     List<String> filterExtensions = new ArrayList<>();
-    for ( HopFileTypeInterface hopFile : hopFileTypes ) {
+    for ( IHopFileType hopFile : hopFileTypes ) {
       filterExtensions.addAll( Arrays.asList( hopFile.getFilterExtensions() ) );
     }
     if ( filterExtensions.size() > 1 ) {
@@ -88,7 +88,7 @@ public class HopFileTypeRegistry {
    */
   public String[] getFilterNames() {
     List<String> filterNames = new ArrayList<>();
-    for ( HopFileTypeInterface hopFile : hopFileTypes ) {
+    for ( IHopFileType hopFile : hopFileTypes ) {
       filterNames.addAll( Arrays.asList( hopFile.getFilterNames() ) );
     }
     if ( filterNames.size() > 1 ) {
@@ -101,17 +101,17 @@ public class HopFileTypeRegistry {
 
   public List<String> getFileTypeNames() {
     List<String> names = new ArrayList<>();
-    for ( HopFileTypeInterface fileType : hopFileTypes ) {
+    for ( IHopFileType fileType : hopFileTypes ) {
       names.add( fileType.getName() );
     }
     return names;
   }
 
-  public HopFileTypeInterface getFileTypeByName( String name ) {
+  public IHopFileType getFileTypeByName( String name ) {
     if ( StringUtils.isEmpty( name ) ) {
       return null;
     }
-    for ( HopFileTypeInterface fileType : hopFileTypes ) {
+    for ( IHopFileType fileType : hopFileTypes ) {
       if ( fileType.getName().equalsIgnoreCase( name ) ) {
         return fileType;
       }

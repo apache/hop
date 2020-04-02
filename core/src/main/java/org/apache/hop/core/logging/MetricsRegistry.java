@@ -23,7 +23,7 @@
 package org.apache.hop.core.logging;
 
 
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
 
 import java.util.Map;
 import java.util.Queue;
@@ -38,25 +38,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MetricsRegistry {
   private static MetricsRegistry registry = new MetricsRegistry();
 
-  private Map<String, Map<String, MetricsSnapshotInterface>> snapshotMaps;
-  private Map<String, Queue<MetricsSnapshotInterface>> snapshotLists;
+  private Map<String, Map<String, IMetricsSnapshot>> snapshotMaps;
+  private Map<String, Queue<IMetricsSnapshot>> snapshotLists;
 
   public static MetricsRegistry getInstance() {
     return registry;
   }
 
   private MetricsRegistry() {
-    snapshotMaps = new ConcurrentHashMap<String, Map<String, MetricsSnapshotInterface>>();
-    snapshotLists = new ConcurrentHashMap<String, Queue<MetricsSnapshotInterface>>();
+    snapshotMaps = new ConcurrentHashMap<String, Map<String, IMetricsSnapshot>>();
+    snapshotLists = new ConcurrentHashMap<String, Queue<IMetricsSnapshot>>();
   }
 
-  public void addSnapshot( LogChannelInterface logChannel, MetricsSnapshotInterface snapshot ) {
-    MetricsInterface metric = snapshot.getMetric();
+  public void addSnapshot( ILogChannel logChannel, IMetricsSnapshot snapshot ) {
+    IMetrics metric = snapshot.getMetric();
     String channelId = logChannel.getLogChannelId();
     switch ( metric.getType() ) {
       case START:
       case STOP:
-        Queue<MetricsSnapshotInterface> list = getSnapshotList( channelId );
+        Queue<IMetricsSnapshot> list = getSnapshotList( channelId );
         list.add( snapshot );
 
         break;
@@ -64,7 +64,7 @@ public class MetricsRegistry {
       case MAX:
       case SUM:
       case COUNT:
-        Map<String, MetricsSnapshotInterface> map = getSnapshotMap( channelId );
+        Map<String, IMetricsSnapshot> map = getSnapshotMap( channelId );
         map.put( snapshot.getKey(), snapshot );
 
         break;
@@ -73,11 +73,11 @@ public class MetricsRegistry {
     }
   }
 
-  public Map<String, Queue<MetricsSnapshotInterface>> getSnapshotLists() {
+  public Map<String, Queue<IMetricsSnapshot>> getSnapshotLists() {
     return snapshotLists;
   }
 
-  public Map<String, Map<String, MetricsSnapshotInterface>> getSnapshotMaps() {
+  public Map<String, Map<String, IMetricsSnapshot>> getSnapshotMaps() {
     return snapshotMaps;
   }
 
@@ -87,10 +87,10 @@ public class MetricsRegistry {
    * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot list.
    */
-  public Queue<MetricsSnapshotInterface> getSnapshotList( String logChannelId ) {
-    Queue<MetricsSnapshotInterface> list = snapshotLists.get( logChannelId );
+  public Queue<IMetricsSnapshot> getSnapshotList( String logChannelId ) {
+    Queue<IMetricsSnapshot> list = snapshotLists.get( logChannelId );
     if ( list == null ) {
-      list = new ConcurrentLinkedQueue<MetricsSnapshotInterface>();
+      list = new ConcurrentLinkedQueue<IMetricsSnapshot>();
       snapshotLists.put( logChannelId, list );
     }
     return list;
@@ -103,10 +103,10 @@ public class MetricsRegistry {
    * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot map.
    */
-  public Map<String, MetricsSnapshotInterface> getSnapshotMap( String logChannelId ) {
-    Map<String, MetricsSnapshotInterface> map = snapshotMaps.get( logChannelId );
+  public Map<String, IMetricsSnapshot> getSnapshotMap( String logChannelId ) {
+    Map<String, IMetricsSnapshot> map = snapshotMaps.get( logChannelId );
     if ( map == null ) {
-      map = new ConcurrentHashMap<String, MetricsSnapshotInterface>();
+      map = new ConcurrentHashMap<String, IMetricsSnapshot>();
       snapshotMaps.put( logChannelId, map );
     }
     return map;

@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.HopAttribute;
-import org.apache.hop.core.HopAttributeInterface;
+import org.apache.hop.core.IHopAttribute;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,25 +34,25 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -73,8 +73,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @created 19-June-2003
  */
-public class BaseTransformMeta implements Cloneable, TransformAttributesInterface {
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
+public class BaseTransformMeta implements Cloneable, ITransformAttributes {
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Transform metadata", LoggingObjectType.TRANSFORM_META, null );
 
   private boolean changed;
@@ -86,7 +86,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
 
   protected TransformMeta parentTransformMeta;
 
-  private volatile TransformIOMetaInterface ioMetaVar;
+  private volatile ITransformIOMeta ioMetaVar;
   ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   protected String transformAttributesFile;
@@ -128,17 +128,17 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
       lock.readLock().lock();
       try {
         if ( ioMetaVar != null ) {
-          TransformIOMetaInterface transformIOMeta =
+          ITransformIOMeta transformIOMeta =
             new TransformIOMeta( ioMetaVar.isInputAcceptor(), ioMetaVar.isOutputProducer(), ioMetaVar.isInputOptional(), ioMetaVar.isSortedDataRequired(), ioMetaVar.isInputDynamic(),
               ioMetaVar.isOutputDynamic() );
 
-          List<StreamInterface> infoStreams = ioMetaVar.getInfoStreams();
-          for ( StreamInterface infoStream : infoStreams ) {
+          List<IStream> infoStreams = ioMetaVar.getInfoStreams();
+          for ( IStream infoStream : infoStreams ) {
             transformIOMeta.addStream( new Stream( infoStream ) );
           }
 
-          List<StreamInterface> targetStreams = ioMetaVar.getTargetStreams();
-          for ( StreamInterface targetStream : targetStreams ) {
+          List<IStream> targetStreams = ioMetaVar.getTargetStreams();
+          for ( IStream targetStream : targetStreams ) {
             transformIOMeta.addStream( new Stream( targetStream ) );
           }
           lock.readLock().unlock(); // the setter acquires the write lock which would deadlock unless we release
@@ -184,7 +184,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    *
    * @return the table fields
    */
-  public RowMetaInterface getTableFields() {
+  public IRowMeta getTableFields() {
     return null;
   }
 
@@ -205,12 +205,12 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * @param name         Name of the transform to use as input for the origin field in the values
    * @param info         Fields used as extra lookup information
    * @param nextTransform     the next transform that is targeted
-   * @param space        the space The variable space to use to replace variables
+   * @param variables        the space The variable space to use to replace variables
    * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopTransformException the kettle transform exception
    */
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Default: no values are added to the row in the transform
   }
 
@@ -227,8 +227,8 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                             RowMetaInterface prev, String[] input, String[] output,
-                             RowMetaInterface info, IMetaStore metaStore ) throws HopTransformException {
+                             IRowMeta prev, String[] input, String[] output,
+                             IRowMeta info, IMetaStore metaStore ) throws HopTransformException {
 
   }
 
@@ -245,7 +245,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * @return The SQL Statements for this transform. If nothing has to be done, the SQLStatement.getSQL() == null. @see
    * SQLStatement
    */
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
+  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     // default: this doesn't require any SQL statements to be executed!
     return new SQLStatement( transformMeta.getName(), null, null );
@@ -275,11 +275,11 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * <p>
    * This default implementation returns an empty row meaning that no fields are required for this transform to operate.
    *
-   * @param space the variable space to use to do variable substitution.
+   * @param variables the variable space to use to do variable substitution.
    * @return the required fields for this transforms meta data.
    * @throws HopException in case the required fields can't be determined
    */
-  public RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     return new RowMeta();
   }
 
@@ -329,15 +329,15 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /**
    * Export resources.
    *
-   * @param space                   the space
+   * @param variables                   the space
    * @param definitions             the definitions
-   * @param resourceNamingInterface the resource naming interface
+   * @param iResourceNaming the resource naming interface
    * @param metaStore               The place to load additional information
    * @return the string
    * @throws HopException the kettle exception
    */
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     return null;
   }
 
@@ -384,9 +384,9 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   // TODO find a way to factor out these methods...
   //
 
-  protected LogChannelInterface log;
+  protected ILogChannel log;
 
-  protected ArrayList<HopAttributeInterface> attributes;
+  protected ArrayList<IHopAttribute> attributes;
 
   // Late init to prevent us from logging blank transform names, etc.
 
@@ -395,7 +395,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    *
    * @return the log
    */
-  public LogChannelInterface getLog() {
+  public ILogChannel getLog() {
     if ( log == null ) {
       log = new LogChannel( this );
     }
@@ -603,19 +603,19 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    *
    * @return the parent
    */
-  public LoggingObjectInterface getParent() {
+  public ILoggingObject getParent() {
     return null;
   }
 
-  public TransformIOMetaInterface getTransformIOMeta() {
+  public ITransformIOMeta getTransformIOMeta() {
     return getTransformIOMeta( true ); // Default to creating transform IO Meta
   }
 
   /**
    * Returns the Input/Output metadata for this transform. By default, each transform produces and accepts optional input.
    */
-  public TransformIOMetaInterface getTransformIOMeta( boolean createIfAbsent ) {
-    TransformIOMetaInterface ioMeta = null;
+  public ITransformIOMeta getTransformIOMeta( boolean createIfAbsent ) {
+    ITransformIOMeta ioMeta = null;
     lock.readLock().lock();
     try {
       if ( ( ioMetaVar == null ) && ( createIfAbsent ) ) {
@@ -640,9 +640,9 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /**
    * Sets the Input/Output metadata for this transform. By default, each transform produces and accepts optional input.
    *
-   * @param value the TransformIOMetaInterface to set for this transform.
+   * @param value the ITransformIOMeta to set for this transform.
    */
-  public void setTransformIOMeta( TransformIOMetaInterface value ) {
+  public void setTransformIOMeta( ITransformIOMeta value ) {
     lock.writeLock().lock();
     try {
       ioMetaVar = value;
@@ -655,8 +655,8 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * @return The list of optional input streams. It allows the user to select from a list of possible actions like
    * "New target transform"
    */
-  public List<StreamInterface> getOptionalStreams() {
-    List<StreamInterface> list = new ArrayList<StreamInterface>();
+  public List<IStream> getOptionalStreams() {
+    List<IStream> list = new ArrayList<IStream>();
     return list;
   }
 
@@ -665,7 +665,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    *
    * @param stream The optional stream to handle.
    */
-  public void handleStreamSelection( StreamInterface stream ) {
+  public void handleStreamSelection( IStream stream ) {
   }
 
   /**
@@ -704,7 +704,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
         Document document = XMLHandler.loadXMLFile( inputStream );
         Node attrsNode = XMLHandler.getSubNode( document, "attributes" );
         List<Node> nodes = XMLHandler.getNodes( attrsNode, "attribute" );
-        attributes = new ArrayList<HopAttributeInterface>();
+        attributes = new ArrayList<IHopAttribute>();
         for ( Node node : nodes ) {
           String key = XMLHandler.getTagAttribute( node, "id" );
           String xmlCode = XMLHandler.getTagValue( node, "xmlcode" );
@@ -727,14 +727,14 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformAttributesInterface#findParent(java.util.List, java.lang.String)
+   * @see org.apache.hop.pipeline.transform.ITransformAttributes#findParent(java.util.List, java.lang.String)
    */
   @Override
-  public HopAttributeInterface findParent( List<HopAttributeInterface> attributes, String parentId ) {
+  public IHopAttribute findParent( List<IHopAttribute> attributes, String parentId ) {
     if ( Utils.isEmpty( parentId ) ) {
       return null;
     }
-    for ( HopAttributeInterface attribute : attributes ) {
+    for ( IHopAttribute attribute : attributes ) {
       if ( attribute.getKey().equals( parentId ) ) {
         return attribute;
       }
@@ -745,11 +745,11 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformAttributesInterface#findAttribute(java.lang.String)
+   * @see org.apache.hop.pipeline.transform.ITransformAttributes#findAttribute(java.lang.String)
    */
   @Override
-  public HopAttributeInterface findAttribute( String key ) {
-    for ( HopAttributeInterface attribute : attributes ) {
+  public IHopAttribute findAttribute( String key ) {
+    for ( IHopAttribute attribute : attributes ) {
       if ( attribute.getKey().equals( key ) ) {
         return attribute;
       }
@@ -760,7 +760,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformAttributesInterface#getXmlCode(java.lang.String)
+   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getXmlCode(java.lang.String)
    */
   @Override
   public String getXmlCode( String attributeKey ) {
@@ -770,7 +770,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformAttributesInterface#getDescription(java.lang.String)
+   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getDescription(java.lang.String)
    */
   @Override
   public String getDescription( String attributeKey ) {
@@ -780,7 +780,7 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.pipeline.transform.TransformAttributesInterface#getTooltip(java.lang.String)
+   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getTooltip(java.lang.String)
    */
   @Override
   public String getTooltip( String attributeKey ) {
@@ -828,8 +828,8 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    * @param info
    * @param metaStore
    */
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
   }
 
@@ -838,11 +838,11 @@ public class BaseTransformMeta implements Cloneable, TransformAttributesInterfac
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore the MetaStore to use
-   * @param space     the variable space to use
+   * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
     return null;
   }
 

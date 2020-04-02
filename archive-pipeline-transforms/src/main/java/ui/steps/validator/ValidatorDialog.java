@@ -25,14 +25,14 @@ package org.apache.hop.ui.pipeline.transforms.validator;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 import org.apache.hop.pipeline.transforms.validator.Validation;
 import org.apache.hop.pipeline.transforms.validator.ValidatorMeta;
@@ -77,12 +77,12 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 
-public class ValidatorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class ValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
   private ValidatorMeta input;
   private List wValidationsList;
-  private RowMetaInterface inputFields;
+  private IRowMeta inputFields;
 
   private Button wValidateAll;
 
@@ -1157,7 +1157,7 @@ public class ValidatorDialog extends BaseTransformDialog implements TransformDia
     Validation field = Validation.findValidation( selectionList, selection );
     if ( field == null ) {
       field = new Validation( selection );
-      ValueMetaInterface valueMeta = inputFields.searchValueMeta( selection );
+      IValueMeta valueMeta = inputFields.searchValueMeta( selection );
       if ( valueMeta != null ) {
         // Set the default data type
         //
@@ -1301,7 +1301,7 @@ public class ValidatorDialog extends BaseTransformDialog implements TransformDia
       String sourceTransformName = wSourceTransform.getText();
       if ( !Utils.isEmpty( sourceTransformName ) ) {
         String fieldName = wSourceField.getText();
-        RowMetaInterface r = pipelineMeta.getTransformFields( sourceTransformName );
+        IRowMeta r = pipelineMeta.getTransformFields( sourceTransformName );
         if ( r != null ) {
           wSourceField.setItems( r.getFieldNames() );
         }

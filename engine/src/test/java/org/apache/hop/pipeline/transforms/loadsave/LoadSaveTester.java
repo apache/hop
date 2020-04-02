@@ -26,13 +26,13 @@ import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
-import org.apache.hop.pipeline.transforms.loadsave.getter.Getter;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
-import org.apache.hop.pipeline.transforms.loadsave.setter.Setter;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -43,14 +43,14 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotSame;
 
-public class LoadSaveTester<T extends TransformMetaInterface> extends LoadSaveBase<T> {
+public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz,
                          List<String> commonAttributes, List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                         InitializerInterface<T> metaInitializerIFace ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
+                         IInitializerInterface<T> metaInitializerIFace ) {
     super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
@@ -58,25 +58,25 @@ public class LoadSaveTester<T extends TransformMetaInterface> extends LoadSaveBa
   public LoadSaveTester( Class<T> clazz,
                          List<String> commonAttributes, List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                         InitializerInterface<T> metaInitializerIFace ) {
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
+                         IInitializerInterface<T> metaInitializerIFace ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
@@ -85,33 +85,33 @@ public class LoadSaveTester<T extends TransformMetaInterface> extends LoadSaveBa
                          List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
-      new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
     this( clazz, commonAttributes, new HashMap<>(), new HashMap<>() );
   }
 
-  public FieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
+  public IFieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
     return fieldLoadSaveValidatorFactory;
   }
 
   @Override
   @SuppressWarnings( "unchecked" )
-  protected Map<String, FieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
-                                                                                       T metaToSave ) {
-    Map<String, FieldLoadSaveValidator<?>> validatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+  protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
+                                                                                        T metaToSave ) {
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     for ( String attribute : attributes ) {
-      Getter<?> getter = manipulator.getGetter( attribute );
+      IGetter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )
-      Setter setter = manipulator.getSetter( attribute );
-      FieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
+      ISetter setter = manipulator.getSetter( attribute );
+      IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
       try {
         Object testValue = validator.getTestObject();
         setter.set( metaToSave, testValue );
@@ -137,7 +137,7 @@ public class LoadSaveTester<T extends TransformMetaInterface> extends LoadSaveBa
     if ( initializer != null ) {
       initializer.modify( metaToSave );
     }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     T metaLoaded = (T) metaToSave.clone();
@@ -158,7 +158,7 @@ public class LoadSaveTester<T extends TransformMetaInterface> extends LoadSaveBa
     if ( initializer != null ) {
       initializer.modify( metaToSave );
     }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXML() + "</transform>";

@@ -25,11 +25,11 @@ package org.apache.hop.core.lifecycle;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.LifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.IPluginTypeListener;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,20 +38,20 @@ import java.util.Set;
 
 public class LifecycleSupport {
   @VisibleForTesting protected static PluginRegistry registry = PluginRegistry.getInstance();
-  private Set<LifecycleListener> lifeListeners;
+  private Set<ILifecycleListener> lifeListeners;
   private boolean started;
-  private LifeEventHandler handler;
+  private ILifeEventHandler handler;
 
   public LifecycleSupport() {
     lifeListeners =
-      Collections.synchronizedSet( loadPlugins( LifecyclePluginType.class, LifecycleListener.class ) );
+      Collections.synchronizedSet( loadPlugins( LifecyclePluginType.class, ILifecycleListener.class ) );
 
     final PluginRegistry registry = PluginRegistry.getInstance();
-    registry.addPluginListener( LifecyclePluginType.class, new PluginTypeListener() {
+    registry.addPluginListener( LifecyclePluginType.class, new IPluginTypeListener() {
       public void pluginAdded( Object serviceObject ) {
-        LifecycleListener listener = null;
+        ILifecycleListener listener = null;
         try {
-          listener = (LifecycleListener) PluginRegistry.getInstance().loadClass( (PluginInterface) serviceObject );
+          listener = (ILifecycleListener) PluginRegistry.getInstance().loadClass( (IPlugin) serviceObject );
         } catch ( HopPluginException e ) {
           e.printStackTrace();
           return;
@@ -84,10 +84,10 @@ public class LifecycleSupport {
    * @param pluginType Type of plugin whose main class types should be instanticated
    * @return Set of plugin main class instances (a.k.a. plugins)
    */
-  static <T> Set<T> loadPlugins( Class<? extends PluginTypeInterface> pluginType, Class<T> mainPluginClass ) {
+  static <T> Set<T> loadPlugins( Class<? extends IPluginType> pluginType, Class<T> mainPluginClass ) {
     Set<T> pluginInstances = new HashSet<T>();
-    List<PluginInterface> plugins = registry.getPlugins( pluginType );
-    for ( PluginInterface plugin : plugins ) {
+    List<IPlugin> plugins = registry.getPlugins( pluginType );
+    for ( IPlugin plugin : plugins ) {
       try {
         pluginInstances.add( registry.loadClass( plugin, mainPluginClass ) );
       } catch ( Throwable e ) {
@@ -97,19 +97,19 @@ public class LifecycleSupport {
     return pluginInstances;
   }
 
-  public void onStart( LifeEventHandler handler ) throws LifecycleException {
+  public void onStart( ILifeEventHandler handler ) throws LifecycleException {
     // Caching the last handler and the fact that start has been called. This would cause problems if onStart
     // is called by more than one handler.
     this.handler = handler;
     started = true;
-    for ( LifecycleListener listener : lifeListeners ) {
+    for ( ILifecycleListener listener : lifeListeners ) {
       listener.onStart( handler );
 
     }
   }
 
-  public void onExit( LifeEventHandler handler ) throws LifecycleException {
-    for ( LifecycleListener listener : lifeListeners ) {
+  public void onExit( ILifeEventHandler handler ) throws LifecycleException {
+    for ( ILifecycleListener listener : lifeListeners ) {
       listener.onExit( handler );
     }
   }

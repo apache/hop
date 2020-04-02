@@ -27,19 +27,19 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,15 +52,15 @@ import java.util.List;
  * @author Matt
  * @since 5-apr-2003
  */
-public class SelectValues extends BaseTransform implements TransformInterface {
+public class SelectValues extends BaseTransform implements ITransform {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   private SelectValuesMeta meta;
   private SelectValuesData data;
 
-  public SelectValues( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SelectValues( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -74,7 +74,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
    * @param row The row to manipulate
    * @return true if everything went well, false if we need to stop because of an error!
    */
-  private synchronized Object[] selectValues( RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
+  private synchronized Object[] selectValues( IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     if ( data.firstselect ) {
       data.firstselect = false;
 
@@ -157,7 +157,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
       // number of fields.
       //
       if ( idx < rowMeta.size() ) {
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( idx );
+        IValueMeta valueMeta = rowMeta.getValueMeta( idx );
 
         // TODO: Clone might be a 'bit' expensive as it is only needed in case you want to copy a single field to 2 or
         // more target fields.
@@ -189,7 +189,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
    * @param row The row to manipulate
    * @return true if everything went well, false if we need to stop because of an error!
    */
-  private synchronized Object[] removeValues( RowMetaInterface rowMeta, Object[] rowData ) {
+  private synchronized Object[] removeValues( IRowMeta rowMeta, Object[] rowData ) {
     if ( data.firstdeselect ) {
       data.firstdeselect = false;
 
@@ -245,7 +245,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
    * @throws HopValueException
    */
   @VisibleForTesting
-  synchronized Object[] metadataValues( RowMetaInterface rowMeta, Object[] rowData ) throws HopException {
+  synchronized Object[] metadataValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
     if ( data.firstmetadata ) {
       data.firstmetadata = false;
 
@@ -284,7 +284,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
       //
       for ( int i = 0; i < data.metanrs.length; i++ ) {
         SelectMetadataChange change = meta.getMeta()[ i ];
-        ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.metanrs[ i ] );
+        IValueMeta valueMeta = rowMeta.getValueMeta( data.metanrs[ i ] );
         if ( !Utils.isEmpty( change.getConversionMask() ) ) {
           valueMeta.setConversionMask( change.getConversionMask() );
         }
@@ -314,17 +314,17 @@ public class SelectValues extends BaseTransform implements TransformInterface {
     //
     for ( int i = 0; i < data.metanrs.length; i++ ) {
       int index = data.metanrs[ i ];
-      ValueMetaInterface fromMeta = rowMeta.getValueMeta( index );
-      ValueMetaInterface toMeta = data.metadataRowMeta.getValueMeta( index );
+      IValueMeta fromMeta = rowMeta.getValueMeta( index );
+      IValueMeta toMeta = data.metadataRowMeta.getValueMeta( index );
 
       // If we need to change from BINARY_STRING storage type to NORMAL...
       //
       try {
         if ( fromMeta.isStorageBinaryString()
-          && meta.getMeta()[ i ].getStorageType() == ValueMetaInterface.STORAGE_TYPE_NORMAL ) {
+          && meta.getMeta()[ i ].getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL ) {
           rowData[ index ] = fromMeta.convertBinaryStringToNativeType( (byte[]) rowData[ index ] );
         }
-        if ( meta.getMeta()[ i ].getType() != ValueMetaInterface.TYPE_NONE && fromMeta.getType() != toMeta.getType() ) {
+        if ( meta.getMeta()[ i ].getType() != IValueMeta.TYPE_NONE && fromMeta.getType() != toMeta.getType() ) {
           rowData[ index ] = toMeta.convertData( fromMeta, rowData[ index ] );
         }
       } catch ( HopValueException e ) {
@@ -336,7 +336,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
     meta = (SelectValuesMeta) smi;
     data = (SelectValuesData) sdi;
 
@@ -398,7 +398,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
       if ( getTransformMeta().isDoingErrorHandling() ) {
         String field;
         if ( e instanceof HopConversionException ) {
-          List<ValueMetaInterface> fields = ( (HopConversionException) e ).getFields();
+          List<IValueMeta> fields = ( (HopConversionException) e ).getFields();
           field = fields.isEmpty() ? null : fields.get( 0 ).getName();
         } else {
           field = null;
@@ -416,7 +416,7 @@ public class SelectValues extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( ITransformMeta smi, ITransformData sdi ) {
     meta = (SelectValuesMeta) smi;
     data = (SelectValuesData) sdi;
 

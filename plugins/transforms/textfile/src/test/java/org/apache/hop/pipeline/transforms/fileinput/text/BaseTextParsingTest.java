@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
@@ -77,6 +77,6 @@ public abstract class BaseTextParsingTest extends BaseParsingTest<TextFileInputM
   protected void setFields( BaseFileField... fields ) throws Exception {
     meta.inputFields = fields;
     meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
-    data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
+    data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
   }
 }

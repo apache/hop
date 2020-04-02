@@ -26,13 +26,13 @@ import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -53,15 +53,15 @@ import java.util.List;
  * @author Matt
  * @since 29-apr-2003
  */
-public class JoinRows extends BaseTransform implements TransformInterface {
+public class JoinRows extends BaseTransform implements ITransform {
   private static Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private JoinRowsMeta meta;
   private JoinRowsData data;
 
-  public JoinRows( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public JoinRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /*
@@ -91,7 +91,7 @@ public class JoinRows extends BaseTransform implements TransformInterface {
       data.fileInputStream = new FileInputStream[ rowSetsSize ];
       data.dataInputStream = new DataInputStream[ rowSetsSize ];
       data.size = new int[ rowSetsSize ];
-      data.fileRowMeta = new RowMetaInterface[ rowSetsSize ];
+      data.fileRowMeta = new IRowMeta[ rowSetsSize ];
       data.joinrow = new Object[ rowSetsSize ][];
       data.rs = new RowSet[ rowSetsSize ];
       data.cache = new List[ rowSetsSize ];
@@ -246,7 +246,7 @@ public class JoinRows extends BaseTransform implements TransformInterface {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (JoinRowsMeta) smi;
     data = (JoinRowsData) sdi;
 
@@ -427,15 +427,15 @@ public class JoinRows extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  private RowMetaInterface createOutputRowMeta( RowMetaInterface[] fileRowMeta ) {
-    RowMetaInterface outputRowMeta = new RowMeta();
+  private IRowMeta createOutputRowMeta( IRowMeta[] fileRowMeta ) {
+    IRowMeta outputRowMeta = new RowMeta();
     for ( int i = 0; i < data.fileRowMeta.length; i++ ) {
       outputRowMeta.mergeRowMeta( data.fileRowMeta[ i ], meta.getName() );
     }
     return outputRowMeta;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (JoinRowsMeta) smi;
     data = (JoinRowsData) sdi;
 

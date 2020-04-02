@@ -29,7 +29,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -118,12 +118,12 @@ public class GetSubFoldersMetaTest {
     setterMap.put( "name", "setFolderName" );
     setterMap.put( "file_required", "setFolderRequired" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorAttributeMap.put( "file_required",
       new ArrayLoadSaveValidator<String>( new FileRequiredFieldLoadSaveValidator(), 50 ) );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorTypeMap.put( String[].class.getCanonicalName(),
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 50 ) );
 
@@ -133,7 +133,7 @@ public class GetSubFoldersMetaTest {
     tester.testSerialization();
   }
 
-  public class FileRequiredFieldLoadSaveValidator implements FieldLoadSaveValidator<String> {
+  public class FileRequiredFieldLoadSaveValidator implements IFieldLoadSaveValidator<String> {
 
     @Override
     public String getTestObject() {

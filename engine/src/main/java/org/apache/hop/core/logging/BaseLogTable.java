@@ -26,7 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
@@ -51,7 +51,7 @@ public abstract class BaseLogTable {
   public static String PROP_LOG_TABLE_SIZE_LIMIT = "LOG_TABLE_SIZE_LIMIT";
   public static String PROP_LOG_TABLE_TIMEOUT_DAYS = "_LOG_TABLE_TIMEOUT_IN_DAYS";
 
-  protected VariableSpace space;
+  protected IVariables variables;
   protected IMetaStore metaStore;
 
   protected String connectionName;
@@ -62,9 +62,9 @@ public abstract class BaseLogTable {
 
   protected List<LogTableField> fields;
 
-  public BaseLogTable( VariableSpace space, IMetaStore metaStore, String connectionName,
+  public BaseLogTable( IVariables variables, IMetaStore metaStore, String connectionName,
                        String schemaName, String tableName ) {
-    this.space = space;
+    this.variables = variables;
     this.metaStore = metaStore;
     this.connectionName = connectionName;
     this.schemaName = schemaName;
@@ -73,7 +73,7 @@ public abstract class BaseLogTable {
   }
 
   public void replaceMeta( BaseLogTable baseLogTable ) {
-    this.space = baseLogTable.space;
+    this.variables = baseLogTable.variables;
     this.metaStore = baseLogTable.metaStore;
     this.connectionName = baseLogTable.connectionName;
     this.schemaName = baseLogTable.schemaName;
@@ -134,9 +134,9 @@ public abstract class BaseLogTable {
    * @return the connectionName
    */
   public String getActualConnectionName() {
-    String name = space.environmentSubstitute( connectionName );
+    String name = variables.environmentSubstitute( connectionName );
     if ( Utils.isEmpty( name ) ) {
-      name = space.getVariable( getConnectionNameVariable() );
+      name = variables.getVariable( getConnectionNameVariable() );
     }
     if ( Utils.isEmpty( name ) ) {
       return null;
@@ -150,10 +150,10 @@ public abstract class BaseLogTable {
    */
   public String getActualSchemaName() {
     if ( !Utils.isEmpty( schemaName ) ) {
-      return space.environmentSubstitute( schemaName );
+      return variables.environmentSubstitute( schemaName );
     }
 
-    String name = space.getVariable( getSchemaNameVariable() );
+    String name = variables.getVariable( getSchemaNameVariable() );
     if ( Utils.isEmpty( name ) ) {
       return null;
     } else {
@@ -177,10 +177,10 @@ public abstract class BaseLogTable {
    */
   public String getActualTableName() {
     if ( !Utils.isEmpty( tableName ) ) {
-      return space.environmentSubstitute( tableName );
+      return variables.environmentSubstitute( tableName );
     }
 
-    String name = space.getVariable( getTableNameVariable() );
+    String name = variables.getVariable( getTableNameVariable() );
     if ( Utils.isEmpty( name ) ) {
       return null;
     } else {
@@ -413,7 +413,7 @@ public abstract class BaseLogTable {
   }
 
   @VisibleForTesting
-  protected String getLogBuffer( VariableSpace space, String logChannelId, LogStatus status, String limit ) {
+  protected String getLogBuffer( IVariables variables, String logChannelId, LogStatus status, String limit ) {
 
     LoggingBuffer loggingBuffer = HopLogStore.getAppender();
     // if job is starting, then remove all previous events from buffer with that job logChannelId.
@@ -425,7 +425,7 @@ public abstract class BaseLogTable {
     StringBuffer buffer = loggingBuffer.getBuffer( logChannelId, true );
 
     if ( Utils.isEmpty( limit ) ) {
-      String defaultLimit = space.getVariable( Const.HOP_LOG_SIZE_LIMIT, null );
+      String defaultLimit = variables.getVariable( Const.HOP_LOG_SIZE_LIMIT, null );
       if ( !Utils.isEmpty( defaultLimit ) ) {
         limit = defaultLimit;
       }
@@ -433,7 +433,7 @@ public abstract class BaseLogTable {
 
     // See if we need to limit the amount of rows
     //
-    int nrLines = Utils.isEmpty( limit ) ? -1 : Const.toInt( space.environmentSubstitute( limit ), -1 );
+    int nrLines = Utils.isEmpty( limit ) ? -1 : Const.toInt( variables.environmentSubstitute( limit ), -1 );
 
     if ( nrLines > 0 ) {
       int start = buffer.length() - 1;

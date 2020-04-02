@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.getvariable;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -32,13 +32,13 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -62,7 +62,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Job",
         documentationUrl = ""
 )
-public class GetVariableMeta extends BaseTransformMeta implements TransformMetaInterface<GetVariable, GetVariableData> {
+public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta<GetVariable, GetVariableData> {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   @InjectionDeep
@@ -130,8 +130,8 @@ public class GetVariableMeta extends BaseTransformMeta implements TransformMetaI
 
         // Backward compatibility
         //
-        if ( fieldDefinitions[ i ].getFieldType() == ValueMetaInterface.TYPE_NONE ) {
-          fieldDefinitions[ i ].setFieldType( ValueMetaInterface.TYPE_STRING );
+        if ( fieldDefinitions[ i ].getFieldType() == IValueMeta.TYPE_NONE ) {
+          fieldDefinitions[ i ].setFieldType( IValueMeta.TYPE_STRING );
         }
       }
     } catch ( Exception e ) {
@@ -152,24 +152,24 @@ public class GetVariableMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Determine the maximum length...
     //
     int length = -1;
     for ( int i = 0; i < fieldDefinitions.length; i++ ) {
       String variableString = fieldDefinitions[ i ].getVariableString();
       if ( variableString != null ) {
-        String string = space.environmentSubstitute( variableString );
+        String string = variables.environmentSubstitute( variableString );
         if ( string.length() > length ) {
           length = string.length();
         }
       }
     }
 
-    RowMetaInterface row = new RowMeta();
+    IRowMeta row = new RowMeta();
     for ( int i = 0; i < fieldDefinitions.length; i++ ) {
-      ValueMetaInterface v;
+      IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( fieldDefinitions[ i ].getFieldName(), fieldDefinitions[ i ].getFieldType() );
       } catch ( HopPluginException e ) {
@@ -231,31 +231,31 @@ public class GetVariableMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < fieldDefinitions.length; i++ ) {
       if ( Utils.isEmpty( fieldDefinitions[ i ].getVariableString() ) ) {
         CheckResult cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
             "GetVariableMeta.CheckResult.VariableNotSpecified", fieldDefinitions[ i ].getFieldName() ), transformMeta );
         remarks.add( cr );
       }
     }
     if ( remarks.size() == nrRemarks ) {
       CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "GetVariableMeta.CheckResult.AllVariablesSpecified" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   @Override
-  public GetVariable createTransform( TransformMeta transformMeta, GetVariableData transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public GetVariable createTransform( TransformMeta transformMeta, GetVariableData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                       Pipeline pipeline ) {
-    return new GetVariable( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new GetVariable( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -319,14 +319,14 @@ public class GetVariableMeta extends BaseTransformMeta implements TransformMetaI
     }
 
     /**
-     * @return the field type (ValueMetaInterface.TYPE_*)
+     * @return the field type (IValueMeta.TYPE_*)
      */
     public int getFieldType() {
       return fieldType;
     }
 
     /**
-     * @param fieldType the field type to set (ValueMetaInterface.TYPE_*)
+     * @param fieldType the field type to set (IValueMeta.TYPE_*)
      */
     public void setFieldType( int fieldType ) {
       this.fieldType = fieldType;

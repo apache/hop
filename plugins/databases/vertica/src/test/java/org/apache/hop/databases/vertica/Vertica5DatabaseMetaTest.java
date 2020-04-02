@@ -21,16 +21,16 @@
  ******************************************************************************/
 package org.apache.hop.databases.vertica;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
@@ -64,7 +64,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
-  private ValueMetaInterface valueMetaBase;
+  private IValueMeta valueMetaBase;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -79,7 +79,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
+    valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
 
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
@@ -143,8 +143,8 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     ValueMetaBase obj = new ValueMetaBase();
     DatabaseMeta dbMeta = spy( new DatabaseMeta() );
-    DatabaseInterface databaseInterface = new Vertica5DatabaseMeta();
-    dbMeta.setDatabaseInterface( databaseInterface );
+    IDatabase iDatabase = new Vertica5DatabaseMeta();
+    dbMeta.setIDatabase( iDatabase );
 
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
 
@@ -158,20 +158,20 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     when( metaData.getColumnDisplaySize( varbinaryColumnIndex ) ).thenReturn( expectedVarBinarylength * 2 );
 
     // get value meta for binary type
-    ValueMetaInterface binaryValueMeta =
+    IValueMeta binaryValueMeta =
       obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertNotNull( binaryValueMeta );
     assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
-    assertTrue( ValueMetaInterface.TYPE_BINARY == binaryValueMeta.getType() );
+    assertTrue( IValueMeta.TYPE_BINARY == binaryValueMeta.getType() );
     assertTrue( expectedBinarylength == binaryValueMeta.getLength() );
     assertFalse( binaryValueMeta.isLargeTextField() );
 
     // get value meta for varbinary type
-    ValueMetaInterface varbinaryValueMeta =
+    IValueMeta varbinaryValueMeta =
       obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
     assertNotNull( varbinaryValueMeta );
     assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
-    assertTrue( ValueMetaInterface.TYPE_BINARY == varbinaryValueMeta.getType() );
+    assertTrue( IValueMeta.TYPE_BINARY == varbinaryValueMeta.getType() );
     assertTrue( expectedVarBinarylength == varbinaryValueMeta.getLength() );
     assertFalse( varbinaryValueMeta.isLargeTextField() );
 
@@ -181,21 +181,21 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   public void testVerticaTimeType() throws Exception {
     // PDI-12244
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-    ValueMetaInterface valueMetaInterface = mock( ValueMetaInternetAddress.class );
+    IValueMeta iValueMeta = mock( ValueMetaInternetAddress.class );
 
     when( resultSet.getMetaData() ).thenReturn( metaData );
     when( metaData.getColumnType( 1 ) ).thenReturn( Types.TIME );
     when( resultSet.getTime( 1 ) ).thenReturn( new Time( 0 ) );
-    when( valueMetaInterface.getOriginalColumnType() ).thenReturn( Types.TIME );
-    when( valueMetaInterface.getType() ).thenReturn( ValueMetaInterface.TYPE_DATE );
+    when( iValueMeta.getOriginalColumnType() ).thenReturn( Types.TIME );
+    when( iValueMeta.getType() ).thenReturn( IValueMeta.TYPE_DATE );
 
-    DatabaseInterface databaseInterface = new Vertica5DatabaseMeta();
-    Object ret = databaseInterface.getValueFromResultSet( resultSet, valueMetaInterface, 0 );
+    IDatabase iDatabase = new Vertica5DatabaseMeta();
+    Object ret = iDatabase.getValueFromResultSet( resultSet, iValueMeta, 0 );
     assertEquals( new Time( 0 ), ret );
   }
 
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
+  private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
     private List<HopLoggingEvent> events = new ArrayList<>();
 

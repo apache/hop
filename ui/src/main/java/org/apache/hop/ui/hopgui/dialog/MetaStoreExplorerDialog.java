@@ -23,8 +23,8 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
@@ -69,7 +69,7 @@ public class MetaStoreExplorerDialog {
 
   private static final String META_STORE_EXPLORER_DIALOG_TREE = "MetaStore explorer dialog tree";
 
-  private static LogChannelInterface log = LogChannel.GENERAL;
+  private static ILogChannel log = LogChannel.GENERAL;
 
   private IMetaStore metaStore;
 

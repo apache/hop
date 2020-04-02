@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.sasinput;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
@@ -35,10 +35,10 @@ import java.util.List;
  * @version 4.3
  * @since 09-OCT-2011
  */
-public class SasInputData extends BaseTransformData implements TransformDataInterface {
+public class SasInputData extends BaseTransformData implements ITransformData {
   public SasInputHelper helper;
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface fileLayout;
+  public IRowMeta outputRowMeta;
+  public IRowMeta fileLayout;
   public List<Integer> fieldIndexes;
 
   public SasInputData() {

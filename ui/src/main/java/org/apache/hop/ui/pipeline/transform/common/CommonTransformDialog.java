@@ -24,16 +24,16 @@ package org.apache.hop.ui.pipeline.transform.common;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -73,7 +73,7 @@ import java.util.List;
  * @param <TransformMetaType>
  */
 public abstract class CommonTransformDialog<TransformMetaType extends CommonTransformMeta> extends BaseTransformDialog implements
-  TransformDialogInterface {
+  ITransformDialog {
 
   protected static final int MARGIN_SIZE = BaseDialog.MARGIN_SIZE;
   protected static final int LABEL_SPACING = BaseDialog.LABEL_SPACING;
@@ -87,7 +87,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   private static final int SHELL_WIDTH = 610;
 
-  private static Class<?> PKG = TransformInterface.class;
+  private static Class<?> PKG = ITransform.class;
 
   protected final TransformMetaType meta;
 
@@ -99,7 +99,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
   protected CTabFolder m_wTabFolder;
 
   public CommonTransformDialog( Shell parent, Object meta, PipelineMeta tr, String sname ) {
-    super( parent, (TransformMetaInterface) meta, tr, sname );
+    super( parent, (ITransformMeta) meta, tr, sname );
     this.meta = (TransformMetaType) meta;
   }
 
@@ -427,7 +427,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
   }
 
   protected Image getImage() {
-    final PluginInterface plugin =
+    final IPlugin plugin =
       PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransformMetaInterface() );
     final String id = plugin.getIds()[ 0 ];
     if ( id != null ) {

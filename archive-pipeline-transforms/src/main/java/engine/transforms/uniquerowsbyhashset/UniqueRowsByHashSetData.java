@@ -22,15 +22,15 @@
 
 package org.apache.hop.pipeline.transforms.uniquerowsbyhashset;
 
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashSet;
 
-public class UniqueRowsByHashSetData extends BaseTransformData implements TransformDataInterface {
-  public RowMetaInterface outputRowMeta;
-  public RowMetaInterface inputRowMeta;
+public class UniqueRowsByHashSetData extends BaseTransformData implements ITransformData {
+  public IRowMeta outputRowMeta;
+  public IRowMeta inputRowMeta;
   public boolean storeValues;
   public int[] fieldnrs;
   public String compareFields;

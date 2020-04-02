@@ -23,8 +23,8 @@
 package org.apache.hop.core.reflection;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.junit.Test;
 
@@ -37,16 +37,16 @@ public class StringSearchResultTest {
 
   @Test
   public void testgetResultRowMeta() {
-    RowMetaInterface rm = StringSearchResult.getResultRowMeta();
+    IRowMeta rm = StringSearchResult.getResultRowMeta();
     assertNotNull( rm );
     assertEquals( 4, rm.getValueMetaList().size() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ), rm.getValueMeta( 0 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ), rm.getValueMeta( 1 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "SearchResult.String" ), rm.getValueMeta( 2 ).getName() );
-    assertEquals( ValueMetaInterface.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
+    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "SearchResult.FieldName" ), rm.getValueMeta( 3 ).getName() );
   }
 }

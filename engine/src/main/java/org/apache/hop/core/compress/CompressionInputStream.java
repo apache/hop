@@ -27,10 +27,10 @@ import java.io.InputStream;
 
 public abstract class CompressionInputStream extends InputStream {
 
-  private CompressionProvider compressionProvider;
+  private ICompressionProvider compressionProvider;
   protected InputStream delegate;
 
-  public CompressionInputStream( InputStream in, CompressionProvider provider ) {
+  public CompressionInputStream( InputStream in, ICompressionProvider provider ) {
     this();
     delegate = in;
     compressionProvider = provider;
@@ -40,7 +40,7 @@ public abstract class CompressionInputStream extends InputStream {
     super();
   }
 
-  public CompressionProvider getCompressionProvider() {
+  public ICompressionProvider getCompressionProvider() {
     return compressionProvider;
   }
 

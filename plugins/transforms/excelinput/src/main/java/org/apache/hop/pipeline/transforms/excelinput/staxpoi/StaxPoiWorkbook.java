@@ -28,9 +28,9 @@ package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.spreadsheet.IKSheet;
+import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 
@@ -48,11 +48,11 @@ import java.util.Map;
  * Streaming reader for XLSX files.<br>
  * Does not open XLS.
  */
-public class StaxPoiWorkbook implements KWorkbook {
+public class StaxPoiWorkbook implements IKWorkbook {
 
   private static final String RELATION_NS_URI = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
-  private LogChannelInterface log;
+  private ILogChannel log;
 
   private XSSFReader reader;
 
@@ -68,7 +68,7 @@ public class StaxPoiWorkbook implements KWorkbook {
 
   protected StaxPoiWorkbook() {
     openSheetsMap = new HashMap<String, StaxPoiSheet>();
-    this.log = HopLogStore.getLogChannelInterfaceFactory().create( this );
+    this.log = HopLogStore.getLogChannelFactory().create( this );
   }
 
   public StaxPoiWorkbook( String filename, String encoding ) throws HopException {
@@ -137,7 +137,7 @@ public class StaxPoiWorkbook implements KWorkbook {
   /**
    * return the same sheet if it already is created otherwise instantiate a new one
    */
-  public KSheet getSheet( String sheetName ) {
+  public IKSheet getSheet( String sheetName ) {
     String sheetID = sheetNameIDMap.get( sheetName );
     if ( sheetID == null ) {
       return null;
@@ -184,7 +184,7 @@ public class StaxPoiWorkbook implements KWorkbook {
   }
 
   @Override
-  public KSheet getSheet( int sheetNr ) {
+  public IKSheet getSheet( int sheetNr ) {
     if ( sheetNr >= 0 && sheetNr < sheetNames.length ) {
       return getSheet( sheetNames[ sheetNr ] );
     }

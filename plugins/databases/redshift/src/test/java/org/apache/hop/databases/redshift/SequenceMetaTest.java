@@ -22,7 +22,7 @@
 
 package org.apache.hop.databases.redshift;
 
-import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
 import org.junit.Test;
 
@@ -33,16 +33,16 @@ public class SequenceMetaTest {
   @Test
   public void testSupport() {
 
-    DatabaseInterface[] support = new DatabaseInterface[] {
+    IDatabase[] support = new IDatabase[] {
       new RedshiftDatabaseMeta(),
     };
 
-    for ( DatabaseInterface db : support ) {
+    for ( IDatabase db : support ) {
       assertSupports( db, true );
     }
   }
 
-  public static void assertSupports( DatabaseInterface db, boolean expected ) {
+  public static void assertSupports( IDatabase db, boolean expected ) {
     String dbType = db.getClass().getSimpleName();
     if ( expected ) {
       assertTrue( dbType, db.supportsSequences() );
@@ -62,17 +62,17 @@ public class SequenceMetaTest {
   @Test
   public void testSQL() {
 
-    DatabaseInterface databaseInterface;
+    IDatabase iDatabase;
     final String sequenceName = "sequence_name";
 
-    databaseInterface = new RedshiftDatabaseMeta();
-    assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", databaseInterface
+    iDatabase = new RedshiftDatabaseMeta();
+    assertEquals( "SELECT nextval('sequence_name')", iDatabase.getSQLNextSequenceValue( sequenceName ) );
+    assertEquals( "SELECT currval('sequence_name')", iDatabase
       .getSQLCurrentSequenceValue( sequenceName ) );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", databaseInterface
+    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", iDatabase
       .getSQLListOfSequences() );
     assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'sequence_name'",
-      databaseInterface.getSQLSequenceExists( sequenceName ) );
+      iDatabase.getSQLSequenceExists( sequenceName ) );
 
   }
 }

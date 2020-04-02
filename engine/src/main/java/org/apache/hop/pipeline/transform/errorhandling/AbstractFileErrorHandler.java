@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class AbstractFileErrorHandler implements FileErrorHandler {
+public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
   private static Class<?> PKG = AbstractFileErrorHandler.class; // for i18n purposes, needed by Translator!!
 
   private static final String DD_MMYYYY_HHMMSS = "ddMMyyyy-HHmmss";

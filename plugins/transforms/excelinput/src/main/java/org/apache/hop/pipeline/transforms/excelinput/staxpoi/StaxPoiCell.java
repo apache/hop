@@ -26,10 +26,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 
-public class StaxPoiCell implements KCell {
+public class StaxPoiCell implements IKCell {
 
   private KCellType type;
   private Object value;

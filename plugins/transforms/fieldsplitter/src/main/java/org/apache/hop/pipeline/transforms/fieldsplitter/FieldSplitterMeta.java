@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,12 +32,12 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -108,7 +108,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
         documentationUrl = ""
 )
-public class FieldSplitterMeta extends BaseTransformMeta implements TransformMetaInterface<FieldSplitter, FieldSplitterData> {
+public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMeta<FieldSplitter, FieldSplitterData> {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -442,8 +442,8 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     return count;
   }
 
-  public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // Remove the field to split
     int idx = r.indexOfValue( getSplitField() );
     if ( idx < 0 ) { // not found
@@ -455,7 +455,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     int count = getFieldsCount();
     for ( int i = 0; i < count; i++ ) {
       try {
-        final ValueMetaInterface v = ValueMetaFactory.createValueMeta( getFieldName()[ i ], getFieldType()[ i ] );
+        final IValueMeta v = ValueMetaFactory.createValueMeta( getFieldName()[ i ], getFieldType()[ i ] );
         v.setLength( getFieldLength()[ i ], getFieldPrecision()[ i ] );
         v.setOrigin( name );
         v.setConversionMask( getFieldFormat()[ i ] );
@@ -529,8 +529,8 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
@@ -579,9 +579,9 @@ public class FieldSplitterMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public FieldSplitter createTransform( TransformMeta transformMeta, FieldSplitterData transformDataInterface, int cnr,
+  public FieldSplitter createTransform( TransformMeta transformMeta, FieldSplitterData iTransformData, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldSplitter( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new FieldSplitter( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   public FieldSplitterData getTransformData() {

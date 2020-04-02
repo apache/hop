@@ -23,7 +23,7 @@
 package org.apache.hop.core.compress.gzip;
 
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -62,7 +62,7 @@ public class GZIPCompressionOutputStreamTest {
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    CompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
     ByteArrayOutputStream in = new ByteArrayOutputStream();
     outStream = new GZIPCompressionOutputStream( in, provider );
   }
@@ -78,13 +78,13 @@ public class GZIPCompressionOutputStreamTest {
 
   @Test
   public void getCompressionProvider() {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals( provider.getName(), PROVIDER_NAME );
   }
 
   @Test
   public void testClose() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GZIPCompressionOutputStream( out, provider ) {
     };
@@ -99,7 +99,7 @@ public class GZIPCompressionOutputStreamTest {
 
   @Test
   public void testWrite() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GZIPCompressionOutputStream( out, provider );
     outStream.write( "Test".getBytes() );
@@ -107,7 +107,7 @@ public class GZIPCompressionOutputStreamTest {
 
   @Test
   public void testAddEntry() throws IOException {
-    CompressionProvider provider = outStream.getCompressionProvider();
+    ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GZIPCompressionOutputStream( out, provider );
     outStream.addEntry( null, null );

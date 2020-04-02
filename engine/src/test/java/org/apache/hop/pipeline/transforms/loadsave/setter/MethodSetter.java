@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadsave.setter;
 
 import java.lang.reflect.Method;
 
-public class MethodSetter<T> implements Setter<T> {
+public class MethodSetter<T> implements ISetter<T> {
   private final Method method;
 
   public MethodSetter( Method method ) {

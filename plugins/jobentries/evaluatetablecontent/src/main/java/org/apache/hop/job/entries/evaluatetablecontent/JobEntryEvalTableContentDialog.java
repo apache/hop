@@ -29,13 +29,13 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -85,7 +85,7 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryEvalTableContentDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryEvalTableContentDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryEvalTableContent.class; // for i18n purposes, needed by Translator!!
 
   private Button wbTable, wbSQLTable;
@@ -167,7 +167,7 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
   private TextVar wLimit;
   private FormData fdlLimit, fdLimit;
 
-  public JobEntryEvalTableContentDialog( Shell parent, JobEntryInterface jobEntryInt,
+  public JobEntryEvalTableContentDialog( Shell parent, IJobEntry jobEntryInt,
                                          JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryEvalTableContent) jobEntryInt;
@@ -176,7 +176,7 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -634,11 +634,11 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
             Database db = new Database( loggingObject, inf );
             try {
               db.connect();
-              RowMetaInterface fields = db.getQueryFields( sql, false );
+              IRowMeta fields = db.getQueryFields( sql, false );
               if ( fields != null ) {
                 sql = "SELECT" + Const.CR;
                 for ( int i = 0; i < fields.size(); i++ ) {
-                  ValueMetaInterface field = fields.getValueMeta( i );
+                  IValueMeta field = fields.getValueMeta( i );
                   if ( i == 0 ) {
                     sql += "  ";
                   } else {

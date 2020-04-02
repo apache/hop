@@ -25,7 +25,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
@@ -202,7 +202,7 @@ public class EnterStringsDialog extends Dialog {
   public void getData() {
     if ( strings != null ) {
       for ( int i = 0; i < strings.getRowMeta().size(); i++ ) {
-        ValueMetaInterface valueMeta = strings.getRowMeta().getValueMeta( i );
+        IValueMeta valueMeta = strings.getRowMeta().getValueMeta( i );
         Object valueData = strings.getData()[ i ];
         String string;
         try {
@@ -236,7 +236,7 @@ public class EnterStringsDialog extends Dialog {
         TableItem item = wFields.getNonEmpty( i );
         String name = item.getText( 1 );
         for ( int j = 0; j < strings.getRowMeta().size(); j++ ) {
-          ValueMetaInterface valueMeta = strings.getRowMeta().getValueMeta( j );
+          IValueMeta valueMeta = strings.getRowMeta().getValueMeta( j );
 
           if ( valueMeta.getName().equalsIgnoreCase( name ) ) {
             String stringValue = item.getText( 2 );

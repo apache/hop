@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Utility class to hold the result of a set of string evaluations: a valid conversion metadata object (with data type,
@@ -32,14 +32,14 @@ import org.apache.hop.core.row.ValueMetaInterface;
  */
 public class StringEvaluationResult {
 
-  private ValueMetaInterface conversionMeta;
+  private IValueMeta conversionMeta;
   private Object min;
   private Object max;
   private int nrNull;
   private int nrSuccesses;
   private int nrFailures;
 
-  public StringEvaluationResult( ValueMetaInterface conversionMeta ) {
+  public StringEvaluationResult( IValueMeta conversionMeta ) {
     this.conversionMeta = conversionMeta;
     this.nrNull = 0;
   }
@@ -56,14 +56,14 @@ public class StringEvaluationResult {
   /**
    * @return the conversionMeta
    */
-  public ValueMetaInterface getConversionMeta() {
+  public IValueMeta getConversionMeta() {
     return conversionMeta;
   }
 
   /**
    * @param conversionMeta the conversionMeta to set
    */
-  public void setConversionMeta( ValueMetaInterface conversionMeta ) {
+  public void setConversionMeta( IValueMeta conversionMeta ) {
     this.conversionMeta = conversionMeta;
   }
 

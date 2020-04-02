@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.compress.hadoopsnappy;
 
-import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
-public class HadoopSnappyCompressionProvider implements CompressionProvider {
+public class HadoopSnappyCompressionProvider implements ICompressionProvider {
 
   public static final int IO_COMPRESSION_CODEC_SNAPPY_DEFAULT_BUFFERSIZE = 256 * 1024;
 

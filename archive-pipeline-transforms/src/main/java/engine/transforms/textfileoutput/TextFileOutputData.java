@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.TreeMap;
  * @author Matt
  * @since 22-jan-2005
  */
-public class TextFileOutputData extends BaseTransformData implements TransformDataInterface {
+public class TextFileOutputData extends BaseTransformData implements ITransformData {
 
   interface IFileStreamsCollection {
     FileStream getStream( String filename );
@@ -417,7 +417,7 @@ public class TextFileOutputData extends BaseTransformData implements TransformDa
 
   public OutputStream fos;
 
-  public RowMetaInterface outputRowMeta;
+  public IRowMeta outputRowMeta;
 
   public byte[] binarySeparator;
   public byte[] binaryEnclosure;
@@ -431,7 +431,7 @@ public class TextFileOutputData extends BaseTransformData implements TransformDa
 
   public int fileNameFieldIndex;
 
-  public ValueMetaInterface fileNameMeta;
+  public IValueMeta fileNameMeta;
 
   public IFileStreamsCollection fileStreamsCollection;
 

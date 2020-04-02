@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class NoneCompressionProvider implements CompressionProvider {
+public class NoneCompressionProvider implements ICompressionProvider {
 
   @Override
   public CompressionInputStream createInputStream( InputStream in ) throws IOException {
@@ -75,7 +75,7 @@ public class NoneCompressionProvider implements CompressionProvider {
 
   public static class NoneCompressionInputStream extends CompressionInputStream {
 
-    public NoneCompressionInputStream( InputStream in, CompressionProvider provider ) {
+    public NoneCompressionInputStream( InputStream in, ICompressionProvider provider ) {
       super( in, provider );
     }
 
@@ -83,7 +83,7 @@ public class NoneCompressionProvider implements CompressionProvider {
 
   public static class NoneCompressionOutputStream extends CompressionOutputStream {
 
-    public NoneCompressionOutputStream( OutputStream out, CompressionProvider provider ) {
+    public NoneCompressionOutputStream( OutputStream out, ICompressionProvider provider ) {
       super( out, provider );
     }
   }

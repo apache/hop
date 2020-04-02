@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
@@ -37,8 +37,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 
@@ -50,16 +50,16 @@ import java.util.List;
  * @author Samatar
  * @since 20-06-2007
  */
-public class YamlInput extends BaseTransform implements TransformInterface {
+public class YamlInput extends BaseTransform implements ITransform {
   private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private YamlInputMeta meta;
 
   private YamlInputData data;
 
-  public YamlInput( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public YamlInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   private void handleMissingFiles() throws HopException {
@@ -213,7 +213,7 @@ public class YamlInput extends BaseTransform implements TransformInterface {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     if ( first && !meta.isInFields() ) {
       first = false;
 
@@ -377,7 +377,7 @@ public class YamlInput extends BaseTransform implements TransformInterface {
     return outputRowData;
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (YamlInputMeta) smi;
     data = (YamlInputData) sdi;
 
@@ -391,7 +391,7 @@ public class YamlInput extends BaseTransform implements TransformInterface {
         String path = environmentSubstitute( field.getPath() );
 
         try {
-          ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( path, field.getType() );
+          IValueMeta valueMeta = ValueMetaFactory.createValueMeta( path, field.getType() );
           valueMeta.setTrimType( field.getTrimType() );
           data.rowMeta.addValueMeta( valueMeta );
         } catch ( Exception e ) {
@@ -405,7 +405,7 @@ public class YamlInput extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (YamlInputMeta) smi;
     data = (YamlInputData) sdi;
     if ( data.yaml != null ) {

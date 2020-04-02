@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.transformsmetrics.TransformsMetrics;
 import org.apache.hop.pipeline.transforms.transformsmetrics.TransformsMetricsMeta;
@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransformsMetricsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class TransformsMetricsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {

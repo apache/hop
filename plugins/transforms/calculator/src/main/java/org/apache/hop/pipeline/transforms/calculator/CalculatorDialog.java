@@ -24,13 +24,13 @@ package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-public class CalculatorDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlTransformName;
@@ -275,7 +275,7 @@ public class CalculatorDialog extends BaseTransformDialog implements TransformDi
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            RowMetaInterface row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {

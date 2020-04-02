@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-public class MultiByteBigCrLfMatcher implements CrLfMatcherInterface {
+public class MultiByteBigCrLfMatcher implements ICrLfMatcher {
 
   @Override
   public boolean isLineFeed( byte[] source, int location ) {

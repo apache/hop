@@ -22,7 +22,7 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
@@ -44,7 +44,7 @@ public class EnvironmentUtils {
   public static final String UBUNTU_BROWSER = "Midori";
   public static final String MAC_BROWSER = "Safari";
   public static final String WINDOWS_BROWSER = "MSIE";
-  private final LogChannelInterface log = new LogChannel( this );
+  private final ILogChannel log = new LogChannel( this );
 
   public static synchronized EnvironmentUtils getInstance() {
     return ENVIRONMENT_UTILS;

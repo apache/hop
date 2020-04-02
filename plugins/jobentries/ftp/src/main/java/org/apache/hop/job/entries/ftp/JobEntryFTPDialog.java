@@ -29,8 +29,8 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
+import org.apache.hop.job.entry.IJobEntryDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -78,7 +78,7 @@ import java.net.InetAddress;
 		  pluginType = PluginDialog.PluginType.JOBENTRY,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class JobEntryFTPDialog extends JobEntryDialog implements JobEntryDialogInterface {
+public class JobEntryFTPDialog extends JobEntryDialog implements IJobEntryDialog {
   private static Class<?> PKG = JobEntryFTP.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
@@ -295,7 +295,7 @@ public class JobEntryFTPDialog extends JobEntryDialog implements JobEntryDialogI
   // encodings = (String [])charsetSet.toArray(new String[0]);
   // }
 
-  public JobEntryFTPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+  public JobEntryFTPDialog( Shell parent, IJobEntry jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -303,7 +303,7 @@ public class JobEntryFTPDialog extends JobEntryDialog implements JobEntryDialogI
     }
   }
 
-  public JobEntryInterface open() {
+  public IJobEntry open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 

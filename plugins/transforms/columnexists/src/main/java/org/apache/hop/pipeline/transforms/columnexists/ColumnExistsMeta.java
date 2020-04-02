@@ -23,24 +23,24 @@
 package org.apache.hop.pipeline.transforms.columnexists;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -53,7 +53,7 @@ import java.util.List;
 @Transform( id = "ColumnExists", i18nPackageName = "org.apache.hop.pipeline.transforms.columnexists", name = "ColumnExists.Name",
   description = "ColumnExists.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup" )
-public class ColumnExistsMeta extends BaseTransformMeta implements TransformMetaInterface<ColumnExists, ColumnExistsData> {
+public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMeta<ColumnExists, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -203,12 +203,12 @@ public class ColumnExistsMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, TransformMeta nextTransform,
-                         VariableSpace space, IMetaStore metaStore )
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables variables, IMetaStore metaStore )
     throws HopTransformException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
-      ValueMetaInterface v = new ValueMetaBoolean( space.environmentSubstitute( resultfieldname ) );
+      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
@@ -244,8 +244,8 @@ public class ColumnExistsMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -305,9 +305,9 @@ public class ColumnExistsMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public ColumnExists createTransform( TransformMeta transformMeta, ColumnExistsData transformDataInterface, int cnr, PipelineMeta pipelineMeta,
+  public ColumnExists createTransform( TransformMeta transformMeta, ColumnExistsData iTransformData, int cnr, PipelineMeta pipelineMeta,
                                        Pipeline pipeline ) {
-    return new ColumnExists( transformMeta, transformDataInterface, cnr, pipelineMeta, pipeline );
+    return new ColumnExists( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
   }
 
   @Override

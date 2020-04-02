@@ -23,7 +23,7 @@
 package org.apache.hop.databases.hypersonic;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
 import org.junit.Test;
 
@@ -277,7 +277,7 @@ public class HypersonicDatabaseMetaTest {
 
   @Test
   public void testGetFieldDefinition() throws Exception {
-    ValueMetaInterface vm = new ValueMetaString();
+    IValueMeta vm = new ValueMetaString();
     String sql = hypersonicDatabaseMeta.getFieldDefinition( vm, null, null, false, false, false );
     String expectedSql = "VARCHAR()";
     assertEquals( "Check PDI-11461 without length", expectedSql, sql );

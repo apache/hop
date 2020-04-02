@@ -25,8 +25,8 @@ package org.apache.hop.ui.pipeline.transforms.excelinput;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.spreadsheet.KCell;
@@ -78,12 +78,12 @@ public class ExcelInputDialogTest {
     PluginRegistry pluginRegistry = Mockito.mock( PluginRegistry.class );
     PluginInterface stringPlugin = Mockito.mock( PluginInterface.class );
     Mockito.doReturn( stringPlugin ).when( pluginRegistry ).getPlugin( ValueMetaPluginType.class, "1" );
-    Mockito.doReturn( Mockito.mock( ValueMetaInterface.class ) ).when( pluginRegistry ).
-      loadClass( stringPlugin, ValueMetaInterface.class );
+    Mockito.doReturn( Mockito.mock( IValueMeta.class ) ).when( pluginRegistry ).
+      loadClass( stringPlugin, IValueMeta.class );
     ValueMetaFactory.pluginRegistry = pluginRegistry;
 
 
-    Method processingWorkbookMethod = ExcelInputDialog.class.getDeclaredMethod( "processingWorkbook", RowMetaInterface.class,
+    Method processingWorkbookMethod = ExcelInputDialog.class.getDeclaredMethod( "processingWorkbook", IRowMeta.class,
       ExcelInputMeta.class, KWorkbook.class );
     processingWorkbookMethod.setAccessible( true );
     processingWorkbookMethod.invoke( dialog, fields, info, workbook );

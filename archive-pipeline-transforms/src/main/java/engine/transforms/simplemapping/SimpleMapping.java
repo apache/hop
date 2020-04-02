@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.simplemapping;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -34,8 +34,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.RowListener;
-import org.apache.hop.pipeline.transform.TransformDataInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInterface;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
@@ -52,15 +52,15 @@ import java.util.List;
  * @author Matt
  * @since 22-nov-2005
  */
-public class SimpleMapping extends BaseTransform implements TransformInterface {
+public class SimpleMapping extends BaseTransform implements ITransform {
   private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
   private SimpleMappingMeta meta;
   private SimpleMappingData data;
 
-  public SimpleMapping( TransformMeta transformMeta, TransformDataInterface transformDataInterface, int copyNr, PipelineMeta pipelineMeta,
+  public SimpleMapping( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, transformDataInterface, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -68,7 +68,7 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the Mapping.
    */
-  public boolean processRow( TransformMetaInterface smi, TransformDataInterface sdi ) throws HopException {
+  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
     meta = (SimpleMappingMeta) smi;
     setData( (SimpleMappingData) sdi );
     SimpleMappingData simpleMappingData = getData();
@@ -86,12 +86,12 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
         // Rows produced by the mapping are read and passed on.
         //
         String mappingOutputTransformName = simpleMappingData.mappingOutput.getTransformName();
-        TransformInterface outputTransformInterface = simpleMappingData.mappingPipeline.findTransformInterface( mappingOutputTransformName, 0 );
+        ITransform outputTransformInterface = simpleMappingData.mappingPipeline.findTransformInterface( mappingOutputTransformName, 0 );
         RowOutputDataMapper outputDataMapper =
           new RowOutputDataMapper( meta.getInputMapping(), meta.getOutputMapping(), new PutRowInterface() {
 
             @Override
-            public void putRow( RowMetaInterface rowMeta, Object[] rowData ) throws HopTransformException {
+            public void putRow( IRowMeta rowMeta, Object[] rowData ) throws HopTransformException {
               SimpleMapping.this.putRow( rowMeta, rowData );
             }
           } );
@@ -193,7 +193,7 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
         "The simple mapping transform does not support multiple Mapping Input transforms to write to in the sub-pipeline" );
     }
     simpleMappingData.mappingInput = mappingInputs[ 0 ];
-    simpleMappingData.mappingInput.setConnectorTransforms( new TransformInterface[ 0 ], new ArrayList<MappingValueRename>(), null );
+    simpleMappingData.mappingInput.setConnectorTransforms( new ITransform[ 0 ], new ArrayList<MappingValueRename>(), null );
 
     // LogTableField readField = data.mappingPipelineMeta.getPipelineLogTable().findField(PipelineLogTable.ID.LINES_READ);
     // if (readField.getSubject() == null) {
@@ -234,7 +234,7 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
     meta = (SimpleMappingMeta) smi;
     setData( (SimpleMappingData) sdi );
     SimpleMappingData simpleMappingData = getData();
@@ -268,7 +268,7 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, TransformDataInterface sdi ) {
+  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
     // Close the running pipeline
     if ( getData().wasStarted ) {
       if ( !getData().mappingPipeline.isFinished() ) {
@@ -288,7 +288,7 @@ public class SimpleMapping extends BaseTransform implements TransformInterface {
     super.dispose( smi, sdi );
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface ) throws HopException {
+  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( getData().mappingPipeline != null ) {
       getData().mappingPipeline.stopAll();
     }

@@ -27,8 +27,8 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.ldapinput.LDAPConnection;
 import org.apache.hop.pipeline.transforms.ldapinput.LDAPInputField;
 import org.apache.hop.pipeline.transforms.ldapinput.LDAPInputMeta;
@@ -83,7 +83,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class LDAPInputDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class LDAPInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = LDAPInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
@@ -1289,7 +1289,7 @@ public class LDAPInputDialog extends BaseTransformDialog implements TransformDia
       String[] fieldsName = new String[ listattributes.size() ];
       for ( int i = 0; i < listattributes.size(); i++ ) {
 
-        ValueMetaInterface v = listattributes.getValueMeta( i );
+        IValueMeta v = listattributes.getValueMeta( i );
         fieldsName[ i ] = v.getName();
         // Get Column Name
         TableItem item = new TableItem( wFields.table, SWT.NONE );
@@ -1644,7 +1644,7 @@ public class LDAPInputDialog extends BaseTransformDialog implements TransformDia
         String filterfield = wfilterField.getText();
         wsearchBaseField.removeAll();
 
-        RowMetaInterface r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
           wsearchBaseField.setItems( r.getFieldNames() );
           wfilterField.setItems( r.getFieldNames() );

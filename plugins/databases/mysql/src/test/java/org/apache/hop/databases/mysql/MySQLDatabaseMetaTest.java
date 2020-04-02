@@ -43,11 +43,11 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -59,7 +59,6 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -463,7 +462,7 @@ public class MySQLDatabaseMetaTest {
   
   @Test
   public void testVarBinaryIsConvertedToStringType() throws Exception {	
-	LoggingObjectInterface log = mock( LoggingObjectInterface.class );		
+	ILoggingObject log = mock( ILoggingObject.class );
 	PreparedStatement ps = mock( PreparedStatement.class );  
 	DatabaseMetaData dbMetaData = mock( DatabaseMetaData.class );
 	ResultSet rs = mock( ResultSet.class );
@@ -477,17 +476,17 @@ public class MySQLDatabaseMetaTest {
     when( ps.executeQuery() ).thenReturn( rs );
 
     DatabaseMeta meta = new DatabaseMeta();
-    meta.setDatabaseInterface( new MySQLDatabaseMeta() );
+    meta.setIDatabase( new MySQLDatabaseMeta() );
 
     Database db = new Database( log, meta );
     db.setConnection( mockConnection( dbMetaData ) );
     db.getLookup( ps, false );
 
-    RowMetaInterface rowMeta = db.getReturnRowMeta();
+    IRowMeta rowMeta = db.getReturnRowMeta();
     assertEquals( 1, db.getReturnRowMeta().size() );
 
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, valueMeta.getType() );
+    IValueMeta valueMeta = rowMeta.getValueMeta( 0 );
+    assertEquals( IValueMeta.TYPE_BINARY, valueMeta.getType() );
   }
 
 }

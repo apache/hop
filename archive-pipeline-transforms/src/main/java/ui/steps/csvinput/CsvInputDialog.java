@@ -31,8 +31,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -43,8 +43,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
-import org.apache.hop.pipeline.transform.TransformInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.csvinput.CsvInput;
 import org.apache.hop.pipeline.transforms.csvinput.CsvInputMeta;
@@ -101,7 +101,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public class CsvInputDialog extends BaseTransformDialog implements TransformDialogInterface,
+public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   GetFieldsCapableTransformDialog<CsvInputMeta>, CsvInputAwareTransformDialog {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
@@ -201,7 +201,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
     isReceivingInput = pipelineMeta.findNrPrevTransforms( transformMeta ) > 0;
     if ( isReceivingInput ) {
 
-      RowMetaInterface previousFields;
+      IRowMeta previousFields;
       try {
         previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
       } catch ( HopTransformException e ) {
@@ -571,12 +571,12 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
         String[] comboValues = new String[] {};
         int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
         switch ( type ) {
-          case ValueMetaInterface.TYPE_DATE:
+          case IValueMeta.TYPE_DATE:
             comboValues = Const.getDateFormats();
             break;
-          case ValueMetaInterface.TYPE_INTEGER:
-          case ValueMetaInterface.TYPE_BIGNUMBER:
-          case ValueMetaInterface.TYPE_NUMBER:
+          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_NUMBER:
             comboValues = Const.getNumberFormats();
             break;
           default:
@@ -1020,7 +1020,7 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
       // TransformMeta transformMeta = new TransformMeta(transformName, meta);
       StringBuffer buffer = new StringBuffer();
       final List<Object[]> rowsData = new ArrayList<Object[]>();
-      final RowMetaInterface rowMeta = new RowMeta();
+      final IRowMeta rowMeta = new RowMeta();
 
       try {
 
@@ -1029,10 +1029,10 @@ public class CsvInputDialog extends BaseTransformDialog implements TransformDial
         PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewTransformation( pipelineMeta, meta, transformName );
         final Pipeline pipeline = new Pipeline( previewPipelineMeta );
         pipeline.prepareExecution();
-        TransformInterface transform = pipeline.getRunThread( transformName, 0 );
+        ITransform transform = pipeline.getRunThread( transformName, 0 );
         transform.addRowListener( new RowAdapter() {
           @Override
-          public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopTransformException {
+          public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
             rowsData.add( row );
 
             // If we have enough rows we can stop

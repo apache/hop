@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.mock;
 public class CsvInputTest extends CsvInputUnitTestBase {
 
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
-  private LogChannelInterface logChannelInterface;
+  private ILogChannel logChannelInterface;
   private CsvInputMeta csvInputMeta;
 
   @Before
   public void setUp() throws Exception {
-    logChannelInterface = mock( LogChannelInterface.class );
+    logChannelInterface = mock( ILogChannel.class );
     transformMockHelper = TransformMockUtil
       .getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputTest" );
     csvInputMeta = mock( CsvInputMeta.class );
@@ -75,9 +75,9 @@ public class CsvInputTest extends CsvInputUnitTestBase {
     // Create and configure the transform
     CsvInputMeta meta = createMeta( tmpFile, inputFileFields );
     CsvInputData data = new CsvInputData();
-    RowSet output = new QueueRowSet();
+    IRowSet output = new QueueRowSet();
     CsvInput csvInput =
-      new CsvInput( transformMockHelper.transformMeta, transformMockHelper.transformDataInterface, 0, transformMockHelper.pipelineMeta,
+      new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     csvInput.init( meta, data );
     csvInput.addRowSetToOutputRowSets( output );

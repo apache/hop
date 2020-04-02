@@ -27,7 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformDialogInterface;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.splitfieldtorows.SplitFieldToRowsMeta;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class SplitFieldToRowsDialog extends BaseTransformDialog implements TransformDialogInterface {
+public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlSplitfield;

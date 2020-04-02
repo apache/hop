@@ -26,16 +26,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.IJobEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -56,7 +56,7 @@ import java.util.Date;
   image = "WriteToLog.svg",
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
-public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEntryInterface {
+public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, IJobEntry {
   private static Class<?> PKG = JobEntryWriteToLog.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -113,16 +113,16 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
     }
   }
 
-  private class LogWriterObject implements LoggingObjectInterface {
+  private class LogWriterObject implements ILoggingObject {
 
-    private LogChannelInterface writerLog;
+    private ILogChannel writerLog;
 
     private LogLevel logLevel;
-    private LoggingObjectInterface parent;
+    private ILoggingObject parent;
     private String subject;
     private String containerObjectId;
 
-    public LogWriterObject( String subject, LoggingObjectInterface parent, LogLevel logLevel ) {
+    public LogWriterObject( String subject, ILoggingObject parent, LogLevel logLevel ) {
       this.subject = subject;
       this.parent = parent;
       this.logLevel = logLevel;
@@ -156,11 +156,11 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
     }
 
     @Override
-    public LoggingObjectInterface getParent() {
+    public ILoggingObject getParent() {
       return parent;
     }
 
-    public LogChannelInterface getLogChannel() {
+    public ILogChannel getLogChannel() {
       return writerLog;
     }
 
@@ -206,7 +206,7 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
     }
   }
 
-  LogChannelInterface createLogChannel() {
+  ILogChannel createLogChannel() {
     LogWriterObject logWriterObject = new LogWriterObject( getRealLogSubject(), this, parentJob.getLogLevel() );
     return logWriterObject.getLogChannel();
   }
@@ -215,7 +215,7 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
    * Output message to job log.
    */
   public boolean evaluate( Result result ) {
-    LogChannelInterface logChannel = createLogChannel();
+    ILogChannel logChannel = createLogChannel();
     String message = getRealLogMessage();
 
     // Filter out empty messages and those that are not visible with the job's log level

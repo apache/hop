@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -96,7 +96,7 @@ public class InsertUpdateMetaTest {
 
     mockHelper =
       new TransformMockHelper<>( "insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class );
-    Mockito.when( mockHelper.logChannelInterfaceFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
+    Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
     Mockito.when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new InsertUpdateMeta() );
   }
@@ -213,18 +213,18 @@ public class InsertUpdateMetaTest {
 
   @Test
   public void testErrorProcessRow() throws HopException {
-    Mockito.when( mockHelper.logChannelInterfaceFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
+    Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
       .thenReturn(
         mockHelper.logChannelInterface );
     Mockito.when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new InsertUpdateMeta() );
 
     InsertUpdate insertUpdateTransform =
-      new InsertUpdate( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+      new InsertUpdate( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     insertUpdateTransform = Mockito.spy( insertUpdateTransform );
 
     Mockito.doReturn( new Object[] {} ).when( insertUpdateTransform ).getRow();
     insertUpdateTransform.first = false;
-    mockHelper.processRowsTransformDataInterface.lookupParameterRowMeta = Mockito.mock( RowMetaInterface.class );
+    mockHelper.processRowsTransformDataInterface.lookupParameterRowMeta = Mockito.mock( IRowMeta.class );
     mockHelper.processRowsTransformDataInterface.keynrs = new int[] {};
     mockHelper.processRowsTransformDataInterface.db = Mockito.mock( Database.class );
     mockHelper.processRowsTransformDataInterface.valuenrs = new int[] {};
@@ -239,8 +239,8 @@ public class InsertUpdateMetaTest {
   @Test
   public void keyStream2ProcessRow() throws HopException {
     InsertUpdate insertUpdateTransform =
-      new InsertUpdate( mockHelper.transformMeta, mockHelper.transformDataInterface, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
-    insertUpdateTransform.setInputRowMeta( Mockito.mock( RowMetaInterface.class ) );
+      new InsertUpdate( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    insertUpdateTransform.setInputRowMeta( Mockito.mock( IRowMeta.class ) );
     insertUpdateTransform = Mockito.spy( insertUpdateTransform );
 
     InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
