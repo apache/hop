@@ -9,5 +9,10 @@
     <description>Hop Search</description>
     <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
   </hop-perspective-plugin>
+  
+  <hop-perspective-plugin id="Hop-Plugin-Explorer-Perspective">
+    <description>Hop Plugin Explorer</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.pluginexplorer.HopPluginExplorePerspective</classname>
+  </hop-perspective-plugin>
 
 </hop-perspective-plugins>
