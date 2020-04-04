@@ -242,7 +242,7 @@ public class HopGuiPipelineGridDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolbarWidget = new GuiCompositeWidgets( hopUi.getVariableSpace() );
+    toolbarWidget = new GuiCompositeWidgets( hopUi.getVariables() );
     toolbarWidget.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

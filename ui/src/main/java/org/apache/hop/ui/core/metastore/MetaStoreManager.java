@@ -143,7 +143,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
         IVariables.class
       };
       constructorParameters = new Object[] {
-        hopGui.getShell(), metaStore, element, hopGui.getVariableSpace()
+        hopGui.getShell(), metaStore, element, hopGui.getVariables()
       };
       constructor = dialogClass.getDeclaredConstructor( constructorArguments );
     }

@@ -200,7 +200,7 @@ public class Const {
    * the default comma separated list of base plugin folders.
    */
   public static final String DEFAULT_PLUGIN_BASE_FOLDERS = "plugins,"
-    + ( Utils.isEmpty( getDIHomeDirectory() ) ? "" : getDIHomeDirectory() + FILE_SEPARATOR + "plugins," )
+    + ( Utils.isEmpty( getHopHomeDirectory() ) ? "" : getHopHomeDirectory() + FILE_SEPARATOR + "plugins," )
     + getHopDirectory() + FILE_SEPARATOR + "plugins";
 
   /**
@@ -1983,10 +1983,10 @@ public class Const {
   }
 
   /**
-   * Returns the value of DI_HOME.
+   * Returns the value of HOP_HOME.
    */
-  public static String getDIHomeDirectory() {
-    return System.getProperty( "DI_HOME" );
+  public static String getHopHomeDirectory() {
+    return System.getProperty( "HOP_HOME" );
   }
 
   /**

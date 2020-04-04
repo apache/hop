@@ -30,7 +30,7 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
     this.factory = factory;
     this.metaStoreElementClass = metaStoreElementClass;
     this.guiMetaStoreElement = guiMetaStoreElement;
-    this.metaStoreManager = new MetaStoreManager<>( hopGui.getVariableSpace(), metaStore, metaStoreElementClass );
+    this.metaStoreManager = new MetaStoreManager<>( hopGui.getVariables(), metaStore, metaStoreElementClass );
 
 
   }

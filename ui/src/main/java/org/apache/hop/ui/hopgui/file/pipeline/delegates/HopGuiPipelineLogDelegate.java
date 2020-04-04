@@ -153,7 +153,7 @@ public class HopGuiPipelineLogDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolBarWidgets = new GuiCompositeWidgets( hopUi.getVariableSpace() );
+    toolBarWidgets = new GuiCompositeWidgets( hopUi.getVariables() );
     toolBarWidgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

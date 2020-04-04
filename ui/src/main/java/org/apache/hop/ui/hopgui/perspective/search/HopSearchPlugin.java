@@ -11,6 +11,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -47,6 +48,10 @@ public class HopSearchPlugin implements IHopPerspective {
   }
 
   private HopSearchPlugin() {
+  }
+
+  @Override public String getId() {
+    return "search";
   }
 
   @GuiToolbarElement(
@@ -121,6 +126,10 @@ public class HopSearchPlugin implements IHopPerspective {
 
   @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
     return false; // Nothing to do here
+  }
+
+  @Override public List<TabItemHandler> getItems() {
+    return null;
   }
 
   @Override public void navigateToPreviousFile() {

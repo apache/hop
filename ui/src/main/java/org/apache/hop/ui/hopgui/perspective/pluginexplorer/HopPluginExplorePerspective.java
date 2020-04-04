@@ -32,6 +32,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -77,6 +78,10 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	private HopPluginExplorePerspective() {
+	}
+
+	@Override public String getId() {
+		return "plugin-explorer";
 	}
 
 	@GuiToolbarElement(
@@ -269,6 +274,10 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	@Override
 	public boolean remove(IHopFileTypeHandler typeHandler) {
 		return false; // Nothing to do here
+	}
+
+	@Override public List<TabItemHandler> getItems() {
+		return null;
 	}
 
 	@Override

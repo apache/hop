@@ -20,6 +20,10 @@ public class EmptyHopPerspective implements IHopPerspective {
     emptyHandler = new EmptyHopFileTypeHandler();
   }
 
+  @Override public String getId() {
+    return "empty";
+  }
+
   @Override public IHopFileTypeHandler getActiveFileTypeHandler() {
     return emptyHandler;
   }
@@ -67,6 +71,10 @@ public class EmptyHopPerspective implements IHopPerspective {
 
   @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
     return true;
+  }
+
+  @Override public List<TabItemHandler> getItems() {
+    return null;
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

@@ -1,19 +1,31 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.history.AuditEvent;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopGuiFileDelegate {
@@ -71,8 +83,12 @@ public class HopGuiFileDelegate {
       throw new HopException( "We looked at " + fileRegistry.getFileTypes().size() + " different Hop GUI file types but none know how to open file '" + filename + "'" );
     }
 
-    hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
+    hopFile.openFile( hopGui, filename, hopGui.getVariables() );
     hopGui.handleFileCapabilities( hopFile );
+
+    // Keep track of this...
+    //
+    hopGui.auditDelegate.registerEvent( "file", filename, "open" );
   }
 
   /**
@@ -112,6 +128,8 @@ public class HopGuiFileDelegate {
       }
 
       typeHandler.saveAs( filename );
+
+      hopGui.auditDelegate.registerEvent( "file", filename, "save" );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
     }
@@ -128,6 +146,7 @@ public class HopGuiFileDelegate {
           fileSaveAs();
         } else {
           typeHandler.save();
+          hopGui.auditDelegate.registerEvent( "file", typeHandler.getFilename(), "save" );
         }
       }
     } catch ( Exception e ) {
@@ -147,5 +166,67 @@ public class HopGuiFileDelegate {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving/closing file", e );
     }
     return false;
+  }
+
+  /**
+   * When the app exits we need to see if all open files are saved in all perspectives...
+   */
+  public boolean fileExit() {
+    for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
+      List<TabItemHandler> tabItemHandlers = perspective.getItems();
+      if ( tabItemHandlers != null ) {
+        for ( TabItemHandler tabItemHandler : tabItemHandlers ) {
+          IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
+          if ( !typeHandler.isCloseable() ) {
+            return false;
+          }
+        }
+      }
+    }
+    // Also save all the open files in a list
+    //
+    hopGui.auditDelegate.writeLastOpenFiles();
+
+    return true;
+  }
+
+  /**
+   * Show all the recent files in a new dialog...
+   */
+  public void fileOpenRecent() {
+    // Get the recent files for the active perspective...
+    //
+    IHopPerspective perspective = hopGui.getActivePerspective();
+    try {
+      // Let's limit ourselves to 100 operations...
+      //
+      List<AuditEvent> events = hopGui.auditDelegate.findEvents( "file", "open", 100 );
+      Set<String> filenames = new HashSet<>();
+      List<RowMetaAndData> rows = new ArrayList<>();
+      IRowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta( new ValueMetaString( "filename" ) );
+      rowMeta.addValueMeta( new ValueMetaString( "operation" ) );
+      rowMeta.addValueMeta( new ValueMetaString( "date" ) );
+
+      for ( AuditEvent event : events ) {
+        String filename = event.getName();
+        if (!filenames.contains( filename )) {
+          filenames.add( filename );
+          String operation = event.getOperation();
+          String dateString = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" ).format( event.getDate() );
+          rows.add( new RowMetaAndData( rowMeta, new Object[] { filename, operation, dateString } ) );
+        }
+      }
+
+      SelectRowDialog rowDialog = new SelectRowDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, rows );
+      rowDialog.setTitle( "Select the file to open" );
+      RowMetaAndData row = rowDialog.open();
+      if ( row != null ) {
+        String filename = row.getString( "filename", null );
+        hopGui.fileDelegate.fileOpen( filename );
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error getting list of recently opened files", e );
+    }
   }
 }

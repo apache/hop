@@ -297,7 +297,7 @@ public class JobEntryPipelineDialog extends JobEntryBaseDialog implements IJobEn
             if ( answer == SWT.YES ) {
 
               HopGui hopGui = HopGui.getInstance();
-              IHopFileTypeHandler fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getPipelineFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              IHopFileTypeHandler fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getPipelineFileType().newFile( hopGui, hopGui.getVariables() );
               fileTypeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               hopGui.fileDelegate.fileSave();

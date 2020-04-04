@@ -1,4 +1,4 @@
-package org.apache.hop.ui.hopgui.perspective.dataorch;
+package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.custom.CTabItem;

@@ -291,14 +291,14 @@ public class HopServer {
     formatter.printHelp( printWriter, 80, "CarteDummy", header, options, 5, 5, "", false );
     System.err.println( stripOff( stringWriter.toString(), "usage: CarteDummy" ) );
 
-    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": HopServer 127.0.0.1 8080" );
-    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": HopServer 192.168.1.221 8081" );
+    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": hop-server.sh 127.0.0.1 8080" );
+    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": hop-server.sh 192.168.1.221 8081" );
     System.err.println();
-    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": HopServer /foo/bar/hop-server-config.xml" );
+    System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": hop-server.sh /foo/bar/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" )
-      + ": HopServer http://www.example.com/hop-server-config.xml" );
+      + ": hop-server.sh http://www.example.com/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" )
-      + ": HopServer 127.0.0.1 8080 -s -u cluster -p cluster" );
+      + ": hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster" );
 
     System.exit( 1 );
   }

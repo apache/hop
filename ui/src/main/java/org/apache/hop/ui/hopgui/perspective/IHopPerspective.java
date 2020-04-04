@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface IHopPerspective extends IActionContextHandlersProvider {
 
+  String getId();
+
   /**
    * Get the active file type handler capable of saving, executing, printing, ... a file
    *
@@ -85,5 +87,10 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    */
   boolean remove( IHopFileTypeHandler typeHandler );
 
+  /**
+   * Get the list of tabs handled by and currently open in the perspective
+   * @return The list of tab items
+   */
+  List<TabItemHandler> getItems();
 
 }

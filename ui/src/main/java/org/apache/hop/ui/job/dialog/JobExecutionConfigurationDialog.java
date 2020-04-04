@@ -158,7 +158,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigLabel = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Label" );
     String runConfigTooltip = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Tooltip" );
 
-    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariableSpace(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
       shell, SWT.BORDER, runConfigLabel, runConfigTooltip);
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();

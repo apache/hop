@@ -1708,7 +1708,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Create a new toolbar at the top of the main composite...
       //
       toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
-      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariableSpace() );
+      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariables() );
       toolBarWidgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
@@ -4201,7 +4201,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       pipeline.retrieveComponentOutput( transformMeta.getName(), 0, 50, ( ( pipelineEngine, rowBuffer ) -> {
         hopDisplay().asyncExec( () -> {
-          PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), hopUi.getVariableSpace(), SWT.NONE, transformMeta.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
+          PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), hopUi.getVariables(), SWT.NONE, transformMeta.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
           dialog.open();
         } );
       } ) );

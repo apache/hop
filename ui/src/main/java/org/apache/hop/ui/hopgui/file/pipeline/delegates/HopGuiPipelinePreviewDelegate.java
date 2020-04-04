@@ -177,7 +177,7 @@ public class HopGuiPipelinePreviewDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopUi.getVariableSpace() );
+    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopUi.getVariables() );
     widgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

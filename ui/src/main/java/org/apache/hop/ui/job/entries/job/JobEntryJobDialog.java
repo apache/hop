@@ -304,7 +304,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements IJobEntryDi
             if ( answer == SWT.YES ) {
 
               HopGui hopGui = HopGui.getInstance();
-              IHopFileTypeHandler typeHandler = HopDataOrchestrationPerspective.getInstance().getJobFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              IHopFileTypeHandler typeHandler = HopDataOrchestrationPerspective.getInstance().getJobFileType().newFile( hopGui, hopGui.getVariables() );
               typeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               hopGui.fileDelegate.fileSave();

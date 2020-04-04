@@ -142,7 +142,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
         GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New pipeline", "Create a new pipeline", "ui/images/TRN.svg",
           ( shiftClicked, controlClicked, parameters ) -> {
             try {
-              HopPipelineFileType.this.newFile( hopGui, hopGui.getVariableSpace() );
+              HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );
             } catch ( Exception e ) {
               new ErrorDialog( hopGui.getShell(), "Error", "Error creating new pipeline", e );
             }

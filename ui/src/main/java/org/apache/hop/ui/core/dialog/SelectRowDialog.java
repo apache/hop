@@ -79,7 +79,7 @@ public class SelectRowDialog extends Dialog {
   /**
    * @param parent
    * @param style
-   * @param buf
+   * @param buffer
    */
   public SelectRowDialog( Shell parent, IVariables variables, int style, List<RowMetaAndData> buffer ) {
     super( parent, style );
@@ -165,6 +165,8 @@ public class SelectRowDialog extends Dialog {
       }
     };
     wCancel.addListener( SWT.Selection, lsCancel );
+
+    wFields.table.addListener( SWT.DefaultSelection, e->ok() );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

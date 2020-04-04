@@ -24,6 +24,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -49,8 +50,6 @@ import java.util.Stack;
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
-
-  public static final String STRING_NEW_PIPELINE_PREFIX = "Pipeline";
 
   private static HopDataOrchestrationPerspective perspective;
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
@@ -85,6 +84,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     pipelineFileType = new HopPipelineFileType<>();
     jobFileType = new HopJobFileType<>();
+  }
+
+  @Override public String getId() {
+    return "data-orch";
   }
 
   @GuiToolbarElement(

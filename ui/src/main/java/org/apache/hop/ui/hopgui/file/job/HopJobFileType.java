@@ -143,7 +143,7 @@ public class HopJobFileType<T extends JobMeta> extends HopFileTypeBase<T> implem
         GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New job", "Create a new job", "ui/images/JOB.svg",
           ( shiftClicked, controlClicked, parameters ) -> {
             try {
-              HopJobFileType.this.newFile( hopGui, hopGui.getVariableSpace() );
+              HopJobFileType.this.newFile( hopGui, hopGui.getVariables() );
             } catch ( Exception e ) {
               new ErrorDialog( hopGui.getShell(), "Error", "Error creating new job", e );
             }

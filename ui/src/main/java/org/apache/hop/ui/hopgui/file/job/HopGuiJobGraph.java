@@ -1355,7 +1355,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       // Create a new toolbar at the top of the main composite...
       //
       toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
-      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariableSpace() );
+      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariables() );
       toolBarWidgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
@@ -2405,7 +2405,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
         return; // Sorry, nothing loaded
       }
       IHopFileType fileTypeHandler = hopUi.getPerspectiveManager().findFileTypeHandler( referencedMeta );
-      fileTypeHandler.openFile( hopUi, referencedMeta.getFilename(), hopUi.getVariableSpace() );
+      fileTypeHandler.openFile( hopUi, referencedMeta.getFilename(), hopUi.getVariables() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "The referenced file couldn't be loaded", e );
     }

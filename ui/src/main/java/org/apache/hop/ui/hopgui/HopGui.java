@@ -26,6 +26,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.history.IAuditManager;
+import org.apache.hop.history.local.LocalAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metastore.MetaStoreConst;
@@ -34,6 +36,7 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -43,6 +46,7 @@ import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
+import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
@@ -64,6 +68,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -96,6 +101,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_FILE = "10000-menu-file";
   public static final String ID_MAIN_MENU_FILE_NEW = "10010-menu-file-new";
   public static final String ID_MAIN_MENU_FILE_OPEN = "10020-menu-file-open";
+  public static final String ID_MAIN_MENU_FILE_OPEN_RECENT = "10025-menu-file-open-recent";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
   public static final String ID_MAIN_MENU_FILE_METASTORE = "10060-menu-file-metastore";
@@ -115,13 +121,16 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20200-menu-edit-nav-previous";
   public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20210-menu-edit-nav-next";
 
-
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
   public static final String ID_MAIN_MENU_RUN_PAUSE = "30030-menu-run-pause";
   public static final String ID_MAIN_MENU_RUN_STOP = "30040-menu-run-stop";
   public static final String ID_MAIN_MENU_RUN_PREVIEW = "30050-menu-run-preview";
   public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
+
+  public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
+  public static final String ID_MAIN_MENU_TOOLS_OPTIONS   = "40010-menu-tools-options";
+
 
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
@@ -132,6 +141,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
+  public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
   private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Undo.NotAvailable" );
   private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Redo.NotAvailable" );
@@ -175,6 +185,14 @@ public class HopGui implements IActionContextHandlersProvider {
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
   public HopGuiNewDelegate newDelegate;
+  public HopGuiAuditDelegate auditDelegate;
+
+  private IAuditManager auditManager;
+
+  /**
+   * This can be used to define which environment is active or any other way to group your work through plugins.
+   */
+  private String namespace;
 
   private HopGui( Display display ) {
     this.display = display;
@@ -190,6 +208,7 @@ public class HopGui implements IActionContextHandlersProvider {
     fileDelegate = new HopGuiFileDelegate( this );
     undoDelegate = new HopGuiUndoDelegate( this );
     newDelegate = new HopGuiNewDelegate( this );
+    auditDelegate = new HopGuiAuditDelegate( this );
 
     // TODO: create metastore plugin system
     //
@@ -207,6 +226,10 @@ public class HopGui implements IActionContextHandlersProvider {
     partitionManager = new MetaStoreManager<>( variables, metaStore, PartitionSchema.class );
 
     metaStoreContext = new MetaStoreContext( this, metaStore );
+
+    auditManager = new LocalAuditManager();
+
+    namespace = DEFAULT_HOP_GUI_NAMESPACE;
   }
 
   public static final HopGui getInstance() {
@@ -268,16 +291,27 @@ public class HopGui implements IActionContextHandlersProvider {
 
     replaceKeyboardShortcutListeners( this );
 
+    shell.addListener( SWT.Close, this::closeEvent );
+
     // Open the Hop GUI shell and wait until it's closed
     //
     // shell.pack();
     shell.open();
+
+    // open the recent files
+    //
+    auditDelegate.openLastFiles();
+
     while ( !shell.isDisposed() ) {
       if ( !display.readAndDispatch() ) {
         display.sleep();
       }
     }
     display.dispose();
+  }
+
+  private void closeEvent( Event event ) {
+    event.doit = fileDelegate.fileExit();
   }
 
   private void loadPerspectives() {
@@ -391,6 +425,11 @@ public class HopGui implements IActionContextHandlersProvider {
     fileDelegate.fileOpen();
   }
 
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN_RECENT, type = GuiElementType.MENU_ITEM, label = "Open recent...", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
+  public void menuFileOpenRecent() {
+    fileDelegate.fileOpenRecent();
+  }
+
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", image = "ui/images/save.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
   @GuiKeyboardShortcut( control = true, key = 's' )
@@ -428,7 +467,9 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiKeyboardShortcut( control = true, key = 'q' )
   @GuiOSXKeyboardShortcut( command = true, key = 'q' )
   public void menuFileExit() {
-    System.out.println( "TODO: implement HopGui.menuFileExit()" );
+    if (fileDelegate.fileExit()) {
+      shell.dispose();
+    }
   }
 
 
@@ -538,6 +579,21 @@ public class HopGui implements IActionContextHandlersProvider {
   public void menuRunDebug() {
     getActiveFileTypeHandler().debug();
   }
+
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Tools", parentId = ID_MAIN_MENU )
+  public void menuTools() {
+    // Nothing is done here.
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_TOOLS_OPTIONS, type = GuiElementType.MENU_ITEM, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
+  @GuiKeyboardShortcut( key = SWT.F8 )
+  public void menuToolsOptions() {
+    if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
+      // TODO warn the user about restarting
+    }
+  }
+
 
   protected void addMainToolbar() {
     mainToolbar = new ToolBar( shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
@@ -778,18 +834,18 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   /**
-   * Gets space
+   * Gets the variables
    *
-   * @return value of space
+   * @return value of variables
    */
-  public IVariables getVariableSpace() {
+  public IVariables getVariables() {
     return variables;
   }
 
   /**
-   * @param variables The space to set
+   * @param variables The variables to set
    */
-  public void setVariableSpace( IVariables variables ) {
+  public void setVariables( IVariables variables ) {
     this.variables = variables;
   }
 
@@ -1072,5 +1128,37 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public void setPerspectivesToolbarWidgets( GuiCompositeWidgets perspectivesToolbarWidgets ) {
     this.perspectivesToolbarWidgets = perspectivesToolbarWidgets;
+  }
+
+  /**
+   * Gets auditManager
+   *
+   * @return value of auditManager
+   */
+  public IAuditManager getAuditManager() {
+    return auditManager;
+  }
+
+  /**
+   * @param auditManager The auditManager to set
+   */
+  public void setAuditManager( IAuditManager auditManager ) {
+    this.auditManager = auditManager;
+  }
+
+  /**
+   * Gets namespace
+   *
+   * @return value of namespace
+   */
+  public String getNamespace() {
+    return namespace;
+  }
+
+  /**
+   * @param namespace The namespace to set
+   */
+  public void setNamespace( String namespace ) {
+    this.namespace = namespace;
   }
 }
