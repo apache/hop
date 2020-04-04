@@ -278,7 +278,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public IHopFileTypeHandler addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    tabItem.setImage( GUIResource.getInstance().getImageToolbarPipeline() );
     HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
     tabItem.setControl( pipelineGraph );
 
