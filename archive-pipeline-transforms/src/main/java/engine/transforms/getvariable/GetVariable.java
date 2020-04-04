@@ -46,12 +46,12 @@ public class GetVariable extends BaseTransform implements ITransform {
   private GetVariableMeta meta;
   private GetVariableData data;
 
-  public GetVariable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetVariable( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] rowData;
 
     if ( data.readsRows ) {
@@ -123,11 +123,11 @@ public class GetVariable extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (GetVariableMeta) smi;
     data = (GetVariableData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
@@ -140,8 +140,8 @@ public class GetVariable extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
-    super.dispose( smi, sdi );
+  public void.dispose() {
+    super.dispose();
   }
 
 }

@@ -557,9 +557,9 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
-  public Delete createTransform( TransformMeta transformMeta, DeleteData iTransformData, int cnr, PipelineMeta tr,
+  public Delete createTransform( TransformMeta transformMeta, DeleteData data, int cnr, PipelineMeta tr,
                                  Pipeline pipeline ) {
-    return new Delete( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new Delete( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public DeleteData getTransformData() {

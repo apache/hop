@@ -1472,9 +1472,9 @@ public class TextFileInputMeta
   }
 
   @Override
-  public ITransform createTransform( TransformMeta transformMeta, TextFileInputData iTransformData, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, TextFileInputData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TextFileInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new TextFileInput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

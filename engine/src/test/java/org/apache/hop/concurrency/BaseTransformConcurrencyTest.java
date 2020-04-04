@@ -63,7 +63,7 @@ public class BaseTransformConcurrencyTest {
     when( pipelineMeta.findTransform( TRANSFORM_META ) ).thenReturn( transformMeta );
     when( transformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mock( TransformPartitioningMeta.class ) );
 
-    baseTransform = new BaseTransform( transformMeta, null, 0, pipelineMeta, mock( Pipeline.class ) );
+    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, mock( Pipeline.class ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 
@@ -100,7 +100,7 @@ public class BaseTransformConcurrencyTest {
     when( pipelineMeta.findTransform( TRANSFORM_META ) ).thenReturn( transformMeta );
     when( transformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mock( TransformPartitioningMeta.class ) );
 
-    baseTransform = new BaseTransform( transformMeta, null, 0, pipelineMeta, mock( Pipeline.class ) );
+    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, mock( Pipeline.class ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 

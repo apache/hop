@@ -1205,7 +1205,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
         // Dispose will overwrite the status, but we set it back right after
         // this.
-        combi.transform.dispose( combi.meta, combi.data );
+        combi.transform.dispose();
 
         if ( initThreads[ i ].isOk() ) {
           combi.data.setStatus( BaseTransformData.TransformExecutionStatus.STATUS_HALTED );
@@ -1752,7 +1752,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     rt.resumeRunning();
 
     try {
-      rt.stopRunning( combi.meta, combi.data );
+      rt.stopRunning();
     } catch ( Exception e ) {
       log.logError( "Something went wrong while trying to safe stop the pipeline: ", e );
     }

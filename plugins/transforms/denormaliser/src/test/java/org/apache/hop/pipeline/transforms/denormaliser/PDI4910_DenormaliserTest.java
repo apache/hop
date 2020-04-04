@@ -65,22 +65,22 @@ public class PDI4910_DenormaliserTest {
   public void testDeNormalise() throws Exception {
 
     // init transform data
-    DenormaliserData transformData = new DenormaliserData();
-    transformData.keyFieldNr = 0;
-    transformData.keyValue = new HashMap<String, List<Integer>>();
-    transformData.keyValue.put( "1", Arrays.asList( new Integer[] { 0, 1 } ) );
-    transformData.fieldNameIndex = new int[] { 1, 2 };
-    transformData.inputRowMeta = new RowMeta();
+    DenormaliserData data = new DenormaliserData();
+    data.keyFieldNr = 0;
+    data.keyValue = new HashMap<String, List<Integer>>();
+    data.keyValue.put( "1", Arrays.asList( new Integer[] { 0, 1 } ) );
+    data.fieldNameIndex = new int[] { 1, 2 };
+    data.inputRowMeta = new RowMeta();
     ValueMetaDate outDateField1 = new ValueMetaDate( "date_field[yyyy-MM-dd]" );
     ValueMetaDate outDateField2 = new ValueMetaDate( "date_field[yyyy/MM/dd]" );
-    transformData.outputRowMeta = new RowMeta();
-    transformData.outputRowMeta.addValueMeta( 0, outDateField1 );
-    transformData.outputRowMeta.addValueMeta( 1, outDateField2 );
-    transformData.removeNrs = new int[] {};
-    transformData.targetResult = new Object[] { null, null };
+    data.outputRowMeta = new RowMeta();
+    data.outputRowMeta.addValueMeta( 0, outDateField1 );
+    data.outputRowMeta.addValueMeta( 1, outDateField2 );
+    data.removeNrs = new int[] {};
+    data.targetResult = new Object[] { null, null };
 
     // init transform meta
-    DenormaliserMeta transformMeta = new DenormaliserMeta();
+    DenormaliserMeta meta = new DenormaliserMeta();
     DenormaliserTargetField[] denormaliserTargetFields = new DenormaliserTargetField[ 2 ];
     DenormaliserTargetField targetField1 = new DenormaliserTargetField();
     DenormaliserTargetField targetField2 = new DenormaliserTargetField();
@@ -88,7 +88,7 @@ public class PDI4910_DenormaliserTest {
     targetField2.setTargetFormat( "yyyy/MM/dd" );
     denormaliserTargetFields[ 0 ] = targetField1;
     denormaliserTargetFields[ 1 ] = targetField2;
-    transformMeta.setDenormaliserTargetField( denormaliserTargetFields );
+    meta.setDenormaliserTargetField( denormaliserTargetFields );
 
     // init row meta
     IRowMeta rowMeta = new RowMeta();
@@ -100,24 +100,16 @@ public class PDI4910_DenormaliserTest {
     Object[] rowData = new Object[] { 1L, "2000-10-20", "2000/10/20" };
 
     // init transform
-    denormaliser = new Denormaliser( mockHelper.transformMeta, transformData,
-      0, mockHelper.pipelineMeta, mockHelper.pipeline );
-
-    // inject transform meta
-    Field metaField = denormaliser.getClass().getDeclaredField( "meta" );
-    Assert.assertNotNull( "Can't find a field 'meta' in class Denormalizer", metaField );
-    metaField.setAccessible( true );
-    metaField.set( denormaliser, transformMeta );
+    denormaliser = new Denormaliser( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
     // call tested method
-    Method deNormalise =
-      denormaliser.getClass().getDeclaredMethod( "deNormalise", IRowMeta.class, Object[].class );
+    Method deNormalise = denormaliser.getClass().getDeclaredMethod( "deNormalise", IRowMeta.class, Object[].class );
     Assert.assertNotNull( "Can't find a method 'deNormalise' in class Denormalizer", deNormalise );
     deNormalise.setAccessible( true );
     deNormalise.invoke( denormaliser, rowMeta, rowData );
 
     // vefiry
-    for ( Object res : transformData.targetResult ) {
+    for ( Object res : data.targetResult ) {
       Assert.assertNotNull( "Date is null", res );
     }
   }

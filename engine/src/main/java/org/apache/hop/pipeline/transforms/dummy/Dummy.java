@@ -38,15 +38,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class Dummy extends BaseTransform implements ITransform {
+public class Dummy extends BaseTransform<DummyMeta, DummyData> implements ITransform<DummyMeta, DummyData> {
+
   private static Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
 
-  public Dummy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
-                Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public Dummy( TransformMeta transformMeta, DummyMeta meta, DummyData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row, set busy!
     // no more input to be expected...
     if ( r == null ) {

@@ -123,16 +123,6 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#getTransformData()
-   */
-  public ITransformData getTransformData() {
-    // you may be override this.
-    return new GenericTransformData();
-  }
-
-  /**
    * @return the connectionName
    */
   public StringPluginProperty getConnectionName() {

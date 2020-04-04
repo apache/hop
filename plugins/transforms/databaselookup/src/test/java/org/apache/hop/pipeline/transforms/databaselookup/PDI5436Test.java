@@ -115,7 +115,7 @@ public class PDI5436Test {
   }
 
   private DatabaseLookupMeta mockTransformMeta() throws HopTransformException {
-    DatabaseLookupMeta transformMeta = smh.initTransformMetaInterface;
+    DatabaseLookupMeta transformMeta = smh.iTransformMeta;
     doReturn( mock( DatabaseMeta.class ) ).when( transformMeta ).getDatabaseMeta();
     doReturn( new String[] { "=" } ).when( transformMeta ).getKeyCondition();
 
@@ -154,9 +154,13 @@ public class PDI5436Test {
 
   @Test
   public void testCacheAllTable() throws HopException {
-    DatabaseLookup transformSpy = spy( new DatabaseLookup( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
 
     Database database = mockDatabase();
+
+    DatabaseLookupMeta meta = mockTransformMeta();
+    DatabaseLookupData data = smh.iTransformData;
+    DatabaseLookup transformSpy = spy( new DatabaseLookup( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline ) );
+
     doReturn( database ).when( transformSpy ).getDatabase( any( DatabaseMeta.class ) );
 
     transformSpy.addRowSetToInputRowSets( mockInputRowSet() );
@@ -164,11 +168,9 @@ public class PDI5436Test {
     IRowSet outputRowSet = new QueueRowSet();
     transformSpy.addRowSetToOutputRowSets( outputRowSet );
 
-    DatabaseLookupMeta meta = mockTransformMeta();
-    DatabaseLookupData data = smh.initTransformDataInterface;
 
-    Assert.assertTrue( "Transform init failed", transformSpy.init( meta, data ) );
-    Assert.assertTrue( "Error processing row", transformSpy.processRow( meta, data ) );
+    Assert.assertTrue( "Transform init failed", transformSpy.init() );
+    Assert.assertTrue( "Error processing row", transformSpy.processRow() );
     Assert.assertEquals( "ICache lookup failed", "value", outputRowSet.getRow()[ 2 ] );
   }
 }

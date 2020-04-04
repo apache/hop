@@ -975,9 +975,9 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public ExcelWriterTransform createTransform( TransformMeta transformMeta, ExcelWriterTransformData iTransformData, int cnr,
+  public ExcelWriterTransform createTransform( TransformMeta transformMeta, ExcelWriterTransformData data, int cnr,
                                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelWriterTransform( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExcelWriterTransform( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

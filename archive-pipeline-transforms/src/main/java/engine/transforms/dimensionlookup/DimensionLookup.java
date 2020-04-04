@@ -75,9 +75,9 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   private DimensionLookupData data;
   int[] columnLookupArray = null;
 
-  public DimensionLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DimensionLookup( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   protected void setMeta( DimensionLookupMeta meta ) {
@@ -110,7 +110,7 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
 
@@ -1694,11 +1694,11 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       meta.actualizeWithInjectedValues();
       data.min_date = meta.getMinDate();
       data.max_date = meta.getMaxDate();
@@ -1739,7 +1739,7 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DimensionLookupMeta) smi;
     data = (DimensionLookupData) sdi;
     if ( data.db != null ) {
@@ -1757,6 +1757,6 @@ public class DimensionLookup extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

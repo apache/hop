@@ -65,12 +65,12 @@ public class ZipFile extends BaseTransform implements ITransform {
   private ZipFileMeta meta;
   private ZipFileData data;
 
-  public ZipFile( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ZipFile( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ZipFileMeta) smi;
     data = (ZipFileData) sdi;
 
@@ -468,17 +468,17 @@ public class ZipFile extends BaseTransform implements ITransform {
 
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ZipFileMeta) smi;
     data = (ZipFileData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ZipFileMeta) smi;
     data = (ZipFileData) sdi;
     if ( data.sourceFile != null ) {
@@ -498,6 +498,6 @@ public class ZipFile extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

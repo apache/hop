@@ -130,8 +130,8 @@ public class RegexEval_EmptyStringVsNull_Test {
   private RegexEval createAndInitTransform( RegexEvalMeta meta, RegexEvalData data ) throws Exception {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
 
-    RegexEval transform = new RegexEval( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );
-    transform.init( meta, data );
+    RegexEval transform = new RegexEval( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    transform.init();
     return transform;
   }
 }

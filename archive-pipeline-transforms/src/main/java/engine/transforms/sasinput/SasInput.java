@@ -59,13 +59,13 @@ public class SasInput extends BaseTransform implements ITransform {
   private SasInputMeta meta;
   private SasInputData data;
 
-  public SasInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SasInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SasInputMeta) smi;
     data = (SasInputData) sdi;
 

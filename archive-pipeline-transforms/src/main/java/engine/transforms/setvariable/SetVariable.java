@@ -49,12 +49,12 @@ public class SetVariable extends BaseTransform implements ITransform {
   private SetVariableMeta meta;
   private SetVariableData data;
 
-  public SetVariable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SetVariable( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 
@@ -222,18 +222,18 @@ public class SetVariable extends BaseTransform implements ITransform {
     logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[ i ], value ) );
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SetVariableMeta) smi;
     data = (SetVariableData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;

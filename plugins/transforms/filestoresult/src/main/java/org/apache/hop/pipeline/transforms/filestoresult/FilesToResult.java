@@ -40,21 +40,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author matt
  * @since 26-may-2006
  */
-public class FilesToResult extends BaseTransform implements ITransform {
+public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData> implements ITransform<FilesToResultMeta, FilesToResultData> {
+
   private static Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FilesToResultMeta meta;
-
-  private FilesToResultData data;
-
-  public FilesToResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FilesToResult( TransformMeta transformMeta, FilesToResultMeta meta, FilesToResultData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FilesToResultMeta) smi;
-    data = (FilesToResultData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
@@ -107,16 +102,4 @@ public class FilesToResult extends BaseTransform implements ITransform {
 
     return true;
   }
-
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FilesToResultMeta) smi;
-    data = (FilesToResultData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
-  }
-
 }

@@ -398,9 +398,9 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
   }
 
   @Override
-  public DataGrid createTransform( TransformMeta transformMeta, DataGridData iTransformData, int cnr,
+  public DataGrid createTransform( TransformMeta transformMeta, DataGridData data, int cnr,
                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DataGrid( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new DataGrid( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

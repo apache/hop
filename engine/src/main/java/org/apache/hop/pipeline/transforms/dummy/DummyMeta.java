@@ -78,34 +78,30 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "DummyMeta.CheckResult.NotReceivingFields" ), transformMeta );
       remarks.add( cr );
     } else {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DummyMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "DummyMeta.CheckResult.TransformRecevingData2" ), transformMeta );
       remarks.add( cr );
     } else {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "DummyMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, DummyData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform createTransform( TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new Dummy( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new Dummy( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public DummyData getTransformData() {

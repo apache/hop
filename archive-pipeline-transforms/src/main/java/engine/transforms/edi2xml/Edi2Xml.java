@@ -52,11 +52,11 @@ public class Edi2Xml extends BaseTransform implements ITransform {
   private CommonTokenStream tokens;
   private FastSimpleGenericEdifactDirectXMLParser parser;
 
-  public Edi2Xml( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, iTransformData, c, t, dis );
+  public Edi2Xml( TransformMeta s, ITransformData data, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, data, c, t, dis );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 
@@ -200,14 +200,14 @@ public class Edi2Xml extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (Edi2XmlMeta) smi;
     data = (Edi2XmlData) sdi;
 
@@ -216,7 +216,7 @@ public class Edi2Xml extends BaseTransform implements ITransform {
     data.outputMeta = null;
     data.outputRowMeta = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

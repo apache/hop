@@ -361,9 +361,9 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
 
   }
 
-  public ExecSQLRow createTransform( TransformMeta transformMeta, ExecSQLRowData iTransformData, int cnr,
+  public ExecSQLRow createTransform( TransformMeta transformMeta, ExecSQLRowData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQLRow( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExecSQLRow( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ExecSQLRowData getTransformData() {

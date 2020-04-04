@@ -40,14 +40,16 @@ public class RunThread implements Runnable {
   private static Class<?> PKG = BaseTransform.class;
 
   private ITransform transform;
-  private ITransformMeta meta;
-  private ITransformData data;
   private ILogChannel log;
 
   public RunThread( TransformMetaDataCombi combi ) {
     this.transform = combi.transform;
-    this.meta = combi.meta;
-    this.data = combi.data;
+
+    // Sanity check just in case the provided meta or data wasn't used during the creation of the transform
+    //
+    this.transform.setMeta( combi.meta );
+    this.transform.setData( combi.data );
+
     this.log = transform.getLogChannel();
   }
 
@@ -61,7 +63,7 @@ public class RunThread implements Runnable {
       }
 
       // Wait
-      while ( transform.processRow( meta, data ) ) {
+      while ( transform.processRow() ) {
         if ( transform.isStopped() ) {
           break;
         }
@@ -96,7 +98,7 @@ public class RunThread implements Runnable {
         transform.stopAll();
       }
     } finally {
-      transform.dispose( meta, data );
+      transform.dispose();
       transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_STOP );
       try {
         long li = transform.getLinesInput();

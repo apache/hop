@@ -286,9 +286,9 @@ public class StringCutMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new StringCut( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new StringCut( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

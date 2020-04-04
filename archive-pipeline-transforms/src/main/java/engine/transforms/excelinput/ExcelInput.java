@@ -72,9 +72,9 @@ public class ExcelInput extends BaseTransform implements ITransform {
 
   private ExcelInputData data;
 
-  public ExcelInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExcelInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     setZipBombConfiguration();
   }
 
@@ -356,7 +356,7 @@ public class ExcelInput extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 
@@ -759,11 +759,11 @@ public class ExcelInput extends BaseTransform implements ITransform {
     ZipSecureFile.setMaxTextSize( maxTextSize );
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       initErrorHandling();
       initReplayFactory();
       data.files = meta.getFileList( this );
@@ -821,7 +821,7 @@ public class ExcelInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ExcelInputMeta) smi;
     data = (ExcelInputData) sdi;
 
@@ -844,6 +844,6 @@ public class ExcelInput extends BaseTransform implements ITransform {
         logDebug( Const.getStackTracker( e ) );
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

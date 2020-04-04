@@ -40,20 +40,16 @@ import org.apache.hop.pipeline.transform.*;
  * @since 03-Juin-2009
  */
 
-public class FileLocked extends BaseTransform implements ITransform {
+public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> implements ITransform<FileLockedMeta, FileLockedData> {
+
   private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FileLockedMeta meta;
-  private FileLockedData data;
-
-  public FileLocked( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FileLocked( TransformMeta transformMeta, FileLockedMeta meta, FileLockedData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FileLockedMeta) smi;
-    data = (FileLockedData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -145,11 +141,8 @@ public class FileLocked extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FileLockedMeta) smi;
-    data = (FileLockedData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "FileLocked.Error.ResultFieldMissing" ) );
         return false;
@@ -157,12 +150,5 @@ public class FileLocked extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FileLockedMeta) smi;
-    data = (FileLockedData) sdi;
-
-    super.dispose( smi, sdi );
   }
 }

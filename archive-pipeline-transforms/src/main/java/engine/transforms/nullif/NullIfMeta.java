@@ -228,9 +228,9 @@ public class NullIfMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new NullIf( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new NullIf( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -50,12 +50,12 @@ public class Normaliser extends BaseTransform implements ITransform {
   private NormaliserMeta meta;
   private NormaliserData data;
 
-  public Normaliser( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Normaliser( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (NormaliserMeta) smi;
     data = (NormaliserData) sdi;
 
@@ -189,11 +189,11 @@ public class Normaliser extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (NormaliserMeta) smi;
     data = (NormaliserData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }

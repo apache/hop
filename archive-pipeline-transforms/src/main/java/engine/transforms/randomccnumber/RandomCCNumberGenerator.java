@@ -49,9 +49,9 @@ public class RandomCCNumberGenerator extends BaseTransform implements ITransform
 
   private RandomCCNumberGeneratorData data;
 
-  public RandomCCNumberGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public RandomCCNumberGenerator( TransformMeta transformMeta, ITransformData data, int copyNr,
                                   PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -66,7 +66,7 @@ public class RandomCCNumberGenerator extends BaseTransform implements ITransform
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
@@ -111,11 +111,11 @@ public class RandomCCNumberGenerator extends BaseTransform implements ITransform
     return false;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (RandomCCNumberGeneratorMeta) smi;
     data = (RandomCCNumberGeneratorData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
 
       if ( meta.getFieldCCType() == null ) {
@@ -162,8 +162,8 @@ public class RandomCCNumberGenerator extends BaseTransform implements ITransform
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
-    super.dispose( smi, sdi );
+  public void.dispose() {
+    super.dispose();
   }
 
 }

@@ -734,9 +734,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements TransformMe
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DatabaseLookup( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new DatabaseLookup( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

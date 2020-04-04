@@ -52,18 +52,12 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class Constant extends BaseTransform implements ITransform {
+public class Constant extends BaseTransform<ConstantMeta, ConstantData> implements ITransform<ConstantMeta, ConstantData> {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ConstantMeta meta;
-  private ConstantData data;
-
-  public Constant( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Constant( TransformMeta transformMeta, ConstantMeta meta, ConstantData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (ConstantMeta) getTransformMeta().getTransformMetaInterface();
-    data = (ConstantData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData buildRow( ConstantMeta meta, ConstantData data,
@@ -219,7 +213,7 @@ public class Constant extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = null;
     r = getRow();
 
@@ -257,13 +251,11 @@ public class Constant extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ConstantMeta) smi;
-    data = (ConstantData) sdi;
+  public boolean init(){
 
     data.firstRow = true;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Create a row (constants) with all the values in it...
       List<ICheckResult> remarks = new ArrayList<ICheckResult>(); // stores the errors...
       data.constants = buildRow( meta, data, remarks );

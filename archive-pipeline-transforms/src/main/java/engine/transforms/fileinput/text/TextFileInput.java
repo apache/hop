@@ -42,9 +42,9 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> implements ITransform {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  public TextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

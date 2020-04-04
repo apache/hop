@@ -40,23 +40,24 @@ import static org.mockito.Mockito.*;
 public class ExcelWriterTransform_FormulaRecalculationTest {
 
   private ExcelWriterTransform transform;
+  private ExcelWriterTransformMeta meta;
   private ExcelWriterTransformData data;
-  private TransformMockHelper<ExcelWriterTransformMeta, ITransformData> mockHelper;
+  private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> mockHelper;
 
   @Before
   public void setUp() throws Exception {
-    mockHelper =
-      TransformMockUtil.getTransformMockHelper( ExcelWriterTransformMeta.class, "ExcelWriterTransform_FormulaRecalculationTest" );
+    mockHelper = TransformMockUtil.getTransformMockHelper( ExcelWriterTransformMeta.class, ExcelWriterTransformData.class, "ExcelWriterTransform_FormulaRecalculationTest" );
 
-    transform = new ExcelWriterTransform(
-      mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    meta = mockHelper.iTransformMeta;
+    data = new ExcelWriterTransformData();
+  }
+
+  private void setupTransform() throws Exception {
+    transform = new ExcelWriterTransform( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
     transform = spy( transform );
     // ignoring to avoid useless errors in log
     doNothing().when( transform ).prepareNextOutputFile();
-
-    data = new ExcelWriterTransformData();
-
-    transform.init( mockHelper.initTransformMetaInterface, data );
+    transform.init();
   }
 
   @After
@@ -80,8 +81,11 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   }
 
   private void forcesToRecalculate_Sxssf( String property, boolean expectedFlag ) throws Exception {
-    transform.setVariable( ExcelWriterTransform.STREAMER_FORCE_RECALC_PROP_NAME, property );
     data.wb = spy( new SXSSFWorkbook() );
+
+    setupTransform();
+
+    transform.setVariable( ExcelWriterTransform.STREAMER_FORCE_RECALC_PROP_NAME, property );
     transform.recalculateAllWorkbookFormulas();
     if ( expectedFlag ) {
       verify( data.wb ).setForceFormulaRecalculation( true );
@@ -96,6 +100,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     data.wb.createSheet( "sheet1" );
     data.wb.createSheet( "sheet2" );
 
+    setupTransform();
     transform.recalculateAllWorkbookFormulas();
 
     if ( !data.wb.getForceFormulaRecalculation() ) {

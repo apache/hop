@@ -50,13 +50,13 @@ public class SetValueConstant extends BaseTransform implements ITransform {
   private SetValueConstantMeta meta;
   private SetValueConstantData data;
 
-  public SetValueConstant( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SetValueConstant( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   //CHECKSTYLE:Indentation:OFF
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SetValueConstantMeta) smi;
     data = (SetValueConstantData) sdi;
 
@@ -160,11 +160,11 @@ public class SetValueConstant extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SetValueConstantMeta) smi;
     data = (SetValueConstantData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
 }

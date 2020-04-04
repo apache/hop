@@ -80,9 +80,9 @@ public class DimensionLookupTest {
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
 
-    dimensionLookup = new DimensionLookup( transformMeta, dimensionLookupData, 1, pipelineMeta, mock( Pipeline.class ) );
-    dimensionLookup.setData( dimensionLookupData );
-    dimensionLookup.setMeta( dimensionLookupMeta );
+    dimensionLookup = new DimensionLookup( transformMeta, dimensionLookupMeta, dimensionLookupData, 1, pipelineMeta, mock( Pipeline.class ) );
+    // dimensionLookup.setData( dimensionLookupData );
+    // dimensionLookup.setMeta( dimensionLookupMeta );
     dimensionLookupSpy = spy( dimensionLookup );
     doReturn( transformMeta ).when( dimensionLookupSpy ).getTransformMeta();
     doReturn( false ).when( dimensionLookupSpy ).isRowLevel();

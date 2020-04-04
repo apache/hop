@@ -78,8 +78,8 @@ import java.util.Map;
 )
 @InjectionSupported( localizationPrefix = "TextFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
 public class TextFileInputMeta
-  extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField>
-  implements ITransformMeta<ITransform, ITransformData>, ICsvInputAwareMeta {
+  extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, TextFileInput, TextFileInputData>
+  implements ITransformMeta<TextFileInput, TextFileInputData>, ICsvInputAwareMeta {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!! TODO: check i18n
   // for base
 
@@ -939,10 +939,9 @@ public class TextFileInputMeta
     }
   }
 
-  @Override
-  public TextFileInput createTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
-                                        Pipeline pipeline ) {
-    return new TextFileInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+
+  @Override public TextFileInput createTransform( TransformMeta transformMeta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new TextFileInput( transformMeta, this, (TextFileInputData) data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

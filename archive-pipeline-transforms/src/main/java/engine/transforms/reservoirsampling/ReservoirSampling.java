@@ -60,9 +60,9 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
    */
-  public ReservoirSampling( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public ReservoirSampling( TransformMeta transformMeta, ITransformData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -73,7 +73,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     if ( m_data.getProcessingMode() == PROC_MODE.DISABLED ) {
       setOutputDone();
@@ -161,11 +161,11 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
    * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     m_meta = (ReservoirSamplingMeta) smi;
     m_data = (ReservoirSamplingData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       boolean remoteInput = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
@@ -184,7 +184,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
     logBasic( "Starting to run..." );
     try {
       // Wait
-      while ( processRow( m_meta, m_data ) ) {
+      while (.processRow() {
         if ( isStopped() ) {
           break;
         }

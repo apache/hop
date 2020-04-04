@@ -57,7 +57,7 @@ public class ScriptTest {
   @Test
   public void testOutputDoneIfInputEmpty() throws Exception {
     Script transform = new Script( helper.transformMeta, helper.iTransformData, 1, helper.pipelineMeta, helper.pipeline );
-    transform.init( helper.initTransformMetaInterface, helper.initTransformDataInterface );
+    transform.init();
 
     RowSet rs = helper.getMockInputRowSet( new Object[ 0 ][ 0 ] );
     List<RowSet> in = new ArrayList<RowSet>();

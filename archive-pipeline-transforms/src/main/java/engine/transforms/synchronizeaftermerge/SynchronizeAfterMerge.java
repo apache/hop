@@ -61,9 +61,9 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
   private SynchronizeAfterMergeMeta meta;
   private SynchronizeAfterMergeData data;
 
-  public SynchronizeAfterMerge( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SynchronizeAfterMerge( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( Object[] row ) throws HopException {
@@ -655,7 +655,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
     return sql;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SynchronizeAfterMergeMeta) smi;
     data = (SynchronizeAfterMergeData) sdi;
 
@@ -845,11 +845,11 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SynchronizeAfterMergeMeta) smi;
     data = (SynchronizeAfterMergeData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         meta.normalizeAllocationFields();
         data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
@@ -908,9 +908,9 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     finishTransform();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private void finishTransform() {

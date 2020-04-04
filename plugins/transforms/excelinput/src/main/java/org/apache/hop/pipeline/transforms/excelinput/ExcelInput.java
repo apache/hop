@@ -65,16 +65,13 @@ import java.util.TimeZone;
  * @author timh
  * @since 19-NOV-2003
  */
-public class ExcelInput extends BaseTransform implements ITransform {
+public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> implements ITransform<ExcelInputMeta, ExcelInputData> {
+
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExcelInputMeta meta;
-
-  private ExcelInputData data;
-
-  public ExcelInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExcelInput( TransformMeta transformMeta, ExcelInputMeta meta, ExcelInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     setZipBombConfiguration();
   }
 
@@ -356,9 +353,7 @@ public class ExcelInput extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExcelInputMeta) smi;
-    data = (ExcelInputData) sdi;
+  public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
@@ -759,11 +754,9 @@ public class ExcelInput extends BaseTransform implements ITransform {
     ZipSecureFile.setMaxTextSize( maxTextSize );
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelInputMeta) smi;
-    data = (ExcelInputData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       initErrorHandling();
       initReplayFactory();
       data.files = meta.getFileList( this );
@@ -821,9 +814,7 @@ public class ExcelInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelInputMeta) smi;
-    data = (ExcelInputData) sdi;
+  public void dispose(){
 
     if ( data.workbook != null ) {
       data.workbook.close();
@@ -844,6 +835,6 @@ public class ExcelInput extends BaseTransform implements ITransform {
         logDebug( Const.getStackTracker( e ) );
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

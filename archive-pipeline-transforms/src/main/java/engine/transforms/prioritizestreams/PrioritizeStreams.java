@@ -48,12 +48,12 @@ public class PrioritizeStreams extends BaseTransform implements ITransform {
   private PrioritizeStreamsMeta meta;
   private PrioritizeStreamsData data;
 
-  public PrioritizeStreams( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public PrioritizeStreams( TransformMeta transformMeta, ITransformData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (PrioritizeStreamsMeta) smi;
     data = (PrioritizeStreamsData) sdi;
 
@@ -112,11 +112,11 @@ public class PrioritizeStreams extends BaseTransform implements ITransform {
     return input;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (PrioritizeStreamsMeta) smi;
     data = (PrioritizeStreamsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       data.transformnr = 0;
       return true;
@@ -124,10 +124,10 @@ public class PrioritizeStreams extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     data.currentRowSet = null;
     data.rowSets = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

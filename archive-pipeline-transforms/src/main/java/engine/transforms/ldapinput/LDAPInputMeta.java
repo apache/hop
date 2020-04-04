@@ -893,9 +893,9 @@ public class LDAPInputMeta extends BaseTransformMeta implements LdapMeta {
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new LDAPInput( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new LDAPInput( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

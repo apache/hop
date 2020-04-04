@@ -41,21 +41,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 27-06-2008
  */
-public class CloneRow extends BaseTransform implements ITransform {
+public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implements ITransform<CloneRowMeta, CloneRowData> {
+
   private static final Class<?> PKG = CloneRowMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CloneRowMeta meta;
-  private CloneRowData data;
-
-  public CloneRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CloneRow( TransformMeta transformMeta, CloneRowMeta meta, CloneRowData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (CloneRowMeta) smi;
-    data = (CloneRowData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
 
@@ -174,11 +170,8 @@ public class CloneRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CloneRowMeta) smi;
-    data = (CloneRowData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }

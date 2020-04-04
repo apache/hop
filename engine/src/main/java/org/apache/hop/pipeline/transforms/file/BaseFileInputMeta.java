@@ -41,9 +41,9 @@ import java.util.List;
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField>
+public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField, Main extends ITransform, Data extends ITransformData>
   extends org.apache.hop.pipeline.transform.BaseTransformMeta implements
-  ITransformMeta<ITransform, ITransformData> {
+  ITransformMeta<Main, Data> {
   private static Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
@@ -78,7 +78,8 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
   public A additionalOutputFields;
 
   public Object clone() {
-    BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField> retval = (BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField>) super.clone();
+    BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, BaseFileInputTransform, BaseFileInputTransformData> retval =
+      (BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, BaseFileInputTransform, BaseFileInputTransformData>) super.clone();
 
     retval.inputFiles = (BaseFileInputFiles) inputFiles.clone();
     retval.errorHandling = (BaseFileErrorHandling) errorHandling.clone();

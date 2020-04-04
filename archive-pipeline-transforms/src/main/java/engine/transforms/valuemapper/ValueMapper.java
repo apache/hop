@@ -50,12 +50,12 @@ public class ValueMapper extends BaseTransform implements ITransform {
   private ValueMapperData data;
   private boolean nonMatchActivated = false;
 
-  public ValueMapper( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ValueMapper( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 
@@ -169,18 +169,18 @@ public class ValueMapper extends BaseTransform implements ITransform {
     return true;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ValueMapperMeta) smi;
     data = (ValueMapperData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.hashtable = new Hashtable<String, String>();
       data.emptyFieldIndex = -1;
 

@@ -729,9 +729,9 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public GetFileNames createTransform( TransformMeta transformMeta, GetFileNamesData iTransformData, int cnr,
+  public GetFileNames createTransform( TransformMeta transformMeta, GetFileNamesData data, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetFileNames( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GetFileNames( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

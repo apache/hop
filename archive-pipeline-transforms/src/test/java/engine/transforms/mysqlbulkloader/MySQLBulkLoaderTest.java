@@ -123,7 +123,7 @@ public class MySQLBulkLoaderTest {
 
   @Test
   public void testVariableSubstitution() throws HopException {
-    lder.init( lmeta, ldata );
+    lder.init();
     String is = null;
     is = new String( ldata.quote );
     assertEquals( "'", is );
@@ -142,7 +142,7 @@ public class MySQLBulkLoaderTest {
   @Test
   public void testNoDatabaseConnection() {
     lmeta.setDatabaseMeta( null );
-    assertFalse( lder.init( lmeta, ldata ) );
+    assertFalse( lder.init();
     try {
       // Verify that the database connection being set to null throws a HopException with the following message.
       lder.verifyDatabaseConnection();
@@ -193,11 +193,11 @@ public class MySQLBulkLoaderTest {
     sdi.keynrs = new int[ 1 ];
     sdi.keynrs[ 0 ] = 0;
     sdi.fifoStream = mock( OutputStream.class );
-    loader.init( smi, sdi );
+    loader.init();
     loader.first = false;
 
     when( loader.getRow() ).thenReturn( new String[] { "test\"Escape\\" } );
-    loader.processRow( smi, sdi );
+    loader.processRow();
     verify( sdi.fifoStream, times( 1 ) ).write( "test\\\"Escape\\\\".getBytes() );
   }
 
@@ -248,11 +248,11 @@ public class MySQLBulkLoaderTest {
     sdi.fifoStream = mock( OutputStream.class );
     sdi.bulkFormatMeta = new IValueMeta[] { vmn };
 
-    loader.init( smi, sdi );
+    loader.init();
     loader.first = false;
 
     when( loader.getRow() ).thenReturn( new Double[] { 1.023 } );
-    loader.processRow( smi, sdi );
+    loader.processRow();
     verify( sdi.fifoStream, times( 1 ) ).write( " 001.023".getBytes() );
     assertEquals( " #000.000;-#000.000", vmn.getDecimalFormat().toPattern() );
   }

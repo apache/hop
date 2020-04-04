@@ -38,15 +38,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  *
  * @since 22-jun-2006
  */
-public class Injector extends BaseTransform implements ITransform {
+public class Injector extends BaseTransform<InjectorMeta, InjectorData> implements ITransform<InjectorMeta, InjectorData> {
+
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 
-  public Injector( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Injector( TransformMeta transformMeta, InjectorMeta meta, InjectorData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
     // Get a row from the previous transform OR from an extra IRowSet
     //
     Object[] row = getRow();

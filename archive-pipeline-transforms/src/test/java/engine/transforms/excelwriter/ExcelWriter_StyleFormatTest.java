@@ -126,7 +126,7 @@ public class ExcelWriter_StyleFormatTest {
     setupTransformMock( fileType );
     createTransformMeta( fileType );
     createTransformData( fileType );
-    transform.init( transformMeta, transformData );
+    transform.init();
 
     // We do not run pipeline or executing the whole transform
     // instead we just execute ExcelWriterData.writeNextLine() to write to Excel workbook object
@@ -266,8 +266,8 @@ public class ExcelWriter_StyleFormatTest {
   private void setupTransformMock( String fileType ) throws Exception {
     transform =
       new ExcelWriterTransform(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
-    transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    transform.init();
 
     List<Object[]> rows = createRowData();
     String[] outFields = new String[] { "col 1", "col 2", "col 3", "col 4" };

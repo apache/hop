@@ -42,23 +42,19 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLLexer;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLParser;
 
-public class Edi2Xml extends BaseTransform implements ITransform {
+public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements ITransform<Edi2XmlMeta, Edi2XmlData> {
 
   private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
-  private Edi2XmlData data;
-  private Edi2XmlMeta meta;
   private FastSimpleGenericEdifactDirectXMLLexer lexer;
   private CommonTokenStream tokens;
   private FastSimpleGenericEdifactDirectXMLParser parser;
 
-  public Edi2Xml( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, iTransformData, c, t, dis );
+  public Edi2Xml( TransformMeta transformMeta, Edi2XmlMeta meta, Edi2XmlData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (Edi2XmlMeta) smi;
-    data = (Edi2XmlData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, blocks when needed!
     if ( r == null ) { // no more input to be expected...
@@ -200,23 +196,14 @@ public class Edi2Xml extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (Edi2XmlMeta) smi;
-    data = (Edi2XmlData) sdi;
-
-    return super.init( smi, sdi );
-  }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (Edi2XmlMeta) smi;
-    data = (Edi2XmlData) sdi;
+  public void dispose(){
 
     data.inputMeta = null;
     data.inputRowMeta = null;
     data.outputMeta = null;
     data.outputRowMeta = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

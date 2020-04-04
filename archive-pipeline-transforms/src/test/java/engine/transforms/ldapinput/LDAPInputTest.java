@@ -91,7 +91,7 @@ public class LDAPInputTest {
 
     try {
       //Run Initialization
-      assertTrue( "Input Initialization Failed", ldapInput.init( meta, data ) );
+      assertTrue( "Input Initialization Failed", ldapInput.init();
 
       //Verify
       assertEquals( "Field not marked as sorted", 1, data.connection.getSortingAttributes().size() );

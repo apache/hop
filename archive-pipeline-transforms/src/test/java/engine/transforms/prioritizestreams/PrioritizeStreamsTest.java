@@ -73,7 +73,7 @@ public class PrioritizeStreamsTest {
 
     PrioritizeStreamsInner transform = new PrioritizeStreamsInner( transformMockHelper );
     try {
-      transform.processRow( meta, data );
+      transform.init();
     } catch ( NullPointerException e ) {
       fail( "NullPointerException detecded, seems that IRowMeta was not set for RowSet you are attempting"
         + "to read from." );
@@ -86,7 +86,7 @@ public class PrioritizeStreamsTest {
   private class PrioritizeStreamsInner extends PrioritizeStreams {
 
     public PrioritizeStreamsInner( TransformMockHelper<PrioritizeStreamsMeta, ITransformData> transformMockHelper ) {
-      super( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      super( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     }
 

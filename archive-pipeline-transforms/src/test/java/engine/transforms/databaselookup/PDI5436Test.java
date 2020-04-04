@@ -157,7 +157,7 @@ public class PDI5436Test {
   @Test
   public void testCacheAllTable() throws HopException {
     DatabaseLookup transformSpy =
-      spy( new DatabaseLookup( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
+      spy( new DatabaseLookup( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
 
     Database database = mockDatabase();
     doReturn( database ).when( transformSpy ).getDatabase( any( DatabaseMeta.class ) );
@@ -170,8 +170,8 @@ public class PDI5436Test {
     TransformMetaInterface meta = mockTransformMeta();
     ITransformData data = smh.initTransformDataInterface;
 
-    Assert.assertTrue( "Transform init failed", transformSpy.init( meta, data ) );
-    Assert.assertTrue( "Error processing row", transformSpy.processRow( meta, data ) );
+    Assert.assertTrue( "Transform init failed", transformSpy.init();
+    Assert.assertTrue( "Error processing row", transformSpy.init();
     Assert.assertEquals( "ICache lookup failed", "value", outputRowSet.getRow()[ 2 ] );
   }
 }

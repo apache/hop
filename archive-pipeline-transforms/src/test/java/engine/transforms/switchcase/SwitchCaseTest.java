@@ -426,7 +426,7 @@ public class SwitchCaseTest {
     SwitchCaseCustom( TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper ) throws HopValueException {
       super( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
       // this.mockHelper = mockHelper;
-      init( meta, data );
+     .init();
 
       // call to convert value will returns same value.
       data.valueMeta = mock( IValueMeta.class );
@@ -522,7 +522,7 @@ public class SwitchCaseTest {
     public void processRow() throws HopException {
       boolean run = false;
       do {
-        run = processRow( meta, data );
+        run =.init();
       } while ( run );
     }
 

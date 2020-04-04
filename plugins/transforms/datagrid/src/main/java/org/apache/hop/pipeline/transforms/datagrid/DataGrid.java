@@ -44,21 +44,16 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class DataGrid extends BaseTransform implements ITransform {
+public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> implements ITransform<DataGridMeta, DataGridData> {
+
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DataGridMeta meta;
-  private DataGridData data;
-
-  public DataGrid( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DataGrid( TransformMeta transformMeta, DataGridMeta meta, DataGridData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (DataGridMeta) getTransformMeta().getTransformMetaInterface();
-    data = (DataGridData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( data.linesWritten >= meta.getDataLines().size() ) {
       // no more rows to be written
       setOutputDone();
@@ -114,10 +109,6 @@ public class DataGrid extends BaseTransform implements ITransform {
       }
     }
 
-    return true;
-  }
-
-  public boolean isWaitingForData() {
     return true;
   }
 

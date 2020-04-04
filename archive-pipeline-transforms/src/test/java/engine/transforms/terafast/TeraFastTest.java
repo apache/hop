@@ -59,7 +59,7 @@ public class TeraFastTest {
     transformMockHelper = new TransformMockHelper<>( "TeraFast", TeraFastMeta.class, GenericTransformData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-    teraFast = new TeraFast( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    teraFast = new TeraFast( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
   }
 
   @After
@@ -73,7 +73,7 @@ public class TeraFastTest {
     doReturn( null ).when( teraFastDataFilePrintStreamIsNull ).getRow();
     TeraFastMeta meta = mock( TeraFastMeta.class );
     GenericTransformData data = mock( GenericTransformData.class );
-    assertFalse( teraFastDataFilePrintStreamIsNull.processRow( meta, data ) );
+    assertFalse( teraFastDataFilePrintStreamIsNull.init();
   }
 
   /**
@@ -83,8 +83,8 @@ public class TeraFastTest {
   @Test
   public void testNoDatabaseConnection() {
     try {
-      doReturn( null ).when( transformMockHelper.initTransformMetaInterface ).getDbMeta();
-      assertFalse( teraFast.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface ) );
+      doReturn( null ).when( transformMockHelper.iTransformMeta ).getDbMeta();
+      assertFalse( teraFast.init() );
       // Verify that the database connection being set to null throws a HopException with the following message.
       teraFast.verifyDatabaseConnection();
       // If the method does not throw a Hop Exception, then the DB was set and not null for this test. Fail it.

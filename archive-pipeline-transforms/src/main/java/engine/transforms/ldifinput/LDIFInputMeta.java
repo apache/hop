@@ -956,9 +956,9 @@ public class LDIFInputMeta extends BaseTransformMeta implements TransformMetaInt
     return new LDIFInputData();
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new LDIFInput( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new LDIFInput( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public boolean supportsErrorHandling() {

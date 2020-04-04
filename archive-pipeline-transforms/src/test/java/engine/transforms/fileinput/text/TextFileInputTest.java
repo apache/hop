@@ -397,9 +397,9 @@ public class TextFileInputTest {
   }
 
   public static class TestTextFileInput extends TextFileInput {
-    public TestTextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+    public TestTextFileInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

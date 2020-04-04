@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
@@ -149,8 +150,8 @@ public class TextFileInputTest {
 
     TextFileInputData data = createDataObject( virtualFile, ";", "col1", "col2" );
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 2, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 2, false );
     PipelineTestingUtil.assertResult( new Object[] { "r1c1", "r1c2" }, output.get( 0 ) );
     PipelineTestingUtil.assertResult( new Object[] { "r2c1", "r2c2" }, output.get( 1 ) );
 
@@ -167,8 +168,8 @@ public class TextFileInputTest {
     TextFileInputMeta meta = createMetaObject( field( "col1" ), field2, field( "col3" ) );
     TextFileInputData data = createDataObject( virtualFile, ",", "col1", "col2", "col3" );
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 2, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 2, false );
     PipelineTestingUtil.assertResult( new Object[] { "1", "1", "1" }, output.get( 0 ) );
     PipelineTestingUtil.assertResult( new Object[] { "2", "1", "2" }, output.get( 1 ) );
 
@@ -185,8 +186,9 @@ public class TextFileInputTest {
     TextFileInputMeta meta = createMetaObject( field( "col1" ), col2 );
     TextFileInputData data = createDataObject( virtualFile, ",", "col1", "col2" );
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 1, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+
+    List<Object[]> output = PipelineTestingUtil.execute( input, 1, false );
     PipelineTestingUtil.assertResult( new Object[] { "-" }, output.get( 0 ) );
 
     deleteVfsFile( virtualFile );
@@ -202,8 +204,9 @@ public class TextFileInputTest {
     TextFileInputMeta meta = createMetaObject( field( "col1" ), col2 );
     TextFileInputData data = createDataObject( virtualFile, ",", "col1", "col2" );
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 1, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+
+    List<Object[]> output = PipelineTestingUtil.execute( input, 1, false );
     PipelineTestingUtil.assertResult( new Object[] { "1", "DEFAULT" }, output.get( 0 ) );
 
     deleteVfsFile( virtualFile );
@@ -227,9 +230,10 @@ public class TextFileInputTest {
     meta.errorHandling.errorIgnored = true;
     TextFileInputData data = createDataObject( virtualFile, ";", "col1" );
     data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
 
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 4, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+
+    List<Object[]> output = PipelineTestingUtil.execute( input, 4, false );
 
     Mockito.verify( data.dataErrorLineHandler ).handleLineError( 4, AbstractFileErrorHandler.NO_PARTS );
     deleteVfsFile( virtualFile );
@@ -250,11 +254,11 @@ public class TextFileInputTest {
     TextFileInputData data = createDataObject( virtualFile, ";", "col1" );
     data.dataErrorLineHandler = Mockito.mock( IFileErrorHandler.class );
 
-    TestTextFileInput textFileInput = TransformMockUtil.getTransform( TestTextFileInput.class, TextFileInputMeta.class, "test" );
+    TestTextFileInput textFileInput = Mockito.spy( TransformMockUtil.getTransform( TestTextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" ) );
     TransformMeta transformMeta = textFileInput.getTransformMeta();
     Mockito.doReturn( true ).when( transformMeta ).isDoingErrorHandling();
 
-    List<Object[]> output = PipelineTestingUtil.execute( textFileInput, meta, data, 0, false );
+    List<Object[]> output = PipelineTestingUtil.execute( textFileInput, 0, false );
 
     deleteVfsFile( virtualFile );
 
@@ -275,7 +279,7 @@ public class TextFileInputTest {
     meta.inputFiles.acceptingFilenames = true;
     TextFileInputData data = createDataObject( virtualFile, ",", "col1", "col2" );
 
-    TextFileInput input = Mockito.spy( TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" ) );
+    TextFileInput input = Mockito.spy( TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" ) );
 
     IRowSet rowset = Mockito.mock( IRowSet.class );
     IRowMeta rwi = Mockito.mock( IRowMeta.class );
@@ -286,7 +290,7 @@ public class TextFileInputTest {
     Mockito.when( input.getRowFrom( rowset ) ).thenReturn( obj1, obj2, null );
     Mockito.doReturn( rwi ).when( rowset ).getRowMeta();
     Mockito.when( rwi.getString( obj2, 0 ) ).thenReturn( "filename1", "filename2" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 0, false );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 0, false );
 
     List<String> passThroughKeys = new ArrayList<>( data.passThruFields.keySet() );
     Assert.assertNotNull( passThroughKeys );
@@ -396,9 +400,9 @@ public class TextFileInputTest {
   }
 
   public static class TestTextFileInput extends TextFileInput {
-    public TestTextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+    public TestTextFileInput( TransformMeta transformMeta, TextFileInputMeta meta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

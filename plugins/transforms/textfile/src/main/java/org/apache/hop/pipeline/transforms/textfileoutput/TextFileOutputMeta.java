@@ -974,8 +974,8 @@ public class TextFileOutputMeta
   }
 
   @Override
-  public TextFileOutput createTransform( TransformMeta transformMeta, TextFileOutputData iTransformData, int cnr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TextFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+  public TextFileOutput createTransform( TransformMeta transformMeta, TextFileOutputData data, int cnr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new TextFileOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

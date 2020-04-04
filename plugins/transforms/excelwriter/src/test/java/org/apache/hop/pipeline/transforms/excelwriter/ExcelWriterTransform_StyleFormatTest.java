@@ -68,19 +68,19 @@ public class ExcelWriterTransform_StyleFormatTest {
 
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> transformMockHelper;
   private ExcelWriterTransform transform;
-  private ExcelWriterTransformMeta transformMeta;
-  private ExcelWriterTransformData transformData;
+  private ExcelWriterTransformMeta meta;
+  private ExcelWriterTransformData data;
+  private IRowMeta inputRowMeta;
+  private IRowMeta outputRowMeta;
+  private IRowSet inputRowSet;
 
   @Before
   /**
    * Get mock helper
    */
   public void setUp() throws Exception {
-    transformMockHelper =
-      new TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData>(
-        "Excel Writer Style Format Test", ExcelWriterTransformMeta.class, ExcelWriterTransformData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.logChannelInterface );
+    transformMockHelper = new TransformMockHelper<>( "Excel Writer Style Format Test", ExcelWriterTransformMeta.class, ExcelWriterTransformData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString() );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
     verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), (Throwable) anyObject() );
@@ -92,10 +92,10 @@ public class ExcelWriterTransform_StyleFormatTest {
    * Clean-up objects
    */
   public void tearDown() {
-    transformData.file = null;
-    transformData.sheet = null;
-    transformData.wb = null;
-    transformData.clearStyleCache( 0 );
+    data.file = null;
+    data.sheet = null;
+    data.wb = null;
+    data.clearStyleCache( 0 );
 
     transformMockHelper.cleanUp();
   }
@@ -123,10 +123,11 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws Exception
    */
   private void testStyleFormat( String fileType ) throws Exception {
-    setupTransformMock( fileType );
+    setupInputOutput( fileType );
     createTransformMeta( fileType );
     createTransformData( fileType );
-    transform.init( transformMeta, transformData );
+    setupTransformMock( fileType );
+    transform.init();
 
     // We do not run pipeline or executing the whole transform
     // instead we just execute ExcelWriterTransformData.writeNextLine() to write to Excel workbook object
@@ -137,14 +138,14 @@ public class ExcelWriterTransform_StyleFormatTest {
     }
 
     // Custom styles are loaded from G1 cell
-    Row xlsRow = transformData.sheet.getRow( 0 );
+    Row xlsRow = data.sheet.getRow( 0 );
     Cell baseCell = xlsRow.getCell( 6 );
     CellStyle baseCellStyle = baseCell.getCellStyle();
-    DataFormat format = transformData.wb.createDataFormat();
+    DataFormat format = data.wb.createDataFormat();
 
     // Check style of the exported values in A3:D3
-    xlsRow = transformData.sheet.getRow( 2 );
-    for ( int i = 0; i < transformData.inputRowMeta.size(); i++ ) {
+    xlsRow = data.sheet.getRow( 2 );
+    for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
       Cell cell = xlsRow.getCell( i );
       CellStyle cellStyle = cell.getCellStyle();
 
@@ -173,14 +174,14 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws HopException
    */
   private void createTransformMeta( String fileType ) throws HopException {
-    transformMeta = new ExcelWriterTransformMeta();
-    transformMeta.setDefault();
+    meta = new ExcelWriterTransformMeta();
+    meta.setDefault();
 
-    transformMeta.setFileName( "testExcel" );
-    transformMeta.setExtension( fileType );
-    transformMeta.setSheetname( "Sheet1" );
-    transformMeta.setHeaderEnabled( true );
-    transformMeta.setStartingCell( "A2" );
+    meta.setFileName( "testExcel" );
+    meta.setExtension( fileType );
+    meta.setSheetname( "Sheet1" );
+    meta.setHeaderEnabled( true );
+    meta.setStartingCell( "A2" );
 
     // Try different combinations of specifying data format and style from cell
     //   1. Only format, no style
@@ -196,7 +197,7 @@ public class ExcelWriterTransform_StyleFormatTest {
     outputFields[ 2 ].setStyleCell( "F1" );
     outputFields[ 3 ] = new ExcelWriterTransformField( "col 4", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
     outputFields[ 3 ].setStyleCell( "G1" );
-    transformMeta.setOutputFields( outputFields );
+    meta.setOutputFields( outputFields );
   }
 
   /**
@@ -206,53 +207,64 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws HopException
    */
   private void createTransformData( String fileType ) throws HopException {
-    transformData = new ExcelWriterTransformData();
-    transformData.inputRowMeta = transform.getInputRowMeta().clone();
-    transformData.outputRowMeta = transform.getInputRowMeta().clone();
+    data = new ExcelWriterTransformData();
+    data.inputRowMeta = inputRowMeta.clone();
+    data.outputRowMeta = inputRowMeta.clone();
 
     // we don't run pipeline so ExcelWriterTransform.processRow() doesn't get executed
     // we populate the ExcelWriterTransformData with bare minimum required values
-    CellReference cellRef = new CellReference( transformMeta.getStartingCell() );
-    transformData.startingRow = cellRef.getRow();
-    transformData.startingCol = cellRef.getCol();
-    transformData.posX = transformData.startingCol;
-    transformData.posY = transformData.startingRow;
+    CellReference cellRef = new CellReference( meta.getStartingCell() );
+    data.startingRow = cellRef.getRow();
+    data.startingCol = cellRef.getCol();
+    data.posX = data.startingCol;
+    data.posY = data.startingRow;
 
-    int numOfFields = transformData.inputRowMeta.size();
-    transformData.fieldnrs = new int[ numOfFields ];
-    transformData.linkfieldnrs = new int[ numOfFields ];
-    transformData.commentfieldnrs = new int[ numOfFields ];
+    int numOfFields = data.inputRowMeta.size();
+    data.fieldnrs = new int[ numOfFields ];
+    data.linkfieldnrs = new int[ numOfFields ];
+    data.commentfieldnrs = new int[ numOfFields ];
     for ( int i = 0; i < numOfFields; i++ ) {
-      transformData.fieldnrs[ i ] = i;
-      transformData.linkfieldnrs[ i ] = -1;
-      transformData.commentfieldnrs[ i ] = -1;
+      data.fieldnrs[ i ] = i;
+      data.linkfieldnrs[ i ] = -1;
+      data.commentfieldnrs[ i ] = -1;
     }
 
     // we avoid reading/writing Excel files, so ExcelWriterTransform.prepareNextOutputFile() doesn't get executed
     // create Excel workbook object
-    transformData.wb = transformMeta.getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
-    transformData.sheet = transformData.wb.createSheet();
-    transformData.file = null;
-    transformData.clearStyleCache( numOfFields );
+    data.wb = meta.getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
+    data.sheet = data.wb.createSheet();
+    data.file = null;
+    data.clearStyleCache( numOfFields );
 
     // we avoid reading template file from disk
     // so set beforehand cells with custom style and formatting
-    DataFormat format = transformData.wb.createDataFormat();
-    Row xlsRow = transformData.sheet.createRow( 0 );
+    DataFormat format = data.wb.createDataFormat();
+    Row xlsRow = data.sheet.createRow( 0 );
 
     // Cell F1 has custom style applied, used as template
     Cell cell = xlsRow.createCell( 5 );
-    CellStyle cellStyle = transformData.wb.createCellStyle();
+    CellStyle cellStyle = data.wb.createCellStyle();
     cellStyle.setBorderRight( BorderStyle.THICK );
     cellStyle.setFillPattern( FillPatternType.FINE_DOTS );
     cell.setCellStyle( cellStyle );
 
     // Cell G1 has same style, but also a custom data format
-    cellStyle = transformData.wb.createCellStyle();
+    cellStyle = data.wb.createCellStyle();
     cellStyle.cloneStyleFrom( cell.getCellStyle() );
     cell = xlsRow.createCell( 6 );
     cellStyle.setDataFormat( format.getFormat( "##0,000.0" ) );
     cell.setCellStyle( cellStyle );
+  }
+
+  private void setupInputOutput( String fileType) throws Exception {
+    List<Object[]> rows = createRowData();
+    String[] outFields = new String[] { "col 1", "col 2", "col 3", "col 4" };
+    inputRowSet = transformMockHelper.getMockInputRowSet( rows );
+    inputRowMeta = createRowMeta();
+    inputRowSet.setRowMeta( inputRowMeta );
+    outputRowMeta = mock( IRowMeta.class );
+    when( outputRowMeta.size() ).thenReturn( outFields.length );
+    when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
   }
 
   /**
@@ -262,19 +274,8 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws Exception
    */
   private void setupTransformMock( String fileType ) throws Exception {
-    transform =
-      new ExcelWriterTransform(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
-    transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
-
-    List<Object[]> rows = createRowData();
-    String[] outFields = new String[] { "col 1", "col 2", "col 3", "col 4" };
-    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet( rows );
-    IRowMeta inputRowMeta = createRowMeta();
-    inputRowSet.setRowMeta( inputRowMeta );
-    IRowMeta mockOutputRowMeta = mock( IRowMeta.class );
-    when( mockOutputRowMeta.size() ).thenReturn( outFields.length );
-    when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
+    transform = new ExcelWriterTransform( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    transform.init();
 
     transform.addRowSetToInputRowSets( inputRowSet );
     transform.setInputRowMeta( inputRowMeta );

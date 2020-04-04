@@ -69,9 +69,9 @@ public class UnivariateStats extends BaseTransform implements ITransform {
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
    */
-  public UnivariateStats( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public UnivariateStats( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -83,7 +83,7 @@ public class UnivariateStats extends BaseTransform implements ITransform {
    * @throws HopException if an error occurs
    */
   @SuppressWarnings( { "unchecked" } )
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     m_meta = (UnivariateStatsMeta) smi;
     m_data = (UnivariateStatsData) sdi;
@@ -257,11 +257,11 @@ public class UnivariateStats extends BaseTransform implements ITransform {
    * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     m_meta = (UnivariateStatsMeta) smi;
     m_data = (UnivariateStatsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;

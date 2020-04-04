@@ -528,9 +528,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  public PGBulkLoader createTransform( TransformMeta transformMeta, PGBulkLoaderData iTransformData, int cnr,
+  public PGBulkLoader createTransform( TransformMeta transformMeta, PGBulkLoaderData data, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new PGBulkLoader( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new PGBulkLoader( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public PGBulkLoaderData getTransformData() {

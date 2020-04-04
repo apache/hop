@@ -42,19 +42,16 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class FilesFromResult extends BaseTransform implements ITransform {
+public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData> implements ITransform<FilesFromResultMeta, FilesFromResultData> {
+
   private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
 
-  private FilesFromResultData data;
-
-  public FilesFromResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FilesFromResult( TransformMeta transformMeta, FilesFromResultMeta meta, FilesFromResultData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    data = (FilesFromResultData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size() ) {
       setOutputDone();
       return false;
@@ -66,7 +63,7 @@ public class FilesFromResult extends BaseTransform implements ITransform {
     if ( first ) {
       first = false;
       data.outputRowMeta = new RowMeta();
-      smi.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
     }
     incrementLinesRead();
 
@@ -80,10 +77,8 @@ public class FilesFromResult extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    data = (FilesFromResultData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       Result result = getPipeline().getPreviousResult();
 
       if ( result != null ) {

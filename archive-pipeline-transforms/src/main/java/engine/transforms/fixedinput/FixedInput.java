@@ -60,12 +60,12 @@ public class FixedInput extends BaseTransform implements ITransform {
   private FixedInputMeta meta;
   private FixedInputData data;
 
-  public FixedInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FixedInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (FixedInputMeta) smi;
     data = (FixedInputData) sdi;
 
@@ -240,11 +240,11 @@ public class FixedInput extends BaseTransform implements ITransform {
     return new FileInputStream( FileUtils.toFile( url ) );
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FixedInputMeta) smi;
     data = (FixedInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         data.preferredBufferSize = Integer.parseInt( environmentSubstitute( meta.getBufferSize() ) );
         data.lineWidth = Integer.parseInt( environmentSubstitute( meta.getLineWidth() ) );
@@ -311,7 +311,7 @@ public class FixedInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
 
     try {
       if ( data.fc != null ) {
@@ -325,7 +325,7 @@ public class FixedInput extends BaseTransform implements ITransform {
       logError( Const.getStackTracker( e ) );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

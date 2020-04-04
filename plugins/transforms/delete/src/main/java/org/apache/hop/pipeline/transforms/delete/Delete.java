@@ -47,15 +47,13 @@ import java.sql.SQLException;
  * @author Tom
  * @since 28-March-2006
  */
-public class Delete extends BaseTransform implements ITransform {
+public class Delete extends BaseTransform<DeleteMeta, DeleteData> implements ITransform<DeleteMeta, DeleteData> {
+
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DeleteMeta meta;
-  private DeleteData data;
-
-  public Delete( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Delete( TransformMeta transformMeta, DeleteMeta meta, DeleteData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void deleteValues( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -86,10 +84,7 @@ public class Delete extends BaseTransform implements ITransform {
     incrementLinesUpdated();
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DeleteMeta) smi;
-    data = (DeleteData) sdi;
-
+  public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
 
@@ -212,11 +207,8 @@ public class Delete extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DeleteMeta) smi;
-    data = (DeleteData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "Delete.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -248,9 +240,7 @@ public class Delete extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DeleteMeta) smi;
-    data = (DeleteData) sdi;
+  public void dispose(){
 
     if ( data.db != null ) {
       try {
@@ -270,7 +260,7 @@ public class Delete extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

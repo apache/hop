@@ -422,9 +422,9 @@ public class TableInputMeta
     }
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, TableInputData iTransformData, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, TableInputData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TableInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new TableInput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public TableInputData getTransformData() {

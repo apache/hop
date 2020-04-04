@@ -43,7 +43,7 @@ public class SplitFieldToRowsTest {
 
     SplitFieldToRowsData data = new SplitFieldToRowsData();
 
-    transform.init( meta, data );
+    transform.init();
     // empty string should be quoted --> \Q\E
     assertEquals( "\\Q\\E", data.delimiterPattern.pattern() );
   }

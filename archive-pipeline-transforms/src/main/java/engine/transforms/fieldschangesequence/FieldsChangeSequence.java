@@ -48,13 +48,13 @@ public class FieldsChangeSequence extends BaseTransform implements ITransform {
   private FieldsChangeSequenceMeta meta;
   private FieldsChangeSequenceData data;
 
-  public FieldsChangeSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public FieldsChangeSequence( TransformMeta transformMeta, ITransformData data, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 
@@ -169,11 +169,11 @@ public class FieldsChangeSequence extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }
@@ -181,12 +181,12 @@ public class FieldsChangeSequence extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (FieldsChangeSequenceMeta) smi;
     data = (FieldsChangeSequenceData) sdi;
 
     data.previousValues = null;
     data.fieldnrs = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

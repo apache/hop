@@ -698,9 +698,9 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public ITransform createTransform( TransformMeta transformMeta, SelectValuesData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform createTransform( TransformMeta transformMeta, SelectValuesData data, int cnr, PipelineMeta pipelineMeta,
                                      Pipeline pipeline ) {
-    return new SelectValues( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SelectValues( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

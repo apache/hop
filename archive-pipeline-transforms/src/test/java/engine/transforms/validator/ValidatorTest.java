@@ -107,7 +107,7 @@ public class ValidatorTest {
     doReturn( new ValueMetaString( "field" ) ).when( validator ).cloneValueMeta(
       (IValueMeta) anyObject(), anyInt() );
 
-    validator.init( meta, data );
+    validator.init();
   }
 
 

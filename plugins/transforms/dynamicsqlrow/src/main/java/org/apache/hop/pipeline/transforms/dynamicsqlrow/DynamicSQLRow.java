@@ -46,15 +46,13 @@ import java.sql.ResultSet;
  * @author Samatar
  * @since 13-10-2008
  */
-public class DynamicSQLRow extends BaseTransform implements ITransform {
+public class DynamicSQLRow extends BaseTransform<DynamicSQLRowMeta, DynamicSQLRowData> implements ITransform<DynamicSQLRowMeta, DynamicSQLRowData> {
+
   private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DynamicSQLRowMeta meta;
-  private DynamicSQLRowData data;
-
-  public DynamicSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DynamicSQLRow( TransformMeta transformMeta, DynamicSQLRowMeta meta, DynamicSQLRowData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -216,9 +214,7 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
 
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DynamicSQLRowMeta) smi;
-    data = (DynamicSQLRowData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -278,9 +274,7 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
   /**
    * Stop the running query
    */
-  public void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DynamicSQLRowMeta) smi;
-    data = (DynamicSQLRowData) sdi;
+  public void stopRunning()throws HopException {
 
     if ( data.db != null && !data.isCanceled ) {
       synchronized ( data.db ) {
@@ -291,11 +285,9 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DynamicSQLRowMeta) smi;
-    data = (DynamicSQLRowData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DynmaicSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -331,14 +323,12 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DynamicSQLRowMeta) smi;
-    data = (DynamicSQLRowData) sdi;
+  public void dispose(){
 
     if ( data.db != null ) {
       data.db.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

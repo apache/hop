@@ -72,7 +72,8 @@ import java.util.List;
  * @author Matt
  * @since 22-jul-2003
  */
-public class CombinationLookup extends BaseTransform implements ITransform {
+public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData> implements ITransform<CombinationLookupMeta, CombinationLookupData> {
+
   private static final Class<?> PKG = CombinationLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int CREATION_METHOD_AUTOINC = 1;
@@ -81,15 +82,9 @@ public class CombinationLookup extends BaseTransform implements ITransform {
 
   private int techKeyCreation;
 
-  private CombinationLookupMeta meta;
-  private CombinationLookupData data;
-
-  public CombinationLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public CombinationLookup( TransformMeta transformMeta, CombinationLookupMeta meta, CombinationLookupData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (CombinationLookupMeta) getTransformMeta().getTransformMetaInterface();
-    data = (CombinationLookupData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void setTechKeyCreation( int method ) {
@@ -331,7 +326,7 @@ public class CombinationLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     // if no more input to be expected set done
     if ( r == null ) {
@@ -673,8 +668,8 @@ public class CombinationLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta sii, ITransformData sdi ) {
-    if ( super.init( sii, sdi ) ) {
+  public boolean init() {
+    if ( super.init() ) {
       data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
       data.realTableName = environmentSubstitute( meta.getTableName() );
 
@@ -712,10 +707,7 @@ public class CombinationLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CombinationLookupMeta) smi;
-    data = (CombinationLookupData) sdi;
-
+  public void dispose(){
     if ( data.db != null ) {
       try {
         if ( !data.db.isAutoCommit() ) {
@@ -732,7 +724,7 @@ public class CombinationLookup extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

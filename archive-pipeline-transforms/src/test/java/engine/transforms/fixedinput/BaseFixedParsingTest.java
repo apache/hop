@@ -54,7 +54,7 @@ public class BaseFixedParsingTest extends BaseParsingTest<FixedInputMeta, FixedI
     meta.setFilename( getFile( file ).getURL().getFile() );
 
     transform = new FixedInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

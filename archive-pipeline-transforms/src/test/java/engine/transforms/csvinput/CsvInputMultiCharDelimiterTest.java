@@ -51,7 +51,7 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
     transformMockHelper =
       TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, "CsvInputMultiCharDelimiterTest" );
     csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 
@@ -97,14 +97,14 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
     try {
       CsvInputMeta meta = createMeta( tmp, createInputFileFields( "f1", "f2", "f3" ) );
       CsvInputData data = new CsvInputData();
-      csvInput.init( meta, data );
+      csvInput.init();
 
       csvInput.addRowSetToOutputRowSets( output );
 
       try {
-        csvInput.processRow( meta, data );
+        csvInput.init();
       } finally {
-        csvInput.dispose( meta, data );
+        csvInput.dispose();
       }
 
     } finally {

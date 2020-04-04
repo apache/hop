@@ -41,19 +41,17 @@ import java.util.HashMap;
  * @author Matt
  * @since 8-apr-2003
  */
-public class ClosureGenerator extends BaseTransform implements ITransform {
+public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData> implements ITransform<ClosureGeneratorMeta, ClosureGeneratorData> {
+
   private static final Class<?> PKG = ClosureGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ClosureGeneratorMeta meta;
-  private ClosureGeneratorData data;
-
-  public ClosureGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public ClosureGenerator( TransformMeta transformMeta, ClosureGeneratorMeta meta, ClosureGeneratorData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( data.reading ) {
       Object[] rowData = getRow();
 
@@ -135,11 +133,9 @@ public class ClosureGenerator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ClosureGeneratorMeta) smi;
-    data = (ClosureGeneratorData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.reading = true;
       data.map = new HashMap<Object, Object>();
 

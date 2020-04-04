@@ -1264,9 +1264,9 @@ public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExcelOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -293,9 +293,9 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta implements Transform
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new PGPEncryptStream( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new PGPEncryptStream( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

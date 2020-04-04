@@ -61,9 +61,9 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
   private DatabaseLookupMeta meta;
   private DatabaseLookupData data;
 
-  public DatabaseLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DatabaseLookup( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -307,7 +307,7 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
       setOutputDone();
@@ -557,11 +557,11 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DatabaseLookup.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -600,7 +600,7 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 
@@ -612,7 +612,7 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
     //
     data.cache = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /*

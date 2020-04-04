@@ -43,27 +43,23 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.zip.GZIPInputStream;
 
-public class CubeInput extends BaseTransform implements ITransform {
+public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> implements ITransform<CubeInputMeta, CubeInputData> {
+
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CubeInputMeta meta;
-  private CubeInputData data;
   private int realRowLimit;
 
-  public CubeInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CubeInput( TransformMeta transformMeta, CubeInputMeta meta, CubeInputData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  @Override public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  @Override public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
-      meta = (CubeInputMeta) smi;
-      data = (CubeInputData) sdi;
       realRowLimit = Const.toInt( environmentSubstitute( meta.getRowLimit() ), 0 );
     }
-
 
     try {
       Object[] r = data.meta.readData( data.dis );
@@ -90,11 +86,9 @@ public class CubeInput extends BaseTransform implements ITransform {
     return true;
   }
 
-  @Override public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CubeInputMeta) smi;
-    data = (CubeInputData) sdi;
+  @Override public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         String filename = environmentSubstitute( meta.getFilename() );
 
@@ -126,10 +120,7 @@ public class CubeInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  @Override public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CubeInputMeta) smi;
-    data = (CubeInputData) sdi;
-
+  @Override public void dispose(){
     try {
       if ( data.dis != null ) {
         data.dis.close();
@@ -149,6 +140,6 @@ public class CubeInput extends BaseTransform implements ITransform {
       stopAll();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

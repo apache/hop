@@ -247,9 +247,9 @@ public class GetVariableMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new GetVariable( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GetVariable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

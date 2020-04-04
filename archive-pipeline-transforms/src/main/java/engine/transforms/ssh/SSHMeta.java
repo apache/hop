@@ -493,9 +493,9 @@ public class SSHMeta extends BaseTransformMeta implements TransformMetaInterface
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SSH( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SSH( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

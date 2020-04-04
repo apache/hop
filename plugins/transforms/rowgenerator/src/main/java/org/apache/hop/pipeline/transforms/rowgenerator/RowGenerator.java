@@ -56,19 +56,13 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class RowGenerator extends BaseTransform implements ITransform {
+public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> implements ITransform<RowGeneratorMeta, RowGeneratorData> {
+
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
-  private RowGeneratorMeta meta;
-
-  private RowGeneratorData data;
-
-  public RowGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public RowGenerator( TransformMeta transformMeta, RowGeneratorMeta meta, RowGeneratorData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (RowGeneratorMeta) getTransformMeta().getTransformMetaInterface();
-    data = (RowGeneratorData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData buildRow( RowGeneratorMeta meta, List<ICheckResult> remarks,
@@ -188,9 +182,7 @@ public class RowGenerator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public synchronized boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (RowGeneratorMeta) smi;
-    data = (RowGeneratorData) sdi;
+  public synchronized boolean processRow() throws HopException {
 
     Object[] r = null;
     boolean retval = true;
@@ -246,12 +238,10 @@ public class RowGenerator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
+  public boolean init(){
     try {
-      meta = (RowGeneratorMeta) smi;
-      data = (RowGeneratorData) sdi;
 
-      if ( super.init( smi, sdi ) ) {
+      if ( super.init() ) {
         // Determine the number of rows to generate...
         data.rowLimit = Const.toLong( environmentSubstitute( meta.getRowLimit() ), -1L );
         data.rowsWritten = 0L;

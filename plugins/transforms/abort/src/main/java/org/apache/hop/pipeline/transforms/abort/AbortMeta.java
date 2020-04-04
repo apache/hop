@@ -96,9 +96,9 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   @Override
-  public Abort createTransform( TransformMeta transformMeta, AbortData iTransformData, int copyNr,
+  public Abort createTransform( TransformMeta transformMeta, AbortData data, int copyNr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Abort( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    return new Abort( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

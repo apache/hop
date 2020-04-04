@@ -63,9 +63,9 @@ public class RowGenerator extends BaseTransform implements ITransform {
 
   private RowGeneratorData data;
 
-  public RowGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public RowGenerator( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (RowGeneratorMeta) getTransformMeta().getTransformMetaInterface();
     data = (RowGeneratorData) iTransformData;
@@ -188,7 +188,7 @@ public class RowGenerator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public synchronized boolean.processRow() throws HopException {
     meta = (RowGeneratorMeta) smi;
     data = (RowGeneratorData) sdi;
 
@@ -246,12 +246,12 @@ public class RowGenerator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     try {
       meta = (RowGeneratorMeta) smi;
       data = (RowGeneratorData) sdi;
 
-      if ( super.init( smi, sdi ) ) {
+      if ( super.init() ) {
         // Determine the number of rows to generate...
         data.rowLimit = Const.toLong( environmentSubstitute( meta.getRowLimit() ), -1L );
         data.rowsWritten = 0L;

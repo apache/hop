@@ -110,28 +110,27 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -153,9 +152,15 @@ public class ExcelOutputTest {
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
 
+    String excelFileFullPath = buildFilePath();
+    File excelFile = new File( excelFileFullPath );
+    excelFile.deleteOnExit();
+    ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
+    meta.setSplitEvery( 1 );
+
+
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
     excelOutput.first = false;
 
     Object[] row = { new Date() };
@@ -163,15 +168,8 @@ public class ExcelOutputTest {
     doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
     doReturn( 1L ).when( excelOutput ).getLinesOutput();
 
-    String excelFileFullPath = buildFilePath();
-    File excelFile = new File( excelFileFullPath );
-    excelFile.deleteOnExit();
-    ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
-
-    meta.setSplitEvery( 1 );
-
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
+    excelOutput.init();
+    excelOutput.processRow();
     Assert.assertNull( data.formats.get( testColumnName ) );
   }
 
@@ -184,33 +182,32 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -226,33 +223,32 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -268,15 +264,7 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
@@ -285,18 +273,25 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -315,15 +310,7 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
@@ -332,18 +319,25 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -362,15 +356,7 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
@@ -379,18 +365,25 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput =  Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -410,15 +403,7 @@ public class ExcelOutputTest {
     data.fieldnrs = new int[] { 0 };
     RowMeta rowMetaToBeReturned = Mockito.spy( new RowMeta() );
     rowMetaToBeReturned.addValueMeta( 0, vmi );
-
     data.previousMeta = rowMetaToBeReturned;
-    ExcelOutput excelOutput =
-      Mockito.spy( new ExcelOutput( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline ) );
-    excelOutput.first = false;
-
-    Object[] row = { new Date() };
-    doReturn( row ).when( excelOutput ).getRow();
-    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
 
     String excelFileFullPath = buildFilePath();
     File excelFile = new File( excelFileFullPath );
@@ -427,18 +412,25 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    ExcelOutput excelOutput = Mockito.spy( new ExcelOutput( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline ) );
+    excelOutput.first = false;
+
+    Object[] row = { new Date() };
+    doReturn( row ).when( excelOutput ).getRow();
+    doReturn( rowMetaToBeReturned ).when( excelOutput ).getInputRowMeta();
+
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.processRow();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );

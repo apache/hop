@@ -50,12 +50,12 @@ public class WriteToLog extends BaseTransform implements ITransform {
   private int rowCounter = 0;
   private boolean rowCounterLimitHit = false;
 
-  public WriteToLog( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public WriteToLog( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     meta = (WriteToLogMeta) smi;
     data = (WriteToLogData) sdi;
@@ -179,11 +179,11 @@ public class WriteToLog extends BaseTransform implements ITransform {
     return data.logmessage;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (WriteToLogMeta) smi;
     data = (WriteToLogData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }

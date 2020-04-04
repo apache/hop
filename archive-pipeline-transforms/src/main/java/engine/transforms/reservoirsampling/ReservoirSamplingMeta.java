@@ -220,9 +220,9 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements Transfor
    * @param pipeline             the launching pipeline
    * @return a <code>ITransform</code> value
    */
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new ReservoirSampling( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new ReservoirSampling( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   /**

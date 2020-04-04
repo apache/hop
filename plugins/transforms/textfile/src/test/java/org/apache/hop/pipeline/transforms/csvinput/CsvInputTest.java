@@ -76,17 +76,15 @@ public class CsvInputTest extends CsvInputUnitTestBase {
     CsvInputMeta meta = createMeta( tmpFile, inputFileFields );
     CsvInputData data = new CsvInputData();
     IRowSet output = new QueueRowSet();
-    CsvInput csvInput =
-      new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
-    csvInput.init( meta, data );
+    CsvInput csvInput = new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    csvInput.init();
     csvInput.addRowSetToOutputRowSets( output );
 
     // Start processing
-    csvInput.processRow( meta, data );
+    csvInput.processRow();
 
     // Finish processing
-    csvInput.dispose( meta, data );
+    csvInput.dispose();
 
     // And now the file must be free to be deleted
     assertTrue( tmpFile.delete() );

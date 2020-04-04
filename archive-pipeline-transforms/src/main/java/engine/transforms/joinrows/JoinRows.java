@@ -59,9 +59,9 @@ public class JoinRows extends BaseTransform implements ITransform {
   private JoinRowsMeta meta;
   private JoinRowsData data;
 
-  public JoinRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public JoinRows( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /*
@@ -246,7 +246,7 @@ public class JoinRows extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (JoinRowsMeta) smi;
     data = (JoinRowsData) sdi;
 
@@ -435,7 +435,7 @@ public class JoinRows extends BaseTransform implements ITransform {
     return outputRowMeta;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (JoinRowsMeta) smi;
     data = (JoinRowsData) sdi;
 
@@ -448,7 +448,7 @@ public class JoinRows extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( meta, data );
+    super.dispose();
   }
 
   @Override
@@ -464,12 +464,12 @@ public class JoinRows extends BaseTransform implements ITransform {
       }
     }
     while ( rowSet.size() > 0 && !isStopped() ) {
-      processRow( meta, data );
+     .init();
     }
     // The last row needs to be written too to the account of the number of input rows.
     //
     for ( int i = 0; i < repeats; i++ ) {
-      processRow( meta, data );
+     .init();
     }
   }
 }

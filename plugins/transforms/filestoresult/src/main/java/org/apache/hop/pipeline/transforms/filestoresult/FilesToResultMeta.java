@@ -145,9 +145,9 @@ public class FilesToResultMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public FilesToResult createTransform( TransformMeta transformMeta, FilesToResultData iTransformData, int cnr, PipelineMeta tr,
+  public FilesToResult createTransform( TransformMeta transformMeta, FilesToResultData data, int cnr, PipelineMeta tr,
                                         Pipeline pipeline ) {
-    return new FilesToResult( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new FilesToResult( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public FilesToResultData getTransformData() {

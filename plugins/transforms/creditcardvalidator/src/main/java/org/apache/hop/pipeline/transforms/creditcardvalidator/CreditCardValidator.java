@@ -42,21 +42,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 03-Juin-2008
  */
 
-public class CreditCardValidator extends BaseTransform implements ITransform {
+public class CreditCardValidator extends BaseTransform<CreditCardValidatorMeta, CreditCardValidatorData> implements ITransform<CreditCardValidatorMeta, CreditCardValidatorData> {
 
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CreditCardValidatorMeta meta;
-  private CreditCardValidatorData data;
-
-  public CreditCardValidator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public CreditCardValidator( TransformMeta transformMeta, CreditCardValidatorMeta meta, CreditCardValidatorData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (CreditCardValidatorMeta) smi;
-    data = (CreditCardValidatorData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -172,11 +167,8 @@ public class CreditCardValidator extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CreditCardValidatorMeta) smi;
-    data = (CreditCardValidatorData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "CreditCardValidator.Error.ResultFieldMissing" ) );
         return false;
@@ -184,12 +176,5 @@ public class CreditCardValidator extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CreditCardValidatorMeta) smi;
-    data = (CreditCardValidatorData) sdi;
-
-    super.dispose( smi, sdi );
   }
 }

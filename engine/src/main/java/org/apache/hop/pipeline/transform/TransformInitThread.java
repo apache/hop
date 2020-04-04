@@ -46,6 +46,9 @@ public class TransformInitThread implements Runnable {
     this.ok = false;
     this.finished = false;
     this.doIt = true;
+
+    combi.transform.setMeta( combi.meta );
+    combi.transform.setData( combi.data );
   }
 
   public String toString() {
@@ -66,7 +69,7 @@ public class TransformInitThread implements Runnable {
     try {
       combi.transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_INIT_START );
 
-      if ( combi.transform.init( combi.meta, combi.data ) ) {
+      if ( combi.transform.init() ) {
         combi.data.setStatus( TransformExecutionStatus.STATUS_IDLE );
         ok = true;
       } else {

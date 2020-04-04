@@ -42,12 +42,13 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
  */
 public class TextFileInput
   extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
-  implements ITransform<ITransformMeta, ITransformData> {
+  implements ITransform<TextFileInputMeta, TextFileInputData> {
+
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  public TextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileInput( TransformMeta transformMeta, TextFileInputMeta meta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -58,6 +59,9 @@ public class TextFileInput
 
   @Override
   public boolean init() {
+    if (!super.init()) {
+      return false;
+    }
     data.filePlayList = FilePlayListAll.INSTANCE;
 
     data.filterProcessor = new TextFileFilterProcessor( meta.getFilter(), this );
@@ -79,10 +83,6 @@ public class TextFileInput
       return false;
     }
 
-    return true;
-  }
-
-  public boolean isWaitingForData() {
     return true;
   }
 }

@@ -64,8 +64,8 @@ public abstract class BaseTextParsingTest extends BaseParsingTest<TextFileInputM
     meta.inputFiles.fileRequired = new String[] { "Y" };
     meta.inputFiles.includeSubFolders = new String[] { "N" };
 
-    transform = new TextFileInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform = new TextFileInput( transformMeta, meta, data, 1, pipelineMeta, pipeline );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

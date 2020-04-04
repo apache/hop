@@ -33,12 +33,11 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
@@ -50,15 +49,13 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DBProc extends BaseTransform implements ITransform {
+public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITransform<DBProcMeta, DBProcData> {
+
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DBProcMeta meta;
-  private DBProcData data;
-
-  public DBProc( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DBProc( TransformMeta transformMeta, DBProcMeta meta, DBProcData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] runProc( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -121,10 +118,7 @@ public class DBProc extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DBProcMeta) smi;
-    data = (DBProcData) sdi;
-
+  public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
 
@@ -191,12 +185,10 @@ public class DBProc extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DBProcMeta) smi;
-    data = (DBProcData) sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
-//      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
+    if ( super.init() ) {
+      //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
       if ( previous != null && previous.size() > 0 ) {
         data.readsRows = true;
@@ -234,9 +226,7 @@ public class DBProc extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DBProcMeta) smi;
-    data = (DBProcData) sdi;
+  public void dispose() {
 
     if ( data.db != null ) {
       // CHE: Properly close the callable statement
@@ -256,7 +246,7 @@ public class DBProc extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

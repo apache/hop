@@ -64,8 +64,8 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
       meta.setFilename( getFile( file ).getURL().getFile() );
     }
 
-    transform = new CsvInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform = new CsvInput( transformMeta, meta, data, 1, pipelineMeta, pipeline );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

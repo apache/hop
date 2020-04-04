@@ -45,15 +45,15 @@ public class Flattener extends BaseTransform implements ITransform {
   private FlattenerMeta meta;
   private FlattenerData data;
 
-  public Flattener( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Flattener( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (FlattenerMeta) getTransformMeta().getTransformMetaInterface();
     data = (FlattenerData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row!
     if ( r == null ) { // no more input to be expected...
 
@@ -138,11 +138,11 @@ public class Flattener extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FlattenerMeta) smi;
     data = (FlattenerData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;

@@ -180,7 +180,7 @@ public class ParseMailInputTest {
     this.mockMailInputMeta( farr );
 
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -205,7 +205,7 @@ public class ParseMailInputTest {
     this.mockMailInputMeta( farr );
 
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -227,7 +227,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -248,7 +248,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -269,7 +269,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -293,7 +293,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -317,7 +317,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -341,7 +341,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -363,7 +363,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -385,7 +385,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -407,7 +407,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -429,7 +429,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -451,7 +451,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -473,7 +473,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -495,7 +495,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }
@@ -518,7 +518,7 @@ public class ParseMailInputTest {
     MailInputField[] farr = this.getDefaultInputFields( fields );
     this.mockMailInputMeta( farr );
     try {
-      mailInput.processRow( meta, data );
+      mailInput.init();
     } catch ( HopException e ) {
       // don't worry about it
     }

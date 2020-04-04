@@ -185,7 +185,7 @@ public class OraBulkLoaderTest {
     assertTrue( Files.exists( Paths.get( tempDataFilepath ) ) );
 
     doReturn( pipelineMeta ).when( oraBulkLoader ).getPipelineMeta();
-    oraBulkLoader.dispose( oraBulkLoaderMeta, oraBulkLoaderData );
+    oraBulkLoader.dispose();
 
     assertFalse( Files.exists( Paths.get( tempControlFilepath ) ) );
     assertFalse( Files.exists( Paths.get( tempDataFilepath ) ) );

@@ -53,7 +53,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -82,7 +81,6 @@ public class ExcelWriterTransformTest {
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> mockHelper;
   private ExcelWriterTransform transform;
 
-  private ExcelWriterTransformMeta transformMeta;
   private ExcelWriterTransformMeta metaMock;
   private ExcelWriterTransformData dataMock;
 
@@ -96,12 +94,12 @@ public class ExcelWriterTransformTest {
     mockHelper = new TransformMockHelper<>( "Excel Writer Test", ExcelWriterTransformMeta.class, ExcelWriterTransformData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.logChannelInterface );
-    transform = spy( new ExcelWriterTransform(
-      mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
 
-    transformMeta = new ExcelWriterTransformMeta();
     metaMock = mock( ExcelWriterTransformMeta.class );
     dataMock = mock( ExcelWriterTransformData.class );
+
+    transform = spy( new ExcelWriterTransform( mockHelper.transformMeta, metaMock, dataMock, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
+    assertTrue( transform.init() );
   }
 
   @After
@@ -111,17 +109,20 @@ public class ExcelWriterTransformTest {
 
   @Test
   public void testProtectSheet() throws Exception {
+
     transform.protectSheet( wb.getSheet( SHEET_NAME ), "aa" );
     assertTrue( wb.getSheet( SHEET_NAME ).getProtect() );
   }
 
-  @Ignore
   @Test
   public void testMaxSheetNameLength() {
 
+    transform = spy( new ExcelWriterTransform( mockHelper.transformMeta, metaMock, dataMock, 0, mockHelper.pipelineMeta, mockHelper.pipeline ) );
+
     // Return a 32 character name
-    when( mockHelper.initTransformMetaInterface.getSheetname() ).thenReturn( "12345678901234567890123456789012" );
-    transform.init( mockHelper.initTransformMetaInterface, mockHelper.initTransformDataInterface );
+    when( metaMock.getSheetname() ).thenReturn( "12345678901234567890123456789012" );
+
+    transform.init();
 
     try {
       transform.prepareNextOutputFile();
@@ -137,7 +138,7 @@ public class ExcelWriterTransformTest {
 
   @Test
   public void testPrepareNextOutputFile() throws Exception {
-    assertTrue( transform.init( metaMock, dataMock ) );
+    assertTrue( transform.init() );
     File outDir = Files.createTempDir();
     String testFileOut = outDir.getAbsolutePath() + File.separator + "test.xlsx";
     when( transform.buildFilename( 0 ) ).thenReturn( testFileOut );
@@ -148,12 +149,13 @@ public class ExcelWriterTransformTest {
     dataMock.createNewFile = true;
     dataMock.realTemplateFileName = getClass().getResource( "template_test.xlsx" ).getFile();
     dataMock.realSheetname = SHEET_NAME;
+
     transform.prepareNextOutputFile();
   }
 
   @Test
   public void testWriteUsingTemplateWithFormatting() throws Exception {
-    assertTrue( transform.init( metaMock, dataMock ) );
+
     String path = Files.createTempDir().getAbsolutePath() + File.separator + "formatted.xlsx";
 
     dataMock.fieldnrs = new int[] { 0 };
@@ -170,7 +172,6 @@ public class ExcelWriterTransformTest {
     doReturn( "name" ).when( vmi ).getName();
     doReturn( 12.0 ).when( vmi ).getNumber( anyObject() );
 
-    doReturn( path ).when( transform ).buildFilename( 0 );
     doReturn( true ).when( metaMock ).isTemplateEnabled();
     doReturn( true ).when( metaMock ).isStreamingData();
     doReturn( false ).when( metaMock ).isHeaderEnabled();
@@ -179,6 +180,8 @@ public class ExcelWriterTransformTest {
 
     doReturn( 10 ).when( dataMock.inputRowMeta ).size();
     doReturn( vmi ).when( dataMock.inputRowMeta ).getValueMeta( anyInt() );
+
+    doReturn( path ).when( transform ).buildFilename( 0 );
 
     transform.prepareNextOutputFile();
 
@@ -409,8 +412,9 @@ public class ExcelWriterTransformTest {
                          boolean isStreaming,
                          boolean isTemplateEnabled )
     throws Exception {
+
     Object[] vObjArr = { vObj };
-    assertTrue( transform.init( metaMock, dataMock ) );
+    assertTrue( transform.init() );
     File tempFile = File.createTempFile( extension, dotExtension );
     tempFile.deleteOnExit();
     String path = tempFile.getAbsolutePath();

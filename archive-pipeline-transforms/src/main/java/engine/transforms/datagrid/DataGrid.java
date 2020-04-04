@@ -50,15 +50,15 @@ public class DataGrid extends BaseTransform implements ITransform {
   private DataGridMeta meta;
   private DataGridData data;
 
-  public DataGrid( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DataGrid( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (DataGridMeta) getTransformMeta().getTransformMetaInterface();
     data = (DataGridData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( data.linesWritten >= meta.getDataLines().size() ) {
       // no more rows to be written
       setOutputDone();

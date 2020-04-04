@@ -569,9 +569,9 @@ public class RegexEvalMeta extends BaseTransformMeta implements TransformMetaInt
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RegexEval( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new RegexEval( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

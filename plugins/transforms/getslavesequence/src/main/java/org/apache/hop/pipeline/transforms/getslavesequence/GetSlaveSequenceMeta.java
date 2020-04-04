@@ -134,9 +134,9 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public GetSlaveSequence createTransform( TransformMeta transformMeta, GetSlaveSequenceData iTransformData, int cnr,
+  public GetSlaveSequence createTransform( TransformMeta transformMeta, GetSlaveSequenceData data, int cnr,
                                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetSlaveSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GetSlaveSequence( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

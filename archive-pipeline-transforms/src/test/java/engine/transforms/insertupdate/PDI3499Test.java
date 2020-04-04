@@ -95,11 +95,11 @@ public class PDI3499Test {
     transformData.keynrs2 = new int[] { -1 };
     transformData.updateParameterRowMeta = when( mock( RowMeta.class ).size() ).thenReturn( 2 ).getMock();
 
-    InsertUpdate transform = new InsertUpdate( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    InsertUpdate transform = new InsertUpdate( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.setInputRowMeta( inputRowMeta );
     transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "2013-12-20".getBytes() } ) );
-    transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    transform.init();
     transform.first = false;
-    transform.processRow( transformMeta, transformData );
+    transform.processRow();
   }
 }

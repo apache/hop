@@ -169,9 +169,9 @@ public class Edi2XmlMeta extends BaseTransformMeta implements TransformMetaInter
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline disp ) {
-    return new Edi2Xml( transformMeta, iTransformData, cnr, pipelineMeta, disp );
+    return new Edi2Xml( transformMeta, this, data, cnr, pipelineMeta, disp );
   }
 
   @Override

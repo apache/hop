@@ -221,9 +221,9 @@ public class TableExistsMeta extends BaseTransformMeta implements TransformMetaI
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TableExists( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new TableExists( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

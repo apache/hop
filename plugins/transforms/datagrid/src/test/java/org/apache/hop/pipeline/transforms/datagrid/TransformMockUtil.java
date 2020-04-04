@@ -71,5 +71,4 @@ public class TransformMockUtil {
     throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, transformName ) );
   }
-
 }

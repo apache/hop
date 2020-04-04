@@ -198,9 +198,9 @@ public class SetValueFieldMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SetValueField( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SetValueField( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

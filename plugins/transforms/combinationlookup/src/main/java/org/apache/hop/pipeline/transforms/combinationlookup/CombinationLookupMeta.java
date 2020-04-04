@@ -930,9 +930,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public CombinationLookup createTransform( TransformMeta transformMeta, CombinationLookupData iTransformData, int cnr,
+  public CombinationLookup createTransform( TransformMeta transformMeta, CombinationLookupData data, int cnr,
                                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new CombinationLookup( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new CombinationLookup( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

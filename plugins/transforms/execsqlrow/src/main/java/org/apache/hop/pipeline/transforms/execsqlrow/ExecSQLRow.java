@@ -47,15 +47,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 10-sep-2005
  */
-public class ExecSQLRow extends BaseTransform implements ITransform {
+public class ExecSQLRow extends BaseTransform<ExecSQLRowMeta, ExecSQLRowData> implements ITransform<ExecSQLRowMeta, ExecSQLRowData> {
+
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExecSQLRowMeta meta;
-  private ExecSQLRowData data;
-
-  public ExecSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExecSQLRow( TransformMeta transformMeta, ExecSQLRowMeta meta, ExecSQLRowData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData getResultRow( Result result, String upd, String ins, String del, String read ) {
@@ -89,9 +87,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -193,9 +189,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+  public void dispose(){
 
     if ( log.isBasic() ) {
       logBasic( BaseMessages.getString( PKG, "ExecSQLRow.Log.FinishingReadingQuery" ) );
@@ -219,28 +213,22 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**
    * Stop the running query
    */
   @Override
-  public void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
-
+  public void stopRunning()throws HopException {
     if ( data.db != null ) {
       data.db.cancelQuery();
     }
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "ExecSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;

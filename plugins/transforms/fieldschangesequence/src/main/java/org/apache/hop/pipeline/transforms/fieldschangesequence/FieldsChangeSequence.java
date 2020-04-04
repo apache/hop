@@ -42,21 +42,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 30-06-2008
  */
 
-public class FieldsChangeSequence extends BaseTransform implements ITransform {
+public class FieldsChangeSequence extends BaseTransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> implements ITransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> {
+
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FieldsChangeSequenceMeta meta;
-  private FieldsChangeSequenceData data;
-
-  public FieldsChangeSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public FieldsChangeSequence( TransformMeta transformMeta, FieldsChangeSequenceMeta meta, FieldsChangeSequenceData data, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FieldsChangeSequenceMeta) smi;
-    data = (FieldsChangeSequenceData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
@@ -169,24 +165,9 @@ public class FieldsChangeSequence extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FieldsChangeSequenceMeta) smi;
-    data = (FieldsChangeSequenceData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FieldsChangeSequenceMeta) smi;
-    data = (FieldsChangeSequenceData) sdi;
-
+  public void dispose(){
     data.previousValues = null;
     data.fieldnrs = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

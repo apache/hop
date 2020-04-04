@@ -398,9 +398,9 @@ public class ExecSQLMeta extends BaseTransformMeta implements TransformMetaInter
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQL( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExecSQL( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

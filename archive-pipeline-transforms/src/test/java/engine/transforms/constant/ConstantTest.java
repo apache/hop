@@ -84,7 +84,7 @@ public class ConstantTest {
     doReturn( new RowMeta() ).when( constantSpy ).getInputRowMeta();
     doReturn( new Object[ 1 ] ).when( rowMetaAndData ).getData();
 
-    boolean success = constantSpy.processRow( constantMeta, constantData );
+    boolean success = constantSpy.processRow();
     assertTrue( success );
   }
 
@@ -94,7 +94,7 @@ public class ConstantTest {
     doReturn( null ).when( constantSpy ).getRow();
     doReturn( null ).when( constantSpy ).getInputRowMeta();
 
-    boolean success = constantSpy.processRow( constantMeta, constantData );
+    boolean success = constantSpy.processRow();
     assertFalse( success );
   }
 }

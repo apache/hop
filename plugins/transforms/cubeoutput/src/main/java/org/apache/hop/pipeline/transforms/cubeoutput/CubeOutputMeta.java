@@ -181,9 +181,9 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     remarks.add( cr );
   }
 
-  public CubeOutput createTransform( TransformMeta transformMeta, CubeOutputData iTransformData, int cnr,
+  public CubeOutput createTransform( TransformMeta transformMeta, CubeOutputData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new CubeOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new CubeOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public CubeOutputData getTransformData() {

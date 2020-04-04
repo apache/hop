@@ -29,17 +29,19 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
+import org.apache.hop.pipeline.transforms.dummy.DummyData;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class MissingTransform extends Dummy {
   private static Class<?> PKG = MissingTransform.class; // for i18n purposes, needed by Translator!!
 
-  public MissingTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MissingTransform( TransformMeta transformMeta, DummyMeta meta, DummyData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       logError( BaseMessages.getString( PKG, "MissingPipelineTransform.Log.CannotRunPipeline" ) );
     }
     return false;

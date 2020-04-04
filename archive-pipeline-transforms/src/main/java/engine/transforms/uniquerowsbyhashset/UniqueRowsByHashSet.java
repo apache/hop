@@ -39,9 +39,9 @@ public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
   private UniqueRowsByHashSetMeta meta;
   private UniqueRowsByHashSetData data;
 
-  public UniqueRowsByHashSet( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public UniqueRowsByHashSet( TransformMeta transformMeta, ITransformData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (UniqueRowsByHashSetMeta) getTransformMeta().getTransformMetaInterface();
     data = (UniqueRowsByHashSetData) iTransformData; // create new data object.
@@ -51,7 +51,7 @@ public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
     return data.seen.add( new RowKey( row, data ) );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (UniqueRowsByHashSetMeta) smi;
     data = (UniqueRowsByHashSetData) sdi;
 
@@ -115,11 +115,11 @@ public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (UniqueRowsByHashSetMeta) smi;
     data = (UniqueRowsByHashSetData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       data.sendDuplicateRows = getTransformMeta().getTransformErrorMeta() != null && meta.supportsErrorHandling();
       return true;

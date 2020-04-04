@@ -280,9 +280,9 @@ public class RandomValueMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RandomValue( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new RandomValue( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

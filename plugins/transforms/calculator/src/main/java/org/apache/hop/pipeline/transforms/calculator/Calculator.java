@@ -49,7 +49,8 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Calculator extends BaseTransform implements ITransform {
+public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> implements ITransform<CalculatorMeta, CalculatorData> {
+
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public class FieldIndexes {
@@ -59,18 +60,14 @@ public class Calculator extends BaseTransform implements ITransform {
     public int indexC;
   }
 
-  private CalculatorMeta meta;
-  private CalculatorData data;
 
-  public Calculator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Calculator( TransformMeta transformMeta, CalculatorMeta meta, CalculatorData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (CalculatorMeta) smi;
-    data = (CalculatorData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
@@ -640,13 +637,5 @@ public class Calculator extends BaseTransform implements ITransform {
     // So we remove them.
     //
     return RowDataUtil.removeItems( calcData, data.getTempIndexes() );
-  }
-
-  @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CalculatorMeta) smi;
-    data = (CalculatorData) sdi;
-
-    return super.init( smi, sdi );
   }
 }

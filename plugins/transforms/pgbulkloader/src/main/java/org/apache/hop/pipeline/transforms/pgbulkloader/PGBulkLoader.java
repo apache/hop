@@ -65,17 +65,16 @@ import java.sql.Statement;
  * @author matt
  * @since 28-mar-2008
  */
-public class PGBulkLoader extends BaseTransform implements ITransform {
+public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData> implements ITransform<PGBulkLoaderMeta, PGBulkLoaderData> {
+
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private Charset clientEncoding = Charset.defaultCharset();
-  private PGBulkLoaderMeta meta;
-  private PGBulkLoaderData data;
   private PGCopyOutputStream pgCopyOut;
 
-  public PGBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public PGBulkLoader( TransformMeta transformMeta, PGBulkLoaderMeta meta, PGBulkLoaderData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -223,9 +222,7 @@ public class PGBulkLoader extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (PGBulkLoaderMeta) smi;
-    data = (PGBulkLoaderData) sdi;
+  public boolean processRow() throws HopException {
 
     try {
       Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -442,14 +439,12 @@ public class PGBulkLoader extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (PGBulkLoaderMeta) smi;
-    data = (PGBulkLoaderData) sdi;
+  public boolean init(){
 
     String enclosure = environmentSubstitute( meta.getEnclosure() );
     String separator = environmentSubstitute( meta.getDelimiter() );
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       // Confirming Database Connection is defined.
       try {

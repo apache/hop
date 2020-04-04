@@ -52,7 +52,7 @@ public class BaseCubeInputParsingTest extends BaseParsingTest<CubeInputMeta, Cub
     meta.setFilename( getFile( file ).getURL().getFile() );
 
     transform = new CubeInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

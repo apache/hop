@@ -86,10 +86,10 @@ public class PDI_2875_Test {
   @Test
   public void testVariableSubstitution() {
     doReturn( new Date() ).when( smh.pipeline ).getCurrentDate();
-    TextFileInput transform = spy( new TextFileInput( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
+    TextFileInput transform = spy( new TextFileInput( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
     TextFileInputData data = new TextFileInputData();
     transform.setVariable( VAR_NAME, "value" );
-    transform.init( getMeta(), data );
+    transform.init();
     verify( transform, times( 2 ) ).environmentSubstitute( EXPRESSION );
   }
 }

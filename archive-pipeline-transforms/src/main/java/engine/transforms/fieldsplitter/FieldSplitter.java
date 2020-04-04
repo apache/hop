@@ -50,9 +50,9 @@ public class FieldSplitter extends BaseTransform implements ITransform {
   private FieldSplitterMeta meta;
   private FieldSplitterData data;
 
-  public FieldSplitter( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FieldSplitter( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] splitField( Object[] r ) throws HopException {
@@ -166,7 +166,7 @@ public class FieldSplitter extends BaseTransform implements ITransform {
     return outputRow;
   }
 
-  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public synchronized boolean.processRow() throws HopException {
     meta = (FieldSplitterMeta) smi;
     data = (FieldSplitterData) sdi;
 
@@ -190,10 +190,10 @@ public class FieldSplitter extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FieldSplitterMeta) smi;
     data = (FieldSplitterData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 }

@@ -52,12 +52,12 @@ public class IfNull extends BaseTransform implements ITransform {
   private IfNullMeta meta;
   private IfNullData data;
 
-  public IfNull( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public IfNull( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (IfNullMeta) smi;
     data = (IfNullData) sdi;
 
@@ -236,11 +236,11 @@ public class IfNull extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (IfNullMeta) smi;
     data = (IfNullData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }

@@ -314,9 +314,9 @@ public class ProcessFilesMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ProcessFiles( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ProcessFiles( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

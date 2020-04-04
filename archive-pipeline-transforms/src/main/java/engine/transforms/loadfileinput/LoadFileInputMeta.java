@@ -959,9 +959,9 @@ public class LoadFileInputMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new LoadFileInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new LoadFileInput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

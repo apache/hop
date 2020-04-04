@@ -47,14 +47,14 @@ public class FilesFromResult extends BaseTransform implements ITransform {
 
   private FilesFromResultData data;
 
-  public FilesFromResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FilesFromResult( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     data = (FilesFromResultData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size() ) {
       setOutputDone();
       return false;
@@ -80,10 +80,10 @@ public class FilesFromResult extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     data = (FilesFromResultData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       Result result = getPipeline().getPreviousResult();
 
       if ( result != null ) {

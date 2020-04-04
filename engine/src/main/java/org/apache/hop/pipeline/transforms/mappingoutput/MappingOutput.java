@@ -48,12 +48,12 @@ public class MappingOutput
   private MappingOutputMeta meta;
   private MappingOutputData data;
 
-  public MappingOutput( TransformMeta transformMeta, MappingOutputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MappingOutput( TransformMeta transformMeta, MappingOutputMeta meta, MappingOutputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( MappingOutputMeta meta, MappingOutputData data ) throws HopException {
+  public boolean processRow() throws HopException {
     this.meta = meta;
     this.data = data;
 
@@ -110,17 +110,6 @@ public class MappingOutput
     }
 
     return true;
-  }
-
-  public boolean init( MappingOutputMeta smi, MappingOutputData sdi ) {
-    this.meta = smi;
-    this.data = sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
   }
 
   public void setConnectorTransforms( ITransform[] targetTransforms, List<MappingValueRename> inputValueRenames,

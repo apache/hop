@@ -312,9 +312,9 @@ public class DenormaliserMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  public Denormaliser createTransform( TransformMeta transformMeta, DenormaliserData iTransformData, int cnr,
+  public Denormaliser createTransform( TransformMeta transformMeta, DenormaliserData data, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Denormaliser( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Denormaliser( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public DenormaliserData getTransformData() {

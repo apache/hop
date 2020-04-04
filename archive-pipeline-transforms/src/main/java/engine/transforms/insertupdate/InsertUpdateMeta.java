@@ -761,9 +761,9 @@ public class InsertUpdateMeta extends BaseTransformMeta implements TransformMeta
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new InsertUpdate( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new InsertUpdate( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

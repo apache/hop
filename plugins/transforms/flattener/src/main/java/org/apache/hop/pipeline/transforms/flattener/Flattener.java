@@ -25,12 +25,10 @@ package org.apache.hop.pipeline.transforms.flattener;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -39,21 +37,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 17-jan-2006
  */
-public class Flattener extends BaseTransform implements ITransform {
+public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> implements ITransform<FlattenerMeta, FlattenerData> {
   private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FlattenerMeta meta;
-  private FlattenerData data;
-
-  public Flattener( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Flattener( TransformMeta transformMeta, FlattenerMeta meta, FlattenerData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (FlattenerMeta) getTransformMeta().getTransformMetaInterface();
-    data = (FlattenerData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row!
     if ( r == null ) { // no more input to be expected...
 
@@ -137,15 +129,4 @@ public class Flattener extends BaseTransform implements ITransform {
 
     return outputRowData;
   }
-
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FlattenerMeta) smi;
-    data = (FlattenerData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      return true;
-    }
-    return false;
-  }
-
 }

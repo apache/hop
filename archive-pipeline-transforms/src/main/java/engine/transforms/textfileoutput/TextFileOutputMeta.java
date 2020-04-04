@@ -913,9 +913,9 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformM
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new TextFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new TextFileOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

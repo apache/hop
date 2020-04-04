@@ -40,14 +40,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 30-08-2008
  */
-public class DetectEmptyStream extends BaseTransform implements ITransform {
+public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData> implements ITransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
+
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DetectEmptyStreamData data;
-
-  public DetectEmptyStream( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public DetectEmptyStream( TransformMeta transformMeta, DetectEmptyStreamMeta meta, DetectEmptyStreamData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -61,8 +60,7 @@ public class DetectEmptyStream extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    data = (DetectEmptyStreamData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
@@ -87,16 +85,6 @@ public class DetectEmptyStream extends BaseTransform implements ITransform {
     }
 
     return true;
-  }
-
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    data = (DetectEmptyStreamData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
   }
 
 }

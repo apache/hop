@@ -68,16 +68,16 @@ public class Denormaliser extends BaseTransform implements ITransform {
 
   private Map<String, IValueMeta> conversionMetaCache = new HashMap<String, IValueMeta>();
 
-  public Denormaliser( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Denormaliser( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (DenormaliserMeta) getTransformMeta().getTransformMetaInterface();
     data = (DenormaliserData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row!
 
     if ( r == null ) {
@@ -432,11 +432,11 @@ public class Denormaliser extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DenormaliserMeta) smi;
     data = (DenormaliserData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.counters = new long[ meta.getDenormaliserTargetField().length ];
       data.sum = new Object[ meta.getDenormaliserTargetField().length ];
 

@@ -86,9 +86,9 @@ public class TeraFast extends AbstractTransform implements ITransform {
    * @param pipelineMeta         the pipelineMeta.
    * @param pipeline             the pipeline.
    */
-  public TeraFast( final TransformMeta transformMeta, final ITransformData iTransformData, final int copyNr,
+  public TeraFast( final TransformMeta transformMeta, final ITransformData data, final int copyNr,
                    final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -138,11 +138,11 @@ public class TeraFast extends AbstractTransform implements ITransform {
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public boolean init( final TransformMetaInterface smi, final ITransformData sdi ) {
+  public boolean init() {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
     simpleDateFormat = new SimpleDateFormat( FastloadControlBuilder.DEFAULT_DATE_FORMAT );
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         verifyDatabaseConnection();
       } catch ( HopException ex ) {
@@ -161,7 +161,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public boolean processRow( final TransformMetaInterface smi, final ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
 
@@ -415,7 +415,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public void dispose( final TransformMetaInterface smi, final ITransformData sdi ) {
+  public void.dispose() {
     this.meta = (TeraFastMeta) smi;
     // this.data = (GenericTransformData) sdi;
 
@@ -442,7 +442,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
       logError( "Unexpected error encountered while finishing the fastload process", e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

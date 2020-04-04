@@ -149,7 +149,7 @@ public class WebService extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( TransformMetaInterface metaInterface, ITransformData dataInterface ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (WebServiceMeta) metaInterface;
 
     // if a URL is not specified, throw an exception
@@ -497,21 +497,21 @@ public class WebService extends BaseTransform implements ITransform {
     return httpClient;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (WebServiceMeta) smi;
     data = (WebServiceData) sdi;
 
     data.indexMap = new Hashtable<String, Integer>();
     data.realUrl = environmentSubstitute( meta.getUrl() );
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (WebServiceMeta) smi;
     data = (WebServiceData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private String readStringFromInputStream( InputStream is, String encoding ) throws HopTransformException {

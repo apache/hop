@@ -281,9 +281,9 @@ public class SetVariableMeta extends BaseTransformMeta implements TransformMetaI
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SetVariable( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SetVariable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

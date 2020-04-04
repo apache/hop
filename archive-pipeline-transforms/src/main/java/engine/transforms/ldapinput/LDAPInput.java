@@ -55,12 +55,12 @@ public class LDAPInput extends BaseTransform implements ITransform {
   private LDAPInputMeta meta;
   private LDAPInputData data;
 
-  public LDAPInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public LDAPInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     if ( !data.dynamic ) {
       if ( first ) {
@@ -404,11 +404,11 @@ public class LDAPInput extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (LDAPInputMeta) smi;
     data = (LDAPInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.rownr = 1L;
       // Get multi valued field separator
       data.multi_valuedFieldSeparator = environmentSubstitute( meta.getMultiValuedSeparator() );
@@ -434,7 +434,7 @@ public class LDAPInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (LDAPInputMeta) smi;
     data = (LDAPInputData) sdi;
     if ( data.connection != null ) {
@@ -447,7 +447,7 @@ public class LDAPInput extends BaseTransform implements ITransform {
     }
     data.attributesBinary = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

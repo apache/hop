@@ -300,9 +300,9 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return Optional.empty();
   }
 
-  public FilterRows createTransform( TransformMeta transformMeta, FilterRowsData iTransformData, int cnr, PipelineMeta tr,
+  public FilterRows createTransform( TransformMeta transformMeta, FilterRowsData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new FilterRows( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new FilterRows( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public FilterRowsData getTransformData() {

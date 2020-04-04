@@ -30,8 +30,8 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResult;
 
 public class RecordsFromStream extends RowsFromResult {
   public RecordsFromStream( final TransformMeta transformMeta,
-                            final ITransformData iTransformData, final int copyNr,
+                            final ITransformData data, final int copyNr,
                             final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 }

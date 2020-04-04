@@ -133,7 +133,7 @@ public class TableOutputTest {
 
     doReturn( null ).when( tableOutputSpy ).getRow();
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertFalse( result );
     verify( tableOutputSpy ).truncateTable();
@@ -145,7 +145,7 @@ public class TableOutputTest {
 
     doReturn( null ).when( tableOutputSpy ).getRow();
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertFalse( result );
     verify( tableOutputSpy, never() ).truncateTable();
@@ -158,7 +158,7 @@ public class TableOutputTest {
     doReturn( row ).when( tableOutputSpy ).getRow();
 
     try {
-      boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+      boolean result = tableOutputSpy.processRow();
     } catch ( NullPointerException npe ) {
       // not everything is set up to process an entire row, but we don't need that for this test
     }
@@ -173,7 +173,7 @@ public class TableOutputTest {
     tableOutputSpy.first = false;
     doReturn( null ).when( tableOutputSpy ).writeToTable( any( IRowMeta.class ), any( row.getClass() ) );
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertTrue( result );
     verify( tableOutputSpy, never() ).truncateTable();
@@ -199,7 +199,7 @@ public class TableOutputTest {
     //Will cause the Hop Exception
     when( dbInterface.supportsStandardTableOutput() ).thenReturn( false );
 
-    tableOutputSpy.init( meta, data );
+    tableOutputSpy.init();
 
     HopException ke = new HopException( unsupportedTableOutputMessage );
     verify( tableOutputSpy, times( 1 ) ).logError( "An error occurred intialising this transform: " + ke.getMessage() );

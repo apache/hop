@@ -53,9 +53,9 @@ public class Delete extends BaseTransform implements ITransform {
   private DeleteMeta meta;
   private DeleteData data;
 
-  public Delete( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Delete( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void deleteValues( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -86,7 +86,7 @@ public class Delete extends BaseTransform implements ITransform {
     incrementLinesUpdated();
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 
@@ -212,11 +212,11 @@ public class Delete extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "Delete.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -248,7 +248,7 @@ public class Delete extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DeleteMeta) smi;
     data = (DeleteData) sdi;
 
@@ -270,7 +270,7 @@ public class Delete extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

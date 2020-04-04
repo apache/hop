@@ -354,9 +354,9 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements Transfo
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SecretKeyGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SecretKeyGenerator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -122,8 +122,8 @@ public class FieldSplitter_EmptyStringVsNull_Test {
   private FieldSplitter createAndInitTransform( FieldSplitterMeta meta, FieldSplitterData data ) throws Exception {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
 
-    FieldSplitter transform = new FieldSplitter( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );
-    transform.init( meta, data );
+    FieldSplitter transform = new FieldSplitter( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    transform.init();
     return transform;
   }
 }

@@ -230,8 +230,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param pipelineMeta         The pipeline info
    * @param pipeline             The launching pipeline
    */
-  ITransform createTransform( TransformMeta transformMeta, Data iTransformData, int copyNr,
-                              PipelineMeta pipelineMeta, Pipeline pipeline );
+  ITransform createTransform( TransformMeta transformMeta, Data data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline );
 
   /**
    * Get a new instance of the appropriate data class. This data class implements the ITransformData. It basically

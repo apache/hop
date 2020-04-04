@@ -62,9 +62,9 @@ public class CloneRowTest {
   @Test( expected = HopException.class )
   public void nullNrCloneField() throws Exception {
     CloneRow transform =
-      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      new CloneRow( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
-    transform.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+    transform.init();
 
     IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.getInteger( any( Object[].class ), anyInt() ) ).thenReturn( null );
@@ -73,9 +73,9 @@ public class CloneRowTest {
     when( inputRowSet.getRowMeta() ).thenReturn( inputRowMeta );
     transform.setInputRowSets( Collections.singletonList( inputRowSet ) );
 
-    when( transformMockHelper.processRowsTransformMetaInterface.isNrCloneInField() ).thenReturn( true );
-    when( transformMockHelper.processRowsTransformMetaInterface.getNrCloneField() ).thenReturn( "field" );
+    when( transformMockHelper.iTransformMeta.isNrCloneInField() ).thenReturn( true );
+    when( transformMockHelper.iTransformMeta.getNrCloneField() ).thenReturn( "field" );
 
-    transform.processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
+    transform.processRow();
   }
 }

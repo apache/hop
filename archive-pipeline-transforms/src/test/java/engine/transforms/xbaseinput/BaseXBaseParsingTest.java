@@ -56,7 +56,7 @@ public class BaseXBaseParsingTest extends BaseParsingTest<XBaseInputMeta, XBaseI
     meta.setDbfFileName( fo.getName().getPath() );
 
     transform = new XBaseInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

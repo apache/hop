@@ -63,9 +63,9 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
   private FuzzyMatchMeta meta;
   private FuzzyMatchData data;
 
-  public FuzzyMatch( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FuzzyMatch( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean readLookupValues() throws HopException {
@@ -454,7 +454,7 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
 
@@ -522,11 +522,11 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       // Check lookup and main stream field
       if ( Utils.isEmpty( meta.getMainStreamField() ) ) {
@@ -617,11 +617,11 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (FuzzyMatchMeta) smi;
     data = (FuzzyMatchData) sdi;
     data.look.clear();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

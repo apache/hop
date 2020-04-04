@@ -54,15 +54,13 @@ import java.util.List;
  * @author Samatar
  * @since 20-06-2007
  */
-public class LoadFileInput extends BaseTransform implements ITransform {
+public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData> implements ITransform<LoadFileInputMeta, LoadFileInputData> {
+
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  LoadFileInputMeta meta;
-  LoadFileInputData data;
-
-  public LoadFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public LoadFileInput( TransformMeta transformMeta, LoadFileInputMeta meta, LoadFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void addFileToResultFilesName( FileObject file ) throws Exception {
@@ -214,7 +212,7 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     try {
       // Grab a row
       Object[] outputRowData = getOneRow();
@@ -461,11 +459,9 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (LoadFileInputMeta) smi;
-    data = (LoadFileInputData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( !meta.getIsInFields() ) {
         try {
           data.files = meta.getFiles( this );
@@ -493,9 +489,8 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (LoadFileInputMeta) smi;
-    data = (LoadFileInputData) sdi;
+  public void dispose(){
+
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -503,7 +498,7 @@ public class LoadFileInput extends BaseTransform implements ITransform {
         // Ignore errors
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   protected Object[] copyOrCloneArrayFromLoadFile( Object[] outputRowData, Object[] readrow ) {

@@ -517,9 +517,9 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public DatabaseJoin createTransform( TransformMeta transformMeta, DatabaseJoinData iTransformData, int cnr, PipelineMeta tr,
+  public DatabaseJoin createTransform( TransformMeta transformMeta, DatabaseJoinData data, int cnr, PipelineMeta tr,
                                        Pipeline pipeline ) {
-    return new DatabaseJoin( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new DatabaseJoin( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

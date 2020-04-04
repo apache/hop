@@ -53,12 +53,12 @@ public class PropertyOutput extends BaseTransform implements ITransform {
   private PropertyOutputMeta meta;
   private PropertyOutputData data;
 
-  public PropertyOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public PropertyOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (PropertyOutputMeta) smi;
     data = (PropertyOutputData) sdi;
 
@@ -264,23 +264,23 @@ public class PropertyOutput extends BaseTransform implements ITransform {
     return meta.buildFilename( this, getCopy() );
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (PropertyOutputMeta) smi;
     data = (PropertyOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (PropertyOutputMeta) smi;
     data = (PropertyOutputData) sdi;
     closeFile();
 
     setOutputDone();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

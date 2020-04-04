@@ -357,13 +357,13 @@ public class MemoryGroupByAggregationTest {
     doReturn( rowMeta ).when( transform ).getInputRowMeta();
     for ( Object[] row : getRows() ) {
       doReturn( row ).when( transform ).getRow();
-      assertThat( transform.processRow( meta, data ), is( true ) );
+      assertThat( transform.init() );
     }
     verify( transform, never() ).putRow( (IRowMeta) any(), (Object[]) any() );
 
     // Mark stop
     doReturn( null ).when( transform ).getRow();
-    assertThat( transform.processRow( meta, data ), is( false ) );
+    assertThat( transform.init() );
     verify( transform ).setOutputDone();
 
     // Collect output

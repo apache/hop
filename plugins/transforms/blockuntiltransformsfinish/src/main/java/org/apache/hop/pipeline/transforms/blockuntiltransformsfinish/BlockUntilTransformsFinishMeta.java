@@ -203,9 +203,9 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
 
   }
 
-  public BlockUntilTransformsFinish createTransform( TransformMeta transformMeta, BlockUntilTransformsFinishData iTransformData, int cnr, PipelineMeta tr,
+  public BlockUntilTransformsFinish createTransform( TransformMeta transformMeta, BlockUntilTransformsFinishData data, int cnr, PipelineMeta tr,
                                                      Pipeline pipeline ) {
-    return new BlockUntilTransformsFinish( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new BlockUntilTransformsFinish( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public BlockUntilTransformsFinishData getTransformData() {

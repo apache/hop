@@ -98,8 +98,8 @@ public class DeleteMetaTest implements IInitializerInterface<ITransformMeta> {
 
   private TransformMeta transformMeta;
   private Delete del;
-  private DeleteData dd;
-  private DeleteMeta dmi;
+  private DeleteData data;
+  private DeleteMeta meta;
 
 
   @BeforeClass
@@ -116,36 +116,36 @@ public class DeleteMetaTest implements IInitializerInterface<ITransformMeta> {
     vars.put( "max.sz", "10" );
     pipelineMeta.injectVariables( vars );
 
-    dmi = new DeleteMeta();
-    dd = new DeleteData();
+    meta = new DeleteMeta();
+    data = new DeleteData();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
-    String deletePid = plugReg.getPluginId( TransformPluginType.class, dmi );
+    String deletePid = plugReg.getPluginId( TransformPluginType.class, meta );
 
-    transformMeta = new TransformMeta( deletePid, "delete", dmi );
+    transformMeta = new TransformMeta( deletePid, "delete", meta );
     Pipeline pipeline = new Pipeline( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
-    del = new Delete( transformMeta, dd, 1, pipelineMeta, pipeline );
+    del = new Delete( transformMeta, meta, data, 1, pipelineMeta, pipeline );
     del.copyVariablesFrom( pipelineMeta );
   }
 
   @Test
   public void testCommitCountFixed() {
-    dmi.setCommitSize( "100" );
-    assertTrue( dmi.getCommitSize( del ) == 100 );
+    meta.setCommitSize( "100" );
+    assertTrue( meta.getCommitSize( del ) == 100 );
   }
 
   @Test
   public void testCommitCountVar() {
-    dmi.setCommitSize( "${max.sz}" );
-    assertTrue( dmi.getCommitSize( del ) == 10 );
+    meta.setCommitSize( "${max.sz}" );
+    assertTrue( meta.getCommitSize( del ) == 10 );
   }
 
   @Test
   public void testCommitCountMissedVar() {
-    dmi.setCommitSize( "missed-var" );
+    meta.setCommitSize( "missed-var" );
     try {
-      dmi.getCommitSize( del );
+      meta.getCommitSize( del );
       fail();
     } catch ( Exception ex ) {
     }

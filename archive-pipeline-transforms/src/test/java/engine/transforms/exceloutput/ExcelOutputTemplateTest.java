@@ -70,10 +70,10 @@ public class ExcelOutputTemplateTest {
     ExcelOutput excelOutput =
       new ExcelOutput( helper.transformMeta, helper.iTransformData, 0, helper.pipelineMeta, helper.pipeline );
     ExcelOutputMeta meta = createTransformMeta();
-    excelOutput.init( meta, helper.initTransformDataInterface );
+    excelOutput.init();
     Assert.assertEquals( "Transform init error.", 0, excelOutput.getErrors() );
     helper.initTransformDataInterface.formats = new HashMap<>();
-    excelOutput.dispose( meta, helper.initTransformDataInterface );
+    excelOutput.dispose();
     Assert.assertEquals( "Transform dispose error", 0, excelOutput.getErrors() );
   }
 

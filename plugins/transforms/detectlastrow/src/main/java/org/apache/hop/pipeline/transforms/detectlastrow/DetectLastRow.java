@@ -26,12 +26,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -40,23 +39,18 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 03June2008
  */
-public class DetectLastRow extends BaseTransform implements ITransform {
+public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> implements ITransform<DetectLastRowMeta, DetectLastRowData> {
+
   private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
-
-  private DetectLastRowMeta meta;
-
-  private DetectLastRowData data;
 
   private Object[] previousRow;
 
-  public DetectLastRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DetectLastRow( TransformMeta transformMeta, DetectLastRowMeta meta, DetectLastRowData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DetectLastRowMeta) smi;
-    data = (DetectLastRowData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
 
@@ -124,11 +118,9 @@ public class DetectLastRow extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DetectLastRowMeta) smi;
-    data = (DetectLastRowData) sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "DetectLastRow.Error.ResultFieldMissing" ) );
         return false;
@@ -137,13 +129,6 @@ public class DetectLastRow extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DetectLastRowMeta) smi;
-    data = (DetectLastRowData) sdi;
-
-    super.dispose( smi, sdi );
   }
 
 }

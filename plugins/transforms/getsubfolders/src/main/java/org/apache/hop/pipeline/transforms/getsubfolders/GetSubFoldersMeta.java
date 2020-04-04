@@ -455,9 +455,9 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
 
   }
 
-  public GetSubFolders createTransform( TransformMeta transformMeta, GetSubFoldersData iTransformData, int cnr,
+  public GetSubFolders createTransform( TransformMeta transformMeta, GetSubFoldersData data, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetSubFolders( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GetSubFolders( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public GetSubFoldersData getTransformData() {

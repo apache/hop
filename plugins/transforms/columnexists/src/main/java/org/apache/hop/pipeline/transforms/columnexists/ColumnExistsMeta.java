@@ -305,9 +305,9 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public ColumnExists createTransform( TransformMeta transformMeta, ColumnExistsData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ColumnExists createTransform( TransformMeta transformMeta, ColumnExistsData data, int cnr, PipelineMeta pipelineMeta,
                                        Pipeline pipeline ) {
-    return new ColumnExists( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ColumnExists( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

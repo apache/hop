@@ -60,12 +60,12 @@ public class SFTPPut extends BaseTransform implements ITransform {
   private SFTPPutMeta meta;
   private SFTPPutData data;
 
-  public SFTPPut( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SFTPPut( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SFTPPutMeta) smi;
     data = (SFTPPutData) sdi;
 
@@ -413,7 +413,7 @@ public class SFTPPut extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (SFTPPutMeta) smi;
     data = (SFTPPutData) sdi;
 
@@ -425,6 +425,6 @@ public class SFTPPut extends BaseTransform implements ITransform {
     } catch ( Exception e ) {
       // Ignore errors
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

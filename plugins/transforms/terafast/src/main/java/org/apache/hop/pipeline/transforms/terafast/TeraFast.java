@@ -34,6 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.AbstractTransform;
 import org.apache.hop.core.util.ConfigurableStreamLogger;
+import org.apache.hop.core.util.GenericTransformData;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -54,7 +55,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  */
-public class TeraFast extends AbstractTransform implements ITransform {
+public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> implements ITransform<TeraFastMeta, GenericTransformData> {
 
   private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -74,18 +75,9 @@ public class TeraFast extends AbstractTransform implements ITransform {
 
   private SimpleDateFormat simpleDateFormat;
 
-  /**
-   * Constructor.
-   *
-   * @param transformMeta          the transformMeta.
-   * @param iTransformData the iTransformData.
-   * @param copyNr            the copyNr.
-   * @param pipelineMeta         the pipelineMeta.
-   * @param pipeline             the pipeline.
-   */
-  public TeraFast( final TransformMeta transformMeta, final ITransformData iTransformData, final int copyNr,
+  public TeraFast( final TransformMeta transformMeta, final TeraFastMeta meta, final GenericTransformData data, final int copyNr,
                    final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -128,17 +120,10 @@ public class TeraFast extends AbstractTransform implements ITransform {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransform#init(ITransformMeta,
-   * ITransformData)
-   */
   @Override
-  public boolean init( final ITransformMeta smi, final ITransformData sdi ) {
-    this.meta = (TeraFastMeta) smi;
+  public boolean init() {
     simpleDateFormat = new SimpleDateFormat( FastloadControlBuilder.DEFAULT_DATE_FORMAT );
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         verifyDatabaseConnection();
       } catch ( HopException ex ) {
@@ -150,15 +135,8 @@ public class TeraFast extends AbstractTransform implements ITransform {
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransform#processRow(ITransformMeta,
-   * ITransformData)
-   */
   @Override
-  public boolean processRow( final ITransformMeta smi, final ITransformData sdi ) throws HopException {
-    this.meta = (TeraFastMeta) smi;
+  public boolean processRow( ) throws HopException {
 
     Object[] row = getRow();
     if ( row == null ) {
@@ -402,15 +380,8 @@ public class TeraFast extends AbstractTransform implements ITransform {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransform#dispose(ITransformMeta,
-   * ITransformData)
-   */
   @Override
-  public void dispose( final ITransformMeta smi, final ITransformData sdi ) {
-    this.meta = (TeraFastMeta) smi;
+  public void dispose() {
 
     try {
       if ( this.fastload != null ) {
@@ -435,7 +406,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
       logError( "Unexpected error encountered while finishing the fastload process", e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

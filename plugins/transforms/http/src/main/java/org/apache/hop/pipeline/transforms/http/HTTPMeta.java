@@ -496,9 +496,9 @@ public class HTTPMeta extends BaseTransformMeta implements ITransformMeta<HTTP, 
     remarks.add( cr );
   }
 
-  public HTTP createTransform( TransformMeta transformMeta, HTTPData iTransformData, int cnr,
+  public HTTP createTransform( TransformMeta transformMeta, HTTPData data, int cnr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new HTTP( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new HTTP( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public HTTPData getTransformData() {

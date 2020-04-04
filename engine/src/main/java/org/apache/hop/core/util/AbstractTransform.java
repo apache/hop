@@ -26,12 +26,13 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
-public abstract class AbstractTransform extends BaseTransform {
+public abstract class AbstractTransform<Meta extends ITransformMeta, Data extends ITransformData> extends BaseTransform<Meta, Data> {
 
   /**
    * Constant for unexpected error.
@@ -43,15 +44,16 @@ public abstract class AbstractTransform extends BaseTransform {
   /**
    * Constructor.
    *
-   * @param transformMeta          the transformMeta.
-   * @param iTransformData the iTransformData.
+   * @param transformMeta the transformMeta.
+   * @param meta the transform specific metadata
+   * @param data the transform data.
    * @param copyNr            the copyNr.
    * @param pipelineMeta         the pipelineMeta.
    * @param pipeline             the transaction.
    */
-  public AbstractTransform( final TransformMeta transformMeta, final ITransformData iTransformData, final int copyNr,
+  public AbstractTransform( final TransformMeta transformMeta, final Meta meta, final Data data, final int copyNr,
                             final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**

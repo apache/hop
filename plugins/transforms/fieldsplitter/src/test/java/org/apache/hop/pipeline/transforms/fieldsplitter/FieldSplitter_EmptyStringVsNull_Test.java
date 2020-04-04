@@ -108,15 +108,15 @@ public class FieldSplitter_EmptyStringVsNull_Test {
       .doReturn( new String[] { null } )
       .when( transform ).getRow();
 
-    List<Object[]> actual = PipelineTestingUtil.execute( transform, meta, data, 3, false );
+    List<Object[]> actual = PipelineTestingUtil.execute( transform, 3, false );
     PipelineTestingUtil.assertResult( expected, actual );
   }
 
   private FieldSplitter createAndInitTransform( FieldSplitterMeta meta, FieldSplitterData data ) throws Exception {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
 
-    FieldSplitter transform = new FieldSplitter( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );
-    transform.init( meta, data );
+    FieldSplitter transform = new FieldSplitter( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    transform.init();
     return transform;
   }
 }

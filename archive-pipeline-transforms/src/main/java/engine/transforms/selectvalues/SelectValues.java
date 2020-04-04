@@ -58,9 +58,9 @@ public class SelectValues extends BaseTransform implements ITransform {
   private SelectValuesMeta meta;
   private SelectValuesData data;
 
-  public SelectValues( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SelectValues( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -336,7 +336,7 @@ public class SelectValues extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SelectValuesMeta) smi;
     data = (SelectValuesData) sdi;
 
@@ -416,11 +416,11 @@ public class SelectValues extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SelectValuesMeta) smi;
     data = (SelectValuesData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.firstselect = true;
       data.firstdeselect = true;
       data.firstmetadata = true;

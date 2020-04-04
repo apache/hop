@@ -119,7 +119,7 @@ public class StringOperationsTest {
 
   @Test
   public void testProcessBinaryInput() throws HopException {
-    StringOperations transform = new StringOperations( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    StringOperations transform = new StringOperations( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
 
     RowSet outputRowSet = new QueueRowSet();
@@ -128,12 +128,12 @@ public class StringOperationsTest {
     StringOperationsMeta meta = mockTransformMeta();
     StringOperationsData data = mockTransformData();
 
-    transform.init( meta, data );
+    transform.init();
 
     boolean processResult;
 
     do {
-      processResult = transform.processRow( meta, data );
+      processResult = transform.init();
     } while ( processResult );
 
     Assert.assertTrue( outputRowSet.isDone() );

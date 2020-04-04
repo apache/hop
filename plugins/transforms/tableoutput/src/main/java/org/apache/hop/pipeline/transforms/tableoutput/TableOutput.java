@@ -56,20 +56,16 @@ import java.util.List;
  * @author Matt Casters
  * @since 6-apr-2003
  */
-public class TableOutput extends BaseTransform implements ITransform {
+public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> implements ITransform<TableOutputMeta, TableOutputData> {
+
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private TableOutputMeta meta;
-  private TableOutputData data;
-
-  public TableOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TableOutput( TransformMeta transformMeta, TableOutputMeta meta, TableOutputData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (TableOutputMeta) smi;
-    data = (TableOutputData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if ( r == null ) { // no more input to be expected...
@@ -467,11 +463,9 @@ public class TableOutput extends BaseTransform implements ITransform {
     data.batchBuffer.clear();
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (TableOutputMeta) smi;
-    data = (TableOutputData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         data.commitSize = Integer.parseInt( environmentSubstitute( meta.getCommitSize() ) );
 
@@ -571,9 +565,7 @@ public class TableOutput extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (TableOutputMeta) smi;
-    data = (TableOutputData) sdi;
+  public void dispose(){
 
     if ( data.db != null ) {
       try {
@@ -630,33 +622,7 @@ public class TableOutput extends BaseTransform implements ITransform {
 
         data.db.disconnect();
       }
-      super.dispose( smi, sdi );
+      super.dispose();
     }
-  }
-
-  /**
-   * Allows subclasses of TableOuput to get hold of the transform meta
-   *
-   * @return
-   */
-  protected TableOutputMeta getMeta() {
-    return meta;
-  }
-
-  /**
-   * Allows subclasses of TableOutput to get hold of the data object
-   *
-   * @return
-   */
-  protected TableOutputData getData() {
-    return data;
-  }
-
-  protected void setMeta( TableOutputMeta meta ) {
-    this.meta = meta;
-  }
-
-  protected void setData( TableOutputData data ) {
-    this.data = data;
   }
 }

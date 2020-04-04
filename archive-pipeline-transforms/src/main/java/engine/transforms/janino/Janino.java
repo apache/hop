@@ -54,13 +54,13 @@ public class Janino extends BaseTransform implements ITransform {
   private JaninoMeta meta;
   private JaninoData data;
 
-  public Janino( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Janino( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (JaninoMeta) smi;
     data = (JaninoData) sdi;
 
@@ -222,11 +222,11 @@ public class Janino extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (JaninoMeta) smi;
     data = (JaninoData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
 }

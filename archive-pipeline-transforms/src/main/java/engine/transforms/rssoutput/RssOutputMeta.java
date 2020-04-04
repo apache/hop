@@ -1150,8 +1150,8 @@ public class RssOutputMeta extends BaseTransformMeta implements TransformMetaInt
     this.channelcopyright = channelcopyright;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new RssOutput( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new RssOutput( transformMeta, this, data, cnr, tr, pipeline );
   }
 }

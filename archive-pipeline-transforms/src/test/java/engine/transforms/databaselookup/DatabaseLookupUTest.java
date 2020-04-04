@@ -122,8 +122,8 @@ public class DatabaseLookupUTest {
 
     DatabaseLookup lookup = spyLookup( mockHelper, db, meta.getDatabaseMeta() );
 
-    lookup.init( meta, data );
-    lookup.processRow( meta, data );
+    lookup.init();
+    lookup.init();
 
     verify( db ).getLookup( any( PreparedStatement.class ), anyBoolean(), eq( false ) );
   }
@@ -295,7 +295,7 @@ public class DatabaseLookupUTest {
       any( IMetaStore.class ) );
 
 
-    look.init( meta, lookData );
+    look.init();
     assertTrue( lookData.allEquals ); // Test for fix on PDI-15202
 
   }
@@ -325,8 +325,8 @@ public class DatabaseLookupUTest {
     add1[ 0 ] = 10L;
     Object[] add2 = new Object[ 1 ];
     add2[ 0 ] = 20L;
-    lookData.cache.storeRowInCache( mockHelper.processRowsTransformMetaInterface, lookupMeta, kgsRow1, add1 );
-    lookData.cache.storeRowInCache( mockHelper.processRowsTransformMetaInterface, lookupMeta, kgsRow2, add2 );
+    lookData.cache.storeRowInCache( mockHelper.iTransformMeta, lookupMeta, kgsRow1, add1 );
+    lookData.cache.storeRowInCache( mockHelper.iTransformMeta, lookupMeta, kgsRow2, add2 );
 
     Object[] rowToCache = new Object[ 1 ];
     rowToCache[ 0 ] = 0L;
@@ -363,7 +363,7 @@ public class DatabaseLookupUTest {
     DatabaseLookupData data = new DatabaseLookupData();
 
     DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta );
-    transform.init( meta, data );
+    transform.init();
 
 
     data.db = db;
@@ -375,7 +375,7 @@ public class DatabaseLookupUTest {
       data.allEquals = false;
       data.conditions = new int[] { DatabaseLookupMeta.CONDITION_LT };
     }
-    transform.processRow( meta, data );
+    transform.init();
 
     return data;
   }
@@ -420,14 +420,14 @@ public class DatabaseLookupUTest {
     DatabaseLookupData data = new DatabaseLookupData();
 
     DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta );
-    transform.init( meta, data );
+    transform.init();
 
     data.db = db;
     data.keytypes = new int[] { IValueMeta.TYPE_INTEGER };
     data.allEquals = true;
     data.conditions = new int[] { DatabaseLookupMeta.CONDITION_EQ };
 
-    transform.processRow( meta, data );
+    transform.init();
 
     data.lookupMeta = new RowMeta();
     data.lookupMeta.addValueMeta( new ValueMetaInteger() );
@@ -437,8 +437,8 @@ public class DatabaseLookupUTest {
   }
 
   public class MockDatabaseLookup extends DatabaseLookup {
-    public MockDatabaseLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    public MockDatabaseLookup( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

@@ -62,16 +62,16 @@ public class DummyTest {
   public void testDummyDoesntWriteOutputWithoutInputRow() throws HopException {
     Dymmy dummy =
       new Dymmy(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
-    dummy.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+    dummy.processRow();
     RowSet rowSet = transformMockHelper.getMockInputRowSet();
     IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( rowSet.getRowMeta() ).thenReturn( inputRowMeta );
     dummy.addRowSetToInputRowSets( rowSet );
     RowSet outputRowSet = mock( RowSet.class );
     dummy.addRowSetToOutputRowSets( outputRowSet );
-    dummy.processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
+    dummy.processRow();
     verify( inputRowMeta, never() ).cloneRow( any( Object[].class ) );
     verify( outputRowSet, never() ).putRow( any( IRowMeta.class ), any( Object[].class ) );
   }
@@ -80,9 +80,9 @@ public class DummyTest {
   public void testDymmyWritesOutputWithInputRow() throws HopException {
     Dymmy dummy =
       new Dymmy(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
-    dummy.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+    dummy.processRow();
     Object[] row = new Object[] { "abcd" };
     RowSet rowSet = transformMockHelper.getMockInputRowSet( row );
     IRowMeta inputRowMeta = mock( IRowMeta.class );
@@ -92,7 +92,7 @@ public class DummyTest {
     RowSet outputRowSet = mock( RowSet.class );
     dummy.addRowSetToOutputRowSets( outputRowSet );
     when( outputRowSet.putRow( inputRowMeta, row ) ).thenReturn( true );
-    dummy.processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
+    dummy.processRow();
     verify( outputRowSet, times( 1 ) ).putRow( inputRowMeta, row );
   }
 }

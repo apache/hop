@@ -58,8 +58,6 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "Pdi15270Test" );
-    csvInput = new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-      transformMockHelper.pipeline );
   }
 
   @After
@@ -126,14 +124,15 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
     try {
       CsvInputMeta meta = createMeta( tmp, createInputFileFields( "f1", "f2", "f3" ) );
       CsvInputData data = new CsvInputData();
-      csvInput.init( meta, data );
+      csvInput = new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+      csvInput.init();
 
       csvInput.addRowSetToOutputRowSets( output );
 
       try {
-        csvInput.processRow( meta, data );
+        csvInput.processRow();
       } finally {
-        csvInput.dispose( meta, data );
+        csvInput.dispose();
       }
 
     } finally {

@@ -45,20 +45,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 30-06-2008
  */
 
-public class BlockUntilTransformsFinish extends BaseTransform implements ITransform {
+public class BlockUntilTransformsFinish
+  extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData>
+  implements ITransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
+
   private static Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
 
-  private BlockUntilTransformsFinishMeta meta;
-  private BlockUntilTransformsFinishData data;
-
-  public BlockUntilTransformsFinish( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public BlockUntilTransformsFinish( TransformMeta transformMeta, BlockUntilTransformsFinishMeta meta, BlockUntilTransformsFinishData data, int copyNr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (BlockUntilTransformsFinishMeta) smi;
-    data = (BlockUntilTransformsFinishData) sdi;
+  @Override
+  public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
@@ -142,11 +141,9 @@ public class BlockUntilTransformsFinish extends BaseTransform implements ITransf
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (BlockUntilTransformsFinishMeta) smi;
-    data = (BlockUntilTransformsFinishData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  @Override
+  public boolean init() {
+    if ( super.init() ) {
       return true;
     }
     return false;

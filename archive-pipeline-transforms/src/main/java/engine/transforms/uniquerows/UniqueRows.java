@@ -47,15 +47,15 @@ public class UniqueRows extends BaseTransform implements ITransform {
   private UniqueRowsMeta meta;
   private UniqueRowsData data;
 
-  public UniqueRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public UniqueRows( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (UniqueRowsMeta) getTransformMeta().getTransformMetaInterface();
     data = (UniqueRowsData) iTransformData; // create new data object.
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (UniqueRowsMeta) smi;
     data = (UniqueRowsData) sdi;
 
@@ -155,11 +155,11 @@ public class UniqueRows extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (UniqueRowsMeta) smi;
     data = (UniqueRowsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       data.sendDuplicateRows = getTransformMeta().getTransformErrorMeta() != null && meta.supportsErrorHandling();
       return true;

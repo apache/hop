@@ -300,9 +300,9 @@ public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  public RowGenerator createTransform( TransformMeta transformMeta, RowGeneratorData iTransformData, int cnr,
+  public RowGenerator createTransform( TransformMeta transformMeta, RowGeneratorData data, int cnr,
                                        PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RowGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new RowGenerator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public RowGeneratorData getTransformData() {

@@ -316,9 +316,9 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements TransformM
    * @return a <code>ITransform</code> value
    */
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new UnivariateStats( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new UnivariateStats( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   /**

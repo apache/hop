@@ -55,14 +55,14 @@ public class ScriptDummy implements ITransform {
     this.outputRowMeta = outputRowMeta;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     return false;
   }
 
   public void addRowListener( RowListener rowListener ) {
   }
 
-  public void dispose( TransformMetaInterface sii, ITransformData sdi ) {
+  public void.dispose() {
   }
 
   public long getErrors() {

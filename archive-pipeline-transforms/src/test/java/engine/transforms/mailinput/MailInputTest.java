@@ -66,7 +66,7 @@ public class MailInputTest {
     when( meta.getFirstIMAPMails() ).thenReturn( "2" );
     when( meta.getFirstMails() ).thenReturn( "3" );
 
-    transform.init( meta, data );
+    transform.init();
 
     Assert.assertEquals( "Row Limit is set up to 2 rows.", 2, data.rowlimit );
   }
@@ -85,7 +85,7 @@ public class MailInputTest {
     when( meta.getFirstIMAPMails() ).thenReturn( "2" );
     when( meta.getFirstMails() ).thenReturn( "3" );
 
-    transform.init( meta, data );
+    transform.init();
 
     Assert.assertEquals( "Row Limit is set up to 3 rows.", 3, data.rowlimit );
   }
@@ -106,7 +106,7 @@ public class MailInputTest {
 
     when( meta.getRowLimit() ).thenReturn( "5" );
 
-    transform.init( meta, data );
+    transform.init();
 
     Assert.assertEquals( "Row Limit is set up to 5 rows as the Limit has priority.", 5, data.rowlimit );
   }
@@ -125,7 +125,7 @@ public class MailInputTest {
     when( meta.getFirstIMAPMails() ).thenReturn( "2" );
     when( meta.getFirstMails() ).thenReturn( "3" );
 
-    transform.init( meta, data );
+    transform.init();
 
     Assert.assertEquals( "Row Limit is set up to 0 rows as the Limit has priority.", 0, data.rowlimit );
   }

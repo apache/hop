@@ -66,15 +66,13 @@ import java.util.Map;
  * @author Matt
  * @since 18-mar-2013
  */
-public class PipelineExecutor extends BaseTransform implements ITransform {
+public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> implements ITransform<PipelineExecutorMeta, PipelineExecutorData> {
+
   private static final Class<?> PKG = PipelineExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
-  private PipelineExecutorMeta meta;
-  private PipelineExecutorData data;
-
-  public PipelineExecutor( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public PipelineExecutor( TransformMeta transformMeta, PipelineExecutorMeta meta, PipelineExecutorData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -82,10 +80,8 @@ public class PipelineExecutor extends BaseTransform implements ITransform {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the PipelineExecutor.
    */
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     try {
-      meta = (PipelineExecutorMeta) smi;
-      setData( (PipelineExecutorData) sdi );
       PipelineExecutorData pipelineExecutorData = getData();
       // Wait for a row...
       Object[] row = getRow();
@@ -453,11 +449,10 @@ public class PipelineExecutor extends BaseTransform implements ITransform {
   }
 
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (PipelineExecutorMeta) smi;
-    setData( (PipelineExecutorData) sdi );
+  public boolean init() {
+
     PipelineExecutorData pipelineExecutorData = getData();
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // First we need to load the mapping (pipeline)
       try {
         pipelineExecutorData.setExecutorPipelineMeta( loadExecutorPipelineMeta() );
@@ -503,14 +498,13 @@ public class PipelineExecutor extends BaseTransform implements ITransform {
     return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getParameters().isInheritingAllVariables() );
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose(){
     PipelineExecutorData pipelineExecutorData = getData();
     pipelineExecutorData.groupBuffer = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData )
-    throws HopException {
+  public void stopRunning() throws HopException {
     if ( getData().getExecutorPipeline() != null ) {
       getData().getExecutorPipeline().stopAll();
     }
@@ -528,15 +522,6 @@ public class PipelineExecutor extends BaseTransform implements ITransform {
 
   public Pipeline getExecutorPipeline() {
     return getData().getExecutorPipeline();
-  }
-
-  @VisibleForTesting
-  PipelineExecutorData getData() {
-    return data;
-  }
-
-  private void setData( PipelineExecutorData data ) {
-    this.data = data;
   }
 
   protected List<String> getLastIncomingFieldValues() {

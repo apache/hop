@@ -69,16 +69,16 @@ public class MemoryGroupBy extends BaseTransform implements ITransform {
   private boolean minNullIsValued = false;
   private boolean compatibilityMode = false;
 
-  public MemoryGroupBy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MemoryGroupBy( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (MemoryGroupByMeta) getTransformMeta().getTransformMetaInterface();
     data = (MemoryGroupByData) iTransformData;
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (MemoryGroupByMeta) smi;
     data = (MemoryGroupByData) sdi;
 
@@ -559,11 +559,11 @@ public class MemoryGroupBy extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (MemoryGroupByMeta) smi;
     data = (MemoryGroupByData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.map = new HashMap<HashEntry, Aggregate>( 5000 );
       return true;
     }
@@ -571,8 +571,8 @@ public class MemoryGroupBy extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
-    super.dispose( smi, sdi );
+  public void.dispose() {
+    super.dispose();
     ( (MemoryGroupByData) sdi ).clear();
   }
 

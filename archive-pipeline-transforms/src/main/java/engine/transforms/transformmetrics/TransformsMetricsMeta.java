@@ -424,9 +424,9 @@ public class TransformsMetricsMeta extends BaseTransformMeta implements Transfor
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new TransformsMetrics( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new TransformsMetrics( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -63,10 +63,10 @@ public class SyslogMessageConcurrentTest {
       SyslogMessageData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       transformMockHelper.logChannelInterface );
-    when( transformMockHelper.processRowsTransformMetaInterface.getServerName() ).thenReturn( "localhost" );
-    when( transformMockHelper.processRowsTransformMetaInterface.getMessageFieldName() ).thenReturn( "message field" );
-    when( transformMockHelper.processRowsTransformMetaInterface.getPort() ).thenReturn( "9988" );
-    when( transformMockHelper.processRowsTransformMetaInterface.getPriority() ).thenReturn( "ERROR" );
+    when( transformMockHelper.iTransformMeta.getServerName() ).thenReturn( "localhost" );
+    when( transformMockHelper.iTransformMeta.getMessageFieldName() ).thenReturn( "message field" );
+    when( transformMockHelper.iTransformMeta.getPort() ).thenReturn( "9988" );
+    when( transformMockHelper.iTransformMeta.getPriority() ).thenReturn( "ERROR" );
   }
 
   @After
@@ -93,8 +93,8 @@ public class SyslogMessageConcurrentTest {
 
     SyslogMessageMeta syslogMessageMeta = null;
 
-    public SyslogMessageTask( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsTransformMetaInterface ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    public SyslogMessageTask( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsTransformMetaInterface ) {
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
       syslogMessageMeta = processRowsTransformMetaInterface;
     }
 
@@ -102,7 +102,7 @@ public class SyslogMessageConcurrentTest {
     public void run() {
       try {
         countDownLatch.await();
-        processRow( syslogMessageMeta, getTransformDataInterface() );
+       .init();
       } catch ( Exception e ) {
         e.printStackTrace();
         numOfErrors.getAndIncrement();
@@ -135,8 +135,8 @@ public class SyslogMessageConcurrentTest {
     when( inputRowMeta.indexOfValue( any() ) ).thenReturn( 0 );
     when( inputRowMeta.getString( any(), eq( 0 ) ) ).thenReturn( testMessage );
     SyslogMessageTask syslogMessage = new SyslogMessageTask( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta,
-      transformMockHelper.pipeline, transformMockHelper.processRowsTransformMetaInterface );
-    syslogMessage.init( transformMockHelper.processRowsTransformMetaInterface, data );
+      transformMockHelper.pipeline, transformMockHelper.iTransformMeta );
+    syslogMessage.init();
     syslogMessage.setInputRowMeta( inputRowMeta );
     return syslogMessage;
   }

@@ -52,12 +52,12 @@ public class SyslogMessage extends BaseTransform implements ITransform {
   private SyslogMessageMeta meta;
   private SyslogMessageData data;
 
-  public SyslogMessage( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SyslogMessage( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SyslogMessageMeta) smi;
     data = (SyslogMessageData) sdi;
 
@@ -127,11 +127,11 @@ public class SyslogMessage extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SyslogMessageMeta) smi;
     data = (SyslogMessageData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       String servername = environmentSubstitute( meta.getServerName() );
 
       // Check target server
@@ -179,7 +179,7 @@ public class SyslogMessage extends BaseTransform implements ITransform {
     return new UDPNetSyslog();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (SyslogMessageMeta) smi;
     data = (SyslogMessageData) sdi;
 
@@ -187,6 +187,6 @@ public class SyslogMessage extends BaseTransform implements ITransform {
       // release resource on syslog
       data.syslog.shutdown();
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

@@ -547,9 +547,9 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements ITransformMeta<HT
 
   }
 
-  public HTTPPOST createTransform( TransformMeta transformMeta, HTTPPOSTData iTransformData, int cnr,
+  public HTTPPOST createTransform( TransformMeta transformMeta, HTTPPOSTData data, int cnr,
                                    PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new HTTPPOST( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new HTTPPOST( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public HTTPPOSTData getTransformData() {

@@ -617,10 +617,11 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   }
 
   @Override
-  public ITransform createTransform( TransformMeta transformMeta, GroupByData iTransformData, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, GroupByData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GroupBy( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GroupBy( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
+
 
   @Override
   public GroupByData getTransformData() {

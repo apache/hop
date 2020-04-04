@@ -81,9 +81,9 @@ public class RowGeneratorUnitTest {
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
     //prepare row generator, substitutes variable by value from pipeline variable space
-    rowGenerator = spy( new RowGenerator( transformMeta, iTransformData, 0, pipelineMeta, pipeline ) );
+    rowGenerator = spy( new RowGenerator( transformMeta, data, 0, pipelineMeta, pipeline ) );
     rowGenerator.initializeVariablesFrom( pipeline );
-    rowGenerator.init( transformMetaInterface, iTransformData );
+    rowGenerator.init();
   }
 
   @Test

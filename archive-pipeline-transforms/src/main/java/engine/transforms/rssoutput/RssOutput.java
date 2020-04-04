@@ -71,12 +71,12 @@ public class RssOutput extends BaseTransform implements ITransform {
   private RssOutputMeta meta;
   private RssOutputData data;
 
-  public RssOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public RssOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
 
@@ -727,18 +727,18 @@ public class RssOutput extends BaseTransform implements ITransform {
     return retval;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       return true;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (RssOutputMeta) smi;
     data = (RssOutputData) sdi;
     if ( data.document != null ) {
@@ -751,7 +751,7 @@ public class RssOutput extends BaseTransform implements ITransform {
       data.channel = null;
     }
     setOutputDone();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

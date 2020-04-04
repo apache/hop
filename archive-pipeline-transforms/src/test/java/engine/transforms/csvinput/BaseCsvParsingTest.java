@@ -65,7 +65,7 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
     }
 
     transform = new CsvInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

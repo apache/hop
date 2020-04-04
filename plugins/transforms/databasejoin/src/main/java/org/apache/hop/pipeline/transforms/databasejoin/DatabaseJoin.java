@@ -45,15 +45,12 @@ import java.sql.ResultSet;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DatabaseJoin extends BaseTransform implements ITransform {
+public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData> implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
+
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DatabaseJoinMeta meta;
-  private DatabaseJoinData data;
-
-  public DatabaseJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
-                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public DatabaseJoin( TransformMeta transformMeta, DatabaseJoinMeta meta, DatabaseJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -141,9 +138,7 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     data.db.closeQuery( rs );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DatabaseJoinMeta) smi;
-    data = (DatabaseJoinData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -190,12 +185,10 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
    * <p>
    * To cancel a prepared statement we need a valid database connection which we do not have if disposed has already been called
    */
-  public synchronized void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    if ( this.isStopped() || sdi.isDisposed() ) {
+  public synchronized void stopRunning() throws HopException {
+    if ( this.isStopped() || data.isDisposed() ) {
       return;
     }
-    meta = (DatabaseJoinMeta) smi;
-    data = (DatabaseJoinData) sdi;
 
     if ( data.db != null && data.db.getConnection() != null && !data.isCanceled ) {
       data.db.cancelStatement( data.pstmt );
@@ -204,11 +197,8 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DatabaseJoinMeta) smi;
-    data = (DatabaseJoinData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -252,14 +242,11 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DatabaseJoinMeta) smi;
-    data = (DatabaseJoinData) sdi;
-
+  public void dispose(){
     if ( data.db != null ) {
       data.db.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

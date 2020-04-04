@@ -63,7 +63,7 @@ import static org.mockito.Mockito.when;
  */
 public class FieldSplitterTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  TransformMockHelper<FieldSplitterMeta, FieldSplitterData> smh;
+  TransformMockHelper<FieldSplitterMeta, FieldSplitterData> transformMockHelper;
 
   @BeforeClass
   public static void initHop() throws Exception {
@@ -72,47 +72,45 @@ public class FieldSplitterTest {
 
   @Before
   public void setUp() {
-    smh =
-      new TransformMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class,
-        FieldSplitterData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
+    transformMockHelper = new TransformMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class, FieldSplitterData.class );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
+      transformMockHelper.logChannelInterface );
+    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 
   @After
   public void cleanUp() {
-    smh.cleanUp();
+    transformMockHelper.cleanUp();
   }
 
   private IRowSet mockInputRowSet() {
-    return smh.getMockInputRowSet( new Object[][] { { "before", "b=b;c=c", "after" } } );
+    return transformMockHelper.getMockInputRowSet( new Object[][] { { "before", "b=b;c=c", "after" } } );
   }
 
   private FieldSplitterMeta mockProcessRowMeta() throws HopTransformException {
-    FieldSplitterMeta processRowMeta = smh.processRowsTransformMetaInterface;
-    doReturn( "field to split" ).when( processRowMeta ).getSplitField();
-    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
+    FieldSplitterMeta meta = transformMockHelper.iTransformMeta;
+    doReturn( "field to split" ).when( meta ).getSplitField();
+    doCallRealMethod().when( meta ).getFields( any( IRowMeta.class ), anyString(),
       any( IRowMeta[].class ), any( TransformMeta.class ), any( IVariables.class ),
       any( IMetaStore.class ) );
-    doReturn( new String[] { "a", "b" } ).when( processRowMeta ).getFieldName();
-    doReturn( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } ).when( processRowMeta )
+    doReturn( new String[] { "a", "b" } ).when( meta ).getFieldName();
+    doReturn( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } ).when( meta )
       .getFieldType();
-    doReturn( new String[] { "a=", "b=" } ).when( processRowMeta ).getFieldID();
-    doReturn( new boolean[] { false, false } ).when( processRowMeta ).getFieldRemoveID();
-    doReturn( new int[] { -1, -1 } ).when( processRowMeta ).getFieldLength();
-    doReturn( new int[] { -1, -1 } ).when( processRowMeta ).getFieldPrecision();
-    doReturn( new int[] { 0, 0 } ).when( processRowMeta ).getFieldTrimType();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldFormat();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldDecimal();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldGroup();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldCurrency();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldNullIf();
-    doReturn( new String[] { null, null } ).when( processRowMeta ).getFieldIfNull();
-    doReturn( ";" ).when( processRowMeta ).getDelimiter();
-    doReturn( 2 ).when( processRowMeta ).getFieldsCount();
+    doReturn( new String[] { "a=", "b=" } ).when( meta ).getFieldID();
+    doReturn( new boolean[] { false, false } ).when( meta ).getFieldRemoveID();
+    doReturn( new int[] { -1, -1 } ).when( meta ).getFieldLength();
+    doReturn( new int[] { -1, -1 } ).when( meta ).getFieldPrecision();
+    doReturn( new int[] { 0, 0 } ).when( meta ).getFieldTrimType();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldFormat();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldDecimal();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldGroup();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldCurrency();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldNullIf();
+    doReturn( new String[] { null, null } ).when( meta ).getFieldIfNull();
+    doReturn( ";" ).when( meta ).getDelimiter();
+    doReturn( 2 ).when( meta ).getFieldsCount();
 
-    return processRowMeta;
+    return meta;
   }
 
   private RowMeta getInputRowMeta() {
@@ -126,15 +124,16 @@ public class FieldSplitterTest {
 
   @Test
   public void testSplitFields() throws HopException {
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+
+    FieldSplitter transform = new FieldSplitter( transformMockHelper.transformMeta, mockProcessRowMeta(), transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    transform.init();
     transform.setInputRowMeta( getInputRowMeta() );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
 
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.processRow();
     } while ( hasMoreRows );
 
     IRowSet outputRowSet = transform.getOutputRowSets().get( 0 );
@@ -158,8 +157,8 @@ public class FieldSplitterTest {
     meta.setFieldName( new String[] { "key", "val" } );
     meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
 
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( meta, smh.iTransformData );
+    FieldSplitter transform = new FieldSplitter( transformMockHelper.transformMeta, meta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    transform.init();
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "key" ) );
@@ -167,10 +166,10 @@ public class FieldSplitterTest {
     rowMeta.addValueMeta( new ValueMetaString( "split" ) );
 
     transform.setInputRowMeta( rowMeta );
-    transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "key", "string", "part1 part2" } ) );
+    transform.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] { "key", "string", "part1 part2" } ) );
     transform.addRowSetToOutputRowSets( new SingleRowRowSet() );
 
-    assertTrue( transform.processRow( meta, smh.iTransformData ) );
+    assertTrue( transform.processRow() );
 
     IRowSet rs = transform.getOutputRowSets().get( 0 );
     Object[] row = rs.getRow();

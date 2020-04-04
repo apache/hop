@@ -380,9 +380,9 @@ public class ConstantMeta extends BaseTransformMeta implements TransformMetaInte
     Constant.buildRow( meta, data, remarks );
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Constant( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Constant( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -67,9 +67,9 @@ public class SortRows extends BaseTransform implements ITransform {
   private SortRowsMeta meta;
   private SortRowsData data;
 
-  public SortRows( TransformMeta transformMeta, ITransformData iTransformData,
+  public SortRows( TransformMeta transformMeta, ITransformData data,
                    int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (SortRowsMeta) getTransformMeta().getTransformMetaInterface();
     data = (SortRowsData) iTransformData;
@@ -373,7 +373,7 @@ public class SortRows extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     // wait for first for is available
     Object[] r = getRow();
@@ -543,11 +543,11 @@ public class SortRows extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SortRowsMeta) smi;
     data = (SortRowsData) sdi;
 
-    if ( !super.init( smi, sdi ) ) {
+    if ( !super.init() ) {
       return false;
     }
 
@@ -577,9 +577,9 @@ public class SortRows extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     clearBuffers();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private void clearBuffers() {

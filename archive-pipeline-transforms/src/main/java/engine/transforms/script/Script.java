@@ -88,9 +88,9 @@ public class Script extends BaseTransform implements ITransform {
 
   // public String script; //TODO AKRETION should be compiled script actually
 
-  public Script( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Script( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void determineUsedFields( IRowMeta row ) {
@@ -410,7 +410,7 @@ public class Script extends BaseTransform implements ITransform {
     return data.outputRowMeta;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     meta = (ScriptMeta) smi;
     data = (ScriptData) sdi;
@@ -474,11 +474,11 @@ public class Script extends BaseTransform implements ITransform {
     return bRC;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ScriptMeta) smi;
     data = (ScriptData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       // Add init code here.
       // Get the actual Scripts from our MetaData
@@ -503,7 +503,7 @@ public class Script extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     try {
       if ( data.cx != null ) {
         return;
@@ -515,7 +515,7 @@ public class Script extends BaseTransform implements ITransform {
       // logError(BaseMessages.getString(PKG, "System.Log.UnexpectedError"), er);
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

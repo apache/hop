@@ -360,9 +360,9 @@ public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements Tr
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SymmetricCrypto( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SymmetricCrypto( transformMeta, this, data, cnr, pipelineMeta, pipeline );
 
   }
 

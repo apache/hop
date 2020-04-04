@@ -81,15 +81,10 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 
-  private TextFileInputMeta meta;
-
-  private TextFileInputData data;
-
   private long lineNumberInFile;
 
-  public TextFileInput( TransformMeta transformMeta, TextFileInputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
-                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public TextFileInput( TransformMeta transformMeta, TextFileInputMeta meta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final String getLine( ILogChannel log, InputStreamReader reader, int formatNr,
@@ -849,9 +844,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   @Override
-  public boolean processRow( TextFileInputMeta smi, TextFileInputData sdi ) throws HopException {
-    this.meta = smi;
-    this.data = sdi;
+  public boolean processRow() throws HopException {
     Object[] r = null;
     boolean retval = true;
     boolean putrow = false;
@@ -1518,11 +1511,9 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   @Override
-  public boolean init( TextFileInputMeta smi, TextFileInputData sdi ) {
-    this.meta = smi;
-    this.data = sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       initErrorHandling();
       initReplayFactory();
 
@@ -1609,9 +1600,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   @Override
-  public void dispose( TextFileInputMeta smi, TextFileInputData sdi ) {
-    this.meta = smi;
-    this.data = sdi;
+  public void dispose() {
 
     if ( data.file != null ) {
       try {
@@ -1625,10 +1614,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       BaseTransform.closeQuietly( data.in );
       data.in = null;
     }
-    super.dispose( smi, sdi );
-  }
-
-  public boolean isWaitingForData() {
-    return true;
+    super.dispose();
   }
 }

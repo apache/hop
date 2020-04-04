@@ -86,9 +86,9 @@ public class TextFileInput extends BaseTransform implements ITransform {
 
   private long lineNumberInFile;
 
-  public TextFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final String getLine( LogChannelInterface log, InputStreamReader reader, int formatNr,
@@ -848,7 +848,7 @@ public class TextFileInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     data = (TextFileInputData) sdi;
     meta = (TextFileInputMeta) smi;
     Object[] r = null;
@@ -1517,11 +1517,11 @@ public class TextFileInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (TextFileInputMeta) smi;
     data = (TextFileInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       initErrorHandling();
       initReplayFactory();
 
@@ -1618,7 +1618,7 @@ public class TextFileInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (TextFileInputMeta) smi;
     data = (TextFileInputData) sdi;
 
@@ -1634,7 +1634,7 @@ public class TextFileInput extends BaseTransform implements ITransform {
       BaseTransform.closeQuietly( data.in );
       data.in = null;
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   public boolean isWaitingForData() {

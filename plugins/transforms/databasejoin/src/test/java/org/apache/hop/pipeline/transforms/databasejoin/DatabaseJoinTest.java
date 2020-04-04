@@ -69,14 +69,14 @@ public class DatabaseJoinTest {
     mockTransformDataInterface = mock( DatabaseJoinData.class, withSettings().extraInterfaces( ITransformMeta.class ) );
     mockTransformDataInterface.db = mock( Database.class );
     mockTransformDataInterface.pstmt = mock( PreparedStatement.class );
-    mockDatabaseJoin = spy( new DatabaseJoin( mockTransformMeta, mockTransformDataInterface, 1, mockPipelineMeta, mockPipeline ) );
+    mockDatabaseJoin = spy( new DatabaseJoin( mockTransformMeta, mockTransformMetaInterface, mockTransformDataInterface, 1, mockPipelineMeta, mockPipeline ) );
   }
 
   @Test
   public void testStopRunningWhenTransformIsStopped() throws HopException {
     doReturn( true ).when( mockDatabaseJoin ).isStopped();
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning();
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 0 ) ).isDisposed();
@@ -87,7 +87,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockDatabaseJoin ).isStopped();
     doReturn( true ).when( mockTransformDataInterface ).isDisposed();
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning();
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -99,7 +99,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( mock( Connection.class ) );
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning();
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -115,7 +115,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( null );
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning();
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();

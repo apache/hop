@@ -58,9 +58,9 @@ public class ReplaceString extends BaseTransform implements ITransform {
 
   private ReplaceStringData data;
 
-  public ReplaceString( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ReplaceString( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static String replaceString( String originalString, Pattern pattern, String replaceByString ) {
@@ -149,7 +149,7 @@ public class ReplaceString extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
 
@@ -246,19 +246,19 @@ public class ReplaceString extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
 
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       return true;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ReplaceStringMeta) smi;
     data = (ReplaceStringData) sdi;
 
@@ -267,7 +267,7 @@ public class ReplaceString extends BaseTransform implements ITransform {
     data.replaceByString = null;
     data.replaceString = null;
     data.valueChange = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

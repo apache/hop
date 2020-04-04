@@ -49,12 +49,12 @@ public class PGPDecryptStream extends BaseTransform implements ITransform {
   private PGPDecryptStreamMeta meta;
   private PGPDecryptStreamData data;
 
-  public PGPDecryptStream( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public PGPDecryptStream( TransformMeta transformMeta, ITransformData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (PGPDecryptStreamMeta) smi;
     data = (PGPDecryptStreamData) sdi;
 
@@ -168,11 +168,11 @@ public class PGPDecryptStream extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (PGPDecryptStreamMeta) smi;
     data = (PGPDecryptStreamData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "PGPDecryptStream.Error.ResultFieldMissing" ) );
         return false;
@@ -191,11 +191,11 @@ public class PGPDecryptStream extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (PGPDecryptStreamMeta) smi;
     data = (PGPDecryptStreamData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

@@ -155,8 +155,8 @@ public class TextFileInputTest {
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ] );
     data.filePlayList = new FilePlayListAll();
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, TextFileInputData.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 2, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 2, false );
     PipelineTestingUtil.assertResult( new Object[] { "r1c1", "r1c2" }, output.get( 0 ) );
     PipelineTestingUtil.assertResult( new Object[] { "r2c1", "r2c2" }, output.get( 1 ) );
 
@@ -196,8 +196,8 @@ public class TextFileInputTest {
     data.filePlayList = new FilePlayListAll();
 
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, TextFileInputData.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 2, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 2, false );
     PipelineTestingUtil.assertResult( new Object[] { "1", "1", "1" }, output.get( 0 ) );
     PipelineTestingUtil.assertResult( new Object[] { "2", "1", "2" }, output.get( 1 ) );
 
@@ -233,8 +233,8 @@ public class TextFileInputTest {
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ] );
     data.filePlayList = new FilePlayListAll();
 
-    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, TextFileInputData.class, "test" );
-    List<Object[]> output = PipelineTestingUtil.execute( input, meta, data, 1, false );
+    TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" );
+    List<Object[]> output = PipelineTestingUtil.execute( input, 1, false );
     PipelineTestingUtil.assertResult( new Object[] { "1", "DEFAULT" }, output.get( 0 ) );
 
     deleteVfsFile( virtualFile );

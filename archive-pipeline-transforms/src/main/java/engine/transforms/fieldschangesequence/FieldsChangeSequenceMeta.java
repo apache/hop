@@ -271,9 +271,9 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements Trans
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldsChangeSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new FieldsChangeSequence( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

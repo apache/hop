@@ -458,9 +458,9 @@ public class SortRowsMeta extends BaseTransformMeta implements TransformMetaInte
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new SortRows( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SortRows( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

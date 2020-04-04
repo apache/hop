@@ -525,9 +525,9 @@ public class TableCompareMeta extends BaseTransformMeta implements TransformMeta
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new TableCompare( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new TableCompare( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

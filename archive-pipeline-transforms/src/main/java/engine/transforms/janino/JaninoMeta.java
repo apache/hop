@@ -208,9 +208,9 @@ public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterf
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new Janino( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new Janino( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

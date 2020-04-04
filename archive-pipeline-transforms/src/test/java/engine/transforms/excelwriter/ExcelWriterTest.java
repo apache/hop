@@ -120,8 +120,8 @@ public class ExcelWriter Test {
   public void testMaxSheetNameLength() {
 
     // Return a 32 character name
-    when( mockHelper.initTransformMetaInterface.getSheetname() ).thenReturn( "12345678901234567890123456789012" );
-    transform.init( mockHelper.initTransformMetaInterface, mockHelper.initTransformDataInterface );
+    when( mockHelper.iTransformMeta.getSheetname() ).thenReturn( "12345678901234567890123456789012" );
+    transform.init();
 
     try {
       transform.prepareNextOutputFile();
@@ -239,7 +239,7 @@ public class ExcelWriter Test {
 
   @Test
   public void testPrepareNextOutputFile() throws Exception {
-    assertTrue( transform.init( metaMock, dataMock ) );
+    assertTrue( transform.init() );
     File outDir = Files.createTempDir();
     String testFileOut = outDir.getAbsolutePath() + File.separator + "test.xlsx";
     when( transform.buildFilename( 0 ) ).thenReturn( testFileOut );
@@ -255,7 +255,7 @@ public class ExcelWriter Test {
 
   @Test
   public void testWriteUsingTemplateWithFormatting() throws Exception {
-    assertTrue( transform.init( metaMock, dataMock ) );
+    assertTrue( transform.init() );
     String path = Files.createTempDir().getAbsolutePath() + File.separator + "formatted.xlsx";
 
     dataMock.fieldnrs = new int[] { 0 };
@@ -512,7 +512,7 @@ public class ExcelWriter Test {
                          boolean isTemplateEnabled )
     throws Exception {
     Object[] vObjArr = { vObj };
-    assertTrue( transform.init( metaMock, dataMock ) );
+    assertTrue( transform.init() );
     File tempFile = File.createTempFile( extension, dotExtension );
     tempFile.deleteOnExit();
     String path = tempFile.getAbsolutePath();

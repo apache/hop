@@ -49,16 +49,13 @@ import java.util.ArrayList;
  * @author Matt
  * @since 10-sep-2005
  */
-public class ExecSQL extends BaseTransform implements ITransform {
+public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements ITransform<ExecSQLMeta, ExecSQLData> {
+
   private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExecSQLMeta meta;
-
-  private ExecSQLData data;
-
-  public ExecSQL( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExecSQL( TransformMeta transformMeta, ExecSQLMeta meta, ExecSQLData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData getResultRow( Result result, String upd, String ins, String del, String read ) {
@@ -92,9 +89,7 @@ public class ExecSQL extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExecSQLMeta) smi;
-    data = (ExecSQLData) sdi;
+  public boolean processRow() throws HopException {
 
     if ( !meta.isExecutedEachInputRow() ) {
       RowMetaAndData resultRow =
@@ -245,9 +240,7 @@ public class ExecSQL extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecSQLMeta) smi;
-    data = (ExecSQLData) sdi;
+  public void dispose(){
 
     if ( log.isBasic() ) {
       logBasic( BaseMessages.getString( PKG, "ExecSQL.Log.FinishingReadingQuery" ) );
@@ -257,16 +250,14 @@ public class ExecSQL extends BaseTransform implements ITransform {
       data.db.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**
    * Stop the running query
    */
   @Override
-  public void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExecSQLMeta) smi;
-    data = (ExecSQLData) sdi;
+  public void stopRunning()throws HopException {
 
     if ( data.db != null && !data.isCanceled ) {
       synchronized ( data.db ) {
@@ -277,11 +268,9 @@ public class ExecSQL extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecSQLMeta) smi;
-    data = (ExecSQLData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "ExecSQL.Init.ConnectionMissing", getTransformName() ) );
         return false;

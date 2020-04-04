@@ -57,12 +57,10 @@ import static org.mockito.Mockito.when;
 public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITransformData> {
   public final TransformMeta transformMeta;
   public final Data iTransformData;
+  public final Meta iTransformMeta;
   public final PipelineMeta pipelineMeta;
   public final Pipeline pipeline;
-  public final Meta initTransformMetaInterface;
-  public final Data initTransformDataInterface;
-  public final Meta processRowsTransformMetaInterface;
-  public final Data processRowsTransformDataInterface;
+
   public final ILogChannel logChannelInterface;
   public final ILogChannelFactory logChannelFactory;
   public final ILogChannelFactory originalLogChannelFactory;
@@ -75,13 +73,10 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
     transformMeta = mock( TransformMeta.class );
     when( transformMeta.getName() ).thenReturn( transformName );
     iTransformData = mock( transformDataClass );
+    iTransformMeta = mock( transformMetaClass );
     pipelineMeta = mock( PipelineMeta.class );
     when( pipelineMeta.findTransform( transformName ) ).thenReturn( transformMeta );
     pipeline = mock( Pipeline.class );
-    initTransformMetaInterface = mock( transformMetaClass );
-    initTransformDataInterface = mock( transformDataClass );
-    processRowsTransformDataInterface = mock( transformDataClass );
-    processRowsTransformMetaInterface = mock( transformMetaClass );
   }
 
   public IRowSet getMockInputRowSet( Object[]... rows ) {

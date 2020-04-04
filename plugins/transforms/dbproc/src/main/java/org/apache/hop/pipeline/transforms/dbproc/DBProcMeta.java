@@ -438,9 +438,9 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
 
   }
 
-  public DBProc createTransform( TransformMeta transformMeta, DBProcData iTransformData, int cnr,
+  public DBProc createTransform( TransformMeta transformMeta, DBProcData data, int cnr,
                                  PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DBProc( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new DBProc( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public DBProcData getTransformData() {

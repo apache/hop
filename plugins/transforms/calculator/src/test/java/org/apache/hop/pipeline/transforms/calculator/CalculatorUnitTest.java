@@ -85,9 +85,7 @@ public class CalculatorUnitTest {
 
   @Before
   public void setUp() {
-    smh =
-      new TransformMockHelper<CalculatorMeta, CalculatorData>( "Calculator", CalculatorMeta.class,
-        CalculatorData.class );
+    smh = new TransformMockHelper<>( "Calculator", CalculatorMeta.class, CalculatorData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.logChannelInterface );
     when( smh.pipeline.isRunning() ).thenReturn( true );
@@ -109,11 +107,6 @@ public class CalculatorUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( rows );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = spy( new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     CalculatorMetaFunction[] calculations = new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "result", CalculatorMetaFunction.CALC_MD5, "Path", null, null,
@@ -121,7 +114,16 @@ public class CalculatorUnitTest {
     meta.setCalculation( calculations );
     meta.setFailIfNoFile( true );
 
-    boolean processed = calculator.processRow( meta, new CalculatorData() );
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = spy( new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline ) );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
+
+
+
+    boolean processed = calculator.processRow();
     verify( calculator, times( 1 ) ).logError( argThat( new ArgumentMatcher<String>() {
       @Override
       public boolean matches( Object o ) {
@@ -150,15 +152,17 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "new_day", CalculatorMetaFunction.CALC_ADD_SECONDS, "Day", "Seconds", null,
         IValueMeta.TYPE_DATE, 0, 0, false, "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
 
     //Verify output
     try {
@@ -171,7 +175,7 @@ public class CalculatorUnitTest {
           }
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -189,15 +193,17 @@ public class CalculatorUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name1", "qwe123asd456zxc" }, { "name2", null } } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "digits", CalculatorMetaFunction.CALC_GET_ONLY_DIGITS, "Value", null, null,
         IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
 
     // Verify output
     try {
@@ -206,7 +212,7 @@ public class CalculatorUnitTest {
           assertEquals( "123456", row[ 2 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -222,23 +228,21 @@ public class CalculatorUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { -1L } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
-      new CalculatorMetaFunction( "test", CalculatorMetaFunction.CALC_ABS, "Value", null, null,
-        IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
+      new CalculatorMetaFunction( "test", CalculatorMetaFunction.CALC_ABS, "Value", null, null, IValueMeta.TYPE_STRING, 0, 0, false, "", "", "", "" ) } );
 
-    CalculatorData data = new CalculatorData();
-    data = spy( data );
+    CalculatorData data = spy( new CalculatorData() );
 
-    calculator.processRow( meta, data );
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
+
+    calculator.processRow();
     verify( data ).getValueMetaFor( eq( valueMeta.getType() ), anyString() );
 
-    calculator.processRow( meta, data );
+    calculator.processRow();
     verify( data ).clearValuesMetaMapping();
   }
 
@@ -631,14 +635,17 @@ public class CalculatorUnitTest {
     final String fieldResult = "test";
     final int expectedResultRowSize = inputRowMeta.size() + 1;
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( fieldResult, calcFunction, fieldA,
       fieldB, fieldC, resultDataType, 2, 0, false, "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
+
 
     // Verify output
     try {
@@ -651,7 +658,7 @@ public class CalculatorUnitTest {
           assertEquals( msg, expectedResult, row[ fieldResultIndex ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail( msg + ke.getMessage() );
@@ -837,15 +844,17 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
       new CalculatorMetaFunction( "res", CalculatorMetaFunction.CALC_REMAINDER, "f0", "f1", null,
         IValueMeta.TYPE_NUMBER, 0, 0, false, "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
 
     //Verify output
     try {
@@ -858,7 +867,7 @@ public class CalculatorUnitTest {
           }
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();

@@ -294,7 +294,7 @@ public class PipelineTest {
     verify( transform, times( numberTimesCalled ) ).setStopped( true );
     verify( transform, times( numberTimesCalled ) ).setSafeStopped( true );
     verify( transform, times( numberTimesCalled ) ).resumeRunning();
-    verify( transform, times( numberTimesCalled ) ).stopRunning( any(), any() );
+    verify( transform, times( numberTimesCalled ) ).stopRunning();
   }
 
   private TransformMetaDataCombi combi( ITransform transform, ITransformData data, TransformMeta transformMeta ) {

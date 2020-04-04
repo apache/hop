@@ -178,9 +178,9 @@ public class NumberRangeMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline disp ) {
-    return new NumberRange( transformMeta, iTransformData, cnr, pipelineMeta, disp );
+    return new NumberRange( transformMeta, data, cnr, pipelineMeta, disp );
   }
 
   @Override

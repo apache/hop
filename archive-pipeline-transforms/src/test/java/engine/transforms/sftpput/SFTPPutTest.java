@@ -179,7 +179,7 @@ public class SFTPPutTest {
     meta.setSourceFileFieldName( "sourceFilenameFieldName" );
     meta.setRemoteDirectoryFieldName( "remoteDirectoryFieldName" );
 
-    transform.processRow( meta, new SFTPPutData() );
+    transform.processRow();
     assertEquals( 1, transform.getErrors() );
   }
 }

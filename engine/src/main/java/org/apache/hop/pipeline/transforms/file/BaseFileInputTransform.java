@@ -58,41 +58,26 @@ import java.util.Map;
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?>, D extends BaseFileInputTransformData> extends
-  BaseTransform<ITransformMeta, ITransformData> implements IBaseFileInputTransformControl {
+public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Data extends BaseFileInputTransformData> extends
+  BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
+
   private static Class<?> PKG = BaseFileInputTransform.class; // for i18n purposes, needed by Translator!!
-
-  protected M meta;
-
-  protected D data;
-
-  /**
-   * Content-dependent initialization.
-   */
-  protected abstract boolean init();
 
   /**
    * Create reader for specific file.
    */
-  protected abstract IBaseFileInputReader createReader( M meta, D data, FileObject file ) throws Exception;
+  protected abstract IBaseFileInputReader createReader( Meta meta, Data data, FileObject file ) throws Exception;
 
-  public BaseFileInputTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public BaseFileInputTransform( TransformMeta transformMeta, Meta meta, Data data, int copyNr, PipelineMeta pipelineMeta,
                                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Initialize transform before execute.
    */
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (M) smi;
-    data = (D) sdi;
-
-    if ( !super.init( smi, sdi ) ) {
-      return false;
-    }
-
+  public boolean init(){
     initErrorHandling();
 
     meta.additionalOutputFields.normalize();
@@ -111,7 +96,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
       return false;
     }
 
-    return init();
+    return super.init();
   }
 
   /**
@@ -180,10 +165,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    * Process next row. This methods opens next file automatically.
    */
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (M) smi;
-    data = (D) sdi;
-
+  public boolean processRow() throws HopException {
     if ( first ) {
       first = false;
       prepareToRowProcessing();
@@ -351,10 +333,10 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
    * Dispose transform.
    */
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose(){
     closeLastFile();
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**
@@ -416,7 +398,7 @@ public abstract class BaseFileInputTransform<M extends BaseFileInputMeta<?, ?, ?
   /**
    * Prepare file-dependent data for fill additional fields.
    */
-  protected void fillFileAdditionalFields( D data, FileObject file ) throws FileSystemException {
+  protected void fillFileAdditionalFields( Data data, FileObject file ) throws FileSystemException {
     data.shortFilename = file.getName().getBaseName();
     data.path = HopVFS.getFilename( file.getParent() );
     data.hidden = file.isHidden();

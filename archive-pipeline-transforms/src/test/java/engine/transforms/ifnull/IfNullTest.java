@@ -119,8 +119,8 @@ public class IfNullTest {
   @Test
   public void testString_emptyIsNull() throws HopException {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     final RowMeta inputRowMeta = buildInputRowMeta( //
       new ValueMetaString( "some-field" ), //
       new ValueMetaString( "null-field" ), //
@@ -138,7 +138,7 @@ public class IfNullTest {
 
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.init();
     } while ( hasMoreRows );
 
     RowSet outputRowSet = transform.getOutputRowSets().get( 0 );
@@ -150,8 +150,8 @@ public class IfNullTest {
   @Test
   public void testString_emptyIsNotNull() throws HopException {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+    IfNull transform = new IfNull( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     final RowMeta inputRowMeta = buildInputRowMeta( //
       new ValueMetaString( "some-field" ), //
       new ValueMetaString( "null-field" ), //
@@ -169,7 +169,7 @@ public class IfNullTest {
 
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.init();
     } while ( hasMoreRows );
 
     RowSet outputRowSet = transform.getOutputRowSets().get( 0 );

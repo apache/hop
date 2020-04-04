@@ -250,9 +250,9 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
 
   }
 
-  public CreditCardValidator createTransform( TransformMeta transformMeta, CreditCardValidatorData iTransformData, int cnr,
+  public CreditCardValidator createTransform( TransformMeta transformMeta, CreditCardValidatorData data, int cnr,
                                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new CreditCardValidator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new CreditCardValidator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public CreditCardValidatorData getTransformData() {

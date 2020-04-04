@@ -33,13 +33,13 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
@@ -56,14 +56,12 @@ import java.util.List;
  * @author Matt
  * @since 22-nov-2005
  */
-public class Mapping extends BaseTransform implements ITransform {
+public class Mapping extends BaseTransform<MappingMeta, MappingData> implements ITransform<MappingMeta, MappingData> {
+
   private static Class<?> PKG = MappingMeta.class; // for i18n purposes, needed by Translator!!
 
-  private MappingMeta meta;
-  private MappingData data;
-
-  public Mapping( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public Mapping( TransformMeta transformMeta, MappingMeta meta, MappingData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,16 +69,15 @@ public class Mapping extends BaseTransform implements ITransform {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the Mapping.
    */
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
     try {
-      meta = (MappingMeta) smi;
-      setData( (MappingData) sdi );
 
-      MappingInput[] mappingInputs = getData().getMappingPipeline().findMappingInput();
-      MappingOutput[] mappingOutputs = getData().getMappingPipeline().findMappingOutput();
+      MappingInput[] mappingInputs = data.getMappingPipeline().findMappingInput();
+      MappingOutput[] mappingOutputs = data.getMappingPipeline().findMappingOutput();
 
-      getData().wasStarted = true;
-      switch ( getData().mappingPipelineMeta.getPipelineType() ) {
+      data.wasStarted = true;
+      switch ( data.mappingPipelineMeta.getPipelineType() ) {
         case Normal:
 
           // Before we start, let's see if there are loose ends to tie up...
@@ -136,7 +133,7 @@ public class Mapping extends BaseTransform implements ITransform {
 
           // Start the mapping/sub- pipeline threads
           //
-          getData().getMappingPipeline().startThreads();
+          data.getMappingPipeline().startThreads();
 
           // The pipeline still runs in the background and might have some
           // more work to do.
@@ -144,12 +141,12 @@ public class Mapping extends BaseTransform implements ITransform {
           // anything else here but wait...
           //
           if ( getPipelineMeta().getPipelineType() == PipelineType.Normal ) {
-            getData().getMappingPipeline().waitUntilFinished();
+            data.getMappingPipeline().waitUntilFinished();
 
             // Set some statistics from the mapping...
             // This will show up in HopGui, etc.
             //
-            Result result = getData().getMappingPipeline().getResult();
+            Result result = data.getMappingPipeline().getResult();
             setErrors( result.getNrErrors() );
             setLinesRead( result.getNrLinesRead() );
             setLinesWritten( result.getNrLinesWritten() );
@@ -188,9 +185,9 @@ public class Mapping extends BaseTransform implements ITransform {
 
           // Now execute one batch...Basic logging
           //
-          boolean result = getData().singleThreadedPipelineExecutor.oneIteration();
+          boolean result = data.singleThreadedPipelineExecutor.oneIteration();
           if ( !result ) {
-            getData().singleThreadedPipelineExecutor.dispose();
+            data.singleThreadedPipelineExecutor.dispose();
             setOutputDone();
             return false;
           }
@@ -198,15 +195,15 @@ public class Mapping extends BaseTransform implements ITransform {
 
         default:
           throw new HopException( "Pipeline type '"
-            + getData().mappingPipelineMeta.getPipelineType().getDescription()
+            + data.mappingPipelineMeta.getPipelineType().getDescription()
             + "' is an unsupported pipeline type for a mapping" );
       }
     } catch ( Throwable t ) {
       // Some unexpected situation occurred.
       // Better to stop the mapping pipeline.
       //
-      if ( getData().getMappingPipeline() != null ) {
-        getData().getMappingPipeline().stopAll();
+      if ( data.getMappingPipeline() != null ) {
+        data.getMappingPipeline().stopAll();
       }
 
       // Forward the exception...
@@ -218,7 +215,7 @@ public class Mapping extends BaseTransform implements ITransform {
 
   public void prepareMappingExecution() throws HopException {
     initPipelineFromMeta();
-    MappingData mappingData = getData();
+    MappingData mappingData = data;
     // We launch the pipeline in the processRow when the first row is
     // received.
     // This will allow the correct variables to be passed.
@@ -344,7 +341,7 @@ public class Mapping extends BaseTransform implements ITransform {
       // in the metadata before the rows come back.
       //
       if ( inputDefinition.isRenamingOnOutput() ) {
-        addInputRenames( getData().inputRenameList, inputDefinition.getValueRenames() );
+        addInputRenames( data.inputRenameList, inputDefinition.getValueRenames() );
       }
 
       mappingInputTarget.setConnectorTransforms( sourceTransforms, inputDefinition.getValueRenames(), getTransformName() );
@@ -390,7 +387,7 @@ public class Mapping extends BaseTransform implements ITransform {
       // Also explain the mapping output transforms how to rename the values back...
       //
       mappingOutputSource
-        .setConnectorTransforms( targetTransforms, getData().inputRenameList, outputDefinition.getValueRenames() );
+        .setConnectorTransforms( targetTransforms, data.inputRenameList, outputDefinition.getValueRenames() );
 
       // Is this mapping copying or distributing?
       // Make sure the mapping output transform mimics this behavior:
@@ -401,7 +398,7 @@ public class Mapping extends BaseTransform implements ITransform {
     // Finally, add the mapping pipeline to the active sub-pipelines
     // map in the parent pipeline
     //
-    getPipeline().addActiveSubPipeline( getTransformName(), getData().getMappingPipeline() );
+    getPipeline().addActiveSubPipeline( getTransformName(), data.getMappingPipeline() );
   }
 
   @VisibleForTesting ITransform[] pickupTargetTransformsFor( MappingIODefinition outputDefinition )
@@ -441,28 +438,28 @@ public class Mapping extends BaseTransform implements ITransform {
   void initPipelineFromMeta() throws HopException {
     // Create the pipeline from meta-data...
     //
-    getData().setMappingPipeline( new Pipeline( getData().mappingPipelineMeta, this ) );
+    data.setMappingPipeline( new Pipeline( data.mappingPipelineMeta, this ) );
 
-    if ( getData().mappingPipelineMeta.getPipelineType() != PipelineType.Normal ) {
-      getData().getMappingPipeline().getPipelineMeta().setUsingThreadPriorityManagment( false );
+    if ( data.mappingPipelineMeta.getPipelineType() != PipelineType.Normal ) {
+      data.getMappingPipeline().getPipelineMeta().setUsingThreadPriorityManagment( false );
     }
 
     // Leave a path up so that we can set variables in sub-pipelines...
     //
-    getData().getMappingPipeline().setParentPipeline( getPipeline() );
+    data.getMappingPipeline().setParentPipeline( getPipeline() );
 
     // Pass down the safe mode flag to the mapping...
     //
-    getData().getMappingPipeline().setSafeModeEnabled( getPipeline().isSafeModeEnabled() );
+    data.getMappingPipeline().setSafeModeEnabled( getPipeline().isSafeModeEnabled() );
 
     // Pass down the metrics gathering flag:
     //
-    getData().getMappingPipeline().setGatheringMetrics( getPipeline().isGatheringMetrics() );
+    data.getMappingPipeline().setGatheringMetrics( getPipeline().isGatheringMetrics() );
 
     // Also set the name of this transform in the mapping pipeline for logging
     // purposes
     //
-    getData().getMappingPipeline().setMappingTransformName( getTransformName() );
+    data.getMappingPipeline().setMappingTransformName( getTransformName() );
 
     initServletConfig();
 
@@ -479,7 +476,7 @@ public class Mapping extends BaseTransform implements ITransform {
   }
 
   void initServletConfig() {
-    PipelineTransformUtil.initServletConfig( getPipeline(), getData().getMappingPipeline() );
+    PipelineTransformUtil.initServletConfig( getPipeline(), data.getMappingPipeline() );
   }
 
   public static void addInputRenames( List<MappingValueRename> renameList, List<MappingValueRename> addRenameList ) {
@@ -490,18 +487,16 @@ public class Mapping extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (MappingMeta) smi;
-    setData( (MappingData) sdi );
-    MappingData mappingData = getData();
-    if ( !super.init( smi, sdi ) ) {
+  @Override
+  public boolean init() {
+    if ( !super.init() ) {
       return false;
     }
     // First we need to load the mapping (pipeline)
     try {
       // Pass the MetaStore down to the metadata object...
       //
-      mappingData.mappingPipelineMeta = MappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
+      data.mappingPipelineMeta = MappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
       if ( data.mappingPipelineMeta == null ) {
         // Do we have a mapping at all?
         logError( "No valid mapping was specified!" );
@@ -524,37 +519,39 @@ public class Mapping extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  @Override
+  public void dispose() {
     // Close the running pipeline
-    if ( getData().wasStarted ) {
-      if ( !getData().mappingPipeline.isFinished() ) {
+    if ( data.wasStarted ) {
+      if ( !data.mappingPipeline.isFinished() ) {
         // Wait until the child pipeline has finished.
-        getData().getMappingPipeline().waitUntilFinished();
+        data.getMappingPipeline().waitUntilFinished();
       }
       // Remove it from the list of active sub-pipelines...
       //
       getPipeline().removeActiveSubPipeline( getTransformName() );
 
       // See if there was an error in the sub-pipeline, in that case, flag error etc.
-      if ( getData().getMappingPipeline().getErrors() > 0 ) {
+      if ( data.getMappingPipeline().getErrors() > 0 ) {
         logError( BaseMessages.getString( PKG, "Mapping.Log.ErrorOccurredInSubPipeline" ) );
         setErrors( 1 );
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData )
+  @Override
+  public void stopRunning()
     throws HopException {
-    if ( getData().getMappingPipeline() != null ) {
-      getData().getMappingPipeline().stopAll();
+    if ( data.getMappingPipeline() != null ) {
+      data.getMappingPipeline().stopAll();
     }
   }
 
   public void stopAll() {
     // Stop the mapping transform.
-    if ( getData().getMappingPipeline() != null ) {
-      getData().getMappingPipeline().stopAll();
+    if ( data.getMappingPipeline() != null ) {
+      data.getMappingPipeline().stopAll();
     }
 
     // Also stop this transform
@@ -562,29 +559,28 @@ public class Mapping extends BaseTransform implements ITransform {
   }
 
   private void lookupStatusTransformNumbers() {
-    MappingData mappingData = getData();
-    if ( mappingData.getMappingPipeline() != null ) {
-      List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms = mappingData.getMappingPipeline().getTransforms();
+    if ( data.getMappingPipeline() != null ) {
+      List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms = data.getMappingPipeline().getTransforms();
       for ( int i = 0; i < transforms.size(); i++ ) {
         TransformMetaDataCombi sid = transforms.get( i );
         BaseTransform rt = (BaseTransform) sid.transform;
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameRead() ) ) {
-          mappingData.linesReadTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameRead() ) ) {
+          data.linesReadTransformNr = i;
         }
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameInput() ) ) {
-          mappingData.linesInputTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameInput() ) ) {
+          data.linesInputTransformNr = i;
         }
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameWritten() ) ) {
-          mappingData.linesWrittenTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameWritten() ) ) {
+          data.linesWrittenTransformNr = i;
         }
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameOutput() ) ) {
-          mappingData.linesOutputTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameOutput() ) ) {
+          data.linesOutputTransformNr = i;
         }
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameUpdated() ) ) {
-          mappingData.linesUpdatedTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameUpdated() ) ) {
+          data.linesUpdatedTransformNr = i;
         }
-        if ( rt.getTransformName().equals( getData().mappingPipelineMeta.getPipelineLogTable().getTransformNameRejected() ) ) {
-          mappingData.linesRejectedTransformNr = i;
+        if ( rt.getTransformName().equals( data.mappingPipelineMeta.getPipelineLogTable().getTransformNameRejected() ) ) {
+          data.linesRejectedTransformNr = i;
         }
       }
     }
@@ -592,8 +588,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesInput() {
-    if ( getData() != null && getData().linesInputTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesInputTransformNr ).transform.getLinesInput();
+    if ( data.linesInputTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesInputTransformNr ).transform.getLinesInput();
     } else {
       return 0;
     }
@@ -601,8 +597,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesOutput() {
-    if ( getData() != null && getData().linesOutputTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesOutputTransformNr ).transform.getLinesOutput();
+    if ( data.linesOutputTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesOutputTransformNr ).transform.getLinesOutput();
     } else {
       return 0;
     }
@@ -610,8 +606,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesRead() {
-    if ( getData() != null && getData().linesReadTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesReadTransformNr ).transform.getLinesRead();
+    if ( data.linesReadTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesReadTransformNr ).transform.getLinesRead();
     } else {
       return 0;
     }
@@ -619,8 +615,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesRejected() {
-    if ( getData() != null && getData().linesRejectedTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesRejectedTransformNr ).transform.getLinesRejected();
+    if ( data.linesRejectedTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesRejectedTransformNr ).transform.getLinesRejected();
     } else {
       return 0;
     }
@@ -628,8 +624,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesUpdated() {
-    if ( getData() != null && getData().linesUpdatedTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesUpdatedTransformNr ).transform.getLinesUpdated();
+    if ( data.linesUpdatedTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesUpdatedTransformNr ).transform.getLinesUpdated();
     } else {
       return 0;
     }
@@ -637,8 +633,8 @@ public class Mapping extends BaseTransform implements ITransform {
 
   @Override
   public long getLinesWritten() {
-    if ( getData() != null && getData().linesWrittenTransformNr != -1 ) {
-      return getData().getMappingPipeline().getTransforms().get( getData().linesWrittenTransformNr ).transform.getLinesWritten();
+    if ( data.linesWrittenTransformNr != -1 ) {
+      return data.getMappingPipeline().getTransforms().get( data.linesWrittenTransformNr ).transform.getLinesWritten();
     } else {
       return 0;
     }
@@ -647,7 +643,7 @@ public class Mapping extends BaseTransform implements ITransform {
   @Override
   public int rowsetInputSize() {
     int size = 0;
-    for ( MappingInput input : getData().getMappingPipeline().findMappingInput() ) {
+    for ( MappingInput input : data.getMappingPipeline().findMappingInput() ) {
       for ( IRowSet rowSet : input.getInputRowSets() ) {
         size += rowSet.size();
       }
@@ -658,7 +654,7 @@ public class Mapping extends BaseTransform implements ITransform {
   @Override
   public int rowsetOutputSize() {
     int size = 0;
-    for ( MappingOutput output : getData().getMappingPipeline().findMappingOutput() ) {
+    for ( MappingOutput output : data.getMappingPipeline().findMappingOutput() ) {
       for ( IRowSet rowSet : output.getOutputRowSets() ) {
         size += rowSet.size();
       }
@@ -667,14 +663,14 @@ public class Mapping extends BaseTransform implements ITransform {
   }
 
   public Pipeline getMappingPipeline() {
-    return getData().getMappingPipeline();
+    return data.getMappingPipeline();
   }
 
   /**
    * For preview of the main data path, make sure we pass the row listener down to the Mapping Output transform...
    */
   public void addRowListener( IRowListener rowListener ) {
-    MappingOutput[] mappingOutputs = getData().getMappingPipeline().findMappingOutput();
+    MappingOutput[] mappingOutputs = data.getMappingPipeline().findMappingOutput();
     if ( mappingOutputs == null || mappingOutputs.length == 0 ) {
       return; // Nothing to do here...
     }
@@ -694,13 +690,5 @@ public class Mapping extends BaseTransform implements ITransform {
     for ( MappingOutput mappingOutput : mappingOutputs ) {
       mappingOutput.addRowListener( rowListener );
     }
-  }
-
-  MappingData getData() {
-    return data;
-  }
-
-  void setData( MappingData data ) {
-    this.data = data;
   }
 }

@@ -45,14 +45,14 @@ public class RowsFromResult extends BaseTransform implements ITransform {
 
   private RowsFromResultData data;
 
-  public RowsFromResult( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public RowsFromResult( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     data = (RowsFromResultData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Result previousResult = getPipeline().getPreviousResult();
     if ( previousResult == null || getLinesRead() >= previousResult.getRows().size() ) {
       setOutputDone();

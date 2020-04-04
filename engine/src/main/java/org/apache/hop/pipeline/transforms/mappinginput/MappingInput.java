@@ -50,13 +50,10 @@ public class MappingInput
 
   private static Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
   private int timeOut = 60000;
-  private MappingInputMeta meta;
 
-  private MappingInputData data;
-
-  public MappingInput( TransformMeta transformMeta, MappingInputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MappingInput( TransformMeta transformMeta, MappingInputMeta meta, MappingInputData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public void setTimeOut( int timeOut ) {
@@ -67,9 +64,8 @@ public class MappingInput
   // It's a place holder for accepting rows from the parent pipeline...
   // So, basically, this is a glorified Dummy with a little bit of meta-data
   //
-  public boolean processRow( MappingInputMeta smi, MappingInputData sdi ) throws HopException {
-    meta = smi;
-    data = sdi;
+  @Override
+  public boolean processRow() throws HopException {
 
     if ( !data.linked ) {
       //
@@ -174,11 +170,8 @@ public class MappingInput
     return true;
   }
 
-  public boolean init( MappingInputMeta smi, MappingInputData sdi ) {
-    meta = smi;
-    data = sdi;
-
-    return super.init( smi, sdi );
+  public boolean init() {
+    return super.init( );
   }
 
   public void setConnectorTransforms( ITransform[] sourceTransforms, List<MappingValueRename> valueRenames,

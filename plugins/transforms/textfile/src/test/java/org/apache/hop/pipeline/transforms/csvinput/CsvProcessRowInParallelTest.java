@@ -41,7 +41,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * We take file with content
  * and run it parallel with several transforms.
- * see docs for {@link CsvInput#prepareToRunInParallel} to understand how running file in parallel works
+ * see docs for {@link CsvInput#prepareToRunInParallel()} to understand how running file in parallel works
  * <p>
  * We measure the correctness of work by counting the number of lines, written on each transform.
  * As a result, we should come to this pseudo formula: numberOfLines = sum of number of lines written by each transform.
@@ -290,17 +290,16 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     boolean haveRowsToRead;
     do {
-      haveRowsToRead = !csvInput.processRow( transformMeta, transformData );
+      haveRowsToRead = !csvInput.processRow();
     } while ( !haveRowsToRead );
 
-    csvInput.dispose( transformMeta, transformData );
+    csvInput.dispose();
 
     return writtenRows[ 0 ];
   }
 
-  private CsvInput createCsvInput() {
-    return new CsvInput( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0,
-      transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+  private CsvInput createCsvInput( CsvInputMeta meta, CsvInputData data ) {
+    return new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
   }
 
 
@@ -324,8 +323,8 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     CsvInputData data = new CsvInputData();
     CsvInputMeta meta = createMeta( sharedFile, createInputFileFields( "Field_000", "Field_001" ), headerPresent, delimiter );
 
-    CsvInput csvInput = createCsvInput();
-    csvInput.init( meta, data );
+    CsvInput csvInput = createCsvInput(meta, data);
+    csvInput.init();
 
     combi.transform = csvInput;
     combi.data = data;

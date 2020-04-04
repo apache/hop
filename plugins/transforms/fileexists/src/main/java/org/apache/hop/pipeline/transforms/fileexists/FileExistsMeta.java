@@ -236,9 +236,9 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
 
   }
 
-  public FileExists createTransform( TransformMeta transformMeta, FileExistsData iTransformData, int cnr,
+  public FileExists createTransform( TransformMeta transformMeta, FileExistsData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FileExists( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new FileExists( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public FileExistsData getTransformData() {

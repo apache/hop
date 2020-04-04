@@ -60,13 +60,13 @@ public class RegexEvalUnitTest {
   public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds() throws HopException {
     RegexEval regexEval =
       new RegexEval(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
-    when( transformMockHelper.processRowsTransformMetaInterface.isAllowCaptureGroupsFlagSet() ).thenReturn( true );
+    when( transformMockHelper.iTransformMeta.isAllowCaptureGroupsFlagSet() ).thenReturn( true );
     String[] outFields = new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" };
-    when( transformMockHelper.processRowsTransformMetaInterface.getFieldName() ).thenReturn( outFields );
-    when( transformMockHelper.processRowsTransformMetaInterface.getMatcher() ).thenReturn( "\\.+" );
-    transformMockHelper.processRowsTransformDataInterface.pattern = Pattern.compile( "(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)" );
+    when( transformMockHelper.iTransformMeta.getFieldName() ).thenReturn( outFields );
+    when( transformMockHelper.iTransformMeta.getMatcher() ).thenReturn( "\\.+" );
+    transformMockHelper.iTransformData.pattern = Pattern.compile( "(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)" );
     Object[] inputRow = new Object[] {};
     RowSet inputRowSet = transformMockHelper.getMockInputRowSet( inputRow );
     IRowMeta mockInputRowMeta = mock( IRowMeta.class );
@@ -78,8 +78,8 @@ public class RegexEvalUnitTest {
     when( mockInputRowMeta.isNull( any( Object[].class ), anyInt() ) ).thenReturn( true );
     regexEval.addRowSetToInputRowSets( inputRowSet );
 
-    regexEval.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface );
+    regexEval.processRow();
     regexEval
-      .processRow( transformMockHelper.processRowsTransformMetaInterface, transformMockHelper.processRowsTransformDataInterface );
+      .processRow();
   }
 }

@@ -626,9 +626,9 @@ public class RestMeta extends BaseTransformMeta implements TransformMetaInterfac
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Rest( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Rest( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

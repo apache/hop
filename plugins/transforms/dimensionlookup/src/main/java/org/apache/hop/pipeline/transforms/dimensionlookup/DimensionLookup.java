@@ -62,7 +62,8 @@ import java.util.List;
  * @author Matt
  * @since 14-may-2003
  */
-public class DimensionLookup extends BaseTransform implements ITransform {
+public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> implements ITransform<DimensionLookupMeta, DimensionLookupData> {
+
   private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int CREATION_METHOD_AUTOINC = 1;
@@ -71,21 +72,11 @@ public class DimensionLookup extends BaseTransform implements ITransform {
 
   private int techKeyCreation;
 
-  private DimensionLookupMeta meta;
-  private DimensionLookupData data;
   int[] columnLookupArray = null;
 
-  public DimensionLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DimensionLookup( TransformMeta transformMeta, DimensionLookupMeta meta, DimensionLookupData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-  }
-
-  protected void setMeta( DimensionLookupMeta meta ) {
-    this.meta = meta;
-  }
-
-  protected void setData( DimensionLookupData data ) {
-    this.data = data;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void setTechKeyCreation( int method ) {
@@ -110,9 +101,7 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DimensionLookupMeta) smi;
-    data = (DimensionLookupData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -124,8 +113,7 @@ public class DimensionLookup extends BaseTransform implements ITransform {
     if ( first ) {
       first = false;
 
-      data.schemaTable =
-        meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+      data.schemaTable = meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
@@ -1694,11 +1682,9 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DimensionLookupMeta) smi;
-    data = (DimensionLookupData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       meta.actualizeWithInjectedValues();
       data.min_date = meta.getMinDate();
       data.max_date = meta.getMaxDate();
@@ -1739,9 +1725,7 @@ public class DimensionLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DimensionLookupMeta) smi;
-    data = (DimensionLookupData) sdi;
+  public void dispose(){
     if ( data.db != null ) {
       try {
         if ( !data.db.isAutoCommit() ) {
@@ -1757,6 +1741,6 @@ public class DimensionLookup extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

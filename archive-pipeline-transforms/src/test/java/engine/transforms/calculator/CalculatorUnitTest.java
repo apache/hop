@@ -109,10 +109,10 @@ public class CalculatorUnitTest {
     RowSet inputRowSet = smh.getMockInputRowSet( rows );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = spy( new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
+    Calculator calculator = spy( new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     CalculatorMetaFunction[] calculations = new CalculatorMetaFunction[] {
@@ -121,7 +121,7 @@ public class CalculatorUnitTest {
     meta.setCalculation( calculations );
     meta.setFailIfNoFile( true );
 
-    boolean processed = calculator.processRow( meta, new CalculatorData() );
+    boolean processed = calculator.processRow();
     verify( calculator, times( 1 ) ).logError( argThat( new ArgumentMatcher<String>() {
       @Override
       public boolean matches( Object o ) {
@@ -150,10 +150,10 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
@@ -171,7 +171,7 @@ public class CalculatorUnitTest {
           }
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -189,10 +189,10 @@ public class CalculatorUnitTest {
     RowSet inputRowSet = smh.getMockInputRowSet( new Object[][] { { "name1", "qwe123asd456zxc" }, { "name2", null } } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
@@ -206,7 +206,7 @@ public class CalculatorUnitTest {
           assertEquals( "123456", row[ 2 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -222,10 +222,10 @@ public class CalculatorUnitTest {
     RowSet inputRowSet = smh.getMockInputRowSet( new Object[] { -1L } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
@@ -235,10 +235,10 @@ public class CalculatorUnitTest {
     CalculatorData data = new CalculatorData();
     data = spy( data );
 
-    calculator.processRow( meta, data );
+    calculator.init();
     verify( data ).getValueMetaFor( eq( valueMeta.getType() ), anyString() );
 
-    calculator.processRow( meta, data );
+    calculator.init();
     verify( data ).clearValuesMetaMapping();
   }
 
@@ -631,10 +631,10 @@ public class CalculatorUnitTest {
     final String fieldResult = "test";
     final int expectedResultRowSize = inputRowMeta.size() + 1;
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( fieldResult, calcFunction, fieldA,
@@ -651,7 +651,7 @@ public class CalculatorUnitTest {
           assertEquals( msg, expectedResult, row[ fieldResultIndex ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail( msg + ke.getMessage() );
@@ -837,10 +837,10 @@ public class CalculatorUnitTest {
     }
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     calculator.addRowSetToInputRowSets( inputRowSet );
     calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    calculator.init();
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] {
@@ -858,7 +858,7 @@ public class CalculatorUnitTest {
           }
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();

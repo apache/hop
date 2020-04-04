@@ -62,12 +62,12 @@ public class MergeJoin extends BaseTransform implements ITransform {
   private MergeJoinMeta meta;
   private MergeJoinData data;
 
-  public MergeJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MergeJoin( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (MergeJoinMeta) smi;
     data = (MergeJoinData) sdi;
     int compare;
@@ -397,11 +397,11 @@ public class MergeJoin extends BaseTransform implements ITransform {
   /**
    * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (MergeJoinMeta) smi;
     data = (MergeJoinData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
       if ( infoStreams.get( 0 ).getTransformMeta() == null || infoStreams.get( 1 ).getTransformMeta() == null ) {
         logError( BaseMessages.getString( PKG, "MergeJoin.Log.BothTrueAndFalseNeeded" ) );

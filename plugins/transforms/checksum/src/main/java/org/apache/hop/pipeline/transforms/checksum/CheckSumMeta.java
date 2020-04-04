@@ -426,9 +426,9 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   }
 
   @Override
-  public CheckSum createTransform( TransformMeta transformMeta, CheckSumData iTransformData, int cnr, PipelineMeta tr,
+  public CheckSum createTransform( TransformMeta transformMeta, CheckSumData data, int cnr, PipelineMeta tr,
                                    Pipeline pipeline ) {
-    return new CheckSum( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new CheckSum( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

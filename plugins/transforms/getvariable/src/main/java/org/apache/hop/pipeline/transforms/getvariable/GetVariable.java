@@ -31,7 +31,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -42,16 +41,14 @@ import java.util.List;
  * @author Matt
  * @since 4-aug-2003
  */
-public class GetVariable extends BaseTransform implements ITransform {
-  private GetVariableMeta meta;
-  private GetVariableData data;
+public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData> implements ITransform<GetVariableMeta, GetVariableData> {
 
-  public GetVariable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetVariable( TransformMeta transformMeta, GetVariableMeta meta, GetVariableData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] rowData;
 
     if ( data.readsRows ) {
@@ -123,13 +120,11 @@ public class GetVariable extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetVariableMeta) smi;
-    data = (GetVariableData) sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
-//      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
+      //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
       if ( previous != null && previous.size() > 0 ) {
         data.readsRows = true;
@@ -138,10 +133,6 @@ public class GetVariable extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    super.dispose( smi, sdi );
   }
 
 }

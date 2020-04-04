@@ -238,9 +238,9 @@ public class PropertyInputMetaTest implements InitializerInterface<TransformMeta
     logField.setAccessible( true );
     logField.set( propertyInput, Mockito.mock( LogChannelInterface.class ) );
 
-    Mockito.doCallRealMethod().when( propertyInput ).dispose( propertyInputMeta, propertyInputData );
+    Mockito.doCallRealMethod().when( propertyInput ).dispose();
 
-    propertyInput.dispose( propertyInputMeta, propertyInputData );
+    propertyInput.dispose();
 
     Method method = PropertyInput.class.getDeclaredMethod( "openNextFile" );
     method.setAccessible( true );

@@ -256,9 +256,9 @@ public class ValueMapperMeta extends BaseTransformMeta implements TransformMetaI
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ValueMapper( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ValueMapper( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

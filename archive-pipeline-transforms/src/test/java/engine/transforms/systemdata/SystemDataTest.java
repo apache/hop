@@ -53,9 +53,9 @@ public class SystemDataTest {
     Object[] row = new Object[] { "anyData" };
     Object[] outputRow;
 
-    public SystemDataHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+    public SystemDataHandler( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @SuppressWarnings( "unused" )
@@ -121,15 +121,15 @@ public class SystemDataTest {
     types[ 0 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription() );
     types[ 1 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription() );
     SystemDataHandler systemData =
-      new SystemDataHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      new SystemDataHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     Object[] expectedRow = new Object[] { Const.getHostname(), Const.getHostnameReal() };
     IRowMeta inputRowMeta = mock( IRowMeta.class );
     when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
     when( inputRowMeta.size() ).thenReturn( 2 );
     systemDataData.outputRowMeta = inputRowMeta;
-    systemData.init( systemDataMeta, systemDataData );
-    assertFalse( systemData.processRow( systemDataMeta, systemDataData ) );
+    systemData.init();
+    assertFalse( systemData.processRow();
     Object[] out = systemData.getOutputRow();
     assertArrayEquals( expectedRow, out );
   }

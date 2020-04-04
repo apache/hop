@@ -78,7 +78,7 @@ public class LoadFileInputTest {
   private Pipeline pipeline;
 
   private LoadFileInputMeta transformMetaInterface;
-  private ITransformData iTransformData;
+  private LoadFileInputData iTransformData;
   private TransformMeta transformMeta;
   private FileInputList transformInputFiles;
   private int transformCopyNr;
@@ -140,7 +140,7 @@ public class LoadFileInputTest {
 
     transformCopyNr = 0;
 
-    transformLoadFileInput = new LoadFileInput( transformMeta, iTransformData, transformCopyNr, pipelineMeta, pipeline );
+    transformLoadFileInput = new LoadFileInput( transformMeta, transformMetaInterface, iTransformData, transformCopyNr, pipelineMeta, pipeline );
 
     assertSame( transformMetaInterface, transformMeta.getTransformMetaInterface() );
 
@@ -149,7 +149,7 @@ public class LoadFileInputTest {
 
     inputField = new LoadFileInputField();
     ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
-    transformLoadFileInput.init( runtimeSMI, runtimeSDI );
+    transformLoadFileInput.init();
   }
 
   private FileObject getFile( final String filename ) {
@@ -298,7 +298,7 @@ public class LoadFileInputTest {
     transformInputFiles.addFile( getFile( "input1.txt" ) );
 
     assertNotNull( transformLoadFileInput.getOneRow() );
-    assertEquals( "input1 - not empty", new String( transformLoadFileInput.data.filecontent ) );
+    assertEquals( "input1 - not empty", new String( transformLoadFileInput.getData().filecontent ) );
   }
 
   @Test
@@ -366,14 +366,14 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( null );
     transformInputFiles.addFile( getFile( "Windows-1252.txt" ) );
     assertNotEquals( " Windows-1252 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[ 0 ] );
-    assertEquals( " Windows-1252 string ÕÕÕ€ ", new String( transformLoadFileInput.data.filecontent, "Windows-1252" ) );
+    assertEquals( " Windows-1252 string ÕÕÕ€ ", new String( transformLoadFileInput.getData().filecontent, "Windows-1252" ) );
   }
 
   @Test
   public void testByteArray() throws Exception {
     IRowMeta mockedRowMetaInterface = mock( IRowMeta.class );
-    transformLoadFileInput.data.outputRowMeta = mockedRowMetaInterface;
-    transformLoadFileInput.data.convertRowMeta = mockedRowMetaInterface;
+    transformLoadFileInput.getData().outputRowMeta = mockedRowMetaInterface;
+    transformLoadFileInput.getData().convertRowMeta = mockedRowMetaInterface;
     Mockito.doReturn( new ValueMetaString() ).when( mockedRowMetaInterface ).getValueMeta( anyInt() );
 
     // byte array
@@ -385,7 +385,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
 
     assertNotNull( transformLoadFileInput.getOneRow() );
-    assertArrayEquals( IOUtils.toByteArray( getFile( "pentaho_splash.png" ).getContent().getInputStream() ), transformLoadFileInput.data.filecontent );
+    assertArrayEquals( IOUtils.toByteArray( getFile( "pentaho_splash.png" ).getContent().getInputStream() ), transformLoadFileInput.getData().filecontent );
   }
 
   @Test

@@ -492,9 +492,9 @@ public class MailValidatorMeta extends BaseTransformMeta implements TransformMet
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new MailValidator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new MailValidator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

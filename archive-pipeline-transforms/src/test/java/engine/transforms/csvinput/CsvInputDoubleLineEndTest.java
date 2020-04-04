@@ -99,10 +99,10 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
 
     CsvInput csvInput =
       new CsvInput(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
 
-    csvInput.init( meta, data );
+    csvInput.init();
     csvInput.addRowListener( new RowAdapter() {
       @Override
       public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
@@ -114,10 +114,10 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
 
     boolean haveRowsToRead;
     do {
-      haveRowsToRead = !csvInput.processRow( meta, data );
+      haveRowsToRead = !csvInput.init();
     } while ( !haveRowsToRead );
 
-    csvInput.dispose( meta, data );
+    csvInput.dispose();
     assertEquals( 2, csvInput.getLinesWritten() );
   }
 

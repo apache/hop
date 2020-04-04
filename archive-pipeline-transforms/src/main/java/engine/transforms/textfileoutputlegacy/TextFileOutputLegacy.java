@@ -44,9 +44,9 @@ import java.io.IOException;
 @Deprecated
 public class TextFileOutputLegacy extends TextFileOutput {
 
-  public TextFileOutputLegacy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileOutputLegacy( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                                Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

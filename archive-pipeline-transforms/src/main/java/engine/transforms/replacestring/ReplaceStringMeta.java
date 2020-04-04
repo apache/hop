@@ -475,9 +475,9 @@ public class ReplaceStringMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ReplaceString( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ReplaceString( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

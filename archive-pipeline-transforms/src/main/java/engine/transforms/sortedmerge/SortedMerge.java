@@ -52,9 +52,9 @@ public class SortedMerge extends BaseTransform implements ITransform {
   private SortedMergeMeta meta;
   private SortedMergeData data;
 
-  public SortedMerge( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SortedMerge( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -184,7 +184,7 @@ public class SortedMerge extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SortedMergeMeta) smi;
     data = (SortedMergeData) sdi;
 
@@ -204,11 +204,11 @@ public class SortedMerge extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SortedMergeMeta) smi;
     data = (SortedMergeData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // data.rowComparator = new RowComparator();
 
       // Add init code here.

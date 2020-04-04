@@ -55,13 +55,13 @@ public class ExecProcess extends BaseTransform implements ITransform {
   private ExecProcessMeta meta;
   private ExecProcessData data;
 
-  public ExecProcess( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExecProcess( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 
@@ -265,11 +265,11 @@ public class ExecProcess extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "ExecProcess.Error.ResultFieldMissing" ) );
         return false;
@@ -281,11 +281,11 @@ public class ExecProcess extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ExecProcessMeta) smi;
     data = (ExecProcessData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

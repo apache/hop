@@ -290,9 +290,9 @@ public class CloneRowMeta extends BaseTransformMeta implements ITransformMeta<Cl
   }
 
   @Override
-  public CloneRow createTransform( TransformMeta transformMeta, CloneRowData iTransformData, int cnr, PipelineMeta tr,
+  public CloneRow createTransform( TransformMeta transformMeta, CloneRowData data, int cnr, PipelineMeta tr,
                                    Pipeline pipeline ) {
-    return new CloneRow( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new CloneRow( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

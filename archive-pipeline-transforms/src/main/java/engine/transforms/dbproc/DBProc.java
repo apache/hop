@@ -56,9 +56,9 @@ public class DBProc extends BaseTransform implements ITransform {
   private DBProcMeta meta;
   private DBProcData data;
 
-  public DBProc( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DBProc( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] runProc( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -121,7 +121,7 @@ public class DBProc extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (DBProcMeta) smi;
     data = (DBProcData) sdi;
 
@@ -191,11 +191,11 @@ public class DBProc extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DBProcMeta) smi;
     data = (DBProcData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
       if ( previous != null && previous.size() > 0 ) {
@@ -234,7 +234,7 @@ public class DBProc extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DBProcMeta) smi;
     data = (DBProcData) sdi;
 
@@ -256,7 +256,7 @@ public class DBProc extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

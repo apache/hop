@@ -68,25 +68,18 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
-@SuppressWarnings( "deprecation" )
-public class ExcelWriterTransform extends BaseTransform implements ITransform {
-
-  public static final String STREAMER_FORCE_RECALC_PROP_NAME = "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
-
-  private ExcelWriterTransformData data;
-  private ExcelWriterTransformMeta meta;
+public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> implements ITransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
 
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
 
-  public ExcelWriterTransform( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, iTransformData, c, t, dis );
+  public static final String STREAMER_FORCE_RECALC_PROP_NAME = "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
+
+  public ExcelWriterTransform( TransformMeta transformMeta, ExcelWriterTransformMeta meta, ExcelWriterTransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-
-    meta = (ExcelWriterTransformMeta) smi;
-    data = (ExcelWriterTransformData) sdi;
+  public boolean processRow() throws HopException {
 
     // get next row
     Object[] r = getRow();
@@ -807,17 +800,9 @@ public class ExcelWriterTransform extends BaseTransform implements ITransform {
     }
   }
 
-  /**
-   * pipeline run initialize, may create the output file if specified by user options
-   *
-   * @see BaseTransform#init(ITransformMeta,
-   * ITransformData)
-   */
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelWriterTransformMeta) smi;
-    data = (ExcelWriterTransformData) sdi;
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       data.splitnr = 0;
       data.datalines = 0;
       data.realSheetname = environmentSubstitute( meta.getSheetname() );
@@ -838,15 +823,11 @@ public class ExcelWriterTransform extends BaseTransform implements ITransform {
   /**
    * pipeline run end
    *
-   * @see BaseTransform#dispose(ITransformMeta,
-   * ITransformData)
    */
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelWriterTransformMeta) smi;
-    data = (ExcelWriterTransformData) sdi;
+  public void dispose(){
     clearWorkbookMem();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

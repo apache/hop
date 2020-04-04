@@ -561,9 +561,9 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements TransformM
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new MySQLBulkLoader( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new MySQLBulkLoader( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -59,7 +59,7 @@ public class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelI
     meta.setIncludeSubFolders( new String[] { "N" } );
 
     transform = new ExcelInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

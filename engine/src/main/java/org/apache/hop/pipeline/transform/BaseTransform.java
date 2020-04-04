@@ -280,9 +280,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   public List<Object[]> terminator_rows;
 
-  private Meta transformMetaInterface;
-
-  private Data iTransformData;
+  protected Meta meta;
+  protected Data data;
 
   /**
    * The list of IRowListener interfaces
@@ -409,15 +408,16 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * transforms.
    *
    * @param transformMeta          The TransformMeta object to run.
-   * @param iTransformData the data object to store temporary data, database connections, caches, result sets,
+   * @param data the data object to store temporary data, database connections, caches, result sets,
    *                          hashtables etc.
    * @param copyNr            The copynumber for this transform.
    * @param pipelineMeta         The PipelineMeta of which the transform transformMeta is part of.
    * @param pipeline             The (running) pipeline to obtain information shared among the transforms.
    */
-  public BaseTransform( TransformMeta transformMeta, Data iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  public BaseTransform( TransformMeta transformMeta, Meta meta, Data data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     this.transformMeta = transformMeta;
-    this.iTransformData = iTransformData;
+    this.meta = meta;
+    this.data = data;
     this.copyNr = copyNr;
     this.pipelineMeta = pipelineMeta;
     this.pipeline = pipeline;
@@ -518,9 +518,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     lowerBufferBoundary = (int) ( pipeline.getRowSetSize() * 0.01 );
   }
 
-  @Override public boolean init( Meta smi, Data sdi ) {
+  @Override public boolean init() {
 
-    sdi.setStatus( TransformExecutionStatus.STATUS_INIT );
+    data.setStatus( TransformExecutionStatus.STATUS_INIT );
 
     if ( transformMeta.isPartitioned() ) {
       // This is a locally partitioned transform...
@@ -573,7 +573,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
       try {
         minRowsForMaxErrorPercent =
-          ( !Utils.isEmpty( transformErrorMeta.getMinPercentRows() ) ? Long.valueOf( pipeline
+          ( !Utils.isEmpty( transformErrorMeta.getMinPercentRows() ) ? Long.parseLong( pipeline
             .environmentSubstitute( transformErrorMeta.getMinPercentRows() ) ) : -1L );
       } catch ( NumberFormatException nfe ) {
         log.logError( BaseMessages.getString( PKG, "BaseTransform.Log.NumberFormatException", BaseMessages.getString(
@@ -603,8 +603,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return true;
   }
 
-  @Override public void dispose( Meta sii, Data sdi ) {
-    sdi.setStatus( TransformExecutionStatus.STATUS_DISPOSED );
+  @Override public void dispose() {
+    data.setStatus( TransformExecutionStatus.STATUS_DISPOSED );
   }
 
   /*
@@ -938,29 +938,45 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /**
    * @return Returns the transformMetaInterface.
    */
-  public Meta getTransformMetaInterface() {
-    return transformMetaInterface;
+  public Meta getMeta() {
+    return meta;
   }
 
   /**
-   * @param transformMetaInterface The transformMetaInterface to set.
+   * @param meta The transformMetaInterface to set.
    */
-  public void setTransformMetaInterface( Meta transformMetaInterface ) {
-    this.transformMetaInterface = transformMetaInterface;
+  public void setMeta( Meta meta ) {
+    this.meta = meta;
+  }
+
+  /**
+   * Gets data
+   *
+   * @return value of data
+   */
+  public Data getData() {
+    return data;
+  }
+
+  /**
+   * @param data The data to set
+   */
+  public void setData( Data data ) {
+    this.data = data;
   }
 
   /**
    * @return Returns the iTransformData.
    */
   public ITransformData getTransformDataInterface() {
-    return iTransformData;
+    return data;
   }
 
   /**
    * @param iTransformData The iTransformData to set.
    */
   public void setTransformDataInterface( Data iTransformData ) {
-    this.iTransformData = iTransformData;
+    this.data = iTransformData;
   }
 
   /**
@@ -2947,11 +2963,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Perform actions to stop a running transform. This can be stopping running SQL queries (cancel), etc. Default it doesn't
    * do anything.
    *
-   * @param transformMetaInterface the object which contains the transform specific metadata
-   * @param iTransformData The interface to the transform data containing the connections, resultsets, open files, etc.
    * @throws HopException in case something goes wrong
    */
-  @Override public void stopRunning( Meta transformMetaInterface, Data iTransformData ) throws HopException {
+  @Override public void stopRunning( ) throws HopException {
     // Nothing by default
   }
 
@@ -3540,13 +3554,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     this.transformListeners = Collections.synchronizedList( transformListeners );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransform#processRow(org.apache.hop.pipeline.transform.ITransformMeta,
-   * org.apache.hop.pipeline.transform.ITransformData)
-   */
-  @Override public boolean processRow( Meta smi, Data sdi ) throws HopException {
+
+  @Override public boolean processRow( ) throws HopException {
     return false;
   }
 
@@ -3865,7 +3874,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
   }
-
 
 }
 

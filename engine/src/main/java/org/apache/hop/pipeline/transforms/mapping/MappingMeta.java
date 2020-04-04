@@ -479,9 +479,9 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     }
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, MappingData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform createTransform( TransformMeta transformMeta, MappingData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new Mapping( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new Mapping( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public MappingData getTransformData() {

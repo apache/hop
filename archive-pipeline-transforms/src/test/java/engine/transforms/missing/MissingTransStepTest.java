@@ -67,7 +67,7 @@ public class MissingPipelineTransformTest {
       }
 
       @Override
-      public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+      public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int copyNr,
                                     PipelineMeta pipelineMeta,
                                     Pipeline pipeline ) {
         return null;
@@ -90,16 +90,16 @@ public class MissingPipelineTransformTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform( transformMeta );
 
-    MissingPipelineTransform transform = createAndInitTransform( transformMetaInterface, iTransformData );
+    MissingPipelineTransform transform = createAndInitTransform( transformMetaInterface, data );
 
-    assertFalse( transform.init( transformMetaInterface, iTransformData ) );
+    assertFalse( transform.init() );
   }
 
   private MissingPipelineTransform createAndInitTransform( TransformMetaInterface meta, ITransformData data ) {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
 
-    MissingPipelineTransform transform = new MissingPipelineTransform( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );
-    transform.init( meta, data );
+    MissingPipelineTransform transform = new MissingPipelineTransform( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    transform.init();
     return transform;
   }
 

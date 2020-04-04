@@ -50,12 +50,12 @@ public class SSH extends BaseTransform implements ITransform {
   private SSHMeta meta;
   private SSHData data;
 
-  public SSH( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public SSH( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 
@@ -198,11 +198,11 @@ public class SSH extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       String servername = environmentSubstitute( meta.getServerName() );
       int nrPort = Const.toInt( environmentSubstitute( meta.getPort() ), 22 );
       String username = environmentSubstitute( meta.getuserName() );
@@ -256,7 +256,7 @@ public class SSH extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (SSHMeta) smi;
     data = (SSHData) sdi;
 
@@ -267,6 +267,6 @@ public class SSH extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

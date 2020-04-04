@@ -51,15 +51,13 @@ import java.sql.SQLException;
  * @author Matt
  * @since 8-apr-2003
  */
-public class TableInput extends BaseTransform implements ITransform {
+public class TableInput extends BaseTransform<TableInputMeta, TableInputData> implements ITransform<TableInputMeta, TableInputData> {
+
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private TableInputMeta meta;
-  private TableInputData data;
-
-  public TableInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TableInput( TransformMeta transformMeta, TableInputMeta meta, TableInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private RowMetaAndData readStartDate() throws HopException {
@@ -94,7 +92,7 @@ public class TableInput extends BaseTransform implements ITransform {
     return parameters;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( first ) { // we just got started
 
       Object[] parameters;
@@ -268,7 +266,7 @@ public class TableInput extends BaseTransform implements ITransform {
     return success;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose() {
     if ( log.isBasic() ) {
       logBasic( "Finished reading query, closing connection." );
     }
@@ -284,18 +282,16 @@ public class TableInput extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**
    * Stop the running query
    */
-  public synchronized void stopRunning( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    if ( this.isStopped() || sdi.isDisposed() ) {
+  public synchronized void stopRunning()throws HopException {
+    if ( this.isStopped() || data.isDisposed() ) {
       return;
     }
-    meta = (TableInputMeta) smi;
-    data = (TableInputData) sdi;
 
     setStopped( true );
 
@@ -305,11 +301,10 @@ public class TableInput extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (TableInputMeta) smi;
-    data = (TableInputData) sdi;
+  @Override
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Verify some basic things first...
       //
       boolean passed = true;

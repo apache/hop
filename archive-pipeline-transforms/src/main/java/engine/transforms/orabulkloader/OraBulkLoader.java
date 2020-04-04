@@ -121,9 +121,9 @@ public class OraBulkLoader extends BaseTransform implements ITransform {
 
   }
 
-  public OraBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public OraBulkLoader( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private String substituteRecordTerminator( String terminator ) {
@@ -491,7 +491,7 @@ public class OraBulkLoader extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
@@ -573,21 +573,21 @@ public class OraBulkLoader extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
     Pipeline pipeline = getPipeline();
     preview = pipeline.isPreview();
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (OraBulkLoaderMeta) smi;
     data = (OraBulkLoaderData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
 
     // close output stream (may terminate running sqlldr)
     if ( output != null ) {

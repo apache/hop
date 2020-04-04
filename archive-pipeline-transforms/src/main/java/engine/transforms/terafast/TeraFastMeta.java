@@ -246,9 +246,9 @@ public class TeraFastMeta extends AbstractTransformMeta {
    * @see org.apache.hop.pipeline.transform.TransformMetaInterface#getTransform(org.apache.hop.pipeline.transform.TransformMeta,
    * org.apache.hop.pipeline.transform.ITransformData, int, org.apache.hop.pipeline.PipelineMeta, org.apache.hop.pipeline.Pipeline)
    */
-  public ITransform getTransform( final TransformMeta transformMeta, final ITransformData iTransformData, final int cnr,
+  public ITransform getTransform( final TransformMeta transformMeta, final ITransformData data, final int cnr,
                                 final PipelineMeta pipelineMeta, final Pipeline disp ) {
-    return new TeraFast( transformMeta, iTransformData, cnr, pipelineMeta, disp );
+    return new TeraFast( transformMeta, data, cnr, pipelineMeta, disp );
   }
 
   /**

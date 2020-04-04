@@ -271,7 +271,7 @@ public class SingleThreadedPipelineExecutor {
     // Initialize all the transforms...
     //
     for ( TransformMetaDataCombi combi : transforms ) {
-      boolean ok = combi.transform.init( combi.meta, combi.data );
+      boolean ok = combi.transform.init();
       if ( !ok ) {
         return false;
       }
@@ -306,7 +306,7 @@ public class SingleThreadedPipelineExecutor {
           boolean once = true;
           while ( once || ( rowSet.size() > 0 && !transformDone ) ) {
             once = false;
-            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            transformDone = !combi.transform.processRow();
             if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
@@ -324,7 +324,7 @@ public class SingleThreadedPipelineExecutor {
         //
         if ( rowSets.size() == 0 ) {
           while ( !transformDone && !pipeline.isStopped() ) {
-            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            transformDone = !combi.transform.processRow();
             if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
@@ -341,7 +341,7 @@ public class SingleThreadedPipelineExecutor {
           // Now do the number of processRows() calls.
           //
           for ( int i = 0; i < nrRows; i++ ) {
-            transformDone = !combi.transform.processRow( combi.meta, combi.data );
+            transformDone = !combi.transform.processRow();
             if ( combi.transform.getErrors() > 0 ) {
               return false;
             }
@@ -393,7 +393,7 @@ public class SingleThreadedPipelineExecutor {
     // Finalize all the transforms...
     //
     for ( TransformMetaDataCombi combi : transforms ) {
-      combi.transform.dispose( combi.meta, combi.data );
+      combi.transform.dispose();
       combi.transform.markStop();
     }
 

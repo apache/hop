@@ -57,9 +57,9 @@ public class YamlInput extends BaseTransform implements ITransform {
 
   private YamlInputData data;
 
-  public YamlInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public YamlInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void handleMissingFiles() throws HopException {
@@ -213,7 +213,7 @@ public class YamlInput extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( first && !meta.isInFields() ) {
       first = false;
 
@@ -377,11 +377,11 @@ public class YamlInput extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (YamlInputMeta) smi;
     data = (YamlInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.rownr = 1L;
       data.nrInputFields = meta.getInputFields().length;
 
@@ -405,7 +405,7 @@ public class YamlInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (YamlInputMeta) smi;
     data = (YamlInputData) sdi;
     if ( data.yaml != null ) {
@@ -422,7 +422,7 @@ public class YamlInput extends BaseTransform implements ITransform {
         // Ignore
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

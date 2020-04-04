@@ -73,12 +73,12 @@ public class CsvInput extends BaseTransform implements ITransform {
   private CsvInputMeta meta;
   private CsvInputData data;
 
-  public CsvInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CsvInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (CsvInputMeta) smi;
     data = (CsvInputData) sdi;
 
@@ -294,7 +294,7 @@ public class CsvInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     try {
       // Close the previous file...
       //
@@ -313,7 +313,7 @@ public class CsvInput extends BaseTransform implements ITransform {
       logError( "Error closing file input stream", e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private boolean openNextFile() throws HopException {
@@ -841,11 +841,11 @@ public class CsvInput extends BaseTransform implements ITransform {
   }
 
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (CsvInputMeta) smi;
     data = (CsvInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // PDI-10242 see if a variable is used as encoding value
       String realEncoding = environmentSubstitute( meta.getEncoding() );
       data.preferredBufferSize = Integer.parseInt( environmentSubstitute( meta.getBufferSize() ) );

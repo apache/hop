@@ -139,7 +139,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_BIG_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
@@ -167,7 +167,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_BIG_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
@@ -198,7 +198,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_INTEGER_FORMAT_MASK, vmi.getConversionMask() );
@@ -229,7 +229,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_INTEGER_FORMAT_MASK, vmi.getConversionMask() );
@@ -258,7 +258,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
@@ -290,7 +290,7 @@ public class SelectValuesTest {
     transformData.metadata = true;
     transformData.firstselect = true;
     transformData.firstmetadata = true;
-    transform2.processRow( transformMeta, transformData );
+    transform2.processRow();
 
     vmi = transform2.rowMeta.getValueMeta( 0 );
     assertEquals( ValueMetaBase.DEFAULT_BIG_NUMBER_FORMAT_MASK, vmi.getConversionMask() );
@@ -313,7 +313,7 @@ public class SelectValuesTest {
     transformData.firstselect = true;
     transformData.firstmetadata = true;
 
-    transform.processRow( transformMeta, transformData );
+    transform.processRow();
 
     verify( transform )
       .putError( any( IRowMeta.class ), any( Object[].class ), anyLong(), anyString(), eq( SELECTED_FIELD ),
@@ -335,9 +335,9 @@ public class SelectValuesTest {
     private IRowMeta rowMeta;
     private RowSet rowset;
 
-    public SelectValuesHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+    public SelectValuesHandler( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

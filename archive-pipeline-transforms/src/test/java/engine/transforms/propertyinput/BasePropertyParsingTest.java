@@ -56,7 +56,7 @@ public class BasePropertyParsingTest extends BaseParsingTest<PropertyInputMeta, 
     meta.setExcludeFileMask( new String[ 1 ] );
 
     transform = new PropertyInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

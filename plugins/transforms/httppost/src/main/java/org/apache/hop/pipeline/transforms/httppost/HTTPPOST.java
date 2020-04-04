@@ -82,19 +82,16 @@ import static org.apache.hop.pipeline.transforms.httppost.HTTPPOSTMeta.DEFAULT_E
  * @since 15-jan-2009
  */
 
-public class HTTPPOST extends BaseTransform implements ITransform {
+public class HTTPPOST extends BaseTransform<HTTPPOSTMeta, HTTPPOSTData> implements ITransform<HTTPPOSTMeta, HTTPPOSTData> {
 
   private static Class<?> PKG = HTTPPOSTMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   private static final String CONTENT_TYPE = "Content-type";
   private static final String CONTENT_TYPE_TEXT_XML = "text/xml";
 
-  private HTTPPOSTMeta meta;
-  private HTTPPOSTData data;
-
-  public HTTPPOST( TransformMeta transformMeta, ITransformData iTransformData,
+  public HTTPPOST( TransformMeta transformMeta, HTTPPOSTMeta meta, HTTPPOSTData data,
                    int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] callHTTPPOST( Object[] rowData ) throws HopException {
@@ -353,9 +350,7 @@ public class HTTPPOST extends BaseTransform implements ITransform {
     return response.getAllHeaders();
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (HTTPPOSTMeta) smi;
-    data = (HTTPPOSTData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -527,11 +522,9 @@ public class HTTPPOST extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (HTTPPOSTMeta) smi;
-    data = (HTTPPOSTData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // get authentication settings once
       data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
       data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
@@ -548,10 +541,4 @@ public class HTTPPOST extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (HTTPPOSTMeta) smi;
-    data = (HTTPPOSTData) sdi;
-
-    super.dispose( smi, sdi );
-  }
 }

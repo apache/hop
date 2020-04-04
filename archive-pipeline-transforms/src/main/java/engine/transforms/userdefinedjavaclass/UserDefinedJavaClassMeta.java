@@ -583,10 +583,10 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements Trans
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     UserDefinedJavaClass userDefinedJavaClass =
-      new UserDefinedJavaClass( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+      new UserDefinedJavaClass( transformMeta, this, data, cnr, pipelineMeta, pipeline );
     if ( pipeline.hasHaltedTransforms() ) {
       return null;
     }

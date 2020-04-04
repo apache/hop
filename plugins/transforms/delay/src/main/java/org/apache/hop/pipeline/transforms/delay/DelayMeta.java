@@ -197,9 +197,9 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
     remarks.add( cr );
   }
 
-  public Delay createTransform( TransformMeta transformMeta, DelayData iTransformData, int cnr, PipelineMeta tr,
+  public Delay createTransform( TransformMeta transformMeta, DelayData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new Delay( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new Delay( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public DelayData getTransformData() {

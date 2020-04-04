@@ -309,9 +309,9 @@ public class SystemDataMeta extends BaseTransformMeta implements TransformMetaIn
 
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SystemData( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SystemData( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -95,7 +95,7 @@ public class MappingParametersTest {
     meta.setMappingParameters( mapPar );
 
     MappingData data = new MappingData();
-    transform.init( meta, data );
+    transform.init();
   }
 
 }

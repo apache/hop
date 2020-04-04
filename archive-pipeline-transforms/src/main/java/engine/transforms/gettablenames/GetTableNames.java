@@ -54,9 +54,9 @@ public class GetTableNames extends BaseTransform implements ITransform {
   private GetTableNamesMeta meta;
   private GetTableNamesData data;
 
-  public GetTableNames( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetTableNames( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,7 +71,7 @@ public class GetTableNames extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (GetTableNamesMeta) smi;
     data = (GetTableNamesData) sdi;
 
@@ -395,11 +395,11 @@ public class GetTableNames extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (GetTableNamesMeta) smi;
     data = (GetTableNamesData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getTablenameFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "GetTableNames.Error.TablenameFieldNameMissing" ) );
         return false;
@@ -457,14 +457,14 @@ public class GetTableNames extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (GetTableNamesMeta) smi;
     data = (GetTableNamesData) sdi;
     if ( data.db != null ) {
       data.db.disconnect();
       data.db = null;
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

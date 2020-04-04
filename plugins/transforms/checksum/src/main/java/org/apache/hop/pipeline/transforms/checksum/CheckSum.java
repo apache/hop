@@ -46,24 +46,17 @@ import java.util.zip.CRC32;
  * @author Samatar Hassan
  * @since 30-06-2008
  */
-public class CheckSum extends BaseTransform implements ITransform {
+public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implements ITransform<CheckSumMeta, CheckSumData> {
 
   private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CheckSumMeta meta;
-
-  private CheckSumData data;
-
-  public CheckSum( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CheckSum( TransformMeta transformMeta, CheckSumMeta meta, CheckSumData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  @SuppressWarnings( "deprecation" )
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (CheckSumMeta) smi;
-    data = (CheckSumData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) {
@@ -275,11 +268,8 @@ public class CheckSum extends BaseTransform implements ITransform {
 
   @SuppressWarnings( "deprecation" )
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CheckSumMeta) smi;
-    data = (CheckSumData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "CheckSum.Error.ResultFieldMissing" ) );
         return false;

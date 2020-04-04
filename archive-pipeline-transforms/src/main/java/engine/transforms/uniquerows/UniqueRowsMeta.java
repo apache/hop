@@ -273,9 +273,9 @@ public class UniqueRowsMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new UniqueRows( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new UniqueRows( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

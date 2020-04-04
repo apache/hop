@@ -151,9 +151,9 @@ public class MappingInputFieldsTest {
     transform.addRowSetToInputRowSets( in );
     transform.addRowSetToOutputRowSets( out );
 
-    assertTrue( transform.init( meta, sdi ) );
+    assertTrue( transform.init() );
 
-    assertTrue( transform.processRow( meta, sdi ) );
+    assertTrue( transform.processRow();
 
     Object[] outRowData = out.getRow();
 
@@ -194,7 +194,7 @@ public class MappingInputFieldsTest {
     assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[ 5 ] );
     assertEquals( "the field value mismatch.", "str", outRowData[ 6 ] );
 
-    assertTrue( transform.processRow( meta, sdi ) );
+    assertTrue( transform.processRow();
 
     outRowData = out.getRow();
 
@@ -273,9 +273,9 @@ public class MappingInputFieldsTest {
     transform.addRowSetToInputRowSets( in );
     transform.addRowSetToOutputRowSets( out );
 
-    assertTrue( transform.init( meta, sdi ) );
+    assertTrue( transform.init() );
 
-    assertTrue( transform.processRow( meta, sdi ) );
+    assertTrue( transform.processRow();
 
     Object[] outRowData = out.getRow();
 
@@ -316,7 +316,7 @@ public class MappingInputFieldsTest {
     assertEquals( "the field value mismatch.", new Integer( 100504 ), outRowData[ 5 ] );
     assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[ 6 ] );
 
-    assertTrue( transform.processRow( meta, sdi ) );
+    assertTrue( transform.processRow();
 
     outRowData = out.getRow();
 

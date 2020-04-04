@@ -233,9 +233,9 @@ public class SingleThreaderMeta
 
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, SingleThreaderData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform createTransform( TransformMeta transformMeta, SingleThreaderData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new SingleThreader( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new SingleThreader( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public SingleThreaderData getTransformData() {

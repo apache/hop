@@ -126,15 +126,15 @@ public class FieldSplitterTest {
 
   @Test
   public void testSplitFields() throws HopException {
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     transform.setInputRowMeta( getInputRowMeta() );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
 
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.init();
     } while ( hasMoreRows );
 
     RowSet outputRowSet = transform.getOutputRowSets().get( 0 );
@@ -158,8 +158,8 @@ public class FieldSplitterTest {
     meta.setFieldName( new String[] { "key", "val" } );
     meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
 
-    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( meta, smh.iTransformData );
+    FieldSplitter transform = new FieldSplitter( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "key" ) );
@@ -170,7 +170,7 @@ public class FieldSplitterTest {
     transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "key", "string", "part1 part2" } ) );
     transform.addRowSetToOutputRowSets( new SingleRowRowSet() );
 
-    assertTrue( transform.processRow( meta, smh.iTransformData ) );
+    assertTrue( transform.processRow();
 
     RowSet rs = transform.getOutputRowSets().get( 0 );
     Object[] row = rs.getRow();

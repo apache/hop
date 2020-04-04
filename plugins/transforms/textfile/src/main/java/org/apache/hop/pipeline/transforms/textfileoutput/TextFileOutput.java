@@ -64,7 +64,7 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransformData>
+public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
   extends BaseTransform<Meta, Data>
   implements ITransform<Meta, Data> {
 
@@ -75,13 +75,9 @@ public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransform
   private static final boolean COMPATIBILITY_APPEND_NO_HEADER = "Y".equals(
     Const.NVL( System.getProperty( Const.HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER ), "N" ) );
 
-  public TextFileOutputMeta meta;
-
-  public TextFileOutputData data;
-
-  public TextFileOutput( TransformMeta transformMeta, Data iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileOutput( TransformMeta transformMeta, Meta meta, Data data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void initFieldNumbers( IRowMeta outputRowMeta, TextFileField[] outputFields ) throws HopException {
@@ -436,9 +432,7 @@ public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransform
     data.getFileStreamsCollection().flushOpenFiles( true );
   }
 
-  public synchronized boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (TextFileOutputMeta) smi;
-    data = (TextFileOutputData) sdi;
+  public synchronized boolean processRow() throws HopException {
 
     if ( ( meta.getEncoding() == null ) || ( meta.getEncoding().isEmpty() ) ) {
       meta.setEncoding( CharsetToolkit.getDefaultSystemCharset().name() );
@@ -819,11 +813,10 @@ public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransform
     return retval;
   }
 
-  public boolean init( Meta smi, Data sdi ) {
-    meta = (TextFileOutputMeta) smi;
-    data = (TextFileOutputData) sdi;
+  @Override
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.splitnr = 0;
       // In case user want to create file at first row
       // In that case, DO NOT create file at Init
@@ -915,10 +908,8 @@ public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransform
     }
   }
 
-  public void dispose( Meta smi, Data sdi ) {
-    meta = (TextFileOutputMeta) smi;
-    data = (TextFileOutputData) sdi;
-
+  @Override
+  public void dispose() {
     try {
       close();
     } catch ( Exception e ) {
@@ -929,7 +920,7 @@ public class TextFileOutput<Meta extends ITransformMeta, Data extends ITransform
     data.out = null;
     data.fos = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   public boolean containsSeparatorOrEnclosure( byte[] source, byte[] separator, byte[] enclosure ) {

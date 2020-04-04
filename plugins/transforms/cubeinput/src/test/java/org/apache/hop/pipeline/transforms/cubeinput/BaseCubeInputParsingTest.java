@@ -50,8 +50,8 @@ public class BaseCubeInputParsingTest extends BaseParsingTest<CubeInputMeta, Cub
   protected void init( String file ) throws Exception {
     meta.setFilename( getFile( file ).getURL().getFile() );
 
-    transform = new CubeInput( transformMeta, null, 1, pipelineMeta, pipeline );
-    transform.init( meta, data );
+    transform = new CubeInput( transformMeta, meta, null, 1, pipelineMeta, pipeline );
+    transform.init();
     transform.addRowListener( rowListener );
   }
 

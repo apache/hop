@@ -130,7 +130,7 @@ public abstract class TransformClassBase {
     return parent.decrementLinesWrittenImpl();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     parent.disposeImpl( smi, sdi );
   }
 
@@ -347,7 +347,7 @@ public abstract class TransformClassBase {
   }
 
   public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
-    return parent.initImpl( transformMetaInterface, iTransformData );
+    return parent.initImpl( transformMetaInterface, data );
   }
 
   public void initBeforeStart() throws HopTransformException {
@@ -430,7 +430,7 @@ public abstract class TransformClassBase {
     return parent.outputIsDoneImpl();
   }
 
-  public abstract boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException;
+  public abstract boolean.processRow() throws HopException;
 
   public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
@@ -522,7 +522,7 @@ public abstract class TransformClassBase {
   }
 
   public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
-    parent.stopRunningImpl( transformMetaInterface, iTransformData );
+    parent.stopRunningImpl( transformMetaInterface, data );
   }
 
   public String toString() {

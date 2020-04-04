@@ -52,8 +52,10 @@ import static org.mockito.Mockito.when;
  */
 public class TransformMockUtil {
 
-  public static <T extends ITransformMeta, V extends BaseTransform> TransformMockHelper<T, ITransformData> getTransformMockHelper( Class<T> meta, String name ) {
-    TransformMockHelper<T, ITransformData> transformMockHelper = new TransformMockHelper<T, ITransformData>( name, meta, ITransformData.class );
+  public static <Main extends BaseTransform, Meta extends ITransformMeta, Data extends ITransformData> TransformMockHelper<Meta, Data> getTransformMockHelper( Class<Meta> metaClass, Class<Data> dataClass, String name ) {
+
+    TransformMockHelper<Meta, Data> transformMockHelper = new TransformMockHelper<Meta, Data>( name, metaClass, dataClass );
+
     when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any(), ArgumentMatchers.any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any() ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
@@ -67,9 +69,9 @@ public class TransformMockUtil {
     return transform;
   }
 
-  public static <T extends BaseTransform, K extends ITransformMeta> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, String transformName )
+  public static <T extends BaseTransform, K extends ITransformMeta, Data extends ITransformData> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, Class<Data> dataClass, String transformName )
     throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, transformName ) );
+    return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, dataClass, transformName ) );
   }
 
 }

@@ -205,9 +205,9 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
     remarks.add( cr );
   }
 
-  @Override public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  @Override public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                           Pipeline pipeline ) {
-    return new CubeInput( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new CubeInput( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override public ITransformData getTransformData() {

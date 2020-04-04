@@ -53,9 +53,9 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   private ExecSQLRowMeta meta;
   private ExecSQLRowData data;
 
-  public ExecSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExecSQLRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public static final RowMetaAndData getResultRow( Result result, String upd, String ins, String del, String read ) {
@@ -89,7 +89,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
@@ -193,7 +193,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
@@ -219,7 +219,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**
@@ -236,11 +236,11 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ExecSQLRowMeta) smi;
     data = (ExecSQLRowData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "ExecSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;

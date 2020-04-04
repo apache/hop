@@ -48,12 +48,12 @@ public class CreditCardValidator extends BaseTransform implements ITransform {
   private CreditCardValidatorMeta meta;
   private CreditCardValidatorData data;
 
-  public CreditCardValidator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public CreditCardValidator( TransformMeta transformMeta, ITransformData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (CreditCardValidatorMeta) smi;
     data = (CreditCardValidatorData) sdi;
 
@@ -171,11 +171,11 @@ public class CreditCardValidator extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (CreditCardValidatorMeta) smi;
     data = (CreditCardValidatorData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "CreditCardValidator.Error.ResultFieldMissing" ) );
         return false;
@@ -185,10 +185,10 @@ public class CreditCardValidator extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (CreditCardValidatorMeta) smi;
     data = (CreditCardValidatorData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

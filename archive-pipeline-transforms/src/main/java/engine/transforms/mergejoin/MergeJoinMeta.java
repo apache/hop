@@ -259,9 +259,9 @@ public class MergeJoinMeta extends BaseTransformMeta implements TransformMetaInt
     return;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new MergeJoin( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new MergeJoin( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

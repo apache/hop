@@ -65,9 +65,9 @@ public class MultiMergeJoin extends BaseTransform implements ITransform {
   private MultiMergeJoinMeta meta;
   private MultiMergeJoinData data;
 
-  public MultiMergeJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MultiMergeJoin( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean processFirstRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
@@ -189,7 +189,7 @@ public class MultiMergeJoin extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
@@ -378,11 +378,11 @@ public class MultiMergeJoin extends BaseTransform implements ITransform {
   /**
    * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       TransformIOMetaInterface transformIOMeta = meta.getTransformIOMeta();
       String[] inputTransformNames = meta.getInputTransforms();
       String inputTransformName;

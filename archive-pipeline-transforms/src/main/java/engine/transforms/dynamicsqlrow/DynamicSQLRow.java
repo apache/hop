@@ -52,9 +52,9 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
   private DynamicSQLRowMeta meta;
   private DynamicSQLRowData data;
 
-  public DynamicSQLRow( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DynamicSQLRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -216,7 +216,7 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
 
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
@@ -291,11 +291,11 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DynmaicSQLRow.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -331,7 +331,7 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;
 
@@ -339,6 +339,6 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
       data.db.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

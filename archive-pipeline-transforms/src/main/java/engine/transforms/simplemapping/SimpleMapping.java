@@ -58,9 +58,9 @@ public class SimpleMapping extends BaseTransform implements ITransform {
   private SimpleMappingMeta meta;
   private SimpleMappingData data;
 
-  public SimpleMapping( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SimpleMapping( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -68,7 +68,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the Mapping.
    */
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SimpleMappingMeta) smi;
     setData( (SimpleMappingData) sdi );
     SimpleMappingData simpleMappingData = getData();
@@ -234,11 +234,11 @@ public class SimpleMapping extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SimpleMappingMeta) smi;
     setData( (SimpleMappingData) sdi );
     SimpleMappingData simpleMappingData = getData();
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // First we need to load the mapping (pipeline)
       try {
         // Pass the MetaStore down to the metadata object...
@@ -268,7 +268,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     // Close the running pipeline
     if ( getData().wasStarted ) {
       if ( !getData().mappingPipeline.isFinished() ) {
@@ -285,7 +285,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
         setErrors( 1 );
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {

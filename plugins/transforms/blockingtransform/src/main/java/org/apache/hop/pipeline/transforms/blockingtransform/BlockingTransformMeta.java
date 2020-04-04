@@ -142,9 +142,9 @@ public class BlockingTransformMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public BlockingTransform createTransform( TransformMeta transformMeta, BlockingTransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public BlockingTransform createTransform( TransformMeta transformMeta, BlockingTransformData data, int copyNr, PipelineMeta pipelineMeta,
                                             Pipeline pipeline ) {
-    return new BlockingTransform( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    return new BlockingTransform( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -106,14 +106,14 @@ public class DataGrid_EmptyStringVsNull_Test {
     DataGridData data = new DataGridData();
     DataGrid transform = createAndInitTransform( meta, data );
 
-    List<Object[]> actual = PipelineTestingUtil.execute( transform, meta, data, 3, true );
+    List<Object[]> actual = PipelineTestingUtil.execute( transform, 3, true );
     PipelineTestingUtil.assertResult( expected, actual );
   }
 
   private DataGrid createAndInitTransform( DataGridMeta meta, DataGridData data ) {
     when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
-    DataGrid transform = new DataGrid( helper.transformMeta, data, 0, helper.pipelineMeta, helper.pipeline );
-    transform.init( meta, data );
+    DataGrid transform = new DataGrid( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    transform.init();
     return transform;
   }
 }

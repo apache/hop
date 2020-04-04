@@ -46,21 +46,16 @@ import java.util.zip.GZIPOutputStream;
  * @since 4-apr-2003
  */
 
-public class CubeOutput extends BaseTransform implements ITransform {
+public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> implements ITransform<CubeOutputMeta, CubeOutputData> {
+
   private static Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CubeOutputMeta meta;
-  private CubeOutputData data;
-
-  public CubeOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CubeOutput( TransformMeta transformMeta, CubeOutputMeta meta, CubeOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (CubeOutputMeta) smi;
-    data = (CubeOutputData) sdi;
-
+  public boolean processRow() throws HopException {
     Object[] r;
     boolean result = true;
 
@@ -155,11 +150,8 @@ public class CubeOutput extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (CubeOutputMeta) smi;
-    data = (CubeOutputData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( !meta.isDoNotOpenNewFileInit() ) {
         try {
           prepareFile();
@@ -197,7 +189,7 @@ public class CubeOutput extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose(){
     if ( data.oneFileOpened ) {
       try {
         if ( data.dos != null ) {
@@ -219,6 +211,6 @@ public class CubeOutput extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

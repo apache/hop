@@ -59,12 +59,12 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
   String schemaName;
   String tableName;
 
-  public SQLFileOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SQLFileOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SQLFileOutputMeta) smi;
     data = (SQLFileOutputData) sdi;
 
@@ -282,11 +282,11 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
     return retval;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SQLFileOutputMeta) smi;
     data = (SQLFileOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         if ( meta.getDatabaseMeta() == null ) {
           throw new HopTransformException( "The connection is not defined (empty)" );
@@ -354,7 +354,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (SQLFileOutputMeta) smi;
     data = (SQLFileOutputData) sdi;
 
@@ -374,7 +374,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
       if ( data.db != null ) {
         data.db.disconnect();
       }
-      super.dispose( smi, sdi );
+      super.dispose();
     }
   }
 

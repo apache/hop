@@ -159,7 +159,7 @@ public class TextFileInputDialogTest {
     RowSet output = new BlockingRowSet( 5 );
     TextFileInput input = TransformMockUtil.getTransform( TextFileInput.class, TextFileInputMeta.class, "test" );
     input.setOutputRowSets( Collections.singletonList( output ) );
-    while ( input.processRow( meta, data ) ) {
+    while ( input.processRow() ) {
       // wait until the transform completes executing
     }
 

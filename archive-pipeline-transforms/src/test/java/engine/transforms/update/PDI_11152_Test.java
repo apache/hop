@@ -92,11 +92,11 @@ public class PDI_11152_Test {
     transformData.keynrs2 = new int[] { -1 };
     transformData.updateParameterRowMeta = when( mock( RowMeta.class ).size() ).thenReturn( 2 ).getMock();
 
-    Update transform = new Update( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    Update transform = new Update( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
     transform.setInputRowMeta( inputRowMeta );
     transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "2013-12-20".getBytes() } ) );
-    transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    transform.init();
     transform.first = false;
-    Assert.assertTrue( "Failure during row processing", transform.processRow( transformMeta, transformData ) );
+    Assert.assertTrue( "Failure during row processing", transform.processRow() );
   }
 }

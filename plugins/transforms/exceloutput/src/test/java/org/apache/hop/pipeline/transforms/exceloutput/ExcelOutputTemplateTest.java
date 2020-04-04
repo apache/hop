@@ -67,13 +67,12 @@ public class ExcelOutputTemplateTest {
 
   @Test
   public void testExceptionClosingWorkbook() throws Exception {
-    ExcelOutput excelOutput =
-      new ExcelOutput( helper.transformMeta, helper.iTransformData, 0, helper.pipelineMeta, helper.pipeline );
     ExcelOutputMeta meta = createTransformMeta();
-    excelOutput.init( meta, helper.initTransformDataInterface );
+    ExcelOutput excelOutput = new ExcelOutput( helper.transformMeta, meta, helper.iTransformData, 0, helper.pipelineMeta, helper.pipeline );
+    excelOutput.init();
     Assert.assertEquals( "Transform init error.", 0, excelOutput.getErrors() );
-    helper.initTransformDataInterface.formats = new HashMap<>();
-    excelOutput.dispose( meta, helper.initTransformDataInterface );
+    helper.iTransformData.formats = new HashMap<>();
+    excelOutput.dispose();
     Assert.assertEquals( "Transform dispose error", 0, excelOutput.getErrors() );
   }
 

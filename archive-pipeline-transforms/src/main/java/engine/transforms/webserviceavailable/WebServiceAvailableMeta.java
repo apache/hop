@@ -203,9 +203,9 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements Transf
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new WebServiceAvailable( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new WebServiceAvailable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

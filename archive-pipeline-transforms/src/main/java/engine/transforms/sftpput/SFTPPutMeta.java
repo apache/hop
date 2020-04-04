@@ -226,9 +226,9 @@ public class SFTPPutMeta extends BaseTransformMeta implements TransformMetaInter
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new SFTPPut( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new SFTPPut( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

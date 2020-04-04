@@ -52,12 +52,12 @@ public class CubeOutput extends BaseTransform implements ITransform {
   private CubeOutputMeta meta;
   private CubeOutputData data;
 
-  public CubeOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CubeOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (CubeOutputMeta) smi;
     data = (CubeOutputData) sdi;
 
@@ -155,11 +155,11 @@ public class CubeOutput extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (CubeOutputMeta) smi;
     data = (CubeOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( !meta.isDoNotOpenNewFileInit() ) {
         try {
           prepareFile();
@@ -197,7 +197,7 @@ public class CubeOutput extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     if ( data.oneFileOpened ) {
       try {
         if ( data.dos != null ) {
@@ -219,6 +219,6 @@ public class CubeOutput extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

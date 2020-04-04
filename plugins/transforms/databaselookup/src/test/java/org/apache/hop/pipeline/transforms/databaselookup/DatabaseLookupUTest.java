@@ -119,10 +119,10 @@ public class DatabaseLookupUTest {
     DatabaseLookupData data = createDatabaseData();
     Database db = createVirtualDb( meta.getDatabaseMeta() );
 
-    DatabaseLookup lookup = spyLookup( mockHelper, db, meta.getDatabaseMeta() );
+    DatabaseLookup lookup = spyLookup( mockHelper, meta, data, db, meta.getDatabaseMeta() );
 
-    lookup.init( meta, data );
-    lookup.processRow( meta, data );
+    lookup.init();
+    lookup.processRow();
 
     verify( db ).getLookup( any( PreparedStatement.class ), anyBoolean(), eq( false ) );
   }
@@ -229,9 +229,10 @@ public class DatabaseLookupUTest {
   }
 
 
-  private DatabaseLookup spyLookup( TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mocks, Database db,
+  private DatabaseLookup spyLookup( TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mocks, DatabaseLookupMeta meta,
+                                    DatabaseLookupData data, Database db,
                                     DatabaseMeta dbMeta ) {
-    DatabaseLookup lookup = new DatabaseLookup( mocks.transformMeta, mocks.iTransformData, 1, mocks.pipelineMeta, mocks.pipeline );
+    DatabaseLookup lookup = new DatabaseLookup( mocks.transformMeta, meta, data, 1, mocks.pipelineMeta, mocks.pipeline );
     lookup = Mockito.spy( lookup );
 
     doReturn( db ).when( lookup ).getDatabase( eq( dbMeta ) );
@@ -249,12 +250,9 @@ public class DatabaseLookupUTest {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
 
-    DatabaseLookup look =
-      new MockDatabaseLookup( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
-        mockHelper.pipeline );
-    DatabaseLookupData lookData = new DatabaseLookupData();
-    lookData.cache = DefaultCache.newCache( lookData, 0 );
-    lookData.lookupMeta = new RowMeta();
+    DatabaseLookupData data = new DatabaseLookupData();
+    data.cache = DefaultCache.newCache( data, 0 );
+    data.lookupMeta = new RowMeta();
 
     GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
@@ -292,9 +290,10 @@ public class DatabaseLookupUTest {
       any( IVariables.class ),
       any( IMetaStore.class ) );
 
+    DatabaseLookup look = new MockDatabaseLookup( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 
-    look.init( meta, lookData );
-    assertTrue( lookData.allEquals ); // Test for fix on PDI-15202
+    look.init();
+    assertTrue( data.allEquals ); // Test for fix on PDI-15202
 
   }
 
@@ -303,14 +302,13 @@ public class DatabaseLookupUTest {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
 
-    DatabaseLookup look =
-      new DatabaseLookup( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
-        mockHelper.pipeline );
-    DatabaseLookupData lookData = new DatabaseLookupData();
-    lookData.cache = DefaultCache.newCache( lookData, 0 );
-    lookData.lookupMeta = new RowMeta();
+    DatabaseLookupData data = new DatabaseLookupData();
+    data.cache = DefaultCache.newCache( data, 0 );
+    data.lookupMeta = new RowMeta();
 
-    look.init( new DatabaseLookupMeta(), lookData );
+    DatabaseLookup look = new DatabaseLookup( mockHelper.transformMeta, mockHelper.iTransformMeta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+
+    look.init();
 
     IValueMeta valueMeta = new ValueMetaInteger( "fieldTest" );
     RowMeta lookupMeta = new RowMeta();
@@ -323,14 +321,14 @@ public class DatabaseLookupUTest {
     add1[ 0 ] = 10L;
     Object[] add2 = new Object[ 1 ];
     add2[ 0 ] = 20L;
-    lookData.cache.storeRowInCache( mockHelper.processRowsTransformMetaInterface, lookupMeta, kgsRow1, add1 );
-    lookData.cache.storeRowInCache( mockHelper.processRowsTransformMetaInterface, lookupMeta, kgsRow2, add2 );
+    data.cache.storeRowInCache( mockHelper.iTransformMeta, lookupMeta, kgsRow1, add1 );
+    data.cache.storeRowInCache( mockHelper.iTransformMeta, lookupMeta, kgsRow2, add2 );
 
     Object[] rowToCache = new Object[ 1 ];
     rowToCache[ 0 ] = 0L;
-    lookData.conditions = new int[ 1 ];
-    lookData.conditions[ 0 ] = DatabaseLookupMeta.CONDITION_GE;
-    Object[] dataFromCache = lookData.cache.getRowFromCache( lookupMeta, rowToCache );
+    data.conditions = new int[ 1 ];
+    data.conditions[ 0 ] = DatabaseLookupMeta.CONDITION_GE;
+    Object[] dataFromCache = data.cache.getRowFromCache( lookupMeta, rowToCache );
 
     assertArrayEquals( dataFromCache, add1 );
   }
@@ -360,9 +358,8 @@ public class DatabaseLookupUTest {
     DatabaseLookupMeta meta = createTestMeta();
     DatabaseLookupData data = new DatabaseLookupData();
 
-    DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta );
-    transform.init( meta, data );
-
+    DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta, data );
+    transform.init();
 
     data.db = db;
     data.keytypes = new int[] { IValueMeta.TYPE_INTEGER };
@@ -373,7 +370,7 @@ public class DatabaseLookupUTest {
       data.allEquals = false;
       data.conditions = new int[] { DatabaseLookupMeta.CONDITION_LT };
     }
-    transform.processRow( meta, data );
+    transform.processRow();
 
     return data;
   }
@@ -389,10 +386,9 @@ public class DatabaseLookupUTest {
     return meta;
   }
 
-  private DatabaseLookup createSpiedTransform( Database db,
-                                          TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper,
-                                          DatabaseLookupMeta meta ) throws HopException {
-    DatabaseLookup transform = spyLookup( mockHelper, db, meta.getDatabaseMeta() );
+  private DatabaseLookup createSpiedTransform( Database db, TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper,
+                                               DatabaseLookupMeta meta, DatabaseLookupData data ) throws HopException {
+    DatabaseLookup transform = spyLookup( mockHelper, meta, data, db, meta.getDatabaseMeta() );
     doNothing().when( transform ).determineFieldsTypesQueryingDb();
     doReturn( null ).when( transform ).lookupValues( any( IRowMeta.class ), any( Object[].class ) );
 
@@ -417,15 +413,15 @@ public class DatabaseLookupUTest {
     DatabaseLookupMeta meta = createTestMeta();
     DatabaseLookupData data = new DatabaseLookupData();
 
-    DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta );
-    transform.init( meta, data );
+    DatabaseLookup transform = createSpiedTransform( db, mockHelper, meta, data );
+    transform.init();
 
     data.db = db;
     data.keytypes = new int[] { IValueMeta.TYPE_INTEGER };
     data.allEquals = true;
     data.conditions = new int[] { DatabaseLookupMeta.CONDITION_EQ };
 
-    transform.processRow( meta, data );
+    transform.processRow();
 
     data.lookupMeta = new RowMeta();
     data.lookupMeta.addValueMeta( new ValueMetaInteger() );
@@ -435,8 +431,8 @@ public class DatabaseLookupUTest {
   }
 
   public class MockDatabaseLookup extends DatabaseLookup {
-    public MockDatabaseLookup( TransformMeta transformMeta, DatabaseLookupData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    public MockDatabaseLookup( TransformMeta transformMeta, DatabaseLookupMeta meta, DatabaseLookupData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override

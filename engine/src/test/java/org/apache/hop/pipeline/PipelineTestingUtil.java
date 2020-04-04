@@ -44,8 +44,6 @@ import static org.junit.Assert.fail;
 public class PipelineTestingUtil {
 
   public static List<Object[]> execute( BaseTransform transform,
-                                        ITransformMeta meta,
-                                        ITransformData data,
                                         int expectedRowsAmount,
                                         boolean checkIsDone ) throws Exception {
     IRowSet output = new BlockingRowSet( Math.max( 1, expectedRowsAmount ) );
@@ -53,7 +51,7 @@ public class PipelineTestingUtil {
 
     int i = 0;
     List<Object[]> result = new ArrayList<>( expectedRowsAmount );
-    while ( transform.processRow( meta, data ) && i < expectedRowsAmount ) {
+    while ( transform.processRow() && i < expectedRowsAmount ) {
       Object[] row = output.getRowImmediate();
       assertNotNull( Integer.toString( i ), row );
       result.add( row );

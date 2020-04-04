@@ -536,9 +536,9 @@ public class JobExecutorMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public ITransform createTransform( TransformMeta transformMeta, JobExecutorData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform createTransform( TransformMeta transformMeta, JobExecutorData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new JobExecutor( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new JobExecutor( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

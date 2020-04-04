@@ -255,9 +255,9 @@ public class SwitchCaseMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new SwitchCase( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new SwitchCase( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

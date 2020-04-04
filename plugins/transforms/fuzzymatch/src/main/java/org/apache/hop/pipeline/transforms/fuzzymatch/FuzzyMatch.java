@@ -57,15 +57,12 @@ import java.util.Iterator;
  * @author Samatar
  * @since 03-mars-2008
  */
-public class FuzzyMatch extends BaseTransform implements ITransform {
+public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> implements ITransform<FuzzyMatchMeta, FuzzyMatchData> {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FuzzyMatchMeta meta;
-  private FuzzyMatchData data;
-
-  public FuzzyMatch( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FuzzyMatch( TransformMeta transformMeta, FuzzyMatchMeta meta, FuzzyMatchData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean readLookupValues() throws HopException {
@@ -454,9 +451,7 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FuzzyMatchMeta) smi;
-    data = (FuzzyMatchData) sdi;
+  public boolean processRow() throws HopException {
 
     if ( data.readLookupValues ) {
       data.readLookupValues = false;
@@ -522,11 +517,8 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FuzzyMatchMeta) smi;
-    data = (FuzzyMatchData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
 
       // Check lookup and main stream field
       if ( Utils.isEmpty( meta.getMainStreamField() ) ) {
@@ -617,11 +609,9 @@ public class FuzzyMatch extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FuzzyMatchMeta) smi;
-    data = (FuzzyMatchData) sdi;
+  public void dispose(){
     data.look.clear();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

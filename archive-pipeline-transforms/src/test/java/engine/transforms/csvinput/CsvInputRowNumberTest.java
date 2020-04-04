@@ -50,7 +50,7 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, "CsvInputRowNumberTest" );
     csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );
   }
 
@@ -74,10 +74,10 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
     CsvInputMeta meta = createMeta( file, createInputFileFields( "a", "b" ) );
     List<Object[]> actual;
     try {
-      csvInput.init( meta, data );
+      csvInput.init();
       actual = PipelineTestingUtil.execute( csvInput, meta, data, 2, false );
     } finally {
-      csvInput.dispose( meta, data );
+      csvInput.dispose();
     }
 
     List<Object[]> expected = Arrays.asList(

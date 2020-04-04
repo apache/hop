@@ -147,9 +147,9 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public DetectLastRow createTransform( TransformMeta transformMeta, DetectLastRowData iTransformData, int cnr,
+  public DetectLastRow createTransform( TransformMeta transformMeta, DetectLastRowData data, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new DetectLastRow( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new DetectLastRow( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public DetectLastRowData getTransformData() {

@@ -70,28 +70,20 @@ import java.util.TreeSet;
  * @author Matt
  * @since 2-jun-2003
  */
-public class GroupBy extends BaseTransform implements ITransform {
+public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements ITransform<GroupByMeta, GroupByData> {
+
   private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
-
-  private GroupByMeta meta;
-
-  private GroupByData data;
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  public GroupBy( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GroupBy( TransformMeta transformMeta, GroupByMeta meta, GroupByData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (GroupByMeta) getTransformMeta().getTransformMetaInterface();
-    data = (GroupByData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (GroupByMeta) smi;
-    data = (GroupByData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row!
 
@@ -887,11 +879,9 @@ public class GroupBy extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GroupByMeta) smi;
-    data = (GroupByData) sdi;
+  public boolean init( ) {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.bufferList = new ArrayList<>();
 
       data.rowsOnFile = 0;
@@ -902,7 +892,7 @@ public class GroupBy extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose() {
     if ( data.tempFile != null ) {
       try {
         closeInput();
@@ -919,7 +909,7 @@ public class GroupBy extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   @Override

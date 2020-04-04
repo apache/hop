@@ -57,7 +57,7 @@ public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransfo
   @Override public void setDefault() {
   }
 
-  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return null;
   }
 

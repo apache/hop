@@ -45,9 +45,9 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
   private SplitFieldToRowsMeta meta;
   private SplitFieldToRowsData data;
 
-  public SplitFieldToRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public SplitFieldToRows( TransformMeta transformMeta, ITransformData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean splitField( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -118,7 +118,7 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
     return true;
   }
 
-  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public synchronized boolean.processRow() throws HopException {
     meta = (SplitFieldToRowsMeta) smi;
     data = (SplitFieldToRowsData) sdi;
 
@@ -146,11 +146,11 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SplitFieldToRowsMeta) smi;
     data = (SplitFieldToRowsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.rownr = 1L;
 
       try {

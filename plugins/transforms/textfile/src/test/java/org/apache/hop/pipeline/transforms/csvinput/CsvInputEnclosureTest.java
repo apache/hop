@@ -51,9 +51,6 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   @Before
   public void setUp() throws Exception {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest" );
-    csvInput = new CsvInput(
-      transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-      transformMockHelper.pipeline );
   }
 
   @After
@@ -123,14 +120,16 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
     try {
       CsvInputMeta meta = createMeta( tmp, createInputFileFields( "f1", "f2" ), enclosure );
       CsvInputData data = new CsvInputData();
-      csvInput.init( meta, data );
+      csvInput = new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta,
+        transformMockHelper.pipeline );
+      csvInput.init();
 
       csvInput.addRowSetToOutputRowSets( output );
 
       try {
-        csvInput.processRow( meta, data );
+        csvInput.processRow();
       } finally {
-        csvInput.dispose( meta, data );
+        csvInput.dispose();
       }
     } finally {
       tmp.delete();

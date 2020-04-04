@@ -50,21 +50,17 @@ import java.io.OutputStreamWriter;
  * @since 03-Juin-2008
  */
 
-public class ChangeFileEncoding extends BaseTransform implements ITransform {
+public class ChangeFileEncoding extends BaseTransform<ChangeFileEncodingMeta, ChangeFileEncodingData> implements ITransform<ChangeFileEncodingMeta, ChangeFileEncodingData> {
+
   private static Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator!!
 
-  private ChangeFileEncodingMeta meta;
-  private ChangeFileEncodingData data;
-
-  public ChangeFileEncoding( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ChangeFileEncoding( TransformMeta transformMeta, ChangeFileEncodingMeta meta, ChangeFileEncodingData data, int copyNr, PipelineMeta pipelineMeta,
                              Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ChangeFileEncodingMeta) smi;
-    data = (ChangeFileEncodingData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] outputRow = getRow(); // Get row from input rowset & set row busy!
     if ( outputRow == null ) {
@@ -265,11 +261,8 @@ public class ChangeFileEncoding extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ChangeFileEncodingMeta) smi;
-    data = (ChangeFileEncodingData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
 
       return true;
     }
@@ -277,9 +270,8 @@ public class ChangeFileEncoding extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ChangeFileEncodingMeta) smi;
-    data = (ChangeFileEncodingData) sdi;
+  public void dispose(){
+
     if ( data.sourceFile != null ) {
       try {
         data.sourceFile.close();
@@ -288,6 +280,6 @@ public class ChangeFileEncoding extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

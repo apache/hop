@@ -60,9 +60,9 @@ public class LoadFileInput extends BaseTransform implements ITransform {
   LoadFileInputMeta meta;
   LoadFileInputData data;
 
-  public LoadFileInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public LoadFileInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void addFileToResultFilesName( FileObject file ) throws Exception {
@@ -214,7 +214,7 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     try {
       // Grab a row
       Object[] outputRowData = getOneRow();
@@ -461,11 +461,11 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (LoadFileInputMeta) smi;
     data = (LoadFileInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( !meta.getIsInFields() ) {
         try {
           data.files = meta.getFiles( this );
@@ -493,7 +493,7 @@ public class LoadFileInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (LoadFileInputMeta) smi;
     data = (LoadFileInputData) sdi;
     if ( data.file != null ) {
@@ -503,7 +503,7 @@ public class LoadFileInput extends BaseTransform implements ITransform {
         // Ignore errors
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   protected Object[] copyOrCloneArrayFromLoadFile( Object[] outputRowData, Object[] readrow ) {

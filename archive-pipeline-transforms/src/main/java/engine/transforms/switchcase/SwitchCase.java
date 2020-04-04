@@ -54,12 +54,12 @@ public class SwitchCase extends BaseTransform implements ITransform {
   private SwitchCaseMeta meta;
   private SwitchCaseData data;
 
-  public SwitchCase( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SwitchCase( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (SwitchCaseMeta) smi;
     data = (SwitchCaseData) sdi;
 
@@ -111,11 +111,11 @@ public class SwitchCase extends BaseTransform implements ITransform {
   /**
    * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SwitchCaseMeta) smi;
     data = (SwitchCaseData) sdi;
 
-    if ( !super.init( smi, sdi ) ) {
+    if ( !super.init() ) {
       return false;
     }
     data.outputMap = meta.isContains() ? new ContainsKeyToRowSetMap() : new KeyToRowSetMap();

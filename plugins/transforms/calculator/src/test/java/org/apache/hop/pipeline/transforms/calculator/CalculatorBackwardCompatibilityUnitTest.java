@@ -156,15 +156,17 @@ public class CalculatorBackwardCompatibilityUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { value } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
       CalculatorMetaFunction.CALC_ROUND_1, "Value", null, null, IValueMeta.TYPE_NUMBER, 2, 0, false, "", "",
       "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
 
     // Verify output
     try {
@@ -174,7 +176,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
           assertEquals( expectedResult, row[ 1 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -209,15 +211,17 @@ public class CalculatorBackwardCompatibilityUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { value, precision } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
       CalculatorMetaFunction.CALC_ROUND_2, "Value", "Precision", null, IValueMeta.TYPE_NUMBER, 2, 0, false,
       "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
 
     // Verify output
     try {
@@ -227,7 +231,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
           assertEquals( expectedResult, row[ 2 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -259,15 +263,19 @@ public class CalculatorBackwardCompatibilityUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { value } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
       CalculatorMetaFunction.CALC_ROUND_STD_1, "Value", null, null, IValueMeta.TYPE_NUMBER, 2, 0, false, "",
       "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
+
+
 
     // Verify output
     try {
@@ -277,7 +285,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
           assertEquals( expectedResult, row[ 1 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();
@@ -312,15 +320,18 @@ public class CalculatorBackwardCompatibilityUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet( new Object[] { value, precision } );
     inputRowSet.setRowMeta( inputRowMeta );
 
-    Calculator calculator = new Calculator( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    calculator.addRowSetToInputRowSets( inputRowSet );
-    calculator.setInputRowMeta( inputRowMeta );
-    calculator.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
-
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
       CalculatorMetaFunction.CALC_ROUND_STD_2, "Value", "Precision", null, IValueMeta.TYPE_NUMBER, 2, 0,
       false, "", "", "", "" ) } );
+
+    CalculatorData data = new CalculatorData();
+
+    Calculator calculator = new Calculator( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    calculator.addRowSetToInputRowSets( inputRowSet );
+    calculator.setInputRowMeta( inputRowMeta );
+    calculator.init();
+
 
     // Verify output
     try {
@@ -330,7 +341,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
           assertEquals( expectedResult, row[ 2 ] );
         }
       } );
-      calculator.processRow( meta, new CalculatorData() );
+      calculator.processRow();
     } catch ( HopException ke ) {
       ke.printStackTrace();
       fail();

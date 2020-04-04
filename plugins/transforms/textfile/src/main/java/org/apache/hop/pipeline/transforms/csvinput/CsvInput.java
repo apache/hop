@@ -65,17 +65,13 @@ public class CsvInput
 
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
-  private CsvInputMeta meta;
-  private CsvInputData data;
-
-  public CsvInput( TransformMeta transformMeta, CsvInputData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CsvInput( TransformMeta transformMeta, CsvInputMeta meta, CsvInputData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( CsvInputMeta smi, CsvInputData sdi ) throws HopException {
-    this.meta = smi;
-    this.data = sdi;
+  @Override
+  public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
@@ -186,7 +182,7 @@ public class CsvInput
     return true;
   }
 
-  private void prepareToRunInParallel() throws HopException {
+  public void prepareToRunInParallel() throws HopException {
     try {
       // At this point it doesn't matter if we have 1 or more files.
       // We'll use the same algorithm...
@@ -289,7 +285,7 @@ public class CsvInput
   }
 
   @Override
-  public void dispose( CsvInputMeta smi, CsvInputData sdi ) {
+  public void dispose() {
     try {
       // Close the previous file...
       //
@@ -308,7 +304,7 @@ public class CsvInput
       logError( "Error closing file input stream", e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private boolean openNextFile() throws HopException {
@@ -836,11 +832,9 @@ public class CsvInput
   }
 
 
-  public boolean init( CsvInputMeta smi, CsvInputData sdi ) {
-    this.meta = smi;
-    this.data = sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // PDI-10242 see if a variable is used as encoding value
       String realEncoding = environmentSubstitute( meta.getEncoding() );
       data.preferredBufferSize = Integer.parseInt( environmentSubstitute( meta.getBufferSize() ) );

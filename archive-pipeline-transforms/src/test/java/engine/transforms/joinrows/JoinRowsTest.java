@@ -77,7 +77,7 @@ public class JoinRowsTest {
    */
   @Test
   public void checkThatMethodPerformedWithoutError() throws Exception {
-    getJoinRows().dispose( meta, data );
+    getJoinRows().dispose();
   }
 
   @Test
@@ -85,7 +85,7 @@ public class JoinRowsTest {
     File mockFile1 = mock( File.class );
     File mockFile2 = mock( File.class );
     data.file = new File[] { null, mockFile1, mockFile2 };
-    getJoinRows().dispose( meta, data );
+    getJoinRows().dispose();
     verify( mockFile1, times( 1 ) ).delete();
     verify( mockFile2, times( 1 ) ).delete();
   }
@@ -118,7 +118,7 @@ public class JoinRowsTest {
     JoinRows joinRows = getJoinRows();
     joinRows.getPipeline().setRunning( true );
 
-    joinRows.init( joinRowsMeta, joinRowsData );
+    joinRows.init();
 
 
     List<RowSet> rowSets = new ArrayList<>();
@@ -135,7 +135,7 @@ public class JoinRowsTest {
 
 
     while ( true ) {
-      if ( !joinRows.processRow( joinRowsMeta, joinRowsData ) ) {
+      if ( !joinRows.processRow() {
         break;
       }
     }

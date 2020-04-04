@@ -46,8 +46,6 @@ import static org.mockito.Mockito.when;
 public class ConstantTest {
 
   private TransformMockHelper<ConstantMeta, ConstantData> mockHelper;
-  private ConstantMeta constantMeta = mock( ConstantMeta.class );
-  private ConstantData constantData = mock( ConstantData.class );
   private RowMetaAndData rowMetaAndData = mock( RowMetaAndData.class );
   private Constant constantSpy;
 
@@ -68,7 +66,7 @@ public class ConstantTest {
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     doReturn( rowMetaAndData ).when( mockHelper.iTransformData ).getConstants();
-    constantSpy = Mockito.spy( new Constant( mockHelper.transformMeta, mockHelper.iTransformData, 0,
+    constantSpy = Mockito.spy( new Constant( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0,
       mockHelper.pipelineMeta, mockHelper.pipeline ) );
   }
 
@@ -84,7 +82,7 @@ public class ConstantTest {
     doReturn( new RowMeta() ).when( constantSpy ).getInputRowMeta();
     doReturn( new Object[ 1 ] ).when( rowMetaAndData ).getData();
 
-    boolean success = constantSpy.processRow( constantMeta, constantData );
+    boolean success = constantSpy.processRow();
     assertTrue( success );
   }
 
@@ -94,7 +92,7 @@ public class ConstantTest {
     doReturn( null ).when( constantSpy ).getRow();
     doReturn( null ).when( constantSpy ).getInputRowMeta();
 
-    boolean success = constantSpy.processRow( constantMeta, constantData );
+    boolean success = constantSpy.processRow();
     assertFalse( success );
   }
 }

@@ -75,7 +75,7 @@ public class ScriptValuesModTest {
     } );
 
     ScriptValuesModData data = new ScriptValuesModData();
-    transform.init( meta, data );
+    transform.init();
 
     Object[] expectedRow = { BigDecimal.TEN, new BigDecimal( "10.5" ) };
     Object[] row = PipelineTestingUtil.execute( transform, meta, data, 1, false ).get( 0 );
@@ -106,7 +106,7 @@ public class ScriptValuesModTest {
     } );
 
     ScriptValuesModData data = new ScriptValuesModData();
-    transform.init( meta, data );
+    transform.init();
 
     Object[] expectedRow = { "pass" };
     Object[] row = PipelineTestingUtil.execute( transform, meta, data, 1, false ).get( 0 );

@@ -62,9 +62,9 @@ public class StreamLookup extends BaseTransform implements ITransform {
   private StreamLookupMeta meta;
   private StreamLookupData data;
 
-  public StreamLookup( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public StreamLookup( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void handleNullIf() {
@@ -372,7 +372,7 @@ public class StreamLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (StreamLookupMeta) smi;
     data = (StreamLookupData) sdi;
 
@@ -461,11 +461,11 @@ public class StreamLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (StreamLookupMeta) smi;
     data = (StreamLookupData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.readLookupValues = true;
 
       return true;
@@ -475,7 +475,7 @@ public class StreamLookup extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     // Recover memory immediately, allow in-memory data to be garbage collected
     //
     data.look = null;
@@ -483,6 +483,6 @@ public class StreamLookup extends BaseTransform implements ITransform {
     data.hashIndex = null;
     data.longIndex = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

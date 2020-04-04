@@ -69,9 +69,9 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
   private final long threadWaitTime = 300000;
   private final String threadWaitTimeText = "5min";
 
-  public MySQLBulkLoader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MySQLBulkLoader( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean execute( MySQLBulkLoaderMeta meta ) throws HopException {
@@ -230,7 +230,7 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 
@@ -466,11 +466,11 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       // Confirming Database Connection is defined.
       try {
@@ -520,7 +520,7 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (MySQLBulkLoaderMeta) smi;
     data = (MySQLBulkLoaderData) sdi;
 
@@ -558,7 +558,7 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
       logError( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.UNEXPECTEDERRORCLOSING" ), e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   // Class to try and open a writer to a fifo in a different thread.

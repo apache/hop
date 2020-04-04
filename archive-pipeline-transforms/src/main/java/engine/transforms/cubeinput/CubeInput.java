@@ -50,12 +50,12 @@ public class CubeInput extends BaseTransform implements ITransform {
   private CubeInputData data;
   private int realRowLimit;
 
-  public CubeInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public CubeInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  @Override public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  @Override public boolean processRow() throws HopException {
 
     if ( first ) {
       first = false;
@@ -90,11 +90,11 @@ public class CubeInput extends BaseTransform implements ITransform {
     return true;
   }
 
-  @Override public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  @Override public boolean init() {
     meta = (CubeInputMeta) smi;
     data = (CubeInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         String filename = environmentSubstitute( meta.getFilename() );
 
@@ -126,7 +126,7 @@ public class CubeInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  @Override public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  @Override public void.dispose() {
     meta = (CubeInputMeta) smi;
     data = (CubeInputData) sdi;
 
@@ -149,6 +149,6 @@ public class CubeInput extends BaseTransform implements ITransform {
       stopAll();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

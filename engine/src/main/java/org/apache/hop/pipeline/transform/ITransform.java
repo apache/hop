@@ -59,13 +59,10 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    * Perform the equivalent of processing one row. Typically this means reading a row from input (getRow()) and passing
    * a row to output (putRow)).
    *
-   * @param smi The transforms metadata to work with
-   * @param sdi The transforms temporary working data to work with (database connections, result sets, caches, temporary
-   *            variables, etc.)
    * @return false if no more rows can be processed or an error occurred.
    * @throws HopException
    */
-  boolean processRow( Meta smi, Data sdi ) throws HopException;
+  boolean processRow() throws HopException;
 
   /**
    * This method checks if the transform is capable of processing at least one row.
@@ -79,18 +76,14 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   /**
    * Initialize and do work where other transforms need to wait for...
    *
-   * @param transformMetaInterface The metadata to work with
-   * @param iTransformData The data to initialize
    */
-  boolean init( Meta transformMetaInterface, Data iTransformData );
+  boolean init();
 
   /**
    * Dispose of this transform: close files, empty logs, etc.
    *
-   * @param sii The metadata to work with
-   * @param sdi The data to dispose of
    */
-  void dispose( Meta sii, Data sdi );
+  void dispose();
 
   /**
    * Mark the start time of the transform.
@@ -105,10 +98,8 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   /**
    * Stop running operations...
    *
-   * @param transformMetaInterface The metadata that might be needed by the transform to stop running.
-   * @param iTransformData The interface to the transform data containing the connections, resultsets, open files, etc.
    */
-  void stopRunning( Meta transformMetaInterface, Data iTransformData ) throws HopException;
+  void stopRunning() throws HopException;
 
   /**
    * @return true if the transform is running after having been initialized
@@ -435,5 +426,27 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   default void addRowSetToOutputRowSets( IRowSet rowSet ) {
     getOutputRowSets().add( rowSet );
   }
+
+  /**
+   * @return Returns the transform specific metadata.
+   */
+  Meta getMeta();
+
+  /**
+   * @param meta The transform specific metadata.
+   */
+  void setMeta( Meta meta );
+
+  /**
+   * Get the transform data
+   *
+   * @return the tansform data
+   */
+  Data getData();
+
+  /**
+   * @param data The transform data to set
+   */
+  void setData( Data data );
 
 }

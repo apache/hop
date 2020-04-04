@@ -207,9 +207,9 @@ public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<In
     }
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, InjectorData iTransformData, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, InjectorData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Injector( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Injector( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public InjectorData getTransformData() {

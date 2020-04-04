@@ -78,12 +78,12 @@ public class ExcelWriter  extends BaseTransform implements ITransform {
 
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
 
-  public ExcelWriterTransform( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, iTransformData, c, t, dis );
+  public ExcelWriterTransform( TransformMeta s, ITransformData data, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, data, c, t, dis );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriter Data) sdi;
@@ -814,10 +814,10 @@ public class ExcelWriter  extends BaseTransform implements ITransform {
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriter Data) sdi;
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.splitnr = 0;
       data.datalines = 0;
       data.realSheetname = environmentSubstitute( meta.getSheetname() );
@@ -842,11 +842,11 @@ public class ExcelWriter  extends BaseTransform implements ITransform {
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ExcelWriterTransformMeta) smi;
     data = (ExcelWriter Data) sdi;
     clearWorkbookMem();
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /**

@@ -52,15 +52,13 @@ import java.util.List;
  * @author Matt
  * @since 5-apr-2003
  */
-public class SelectValues extends BaseTransform implements ITransform {
+public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> implements ITransform<SelectValuesMeta, SelectValuesData> {
+
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SelectValuesMeta meta;
-  private SelectValuesData data;
-
-  public SelectValues( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public SelectValues( TransformMeta transformMeta, SelectValuesMeta meta, SelectValuesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,7 +69,8 @@ public class SelectValues extends BaseTransform implements ITransform {
    * Change the meta-data information if needed...
    * <p/>
    *
-   * @param row The row to manipulate
+   * @param rowMeta The row to manipulate
+   * @param rowData the row data to manipulate
    * @return true if everything went well, false if we need to stop because of an error!
    */
   private synchronized Object[] selectValues( IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
@@ -186,7 +185,8 @@ public class SelectValues extends BaseTransform implements ITransform {
    * Remove the values that are no longer needed.
    * <p/>
    *
-   * @param row The row to manipulate
+   * @param rowMeta The row metadata to change
+   * @param rowData the row data to change
    * @return true if everything went well, false if we need to stop because of an error!
    */
   private synchronized Object[] removeValues( IRowMeta rowMeta, Object[] rowData ) {
@@ -240,7 +240,8 @@ public class SelectValues extends BaseTransform implements ITransform {
    * This, we can do VERY fast.
    * <p/>
    *
-   * @param row The row to manipulate
+   * @param rowMeta The row metadata to change
+   * @param rowData the row data to change
    * @return the altered RowData array
    * @throws HopValueException
    */
@@ -336,10 +337,7 @@ public class SelectValues extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (SelectValuesMeta) smi;
-    data = (SelectValuesData) sdi;
-
+  public boolean processRow() throws HopException {
     Object[] rowData = getRow(); // get row from rowset, wait for our turn, indicate busy!
     if ( rowData == null ) { // no more input to be expected...
 
@@ -416,11 +414,9 @@ public class SelectValues extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (SelectValuesMeta) smi;
-    data = (SelectValuesData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.firstselect = true;
       data.firstdeselect = true;
       data.firstmetadata = true;

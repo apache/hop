@@ -102,9 +102,9 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
     }
   }
 
-  public DetectEmptyStream createTransform( TransformMeta transformMeta, DetectEmptyStreamData iTransformData, int cnr, PipelineMeta tr,
+  public DetectEmptyStream createTransform( TransformMeta transformMeta, DetectEmptyStreamData data, int cnr, PipelineMeta tr,
                                             Pipeline pipeline ) {
-    return new DetectEmptyStream( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new DetectEmptyStream( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public DetectEmptyStreamData getTransformData() {

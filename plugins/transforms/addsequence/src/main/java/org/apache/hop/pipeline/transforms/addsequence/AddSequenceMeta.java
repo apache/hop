@@ -365,9 +365,9 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public AddSequence createTransform( TransformMeta transformMeta, AddSequenceData iTransformData, int cnr,
+  public AddSequence createTransform( TransformMeta transformMeta, AddSequenceData data, int cnr,
                                       PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new AddSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new AddSequence( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

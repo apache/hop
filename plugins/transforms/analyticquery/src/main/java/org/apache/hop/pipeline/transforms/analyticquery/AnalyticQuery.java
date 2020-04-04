@@ -43,24 +43,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author ngoodman
  * @since 27-jan-2009
  */
-public class AnalyticQuery extends BaseTransform implements ITransform {
+public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> implements ITransform<AnalyticQueryMeta, AnalyticQueryData> {
+
   private static Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
 
-  private AnalyticQueryMeta meta;
-  private AnalyticQueryData data;
-
-  public AnalyticQuery( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public AnalyticQuery( TransformMeta transformMeta, AnalyticQueryMeta meta, AnalyticQueryData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
-
-    meta = (AnalyticQueryMeta) getTransformMeta().getTransformMetaInterface();
-    data = (AnalyticQueryData) iTransformData;
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (AnalyticQueryMeta) smi;
-    data = (AnalyticQueryData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row!
 
@@ -225,11 +218,8 @@ public class AnalyticQuery extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (AnalyticQueryMeta) smi;
-    data = (AnalyticQueryData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init() {
+    if ( super.init() ) {
       return true;
     } else {
       return false;

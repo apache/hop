@@ -75,8 +75,8 @@ public class HTTP extends BaseTransform implements ITransform {
   private HTTPMeta meta;
   private HTTPData data;
 
-  public HTTP( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public HTTP( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] execHttp( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -287,7 +287,7 @@ public class HTTP extends BaseTransform implements ITransform {
     return response.getAllHeaders();
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 
@@ -383,11 +383,11 @@ public class HTTP extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // get authentication settings once
       data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
       data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
@@ -402,11 +402,11 @@ public class HTTP extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (HTTPMeta) smi;
     data = (HTTPData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

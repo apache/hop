@@ -69,12 +69,12 @@ public class Validator extends BaseTransform implements ITransform {
   private ValidatorMeta meta;
   private ValidatorData data;
 
-  public Validator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Validator( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ValidatorMeta) smi;
     data = (ValidatorData) sdi;
 
@@ -554,11 +554,11 @@ public class Validator extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ValidatorMeta) smi;
     data = (ValidatorData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // initialize transforms by names
       List<TransformMeta> transforms = new ArrayList<>();
       List<TransformMetaDataCombi> pipelineTransforms = getPipeline().getTransforms();

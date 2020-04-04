@@ -45,12 +45,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> implements ITransform<FieldSplitterMeta, FieldSplitterData> {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FieldSplitterMeta meta;
-  private FieldSplitterData data;
-
-  public FieldSplitter( TransformMeta transformMeta, FieldSplitterData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FieldSplitter( TransformMeta transformMeta, FieldSplitterMeta meta, FieldSplitterData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] splitField( Object[] r ) throws HopException {
@@ -164,9 +161,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     return outputRow;
   }
 
-  public synchronized boolean processRow( FieldSplitterMeta smi, FieldSplitterData sdi ) throws HopException {
-    this.meta = (FieldSplitterMeta) smi;
-    this.data = (FieldSplitterData) sdi;
+  @Override
+  public synchronized boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row from rowset, wait for our turn, indicate busy!
     if ( r == null ) {
@@ -186,12 +182,5 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     }
 
     return true;
-  }
-
-  public boolean init( FieldSplitterMeta smi, FieldSplitterData sdi ) {
-    meta = (FieldSplitterMeta) smi;
-    data = (FieldSplitterData) sdi;
-
-    return super.init( smi, sdi );
   }
 }

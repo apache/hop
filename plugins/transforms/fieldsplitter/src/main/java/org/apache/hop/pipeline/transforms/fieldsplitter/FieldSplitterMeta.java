@@ -579,9 +579,9 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public FieldSplitter createTransform( TransformMeta transformMeta, FieldSplitterData iTransformData, int cnr,
+  public FieldSplitter createTransform( TransformMeta transformMeta, FieldSplitterData data, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldSplitter( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new FieldSplitter( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public FieldSplitterData getTransformData() {

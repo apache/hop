@@ -58,9 +58,9 @@ public class InsertUpdate extends BaseTransform implements ITransform {
   private InsertUpdateMeta meta;
   private InsertUpdateData data;
 
-  public InsertUpdate( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public InsertUpdate( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   protected synchronized void lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -174,7 +174,7 @@ public class InsertUpdate extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 
@@ -464,11 +464,11 @@ public class InsertUpdate extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         if ( meta.getDatabaseMeta() == null ) {
           logError( BaseMessages.getString( PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName() ) );
@@ -494,7 +494,7 @@ public class InsertUpdate extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (InsertUpdateMeta) smi;
     data = (InsertUpdateData) sdi;
 
@@ -516,7 +516,7 @@ public class InsertUpdate extends BaseTransform implements ITransform {
         data.db.disconnect();
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

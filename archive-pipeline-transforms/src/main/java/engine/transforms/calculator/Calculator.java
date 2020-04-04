@@ -62,13 +62,13 @@ public class Calculator extends BaseTransform implements ITransform {
   private CalculatorMeta meta;
   private CalculatorData data;
 
-  public Calculator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Calculator( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (CalculatorMeta) smi;
     data = (CalculatorData) sdi;
 
@@ -643,10 +643,10 @@ public class Calculator extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (CalculatorMeta) smi;
     data = (CalculatorData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 }

@@ -208,9 +208,9 @@ public class RowsFromResultMeta extends BaseTransformMeta implements TransformMe
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RowsFromResult( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new RowsFromResult( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

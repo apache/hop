@@ -188,9 +188,9 @@ public class SetValueConstantMeta extends BaseTransformMeta implements Transform
     remarks.add( cr );
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
-    return new SetValueConstant( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new SetValueConstant( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   public ITransformData getTransformData() {

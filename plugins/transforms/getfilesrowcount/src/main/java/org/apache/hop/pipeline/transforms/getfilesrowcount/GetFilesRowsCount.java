@@ -45,17 +45,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 24-05-2007
  */
-public class GetFilesRowsCount extends BaseTransform implements ITransform {
-  private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
+public class GetFilesRowsCount
+  extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData>
+  implements ITransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
 
-  private GetFilesRowsCountMeta meta;
-  private GetFilesRowsCountData data;
+  private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
 
   // private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 
-  public GetFilesRowsCount( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public GetFilesRowsCount( TransformMeta transformMeta, GetFilesRowsCountMeta meta, GetFilesRowsCountData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] getOneRow() throws HopException {
@@ -95,7 +95,7 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return r;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     try {
       // Grab one row
@@ -288,11 +288,8 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetFilesRowsCountMeta) smi;
-    data = (GetFilesRowsCountData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
 
       if ( ( meta.getRowSeparatorFormat().equals( "CUSTOM" ) ) && ( Utils.isEmpty( meta.getRowSeparator() ) ) ) {
         logError( BaseMessages.getString( PKG, "GetFilesRowsCount.Error.NoSeparator.Title" ), BaseMessages
@@ -370,9 +367,8 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetFilesRowsCountMeta) smi;
-    data = (GetFilesRowsCountData) sdi;
+  public void dispose(){
+
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -389,7 +385,7 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
       data.lineStringBuilder = null;
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

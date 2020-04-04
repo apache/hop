@@ -79,7 +79,7 @@ public class CombinationLookupTest {
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
 
     Pipeline pipeline = mock( Pipeline.class );
-    combinationLookup = spy( new CombinationLookup( transformMeta, combinationLookupData, 1, pipelineMeta, pipeline ) );
+    combinationLookup = spy( new CombinationLookup( transformMeta, combinationLookupMeta, combinationLookupData, 1, pipelineMeta, pipeline ) );
     doReturn( false ).when( combinationLookup ).isRowLevel();
     doReturn( true ).when( combinationLookup ).isAutoIncrement();
     doNothing().when( combinationLookup ).logDetailed( anyString() );

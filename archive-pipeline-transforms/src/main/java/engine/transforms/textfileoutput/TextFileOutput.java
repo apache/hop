@@ -77,9 +77,9 @@ public class TextFileOutput extends BaseTransform implements ITransform {
 
   public TextFileOutputData data;
 
-  public TextFileOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TextFileOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void initFieldNumbers( IRowMeta outputRowMeta, TextFileField[] outputFields ) throws HopException {
@@ -434,7 +434,7 @@ public class TextFileOutput extends BaseTransform implements ITransform {
     data.getFileStreamsCollection().flushOpenFiles( true );
   }
 
-  public synchronized boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public synchronized boolean.processRow() throws HopException {
     meta = (TextFileOutputMeta) smi;
     data = (TextFileOutputData) sdi;
 
@@ -817,11 +817,11 @@ public class TextFileOutput extends BaseTransform implements ITransform {
     return retval;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (TextFileOutputMeta) smi;
     data = (TextFileOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.splitnr = 0;
       // In case user want to create file at first row
       // In that case, DO NOT create file at Init
@@ -913,7 +913,7 @@ public class TextFileOutput extends BaseTransform implements ITransform {
     }
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (TextFileOutputMeta) smi;
     data = (TextFileOutputData) sdi;
 
@@ -927,7 +927,7 @@ public class TextFileOutput extends BaseTransform implements ITransform {
     data.out = null;
     data.fos = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   public boolean containsSeparatorOrEnclosure( byte[] source, byte[] separator, byte[] enclosure ) {

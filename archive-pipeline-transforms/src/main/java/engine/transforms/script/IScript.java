@@ -38,11 +38,11 @@ import java.util.List;
  * @author Sven Boden
  */
 public interface IScript extends ITransform {
-  boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException;
+  boolean.processRow() throws HopException;
 
   void addRowListener( RowListener rowListener );
 
-  void dispose( TransformMetaInterface sii, ITransformData sdi );
+  void.dispose();
 
   long getErrors();
 
@@ -72,7 +72,7 @@ public interface IScript extends ITransform {
 
   String getTransformName();
 
-  boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData );
+  boolean.init();
 
   boolean isAlive();
 

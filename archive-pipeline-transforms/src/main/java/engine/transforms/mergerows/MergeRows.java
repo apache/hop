@@ -61,12 +61,12 @@ public class MergeRows extends BaseTransform implements ITransform {
   private MergeRowsData data;
   private boolean useRefWhenIdentical = false;
 
-  public MergeRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public MergeRows( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (MergeRowsMeta) smi;
     data = (MergeRowsData) sdi;
     if ( first ) {
@@ -232,11 +232,11 @@ public class MergeRows extends BaseTransform implements ITransform {
   /**
    * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (MergeRowsMeta) smi;
     data = (MergeRowsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
       if ( infoStreams.get( 0 ).getTransformMeta() != null ^ infoStreams.get( 1 ).getTransformMeta() != null ) {

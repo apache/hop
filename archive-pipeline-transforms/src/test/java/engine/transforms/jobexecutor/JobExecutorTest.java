@@ -93,7 +93,7 @@ public class JobExecutorTest {
     prepareMultipleRowsForExecutor();
 
     data.groupField = "groupField";
-    executor.init( meta, data );
+    executor.init();
 
     when( executor.getExecutorJob() ).thenReturn( mock( Job.class ) );
     when( executor.getExecutorJob().getJobMeta() ).thenReturn( mock( JobMeta.class ) );
@@ -103,27 +103,27 @@ public class JobExecutorTest {
     executor.setInputRowMeta( rowMeta );
 
     // start processing
-    executor.processRow( meta, data ); // 1st row - 'value1'
+    executor.init(); // 1st row - 'value1'
     // should be added to group buffer
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data );
-    executor.processRow( meta, data );
-    executor.processRow( meta, data ); // 4th row - still 'value1'
+    executor.init();
+    executor.init();
+    executor.init(); // 4th row - still 'value1'
     // first 4 rows should be added to the same group
     assertEquals( 4, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 5th row - value has been changed - 'value12'
+    executor.init(); // 5th row - value has been changed - 'value12'
     // previous group buffer should be flushed
     // and a new group should be started
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 6th row - 'value12'
-    executor.processRow( meta, data ); // 7th row - 'value12'
+    executor.init(); // 6th row - 'value12'
+    executor.init(); // 7th row - 'value12'
     // the rest rows should be added to another group
     assertEquals( 3, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // end of file
+    executor.init(); // end of file
     // group buffer should be flushed in the end
     assertEquals( 0, data.groupBuffer.size() );
   }
@@ -140,37 +140,37 @@ public class JobExecutorTest {
     prepareMultipleRowsForExecutor();
 
     data.groupSize = 5;
-    executor.init( meta, data );
+    executor.init();
 
     when( executor.getExecutorJob() ).thenReturn( mock( Job.class ) );
     when( executor.getExecutorJob().getJobMeta() ).thenReturn( mock( JobMeta.class ) );
 
     // start processing
-    executor.processRow( meta, data ); // 1st row
+    executor.init(); // 1st row
     // should be added to group buffer
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data );
-    executor.processRow( meta, data );
-    executor.processRow( meta, data ); // 4th row
+    executor.init();
+    executor.init();
+    executor.init(); // 4th row
     // first 4 rows should be added to the same group
     assertEquals( 4, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 5th row
+    executor.init(); // 5th row
     // once the 5th row is processed, the pipeline executor should be triggered
     // and thus, group buffer should be flushed
     assertEquals( 0, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 6th row
+    executor.init(); // 6th row
     // previous group buffer should be flushed
     // and a new group should be started
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 7th row
+    executor.init(); // 7th row
     // the rest rows should be added to another group
     assertEquals( 2, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // end of file
+    executor.init(); // end of file
     // group buffer should be flushed in the end
     assertEquals( 0, data.groupBuffer.size() );
   }

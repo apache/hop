@@ -56,9 +56,10 @@ public class TableOutputTest {
   private TransformMeta transformMeta;
 
   private TableOutput tableOutput, tableOutputSpy;
-  private TableOutputMeta tableOutputMeta, tableOutputMetaSpy;
-  private TableOutputData tableOutputData, tableOutputDataSpy;
+  private TableOutputMeta tableOutputMeta;
+  private TableOutputData tableOutputData;
   private Database db;
+  private PipelineMeta pipelineMeta;
 
   @Before
   public void setUp() throws Exception {
@@ -82,18 +83,23 @@ public class TableOutputTest {
     tableOutputData.preparedStatements = mock( Map.class );
     tableOutputData.commitCounterMap = mock( Map.class );
 
-    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
+    pipelineMeta = mock( PipelineMeta.class );
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
 
-    tableOutput = new TableOutput( transformMeta, tableOutputData, 1, pipelineMeta, mock( Pipeline.class ) );
-    tableOutput.setData( tableOutputData );
-    tableOutput.setMeta( tableOutputMeta );
+    setupTableOutputSpy();
+  }
+
+  private void setupTableOutputSpy() throws Exception {
+
+    tableOutput = new TableOutput( transformMeta, tableOutputMeta, tableOutputData, 1, pipelineMeta, mock( Pipeline.class ) );
     tableOutputSpy = spy( tableOutput );
     doReturn( transformMeta ).when( tableOutputSpy ).getTransformMeta();
     doReturn( false ).when( tableOutputSpy ).isRowLevel();
     doReturn( false ).when( tableOutputSpy ).isDebug();
     doNothing().when( tableOutputSpy ).logDetailed( anyString() );
+
   }
+
 
   @Test
   public void testWriteToTable() throws Exception {
@@ -131,7 +137,7 @@ public class TableOutputTest {
 
     doReturn( null ).when( tableOutputSpy ).getRow();
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertFalse( result );
     verify( tableOutputSpy ).truncateTable();
@@ -143,7 +149,7 @@ public class TableOutputTest {
 
     doReturn( null ).when( tableOutputSpy ).getRow();
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertFalse( result );
     verify( tableOutputSpy, never() ).truncateTable();
@@ -156,7 +162,7 @@ public class TableOutputTest {
     doReturn( row ).when( tableOutputSpy ).getRow();
 
     try {
-      boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+      boolean result = tableOutputSpy.processRow();
     } catch ( NullPointerException npe ) {
       // not everything is set up to process an entire row, but we don't need that for this test
     }
@@ -171,7 +177,7 @@ public class TableOutputTest {
     tableOutputSpy.first = false;
     doReturn( null ).when( tableOutputSpy ).writeToTable( any( IRowMeta.class ), any( row.getClass() ) );
 
-    boolean result = tableOutputSpy.processRow( tableOutputMeta, tableOutputData );
+    boolean result = tableOutputSpy.processRow();
 
     assertTrue( result );
     verify( tableOutputSpy, never() ).truncateTable();
@@ -180,15 +186,12 @@ public class TableOutputTest {
   @Test
   public void testInit_unsupportedConnection() {
 
-    TableOutputMeta meta = mock( TableOutputMeta.class );
-    TableOutputData data = mock( TableOutputData.class );
-
     IDatabase dbInterface = mock( IDatabase.class );
 
     doNothing().when( tableOutputSpy ).logError( anyString() );
 
-    when( meta.getCommitSize() ).thenReturn( "1" );
-    when( meta.getDatabaseMeta() ).thenReturn( databaseMeta );
+    when( tableOutputMeta.getCommitSize() ).thenReturn( "1" );
+    when( tableOutputMeta.getDatabaseMeta() ).thenReturn( databaseMeta );
     when( databaseMeta.getIDatabase() ).thenReturn( dbInterface );
 
     String unsupportedTableOutputMessage = "unsupported exception";
@@ -197,7 +200,7 @@ public class TableOutputTest {
     //Will cause the Hop Exception
     when( dbInterface.supportsStandardTableOutput() ).thenReturn( false );
 
-    tableOutputSpy.init( meta, data );
+    tableOutputSpy.init();
 
     HopException ke = new HopException( unsupportedTableOutputMessage );
     verify( tableOutputSpy, times( 1 ) ).logError( "An error occurred intialising this transform: " + ke.getMessage() );

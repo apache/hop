@@ -59,9 +59,9 @@ public class GetFileNames extends BaseTransform implements ITransform {
 
   private GetFileNamesData data;
 
-  public GetFileNames( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetFileNames( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -76,7 +76,7 @@ public class GetFileNames extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( !meta.isFileField() ) {
       if ( data.filenr >= data.filessize ) {
         setOutputDone();
@@ -297,12 +297,12 @@ public class GetFileNames extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (GetFileNamesMeta) smi;
     data = (GetFileNamesData) sdi;
 
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       try {
         // Create the output row meta-data
@@ -336,7 +336,7 @@ public class GetFileNames extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (GetFileNamesMeta) smi;
     data = (GetFileNamesData) sdi;
     if ( data.file != null ) {
@@ -348,7 +348,7 @@ public class GetFileNames extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

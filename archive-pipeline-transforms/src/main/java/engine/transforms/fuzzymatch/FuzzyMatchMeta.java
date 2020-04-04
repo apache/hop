@@ -685,9 +685,9 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements TransformMetaIn
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FuzzyMatch( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new FuzzyMatch( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

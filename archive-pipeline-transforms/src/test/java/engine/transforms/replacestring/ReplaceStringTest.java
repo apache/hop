@@ -90,7 +90,7 @@ public class ReplaceStringTest {
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "SomeDataMeta" ) );
     inputRowMeta.addValueMeta( 1, new ValueMetaString( "AnotherDataMeta" ) );
-    replaceString.init( transformMockHelper.processRowsTransformMetaInterface, data );
+    replaceString.init();
     replaceString.setInputRowMeta( inputRowMeta );
     data.outputRowMeta = inputRowMeta;
     data.outputRowMeta.addValueMeta( new ValueMetaString( "AnotherDataMeta" ) );
@@ -118,7 +118,7 @@ public class ReplaceStringTest {
       new ReplaceString( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
 
     ReplaceStringMeta meta = new ReplaceStringMeta();
-    replaceString.init( meta, data );
+    replaceString.init();
 
     meta.setFieldInStream( new String[] { "input1", "input2" } );
     meta.setFieldOutStream( new String[] { "out" } );
@@ -186,7 +186,7 @@ public class ReplaceStringTest {
     Object[] _row = new Object[] { new String( array, "UTF-16BE" ), "another data" };
     doReturn( _row ).when( replaceString ).getRow();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "string" ) );
-    ReplaceStringMeta meta = transformMockHelper.processRowsTransformMetaInterface;
+    ReplaceStringMeta meta = transformMockHelper.iTransformMeta;
 
     doReturn( new String[] { "string" } ).when( meta ).getFieldInStream();
     doReturn( new String[] { "output" } ).when( meta ).getFieldOutStream();
@@ -200,7 +200,7 @@ public class ReplaceStringTest {
     doReturn( new String[] { "matched" } ).when( meta ).getReplaceByString();
     doReturn( new boolean[] { false } ).when( meta ).isSetEmptyString();
 
-    replaceString.init( meta, data );
+    replaceString.init();
     replaceString.setInputRowMeta( inputRowMeta );
     data.outputRowMeta = inputRowMeta;
     data.inputFieldsNr = 1;
@@ -211,7 +211,7 @@ public class ReplaceStringTest {
     data.replaceByString = new String[] { "1" };
     data.setEmptyString = new boolean[] { false, false };
 
-    replaceString.processRow( meta, data );
+    replaceString.init();
     System.out.println( replaceString.getRow()[ 1 ] );
     assertTrue( "Expected: aAmatchedmatched", "aAmatchedmatched".equals( replaceString.getRow()[ 1 ] ) );
   }

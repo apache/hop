@@ -75,7 +75,7 @@ public class MappingInputTest {
     MappingInput mappingInput =
       new MappingInput( transformMockHelper.transformMeta, mappingInputData,
         0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
-    mappingInput.init( transformMockHelper.initTransformMetaInterface, mappingInputData );
+    mappingInput.init();
     ValidatorData validatorData = new ValidatorData();
     Validator previousTransform =
       new Validator( transformMockHelper.transformMeta, validatorData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
@@ -98,7 +98,7 @@ public class MappingInputTest {
       final MappingInput mappingInput =
         new MappingInput( transformMockHelper.transformMeta, mappingInputData, 0, transformMockHelper.pipelineMeta,
           transformMockHelper.pipeline );
-      mappingInput.init( transformMockHelper.initTransformMetaInterface, mappingInputData );
+      mappingInput.init();
       int timeOut = 1000;
       final int junitMaxTimeOut = 40000;
       mappingInput.setTimeOut( timeOut );
@@ -107,7 +107,7 @@ public class MappingInputTest {
         @Override
         public void run() {
           try {
-            mappingInput.processRow( transformMockHelper.initTransformMetaInterface, mappingInputData );
+            mappingInput.processRow();
             mit.setProcessRowEnded( true );
           } catch ( HopException e ) {
             mit.setProcessRowEnded( true );

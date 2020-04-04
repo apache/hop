@@ -45,16 +45,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 13-may-2003
  */
-public class AddSequence extends BaseTransform implements ITransform {
+public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData> implements ITransform<AddSequenceMeta, AddSequenceData> {
+
   private static Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator!!
 
-  private AddSequenceMeta meta;
-
-  private AddSequenceData data;
-
-  public AddSequence( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public AddSequence( TransformMeta transformMeta, AddSequenceMeta meta, AddSequenceData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public Object[] addSequence( IRowMeta inputRowMeta, Object[] inputRowData ) throws HopException {
@@ -101,9 +98,8 @@ public class AddSequence extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (AddSequenceMeta) smi;
-    data = (AddSequenceData) sdi;
+  @Override
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) {
@@ -146,11 +142,9 @@ public class AddSequence extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (AddSequenceMeta) smi;
-    data = (AddSequenceData) sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
       data.realSequenceName = environmentSubstitute( meta.getSequenceName() );
       if ( meta.isDatabaseUsed() ) {
@@ -241,9 +235,8 @@ public class AddSequence extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (AddSequenceMeta) smi;
-    data = (AddSequenceData) sdi;
+  @Override
+  public void dispose() {
 
     if ( meta.isCounterUsed() ) {
       if ( data.getLookup() != null ) {
@@ -258,7 +251,7 @@ public class AddSequence extends BaseTransform implements ITransform {
       }
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

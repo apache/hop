@@ -1684,9 +1684,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public DimensionLookup createTransform( TransformMeta transformMeta, DimensionLookupData iTransformData, int cnr, PipelineMeta tr,
+  public DimensionLookup createTransform( TransformMeta transformMeta, DimensionLookupData data, int cnr, PipelineMeta tr,
                                           Pipeline pipeline ) {
-    return new DimensionLookup( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new DimensionLookup( transformMeta, this, data, cnr, tr, pipeline );
   }
 
   @Override

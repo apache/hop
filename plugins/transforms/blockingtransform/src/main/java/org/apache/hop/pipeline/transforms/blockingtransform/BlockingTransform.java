@@ -52,17 +52,15 @@ import java.util.zip.GZIPOutputStream;
 /**
  * A transform that blocks throughput until the input ends, then it will either output the last row or the complete input.
  */
-public class BlockingTransform extends BaseTransform implements ITransform {
+public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> implements ITransform<BlockingTransformMeta, BlockingTransformData> {
 
   private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
 
-  private BlockingTransformMeta meta;
-  private BlockingTransformData data;
   private Object[] lastRow;
 
-  public BlockingTransform( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public BlockingTransform( TransformMeta transformMeta, BlockingTransformMeta meta, BlockingTransformData data, int copyNr, PipelineMeta pipelineMeta,
                             Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private boolean addBuffer( IRowMeta rowMeta, Object[] r ) {
@@ -222,7 +220,7 @@ public class BlockingTransform extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose() {
     if ( ( data.dis != null ) && ( data.dis.size() > 0 ) ) {
       for ( DataInputStream is : data.dis ) {
         BaseTransform.closeQuietly( is );
@@ -239,15 +237,13 @@ public class BlockingTransform extends BaseTransform implements ITransform {
         logError( e.getLocalizedMessage(), e );
       }
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (BlockingTransformMeta) smi;
-    data = (BlockingTransformData) sdi;
+  public boolean init( ) {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       return true;
     }
@@ -255,7 +251,7 @@ public class BlockingTransform extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     boolean err = true;
     Object[] r = getRow(); // Get row from input rowset & set row busy!

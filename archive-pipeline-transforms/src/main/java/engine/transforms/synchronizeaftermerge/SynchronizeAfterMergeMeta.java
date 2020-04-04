@@ -953,9 +953,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements Tran
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SynchronizeAfterMerge( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SynchronizeAfterMerge( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

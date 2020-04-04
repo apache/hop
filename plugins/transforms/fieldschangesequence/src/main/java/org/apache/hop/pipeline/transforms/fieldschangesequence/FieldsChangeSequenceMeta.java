@@ -276,9 +276,9 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public FieldsChangeSequence createTransform( TransformMeta transformMeta, FieldsChangeSequenceData iTransformData, int cnr,
+  public FieldsChangeSequence createTransform( TransformMeta transformMeta, FieldsChangeSequenceData data, int cnr,
                                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new FieldsChangeSequence( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new FieldsChangeSequence( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

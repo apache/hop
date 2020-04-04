@@ -54,9 +54,9 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
 
   private SecretKeyGeneratorData data;
 
-  public SecretKeyGenerator( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public SecretKeyGenerator( TransformMeta transformMeta, ITransformData data, int copyNr,
                              PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,7 +71,7 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     Object[] row;
     Object[] rowIn = null;
@@ -148,11 +148,11 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
     return false;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (SecretKeyGeneratorMeta) smi;
     data = (SecretKeyGeneratorData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
 
       if ( Utils.isEmpty( meta.getAlgorithm() ) ) {
@@ -217,8 +217,8 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
-    super.dispose( smi, sdi );
+  public void.dispose() {
+    super.dispose();
     if ( data.crypto != null ) {
       int nr = data.crypto.length;
       for ( int i = 0; i < nr; i++ ) {

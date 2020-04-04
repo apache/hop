@@ -351,9 +351,9 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public AnalyticQuery createTransform( TransformMeta transformMeta, AnalyticQueryData iTransformData, int cnr,
+  public AnalyticQuery createTransform( TransformMeta transformMeta, AnalyticQueryData data, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new AnalyticQuery( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new AnalyticQuery( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

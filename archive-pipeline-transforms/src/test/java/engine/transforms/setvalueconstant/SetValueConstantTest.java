@@ -64,7 +64,7 @@ public class SetValueConstantTest {
 
   @Test
   public void testUpdateField() throws Exception {
-    SetValueConstant transform = new SetValueConstant( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    SetValueConstant transform = new SetValueConstant( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
 
     IValueMeta valueMeta = new ValueMetaString( "Field1" );
     valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
@@ -86,7 +86,7 @@ public class SetValueConstantTest {
     doReturn( new int[] { 0 } ).when( smh.initTransformDataInterface ).getFieldnrs();
     doReturn( new String[] { "foo" } ).when( smh.initTransformDataInterface ).getRealReplaceByValues();
 
-    transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    transform.init();
 
     Method m = SetValueConstant.class.getDeclaredMethod( "updateField", Object[].class );
     m.setAccessible( true );

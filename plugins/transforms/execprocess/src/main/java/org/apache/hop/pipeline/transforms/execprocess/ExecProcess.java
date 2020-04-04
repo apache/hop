@@ -49,21 +49,17 @@ import java.util.List;
  * @since 03-11-2008
  */
 
-public class ExecProcess extends BaseTransform implements ITransform {
+public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> implements ITransform<ExecProcessMeta, ExecProcessData> {
+
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExecProcessMeta meta;
-  private ExecProcessData data;
-
-  public ExecProcess( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ExecProcess( TransformMeta transformMeta, ExecProcessMeta meta, ExecProcessData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExecProcessMeta) smi;
-    data = (ExecProcessData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -265,11 +261,9 @@ public class ExecProcess extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecProcessMeta) smi;
-    data = (ExecProcessData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "ExecProcess.Error.ResultFieldMissing" ) );
         return false;
@@ -278,14 +272,6 @@ public class ExecProcess extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExecProcessMeta) smi;
-    data = (ExecProcessData) sdi;
-
-    super.dispose( smi, sdi );
   }
 
 }

@@ -163,8 +163,8 @@ public class StreamLookupTest {
   }
 
   private void doTest( boolean memoryPreservationActive, boolean binaryLookupStream, boolean binaryDataStream ) throws HopException {
-    StreamLookup transform = new StreamLookup( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.initTransformDataInterface );
+    StreamLookup transform = new StreamLookup( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     transform.addRowSetToInputRowSets( mockLookupRowSet( binaryLookupStream ) );
     transform.addRowSetToInputRowSets( mockDataRowSet( binaryDataStream ) );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
@@ -178,7 +178,7 @@ public class StreamLookupTest {
     // Process rows and collect output
     int rowNumber = 0;
     String[] expectedOutput = { "Name", "", "Value" };
-    while ( transform.processRow( meta, data ) ) {
+    while ( transform.processRow() ) {
       Object[] rowData = outputRowSet.getRow();
       if ( rowData != null ) {
         IRowMeta rowMeta = outputRowSet.getRowMeta();

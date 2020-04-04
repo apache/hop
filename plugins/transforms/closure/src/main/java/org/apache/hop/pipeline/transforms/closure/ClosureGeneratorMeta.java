@@ -171,9 +171,9 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public ClosureGenerator createTransform( TransformMeta transformMeta, ClosureGeneratorData iTransformData, int cnr,
+  public ClosureGenerator createTransform( TransformMeta transformMeta, ClosureGeneratorData data, int cnr,
                                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ClosureGenerator( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ClosureGenerator( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

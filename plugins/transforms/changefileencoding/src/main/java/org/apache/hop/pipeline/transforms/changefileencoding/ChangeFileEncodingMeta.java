@@ -258,9 +258,9 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
 
   }
 
-  public ChangeFileEncoding createTransform( TransformMeta transformMeta, ChangeFileEncodingData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ChangeFileEncoding createTransform( TransformMeta transformMeta, ChangeFileEncodingData data, int cnr, PipelineMeta pipelineMeta,
                                              Pipeline pipeline ) {
-    return new ChangeFileEncoding( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ChangeFileEncoding( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ChangeFileEncodingData getTransformData() {

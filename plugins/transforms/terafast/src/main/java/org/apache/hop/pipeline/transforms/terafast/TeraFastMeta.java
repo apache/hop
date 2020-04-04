@@ -56,7 +56,7 @@ import java.util.List;
 		  image = "TeraFast.svg",
 		  documentationUrl = "http://wiki.pentaho.com/display/EAI/Teradata+Fastload+Bulk+Loader"
 )
-public class TeraFastMeta extends AbstractTransformMeta {
+public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
   public static final PluginMessages MESSAGES = PluginMessages.getMessages( TeraFastMeta.class );
 
@@ -157,13 +157,6 @@ public class TeraFastMeta extends AbstractTransformMeta {
     this.variableSubstitution = this.getPropertyFactory().createBoolean( VARIABLE_SUBSTITUTION );
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#check(List, PipelineMeta,
-   * TransformMeta, IRowMeta, String[],
-   * String[], IRowMeta)
-   */
   public void check( final List<ICheckResult> remarks, final PipelineMeta transmeta, final TransformMeta transformMeta,
                      final IRowMeta prev, final String[] input, final String[] output, final IRowMeta info,
                      IVariables variables, IMetaStore metaStore ) {
@@ -250,9 +243,10 @@ public class TeraFastMeta extends AbstractTransformMeta {
    * @see ITransformMeta#createTransform(TransformMeta,
    * ITransformData, int, PipelineMeta, Pipeline)
    */
-  public ITransform createTransform( final TransformMeta transformMeta, final ITransformData iTransformData, final int cnr,
+  @Override
+  public ITransform createTransform( final TransformMeta transformMeta, final ITransformData data, final int cnr,
                                      final PipelineMeta pipelineMeta, final Pipeline disp ) {
-    return new TeraFast( transformMeta, iTransformData, cnr, pipelineMeta, disp );
+    return new TeraFast( transformMeta, this, (GenericTransformData) data, cnr, pipelineMeta, disp );
   }
 
   /**
@@ -261,7 +255,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
    * @see ITransformMeta#getTransformData()
    */
   @Override
-  public ITransformData getTransformData() {
+  public GenericTransformData getTransformData() {
     return new GenericTransformData();
   }
 
@@ -281,13 +275,6 @@ public class TeraFastMeta extends AbstractTransformMeta {
     this.useControlFile.setValue( true );
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransformMeta#getFields(IRowMeta, String,
-   * IRowMeta[], TransformMeta,
-   * IVariables)
-   */
   @Override
   public void getFields( final IRowMeta inputRowMeta, final String name, final IRowMeta[] info,
                          final TransformMeta nextTransform, final IVariables variables, IMetaStore metaStore ) throws HopTransformException {

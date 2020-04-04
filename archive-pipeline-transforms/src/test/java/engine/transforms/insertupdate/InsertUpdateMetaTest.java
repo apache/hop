@@ -224,14 +224,14 @@ public class InsertUpdateMetaTest {
 
     Mockito.doReturn( new Object[] {} ).when( insertUpdateTransform ).getRow();
     insertUpdateTransform.first = false;
-    mockHelper.processRowsTransformDataInterface.lookupParameterRowMeta = Mockito.mock( IRowMeta.class );
-    mockHelper.processRowsTransformDataInterface.keynrs = new int[] {};
-    mockHelper.processRowsTransformDataInterface.db = Mockito.mock( Database.class );
-    mockHelper.processRowsTransformDataInterface.valuenrs = new int[] {};
+    mockHelper.iTransformData.lookupParameterRowMeta = Mockito.mock( IRowMeta.class );
+    mockHelper.iTransformData.keynrs = new int[] {};
+    mockHelper.iTransformData.db = Mockito.mock( Database.class );
+    mockHelper.iTransformData.valuenrs = new int[] {};
     Mockito.doThrow( new HopTransformException( "Test exception" ) ).when( insertUpdateTransform ).putRow( Mockito.any(), Mockito.any() );
 
     boolean result =
-      insertUpdateTransform.processRow( mockHelper.processRowsTransformMetaInterface, mockHelper.processRowsTransformDataInterface );
+      insertUpdateTransform.processRow();
     Assert.assertFalse( result );
   }
 
@@ -252,7 +252,7 @@ public class InsertUpdateMetaTest {
     insertUpdateMeta.setUpdateBypassed( true );
     insertUpdateMeta.setDatabaseMeta( Mockito.mock( DatabaseMeta.class ) );
     Database database = Mockito.mock( Database.class );
-    mockHelper.processRowsTransformDataInterface.db = database;
+    mockHelper.iTransformData.db = database;
     Mockito.doReturn( Mockito.mock( Connection.class ) ).when( database ).getConnection();
     Mockito.doNothing().when( insertUpdateTransform ).lookupValues( Mockito.any(), Mockito.any() );
     Mockito.doNothing().when( insertUpdateTransform ).putRow( Mockito.any(), Mockito.any() );
@@ -261,7 +261,7 @@ public class InsertUpdateMetaTest {
 
     insertUpdateMeta.afterInjectionSynchronization();
     //run without a exception
-    insertUpdateTransform.processRow( insertUpdateMeta, mockHelper.processRowsTransformDataInterface );
+    insertUpdateTransform.processRow();
 
     Assert.assertEquals( insertUpdateMeta.getKeyStream().length, insertUpdateMeta.getKeyStream2().length );
   }

@@ -666,9 +666,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SQLFileOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new SQLFileOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

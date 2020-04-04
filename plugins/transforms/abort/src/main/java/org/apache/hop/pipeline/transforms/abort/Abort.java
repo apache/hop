@@ -38,24 +38,22 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  *
  * @author Sven Boden
  */
-public class Abort extends BaseTransform implements ITransform {
+public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITransform<AbortMeta, AbortData> {
 
   private static Class<?> PKG = Abort.class; // for i18n purposes, needed by Translator!!
 
-  private AbortMeta meta;
   private int nrInputRows;
   private int nrThresholdRows;
 
-  public Abort( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Abort( TransformMeta transformMeta, AbortMeta meta, AbortData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (AbortMeta) smi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Add init code here.
       nrInputRows = 0;
       String threshold = environmentSubstitute( meta.getRowThreshold() );
@@ -70,8 +68,7 @@ public class Abort extends BaseTransform implements ITransform {
   }
   
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (AbortMeta) smi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     // no more input to be expected...

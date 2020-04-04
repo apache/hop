@@ -59,9 +59,9 @@ public class LDIFInput extends BaseTransform implements ITransform {
   private LDIFInputMeta meta;
   private LDIFInputData data;
 
-  public LDIFInput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public LDIFInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] getOneRow() throws HopException {
@@ -238,7 +238,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
     return outputRowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     Object[] r = null;
 
@@ -439,11 +439,11 @@ public class LDIFInput extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (LDIFInputMeta) smi;
     data = (LDIFInputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( !meta.isFileField() ) {
         data.files = meta.getFiles( this );
         if ( data.files.nrOfFiles() == 0 && data.files.nrOfMissingFiles() == 0 ) {
@@ -474,7 +474,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (LDIFInputMeta) smi;
     data = (LDIFInputData) sdi;
     if ( data.file != null ) {
@@ -493,7 +493,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
     if ( data.recordLDIF != null ) {
       data.recordLDIF = null;
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

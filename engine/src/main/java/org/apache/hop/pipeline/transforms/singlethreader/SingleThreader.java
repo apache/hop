@@ -52,28 +52,24 @@ import java.util.ArrayList;
  * @author Matt
  * @since 22-nov-2005
  */
-public class SingleThreader extends BaseTransform implements ITransform {
+public class SingleThreader extends BaseTransform<SingleThreaderMeta, SingleThreaderData> implements ITransform<SingleThreaderMeta, SingleThreaderData> {
+
   private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
-
-  private SingleThreaderMeta meta;
-  private SingleThreaderData data;
-
-  public SingleThreader( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  
+  public SingleThreader( TransformMeta transformMeta, SingleThreaderMeta meta, SingleThreaderData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
    * Process rows in batches of N rows. The sub- pipeline will execute in a single thread.
    */
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (SingleThreaderMeta) smi;
-    setData( (SingleThreaderData) sdi );
-    SingleThreaderData singleThreaderData = getData();
+  public boolean processRow() throws HopException {
+
     Object[] row = getRow();
     if ( row == null ) {
-      if ( singleThreaderData.batchCount > 0 ) {
-        singleThreaderData.batchCount = 0;
+      if ( data.batchCount > 0 ) {
+        data.batchCount = 0;
         return execOneIteration();
       }
 
@@ -82,29 +78,29 @@ public class SingleThreader extends BaseTransform implements ITransform {
     }
     if ( first ) {
       first = false;
-      singleThreaderData.startTime = System.currentTimeMillis();
+      data.startTime = System.currentTimeMillis();
     }
 
     // Add the row to the producer...
     //
-    singleThreaderData.rowProducer.putRow( getInputRowMeta(), row );
-    singleThreaderData.batchCount++;
+    data.rowProducer.putRow( getInputRowMeta(), row );
+    data.batchCount++;
 
     if ( getTransformMeta().isDoingErrorHandling() ) {
-      singleThreaderData.errorBuffer.add( row );
+      data.errorBuffer.add( row );
     }
 
-    boolean countWindow = singleThreaderData.batchSize > 0 && singleThreaderData.batchCount >= singleThreaderData.batchSize;
-    boolean timeWindow = singleThreaderData.batchTime > 0 && ( System.currentTimeMillis() - singleThreaderData.startTime ) > singleThreaderData.batchTime;
+    boolean countWindow = data.batchSize > 0 && data.batchCount >= data.batchSize;
+    boolean timeWindow = data.batchTime > 0 && ( System.currentTimeMillis() - data.startTime ) > data.batchTime;
 
     if ( countWindow || timeWindow ) {
-      singleThreaderData.batchCount = 0;
+      data.batchCount = 0;
       boolean more = execOneIteration();
       if ( !more ) {
         setOutputDone();
         return false;
       }
-      singleThreaderData.startTime = System.currentTimeMillis();
+      data.startTime = System.currentTimeMillis();
     }
     return true;
   }
@@ -112,8 +108,8 @@ public class SingleThreader extends BaseTransform implements ITransform {
   private boolean execOneIteration() {
     boolean more = false;
     try {
-      more = getData().executor.oneIteration();
-      if ( getData().executor.isStopped() || getData().executor.getErrors() > 0 ) {
+      more = data.executor.oneIteration();
+      if ( data.executor.isStopped() || data.executor.getErrors() > 0 ) {
         return handleError();
       }
     } catch ( Exception e ) {
@@ -123,25 +119,24 @@ public class SingleThreader extends BaseTransform implements ITransform {
       return false;
     } finally {
       if ( getTransformMeta().isDoingErrorHandling() ) {
-        getData().errorBuffer.clear();
+        data.errorBuffer.clear();
       }
     }
     return more;
   }
 
   private boolean handleError() throws HopTransformException {
-    SingleThreaderData singleThreaderData = getData();
     if ( getTransformMeta().isDoingErrorHandling() ) {
       int lastLogLine = HopLogStore.getLastBufferLineNr();
       StringBuffer logText =
-        HopLogStore.getAppender().getBuffer( singleThreaderData.mappingPipeline.getLogChannelId(), false, singleThreaderData.lastLogLine );
-      singleThreaderData.lastLogLine = lastLogLine;
+        HopLogStore.getAppender().getBuffer( data.mappingPipeline.getLogChannelId(), false, data.lastLogLine );
+      data.lastLogLine = lastLogLine;
 
-      for ( Object[] row : singleThreaderData.errorBuffer ) {
+      for ( Object[] row : data.errorBuffer ) {
         putError( getInputRowMeta(), row, 1L, logText.toString(), null, "STR-001" );
       }
 
-      singleThreaderData.executor.clearError();
+      data.executor.clearError();
 
       return true; // continue
     } else {
@@ -153,61 +148,59 @@ public class SingleThreader extends BaseTransform implements ITransform {
   }
 
   public void prepareMappingExecution() throws HopException {
-    SingleThreaderData singleThreaderData = getData();
     // Set the type to single threaded in case the user forgot...
     //
-    singleThreaderData.mappingPipelineMeta.setPipelineType( PipelineType.SingleThreaded );
+    data.mappingPipelineMeta.setPipelineType( PipelineType.SingleThreaded );
 
     // Create the pipeline from meta-data...
-    singleThreaderData.mappingPipeline = new Pipeline( singleThreaderData.mappingPipelineMeta, getPipeline() );
+    data.mappingPipeline = new Pipeline( data.mappingPipelineMeta, getPipeline() );
 
     // Pass the parameters down to the sub-pipeline.
     //
-    TransformWithMappingMeta
-      .activateParams( getData().mappingPipeline, getData().mappingPipeline, this, getData().mappingPipeline.listParameters(),
+    TransformWithMappingMeta.activateParams( data.mappingPipeline, data.mappingPipeline, this, data.mappingPipeline.listParameters(),
         meta.getParameters(), meta.getParameterValues(), meta.isPassingAllParameters() );
-    getData().mappingPipeline.activateParameters();
+    data.mappingPipeline.activateParameters();
 
     // Disable thread priority managment as it will slow things down needlessly.
     // The single threaded engine doesn't use threads and doesn't need row locking.
     //
-    singleThreaderData.mappingPipeline.getPipelineMeta().setUsingThreadPriorityManagment( false );
+    data.mappingPipeline.getPipelineMeta().setUsingThreadPriorityManagment( false );
 
     // Leave a path up so that we can set variables in sub-pipelines...
     //
-    singleThreaderData.mappingPipeline.setParentPipeline( getPipeline() );
+    data.mappingPipeline.setParentPipeline( getPipeline() );
 
     // Pass down the safe mode flag to the mapping...
     //
-    singleThreaderData.mappingPipeline.setSafeModeEnabled( getPipeline().isSafeModeEnabled() );
+    data.mappingPipeline.setSafeModeEnabled( getPipeline().isSafeModeEnabled() );
 
     // Pass down the metrics gathering flag to the mapping...
     //
-    singleThreaderData.mappingPipeline.setGatheringMetrics( getPipeline().isGatheringMetrics() );
+    data.mappingPipeline.setGatheringMetrics( getPipeline().isGatheringMetrics() );
 
     // Also set the name of this transform in the mapping pipeline for logging purposes
     //
-    singleThreaderData.mappingPipeline.setMappingTransformName( getTransformName() );
+    data.mappingPipeline.setMappingTransformName( getTransformName() );
 
     initServletConfig();
 
     // prepare the execution
     //
-    singleThreaderData.mappingPipeline.prepareExecution();
+    data.mappingPipeline.prepareExecution();
 
     // If the inject transform is a mapping input transform, tell it all is OK...
     //
-    if ( singleThreaderData.injectTransformMeta.isMappingInput() ) {
+    if ( data.injectTransformMeta.isMappingInput() ) {
       MappingInputData mappingInputData =
-        (MappingInputData) singleThreaderData.mappingPipeline.findDataInterface( singleThreaderData.injectTransformMeta.getName() );
+        (MappingInputData) data.mappingPipeline.findDataInterface( data.injectTransformMeta.getName() );
       mappingInputData.sourceTransforms = new ITransform[ 0 ];
       mappingInputData.valueRenames = new ArrayList<MappingValueRename>();
     }
 
     // Add row producer & row listener
-    singleThreaderData.rowProducer = singleThreaderData.mappingPipeline.addRowProducer( meta.getInjectTransform(), 0 );
+    data.rowProducer = data.mappingPipeline.addRowProducer( meta.getInjectTransform(), 0 );
 
-    ITransform retrieveTransform = singleThreaderData.mappingPipeline.getTransformInterface( meta.getRetrieveTransform(), 0 );
+    ITransform retrieveTransform = data.mappingPipeline.getTransformInterface( meta.getRetrieveTransform(), 0 );
     retrieveTransform.addRowListener( new RowAdapter() {
       @Override
       public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
@@ -217,17 +210,17 @@ public class SingleThreader extends BaseTransform implements ITransform {
       }
     } );
 
-    singleThreaderData.mappingPipeline.startThreads();
+    data.mappingPipeline.startThreads();
 
     // Create the executor...
-    singleThreaderData.executor = new SingleThreadedPipelineExecutor( singleThreaderData.mappingPipeline );
+    data.executor = new SingleThreadedPipelineExecutor( data.mappingPipeline );
 
     // We launch the pipeline in the processRow when the first row is received.
     // This will allow the correct variables to be passed.
     // Otherwise the parent is the init() thread which will be gone once the init is done.
     //
     try {
-      boolean ok = singleThreaderData.executor.init();
+      boolean ok = data.executor.init();
       if ( !ok ) {
         throw new HopException( BaseMessages.getString(
           PKG, "SingleThreader.Exception.UnableToInitSingleThreadedPipeline" ) );
@@ -239,42 +232,39 @@ public class SingleThreader extends BaseTransform implements ITransform {
 
     // Add the mapping pipeline to the active sub-pipelines map in the parent pipeline
     //
-    getPipeline().addActiveSubPipeline( getTransformName(), singleThreaderData.mappingPipeline );
+    getPipeline().addActiveSubPipeline( getTransformName(), data.mappingPipeline );
   }
 
   void initServletConfig() {
-    PipelineTransformUtil.initServletConfig( getPipeline(), getData().getMappingPipeline() );
+    PipelineTransformUtil.initServletConfig( getPipeline(), data.getMappingPipeline() );
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (SingleThreaderMeta) smi;
-    setData( (SingleThreaderData) sdi );
-    SingleThreaderData singleThreaderData = getData();
-    if ( super.init( smi, sdi ) ) {
+  public boolean init() {
+    if ( super.init() ) {
       // First we need to load the mapping (pipeline)
       try {
         // The batch size...
-        singleThreaderData.batchSize = Const.toInt( environmentSubstitute( meta.getBatchSize() ), 0 );
-        singleThreaderData.batchTime = Const.toInt( environmentSubstitute( meta.getBatchTime() ), 0 );
+        data.batchSize = Const.toInt( environmentSubstitute( meta.getBatchSize() ), 0 );
+        data.batchTime = Const.toInt( environmentSubstitute( meta.getBatchTime() ), 0 );
 
         // TODO: Pass the MetaStore down to the metadata object?...
         //
-        singleThreaderData.mappingPipelineMeta = SingleThreaderMeta.loadSingleThreadedPipelineMeta( meta, this, meta.isPassingAllParameters() );
-        if ( singleThreaderData.mappingPipelineMeta != null ) { // Do we have a mapping at all?
+        data.mappingPipelineMeta = SingleThreaderMeta.loadSingleThreadedPipelineMeta( meta, this, meta.isPassingAllParameters() );
+        if ( data.mappingPipelineMeta != null ) { // Do we have a mapping at all?
 
           // Validate the inject and retrieve transform names
           //
           String injectTransformName = environmentSubstitute( meta.getInjectTransform() );
-          singleThreaderData.injectTransformMeta = singleThreaderData.mappingPipelineMeta.findTransform( injectTransformName );
-          if ( singleThreaderData.injectTransformMeta == null ) {
+          data.injectTransformMeta = data.mappingPipelineMeta.findTransform( injectTransformName );
+          if ( data.injectTransformMeta == null ) {
             logError( "The inject transform with name '"
               + injectTransformName + "' couldn't be found in the sub-pipeline" );
           }
 
           String retrieveTransformName = environmentSubstitute( meta.getRetrieveTransform() );
           if ( !Utils.isEmpty( retrieveTransformName ) ) {
-            singleThreaderData.retrieveTransformMeta = singleThreaderData.mappingPipelineMeta.findTransform( retrieveTransformName );
-            if ( singleThreaderData.retrieveTransformMeta == null ) {
+            data.retrieveTransformMeta = data.mappingPipelineMeta.findTransform( retrieveTransformName );
+            if ( data.retrieveTransformMeta == null ) {
               logError( "The retrieve transform with name '"
                 + retrieveTransformName + "' couldn't be found in the sub-pipeline" );
             }
@@ -287,7 +277,7 @@ public class SingleThreader extends BaseTransform implements ITransform {
           prepareMappingExecution();
 
           if ( getTransformMeta().isDoingErrorHandling() ) {
-            singleThreaderData.errorBuffer = new ArrayList<Object[]>();
+            data.errorBuffer = new ArrayList<Object[]>();
           }
 
           // That's all for now...
@@ -306,30 +296,30 @@ public class SingleThreader extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose(){
     // dispose of the single threading execution engine
     //
     try {
-      if ( getData().executor != null ) {
-        getData().executor.dispose();
+      if ( data.executor != null ) {
+        data.executor.dispose();
       }
     } catch ( HopException e ) {
       log.logError( "Error disposing of sub-pipeline: ", e );
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData ) throws HopException {
-    if ( getData().mappingPipeline != null ) {
-      getData().mappingPipeline.stopAll();
+  public void stopRunning() throws HopException {
+    if ( data.mappingPipeline != null ) {
+      data.mappingPipeline.stopAll();
     }
   }
 
   public void stopAll() {
     // Stop the mapping transform.
-    if ( getData().mappingPipeline != null ) {
-      getData().mappingPipeline.stopAll();
+    if ( data.mappingPipeline != null ) {
+      data.mappingPipeline.stopAll();
     }
 
     // Also stop this transform
@@ -337,15 +327,6 @@ public class SingleThreader extends BaseTransform implements ITransform {
   }
 
   public Pipeline getMappingPipeline() {
-    return getData().mappingPipeline;
-  }
-
-  // Method is defined as package-protected in order to be accessible by unit tests
-  SingleThreaderData getData() {
-    return data;
-  }
-
-  private void setData( SingleThreaderData data ) {
-    this.data = data;
+    return data.mappingPipeline;
   }
 }

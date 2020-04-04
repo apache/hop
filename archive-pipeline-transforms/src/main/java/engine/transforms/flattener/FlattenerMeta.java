@@ -185,9 +185,9 @@ public class FlattenerMeta extends BaseTransformMeta implements TransformMetaInt
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Flattener( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Flattener( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -449,9 +449,9 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
 
   }
 
-  public GetTableNames createTransform( TransformMeta transformMeta, GetTableNamesData iTransformData, int cnr,
+  public GetTableNames createTransform( TransformMeta transformMeta, GetTableNamesData data, int cnr,
                                         PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new GetTableNames( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new GetTableNames( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public GetTableNamesData getTransformData() {

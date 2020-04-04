@@ -125,13 +125,13 @@ public class ExcelOutputTest {
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -170,8 +170,8 @@ public class ExcelOutputTest {
 
     meta.setSplitEvery( 1 );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
+    excelOutput.init();
+    excelOutput.init();
     Assert.assertNull( data.formats.get( testColumnName ) );
   }
 
@@ -199,18 +199,18 @@ public class ExcelOutputTest {
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -241,18 +241,18 @@ public class ExcelOutputTest {
     excelFile.deleteOnExit();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, null, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 1, workbook.getSheets().length );
@@ -285,18 +285,18 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -332,18 +332,18 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -379,18 +379,18 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, true );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );
@@ -427,18 +427,18 @@ public class ExcelOutputTest {
     String templateFullPath = excelTemplateResource.getFile();
     ExcelOutputMeta meta = createTransformMeta( excelFileFullPath, templateFullPath, false );
 
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
-    excelOutput.init( meta, data );
-    excelOutput.processRow( meta, data );
-    excelOutput.dispose( meta, data );
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
+    excelOutput.init();
+    excelOutput.init();
+    excelOutput.dispose();
 
     Workbook workbook = Workbook.getWorkbook( excelFile );
     Assert.assertEquals( 3, workbook.getSheets().length );

@@ -39,20 +39,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 27-06-2008
  */
-public class Delay extends BaseTransform implements ITransform {
+public class Delay extends BaseTransform<DelayMeta, DelayData> implements ITransform<DelayMeta, DelayData> {
+
   private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DelayMeta meta;
-  private DelayData data;
-
-  public Delay( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Delay( TransformMeta transformMeta, DelayMeta meta, DelayData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (DelayMeta) smi;
-    data = (DelayData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
 
@@ -139,17 +135,6 @@ public class Delay extends BaseTransform implements ITransform {
     }
 
     return true;
-  }
-
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (DelayMeta) smi;
-    data = (DelayData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
-      // Add init code here.
-      return true;
-    }
-    return false;
   }
 
 }

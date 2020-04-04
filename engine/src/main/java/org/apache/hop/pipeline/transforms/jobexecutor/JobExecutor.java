@@ -66,15 +66,13 @@ import java.util.ArrayList;
  * @author Matt
  * @since 22-nov-2005
  */
-public class JobExecutor extends BaseTransform implements ITransform {
+public class JobExecutor extends BaseTransform<JobExecutorMeta, JobExecutorData> implements ITransform<JobExecutorMeta, JobExecutorData> {
+
   private static Class<?> PKG = JobExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
-  private JobExecutorMeta meta;
-  private JobExecutorData data;
-
-  public JobExecutor( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public JobExecutor( TransformMeta transformMeta, JobExecutorMeta meta, JobExecutorData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -82,11 +80,9 @@ public class JobExecutor extends BaseTransform implements ITransform {
    * look up the MappingInput transform to send our rows to it. As a consequence, for the time being, there can only be one
    * MappingInput and one MappingOutput transform in the JobExecutor.
    */
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
     try {
-      meta = (JobExecutorMeta) smi;
-      data = (JobExecutorData) sdi;
-
       // Wait for a row...
       //
       Object[] row = getRow();
@@ -382,11 +378,10 @@ public class JobExecutor extends BaseTransform implements ITransform {
       parameters.getVariable(), parameters.getInput(), meta.getParameters().isInheritingAllVariables() );
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (JobExecutorMeta) smi;
-    data = (JobExecutorData) sdi;
+  @Override
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // First we need to load the mapping (pipeline)
       try {
 
@@ -433,13 +428,13 @@ public class JobExecutor extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
+  public void dispose() {
     data.groupBuffer = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
-  public void stopRunning( ITransformMeta transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning() throws HopException {
     if ( data.executorJob != null ) {
       data.executorJob.stopAll();
     }

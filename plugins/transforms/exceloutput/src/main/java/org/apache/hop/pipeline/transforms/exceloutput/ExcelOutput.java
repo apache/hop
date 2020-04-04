@@ -70,21 +70,16 @@ import java.util.Locale;
  * @author Matt
  * @since 7-sep-2006
  */
-public class ExcelOutput extends BaseTransform implements ITransform {
+public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData> implements ITransform<ExcelOutputMeta, ExcelOutputData> {
 
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExcelOutputMeta meta;
-  private ExcelOutputData data;
-
-  public ExcelOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public ExcelOutput( TransformMeta transformMeta, ExcelOutputMeta meta, ExcelOutputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ExcelOutputMeta) smi;
-    data = (ExcelOutputData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
     if ( first && r != null ) {
@@ -685,11 +680,9 @@ public class ExcelOutput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelOutputMeta) smi;
-    data = (ExcelOutputData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.splitnr = 0;
       data.realSheetname = environmentSubstitute( meta.getSheetname() );
 
@@ -743,9 +736,7 @@ public class ExcelOutput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ExcelOutputMeta) smi;
-    data = (ExcelOutputData) sdi;
+  public void dispose(){
 
     if ( data.oneFileOpened ) {
       closeFile();
@@ -762,7 +753,7 @@ public class ExcelOutput extends BaseTransform implements ITransform {
     data.headerImage = null;
     data.writableFont = null;
     data.ws = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private void setFonts() throws Exception {

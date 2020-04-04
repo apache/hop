@@ -52,12 +52,12 @@ public class WebServiceAvailable extends BaseTransform implements ITransform {
   private WebServiceAvailableMeta meta;
   private WebServiceAvailableData data;
 
-  public WebServiceAvailable( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public WebServiceAvailable( TransformMeta transformMeta, ITransformData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (WebServiceAvailableMeta) smi;
     data = (WebServiceAvailableData) sdi;
 
@@ -163,11 +163,11 @@ public class WebServiceAvailable extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (WebServiceAvailableMeta) smi;
     data = (WebServiceAvailableData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "WebServiceAvailable.Error.ResultFieldMissing" ) );
         return false;
@@ -179,10 +179,10 @@ public class WebServiceAvailable extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (WebServiceAvailableMeta) smi;
     data = (WebServiceAvailableData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

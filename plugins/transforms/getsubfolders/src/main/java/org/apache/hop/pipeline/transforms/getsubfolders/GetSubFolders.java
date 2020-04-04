@@ -50,16 +50,13 @@ import java.util.List;
  * @author Samatar
  * @since 18-July-2008
  */
-public class GetSubFolders extends BaseTransform implements ITransform {
+public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData> implements ITransform<GetSubFoldersMeta, GetSubFoldersData> {
+
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
-  private GetSubFoldersMeta meta;
-
-  private GetSubFoldersData data;
-
-  public GetSubFolders( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetSubFolders( TransformMeta transformMeta, GetSubFoldersMeta meta, GetSubFoldersData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -74,7 +71,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     if ( meta.isFoldernameDynamic() && ( data.filenr >= data.filessize ) ) {
       // Grab one row from previous transform ...
@@ -246,11 +243,9 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetSubFoldersMeta) smi;
-    data = (GetSubFoldersData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         data.filessize = 0;
         data.rownr = 1L;
@@ -268,9 +263,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetSubFoldersMeta) smi;
-    data = (GetSubFoldersData) sdi;
+  public void dispose(){
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -280,7 +273,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

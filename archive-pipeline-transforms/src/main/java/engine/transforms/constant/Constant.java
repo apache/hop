@@ -58,9 +58,9 @@ public class Constant extends BaseTransform implements ITransform {
   private ConstantMeta meta;
   private ConstantData data;
 
-  public Constant( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Constant( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (ConstantMeta) getTransformMeta().getTransformMetaInterface();
     data = (ConstantData) iTransformData;
@@ -219,7 +219,7 @@ public class Constant extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = null;
     r = getRow();
 
@@ -257,13 +257,13 @@ public class Constant extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ConstantMeta) smi;
     data = (ConstantData) sdi;
 
     data.firstRow = true;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Create a row (constants) with all the values in it...
       List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>(); // stores the errors...
       data.constants = buildRow( meta, data, remarks );

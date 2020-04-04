@@ -115,8 +115,7 @@ public class PGBulkLoaderMetaTest {
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
-    loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test
@@ -146,10 +145,10 @@ public class PGBulkLoaderMetaTest {
     Pipeline pipeline = new Pipeline( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
 
-    loader = new PGBulkLoader( transformMeta, ld, 1, pipelineMeta, pipeline );
+    loader = new PGBulkLoader( transformMeta, lm, ld, 1, pipelineMeta, pipeline );
   }
 
-  public class DateMaskLoadSaveValidator implements IFieldLoadSaveValidator<String> {
+  public static class DateMaskLoadSaveValidator implements IFieldLoadSaveValidator<String> {
     Random r = new Random();
     private final String[] masks = new String[] { PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH, PGBulkLoaderMeta.DATE_MASK_DATE, PGBulkLoaderMeta.DATE_MASK_DATETIME };
 

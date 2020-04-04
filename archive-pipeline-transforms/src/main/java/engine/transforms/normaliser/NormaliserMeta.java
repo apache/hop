@@ -327,9 +327,9 @@ public class NormaliserMeta extends BaseTransformMeta implements TransformMetaIn
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr, PipelineMeta pipelineMeta,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
-    return new Normaliser( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new Normaliser( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

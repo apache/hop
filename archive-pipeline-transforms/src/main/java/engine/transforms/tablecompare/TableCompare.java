@@ -52,15 +52,15 @@ public class TableCompare extends BaseTransform implements ITransform {
   private TableCompareMeta meta;
   private TableCompareData data;
 
-  public TableCompare( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TableCompare( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     meta = (TableCompareMeta) getTransformMeta().getTransformMetaInterface();
     data = (TableCompareData) iTransformData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 
@@ -585,11 +585,11 @@ public class TableCompare extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       try {
         data.referenceDb = new Database( this, meta.getReferenceConnection() );
@@ -618,7 +618,7 @@ public class TableCompare extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (TableCompareMeta) smi;
     data = (TableCompareData) sdi;
 
@@ -630,7 +630,7 @@ public class TableCompare extends BaseTransform implements ITransform {
       data.compareDb.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

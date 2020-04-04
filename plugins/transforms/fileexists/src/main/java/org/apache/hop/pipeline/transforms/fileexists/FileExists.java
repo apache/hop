@@ -44,20 +44,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 03-Juin-2008
  */
 
-public class FileExists extends BaseTransform implements ITransform {
+public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> implements ITransform<FileExistsMeta, FileExistsData> {
+
   private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FileExistsMeta meta;
-  private FileExistsData data;
-
-  public FileExists( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FileExists( TransformMeta transformMeta, FileExistsMeta meta, FileExistsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FileExistsMeta) smi;
-    data = (FileExistsData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -167,11 +163,8 @@ public class FileExists extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FileExistsMeta) smi;
-    data = (FileExistsData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init(){
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "FileExists.Error.ResultFieldMissing" ) );
         return false;
@@ -181,9 +174,7 @@ public class FileExists extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FileExistsMeta) smi;
-    data = (FileExistsData) sdi;
+  public void dispose(){
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -193,7 +184,7 @@ public class FileExists extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

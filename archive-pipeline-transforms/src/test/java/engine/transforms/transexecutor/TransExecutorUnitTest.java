@@ -124,7 +124,7 @@ public class PipelineExecutorUnitTest {
     PipelineExecutorData pipelineExecutorDataMock = mock( PipelineExecutorData.class );
     PipelineMeta transMetaMock = mock( PipelineMeta.class );
 
-    executor.init( meta, data );
+    executor.init();
     when( transParentMock.getLogLevel() ).thenReturn( LogLevel.DEBUG );
     doNothing().when( transParentMock ).initializeVariablesFrom( any( iVariables.class ) );
     when( executor.getLogLevel() ).thenReturn( LogLevel.DEBUG );
@@ -155,10 +155,10 @@ public class PipelineExecutorUnitTest {
     TransformMeta transformMeta = mockTransformAndMapItToRowSet( "transformMetaMock", rowSet );
     meta.setOutputRowsSourceTransformMeta( transformMeta );
 
-    executor.init( meta, data );
+    executor.init();
     executor.setInputRowMeta( new RowMeta() );
-    assertTrue( "Passing one line at first time", executor.processRow( meta, data ) );
-    assertFalse( "Executing the internal pipeline during the second round", executor.processRow( meta, data ) );
+    assertTrue( "Passing one line at first time", executor.init();
+    assertFalse( "Executing the internal pipeline during the second round", executor.init();
 
     Object[] resultsRow = rowSet.getRowImmediate();
     assertNotNull( resultsRow );
@@ -214,10 +214,10 @@ public class PipelineExecutorUnitTest {
     TransformMeta transformMeta = mockTransformAndMapItToRowSet( "transformMetaMock", rowSet );
     meta.setExecutionResultTargetTransformMeta( transformMeta );
 
-    executor.init( meta, data );
+    executor.init();
     executor.setInputRowMeta( new RowMeta() );
-    assertTrue( "Passing one line at first time", executor.processRow( meta, data ) );
-    assertFalse( "Executing the internal pipeline during the second round", executor.processRow( meta, data ) );
+    assertTrue( "Passing one line at first time", executor.init();
+    assertFalse( "Executing the internal pipeline during the second round", executor.init();
 
     Object[] resultsRow = rowSet.getRowImmediate();
     assertNotNull( resultsRow );
@@ -247,34 +247,34 @@ public class PipelineExecutorUnitTest {
     prepareMultipleRowsForExecutor();
 
     meta.setGroupField( "groupField" );
-    executor.init( meta, data );
+    executor.init();
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "groupField" ) );
     executor.setInputRowMeta( rowMeta );
 
     // start processing
-    executor.processRow( meta, data ); // 1st row - 'value1'
+    executor.init(); // 1st row - 'value1'
     // should be added to group buffer
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data );
-    executor.processRow( meta, data );
-    executor.processRow( meta, data ); // 4th row - still 'value1'
+    executor.init();
+    executor.init();
+    executor.init(); // 4th row - still 'value1'
     // first 4 rows should be added to the same group
     assertEquals( 4, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 5th row - value has been changed - 'value12'
+    executor.init(); // 5th row - value has been changed - 'value12'
     // previous group buffer should be flushed
     // and a new group should be started
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 6th row - 'value12'
-    executor.processRow( meta, data ); // 7th row - 'value12'
+    executor.init(); // 6th row - 'value12'
+    executor.init(); // 7th row - 'value12'
     // the rest rows should be added to another group
     assertEquals( 3, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // end of file
+    executor.init(); // end of file
     // group buffer should be flushed in the end
     assertEquals( 0, data.groupBuffer.size() );
   }
@@ -291,34 +291,34 @@ public class PipelineExecutorUnitTest {
     prepareMultipleRowsForExecutor();
 
     meta.setGroupSize( "5" );
-    executor.init( meta, data );
+    executor.init();
 
     // start processing
-    executor.processRow( meta, data ); // 1st row
+    executor.init(); // 1st row
     // should be added to group buffer
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data );
-    executor.processRow( meta, data );
-    executor.processRow( meta, data ); // 4th row
+    executor.init();
+    executor.init();
+    executor.init(); // 4th row
     // first 4 rows should be added to the same group
     assertEquals( 4, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 5th row
+    executor.init(); // 5th row
     // once the 5th row is processed, the pipeline executor should be triggered
     // and thus, group buffer should be flushed
     assertEquals( 0, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 6th row
+    executor.init(); // 6th row
     // previous group buffer should be flushed
     // and a new group should be started
     assertEquals( 1, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // 7th row
+    executor.init(); // 7th row
     // the rest rows should be added to another group
     assertEquals( 2, data.groupBuffer.size() );
 
-    executor.processRow( meta, data ); // end of file
+    executor.init(); // end of file
     // group buffer should be flushed in the end
     assertEquals( 0, data.groupBuffer.size() );
   }
@@ -334,7 +334,7 @@ public class PipelineExecutorUnitTest {
 
     doNothing().when( executor ).putRowTo( any(), any(), any() );
 
-    executor.init( meta, data );
+    executor.init();
     executor.collectPipelineResults( result );
     verify( executor, never() ).putRowTo( any(), any(), any() );
   }
@@ -349,7 +349,7 @@ public class PipelineExecutorUnitTest {
 
     doNothing().when( executor ).putRowTo( any(), any(), any() );
 
-    executor.init( meta, data );
+    executor.init();
     Result result = mock( Result.class );
     executor.collectExecutionResults( result );
 
@@ -371,7 +371,7 @@ public class PipelineExecutorUnitTest {
 
     doNothing().when( executor ).putRowTo( any(), any(), any() );
 
-    executor.init( meta, data );
+    executor.init();
     executor.collectExecutionResultFiles( result );
 
     verify( executor, never() ).putRowTo( any(), any(), any() );
@@ -416,7 +416,7 @@ public class PipelineExecutorUnitTest {
     Pipeline parent = new Pipeline();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
-    executor.init( meta, data );
+    executor.init();
 
     executor.setVariable( paramOverwrite, parentValue );
     executor.setVariable( childParam, childValue );
@@ -454,7 +454,7 @@ public class PipelineExecutorUnitTest {
     Pipeline parent = new Pipeline();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
-    executor.init( meta, data );
+    executor.init();
 
     executor.setVariable( paramOverwrite, parentValue );
     executor.setVariable( childParam, childValue );
@@ -499,7 +499,7 @@ public class PipelineExecutorUnitTest {
     Pipeline parent = new Pipeline();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
-    executor.init( meta, data );
+    executor.init();
 
     executor.setVariable( paramOverwrite, parentValue );
     executor.setVariable( childParam, childValue );
@@ -530,9 +530,9 @@ public class PipelineExecutorUnitTest {
 
     internalResult.setSafeStop( true );
 
-    executor.init( meta, data );
+    executor.init();
     executor.setInputRowMeta( new RowMeta() );
-    assertTrue( executor.processRow( meta, data ) );
+    assertTrue( executor.init();
     verify( executor.getPipeline() ).safeStop();
     verify( executor.getPipeline(), never() ).stopAll();
   }
@@ -546,9 +546,9 @@ public class PipelineExecutorUnitTest {
     internalResult.setSafeStop( false );
     internalResult.setNrErrors( 1 );
 
-    executor.init( meta, data );
+    executor.init();
     executor.setInputRowMeta( new RowMeta() );
-    assertTrue( executor.processRow( meta, data ) );
+    assertTrue( executor.init();
     verify( executor.getPipeline(), never() ).safeStop();
     verify( executor.getPipeline(), never() ).stopAll();
   }
@@ -561,8 +561,8 @@ public class PipelineExecutorUnitTest {
   public void testGetLastIncomingFieldValuesWithEmptyData() throws Exception {
     prepareNoRowForExecutor();
 
-    executor.init( meta, data );
-    executor.processRow( meta, data );
+    executor.init();
+    executor.init();
     verify( executor, times( 0 ) ).getLastIncomingFieldValues();
   }
 
@@ -571,29 +571,29 @@ public class PipelineExecutorUnitTest {
     prepareMultipleRowsForExecutor();
 
     meta.setGroupField( "groupField" );
-    executor.init( meta, data );
+    executor.init();
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "groupField" ) );
     executor.setInputRowMeta( rowMeta );
 
     // start processing
-    executor.processRow( meta, data ); // 1st row - 'value1'
-    executor.processRow( meta, data );
-    executor.processRow( meta, data );
-    executor.processRow( meta, data ); // 4th row - still 'value1'
+    executor.init(); // 1st row - 'value1'
+    executor.init();
+    executor.init();
+    executor.init(); // 4th row - still 'value1'
 
     // same group, zero calls
     verify( executor, times( 0 ) ).getLastIncomingFieldValues();
 
-    executor.processRow( meta, data ); // 5th row - value has been changed - 'value12'
+    executor.init(); // 5th row - value has been changed - 'value12'
 
     // group changed - 1 calls = 1 for pipeline execution
     verify( executor, times( 1 ) ).getLastIncomingFieldValues();
 
-    executor.processRow( meta, data ); // 6th row - 'value12'
-    executor.processRow( meta, data ); // 7th row - 'value12'
-    executor.processRow( meta, data ); // end of file
+    executor.init(); // 6th row - 'value12'
+    executor.init(); // 7th row - 'value12'
+    executor.init(); // end of file
 
     //  No more rows = + 1 call to get the previous value
     verify( executor, times( 2 ) ).getLastIncomingFieldValues();

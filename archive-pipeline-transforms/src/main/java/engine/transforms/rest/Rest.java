@@ -80,8 +80,8 @@ public class Rest extends BaseTransform implements ITransform {
   private RestMeta meta;
   private RestData data;
 
-  public Rest( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public Rest( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /* for unit test*/
@@ -345,7 +345,7 @@ public class Rest extends BaseTransform implements ITransform {
     return response.getHeaders();
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (RestMeta) smi;
     data = (RestData) sdi;
 
@@ -495,11 +495,11 @@ public class Rest extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (RestMeta) smi;
     data = (RestData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.resultFieldName = environmentSubstitute( meta.getFieldName() );
       data.resultCodeFieldName = environmentSubstitute( meta.getResultCodeFieldName() );
       data.resultResponseFieldName = environmentSubstitute( meta.getResponseTimeFieldName() );
@@ -553,7 +553,7 @@ public class Rest extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (RestMeta) smi;
     data = (RestData) sdi;
 
@@ -561,7 +561,7 @@ public class Rest extends BaseTransform implements ITransform {
     data.headerNames = null;
     data.indexOfHeaderFields = null;
     data.paramNames = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

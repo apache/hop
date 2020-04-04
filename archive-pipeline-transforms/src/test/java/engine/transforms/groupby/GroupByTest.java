@@ -119,7 +119,7 @@ public class GroupByTest {
     doReturn( aggType ).when( groupByMeta ).getAggregateType();
 
     when( mockHelper.pipelineMeta.getPrevTransformFields( mockHelper.transformMeta ) ).thenReturn( new RowMeta() );
-    groupBySpy.processRow( groupByMeta, groupByData );
+    groupBySpy.processRow();
 
     assertTrue( groupBySpy.getOutputRowSets().get( 0 ).isDone() );
   }
@@ -188,7 +188,7 @@ public class GroupByTest {
       mockHelper.pipelineMeta, mockHelper.pipeline ) );
 
     assertTrue( groupByData.tempFile.exists() );
-    groupBySpy.dispose( mock( TransformMetaInterface.class ), groupByData );
+    groupBySpy.dispose();
     // check file is deleted
     assertFalse( groupByData.tempFile.exists() );
 
@@ -221,7 +221,7 @@ public class GroupByTest {
 
     // check if file is created
     assertTrue( groupByData.tempFile.exists() );
-    groupBySpy.dispose( groupByMetaMock, groupByData );
+    groupBySpy.dispose();
     // check file is deleted
     assertFalse( groupByData.tempFile.exists() );
 

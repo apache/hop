@@ -51,9 +51,9 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
   private DatabaseJoinMeta meta;
   private DatabaseJoinData data;
 
-  public DatabaseJoin( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public DatabaseJoin( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized void lookupValues( IRowMeta rowMeta, Object[] rowData ) throws HopException {
@@ -141,7 +141,7 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     data.db.closeQuery( rs );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 
@@ -204,11 +204,11 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -252,7 +252,7 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (DatabaseJoinMeta) smi;
     data = (DatabaseJoinData) sdi;
 
@@ -260,6 +260,6 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
       data.db.disconnect();
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

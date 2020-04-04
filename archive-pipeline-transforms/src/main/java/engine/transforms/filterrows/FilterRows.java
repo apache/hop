@@ -50,9 +50,9 @@ public class FilterRows extends BaseTransform implements ITransform {
   private FilterRowsMeta meta;
   private FilterRowsData data;
 
-  public FilterRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FilterRows( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized boolean keepRow( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -68,7 +68,7 @@ public class FilterRows extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (FilterRowsMeta) smi;
     data = (FilterRowsData) sdi;
 
@@ -151,11 +151,11 @@ public class FilterRows extends BaseTransform implements ITransform {
   /**
    * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
    */
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (FilterRowsMeta) smi;
     data = (FilterRowsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // PDI-6785
       // could it be a better idea to have a clone on the condition in data and do this on the first row?
       meta.getCondition().clearFieldPositions();

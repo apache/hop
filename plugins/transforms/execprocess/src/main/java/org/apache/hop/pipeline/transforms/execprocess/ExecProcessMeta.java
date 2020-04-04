@@ -328,9 +328,9 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public ExecProcess createTransform( TransformMeta transformMeta, ExecProcessData iTransformData, int cnr,
+  public ExecProcess createTransform( TransformMeta transformMeta, ExecProcessData data, int cnr,
                                       PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecProcess( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExecProcess( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

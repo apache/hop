@@ -49,12 +49,12 @@ public class TableExists extends BaseTransform implements ITransform {
   private TableExistsMeta meta;
   private TableExistsData data;
 
-  public TableExists( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public TableExists( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (TableExistsMeta) smi;
     data = (TableExistsData) sdi;
 
@@ -126,11 +126,11 @@ public class TableExists extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (TableExistsMeta) smi;
     data = (TableExistsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "TableExists.Error.ResultFieldMissing" ) );
         return false;
@@ -166,12 +166,12 @@ public class TableExists extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (TableExistsMeta) smi;
     data = (TableExistsData) sdi;
     if ( data.db != null ) {
       data.db.disconnect();
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

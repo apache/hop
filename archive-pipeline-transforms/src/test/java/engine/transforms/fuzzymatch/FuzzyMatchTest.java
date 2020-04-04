@@ -84,9 +84,9 @@ public class FuzzyMatchTest {
     private Object[] resultRow = null;
     private RowSet rowset = null;
 
-    public FuzzyMatchHandler( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+    public FuzzyMatchHandler( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                               Pipeline pipeline ) {
-      super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
     }
 
     @Override
@@ -127,15 +127,15 @@ public class FuzzyMatchTest {
     fuzzyMatch =
       new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
-    fuzzyMatch.init( mockHelper.initTransformMetaInterface, mockHelper.initTransformDataInterface );
+    fuzzyMatch.init();
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( rows ) );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( lookupRows ) );
 
-    when( mockHelper.processRowsTransformMetaInterface.getAlgorithmType() ).thenReturn( 8 );
-    mockHelper.processRowsTransformDataInterface.look = mock( HashSet.class );
-    when( mockHelper.processRowsTransformDataInterface.look.iterator() ).thenReturn( lookupRows.iterator() );
+    when( mockHelper.iTransformMeta.getAlgorithmType() ).thenReturn( 8 );
+    mockHelper.iTransformData.look = mock( HashSet.class );
+    when( mockHelper.iTransformData.look.iterator() ).thenReturn( lookupRows.iterator() );
 
-    fuzzyMatch.processRow( mockHelper.processRowsTransformMetaInterface, mockHelper.processRowsTransformDataInterface );
+    fuzzyMatch.processRow();
     Assert.assertEquals( fuzzyMatch.resultRow[ 0 ], row3[ 0 ] );
   }
 
@@ -152,7 +152,7 @@ public class FuzzyMatchTest {
       new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
 
-    fuzzyMatch.init( meta, data );
+    fuzzyMatch.init();
     RowSet lookupRowSet = mockHelper.getMockInputRowSet( binaryLookupRows );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( binaryRows ) );
     fuzzyMatch.addRowSetToInputRowSets( lookupRowSet );
@@ -178,7 +178,7 @@ public class FuzzyMatchTest {
 
     when( transformIOMetaInterface.getInfoStreams() ).thenReturn( streamInterfaceList );
 
-    fuzzyMatch.processRow( meta, data );
+    fuzzyMatch.init();
     Assert.assertEquals( iRowMeta.getString( row3B, 0 ),
       data.outputRowMeta.getString( fuzzyMatch.resultRow, 1 ) );
   }
@@ -191,7 +191,7 @@ public class FuzzyMatchTest {
     fuzzyMatch =
       new FuzzyMatchHandler( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
         mockHelper.pipeline );
-    fuzzyMatch.init( meta, data );
+    fuzzyMatch.init();
     fuzzyMatch.first = false;
     data.indexOfMainField = 1;
     Object[] inputRow = { "test input", null };
@@ -209,7 +209,7 @@ public class FuzzyMatchTest {
     fuzzyMatch.setInputRowMeta( iRowMeta.clone() );
     data.outputRowMeta = iRowMeta.clone();
 
-    fuzzyMatch.processRow( meta, data );
+    fuzzyMatch.init();
     Assert.assertEquals( inputRow[ 0 ], fuzzyMatch.resultRow[ 0 ] );
     Assert.assertNull( fuzzyMatch.resultRow[ 1 ] );
     Assert.assertTrue( Arrays.stream( fuzzyMatch.resultRow, 3, fuzzyMatch.resultRow.length ).allMatch( val -> val == null ) );

@@ -50,7 +50,7 @@ public class NumberRange extends BaseTransform implements ITransform {
    * Column number where the input value is stored
    */
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] row = getRow();
     if ( row == null ) {
       setOutputDone();
@@ -111,22 +111,22 @@ public class NumberRange extends BaseTransform implements ITransform {
     return true;
   }
 
-  public NumberRange( TransformMeta s, ITransformData iTransformData, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, iTransformData, c, t, dis );
+  public NumberRange( TransformMeta s, ITransformData data, int c, PipelineMeta t, Pipeline dis ) {
+    super( s, data, c, t, dis );
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (NumberRangeMeta) smi;
     data = (NumberRangeData) sdi;
 
-    return super.init( smi, sdi );
+    return super.init();
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (NumberRangeMeta) smi;
     data = (NumberRangeData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

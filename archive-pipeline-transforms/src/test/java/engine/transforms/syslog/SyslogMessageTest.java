@@ -88,13 +88,13 @@ public class SyslogMessageTest {
     } ).when( syslog ).shutdown();
     SyslogMessageMeta meta = new SyslogMessageMeta();
     SyslogMessage syslogMessage =
-      new SyslogMessage( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
+      new SyslogMessage( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );
     SyslogMessage sysLogMessageSpy = spy( syslogMessage );
     when( sysLogMessageSpy.getSyslog() ).thenReturn( syslog );
     meta.setServerName( "1" );
     meta.setMessageFieldName( "1" );
-    sysLogMessageSpy.init( meta, data );
-    sysLogMessageSpy.dispose( meta, data );
+    sysLogMessageSpy.init();
+    sysLogMessageSpy.dispose();
   }
 }

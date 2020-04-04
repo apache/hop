@@ -69,14 +69,12 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class HTTP extends BaseTransform implements ITransform {
+public class HTTP extends BaseTransform<HTTPMeta, HTTPData> implements ITransform<HTTPMeta, HTTPData> {
+
   private static Class<?> PKG = HTTPMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
-  private HTTPMeta meta;
-  private HTTPData data;
-
-  public HTTP( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public HTTP( TransformMeta transformMeta, HTTPMeta meta, HTTPData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] execHttp( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -287,9 +285,7 @@ public class HTTP extends BaseTransform implements ITransform {
     return response.getAllHeaders();
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (HTTPMeta) smi;
-    data = (HTTPData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -383,11 +379,9 @@ public class HTTP extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (HTTPMeta) smi;
-    data = (HTTPData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // get authentication settings once
       data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
       data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
@@ -401,12 +395,4 @@ public class HTTP extends BaseTransform implements ITransform {
     }
     return false;
   }
-
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (HTTPMeta) smi;
-    data = (HTTPData) sdi;
-
-    super.dispose( smi, sdi );
-  }
-
 }

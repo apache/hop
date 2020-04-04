@@ -686,9 +686,9 @@ public class TableOutputMeta extends BaseTransformMeta implements TransformMetaI
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new TableOutput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new TableOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

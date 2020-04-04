@@ -50,9 +50,9 @@ public class StringOperations extends BaseTransform implements ITransform {
 
   private StringOperationsData data;
 
-  public StringOperations( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public StringOperations( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private String processString( String string, int trimType, int lowerUpper, int padType, String padChar, int padLen,
@@ -185,7 +185,7 @@ public class StringOperations extends BaseTransform implements ITransform {
     return rcode;
   }
 
-  private Object[] processRow( IRowMeta rowMeta, Object[] row ) throws HopException {
+  private Object[].processRow() throws HopException {
 
     Object[] RowData = new Object[ data.outputRowMeta.size() ];
     // Copy the input fields.
@@ -214,7 +214,7 @@ public class StringOperations extends BaseTransform implements ITransform {
     return RowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (StringOperationsMeta) smi;
     data = (StringOperationsData) sdi;
 
@@ -306,7 +306,7 @@ public class StringOperations extends BaseTransform implements ITransform {
     } // end if first
 
     try {
-      Object[] output = processRow( getInputRowMeta(), r );
+      Object[] output =.processRow();
 
       putRow( data.outputRowMeta, output );
 
@@ -338,23 +338,23 @@ public class StringOperations extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     boolean rCode = true;
 
     meta = (StringOperationsMeta) smi;
     data = (StringOperationsData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       return rCode;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (StringOperationsMeta) smi;
     data = (StringOperationsData) sdi;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

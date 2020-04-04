@@ -345,9 +345,9 @@ public class WebServiceMeta extends BaseTransformMeta implements TransformMetaIn
     this.operationName = operationName;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline disp ) {
-    return new WebService( transformMeta, iTransformData, cnr, pipelineMeta, disp );
+    return new WebService( transformMeta, data, cnr, pipelineMeta, disp );
   }
 
   public ITransformData getTransformData() {

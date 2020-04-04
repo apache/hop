@@ -61,7 +61,7 @@ public class ExcelWriter _FormulaRecalculationTest {
 
     data = new ExcelWriter Data();
 
-    transform.init( mockHelper.initTransformMetaInterface, data );
+    transform.init();
   }
 
   @After

@@ -52,12 +52,12 @@ public class ProcessFiles extends BaseTransform implements ITransform {
   private ProcessFilesMeta meta;
   private ProcessFilesData data;
 
-  public ProcessFiles( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ProcessFiles( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ProcessFilesMeta) smi;
     data = (ProcessFilesData) sdi;
 
@@ -265,17 +265,17 @@ public class ProcessFiles extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ProcessFilesMeta) smi;
     data = (ProcessFilesData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       return true;
     }
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ProcessFilesMeta) smi;
     data = (ProcessFilesData) sdi;
     if ( data.sourceFile != null ) {
@@ -296,7 +296,7 @@ public class ProcessFiles extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

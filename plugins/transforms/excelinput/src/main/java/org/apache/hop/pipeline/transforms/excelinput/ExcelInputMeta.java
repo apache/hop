@@ -1243,9 +1243,9 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Override
-  public ExcelInput createTransform( TransformMeta transformMeta, ExcelInputData iTransformData, int cnr,
+  public ExcelInput createTransform( TransformMeta transformMeta, ExcelInputData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExcelInput( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ExcelInput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

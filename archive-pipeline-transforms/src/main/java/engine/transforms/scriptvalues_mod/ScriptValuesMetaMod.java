@@ -888,9 +888,9 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformM
     return error_found;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ScriptValuesMod( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new ScriptValuesMod( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

@@ -52,8 +52,8 @@ import static org.mockito.Mockito.when;
  */
 public class TransformMockUtil {
 
-  public static <T extends ITransformMeta, V extends BaseTransform> TransformMockHelper<T, ITransformData> getTransformMockHelper( Class<T> meta, String name ) {
-    TransformMockHelper<T, ITransformData> transformMockHelper = new TransformMockHelper<T, ITransformData>( name, meta, ITransformData.class );
+  public static <T extends ITransformMeta, V extends BaseTransform, D extends ITransformData> TransformMockHelper<T, D> getTransformMockHelper( Class<T> meta, Class<D> data, String name ) {
+    TransformMockHelper<T, D> transformMockHelper = new TransformMockHelper<T, D>( name, meta, data );
     when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any(), ArgumentMatchers.any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any() ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
@@ -67,9 +67,9 @@ public class TransformMockUtil {
     return transform;
   }
 
-  public static <T extends BaseTransform, K extends ITransformMeta> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, String transformName )
+  public static <T extends BaseTransform, K extends ITransformMeta, D extends ITransformData> T getTransform( Class<T> transformClass, Class<K> transformMetaClass, Class<D> transformDataClass, String transformName )
     throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, transformName ) );
+    return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, transformDataClass, transformName ) );
   }
 
 }

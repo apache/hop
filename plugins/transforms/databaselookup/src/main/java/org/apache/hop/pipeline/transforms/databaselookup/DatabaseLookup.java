@@ -54,14 +54,11 @@ import java.util.List;
  * @since 26-apr-2003
  */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> implements ITransform<DatabaseLookupMeta, DatabaseLookupData> {
+
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DatabaseLookupMeta meta;
-  private DatabaseLookupData data;
-
-  public DatabaseLookup( TransformMeta transformMeta, DatabaseLookupData iTransformData, int copyNr, PipelineMeta pipelineMeta,
-                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public DatabaseLookup( TransformMeta transformMeta, DatabaseLookupMeta meta, DatabaseLookupData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -305,15 +302,12 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   @Override
-  public boolean processRow( DatabaseLookupMeta smi, DatabaseLookupData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
       setOutputDone();
       return false;
     }
-
-    meta = (DatabaseLookupMeta) smi;
-    data = (DatabaseLookupData) sdi;
 
     if ( first ) {
       first = false;
@@ -542,9 +536,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
    * Stop the running query
    */
   @Override
-  public void stopRunning( DatabaseLookupMeta smi, DatabaseLookupData sdi ) throws HopException {
-    meta = (DatabaseLookupMeta) smi;
-    data = (DatabaseLookupData) sdi;
+  public void stopRunning() throws HopException {
 
     if ( data.db != null && !data.isCanceled ) {
       synchronized ( data.db ) {
@@ -555,11 +547,9 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   @Override
-  public boolean init( DatabaseLookupMeta smi, DatabaseLookupData sdi ) {
-    meta = (DatabaseLookupMeta) smi;
-    data = (DatabaseLookupData) sdi;
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "DatabaseLookup.Init.ConnectionMissing", getTransformName() ) );
         return false;
@@ -598,9 +588,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   @Override
-  public void dispose( DatabaseLookupMeta smi, DatabaseLookupData sdi ) {
-    meta = (DatabaseLookupMeta) smi;
-    data = (DatabaseLookupData) sdi;
+  public void dispose() {
 
     if ( data.db != null ) {
       data.db.disconnect();
@@ -610,7 +598,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     //
     data.cache = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   /*

@@ -77,12 +77,12 @@ public class ExcelOutput extends BaseTransform implements ITransform {
   private ExcelOutputMeta meta;
   private ExcelOutputData data;
 
-  public ExcelOutput( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+  public ExcelOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 
@@ -685,11 +685,11 @@ public class ExcelOutput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       data.splitnr = 0;
       data.realSheetname = environmentSubstitute( meta.getSheetname() );
 
@@ -743,7 +743,7 @@ public class ExcelOutput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (ExcelOutputMeta) smi;
     data = (ExcelOutputData) sdi;
 
@@ -762,7 +762,7 @@ public class ExcelOutput extends BaseTransform implements ITransform {
     data.headerImage = null;
     data.writableFont = null;
     data.ws = null;
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
   private void setFonts() throws Exception {

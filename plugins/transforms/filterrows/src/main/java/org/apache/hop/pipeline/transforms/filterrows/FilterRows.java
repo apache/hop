@@ -30,10 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.List;
@@ -44,15 +44,13 @@ import java.util.List;
  * @author Matt
  * @since 16-apr-2003, 07-nov-2004 (rewrite)
  */
-public class FilterRows extends BaseTransform implements ITransform {
+public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> implements ITransform<FilterRowsMeta, FilterRowsData> {
+
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private FilterRowsMeta meta;
-  private FilterRowsData data;
-
-  public FilterRows( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public FilterRows( TransformMeta transformMeta, FilterRowsMeta meta, FilterRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private synchronized boolean keepRow( IRowMeta rowMeta, Object[] row ) throws HopException {
@@ -68,9 +66,7 @@ public class FilterRows extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (FilterRowsMeta) smi;
-    data = (FilterRowsData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean keep;
 
@@ -148,14 +144,10 @@ public class FilterRows extends BaseTransform implements ITransform {
     return true;
   }
 
-  /**
-   * @see ITransform#init(ITransformMeta, ITransformData)
-   */
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (FilterRowsMeta) smi;
-    data = (FilterRowsData) sdi;
+  @Override
+  public boolean init() {
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // PDI-6785
       // could it be a better idea to have a clone on the condition in data and do this on the first row?
       meta.getCondition().clearFieldPositions();

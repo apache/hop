@@ -57,9 +57,9 @@ public class GetSubFolders extends BaseTransform implements ITransform {
 
   private GetSubFoldersData data;
 
-  public GetSubFolders( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetSubFolders( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -74,7 +74,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     if ( meta.isFoldernameDynamic() && ( data.filenr >= data.filessize ) ) {
       // Grab one row from previous transform ...
@@ -246,11 +246,11 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (GetSubFoldersMeta) smi;
     data = (GetSubFoldersData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       try {
         data.filessize = 0;
         data.rownr = 1L;
@@ -268,7 +268,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (GetSubFoldersMeta) smi;
     data = (GetSubFoldersData) sdi;
     if ( data.file != null ) {
@@ -280,7 +280,7 @@ public class GetSubFolders extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

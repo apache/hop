@@ -43,21 +43,17 @@ import java.util.List;
  * @author Sven Boden
  * @since 3-june-2007
  */
-public class Append extends BaseTransform implements ITransform {
+public class Append extends BaseTransform<AppendMeta, AppendData> implements ITransform<AppendMeta, AppendData> {
+
   private static Class<?> PKG = Append.class; // for i18n purposes, needed by Translator!!
 
-  private AppendMeta meta;
-  private AppendData data;
-
-  public Append( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public Append( TransformMeta transformMeta, AppendMeta meta, AppendData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (AppendMeta) smi;
-    data = (AppendData) sdi;
+  public boolean processRow() throws HopException {
 
     Object[] input = null;
     if ( data.processHead ) {
@@ -111,15 +107,9 @@ public class Append extends BaseTransform implements ITransform {
     return true;
   }
 
-  /**
-   * @see ITransform#init(ITransformMeta, ITransformData)
-   */
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (AppendMeta) smi;
-    data = (AppendData) sdi;
-
-    if ( super.init( smi, sdi ) ) {
+  public boolean init() {
+    if ( super.init() ) {
       data.processHead = true;
       data.processTail = false;
       data.firstTail = true;

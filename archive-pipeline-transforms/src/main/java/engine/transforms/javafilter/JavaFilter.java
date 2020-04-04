@@ -54,12 +54,12 @@ public class JavaFilter extends BaseTransform implements ITransform {
   private JavaFilterMeta meta;
   private JavaFilterData data;
 
-  public JavaFilter( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public JavaFilter( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (JavaFilterMeta) smi;
     data = (JavaFilterData) sdi;
 
@@ -217,11 +217,11 @@ public class JavaFilter extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (JavaFilterMeta) smi;
     data = (JavaFilterData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       List<StreamInterface> targetStreams = meta.getTransformIOMeta().getTargetStreams();
       data.trueTransformName = targetStreams.get( 0 ).getTransformName();
       data.falseTransformName = targetStreams.get( 1 ).getTransformName();

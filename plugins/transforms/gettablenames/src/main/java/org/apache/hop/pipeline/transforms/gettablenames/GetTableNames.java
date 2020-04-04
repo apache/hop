@@ -48,15 +48,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 03-Juin-2008
  */
 
-public class GetTableNames extends BaseTransform implements ITransform {
+public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> implements ITransform<GetTableNamesMeta, GetTableNamesData> {
+
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
 
-  private GetTableNamesMeta meta;
-  private GetTableNamesData data;
-
-  public GetTableNames( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetTableNames( TransformMeta transformMeta, GetTableNamesMeta meta, GetTableNamesData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -71,10 +69,7 @@ public class GetTableNames extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (GetTableNamesMeta) smi;
-    data = (GetTableNamesData) sdi;
-
+  public boolean processRow() throws HopException {
     if ( meta.isDynamicSchema() ) {
       // Grab one row from previous transform ...
       data.readrow = getRow();
@@ -395,11 +390,9 @@ public class GetTableNames extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetTableNamesMeta) smi;
-    data = (GetTableNamesData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( Utils.isEmpty( meta.getTablenameFieldName() ) ) {
         logError( BaseMessages.getString( PKG, "GetTableNames.Error.TablenameFieldNameMissing" ) );
         return false;
@@ -457,14 +450,12 @@ public class GetTableNames extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetTableNamesMeta) smi;
-    data = (GetTableNamesData) sdi;
+  public void dispose(){
     if ( data.db != null ) {
       data.db.disconnect();
       data.db = null;
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

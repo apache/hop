@@ -53,9 +53,9 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
 
   // private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 
-  public GetFilesRowsCount( TransformMeta transformMeta, ITransformData iTransformData, int copyNr,
+  public GetFilesRowsCount( TransformMeta transformMeta, ITransformData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   private Object[] getOneRow() throws HopException {
@@ -95,7 +95,7 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return r;
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     try {
       // Grab one row
@@ -288,11 +288,11 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (GetFilesRowsCountMeta) smi;
     data = (GetFilesRowsCountData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       if ( ( meta.getRowSeparatorFormat().equals( "CUSTOM" ) ) && ( Utils.isEmpty( meta.getRowSeparator() ) ) ) {
         logError( BaseMessages.getString( PKG, "GetFilesRowsCount.Error.NoSeparator.Title" ), BaseMessages
@@ -370,7 +370,7 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (GetFilesRowsCountMeta) smi;
     data = (GetFilesRowsCountData) sdi;
     if ( data.file != null ) {
@@ -389,7 +389,7 @@ public class GetFilesRowsCount extends BaseTransform implements ITransform {
       data.lineStringBuilder = null;
     }
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

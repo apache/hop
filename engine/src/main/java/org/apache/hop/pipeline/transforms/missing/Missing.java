@@ -55,8 +55,8 @@ public class Missing extends DummyMeta {
     this.missingPluginId = missingPluginId;
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, DummyData iTransformData, int cnr, PipelineMeta tr,
+  public ITransform createTransform( TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr,
                                      Pipeline pipeline ) {
-    return new MissingTransform( transformMeta, iTransformData, cnr, tr, pipeline );
+    return new MissingTransform( transformMeta, this, data, cnr, tr, pipeline );
   }
 }

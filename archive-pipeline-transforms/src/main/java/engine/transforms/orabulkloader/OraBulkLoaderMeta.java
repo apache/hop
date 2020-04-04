@@ -781,9 +781,9 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements TransformMet
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData iTransformData, int cnr,
+  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new OraBulkLoader( transformMeta, iTransformData, cnr, pipelineMeta, pipeline );
+    return new OraBulkLoader( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {

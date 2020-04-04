@@ -293,10 +293,10 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     boolean haveRowsToRead;
     do {
-      haveRowsToRead = !csvInput.processRow( transformMeta, transformData );
+      haveRowsToRead = !csvInput.processRow();
     } while ( !haveRowsToRead );
 
-    csvInput.dispose( transformMeta, transformData );
+    csvInput.dispose();
 
     return writtenRows[ 0 ];
   }
@@ -328,7 +328,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     CsvInputMeta meta = createMeta( sharedFile, createInputFileFields( "Field_000", "Field_001" ), headerPresent, delimiter );
 
     CsvInput csvInput = createCsvInput();
-    csvInput.init( meta, data );
+    csvInput.init();
 
     combi.transform = csvInput;
     combi.data = data;

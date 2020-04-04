@@ -79,7 +79,7 @@ public class PGBulkLoaderTest {
     transformMockHelper = new TransformMockHelper<>( "PostgreSQL Bulk Loader", PGBulkLoaderMeta.class, PGBulkLoaderData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-    pgBulkLoader = new PGBulkLoader( transformMockHelper.transformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    pgBulkLoader = new PGBulkLoader( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
   }
 
   @After
@@ -94,13 +94,15 @@ public class PGBulkLoaderTest {
     doReturn( new String[ 0 ] ).when( meta ).getFieldStream();
     PGBulkLoaderData data = mock( PGBulkLoaderData.class );
 
-    PGBulkLoader spy = spy( pgBulkLoader );
+    PGBulkLoader spy = spy( new PGBulkLoader( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline ) );
+
     doReturn( new Object[ 0 ] ).when( spy ).getRow();
     doReturn( "" ).when( spy ).getCopyCommand();
     doNothing().when( spy ).connect();
     doNothing().when( spy ).checkClientEncoding();
     doNothing().when( spy ).processTruncate();
-    spy.processRow( meta, data );
+    spy.init();
+    spy.processRow();
     verify( spy ).processTruncate();
   }
 
@@ -158,19 +160,18 @@ public class PGBulkLoaderTest {
     doReturn( null ).when( pgBulkLoaderStreamIsNull ).getRow();
     PGBulkLoaderMeta meta = mock( PGBulkLoaderMeta.class );
     PGBulkLoaderData data = mock( PGBulkLoaderData.class );
-    assertEquals( false, pgBulkLoaderStreamIsNull.processRow( meta, data ) );
+    assertEquals( false, pgBulkLoaderStreamIsNull.init() );
   }
 
   /**
    * [PDI-17481] Testing the ability that if no connection is specified, we will mark it as a fail and log the
    * appropriate reason to the user by throwing a HopException.
    */
-  @Ignore
   @Test
   public void testNoDatabaseConnection() {
     try {
-      doReturn( null ).when( transformMockHelper.initTransformMetaInterface ).getDatabaseMeta();
-      assertFalse( pgBulkLoader.init( transformMockHelper.initTransformMetaInterface, transformMockHelper.initTransformDataInterface ) );
+      doReturn( null ).when( transformMockHelper.iTransformMeta ).getDatabaseMeta();
+      assertFalse( pgBulkLoader.init() );
       // Verify that the database connection being set to null throws a HopException with the following message.
       pgBulkLoader.verifyDatabaseConnection();
       // If the method does not throw a Hop Exception, then the DB was set and not null for this test. Fail it.

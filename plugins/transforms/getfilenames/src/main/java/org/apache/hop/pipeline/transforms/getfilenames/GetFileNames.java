@@ -52,16 +52,13 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class GetFileNames extends BaseTransform implements ITransform {
+public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData> implements ITransform<GetFileNamesMeta, GetFileNamesData> {
+
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
 
-  private GetFileNamesMeta meta;
-
-  private GetFileNamesData data;
-
-  public GetFileNames( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public GetFileNames( TransformMeta transformMeta, GetFileNamesMeta meta, GetFileNamesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   /**
@@ -76,7 +73,7 @@ public class GetFileNames extends BaseTransform implements ITransform {
     return rowData;
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     if ( !meta.isFileField() ) {
       if ( data.filenr >= data.filessize ) {
         setOutputDone();
@@ -297,12 +294,9 @@ public class GetFileNames extends BaseTransform implements ITransform {
     }
   }
 
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetFileNamesMeta) smi;
-    data = (GetFileNamesData) sdi;
+  public boolean init(){
 
-
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
 
       try {
         // Create the output row meta-data
@@ -336,9 +330,8 @@ public class GetFileNames extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (GetFileNamesMeta) smi;
-    data = (GetFileNamesData) sdi;
+  public void dispose(){
+
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -348,7 +341,7 @@ public class GetFileNames extends BaseTransform implements ITransform {
       }
 
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

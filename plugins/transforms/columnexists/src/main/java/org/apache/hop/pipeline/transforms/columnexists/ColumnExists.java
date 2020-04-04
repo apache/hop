@@ -43,21 +43,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 03-Juin-2008
  */
 
-public class ColumnExists extends BaseTransform implements ITransform {
+public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsData> implements ITransform<ColumnExistsMeta, ColumnExistsData> {
+
   private static final Class<?> PKG = ColumnExistsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ColumnExistsMeta meta;
-  private ColumnExistsData data;
-
-  public ColumnExists( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public ColumnExists( TransformMeta transformMeta, ColumnExistsMeta meta, ColumnExistsData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
-    meta = (ColumnExistsMeta) smi;
-    data = (ColumnExistsData) sdi;
+  public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -167,11 +163,9 @@ public class ColumnExists extends BaseTransform implements ITransform {
   }
 
   @Override
-  public boolean init( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ColumnExistsMeta) smi;
-    data = (ColumnExistsData) sdi;
+  public boolean init(){
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       if ( !meta.isTablenameInField() ) {
         if ( Utils.isEmpty( meta.getTablename() ) ) {
           logError( BaseMessages.getString( PKG, "ColumnExists.Error.TablenameMissing" ) );
@@ -215,12 +209,10 @@ public class ColumnExists extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void dispose( ITransformMeta smi, ITransformData sdi ) {
-    meta = (ColumnExistsMeta) smi;
-    data = (ColumnExistsData) sdi;
+  public void dispose(){
     if ( data.db != null ) {
       data.db.disconnect();
     }
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 }

@@ -55,12 +55,12 @@ public class RegexEval extends BaseTransform implements ITransform {
   private RegexEvalMeta meta;
   private RegexEvalData data;
 
-  public RegexEval( TransformMeta transformMeta, ITransformData iTransformData, int copyNr, PipelineMeta pipelineMeta,
+  public RegexEval( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
-    super( transformMeta, iTransformData, copyNr, pipelineMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public boolean processRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
     meta = (RegexEvalMeta) smi;
     data = (RegexEvalData) sdi;
 
@@ -229,11 +229,11 @@ public class RegexEval extends BaseTransform implements ITransform {
     return true;
   }
 
-  public boolean init( TransformMetaInterface smi, ITransformData sdi ) {
+  public boolean init() {
     meta = (RegexEvalMeta) smi;
     data = (RegexEvalData) sdi;
 
-    if ( super.init( smi, sdi ) ) {
+    if ( super.init() ) {
       // Embedded options
       String options = meta.getRegexOptions();
 
@@ -256,13 +256,13 @@ public class RegexEval extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void dispose( TransformMetaInterface smi, ITransformData sdi ) {
+  public void.dispose() {
     meta = (RegexEvalMeta) smi;
     data = (RegexEvalData) sdi;
 
     data.pattern = null;
 
-    super.dispose( smi, sdi );
+    super.dispose();
   }
 
 }

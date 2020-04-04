@@ -106,15 +106,15 @@ public class NullIfTest {
   public void test() throws HopException {
     HopEnvironment.init();
 
-    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     transform.setInputRowMeta( getInputRowMeta() );
     transform.addRowSetToInputRowSets( mockInputRowSet() );
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
 
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.init();
     } while ( hasMoreRows );
 
     RowSet outputRowSet = transform.getOutputRowSets().get( 0 );
@@ -172,8 +172,8 @@ public class NullIfTest {
   public void testDateWithFormat() throws HopException {
     HopEnvironment.init();
 
-    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.init( smh.initTransformMetaInterface, smh.iTransformData );
+    NullIf transform = new NullIf( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    transform.init();
     transform.setInputRowMeta( getInputRowMeta2() );
     Date d1 = null;
     Date d2 = null;
@@ -193,7 +193,7 @@ public class NullIfTest {
     transform.addRowSetToOutputRowSets( new QueueRowSet() );
     boolean hasMoreRows;
     do {
-      hasMoreRows = transform.processRow( mockProcessRowMeta2(), smh.processRowsTransformDataInterface );
+      hasMoreRows = transform.init();
     } while ( hasMoreRows );
 
     RowSet outputRowSet = transform.getOutputRowSets().get( 0 );
