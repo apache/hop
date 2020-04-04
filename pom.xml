@@ -40,6 +40,14 @@
   </ciManagement>
 
 
+  <distributionManagement>
+    <site>
+      <id>javadoc.project-hop.org</id>
+      <url>file:/var/www/</url>
+    </site>
+  </distributionManagement>
+
+
   <scm>
     <developerConnection>scm:git:git@github.com:project-hop/hop.git</developerConnection>
     <tag>HEAD</tag>
@@ -774,6 +782,28 @@
       </build>
     </profile>
   </profiles>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${maven-project-info-reports-plugin.version}</version>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+<!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
+          <show>public</show>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <repositories>
     <repository>
