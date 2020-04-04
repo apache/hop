@@ -1,8 +1,8 @@
 /*******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  * This file is dual-licensed under the Apache Software License V2 and is
  * also available under the terms of the GNU Lesser GPL version 2.1 as provided

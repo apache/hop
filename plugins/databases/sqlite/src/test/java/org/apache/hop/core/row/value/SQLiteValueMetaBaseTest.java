@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -104,7 +104,7 @@ public class SQLiteValueMetaBaseTest {
 
   @Ignore
   @Test
-  public void testMetdataPreviewSqlBinaryToPentahoStringUsingSQLite() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBinaryToHopStringUsingSQLite() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( SQLiteDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );

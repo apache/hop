@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -73,14 +73,14 @@ public class SqlScriptParserTest {
     assertEquals( "SELECT '/' as col1, '*/*' as regex ", sqlScriptParser.removeComments( "SELECT '/' as col1, '*/*' as regex " ) );
     assertEquals( "SELECT INSTR('/loader/*/*.txt', '/') - INSTR('/loader/*/*.txt', '/') ",
       sqlScriptParser.removeComments( "SELECT INSTR('/loader/*/*.txt', '/') - INSTR('/loader/*/*.txt', '/') " ) );
-    assertEquals( "SELECT  col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-      sqlScriptParser.removeComments( "SELECT /* my data*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
-    assertEquals( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-      sqlScriptParser.removeComments( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
-    assertEquals( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
-    assertEquals( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
+    assertEquals( "SELECT  col1, col2, col3 FROM account WHERE name = 'Hop'",
+      sqlScriptParser.removeComments( "SELECT /* my data*/ col1, col2, col3 FROM account WHERE name = 'Hop'" ) );
+    assertEquals( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Hop'",
+      sqlScriptParser.removeComments( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Hop'" ) );
+    assertEquals( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Hop'",
+      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Hop'" ) );
+    assertEquals( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Hop'",
+      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Hop'" ) );
     assertEquals( "SELECT \"hello\\\"world\" FROM dual", sqlScriptParser.removeComments( "SELECT \"hello\\\"world\" FROM dual" ) );
     assertEquals( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")",
       sqlScriptParser.removeComments( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")" ) );

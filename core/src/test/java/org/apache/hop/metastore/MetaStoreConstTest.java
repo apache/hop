@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 public class MetaStoreConstTest {
 
   @Test
-  public void testOpenLocalPentahoMetaStore() throws Exception {
+  public void testOpenLocalHopMetaStore() throws Exception {
     MetaStoreConst.disableMetaStore = false;
     File tempDir = Files.createTempDir();
     String tempPath = tempDir.getAbsolutePath();

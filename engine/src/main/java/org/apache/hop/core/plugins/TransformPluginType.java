@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -44,7 +44,6 @@ import java.util.Map;
     "BaseTransform.Category.Utility",
     "BaseTransform.Category.Flow",
     "BaseTransform.Category.Scripting",
-    "BaseTransform.Category.BAServer",
     "BaseTransform.Category.Lookup",
     "BaseTransform.Category.Joins",
     "BaseTransform.Category.DataWarehouse",

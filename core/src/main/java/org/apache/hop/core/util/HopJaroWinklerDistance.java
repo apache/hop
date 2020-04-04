@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -44,7 +44,7 @@ import java.util.Arrays;
  *
  * @since 1.0
  */
-public class PentahoJaroWinklerDistance {
+public class HopJaroWinklerDistance {
 
   /**
    * Represents a failed index search.

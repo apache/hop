@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -727,7 +727,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
         ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
-        resultFile.setComment( "This file was created with an Excel output transform by Pentaho Data Integration" );
+        resultFile.setComment( "This file was created with an Excel output transform by Hop" );
         addResultFile( resultFile );
       }
     } catch ( Exception e ) {

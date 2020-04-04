@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -108,7 +108,7 @@ public class GreenplumValueMetaBaseTest {
 
 
   @Test
-  public void testMetdataPreviewSqlRealToPentahoNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlRealToHopNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.REAL ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -144,7 +144,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlTimeToHopDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
@@ -152,21 +152,21 @@ public class GreenplumValueMetaBaseTest {
 
 
   @Test
-  public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBooleanToHopBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
-  public void testMetdataPreviewSqlBitToPentahoBoolean() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBitToHopBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
-  public void testMetdataPreviewSqlBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
@@ -174,7 +174,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBlobToPentahoBinary() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
@@ -183,7 +183,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );

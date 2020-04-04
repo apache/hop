@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -36,7 +36,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileNotFoundException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.CharsetToolkit;
-import org.apache.hop.core.util.PentahoJaroWinklerDistance;
+import org.apache.hop.core.util.HopJaroWinklerDistance;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLCheck;
@@ -197,7 +197,7 @@ public class ValueDataUtil {
     if ( dataA == null || dataB == null ) {
       return null;
     }
-    PentahoJaroWinklerDistance pjwd = new PentahoJaroWinklerDistance();
+    HopJaroWinklerDistance pjwd = new HopJaroWinklerDistance();
     pjwd.apply( dataA.toString(), dataB.toString() );
     return pjwd.getJaroDistance();
   }
@@ -211,7 +211,7 @@ public class ValueDataUtil {
     if ( dataA == null || dataB == null ) {
       return null;
     }
-    PentahoJaroWinklerDistance pjwd = new PentahoJaroWinklerDistance();
+    HopJaroWinklerDistance pjwd = new HopJaroWinklerDistance();
     pjwd.apply( dataA.toString(), dataB.toString() );
     return pjwd.getJaroWinklerDistance();
   }

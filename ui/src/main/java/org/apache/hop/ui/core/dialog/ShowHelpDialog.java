@@ -1,7 +1,7 @@
 /*
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  * **************************************************************************
  *
@@ -105,7 +105,7 @@ public class ShowHelpDialog extends Dialog {
   public ShowHelpDialog( Shell parent, String dialogTitle, String url, String header ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
-    this.dialogTitle = BaseMessages.getString( PKG, "HopGui.Documentation.Pentaho.Title" );
+    this.dialogTitle = BaseMessages.getString( PKG, "HopGui.Documentation.Hop.Title" );
     this.url = url;
     try {
       this.homeURL = new URL( DOC_URL ).toString();

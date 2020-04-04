@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -100,7 +100,7 @@ public class HopSftpFileSystemConfigBuilder extends HopGenericFileSystemConfigBu
         if ( !parameterContainsHost( fullParameterName ) || fullParameterName.endsWith( file.getHostName() ) ) {
           // Match special cases for parameter names
           if ( name.equalsIgnoreCase( "AuthKeyPassphrase" ) ) {
-            setParam( opts, UserInfo.class.getName(), new PentahoUserInfo( value ) );
+            setParam( opts, UserInfo.class.getName(), new HopUserInfo( value ) );
           } else if ( name.equals( "identity" ) ) {
 
             IdentityInfo[] identities = (IdentityInfo[]) this.getParam( opts, IDENTITY_KEY );
@@ -134,11 +134,11 @@ public class HopSftpFileSystemConfigBuilder extends HopGenericFileSystemConfigBu
     return parameter.matches( "^(.*\\..*){3,}" ) ? true : false;
   }
 
-  private static class PentahoUserInfo implements UserInfo {
+  private static class HopUserInfo implements UserInfo {
     private String passphrase;
     private String password;
 
-    public PentahoUserInfo( String passphrase ) {
+    public HopUserInfo( String passphrase ) {
       this.passphrase = passphrase;
     }
 

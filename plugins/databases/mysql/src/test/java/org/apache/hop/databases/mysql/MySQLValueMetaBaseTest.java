@@ -114,7 +114,7 @@ public class MySQLValueMetaBaseTest {
 	}
 
 	@Test
-	public void testMetdataPreviewSqlTimeToPentahoIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
+	public void testMetdataPreviewSqlTimeToHopIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
 		doReturn(Types.TIME).when(resultSet).getInt("DATA_TYPE");
 		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
 		doReturn(true).when(databaseMeta).isMySQLVariant();
@@ -128,7 +128,7 @@ public class MySQLValueMetaBaseTest {
 	}
 
 	@Test
-	public void testMetdataPreviewSqlVarBinaryToPentahoBinaryUsingMySQLVariant()
+	public void testMetdataPreviewSqlVarBinaryToHopBinaryUsingMySQLVariant()
 			throws SQLException, HopDatabaseException {
 		doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
 		doReturn(16).when(resultSet).getInt("COLUMN_SIZE");
@@ -140,7 +140,7 @@ public class MySQLValueMetaBaseTest {
 	}
 
 	@Test
-	public void testMetdataPreviewSqlDoubleToPentahoNumberUsingMySQL() throws SQLException, HopDatabaseException {
+	public void testMetdataPreviewSqlDoubleToHopNumberUsingMySQL() throws SQLException, HopDatabaseException {
 		doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
 		doReturn(22).when(resultSet).getInt("COLUMN_SIZE");
 		doReturn(mock(MySQLDatabaseMeta.class)).when(databaseMeta).getIDatabase();
