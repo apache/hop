@@ -12,11 +12,12 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -25,8 +26,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
-import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
@@ -55,7 +56,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	private FormData formData;
 
 	private Map<String, List<Object[]>> dataMap;
-	private Map<String, RowMetaInterface> metaMap;
+	private Map<String, IRowMeta> metaMap;
 
 	private String[] pluginsType;
 	private String selectedPluginType;
@@ -76,12 +77,12 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	@Override
-	public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
+	public IHopFileTypeHandler getActiveFileTypeHandler() {
 		return null; // Not handling anything really
 	}
 
 	@Override
-	public List<HopFileTypeInterface> getSupportedHopFileTypes() {
+	public List<IHopFileType> getSupportedHopFileTypes() {
 		return Collections.emptyList();
 	}
 
@@ -143,10 +144,10 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 			}
 		});
 
-		RowMetaInterface rowMeta = metaMap.get(selectedPluginType);
+		IRowMeta rowMeta = metaMap.get(selectedPluginType);
 		ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
 		for (int i = 0; i < rowMeta.size(); i++) {
-			ValueMetaInterface v = rowMeta.getValueMeta(i);
+			IValueMeta v = rowMeta.getValueMeta(i);
 			colinf[i] = new ColumnInfo(v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric());
 			colinf[i].setToolTip(v.toStringMeta());
 			colinf[i].setValueMeta(v);
@@ -172,9 +173,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 			metaMap = new HashMap<>();
 			dataMap = new HashMap<>();
 			PluginRegistry registry = PluginRegistry.getInstance();
-			List<Class<? extends PluginTypeInterface>> pluginTypeClasses = registry.getPluginTypes();
-			for (Class<? extends PluginTypeInterface> pluginTypeClass : pluginTypeClasses) {
-				PluginTypeInterface pluginTypeInterface = registry.getPluginType(pluginTypeClass);
+			List<Class<? extends IPluginType>> pluginTypeClasses = registry.getPluginTypes();
+			for (Class<? extends IPluginType> pluginTypeClass : pluginTypeClasses) {
+				IPluginType pluginTypeInterface = registry.getPluginType(pluginTypeClass);
 				if (pluginTypeInterface.isFragment()) {
 					continue;
 				}
@@ -201,7 +202,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		wPluginView.clearAll();
 		
 		// Add the data rows...
-		RowMetaInterface rowMeta = metaMap.get(selectedPluginType);
+		IRowMeta rowMeta = metaMap.get(selectedPluginType);
 		List<Object[]> buffer = dataMap.get(selectedPluginType);
 
 		Table table = wPluginView.getTable();
@@ -223,7 +224,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 			// Display plugins infos
 			for (int column = 0; column < rowMeta.size(); column++) {
 				try {
-					ValueMetaInterface vm = rowMeta.getValueMeta(column);
+					IValueMeta vm = rowMeta.getValueMeta(column);
 					String value = vm.getString(row[column]);
 
 					if (value != null) {
@@ -243,7 +244,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	@Override
-	public boolean remove(HopFileTypeHandlerInterface typeHandler) {
+	public boolean remove(IHopFileTypeHandler typeHandler) {
 		return false; // Nothing to do here
 	}
 
