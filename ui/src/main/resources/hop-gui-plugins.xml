@@ -21,6 +21,11 @@
   </gui-plugin>
 
   <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.perspective.pluginexplorer.HopPluginExplorePerspective</classname>
+    <description>Hop Plugin Explorer Perspective GUI</description>
+  </gui-plugin>
+
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph</classname>
     <description>Pipeline Graph tab</description>
   </gui-plugin>
