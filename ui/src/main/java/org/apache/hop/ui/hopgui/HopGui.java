@@ -1025,4 +1025,52 @@ public class HopGui implements IActionContextHandlersProvider {
   public ILoggingObject getLoggingObject() {
     return loggingObject;
   }
+
+  /**
+   * Gets mainMenuWidgets
+   *
+   * @return value of mainMenuWidgets
+   */
+  public GuiMenuWidgets getMainMenuWidgets() {
+    return mainMenuWidgets;
+  }
+
+  /**
+   * @param mainMenuWidgets The mainMenuWidgets to set
+   */
+  public void setMainMenuWidgets( GuiMenuWidgets mainMenuWidgets ) {
+    this.mainMenuWidgets = mainMenuWidgets;
+  }
+
+  /**
+   * Gets mainToolbarWidgets
+   *
+   * @return value of mainToolbarWidgets
+   */
+  public GuiCompositeWidgets getMainToolbarWidgets() {
+    return mainToolbarWidgets;
+  }
+
+  /**
+   * @param mainToolbarWidgets The mainToolbarWidgets to set
+   */
+  public void setMainToolbarWidgets( GuiCompositeWidgets mainToolbarWidgets ) {
+    this.mainToolbarWidgets = mainToolbarWidgets;
+  }
+
+  /**
+   * Gets perspectivesToolbarWidgets
+   *
+   * @return value of perspectivesToolbarWidgets
+   */
+  public GuiCompositeWidgets getPerspectivesToolbarWidgets() {
+    return perspectivesToolbarWidgets;
+  }
+
+  /**
+   * @param perspectivesToolbarWidgets The perspectivesToolbarWidgets to set
+   */
+  public void setPerspectivesToolbarWidgets( GuiCompositeWidgets perspectivesToolbarWidgets ) {
+    this.perspectivesToolbarWidgets = perspectivesToolbarWidgets;
+  }
 }

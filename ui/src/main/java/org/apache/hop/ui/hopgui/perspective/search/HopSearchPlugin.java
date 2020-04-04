@@ -30,6 +30,8 @@ import java.util.List;
 @GuiPlugin
 public class HopSearchPlugin implements IHopPerspective {
 
+  public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";
+
   private static HopSearchPlugin perspective;
 
   private HopGui hopGui;
@@ -48,8 +50,10 @@ public class HopSearchPlugin implements IHopPerspective {
   }
 
   @GuiToolbarElement(
-    id = "20020-perspective-search", type = GuiElementType.TOOLBAR_BUTTON,
-    image = "ui/images/search.svg", toolTip = "Search", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
+    id = ID_PERSPECTIVE_TOOLBAR_ITEM,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    image = "ui/images/search.svg",
+    toolTip = "Search", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
     parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
   )
   public void activate() {
@@ -67,11 +71,13 @@ public class HopSearchPlugin implements IHopPerspective {
   @Override
   public void show() {
     composite.setVisible( true );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarSearch() );
   }
 
   @Override
   public void hide() {
     composite.setVisible( false );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarSearchInactive() );
   }
 
   @Override

@@ -11,7 +11,7 @@
   <g id="art">
 	<g>
 		<polygon fill="#FFFFFF" points="0.5,2.3 0.5,13.6 15.5,13.6 15.5,4 6.6,3.8 5,2.3 		"/>
-    <path fill="#3D6480" stroke="#3D6380" stroke-width="0.25" stroke-miterlimit="10" d="M7.4,3.6l-2-1.9H0v12.7h14.8h0.7H16V3.6H7.4
+    <path fill="#0E3A5A" stroke="#3D6380" stroke-width="0.25" stroke-miterlimit="10" d="M7.4,3.6l-2-1.9H0v12.7h14.8h0.7H16V3.6H7.4
 			z M1.2,2.9h3.6l1.4,1.4H1.2V2.9z M1.2,13.1V4.9h5.6h7.9v8.2H1.2z"/>
 	</g>
 </g>

@@ -19,6 +19,8 @@ import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -34,6 +36,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -45,6 +48,8 @@ import org.eclipse.swt.widgets.TableItem;
 @HopPerspectivePlugin(id = "Hop-Plugin-Explorer-Perspective", name = "Plugin explorer", description = "The Hop Plugin Explorer Perspective")
 @GuiPlugin
 public class HopPluginExplorePerspective implements IHopPerspective {
+
+	public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";
 
 	private static HopPluginExplorePerspective perspective;
 
@@ -61,6 +66,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	private String[] pluginsType;
 	private String selectedPluginType;
 
+	private Image pluginImage;
+	private Image pluginDisabledImage;
+
 	public static final HopPluginExplorePerspective getInstance() {
 		if (perspective == null) {
 			perspective = new HopPluginExplorePerspective();
@@ -71,9 +79,39 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	private HopPluginExplorePerspective() {
 	}
 
-	@GuiToolbarElement(id = "20030-perspective-plugin", type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/Plugin.svg", toolTip = "Explore plugin", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID, parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID)
+	@GuiToolbarElement(
+		id = ID_PERSPECTIVE_TOOLBAR_ITEM,
+		type = GuiElementType.TOOLBAR_BUTTON,
+		image = "ui/images/Plugin.svg",
+		toolTip = "Explore plugin",
+		parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
+		parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
+	)
 	public void activate() {
 		hopGui.getPerspectiveManager().showPerspective(this.getClass());
+	}
+
+	@Override
+	public void show() {
+		composite.setVisible(true);
+		if (pluginImage==null) {
+			pluginImage = GUIResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin.svg", ConstUI.SMALL_ICON_SIZE );
+		}
+		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginImage );
+	}
+
+	@Override
+	public void hide() {
+		composite.setVisible(false);
+		if (pluginDisabledImage==null) {
+			pluginDisabledImage = GUIResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin_inactive.svg", ConstUI.SMALL_ICON_SIZE );
+		}
+		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginDisabledImage );
+	}
+
+	@Override
+	public boolean isActive() {
+		return composite != null && !composite.isDisposed() && composite.isVisible();
 	}
 
 	@Override
@@ -84,21 +122,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	@Override
 	public List<IHopFileType> getSupportedHopFileTypes() {
 		return Collections.emptyList();
-	}
-
-	@Override
-	public void show() {
-		composite.setVisible(true);
-	}
-
-	@Override
-	public void hide() {
-		composite.setVisible(false);
-	}
-
-	@Override
-	public boolean isActive() {
-		return composite != null && !composite.isDisposed() && composite.isVisible();
 	}
 
 	@Override

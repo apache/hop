@@ -420,9 +420,14 @@ public class GUIResource {
   private Image imageToolbarRun;
   private Image imageToolbarRunOption;
   private Image imageToolbarStop;
-  private Image imageToolbarPipeline;
   private Image imageToolbarView;
   private Image imageToolbarViewAsXml;
+
+  private Image imageToolbarPipeline;
+  private Image imageToolbarPipelineInactive;
+
+  private Image imageToolbarSearch;
+  private Image imageToolbarSearchInactive;
 
   /**
    * GUIResource also contains the clipboard as it has to be allocated only once! I don't want to put it in a separate
@@ -731,6 +736,9 @@ public class GUIResource {
       imageToolbarRunOption.dispose();
       imageToolbarStop.dispose();
       imageToolbarPipeline.dispose();
+      imageToolbarPipelineInactive.dispose();
+      imageToolbarSearch.dispose();
+      imageToolbarSearchInactive.dispose();
       imageToolbarView.dispose();
       imageToolbarViewAsXml.dispose();
 
@@ -859,7 +867,7 @@ public class GUIResource {
   }
 
   // load image from svg
-  private Image loadAsResource( Display display, String location, int size ) {
+  public Image loadAsResource( Display display, String location, int size ) {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
     Image image;
     if ( size > 0 ) {
@@ -873,7 +881,7 @@ public class GUIResource {
   }
 
   // load image from svg
-  private Image loadAsResource( Display display, String location, int width, int height ) {
+  public Image loadAsResource( Display display, String location, int width, int height ) {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
     int newWidth = (int) Math.round( width * zoomFactor );
     int newHeight = (int) Math.round( height * zoomFactor );
@@ -1247,6 +1255,9 @@ public class GUIResource {
     imageToolbarRunOption = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarStop = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarPipeline = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPipeline_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarPipelineInactive = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPipelineInactive_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarSearch = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarSearch_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarSearchInactive = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarSearchInactive_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarView = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarViewAsXml = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarViewAsXml_image" ), ConstUI.SMALL_ICON_SIZE );
   }
@@ -2730,5 +2741,32 @@ public class GUIResource {
    */
   public Image getImageToolbarViewAsXml() {
     return imageToolbarViewAsXml;
+  }
+
+  /**
+   * Gets imageToolbarPipelineInactive
+   *
+   * @return value of imageToolbarPipelineInactive
+   */
+  public Image getImageToolbarPipelineInactive() {
+    return imageToolbarPipelineInactive;
+  }
+
+  /**
+   * Gets imageToolbarSearch
+   *
+   * @return value of imageToolbarSearch
+   */
+  public Image getImageToolbarSearch() {
+    return imageToolbarSearch;
+  }
+
+  /**
+   * Gets imageToolbarSearchInactive
+   *
+   * @return value of imageToolbarSearchInactive
+   */
+  public Image getImageToolbarSearchInactive() {
+    return imageToolbarSearchInactive;
   }
 }

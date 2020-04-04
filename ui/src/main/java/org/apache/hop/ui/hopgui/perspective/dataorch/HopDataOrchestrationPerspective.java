@@ -48,6 +48,8 @@ import java.util.Stack;
 @GuiPlugin
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
+  public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
+
   public static final String STRING_NEW_PIPELINE_PREFIX = "Pipeline";
 
   private static HopDataOrchestrationPerspective perspective;
@@ -86,8 +88,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   @GuiToolbarElement(
-    id = "20010-perspective-data-orchestration", type = GuiElementType.TOOLBAR_BUTTON,
-    image = "ui/images/pipeline.svg", toolTip = "Data Orchestration", parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
+    id = ID_PERSPECTIVE_TOOLBAR_ITEM,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    image = "ui/images/pipeline.svg",
+    toolTip = "Data Orchestration",
+    parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
     parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
   )
   public void activate() {
@@ -96,10 +101,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override public void show() {
     composite.setVisible( true );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarPipeline() );
   }
 
   @Override public void hide() {
     composite.setVisible( false );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarPipelineInactive() );
   }
 
   @Override public boolean isActive() {

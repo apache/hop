@@ -12,7 +12,7 @@
 	<g>
 		<rect x="1.8" y="2" fill="#FFFFFF" width="12" height="12"/>
     <rect x="2.9" y="2.9" fill="none" width="10.3" height="10.3"/>
-    <path fill="#3D6480" d="M1,1v14h14V1H1z M13.1,13.1H2.9V2.9h10.3V13.1z"/>
+    <path fill="#0E3A5A" d="M1,1v14h14V1H1z M13.1,13.1H2.9V2.9h10.3V13.1z"/>
 	</g>
 </g>
 </svg>
