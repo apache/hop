@@ -62,6 +62,16 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
 
   private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
 
+  public enum Type {
+	  CRC32,
+	  ADLER32,
+	  MD5,
+	  SHA1,
+	  SHA256,
+	  SHA384,
+	  SHA512
+  }
+  
   public static final String TYPE_CRC32 = "CRC32";
   public static final String TYPE_ADLER32 = "ADLER32";
   public static final String TYPE_MD5 = "MD5";
@@ -254,22 +264,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load transform info from XML", e );
-    }
-  }
-
-  private boolean parseCompatibilityMode( String compatibilityMode ) {
-    if ( compatibilityMode == null ) {
-      return true; // It was previously not saved
-    } else {
-      return Boolean.parseBoolean( compatibilityMode ) || "Y".equalsIgnoreCase( compatibilityMode );
-    }
-  }
-
-  private boolean parseOldChecksumBehaviour( String oldChecksumBehaviour ) {
-    if ( oldChecksumBehaviour == null ) {
-      return true; // It was previously not saved
-    } else {
-      return Boolean.parseBoolean( oldChecksumBehaviour ) || "Y".equalsIgnoreCase( oldChecksumBehaviour );
     }
   }
 
