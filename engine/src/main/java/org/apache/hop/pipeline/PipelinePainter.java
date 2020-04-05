@@ -88,11 +88,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public PipelinePainter( IGC gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
                           IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                          int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
+                          int shadowSize, String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
                           boolean slowTransformIndicatorEnabled, double zoomFactor ) {
-    super(
-      gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
-      shadowSize, antiAliasing, noteFontName, noteFontHeight, zoomFactor );
+    super( gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
+      shadowSize, noteFontName, noteFontHeight, zoomFactor );
     this.pipelineMeta = pipelineMeta;
 
     this.candidate = candidate;
@@ -108,9 +107,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
                           int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
 
-    this(
-      gc, pipelineMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, iconsize,
-      linewidth, gridsize, shadowSize, antiAliasing, noteFontName, noteFontHeight, new Pipeline( pipelineMeta ), false, zoomFactor );
+    this( gc, pipelineMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, iconsize,
+      linewidth, gridsize, shadowSize, noteFontName, noteFontHeight, new Pipeline( pipelineMeta ), false, zoomFactor );
   }
 
   private static String[] getPeekTitles() {

@@ -189,8 +189,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements IHopServerPlu
     maximum.multiply( magnification );
 
     SwingGC gc = new SwingGC( null, maximum, 32, 0, 0 );
-    JobPainter jobPainter =
-      new JobPainter( gc, jobMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, 0, true, "Arial", 10, 1.0d );
+    JobPainter jobPainter = new JobPainter( gc, jobMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, 0, "Arial", 10, 1.0d );
     jobPainter.setMagnification( magnification );
     jobPainter.drawJob();
 

@@ -2448,11 +2448,10 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
 
     JobPainter jobPainter =
-      new JobPainter(
-        gc, jobMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hop_candidate,
+      new JobPainter( gc, jobMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hop_candidate,
         drop_candidate, selectionRegion, areaOwners, PropsUI.getInstance().getIconSize(),
         PropsUI.getInstance().getLineWidth(), gridSize, PropsUI
-        .getInstance().getShadowSize(), PropsUI.getInstance().isAntiAliasingEnabled(), PropsUI
+        .getInstance().getShadowSize(), PropsUI
         .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight(), PropsUI.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor

@@ -602,6 +602,7 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiKeyboardShortcut( key = SWT.F8 )
   public void menuToolsOptions() {
     if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
+      props.saveProps();
       // TODO warn the user about restarting
     }
   }
