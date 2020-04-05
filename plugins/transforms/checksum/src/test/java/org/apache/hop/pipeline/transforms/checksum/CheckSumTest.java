@@ -58,7 +58,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class CheckSumTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -96,7 +95,7 @@ public class CheckSumTest {
     // Set required fields
     meta.setResultFieldName( "hex" );
     meta.setCheckSumType( checkSumType );
-    meta.setResultType( CheckSumMeta.result_TYPE_HEXADECIMAL );
+    meta.setResultType( CheckSumMeta.RESULT_TYPE_HEXADECIMAL );
     meta.setFieldName( new String[] { "test" } );
 
     String checkSumPluginPid = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, meta );

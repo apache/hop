@@ -61,17 +61,7 @@ import java.util.List;
 public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
-
-  public enum Type {
-	  CRC32,
-	  ADLER32,
-	  MD5,
-	  SHA1,
-	  SHA256,
-	  SHA384,
-	  SHA512
-  }
-  
+ 
   public static final String TYPE_CRC32 = "CRC32";
   public static final String TYPE_ADLER32 = "ADLER32";
   public static final String TYPE_MD5 = "MD5";
@@ -103,9 +93,9 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
    * The result type codes
    */
   public static final String[] resultTypeCode = { "string", "hexadecimal", "binary" };
-  public static final int result_TYPE_STRING = 0;
-  public static final int result_TYPE_HEXADECIMAL = 1;
-  public static final int result_TYPE_BINARY = 2;
+  public static final int RESULT_TYPE_STRING = 0;
+  public static final int RESULT_TYPE_HEXADECIMAL = 1;
+  public static final int RESULT_TYPE_BINARY = 2;
 
   /**
    * by which fields to display?
@@ -296,7 +286,7 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   public void setDefault() {
     resultfieldName = null;
     checksumtype = checksumtypeCodes[ 0 ];
-    resultType = result_TYPE_HEXADECIMAL;
+    resultType = RESULT_TYPE_HEXADECIMAL;
     int nrFields = 0;
 
     allocate( nrFields );
@@ -316,7 +306,7 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
         v = new ValueMetaInteger( variables.environmentSubstitute( resultfieldName ) );
       } else {
         switch ( resultType ) {
-          case result_TYPE_BINARY:
+          case RESULT_TYPE_BINARY:
             v = new ValueMetaBinary( variables.environmentSubstitute( resultfieldName ) );
             break;
           default:

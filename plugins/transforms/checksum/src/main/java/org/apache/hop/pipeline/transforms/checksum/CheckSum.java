@@ -117,10 +117,10 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
         byte[] o = createCheckSum( r );
 
         switch ( meta.getResultType() ) {
-          case CheckSumMeta.result_TYPE_BINARY:
+          case CheckSumMeta.RESULT_TYPE_BINARY:
             outputRowData = RowDataUtil.addValueData( r, data.nrInfields, o );
             break;
-          case CheckSumMeta.result_TYPE_HEXADECIMAL:
+          case CheckSumMeta.RESULT_TYPE_HEXADECIMAL:
             String hex = new String( Hex.encodeHex( o ) );
             outputRowData = RowDataUtil.addValueData( r, data.nrInfields, hex );
             break;
