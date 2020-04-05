@@ -55,11 +55,6 @@ import java.util.Map;
   name = "Partition Schema",
   description = "Describes a partition schema"
 )
-@GuiMetaStoreElement(
-  name = "Partition Schema",
-  description = "Describes a partition schema",
-  iconImage = "ui/images/partition_schema.svg"
-)
 public class PartitionSchema extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<PartitionSchema> {
   public static final String XML_TAG = "partitionschema";
 

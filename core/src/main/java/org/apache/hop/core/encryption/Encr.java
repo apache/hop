@@ -155,7 +155,7 @@ public class Encr {
     String option = args[ 0 ];
     String password = args[ 1 ];
 
-    if ( Const.trim( option ).substring( 1 ).equalsIgnoreCase( "kettle" ) ) {
+    if ( Const.trim( option ).substring( 1 ).equalsIgnoreCase( "hop" ) ) {
       // Hop password obfuscation
       //
       try {
@@ -167,7 +167,7 @@ public class Encr {
         System.exit( 2 );
       }
 
-    } else if ( Const.trim( option ).substring( 1 ).equalsIgnoreCase( "carte" ) ) {
+    } else if ( Const.trim( option ).substring( 1 ).equalsIgnoreCase( "server" ) ) {
       // Jetty password obfuscation
       //
       String obfuscated = Password.obfuscate( password );
@@ -185,10 +185,10 @@ public class Encr {
 
   private static void printOptions() {
     System.err.println( "encr usage:\n" );
-    System.err.println( "  encr <-kettle|-carte> <password>" );
+    System.err.println( "  encr <-hop|-server> <password>" );
     System.err.println( "  Options:" );
-    System.err.println( "    -kettle: generate an obfuscated password to include in Hop XML files" );
-    System.err.println( "    -carte : generate an obfuscated password to include in the carte password file 'pwd/kettle.pwd'" );
+    System.err.println( "    -hop: generate an obfuscated password to include in Hop XML files" );
+    System.err.println( "    -server : generate an obfuscated password to include in the hop-server password file 'pwd/hop.pwd'" );
     System.err.println( "\nThis command line tool obfuscates a plain text password for use in XML and password files." );
     System.err.println( "Make sure to also copy the '" + PASSWORD_ENCRYPTED_PREFIX + "' prefix to indicate the obfuscated nature of the password." );
     System.err.println( "Hop will then be able to make the distinction between regular plain text passwords and obfuscated ones." );

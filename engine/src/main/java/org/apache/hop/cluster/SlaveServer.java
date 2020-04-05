@@ -116,12 +116,6 @@ import java.util.Random;
   name = "Slave Server",
   description = "Defines a Hop Slave Server"
 )
-@GuiPlugin
-@GuiMetaStoreElement(
-  name = "Slave Server",
-  description = "Defines a Hop Slave Server",
-  iconImage = "ui/images/slave.svg"
-)
 public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<SlaveServer> {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator!!
 

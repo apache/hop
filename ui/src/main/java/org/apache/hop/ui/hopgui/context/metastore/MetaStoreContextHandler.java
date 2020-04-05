@@ -45,6 +45,7 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
       "Create a new: "+guiMetaStoreElement.description(),
       guiMetaStoreElement.iconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metaStoreManager.newMetadata() );
+    newAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( newAction );
 
     GuiAction editAction = new GuiAction(
@@ -60,6 +61,7 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
         String name = parameters[ 0 ];
         metaStoreManager.editMetadata( name );
       } );
+    editAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( editAction );
     return actions;
   }

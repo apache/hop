@@ -4167,7 +4167,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       halted = pipeline.isStopped();
 
       if ( running ) {
-        pipeline.addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+        pipeline.addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
 
           @Override
           public void finished( IPipelineEngine<PipelineMeta> pipeline ) {

@@ -176,7 +176,7 @@ public class WebServer {
         userStore.addUser( slaveServer.getUsername(), new Password( slaveServer.getPassword() ), new String[] { "default" } );
         hashLoginService.setUserStore( userStore );
       } else {
-        // See if there is a kettle.pwd file in the HOP_HOME directory:
+        // See if there is a hop.pwd file in the HOP_HOME directory:
         if ( Utils.isEmpty( passwordFile ) ) {
           File homePwdFile = new File( Const.getHopCartePasswordFile() );
           if ( homePwdFile.exists() ) {

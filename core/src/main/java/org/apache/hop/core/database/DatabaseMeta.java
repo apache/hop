@@ -79,12 +79,6 @@ import java.util.concurrent.Future;
   name = "Relational Database Connection",
   description = "This contains all the metadata needed to connect to a relational database"
 )
-@GuiPlugin
-@GuiMetaStoreElement(
-  name = "Database Connection",
-  description = "A relational database connection",
-  iconImage = "ui/images/CNC.svg"
-)
 public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement<DatabaseMeta> {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 

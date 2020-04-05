@@ -1990,9 +1990,9 @@ public class Const {
   }
 
   /**
-   * Returns the path to the Hop local (current directory) Carte password file:
+   * Returns the path to the Hop local (current directory) Hop Server password file:
    * <p>
-   * ./pwd/kettle.pwd<br>
+   * ./pwd/hop.pwd<br>
    *
    * @return The local Carte password file.
    */
@@ -2008,7 +2008,7 @@ public class Const {
    * @return The Carte password file in the home directory.
    */
   public static String getHopCartePasswordFile() {
-    return getHopDirectory() + FILE_SEPARATOR + "kettle.pwd";
+    return getHopDirectory() + FILE_SEPARATOR + "hop.pwd";
   }
 
   /**

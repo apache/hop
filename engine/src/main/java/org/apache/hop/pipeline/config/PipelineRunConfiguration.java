@@ -22,12 +22,6 @@ import java.util.Objects;
   name = "Pipeline Run Configuration",
   description = "Describes how and with which engine a pipeline is to be executed"
 )
-@GuiPlugin
-@GuiMetaStoreElement(
-  name = "Pipeline Run Configuration",
-  description = "Describes how and with which engine a pipeline is to be executed",
-  iconImage = "ui/images/run.svg"
-)
 public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMetaStoreElement<PipelineRunConfiguration> {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PipelineRunConfiguration-PluginSpecific-Options";
