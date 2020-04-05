@@ -418,15 +418,13 @@ public class EnterOptionsDialog extends Dialog {
     fdGFont.top = new FormAttachment( 0, nr * h + margin );
     fdGFont.bottom = new FormAttachment( 0, ( nr + 1 ) * h + margin );
     wGFont.setLayoutData( fdGFont );
-    wGFont.addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent pe ) {
-        pe.gc.setFont( graphFont );
-        Rectangle max = wGFont.getBounds();
-        String name = graphFontData.getName() + " - " + graphFontData.getHeight();
-        Point size = pe.gc.textExtent( name );
+    wGFont.addPaintListener( pe -> {
+      pe.gc.setFont( graphFont );
+      Rectangle max = wGFont.getBounds();
+      String name = graphFontData.getName() + " - " + graphFontData.getHeight();
+      Point size = pe.gc.textExtent( name );
 
-        pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
-      }
+      pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
     } );
 
     // Note font
@@ -1295,7 +1293,10 @@ public class EnterOptionsDialog extends Dialog {
     fixedFontData = props.getFixedFont();
     fixedFont = new Font( display, fixedFontData );
 
+    // Magnify to compensate for the same reduction elsewhere.
+    //
     graphFontData = props.getGraphFont();
+    graphFontData.height*=PropsUI.getNativeZoomFactor();
     graphFont = new Font( display, graphFontData );
 
     noteFontData = props.getNoteFont();

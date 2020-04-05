@@ -829,40 +829,26 @@ public class GUIResource {
     fontFixed = new ManagedFont( display, props.getFixedFont() );
 
     // Create a medium size version of the graph font
-    FontData mediumFontData =
-      new FontData( props.getGraphFont().getName(), (int) Math.round( props.getGraphFont().getHeight() * 1.2 ), props
-        .getGraphFont().getStyle() );
+    FontData mediumFontData = new FontData( props.getGraphFont().getName(), (int) Math.round( props.getGraphFont().getHeight() * 1.2 ), props.getGraphFont().getStyle() );
     fontMedium = new ManagedFont( display, mediumFontData );
 
     // Create a medium bold size version of the graph font
-    FontData mediumFontBoldData =
-      new FontData( props.getGraphFont().getName(), (int) Math.round( props.getGraphFont().getHeight() * 1.2 ), props
-        .getGraphFont().getStyle()
-        | SWT.BOLD );
+    FontData mediumFontBoldData = new FontData( props.getGraphFont().getName(), (int) Math.round( props.getGraphFont().getHeight() * 1.2 ), props.getGraphFont().getStyle() | SWT.BOLD );
     fontMediumBold = new ManagedFont( display, mediumFontBoldData );
 
     // Create a large version of the graph font
-    FontData largeFontData =
-      new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() * 3, props.getGraphFont()
-        .getStyle() );
+    FontData largeFontData =new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() * 3, props.getGraphFont().getStyle() );
     fontLarge = new ManagedFont( display, largeFontData );
 
     // Create a tiny version of the graph font
-    FontData tinyFontData =
-      new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 2, props.getGraphFont()
-        .getStyle() );
+    FontData tinyFontData = new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 2, props.getGraphFont().getStyle() );
     fontTiny = new ManagedFont( display, tinyFontData );
 
     // Create a small version of the graph font
-    FontData smallFontData =
-      new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 1, props.getGraphFont()
-        .getStyle() );
+    FontData smallFontData = new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 1, props.getGraphFont().getStyle() );
     fontSmall = new ManagedFont( display, smallFontData );
 
-    FontData boldFontData =
-      new FontData( props.getDefaultFontData().getName(), props.getDefaultFontData().getHeight(), props
-        .getDefaultFontData().getStyle()
-        | SWT.BOLD );
+    FontData boldFontData = new FontData( props.getDefaultFontData().getName(), props.getDefaultFontData().getHeight(), props.getDefaultFontData().getStyle() | SWT.BOLD );
     fontBold = new ManagedFont( display, boldFontData );
   }
 
