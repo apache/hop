@@ -51,18 +51,23 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
     GuiAction editAction = new GuiAction(
       "Edit: "+guiMetaStoreElement.name(),
       GuiActionType.Modify,
-      "Edit "+guiMetaStoreElement.name(),
-      "Edit a new: "+guiMetaStoreElement.description(),
+      "Edit element "+guiMetaStoreElement.name(),
+      "Edit an element of type: "+guiMetaStoreElement.description(),
       guiMetaStoreElement.iconImage(),
-      (IGuiActionLambda<String>) (shiftClicked, controlClicked, parameters) -> {
-        if ( parameters.length < 1 ) {
-          throw new RuntimeException( "You need to give the name of the metastore object to edit" );
-        }
-        String name = parameters[ 0 ];
-        metaStoreManager.editMetadata( name );
-      } );
+      (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
     editAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( editAction );
+
+    GuiAction deleteAction = new GuiAction(
+      "Delete "+guiMetaStoreElement.name(),
+      GuiActionType.Delete,
+      "Delete element type "+guiMetaStoreElement.name(),
+      "Delete an element of type: "+guiMetaStoreElement.description(),
+      guiMetaStoreElement.iconImage(),
+       (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
+    deleteAction.setClassLoader( metaStoreElementClass.getClassLoader() );
+    actions.add( deleteAction );
+
     return actions;
   }
 }

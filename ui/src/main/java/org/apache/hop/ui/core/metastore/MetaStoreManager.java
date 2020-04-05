@@ -31,9 +31,12 @@ import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;
@@ -69,6 +72,46 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
   }
 
   /**
+   * edit an element
+   *
+   * @return True if anything was changed
+   */
+  public boolean editMetadata() {
+    try {
+      List<String> names = getNames();
+      EnterSelectionDialog dialog = new EnterSelectionDialog( HopGui.getInstance().getShell(), names.toArray( new String[ 0 ] ), "Select the element", "Select the element to edit" );
+      String name = dialog.open();
+      if ( name != null ) {
+        return editMetadata( name );
+      }
+      return false;
+    } catch ( Exception e ) {
+      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing metadata", e );
+      return false;
+    }
+  }
+
+  /**
+   * delete an element
+   *
+   * @return True if anything was changed
+   */
+  public boolean deleteMetadata() {
+    try {
+      List<String> names = getNames();
+      EnterSelectionDialog dialog = new EnterSelectionDialog( HopGui.getInstance().getShell(), names.toArray( new String[ 0 ] ), "Delete an element", "Select the element to delete" );
+      String name = dialog.open();
+      if ( name != null ) {
+        return deleteMetadata( name );
+      }
+      return false;
+    } catch ( Exception e ) {
+      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error deleting metadata", e );
+      return false;
+    }
+  }
+
+  /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the dialog.
    *
    * @param elementName The name of the element to edit
@@ -96,6 +139,40 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
 
     } catch ( Exception e ) {
       new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing metadata", e );
+      return false;
+    }
+  }
+
+  /**
+   * delete an element
+   *
+   * @param elementName The name of the element to delete
+   * @return True if anything was deleted
+   */
+  public boolean deleteMetadata( String elementName ) {
+
+    if ( StringUtils.isEmpty( elementName ) ) {
+      return false;
+    }
+
+    MessageBox confirmBox = new MessageBox( HopGui.getInstance().getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO );
+    confirmBox.setText( "Delete?" );
+    confirmBox.setMessage( "Are you sure you want to delete element " + elementName + "?" );
+    int anwser = confirmBox.open();
+    if ((anwser&SWT.YES)==0) {
+      return false;
+    }
+
+    try {
+      MetaStoreFactory<T> factory = getFactory();
+
+      // delete the metadata element from the metastore
+      //
+      factory.deleteElement( elementName );
+      return true;
+
+    } catch ( Exception e ) {
+      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error deleting metadata element "+elementName, e );
       return false;
     }
   }
@@ -135,7 +212,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     Constructor<IMetaStoreDialog> constructor;
     try {
       constructor = dialogClass.getDeclaredConstructor( constructorArguments );
-    } catch(NoSuchMethodException nsm) {
+    } catch ( NoSuchMethodException nsm ) {
       constructorArguments = new Class<?>[] {
         Shell.class,
         IMetaStore.class,
@@ -147,8 +224,8 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       };
       constructor = dialogClass.getDeclaredConstructor( constructorArguments );
     }
-    if (constructor==null) {
-      throw new HopException( "Unable to find dialog class ("+dialogClassName+") constructor with arguments: Shell, IMetaStore, T and optionally IVariables");
+    if ( constructor == null ) {
+      throw new HopException( "Unable to find dialog class (" + dialogClassName + ") constructor with arguments: Shell, IMetaStore, T and optionally IVariables" );
     }
 
     IMetaStoreDialog dialog = constructor.newInstance( constructorParameters );
