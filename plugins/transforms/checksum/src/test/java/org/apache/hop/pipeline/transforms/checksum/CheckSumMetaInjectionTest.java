@@ -48,17 +48,7 @@ public class CheckSumMetaInjectionTest extends BaseMetadataInjectionTest<CheckSu
       public String get() {
         return meta.getCheckSumType();
       }
-    } );
-    check( "COMPATIBILITY_MODE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isCompatibilityMode();
-      }
-    } );
-    check( "OLD_CHECKSUM_BEHAVIOR", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isOldChecksumBehaviour();
-      }
-    } );
+    } );   
     check( "RESULT_TYPE", new IIntGetter() {
       public int get() {
         return meta.getResultType();

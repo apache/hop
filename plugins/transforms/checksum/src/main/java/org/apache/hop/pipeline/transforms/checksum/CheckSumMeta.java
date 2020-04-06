@@ -60,21 +60,26 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
 public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {
 
-  private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
-
+  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
+ 
   public static final String TYPE_CRC32 = "CRC32";
   public static final String TYPE_ADLER32 = "ADLER32";
   public static final String TYPE_MD5 = "MD5";
   public static final String TYPE_SHA1 = "SHA-1";
   public static final String TYPE_SHA256 = "SHA-256";
+  public static final String TYPE_SHA384 = "SHA-384";
+  public static final String TYPE_SHA512 = "SHA-512";
 
-  public static String[] checksumtypeCodes = { TYPE_CRC32, TYPE_ADLER32, TYPE_MD5, TYPE_SHA1, TYPE_SHA256 };
+  public static String[] checksumtypeCodes = { TYPE_CRC32, TYPE_ADLER32, TYPE_MD5, TYPE_SHA1, TYPE_SHA256, TYPE_SHA384, TYPE_SHA512  };
   public static String[] checksumtypeDescs = {
     BaseMessages.getString( PKG, "CheckSumMeta.Type.CRC32" ),
     BaseMessages.getString( PKG, "CheckSumMeta.Type.ADLER32" ),
     BaseMessages.getString( PKG, "CheckSumMeta.Type.MD5" ),
     BaseMessages.getString( PKG, "CheckSumMeta.Type.SHA1" ),
-    BaseMessages.getString( PKG, "CheckSumMeta.Type.SHA256" ) };
+    BaseMessages.getString( PKG, "CheckSumMeta.Type.SHA256" ),
+    BaseMessages.getString( PKG, "CheckSumMeta.Type.SHA384" ),
+    BaseMessages.getString( PKG, "CheckSumMeta.Type.SHA512" ) 
+  };
 
   /**
    * The result type description
@@ -88,9 +93,9 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
    * The result type codes
    */
   public static final String[] resultTypeCode = { "string", "hexadecimal", "binary" };
-  public static final int result_TYPE_STRING = 0;
-  public static final int result_TYPE_HEXADECIMAL = 1;
-  public static final int result_TYPE_BINARY = 2;
+  public static final int RESULT_TYPE_STRING = 0;
+  public static final int RESULT_TYPE_HEXADECIMAL = 1;
+  public static final int RESULT_TYPE_BINARY = 2;
 
   /**
    * by which fields to display?
@@ -103,12 +108,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
 
   @Injection( name = "TYPE" )
   private String checksumtype;
-
-  @Injection( name = "COMPATIBILITY_MODE" )
-  private boolean compatibilityMode;
-
-  @Injection( name = "OLD_CHECKSUM_BEHAVIOR" )
-  private boolean oldChecksumBehaviour;
 
   /**
    * result type
@@ -243,8 +242,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
       checksumtype = XMLHandler.getTagValue( transformNode, "checksumtype" );
       resultfieldName = XMLHandler.getTagValue( transformNode, "resultfieldName" );
       resultType = getResultTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "resultType" ), "" ) );
-      compatibilityMode = parseCompatibilityMode( XMLHandler.getTagValue( transformNode, "compatibilityMode" ) );
-      oldChecksumBehaviour = parseOldChecksumBehaviour( XMLHandler.getTagValue( transformNode, "oldChecksumBehaviour" ) );
 
       Node fields = XMLHandler.getSubNode( transformNode, "fields" );
       int nrFields = XMLHandler.countNodes( fields, "field" );
@@ -257,22 +254,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load transform info from XML", e );
-    }
-  }
-
-  private boolean parseCompatibilityMode( String compatibilityMode ) {
-    if ( compatibilityMode == null ) {
-      return true; // It was previously not saved
-    } else {
-      return Boolean.parseBoolean( compatibilityMode ) || "Y".equalsIgnoreCase( compatibilityMode );
-    }
-  }
-
-  private boolean parseOldChecksumBehaviour( String oldChecksumBehaviour ) {
-    if ( oldChecksumBehaviour == null ) {
-      return true; // It was previously not saved
-    } else {
-      return Boolean.parseBoolean( oldChecksumBehaviour ) || "Y".equalsIgnoreCase( oldChecksumBehaviour );
     }
   }
 
@@ -289,8 +270,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
     retval.append( "      " ).append( XMLHandler.addTagValue( "checksumtype", checksumtype ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "resultfieldName", resultfieldName ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "resultType", getResultTypeCode( resultType ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compatibilityMode", compatibilityMode ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "oldChecksumBehaviour", oldChecksumBehaviour ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
@@ -307,7 +286,7 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   public void setDefault() {
     resultfieldName = null;
     checksumtype = checksumtypeCodes[ 0 ];
-    resultType = result_TYPE_HEXADECIMAL;
+    resultType = RESULT_TYPE_HEXADECIMAL;
     int nrFields = 0;
 
     allocate( nrFields );
@@ -327,7 +306,7 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
         v = new ValueMetaInteger( variables.environmentSubstitute( resultfieldName ) );
       } else {
         switch ( resultType ) {
-          case result_TYPE_BINARY:
+          case RESULT_TYPE_BINARY:
             v = new ValueMetaBinary( variables.environmentSubstitute( resultfieldName ) );
             break;
           default:
@@ -412,17 +391,6 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
       remarks.add( cr );
     }
 
-    if ( isCompatibilityMode() ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
-        PKG, "CheckSumMeta.CheckResult.CompatibilityModeWarning" ), transformMeta );
-      remarks.add( cr );
-    }
-
-    if ( isCompatibilityMode() && getCheckSumType() == TYPE_SHA256 ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-        PKG, "CheckSumMeta.CheckResult.CompatibilityModeSHA256Error" ), transformMeta );
-      remarks.add( cr );
-    }
   }
 
   @Override
@@ -439,31 +407,5 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  /**
-   * @return the Compatibility Mode
-   * @deprecated update to non-compatibility mode
-   */
-  @Deprecated
-  public boolean isCompatibilityMode() {
-    return compatibilityMode;
-  }
-
-  public boolean isOldChecksumBehaviour() {
-    return oldChecksumBehaviour;
-  }
-
-  /**
-   * @param compatibilityMode
-   * @deprecated Update to non-compatibility mode
-   */
-  @Deprecated
-  public void setCompatibilityMode( boolean compatibilityMode ) {
-    this.compatibilityMode = compatibilityMode;
-  }
-
-  public void setOldChecksumBehaviour( boolean oldChecksumBehaviour ) {
-    this.oldChecksumBehaviour = oldChecksumBehaviour;
   }
 }

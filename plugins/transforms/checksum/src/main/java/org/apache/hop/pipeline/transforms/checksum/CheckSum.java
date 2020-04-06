@@ -30,10 +30,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
@@ -48,7 +46,7 @@ import java.util.zip.CRC32;
  */
 public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implements ITransform<CheckSumMeta, CheckSumData> {
 
-  private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
 
   public CheckSum( TransformMeta transformMeta, CheckSumMeta meta, CheckSumData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {
@@ -94,8 +92,10 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
       try {
         if ( meta.getCheckSumType().equals( CheckSumMeta.TYPE_MD5 )
           || meta.getCheckSumType().equals( CheckSumMeta.TYPE_SHA1 )
-          || meta.getCheckSumType().equals( CheckSumMeta.TYPE_SHA256 ) ) {
-          data.digest = MessageDigest.getInstance( meta.getCheckSumType() );
+          || meta.getCheckSumType().equals( CheckSumMeta.TYPE_SHA256 )
+          || meta.getCheckSumType().equals( CheckSumMeta.TYPE_SHA384 )
+          || meta.getCheckSumType().equals( CheckSumMeta.TYPE_SHA512 )) {
+          data.digest = MessageDigest.getInstance( meta.getCheckSumType() ); // Sensitive
         }
       } catch ( Exception e ) {
         throw new HopException( BaseMessages.getString( PKG, "CheckSum.Error.Digest" ), e );
@@ -117,12 +117,11 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
         byte[] o = createCheckSum( r );
 
         switch ( meta.getResultType() ) {
-          case CheckSumMeta.result_TYPE_BINARY:
+          case CheckSumMeta.RESULT_TYPE_BINARY:
             outputRowData = RowDataUtil.addValueData( r, data.nrInfields, o );
             break;
-          case CheckSumMeta.result_TYPE_HEXADECIMAL:
-            String hex =
-              meta.isCompatibilityMode() ? byteToHexEncode_compatible( o ) : new String( Hex.encodeHex( o ) );
+          case CheckSumMeta.RESULT_TYPE_HEXADECIMAL:
+            String hex = new String( Hex.encodeHex( o ) );
             outputRowData = RowDataUtil.addValueData( r, data.nrInfields, hex );
             break;
           default:
@@ -138,8 +137,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
       }
 
       // add new values to the row.
-      putRow( data.outputRowMeta, outputRowData ); // copy row to output
-      // rowset(s);
+      putRow( data.outputRowMeta, outputRowData ); 
     } catch ( Exception e ) {
       boolean sendToErrorRow = false;
       String errorMessage = null;
@@ -151,7 +149,8 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
         logError( BaseMessages.getString( PKG, "CheckSum.ErrorInTransformRunning" ) + e.getMessage() );
         setErrors( 1 );
         stopAll();
-        setOutputDone(); // signal end to receiver(s)
+        // signal end to receiver(s)
+        setOutputDone();
         return false;
       }
       if ( sendToErrorRow ) {
@@ -163,32 +162,22 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
   }
 
   private byte[] createCheckSum( Object[] r ) throws Exception {
-    if ( meta.isOldChecksumBehaviour() ) {
-      StringBuilder Buff = new StringBuilder();
 
-      // Loop through fields
-      for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+    // Loop through fields
+    for ( int i = 0; i < data.fieldnr; i++ ) {
+      if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
+        baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
+      } else {
+        baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
+          .toString().getBytes() );
       }
-
-      // Updates the digest using the specified array of bytes
-      data.digest.update( Buff.toString().getBytes() );
-    } else {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-      // Loop through fields
-      for ( int i = 0; i < data.fieldnr; i++ ) {
-        if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
-          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
-        } else {
-          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
-            .toString().getBytes() );
-        }
-      }
-
-      // Updates the digest using the specified array of bytes
-      data.digest.update( baos.toByteArray() );
     }
+
+    // Updates the digest using the specified array of bytes
+    data.digest.update( baos.toByteArray() );
+
     // Completes the hash computation by performing final operations such as padding
     byte[] hash = data.digest.digest();
     // After digest has been called, the MessageDigest object is reset to its initialized state
@@ -208,51 +197,23 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
     return sb.toString();
   }
 
-  public String byteToHexEncode_compatible( byte[] in ) {
-    if ( in == null ) {
-      return null;
-    }
-    final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-    String hex = new String( in );
-
-    char[] s = hex.toCharArray();
-    StringBuilder hexString = new StringBuilder( 2 * s.length );
-
-    for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hi nibble
-      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // lo nibble
-    }
-
-    return hexString.toString();
-  }
-
   private Long calculCheckSum( Object[] r ) throws Exception {
     Long retval;
     byte[] byteArray;
-    if ( meta.isOldChecksumBehaviour() ) {
-      StringBuilder Buff = new StringBuilder();
 
-      // Loop through fields
-      for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
-      }
-      byteArray = Buff.toString().getBytes();
-    } else {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-      // Loop through fields
-      for ( int i = 0; i < data.fieldnr; i++ ) {
-        if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
-          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
-        } else {
-          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
+    // Loop through fields
+    for ( int i = 0; i < data.fieldnr; i++ ) {
+      if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
+         baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
+      } else {
+         baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
             .toString().getBytes() );
-        }
       }
-      byteArray = baos.toByteArray();
     }
-
+    byteArray = baos.toByteArray();
+    
     if ( meta.getCheckSumType().equals( CheckSumMeta.TYPE_CRC32 ) ) {
       CRC32 crc32 = new CRC32();
       crc32.update( byteArray );
@@ -266,7 +227,6 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
     return retval;
   }
 
-  @SuppressWarnings( "deprecation" )
   @Override
   public boolean init(){
     if ( super.init() ) {
@@ -274,10 +234,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
         logError( BaseMessages.getString( PKG, "CheckSum.Error.ResultFieldMissing" ) );
         return false;
       }
-      if ( meta.isCompatibilityMode() && meta.getCheckSumType() == CheckSumMeta.TYPE_SHA256 ) {
-        logError( BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.CompatibilityModeSHA256Error" ) );
-        return false;
-      }
+
       return true;
     }
     return false;
