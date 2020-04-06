@@ -85,7 +85,7 @@ public class PDI3499Test {
     RowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( valueMeta );
 
-    InsertUpdateMeta transformMeta = smh.processRowsTransformMetaInterface;
+    InsertUpdateMeta transformMeta = smh.processRowsITransform;
     doReturn( new Boolean[] { true } ).when( transformMeta ).getUpdate();
 
     InsertUpdateData transformData = smh.processRowsTransformDataInterface;

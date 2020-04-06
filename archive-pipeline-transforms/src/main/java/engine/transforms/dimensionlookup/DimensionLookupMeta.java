@@ -57,7 +57,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ import java.util.List;
  * present. Perhaps a more general caching service should be considered.
  */
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
-public class DimensionLookupMeta extends BaseTransformMeta implements TransformMetaInterface, ProvidesModelerMeta {
+public class DimensionLookupMeta extends BaseTransformMeta implements ITransform, ProvidesModelerMeta {
   private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;

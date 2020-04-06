@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -61,7 +61,7 @@ import java.util.Map;
  * @since 18-July-2008
  */
 
-public class GetSubFoldersMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class GetSubFoldersMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFoldersDesc = new String[] {

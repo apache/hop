@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -58,7 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class RegexEvalMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
   IRowMeta mockInputRowMeta;
   iVariables mockVariableSpace;
   LoadSaveTester loadSaveTester;
@@ -245,7 +245,7 @@ public class RegexEvalMetaTest implements InitializerInterface<TransformMetaInte
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof RegexEvalMeta ) {
       ( (RegexEvalMeta) someMeta ).allocate( 5 );
     }

@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.eobjects.sassy.SasColumnType;
 import org.eobjects.sassy.SasReader;
 import org.eobjects.sassy.SasReaderCallback;
@@ -237,7 +237,7 @@ public class SasInput extends BaseTransform implements ITransform {
   }
 
   @Override
-  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
   }
 
 }

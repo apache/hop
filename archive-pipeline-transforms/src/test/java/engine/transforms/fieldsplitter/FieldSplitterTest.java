@@ -90,7 +90,7 @@ public class FieldSplitterTest {
   }
 
   private FieldSplitterMeta mockProcessRowMeta() throws HopTransformException {
-    FieldSplitterMeta processRowMeta = smh.processRowsTransformMetaInterface;
+    FieldSplitterMeta processRowMeta = smh.processRowsITransform;
     doReturn( "field to split" ).when( processRowMeta ).getSplitField();
     doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
       any( IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ),

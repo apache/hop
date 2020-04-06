@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class YamlInputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class YamlInputMetaTest implements InitializerInterface<ITransform> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
   Class<YamlInputMeta> testMetaClass = YamlInputMeta.class;
@@ -123,7 +123,7 @@ public class YamlInputMetaTest implements InitializerInterface<TransformMetaInte
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof YamlInputMeta ) {
       ( (YamlInputMeta) someMeta ).allocate( 5, 5 );
     }

@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -64,7 +64,7 @@ import java.util.List;
  * @author Matt Casters
  * @since 2-jun-2003
  */
-public class TableOutputMeta extends BaseTransformMeta implements TransformMetaInterface, ProvidesModelerMeta {
+public class TableOutputMeta extends BaseTransformMeta implements ITransform, ProvidesModelerMeta {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;

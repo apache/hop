@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ConditionLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -75,7 +75,7 @@ public class JoinRowsMetaTest {
   @Test
   public void testCleanAfterHopToRemove_NullParameter() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( TransformMetaInterface.class ) );
+    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransform.class ) );
     joinRowsMeta.setMainTransform( transformMeta1 );
     joinRowsMeta.setMainTransformName( transformMeta1.getName() );
 
@@ -91,8 +91,8 @@ public class JoinRowsMetaTest {
   public void testCleanAfterHopToRemove_UnknownTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( TransformMetaInterface.class ) );
-    TransformMeta transformMeta2 = new TransformMeta( "Transform2", mock( TransformMetaInterface.class ) );
+    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransform.class ) );
+    TransformMeta transformMeta2 = new TransformMeta( "Transform2", mock( ITransform.class ) );
     joinRowsMeta.setMainTransform( transformMeta1 );
     joinRowsMeta.setMainTransformName( transformMeta1.getName() );
 
@@ -107,7 +107,7 @@ public class JoinRowsMetaTest {
   public void testCleanAfterHopToRemove_ReferredTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( TransformMetaInterface.class ) );
+    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransform.class ) );
     joinRowsMeta.setMainTransform( transformMeta1 );
     joinRowsMeta.setMainTransformName( transformMeta1.getName() );
 

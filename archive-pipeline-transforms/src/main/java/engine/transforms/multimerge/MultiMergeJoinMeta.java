@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
@@ -55,7 +55,7 @@ import java.util.List;
  * @since 24-nov-2006
  */
 @InjectionSupported( localizationPrefix = "MultiMergeJoin.Injection." )
-public class MultiMergeJoinMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] join_types = { "INNER", "FULL OUTER" };

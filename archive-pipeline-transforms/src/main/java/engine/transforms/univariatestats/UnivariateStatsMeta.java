@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.NumberFormat;
@@ -53,7 +53,7 @@ import java.util.List;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class UnivariateStatsMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform {
 
   // The stats to be computed for various input fields.
   // User may elect to omit some stats for particular fields.

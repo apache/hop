@@ -70,7 +70,7 @@ public class GroupByAggregationNullsTest {
     GroupByMeta meta = new GroupByMeta();
     meta.setAggregateType( new int[] { 5 } );
     IValueMeta vmi = new ValueMetaInteger();
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    when( mockHelper.transformMeta.getITransform() ).thenReturn( meta );
     IRowMeta rmi = Mockito.mock( IRowMeta.class );
     data.inputRowMeta = rmi;
     data.outputRowMeta = rmi;

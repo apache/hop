@@ -98,7 +98,7 @@ public class InsertUpdateMetaTest {
       new TransformMockHelper<>( "insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class );
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
       .thenReturn( mockHelper.logChannelInterface );
-    Mockito.when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new InsertUpdateMeta() );
+    Mockito.when( mockHelper.transformMeta.getITransform() ).thenReturn( new InsertUpdateMeta() );
   }
 
   @After
@@ -216,7 +216,7 @@ public class InsertUpdateMetaTest {
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( LoggingObjectInterface.class ) ) )
       .thenReturn(
         mockHelper.logChannelInterface );
-    Mockito.when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new InsertUpdateMeta() );
+    Mockito.when( mockHelper.transformMeta.getITransform() ).thenReturn( new InsertUpdateMeta() );
 
     InsertUpdate insertUpdateTransform =
       new InsertUpdate( mockHelper.transformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );

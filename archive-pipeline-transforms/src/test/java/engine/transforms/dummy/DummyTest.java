@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -41,13 +41,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DummyTest {
-  private TransformMockHelper<TransformMetaInterface, ITransformData> transformMockHelper;
+  private TransformMockHelper<ITransform, ITransformData> transformMockHelper;
 
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<TransformMetaInterface, ITransformData>(
-        "DUMMY TEST", TransformMetaInterface.class, ITransformData.class );
+      new TransformMockHelper<ITransform, ITransformData>(
+        "DUMMY TEST", ITransform.class, ITransformData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );

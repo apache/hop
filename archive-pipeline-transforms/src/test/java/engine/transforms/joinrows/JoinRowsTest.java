@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.RowTransformCollector;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ import static org.mockito.Mockito.verify;
  */
 public class JoinRowsTest {
 
-  private TransformMetaInterface meta;
+  private ITransform meta;
   private JoinRowsData data;
 
   @Before

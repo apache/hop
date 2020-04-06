@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -48,7 +48,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
 
-public class DataGridMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DataGridMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<DataGridMeta> testMetaClass = DataGridMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -94,7 +94,7 @@ public class DataGridMetaTest implements InitializerInterface<TransformMetaInter
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof DataGridMeta ) {
       ( (DataGridMeta) someMeta ).allocate( 3 );
     }

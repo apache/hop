@@ -83,7 +83,7 @@ public class PDI_11152_Test {
     RowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( valueMeta );
 
-    UpdateMeta transformMeta = smh.processRowsTransformMetaInterface;
+    UpdateMeta transformMeta = smh.processRowsITransform;
 
     UpdateData transformData = smh.processRowsTransformDataInterface;
     transformData.lookupParameterRowMeta = inputRowMeta;

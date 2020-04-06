@@ -1149,7 +1149,7 @@ public class MappingDialog extends BaseTransformDialog implements ITransformDial
       TransformMeta mappingInputTransform = mappingPipelineMeta.findMappingInputTransform( sourceTransformName );
       if ( mappingInputTransform != null ) {
         TransformMeta mappingOutputTransform = pipelineMeta.findMappingOutputTransform( targetTransformname );
-        IRowMeta requiredFields = mappingOutputTransform.getTransformMetaInterface().getRequiredFields( pipelineMeta );
+        IRowMeta requiredFields = mappingOutputTransform.getITransform().getRequiredFields( pipelineMeta );
         if ( requiredFields != null && requiredFields.size() > 0 ) {
           enabled = true;
         }

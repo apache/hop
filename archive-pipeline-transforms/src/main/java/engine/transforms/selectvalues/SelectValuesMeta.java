@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import java.util.List;
  * Created on 02-jun-2003
  */
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
-public class SelectValuesMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SelectValuesMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int UNDEFINED = -2;

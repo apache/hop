@@ -23,13 +23,13 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public interface IInputFileMeta extends TransformMetaInterface {
+public interface IInputFileMeta extends ITransform {
 
   public TextFileInputField[] getInputFields();
 

@@ -53,7 +53,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -79,7 +79,7 @@ import java.util.Properties;
   name = "ScriptValuesMod.Name", description = "ScriptValuesMod.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting" )
 @InjectionSupported( localizationPrefix = "ScriptValuesMod.Injection.", groups = { "FIELDS", "SCRIPTS" } )
-public class ScriptValuesMetaMod extends BaseTransformMeta implements TransformMetaInterface {
+public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";

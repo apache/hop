@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -50,7 +50,7 @@ import java.util.List;
  * @author Samatar
  * @since 03June2008
  */
-public class DetectLastRowMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class DetectLastRowMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 
   /**

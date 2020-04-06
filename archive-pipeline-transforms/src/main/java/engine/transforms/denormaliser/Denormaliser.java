@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class Denormaliser extends BaseTransform implements ITransform {
                        Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (DenormaliserMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (DenormaliserMeta) getTransformMeta().getITransform();
     data = (DenormaliserData) iTransformData;
   }
 

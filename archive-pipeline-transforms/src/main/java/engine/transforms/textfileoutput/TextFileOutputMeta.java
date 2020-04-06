@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.file.BaseFileOutputMeta;
 import org.apache.hop.workarounds.ResolvableResource;
 import org.w3c.dom.Node;
@@ -65,7 +65,7 @@ import java.util.Map;
  *
  */
 @InjectionSupported( localizationPrefix = "TextFileOutput.Injection.", groups = { "OUTPUT_FIELDS" } )
-public class TextFileOutputMeta extends BaseFileOutputMeta implements TransformMetaInterface, ResolvableResource {
+public class TextFileOutputMeta extends BaseFileOutputMeta implements ITransform, ResolvableResource {
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   protected static final int FILE_COMPRESSION_TYPE_NONE = 0;

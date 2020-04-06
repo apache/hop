@@ -31,7 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DatabaseLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DatabaseLookupMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<DatabaseLookupMeta> testMetaClass = DatabaseLookupMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -98,7 +98,7 @@ public class DatabaseLookupMetaTest implements InitializerInterface<TransformMet
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof DatabaseLookupMeta ) {
       ( (DatabaseLookupMeta) someMeta ).allocate( 5, 5 );
     }

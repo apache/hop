@@ -78,8 +78,8 @@ public class SetValueConstantTest {
     field.setReplaceMask( "Replace Mask" );
     field.setReplaceValue( "Replace Value" );
 
-    doReturn( Collections.singletonList( field ) ).when( smh.initTransformMetaInterface ).getFields();
-    doReturn( field ).when( smh.initTransformMetaInterface ).getField( 0 );
+    doReturn( Collections.singletonList( field ) ).when( smh.initITransform ).getFields();
+    doReturn( field ).when( smh.initITransform ).getField( 0 );
     doReturn( rowMeta ).when( smh.initTransformDataInterface ).getConvertRowMeta();
     doReturn( rowMeta ).when( smh.initTransformDataInterface ).getOutputRowMeta();
     doReturn( 1 ).when( smh.initTransformDataInterface ).getFieldnr();

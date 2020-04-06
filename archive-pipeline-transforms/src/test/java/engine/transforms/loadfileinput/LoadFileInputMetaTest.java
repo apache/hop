@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM
  */
-public class LoadFileInputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class LoadFileInputMetaTest implements InitializerInterface<ITransform> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
 
@@ -215,7 +215,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<TransformMeta
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof LoadFileInputMeta ) {
       ( (LoadFileInputMeta) someMeta ).allocate( 5, 5 );
     }

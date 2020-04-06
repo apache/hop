@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 
 import java.util.Arrays;
@@ -544,7 +544,7 @@ public class DatabaseLookup extends BaseTransform implements ITransform {
    * Stop the running query
    */
   @Override
-  public void stopRunning( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public void stopRunning( ITransform smi, ITransformData sdi ) throws HopException {
     meta = (DatabaseLookupMeta) smi;
     data = (DatabaseLookupData) sdi;
 

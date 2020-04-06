@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
@@ -346,7 +346,7 @@ public abstract class TransformClassBase {
     return parent.incrementLinesWrittenImpl();
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+  public boolean init( ITransform transformMetaInterface, ITransformData iTransformData ) {
     return parent.initImpl( transformMetaInterface, data );
   }
 
@@ -521,7 +521,7 @@ public abstract class TransformClassBase {
     parent.stopAllImpl();
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
     parent.stopRunningImpl( transformMetaInterface, data );
   }
 

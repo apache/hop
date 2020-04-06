@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -49,7 +49,7 @@ import java.util.Objects;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class ReservoirSamplingMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransform {
 
   public static final String XML_TAG = "reservoir_sampling";
 

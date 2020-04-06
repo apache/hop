@@ -38,7 +38,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;

@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.File;
 import java.io.IOException;
@@ -134,7 +134,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.BaseTransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface,
+   * @see org.apache.hop.pipeline.transform.BaseTransform#init(org.apache.hop.pipeline.transform.ITransform,
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
@@ -157,7 +157,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.BaseTransform#processRow(org.apache.hop.pipeline.transform.TransformMetaInterface,
+   * @see org.apache.hop.pipeline.transform.BaseTransform#processRow(org.apache.hop.pipeline.transform.ITransform,
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
@@ -411,7 +411,7 @@ public class TeraFast extends AbstractTransform implements ITransform {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.BaseTransform#dispose(org.apache.hop.pipeline.transform.TransformMetaInterface,
+   * @see org.apache.hop.pipeline.transform.BaseTransform#dispose(org.apache.hop.pipeline.transform.ITransform,
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override

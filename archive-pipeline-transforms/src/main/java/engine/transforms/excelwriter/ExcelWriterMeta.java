@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -54,7 +54,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ExcelWriterTransformMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";

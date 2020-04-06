@@ -437,7 +437,7 @@ public class TextFileOutputTest {
     meta.setEndedLine( "${endvar}" );
     meta.setDefault();
     meta.setEncoding( "UTF-8" );
-    transformMockHelper.transformMeta.setTransformMetaInterface( meta );
+    transformMockHelper.transformMeta.setITransform( meta );
     TextFileOutput textFileOutput =
       new TextFileOutputTestHandler( transformMockHelper.transformMeta, data, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );

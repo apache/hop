@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
@@ -51,7 +51,7 @@ import java.util.List;
  * Created on 4-apr-2003
  *
  */
-public class ConstantMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class ConstantMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] currency;
@@ -376,7 +376,7 @@ public class ConstantMeta extends BaseTransformMeta implements TransformMetaInte
 
     // Check the constants...
     ConstantData data = new ConstantData();
-    ConstantMeta meta = (ConstantMeta) transformMeta.getTransformMetaInterface();
+    ConstantMeta meta = (ConstantMeta) transformMeta.getITransform();
     Constant.buildRow( meta, data, remarks );
   }
 

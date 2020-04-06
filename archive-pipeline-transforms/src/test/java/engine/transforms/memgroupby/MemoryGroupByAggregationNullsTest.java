@@ -80,7 +80,7 @@ public class MemoryGroupByAggregationNullsTest {
     meta.setAggregateType( new int[] { 5 } );
     meta.setAggregateField( new String[] { "x" } );
     vmi = new ValueMetaInteger();
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    when( mockHelper.transformMeta.getITransform() ).thenReturn( meta );
     rmi = Mockito.mock( IRowMeta.class );
     data.inputRowMeta = rmi;
     data.outputRowMeta = rmi;
@@ -182,7 +182,7 @@ public class MemoryGroupByAggregationNullsTest {
   public void addToAggregateBinaryData() throws Exception {
     MemoryGroupByMeta memoryGroupByMeta = Mockito.spy( meta );
     memoryGroupByMeta.setAggregateType( new int[] { MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT } );
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( memoryGroupByMeta );
+    when( mockHelper.transformMeta.getITransform() ).thenReturn( memoryGroupByMeta );
     vmi.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     vmi.setStorageMetadata( new ValueMetaString() );
     aggregate.counts = new long[] { 0L };

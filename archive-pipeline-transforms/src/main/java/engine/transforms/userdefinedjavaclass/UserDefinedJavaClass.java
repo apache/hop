@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.www.SocketRepository;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
   public UserDefinedJavaClass( TransformMeta transformMeta, ITransformData data, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
-    meta = (UserDefinedJavaClassMeta) ( transformMeta.getTransformMetaInterface() );
+    meta = (UserDefinedJavaClassMeta) ( transformMeta.getITransform() );
     data = (UserDefinedJavaClassData) iTransformData;
 
     if ( copyNr == 0 ) {
@@ -163,7 +163,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     }
   }
 
-  public void disposeImpl( TransformMetaInterface smi, ITransformData sdi ) {
+  public void disposeImpl( ITransform smi, ITransformData sdi ) {
     super.dispose();
   }
 
@@ -751,7 +751,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     return super.incrementLinesWritten();
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+  public boolean init( ITransform transformMetaInterface, ITransformData iTransformData ) {
     if ( meta.cookErrors.size() > 0 ) {
       return false;
     }
@@ -780,7 +780,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     super.initBeforeStart();
   }
 
-  public boolean initImpl( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+  public boolean initImpl( ITransform transformMetaInterface, ITransformData iTransformData ) {
     return super.init();
   }
 
@@ -1286,7 +1286,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     super.stopAll();
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( child == null ) {
       stopRunningImpl( transformMetaInterface, data );
     } else {
@@ -1294,7 +1294,7 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     }
   }
 
-  public void stopRunningImpl( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunningImpl( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
     super.stopRunning( transformMetaInterface, data );
   }
 

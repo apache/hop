@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -70,7 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class DimensionLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DimensionLookupMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<DimensionLookupMeta> testMetaClass = DimensionLookupMeta.class;
   private ThreadLocal<DimensionLookupMeta> holdTestingMeta = new ThreadLocal<DimensionLookupMeta>();
@@ -123,7 +123,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<TransformMe
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof DimensionLookupMeta ) {
       ( (DimensionLookupMeta) someMeta ).allocate( 5, 5 );
       // doing this as a work-around for sequenceName validation.

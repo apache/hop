@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 
 public class TableInputTest {
 
-  TableInputMeta mockTransformMetaInterface;
+  TableInputMeta mockITransform;
   TableInputData mockTransformDataInterface;
   TableInput mockTableInput;
 
@@ -65,8 +65,8 @@ public class TableInputTest {
     when( mockPipelineMeta.findTransform( anyString() ) ).thenReturn( mockTransformMeta );
     when( mockTransformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mockTransformPartitioningMeta );
 
-    mockTransformMetaInterface = mock( TableInputMeta.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
-    mockTransformDataInterface = mock( TableInputData.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
+    mockITransform = mock( TableInputMeta.class, withSettings().extraInterfaces( ITransform.class ) );
+    mockTransformDataInterface = mock( TableInputData.class, withSettings().extraInterfaces( ITransform.class ) );
     mockTransformDataInterface.db = mock( Database.class );
     mockTableInput = spy( new TableInput( mockTransformMeta, mockTransformDataInterface, 1, mockPipelineMeta, mockPipeline ) );
   }
@@ -75,7 +75,7 @@ public class TableInputTest {
   public void testStopRunningWhenTransformIsStopped() throws HopException {
     doReturn( true ).when( mockTableInput ).isStopped();
 
-    mockTableInput.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockTableInput.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockTableInput, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 0 ) ).isDisposed();
@@ -86,7 +86,7 @@ public class TableInputTest {
     doReturn( false ).when( mockTableInput ).isStopped();
     doReturn( true ).when( mockTransformDataInterface ).isDisposed();
 
-    mockTableInput.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockTableInput.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockTableInput, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -98,7 +98,7 @@ public class TableInputTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( mock( Connection.class ) );
 
-    mockTableInput.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockTableInput.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockTableInput, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -114,7 +114,7 @@ public class TableInputTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( null );
 
-    mockTableInput.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockTableInput.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockTableInput, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();

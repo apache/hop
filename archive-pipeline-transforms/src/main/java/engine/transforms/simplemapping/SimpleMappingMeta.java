@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
 import org.apache.hop.pipeline.transforms.mapping.MappingParameters;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
@@ -66,7 +66,7 @@ import java.util.List;
  * @since 22-nov-2005
  */
 
-public class SimpleMappingMeta extends TransformWithMappingMeta implements TransformMetaInterface, ISubPipelineAwareMeta {
+public class SimpleMappingMeta extends TransformWithMappingMeta implements ITransform, ISubPipelineAwareMeta {
 
   private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -223,7 +223,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements Trans
 
     // We're certain it's a MappingInput transform...
     //
-    MappingInputMeta mappingInputMeta = (MappingInputMeta) mappingInputTransform.getTransformMetaInterface();
+    MappingInputMeta mappingInputMeta = (MappingInputMeta) mappingInputTransform.getITransform();
 
     // Inform the mapping input transform about what it's going to receive...
     //
@@ -243,7 +243,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements Trans
     TransformMeta mappingOutputTransform = mappingPipelineMeta.findMappingOutputTransform( null );
 
     // We know it's a mapping output transform...
-    MappingOutputMeta mappingOutputMeta = (MappingOutputMeta) mappingOutputTransform.getTransformMetaInterface();
+    MappingOutputMeta mappingOutputMeta = (MappingOutputMeta) mappingOutputTransform.getITransform();
 
     // Change a few columns.
     mappingOutputMeta.setOutputValueRenames( outputMapping.getValueRenames() );

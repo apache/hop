@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Pivots data based on key-value pairs
@@ -49,7 +49,7 @@ public class Flattener extends BaseTransform implements ITransform {
                     Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (FlattenerMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (FlattenerMeta) getTransformMeta().getITransform();
     data = (FlattenerData) iTransformData;
   }
 

@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.sql.ExecSQL;
 import org.w3c.dom.Node;
 
@@ -57,7 +57,7 @@ import java.util.List;
  * Created on 10-sep-2008
  */
 @InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
-public class ExecSQLRowMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class ExecSQLRowMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private IMetaStore metaStore;

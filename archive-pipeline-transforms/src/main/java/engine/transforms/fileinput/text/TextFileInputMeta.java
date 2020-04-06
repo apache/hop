@@ -59,7 +59,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
@@ -75,7 +75,7 @@ import java.util.Map;
 @SuppressWarnings( "deprecation" )
 @InjectionSupported( localizationPrefix = "TextFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
 public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField>
-  implements TransformMetaInterface, ResolvableResource, CsvInputAwareMeta {
+  implements ITransform, ResolvableResource, CsvInputAwareMeta {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!! TODO: check i18n
   // for base
 

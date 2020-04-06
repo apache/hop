@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 
 import java.util.ArrayList;
@@ -395,7 +395,7 @@ public class MergeJoin extends BaseTransform implements ITransform {
   }
 
   /**
-   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform, org.apache.hop.pipeline.transform.ITransformData)
    */
   public boolean init() {
     meta = (MergeJoinMeta) smi;

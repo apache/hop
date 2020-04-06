@@ -33,7 +33,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -200,7 +200,7 @@ public class SwitchCaseTest {
     // create real transforms for all targets
     List<SwitchCaseTarget> list = krasavez.meta.getCaseTargets();
     for ( SwitchCaseTarget item : list ) {
-      TransformMetaInterface smInt = new DummyMeta();
+      ITransform smInt = new DummyMeta();
       TransformMeta transformMeta = new TransformMeta( item.caseTargetTransformName, smInt );
       item.caseTargetTransform = transformMeta;
 
@@ -217,7 +217,7 @@ public class SwitchCaseTest {
     }
 
     // create default transform
-    TransformMetaInterface smInt = new DummyMeta();
+    ITransform smInt = new DummyMeta();
     TransformMeta transformMeta = new TransformMeta( krasavez.meta.getDefaultTargetTransformName(), smInt );
     krasavez.meta.setDefaultTargetTransform( transformMeta );
     RowSet rw = new QueueRowSet();
@@ -268,7 +268,7 @@ public class SwitchCaseTest {
     // create real transforms for all targets
     List<SwitchCaseTarget> list = krasavez.meta.getCaseTargets();
     for ( SwitchCaseTarget item : list ) {
-      TransformMetaInterface smInt = new DummyMeta();
+      ITransform smInt = new DummyMeta();
       TransformMeta transformMeta = new TransformMeta( item.caseTargetTransformName, smInt );
       item.caseTargetTransform = transformMeta;
 
@@ -285,7 +285,7 @@ public class SwitchCaseTest {
     }
 
     // create default transform
-    TransformMetaInterface smInt = new DummyMeta();
+    ITransform smInt = new DummyMeta();
     TransformMeta transformMeta = new TransformMeta( krasavez.meta.getDefaultTargetTransformName(), smInt );
     krasavez.meta.setDefaultTargetTransform( transformMeta );
     RowSet rw = new QueueRowSet();
@@ -350,7 +350,7 @@ public class SwitchCaseTest {
 
     List<RowSet> outputRowSets = new LinkedList<RowSet>();
     for ( SwitchCaseTarget item : transform.meta.getCaseTargets() ) {
-      TransformMetaInterface smInt = new DummyMeta();
+      ITransform smInt = new DummyMeta();
       item.caseTargetTransform = new TransformMeta( item.caseTargetTransformName, smInt );
 
       RowSet rw = new QueueRowSet();
@@ -359,7 +359,7 @@ public class SwitchCaseTest {
     }
 
     // create a default transform
-    TransformMetaInterface smInt = new DummyMeta();
+    ITransform smInt = new DummyMeta();
     TransformMeta transformMeta = new TransformMeta( transform.meta.getDefaultTargetTransformName(), smInt );
     transform.meta.setDefaultTargetTransform( transformMeta );
     RowSet defaultRowSet = new QueueRowSet();

@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class MemoryGroupBy extends BaseTransform implements ITransform {
                         Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (MemoryGroupByMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (MemoryGroupByMeta) getTransformMeta().getITransform();
     data = (MemoryGroupByData) iTransformData;
   }
 

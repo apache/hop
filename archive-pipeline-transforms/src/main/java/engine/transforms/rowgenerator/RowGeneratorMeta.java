@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
@@ -53,7 +53,7 @@ import java.util.List;
 /*
  * Created on 4-apr-2003
  */
-public class RowGeneratorMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class RowGeneratorMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean neverEnding;

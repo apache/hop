@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -54,14 +54,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class TransformMockHelper<Meta extends TransformMetaInterface, Data extends ITransformData> {
+public class TransformMockHelper<Meta extends ITransform, Data extends ITransformData> {
   public final TransformMeta transformMeta;
   public final Data iTransformData;
   public final PipelineMeta pipelineMeta;
   public final Pipeline pipeline;
-  public final Meta initTransformMetaInterface;
+  public final Meta initITransform;
   public final Data initTransformDataInterface;
-  public final Meta processRowsTransformMetaInterface;
+  public final Meta processRowsITransform;
   public final Data processRowsTransformDataInterface;
   public final LogChannelInterface logChannelInterface;
   public final LogChannelFactory logChannelFactory;
@@ -78,10 +78,10 @@ public class TransformMockHelper<Meta extends TransformMetaInterface, Data exten
     pipelineMeta = mock( PipelineMeta.class );
     when( pipelineMeta.findTransform( transformName ) ).thenReturn( transformMeta );
     pipeline = mock( Pipeline.class );
-    initTransformMetaInterface = mock( transformMetaClass );
+    initITransform = mock( transformMetaClass );
     initTransformDataInterface = mock( transformDataClass );
     processRowsTransformDataInterface = mock( transformDataClass );
-    processRowsTransformMetaInterface = mock( transformMetaClass );
+    processRowsITransform = mock( transformMetaClass );
   }
 
   public RowSet getMockInputRowSet( Object[]... rows ) {

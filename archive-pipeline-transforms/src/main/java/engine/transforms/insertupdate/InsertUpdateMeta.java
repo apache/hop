@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 import org.w3c.dom.Node;
 
@@ -62,7 +62,7 @@ import java.util.List;
  *
  */
 @InjectionSupported( localizationPrefix = "InsertUpdateMeta.Injection.", groups = { "KEYS", "UPDATES" } )
-public class InsertUpdateMeta extends BaseTransformMeta implements TransformMetaInterface, ProvidesModelerMeta {
+public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, ProvidesModelerMeta {
   private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private IMetaStore metaStore;

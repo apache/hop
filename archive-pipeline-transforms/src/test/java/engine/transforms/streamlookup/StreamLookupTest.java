@@ -137,7 +137,7 @@ public class StreamLookupTest {
   }
 
   private StreamLookupMeta mockProcessRowMeta( boolean memoryPreservationActive ) throws HopTransformException {
-    StreamLookupMeta meta = smh.processRowsTransformMetaInterface;
+    StreamLookupMeta meta = smh.processRowsITransform;
 
     TransformMeta lookupTransformMeta = when( mock( TransformMeta.class ).getName() ).thenReturn( "Lookup" ).getMock();
     doReturn( lookupTransformMeta ).when( smh.pipelineMeta ).findTransform( "Lookup" );

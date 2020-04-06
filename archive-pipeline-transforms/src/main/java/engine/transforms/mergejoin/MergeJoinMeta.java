@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -59,7 +59,7 @@ import java.util.List;
  * @since 24-nov-2006
  */
 @InjectionSupported( localizationPrefix = "MergeJoin.Injection." )
-public class MergeJoinMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] join_types = { "INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER" };

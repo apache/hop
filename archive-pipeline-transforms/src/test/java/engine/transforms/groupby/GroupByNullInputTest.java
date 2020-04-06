@@ -71,7 +71,7 @@ public class GroupByNullInputTest {
     groupByData = new GroupByData();
     groupByMeta = new GroupByMeta();
 
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( groupByMeta );
+    when( mockHelper.transformMeta.getITransform() ).thenReturn( groupByMeta );
     rowMetaInterfaceMock = Mockito.mock( IRowMeta.class );
     groupByData.inputRowMeta = rowMetaInterfaceMock;
     groupByData.aggMeta = rowMetaInterfaceMock;

@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ import java.util.List;
 //    categoryDescription="kJube.Category.Name",
 //    i18nPackageName="be.kjube.plugins"
 //  )
-public class TableCompareMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class TableCompareMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta referenceConnection;

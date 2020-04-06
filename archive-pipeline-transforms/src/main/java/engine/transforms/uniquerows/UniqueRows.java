@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Removes the same consequetive rows from the input stream(s).
@@ -51,7 +51,7 @@ public class UniqueRows extends BaseTransform implements ITransform {
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (UniqueRowsMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (UniqueRowsMeta) getTransformMeta().getITransform();
     data = (UniqueRowsData) iTransformData; // create new data object.
   }
 

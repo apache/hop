@@ -51,14 +51,14 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class LoadFileInputMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class LoadFileInputMeta extends BaseTransformMeta implements ITransform {
   private static final String INCLUDE = "include";
   private static final String INCLUDE_FIELD = "include_field";
   private static final String ROWNUM = "rownum";

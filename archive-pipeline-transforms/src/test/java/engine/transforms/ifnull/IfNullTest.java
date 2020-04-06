@@ -89,7 +89,7 @@ public class IfNullTest {
   }
 
   private IfNullMeta mockProcessRowMeta() throws HopTransformException {
-    IfNullMeta processRowMeta = smh.processRowsTransformMetaInterface;
+    IfNullMeta processRowMeta = smh.processRowsITransform;
     doReturn( createFields( "null-field", "empty-field", "space-field" ) ).when( processRowMeta ).getFields();
     doReturn( "replace-value" ).when( processRowMeta ).getReplaceAllByValue();
     doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(), any(

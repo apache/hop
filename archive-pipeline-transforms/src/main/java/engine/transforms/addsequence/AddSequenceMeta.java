@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -54,7 +54,7 @@ import java.util.List;
  * <p>
  * Created on 13-may-2003
  */
-public class AddSequenceMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class AddSequenceMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private String valuename;

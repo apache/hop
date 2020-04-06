@@ -45,7 +45,7 @@ public class ScriptTest {
     when( helper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
       helper.logChannelInterface );
     when( helper.pipeline.isRunning() ).thenReturn( true );
-    when( helper.initTransformMetaInterface.getJSScripts() ).thenReturn(
+    when( helper.initITransform.getJSScripts() ).thenReturn(
       new ScriptValuesScript[] { new ScriptValuesScript( ScriptValuesScript.NORMAL_SCRIPT, "", "var i = 0;" ) } );
   }
 
@@ -64,7 +64,7 @@ public class ScriptTest {
     in.add( rs );
     transform.setInputRowSets( in );
 
-    PipelineTestingUtil.execute( transform, helper.processRowsTransformMetaInterface, helper.processRowsTransformDataInterface, 0, true );
+    PipelineTestingUtil.execute( transform, helper.processRowsITransform, helper.processRowsTransformDataInterface, 0, true );
     rs.getRow();
   }
 

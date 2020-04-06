@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -60,7 +60,7 @@ import java.util.List;
  */
 @InjectionSupported( localizationPrefix = "SynchronizeAfterMerge.Injection.", groups = { "KEYS_TO_LOOKUP",
   "UPDATE_FIELDS" } )
-public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   /**

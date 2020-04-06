@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
 import org.w3c.dom.Node;
 
@@ -55,7 +55,7 @@ import java.util.List;
  * @author Samatar
  * @since 5-apr-2003
  */
-public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
