@@ -2750,6 +2750,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     Calendar cal = Calendar.getInstance();
     stop_time = cal.getTime();
 
+    // Here we are completely done with the pipeline.
+    // Call all the attached listeners and notify the outside world that the transform has finished.
+    //
+    synchronized ( transformListeners ) {
+      for ( ITransformListener transformListener : transformListeners ) {
+        transformListener.transformFinished( pipeline, transformMeta, this );
+      }
+    }
+
     // We're finally completely done with this transform.
     //
     setRunning( false );

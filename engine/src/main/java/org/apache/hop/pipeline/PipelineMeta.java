@@ -1693,8 +1693,7 @@ public class PipelineMeta extends AbstractMeta
       TransformMeta prevTransformMeta = prevTransforms.get( i );
 
       if ( monitor != null ) {
-        monitor.subTask(
-          BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingTransformTask.Title", prevTransformMeta.getName() ) );
+        monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingTransformTask.Title", prevTransformMeta.getName() ) );
       }
 
       IRowMeta add = getTransformFields( prevTransformMeta, transformMeta, monitor );
