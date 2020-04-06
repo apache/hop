@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class MultiMergeJoin extends BaseTransform implements ITransform {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  private boolean processFirstRow( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  private boolean processFirstRow( ITransform smi, ITransformData sdi ) throws HopException {
     meta = (MultiMergeJoinMeta) smi;
     data = (MultiMergeJoinData) sdi;
 
@@ -376,7 +376,7 @@ public class MultiMergeJoin extends BaseTransform implements ITransform {
   }
 
   /**
-   * @see ITransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface, org.apache.hop.pipeline.transform.ITransformData)
+   * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform, org.apache.hop.pipeline.transform.ITransformData)
    */
   public boolean init() {
     meta = (MultiMergeJoinMeta) smi;

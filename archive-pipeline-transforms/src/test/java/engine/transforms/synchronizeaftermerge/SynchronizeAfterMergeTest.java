@@ -28,7 +28,7 @@ import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -40,7 +40,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -117,7 +117,7 @@ public class PDI5436Test {
   }
 
   private DatabaseLookupMeta mockTransformMeta() throws HopTransformException {
-    DatabaseLookupMeta transformMeta = smh.initTransformMetaInterface;
+    DatabaseLookupMeta transformMeta = smh.initITransform;
     doReturn( mock( DatabaseMeta.class ) ).when( transformMeta ).getDatabaseMeta();
     doReturn( new String[] { "=" } ).when( transformMeta ).getKeyCondition();
 
@@ -167,7 +167,7 @@ public class PDI5436Test {
     RowSet outputRowSet = new QueueRowSet();
     transformSpy.addRowSetToOutputRowSets( outputRowSet );
 
-    TransformMetaInterface meta = mockTransformMeta();
+    ITransform meta = mockTransformMeta();
     ITransformData data = smh.initTransformDataInterface;
 
     Assert.assertTrue( "Transform init failed", transformSpy.init();

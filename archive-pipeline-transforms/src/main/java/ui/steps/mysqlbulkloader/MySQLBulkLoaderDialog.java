@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mysqlbulkloader.MySQLBulkLoaderMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
@@ -650,7 +650,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
-    TransformMetaInterface transformMetaInterface = transformMeta.getTransformMetaInterface();
+    ITransform transformMetaInterface = transformMeta.getITransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {

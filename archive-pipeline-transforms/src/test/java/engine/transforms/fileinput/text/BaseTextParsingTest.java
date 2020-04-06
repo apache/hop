@@ -42,7 +42,7 @@ public abstract class BaseTextParsingTest extends BaseParsingTest<TextFileInputM
   public void before() {
     meta = new TextFileInputMeta();
     meta.setDefault();
-    transformMeta.setTransformMetaInterface( meta );
+    transformMeta.setITransform( meta );
 
     data = new TextFileInputData();
     data.outputRowMeta = new RowMeta();

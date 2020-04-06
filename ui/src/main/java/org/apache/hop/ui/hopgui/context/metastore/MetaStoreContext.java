@@ -23,9 +23,6 @@ public class MetaStoreContext implements IActionContextHandlersProvider {
     this.metaStore = metaStore;
   }
 
-  // TODO: give back a context handler for every element type
-  // TODO: somehow find and register every metastore type through a plugin system somehow.
-  //`
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     GuiRegistry guiRegistry = GuiRegistry.getInstance();

@@ -45,12 +45,12 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-public class MailInputMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class MailInputMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";

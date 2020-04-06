@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.datagrid.DataGridMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -60,7 +60,7 @@ public class MissingPipelineTransformTest {
 
   @Test
   public void testInit() {
-    TransformMetaInterface transformMetaInterface = new AbstractTransformMeta() {
+    ITransform transformMetaInterface = new AbstractTransformMeta() {
 
       @Override
       public void setDefault() {
@@ -95,8 +95,8 @@ public class MissingPipelineTransformTest {
     assertFalse( transform.init() );
   }
 
-  private MissingPipelineTransform createAndInitTransform( TransformMetaInterface meta, ITransformData data ) {
-    when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+  private MissingPipelineTransform createAndInitTransform( ITransform meta, ITransformData data ) {
+    when( helper.transformMeta.getITransform() ).thenReturn( meta );
 
     MissingPipelineTransform transform = new MissingPipelineTransform( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
     transform.init();

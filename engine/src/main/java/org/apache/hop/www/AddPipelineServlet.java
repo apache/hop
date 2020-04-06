@@ -225,7 +225,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
               .getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
           logChannelFileWriter.startLogging();
 
-          pipeline.addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+          pipeline.addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipelineEngine ) throws HopException {
               if ( logChannelFileWriter != null ) {

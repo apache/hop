@@ -97,7 +97,7 @@ public class MemoryGroupByNewAggregateTest {
     meta.setAggregateField( arrF );
 
     IValueMeta vmi = new ValueMetaInteger();
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    when( mockHelper.transformMeta.getITransform() ).thenReturn( meta );
     IRowMeta rmi = Mockito.mock( IRowMeta.class );
     data.inputRowMeta = rmi;
     when( rmi.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );

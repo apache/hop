@@ -39,14 +39,14 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataGridMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class DataGridMeta extends BaseTransformMeta implements ITransform {
   private String[] currency;
   private String[] decimal;
   private String[] group;

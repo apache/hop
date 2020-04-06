@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.List;
 import java.util.Map;
@@ -121,7 +121,7 @@ public class ScriptDummy implements ITransform {
     return null;
   }
 
-  public boolean init( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) {
+  public boolean init( ITransform transformMetaInterface, ITransformData iTransformData ) {
     return false;
   }
 
@@ -167,7 +167,7 @@ public class ScriptDummy implements ITransform {
   public void stopAll() {
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
   }
 
   public void cleanup() {

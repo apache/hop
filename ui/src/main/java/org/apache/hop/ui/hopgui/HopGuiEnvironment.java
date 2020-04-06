@@ -17,6 +17,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -149,7 +150,9 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           // The parent class is capable of serializing to a metastore
           //
           try {
-            guiRegistry.addMetaStoreElementType( (Class<IHopMetaStoreElement>) parentClass, guiMetaStoreElement );
+            IGuiMetaStorePlugin guiMetaStorePlugin = (IGuiMetaStorePlugin) parentClass.newInstance();
+            Class<? extends IHopMetaStoreElement> managedClass = guiMetaStorePlugin.getMetastoreElementClass();
+            guiRegistry.addMetaStoreElementType( managedClass, guiMetaStoreElement, classLoader );
           } catch(ClassCastException e) {
             System.err.println( "Classes annotated with @"+GuiMetaStoreElement.class.getSimpleName()+" need to implement interface "+IHopMetaStoreElement.class.getSimpleName() );
           }

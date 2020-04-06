@@ -27,12 +27,14 @@ public class GuiRegistry {
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
   private Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap;
+  private Map<Class<? extends IHopMetaStoreElement>, ClassLoader> metaStoreClassLoaderMap;
 
   private GuiRegistry() {
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
     metaStoreTypeMap = new HashMap<>(  );
+    metaStoreClassLoaderMap = new HashMap<>(  );
   }
 
   public static final GuiRegistry getInstance() {
@@ -274,8 +276,10 @@ public class GuiRegistry {
     return contextActionsMap.get( parentContextId );
   }
 
-  public void addMetaStoreElementType( Class<? extends IHopMetaStoreElement> elementClass, GuiMetaStoreElement guiMetaStoreElement ) {
+  public void addMetaStoreElementType( Class<? extends IHopMetaStoreElement> elementClass, GuiMetaStoreElement guiMetaStoreElement, ClassLoader classLoader ) {
     metaStoreTypeMap.put( elementClass, guiMetaStoreElement );
+    metaStoreClassLoaderMap.put( elementClass, classLoader );
+
   }
 
 
@@ -341,5 +345,21 @@ public class GuiRegistry {
    */
   public void setMetaStoreTypeMap( Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap ) {
     this.metaStoreTypeMap = metaStoreTypeMap;
+  }
+
+  /**
+   * Gets metaStoreClassLoaderMap
+   *
+   * @return value of metaStoreClassLoaderMap
+   */
+  public Map<Class<? extends IHopMetaStoreElement>, ClassLoader> getMetaStoreClassLoaderMap() {
+    return metaStoreClassLoaderMap;
+  }
+
+  /**
+   * @param metaStoreClassLoaderMap The metaStoreClassLoaderMap to set
+   */
+  public void setMetaStoreClassLoaderMap( Map<Class<? extends IHopMetaStoreElement>, ClassLoader> metaStoreClassLoaderMap ) {
+    this.metaStoreClassLoaderMap = metaStoreClassLoaderMap;
   }
 }

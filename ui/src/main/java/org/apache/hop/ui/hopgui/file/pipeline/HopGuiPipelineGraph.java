@@ -2870,8 +2870,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
       candidate, drop_candidate, selectionRegion, areaOwners,
       PropsUI.getInstance().getIconSize(), PropsUI.getInstance().getLineWidth(), gridSize,
-      PropsUI.getInstance().getShadowSize(), PropsUI.getInstance()
-      .isAntiAliasingEnabled(), PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
+      PropsUI.getInstance().getShadowSize(), PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
       .getNoteFont().getHeight(), pipeline, PropsUI.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUI.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor
@@ -3369,7 +3368,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           public void run() {
             try {
               pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, false, debug, false, LogLevel.BASIC );
-            } catch ( Exception e ) {
+            } catch ( Throwable e ) {
               new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
             }
           }
@@ -4167,7 +4166,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       halted = pipeline.isStopped();
 
       if ( running ) {
-        pipeline.addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+        pipeline.addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
 
           @Override
           public void finished( IPipelineEngine<PipelineMeta> pipeline ) {

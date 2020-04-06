@@ -34,7 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.webservices.WebServiceField;
 import org.apache.hop.pipeline.transforms.webservices.WebServiceMeta;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.ComplexType;
@@ -782,7 +782,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   }
 
   public WebServiceDialog( Shell aShell, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( aShell, (TransformMetaInterface) in, pipelineMeta, sname );
+    super( aShell, (ITransform) in, pipelineMeta, sname );
     meta = (WebServiceMeta) in;
   }
 

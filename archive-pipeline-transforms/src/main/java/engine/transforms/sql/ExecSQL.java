@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.ArrayList;
 
@@ -264,7 +264,7 @@ public class ExecSQL extends BaseTransform implements ITransform {
    * Stop the running query
    */
   @Override
-  public void stopRunning( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public void stopRunning( ITransform smi, ITransformData sdi ) throws HopException {
     meta = (ExecSQLMeta) smi;
     data = (ExecSQLData) sdi;
 

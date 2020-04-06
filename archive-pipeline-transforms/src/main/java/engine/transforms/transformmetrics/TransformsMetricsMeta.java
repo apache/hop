@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -52,7 +52,7 @@ import java.util.List;
  *
  */
 
-public class TransformsMetricsMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class TransformsMetricsMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredTransformsDesc = new String[] {

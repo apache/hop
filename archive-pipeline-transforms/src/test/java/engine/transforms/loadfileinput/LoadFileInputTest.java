@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,7 +85,7 @@ public class LoadFileInputTest {
 
   private LoadFileInput transformLoadFileInput;
 
-  private TransformMetaInterface runtimeSMI;
+  private ITransform runtimeSMI;
   private ITransformData runtimeSDI;
   private LoadFileInputField inputField;
   private static String wasEncoding;
@@ -142,7 +142,7 @@ public class LoadFileInputTest {
 
     transformLoadFileInput = new LoadFileInput( transformMeta, data, transformCopyNr, pipelineMeta, pipeline );
 
-    assertSame( transformMetaInterface, transformMeta.getTransformMetaInterface() );
+    assertSame( transformMetaInterface, transformMeta.getITransform() );
 
     runtimeSMI = transformMetaInterface;
     runtimeSDI = runtimeSMI.getTransformData();

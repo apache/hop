@@ -187,6 +187,8 @@ public class HopGuiFileDelegate {
     //
     hopGui.auditDelegate.writeLastOpenFiles();
 
+    hopGui.getProps().saveProps();
+
     return true;
   }
 

@@ -30,7 +30,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
-public class DeleteMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class DeleteMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<DeleteMeta> testMetaClass = DeleteMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -84,7 +84,7 @@ public class DeleteMetaTest implements InitializerInterface<TransformMetaInterfa
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof DeleteMeta ) {
       ( (DeleteMeta) someMeta ).allocate( 5 );
     }

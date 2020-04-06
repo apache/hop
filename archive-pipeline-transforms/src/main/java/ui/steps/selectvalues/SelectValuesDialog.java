@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectMetadataChange;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -861,7 +861,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     TransformMeta outputTransformMeta = nextTransforms.get( 0 );
-    TransformMetaInterface transformMetaInterface = outputTransformMeta.getTransformMetaInterface();
+    ITransform transformMetaInterface = outputTransformMeta.getITransform();
     try {
       nextTransformRequiredFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {

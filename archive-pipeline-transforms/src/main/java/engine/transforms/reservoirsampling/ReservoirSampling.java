@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingData.PROC_MODE;
 
 import java.util.Arrays;
@@ -68,7 +68,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
   /**
    * Process an incoming row of data.
    *
-   * @param smi a <code>TransformMetaInterface</code> value
+   * @param smi a <code>ITransform</code> value
    * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
@@ -157,7 +157,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
   /**
    * Initialize the transform.
    *
-   * @param smi a <code>TransformMetaInterface</code> value
+   * @param smi a <code>ITransform</code> value
    * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */

@@ -28,7 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.RowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.List;
 
@@ -100,7 +100,7 @@ public interface IScript extends ITransform {
 
   void stopAll();
 
-  void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException;
+  void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException;
 
   void cleanup();
 

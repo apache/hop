@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TransformsMetricsMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class TransformsMetricsMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<TransformsMetricsMeta> testMetaClass = TransformsMetricsMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -106,7 +106,7 @@ public class TransformsMetricsMetaTest implements InitializerInterface<Transform
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof TransformsMetricsMeta ) {
       ( (TransformsMetricsMeta) someMeta ).allocate( 5 );
     }

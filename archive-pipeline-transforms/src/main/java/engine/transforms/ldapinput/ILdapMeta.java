@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
-public interface ILdapMeta extends TransformMetaInterface {
+public interface ILdapMeta extends ITransform {
   String getProtocol();
 
   String getHost();

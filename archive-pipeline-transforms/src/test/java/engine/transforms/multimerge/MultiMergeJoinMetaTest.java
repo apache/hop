@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Tatsiana_Kasiankova
  */
-public class MultiMergeJoinMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class MultiMergeJoinMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;
   private MultiMergeJoinMeta multiMergeMeta;
@@ -81,7 +81,7 @@ public class MultiMergeJoinMetaTest implements InitializerInterface<TransformMet
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof MultiMergeJoinMeta ) {
       ( (MultiMergeJoinMeta) someMeta ).allocateKeys( 5 );
       ( (MultiMergeJoinMeta) someMeta ).allocateInputTransforms( 5 );

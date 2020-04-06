@@ -31,7 +31,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mock;
 /**
  * User: Dzmitry Stsiapanau Date: 2/3/14 Time: 5:41 PM
  */
-public class StringOperationsMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class StringOperationsMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<StringOperationsMeta> testMetaClass = StringOperationsMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -100,7 +100,7 @@ public class StringOperationsMetaTest implements InitializerInterface<TransformM
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof StringOperationsMeta ) {
       ( (StringOperationsMeta) someMeta ).allocate( 5 );
     }

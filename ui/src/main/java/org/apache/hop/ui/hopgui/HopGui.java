@@ -48,7 +48,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -104,7 +104,9 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_FILE_OPEN_RECENT = "10025-menu-file-open-recent";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
-  public static final String ID_MAIN_MENU_FILE_METASTORE = "10060-menu-file-metastore";
+  public static final String ID_MAIN_MENU_FILE_EDIT_METASTORE = "10060-menu-file-edit-metastore";
+  public static final String ID_MAIN_MENU_FILE_DELETE_METASTORE = "10065-menu-file-delete-metastore";
+  public static final String ID_MAIN_MENU_FILE_EXPLORE_METASTORE = "10070-menu-file-explore_metastore";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
@@ -184,7 +186,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
-  public HopGuiNewDelegate newDelegate;
+  public HopGuiContextDelegate contextDelegate;
   public HopGuiAuditDelegate auditDelegate;
 
   private IAuditManager auditManager;
@@ -207,7 +209,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
     fileDelegate = new HopGuiFileDelegate( this );
     undoDelegate = new HopGuiUndoDelegate( this );
-    newDelegate = new HopGuiNewDelegate( this );
+    contextDelegate = new HopGuiContextDelegate( this );
     auditDelegate = new HopGuiAuditDelegate( this );
 
     // TODO: create metastore plugin system
@@ -414,7 +416,7 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiKeyboardShortcut( control = true, key = 'n' )
   @GuiOSXKeyboardShortcut( command = true, key = 'n' )
   public void menuFileNew() {
-    newDelegate.fileNew();
+    contextDelegate.fileNew();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
@@ -444,10 +446,20 @@ public class HopGui implements IActionContextHandlersProvider {
     fileDelegate.fileSaveAs();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_FILE_METASTORE, type = GuiElementType.MENU_ITEM, label = "Explore MetaStore", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_EDIT_METASTORE, type = GuiElementType.MENU_ITEM, label = "Edit MetaStore element", parentId = ID_MAIN_MENU_FILE, separator = true )
+  public void menuFileEditMetaStore() {
+    contextDelegate.fileMetaStoreEdit();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_DELETE_METASTORE, type = GuiElementType.MENU_ITEM, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
+  public void menuFileMetaStore() {
+    contextDelegate.fileMetaStoreDelete();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, type = GuiElementType.MENU_ITEM, label = "Export the MetaStore", parentId = ID_MAIN_MENU_FILE )
   @GuiKeyboardShortcut( control = true, shift=true, key = SWT.F5 )
   @GuiOSXKeyboardShortcut( command = true, shift=true, key = SWT.F5 )
-  public void menuFileMetaStore() {
+  public void menuFileMetaStoreExplorer() {
     new MetaStoreExplorerDialog( shell, metaStore ).open();
   }
 
@@ -581,7 +593,7 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Tools", parentId = ID_MAIN_MENU )
+  @GuiMenuElement( id = ID_MAIN_MENU_TOOLS_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Tools", parentId = ID_MAIN_MENU )
   public void menuTools() {
     // Nothing is done here.
   }
@@ -590,6 +602,7 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiKeyboardShortcut( key = SWT.F8 )
   public void menuToolsOptions() {
     if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
+      props.saveProps();
       // TODO warn the user about restarting
     }
   }

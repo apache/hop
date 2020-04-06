@@ -154,7 +154,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.TransformMetaInterface#check(java.util.List, org.apache.hop.pipeline.PipelineMeta,
+   * @see org.apache.hop.pipeline.transform.ITransform#check(java.util.List, org.apache.hop.pipeline.PipelineMeta,
    * org.apache.hop.pipeline.transform.TransformMeta, org.apache.hop.core.row.IRowMeta, java.lang.String[],
    * java.lang.String[], org.apache.hop.core.row.IRowMeta)
    */
@@ -243,7 +243,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.TransformMetaInterface#getTransform(org.apache.hop.pipeline.transform.TransformMeta,
+   * @see org.apache.hop.pipeline.transform.ITransform#getTransform(org.apache.hop.pipeline.transform.TransformMeta,
    * org.apache.hop.pipeline.transform.ITransformData, int, org.apache.hop.pipeline.PipelineMeta, org.apache.hop.pipeline.Pipeline)
    */
   public ITransform getTransform( final TransformMeta transformMeta, final ITransformData data, final int cnr,
@@ -254,7 +254,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.TransformMetaInterface#getTransformData()
+   * @see org.apache.hop.pipeline.transform.ITransform#getTransformData()
    */
   @Override
   public ITransformData getTransformData() {
@@ -264,7 +264,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
   /**
    * {@inheritDoc}
    *
-   * @see org.apache.hop.pipeline.transform.TransformMetaInterface#setDefault()
+   * @see org.apache.hop.pipeline.transform.ITransform#setDefault()
    */
   public void setDefault() {
     this.fastloadPath.setValue( DEFAULT_FASTLOAD_PATH );

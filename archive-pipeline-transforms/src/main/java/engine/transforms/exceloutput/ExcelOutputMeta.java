@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -63,7 +63,7 @@ import java.util.Map;
  * @since on 6-sep-2006
  */
 @InjectionSupported( localizationPrefix = "ExcelOutput.Injection.", groups = { "FIELDS", "CUSTOM", "CONTENT" } )
-public class ExcelOutputMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class ExcelOutputMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int FONT_NAME_ARIAL = 0;

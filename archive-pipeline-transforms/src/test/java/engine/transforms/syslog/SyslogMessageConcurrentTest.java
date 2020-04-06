@@ -93,9 +93,9 @@ public class SyslogMessageConcurrentTest {
 
     SyslogMessageMeta syslogMessageMeta = null;
 
-    public SyslogMessageTask( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsTransformMetaInterface ) {
+    public SyslogMessageTask( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline, SyslogMessageMeta processRowsITransform ) {
       super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
-      syslogMessageMeta = processRowsTransformMetaInterface;
+      syslogMessageMeta = processRowsITransform;
     }
 
     @Override

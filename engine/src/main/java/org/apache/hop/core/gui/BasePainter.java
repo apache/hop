@@ -85,7 +85,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public BasePainter( IGC gc, Object subject, Point area, IScrollBar hori,
                       IScrollBar vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
-                      int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
+                      int linewidth, int gridsize, int shadowSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
     this.subject = subject;
     this.area = area;
@@ -109,7 +109,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.magnification = 1.0f;
     this.zoomFactor = zoomFactor;
 
-    gc.setAntialias( antiAliasing );
+    gc.setAntialias( true );
 
     this.noteFontName = noteFontName;
     this.noteFontHeight = noteFontHeight;

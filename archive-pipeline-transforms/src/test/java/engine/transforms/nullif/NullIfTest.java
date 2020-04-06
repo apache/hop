@@ -83,7 +83,7 @@ public class NullIfTest {
   }
 
   private NullIfMeta mockProcessRowMeta() throws HopTransformException {
-    NullIfMeta processRowMeta = smh.processRowsTransformMetaInterface;
+    NullIfMeta processRowMeta = smh.processRowsITransform;
     Field[] fields = createArrayWithOneField( "nullable-field", "nullable-value" );
     doReturn( fields ).when( processRowMeta ).getFields();
     doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
@@ -154,7 +154,7 @@ public class NullIfTest {
   }
 
   private NullIfMeta mockProcessRowMeta2() throws HopTransformException {
-    NullIfMeta processRowMeta = smh.processRowsTransformMetaInterface;
+    NullIfMeta processRowMeta = smh.processRowsITransform;
     Field[] fields = new Field[ 4 ];
     fields[ 0 ] = createArrayWithOneField( "value1", "20150606" )[ 0 ];
     fields[ 1 ] = createArrayWithOneField( "value2", "2015/06/06 00:00:00.000" )[ 0 ];

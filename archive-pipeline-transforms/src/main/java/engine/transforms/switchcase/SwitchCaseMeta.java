@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -61,7 +61,7 @@ import java.util.List;
  *
  */
 @InjectionSupported( groups = {}, localizationPrefix = "SwitchCaseMeta.Injection." )
-public class SwitchCaseMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SwitchCaseMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String XML_TAG_CASE_VALUES = "cases";

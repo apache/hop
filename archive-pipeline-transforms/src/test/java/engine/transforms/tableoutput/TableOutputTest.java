@@ -71,7 +71,7 @@ public class TableOutputTest {
     transformMeta = mock( TransformMeta.class );
     doReturn( "transform" ).when( transformMeta ).getName();
     doReturn( mock( TransformPartitioningMeta.class ) ).when( transformMeta ).getTargetTransformPartitioningMeta();
-    doReturn( tableOutputMeta ).when( transformMeta ).getTransformMetaInterface();
+    doReturn( tableOutputMeta ).when( transformMeta ).getITransform();
 
     db = mock( Database.class );
     doReturn( mock( Connection.class ) ).when( db ).getConnection();

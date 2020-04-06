@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.codehaus.commons.compiler.CompileException;
@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
 
 @InjectionSupported( localizationPrefix = "UserDefinedJavaClass.Injection.", groups = {
   "PARAMETERS", "TARGET_TRANSFORMS", "INFO_TRANSFORMS", "JAVA_CLASSES", "FIELD_INFO" } )
-public class UserDefinedJavaClassMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
 
   public enum ElementNames {

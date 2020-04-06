@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -71,7 +71,7 @@ public class SortRows extends BaseTransform implements ITransform {
                    int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (SortRowsMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (SortRowsMeta) getTransformMeta().getITransform();
     data = (SortRowsData) iTransformData;
   }
 

@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -59,15 +59,15 @@ public class RowGeneratorUnitTest {
   @Before
   public void setUp() throws HopException {
     // add variable to row generator transform
-    TransformMetaInterface transformMetaInterface = spy( new RowGeneratorMeta() );
+    ITransform transformMetaInterface = spy( new RowGeneratorMeta() );
     ( (RowGeneratorMeta) transformMetaInterface ).setRowLimit( "${ROW_LIMIT}" );
     String[] strings = {};
     when( ( (RowGeneratorMeta) transformMetaInterface ).getFieldName() ).thenReturn( strings );
 
     TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setTransformMetaInterface( transformMetaInterface );
+    transformMeta.setITransform( transformMetaInterface );
     transformMeta.setName( "ROW_TRANSFORM_META" );
-    ITransformData iTransformData = transformMeta.getTransformMetaInterface().getTransformData();
+    ITransformData iTransformData = transformMeta.getITransform().getTransformData();
 
     // add variable to pipeline variable space
     Map<String, String> map = new HashMap<>();

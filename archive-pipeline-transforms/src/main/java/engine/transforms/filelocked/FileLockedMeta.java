@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -52,7 +52,7 @@ import java.util.List;
  * @since 03-Juin-2009
  */
 
-public class FileLockedMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class FileLockedMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean addresultfilenames;

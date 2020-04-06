@@ -25,7 +25,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class SetValueConstantMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class SetValueConstantMetaTest implements InitializerInterface<ITransform> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
   Class<SetValueConstantMeta> testMetaClass = SetValueConstantMeta.class;
@@ -77,7 +77,7 @@ public class SetValueConstantMetaTest implements InitializerInterface<TransformM
   }
 
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
   }
 
   @Test

@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 
 public class DatabaseJoinTest {
 
-  DatabaseJoinMeta mockTransformMetaInterface;
+  DatabaseJoinMeta mockITransform;
   DatabaseJoinData mockTransformDataInterface;
   DatabaseJoin mockDatabaseJoin;
 
@@ -65,8 +65,8 @@ public class DatabaseJoinTest {
     when( mockPipelineMeta.findTransform( anyString() ) ).thenReturn( mockTransformMeta );
     when( mockTransformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mockTransformPartitioningMeta );
 
-    mockTransformMetaInterface = mock( DatabaseJoinMeta.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
-    mockTransformDataInterface = mock( DatabaseJoinData.class, withSettings().extraInterfaces( TransformMetaInterface.class ) );
+    mockITransform = mock( DatabaseJoinMeta.class, withSettings().extraInterfaces( ITransform.class ) );
+    mockTransformDataInterface = mock( DatabaseJoinData.class, withSettings().extraInterfaces( ITransform.class ) );
     mockTransformDataInterface.db = mock( Database.class );
     mockTransformDataInterface.pstmt = mock( PreparedStatement.class );
     mockDatabaseJoin = spy( new DatabaseJoin( mockTransformMeta, mockTransformDataInterface, 1, mockPipelineMeta, mockPipeline ) );
@@ -76,7 +76,7 @@ public class DatabaseJoinTest {
   public void testStopRunningWhenTransformIsStopped() throws HopException {
     doReturn( true ).when( mockDatabaseJoin ).isStopped();
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 0 ) ).isDisposed();
@@ -87,7 +87,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockDatabaseJoin ).isStopped();
     doReturn( true ).when( mockTransformDataInterface ).isDisposed();
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -99,7 +99,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( mock( Connection.class ) );
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();
@@ -115,7 +115,7 @@ public class DatabaseJoinTest {
     doReturn( false ).when( mockTransformDataInterface ).isDisposed();
     when( mockTransformDataInterface.db.getConnection() ).thenReturn( null );
 
-    mockDatabaseJoin.stopRunning( mockTransformMetaInterface, mockTransformDataInterface );
+    mockDatabaseJoin.stopRunning( mockITransform, mockTransformDataInterface );
 
     verify( mockDatabaseJoin, times( 1 ) ).isStopped();
     verify( mockTransformDataInterface, times( 1 ) ).isDisposed();

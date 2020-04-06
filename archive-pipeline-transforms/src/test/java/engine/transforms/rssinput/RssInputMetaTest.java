@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class RssInputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class RssInputMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<RssInputMeta> testMetaClass = RssInputMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -103,7 +103,7 @@ public class RssInputMetaTest implements InitializerInterface<TransformMetaInter
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof RssInputMeta ) {
       ( (RssInputMeta) someMeta ).allocate( 5, 5 );
     }

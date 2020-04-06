@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -810,7 +810,7 @@ public class ExcelWriter  extends BaseTransform implements ITransform {
   /**
    * pipeline run initialize, may create the output file if specified by user options
    *
-   * @see org.apache.hop.pipeline.transform.BaseTransform#init(org.apache.hop.pipeline.transform.TransformMetaInterface,
+   * @see org.apache.hop.pipeline.transform.BaseTransform#init(org.apache.hop.pipeline.transform.ITransform,
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override
@@ -838,7 +838,7 @@ public class ExcelWriter  extends BaseTransform implements ITransform {
   /**
    * pipeline run end
    *
-   * @see org.apache.hop.pipeline.transform.BaseTransform#dispose(org.apache.hop.pipeline.transform.TransformMetaInterface,
+   * @see org.apache.hop.pipeline.transform.BaseTransform#dispose(org.apache.hop.pipeline.transform.ITransform,
    * org.apache.hop.pipeline.transform.ITransformData)
    */
   @Override

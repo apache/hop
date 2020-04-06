@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
   private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
@@ -43,7 +43,7 @@ public class UniqueRowsByHashSet extends BaseTransform implements ITransform {
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
-    meta = (UniqueRowsByHashSetMeta) getTransformMeta().getTransformMetaInterface();
+    meta = (UniqueRowsByHashSetMeta) getTransformMeta().getITransform();
     data = (UniqueRowsByHashSetData) iTransformData; // create new data object.
   }
 

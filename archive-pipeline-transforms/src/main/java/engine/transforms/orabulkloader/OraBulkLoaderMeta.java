@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -62,7 +62,7 @@ import java.util.List;
  * @author Sven Boden
  */
 @InjectionSupported( localizationPrefix = "OraBulkLoader.Injection.", groups = { "FIELDS", "DATABASE_FIELDS" } )
-public class OraBulkLoaderMeta extends BaseTransformMeta implements TransformMetaInterface,
+public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   ProvidesDatabaseConnectionInformation {
   private static Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 

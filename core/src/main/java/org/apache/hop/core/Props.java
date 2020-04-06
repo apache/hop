@@ -80,15 +80,14 @@ public class Props implements Cloneable {
   public static final String STRING_GRAPH_COLOR_G = "GraphColorG";
   public static final String STRING_GRAPH_COLOR_B = "GraphColorB";
 
-  public static final String STRING_TAB_COLOR_R = "TabColorR54";
-  public static final String STRING_TAB_COLOR_G = "TabColorG54";
-  public static final String STRING_TAB_COLOR_B = "TabColorB54";
+  public static final String STRING_TAB_COLOR_R = "TabColorR";
+  public static final String STRING_TAB_COLOR_G = "TabColorG";
+  public static final String STRING_TAB_COLOR_B = "TabColorB";
 
-  public static final String STRING_SVG_ENABLED = "EnableSVG";
   public static final String STRING_ZOOM_FACTOR = "ZoomFactor";
   public static final String STRING_ICON_SIZE = "IconSize";
   public static final String STRING_LINE_WIDTH = "LineWidth";
-  public static final String STRING_SHADOW_SIZE = "ShadowSize54";
+  public static final String STRING_SHADOW_SIZE = "ShadowSize";
   public static final String STRING_LOG_LEVEL = "LogLevel";
   public static final String STRING_LOG_FILTER = "LogFilter";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
@@ -117,12 +116,9 @@ public class Props implements Cloneable {
   public static final String STRING_USE_DB_CACHE = "UseDBCache";
   public static final String STRING_OPEN_LAST_FILE = "OpenLastFile";
 
-  public static final String STRING_ONLY_ACTIVE_TRANSFORMS = "OnlyActiveTransforms";
-  public static final String STRING_START_SHOW_REPOSITORIES = "ShowRepositoriesAtStartup";
-  public static final String STRING_ANTI_ALIASING = "EnableAntiAliasing54";
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
-  public static final String STRING_SHOW_OS_LOOK = "ShowOSLook54";
+  public static final String STRING_SHOW_OS_LOOK = "ShowOSLook";
   public static final String STRING_LAST_ARGUMENT = "LastArgument";
 
   public static final String STRING_ARGUMENT_NAME_PREFIX = "Argument ";
@@ -132,10 +128,6 @@ public class Props implements Cloneable {
   public static final String STRING_PLUGIN_HISTORY = "PluginHistory";
 
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
-  public static final String STRING_ONLY_USED_DB_TO_XML = "SaveOnlyUsedConnectionsToXML";
-
-  public static final String STRING_ASK_ABOUT_REPLACING_DATABASES = "AskAboutReplacingDatabases";
-  public static final String STRING_REPLACE_DATABASES = "ReplaceDatabases";
 
   private static final String STRING_MAX_NR_LINES_IN_LOG = "MaxNrOfLinesInLog";
   private static final String STRING_MAX_NR_LINES_IN_HISTORY = "MaxNrOfLinesInHistory";
@@ -313,30 +305,12 @@ public class Props implements Cloneable {
     return !"N".equalsIgnoreCase( use );
   }
 
-  public void setOnlyActiveTransforms( boolean only ) {
-    properties.setProperty( STRING_ONLY_ACTIVE_TRANSFORMS, only ? "Y" : "N" );
-  }
-
-  public boolean getOnlyActiveTransforms() {
-    String only = properties.getProperty( STRING_ONLY_ACTIVE_TRANSFORMS, "N" );
-    return "Y".equalsIgnoreCase( only ); // Default: show active transforms.
-  }
-
-  public boolean askAboutReplacingDatabaseConnections() {
-    String ask = properties.getProperty( STRING_ASK_ABOUT_REPLACING_DATABASES, "N" );
-    return "Y".equalsIgnoreCase( ask );
-  }
-
   public void setProperty( String propertyName, String value ) {
     properties.setProperty( propertyName, value );
   }
 
   public String getProperty( String propertyName ) {
     return properties.getProperty( propertyName );
-  }
-
-  public void setAskAboutReplacingDatabaseConnections( boolean ask ) {
-    properties.setProperty( STRING_ASK_ABOUT_REPLACING_DATABASES, ask ? "Y" : "N" );
   }
 
   /**
@@ -481,24 +455,6 @@ public class Props implements Cloneable {
       ObjectUsageCount usage = pluginHistory.get( i );
       properties.setProperty( STRING_PLUGIN_HISTORY + "_" + i, usage.toString() );
     }
-  }
-
-  public boolean areOnlyUsedConnectionsSavedToXML() {
-    String show = properties.getProperty( STRING_ONLY_USED_DB_TO_XML, "Y" );
-    return "Y".equalsIgnoreCase( show ); // Default: save all connections
-  }
-
-  public void setOnlyUsedConnectionsSavedToXML( boolean onlyUsedConnections ) {
-    properties.setProperty( STRING_ONLY_USED_DB_TO_XML, onlyUsedConnections ? "Y" : "N" );
-  }
-
-  public boolean replaceExistingDatabaseConnections() {
-    String replace = properties.getProperty( STRING_REPLACE_DATABASES, "Y" );
-    return "Y".equalsIgnoreCase( replace );
-  }
-
-  public void setReplaceDatabaseConnections( boolean replace ) {
-    properties.setProperty( STRING_REPLACE_DATABASES, replace ? "Y" : "N" );
   }
 
   public int getMaxNrLinesInLog() {

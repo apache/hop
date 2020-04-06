@@ -67,7 +67,7 @@ public class DimensionLookupTest {
     transformMeta = mock( TransformMeta.class );
     doReturn( "transform" ).when( transformMeta ).getName();
     doReturn( mock( TransformPartitioningMeta.class ) ).when( transformMeta ).getTargetTransformPartitioningMeta();
-    doReturn( dimensionLookupMeta ).when( transformMeta ).getTransformMetaInterface();
+    doReturn( dimensionLookupMeta ).when( transformMeta ).getITransform();
 
     Database db = mock( Database.class );
     doReturn( mock( Connection.class ) ).when( db ).getConnection();

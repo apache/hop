@@ -59,7 +59,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ import java.util.Map;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public class TextFileInputMeta extends BaseTransformMeta implements TransformMetaInterface, InputFileMetaInterface {
+public class TextFileInputMeta extends BaseTransformMeta implements ITransform, InputFileMetaInterface {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {

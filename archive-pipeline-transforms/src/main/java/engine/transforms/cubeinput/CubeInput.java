@@ -36,21 +36,19 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.zip.GZIPInputStream;
 
-public class CubeInput extends BaseTransform implements ITransform {
+public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> implements ITransform<CubeInputMeta, CubeInputData> {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CubeInputMeta meta;
-  private CubeInputData data;
   private int realRowLimit;
 
-  public CubeInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public CubeInput( TransformMeta transformMeta, CubeInputMeta meta, CubeInputData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -63,7 +61,6 @@ public class CubeInput extends BaseTransform implements ITransform {
       data = (CubeInputData) sdi;
       realRowLimit = Const.toInt( environmentSubstitute( meta.getRowLimit() ), 0 );
     }
-
 
     try {
       Object[] r = data.meta.readData( data.dis );
@@ -91,8 +88,6 @@ public class CubeInput extends BaseTransform implements ITransform {
   }
 
   @Override public boolean init() {
-    meta = (CubeInputMeta) smi;
-    data = (CubeInputData) sdi;
 
     if ( super.init() ) {
       try {
@@ -127,8 +122,6 @@ public class CubeInput extends BaseTransform implements ITransform {
   }
 
   @Override public void.dispose() {
-    meta = (CubeInputMeta) smi;
-    data = (CubeInputData) sdi;
 
     try {
       if ( data.dis != null ) {

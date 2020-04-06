@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
@@ -59,7 +59,7 @@ import java.util.zip.GZIPInputStream;
  * Created on 2-jun-2003
  *
  */
-public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<CubeInput, CubeInputData> {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
@@ -205,12 +205,12 @@ public class CubeInputMeta extends BaseTransformMeta implements TransformMetaInt
     remarks.add( cr );
   }
 
-  @Override public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
+  @Override public CubeInput getTransform( TransformMeta transformMeta, CubeInputData data, int cnr, PipelineMeta tr,
                                           Pipeline pipeline ) {
     return new CubeInput( transformMeta, this, data, cnr, tr, pipeline );
   }
 
-  @Override public ITransformData getTransformData() {
+  @Override public CubeInputData getTransformData() {
     return new CubeInputData();
   }
 

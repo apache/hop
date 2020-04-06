@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.RowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -56,7 +56,7 @@ import static org.junit.Assert.assertNotNull;
  * Base class for all tests for BaseFileInput transforms.
  */
 @Ignore( "No tests in abstract base class" )
-public abstract class BaseParsingTest<Meta extends TransformMetaInterface, Data extends ITransformData, Transform extends BaseTransform> {
+public abstract class BaseParsingTest<Meta extends ITransform, Data extends ITransformData, Transform extends BaseTransform> {
 
   protected LogChannelInterface log = new LogChannel( "junit" );
   protected FileSystemManager fs;

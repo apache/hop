@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.sql.ResultSet;
 
@@ -190,7 +190,7 @@ public class DatabaseJoin extends BaseTransform implements ITransform {
    * <p>
    * To cancel a prepared statement we need a valid database connection which we do not have if disposed has already been called
    */
-  public synchronized void stopRunning( TransformMetaInterface smi, ITransformData sdi ) throws HopException {
+  public synchronized void stopRunning( ITransform smi, ITransformData sdi ) throws HopException {
     if ( this.isStopped() || sdi.isDisposed() ) {
       return;
     }

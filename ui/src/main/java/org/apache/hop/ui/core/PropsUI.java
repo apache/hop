@@ -498,15 +498,6 @@ public class PropsUI extends Props {
     return new RGB( r, g, b );
   }
 
-  public boolean isSVGEnabled() {
-    String enabled = properties.getProperty( STRING_SVG_ENABLED, YES );
-    return YES.equalsIgnoreCase( enabled ); // Default: svg is enabled
-  }
-
-  public void setSVGEnabled( boolean svg ) {
-    properties.setProperty( STRING_SVG_ENABLED, svg ? YES : NO );
-  }
-
   public void setIconSize( int size ) {
     properties.setProperty( STRING_ICON_SIZE, "" + size );
   }
@@ -678,22 +669,8 @@ public class PropsUI extends Props {
     return YES.equalsIgnoreCase( autoCollapse ); // Default = OFF
   }
 
-  public boolean showRepositoriesDialogAtStartup() {
-    String show = properties.getProperty( STRING_START_SHOW_REPOSITORIES, NO );
-    return YES.equalsIgnoreCase( show ); // Default: show warning before tool exit.
-  }
-
   public void setExitWarningShown( boolean show ) {
     properties.setProperty( STRING_SHOW_EXIT_WARNING, show ? YES : NO );
-  }
-
-  public boolean isAntiAliasingEnabled() {
-    String anti = properties.getProperty( STRING_ANTI_ALIASING, YES );
-    return YES.equalsIgnoreCase( anti ); // Default: don't do anti-aliasing
-  }
-
-  public void setAntiAliasingEnabled( boolean anti ) {
-    properties.setProperty( STRING_ANTI_ALIASING, anti ? YES : NO );
   }
 
   public boolean isShowCanvasGridEnabled() {
@@ -708,10 +685,6 @@ public class PropsUI extends Props {
   public boolean showExitWarning() {
     String show = properties.getProperty( STRING_SHOW_EXIT_WARNING, YES );
     return YES.equalsIgnoreCase( show ); // Default: show repositories dialog at startup
-  }
-
-  public void setRepositoriesDialogAtStartupShown( boolean show ) {
-    properties.setProperty( STRING_START_SHOW_REPOSITORIES, show ? YES : NO );
   }
 
   public boolean isOSLookShown() {
@@ -859,14 +832,6 @@ public class PropsUI extends Props {
     properties.setProperty( STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING, show ? YES : NO );
   }
 
-  public boolean showWelcomePageOnStartup() {
-    String show = properties.getProperty( STRING_SHOW_WELCOME_PAGE_ON_STARTUP, YES );
-    return YES.equalsIgnoreCase( show );
-  }
-
-  public void setShowWelcomePageOnStartup( boolean show ) {
-    properties.setProperty( STRING_SHOW_WELCOME_PAGE_ON_STARTUP, show ? YES : NO );
-  }
 
   public int getJobsDialogStyle() {
     String prop = properties.getProperty( "JobDialogStyle" );
@@ -912,24 +877,6 @@ public class PropsUI extends Props {
     }
 
     shell.setSize( Integer.parseInt( xy[ 0 ] ), Integer.parseInt( xy[ 1 ] ) );
-  }
-
-  public boolean isBrandingActive() {
-    String show = properties.getProperty( STRING_SHOW_BRANDING_GRAPHICS, NO );
-    return YES.equalsIgnoreCase( show );
-  }
-
-  public void setBrandingActive( boolean active ) {
-    properties.setProperty( STRING_SHOW_BRANDING_GRAPHICS, active ? YES : NO );
-  }
-
-  public boolean isOnlyActiveFileShownInTree() {
-    String show = properties.getProperty( STRING_ONLY_SHOW_ACTIVE_FILE, YES );
-    return YES.equalsIgnoreCase( show );
-  }
-
-  public void setOnlyActiveFileShownInTree( boolean show ) {
-    properties.setProperty( STRING_ONLY_SHOW_ACTIVE_FILE, show ? YES : NO );
   }
 
   public boolean showToolTips() {

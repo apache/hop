@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.switchcase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -79,7 +79,7 @@ public class SwitchCaseMetaTest {
     FieldLoadSaveValidatorFactory validatorFactory = loadSaveTester.getFieldLoadSaveValidatorFactory();
 
     FieldLoadSaveValidator<SwitchCaseTarget> targetValidator = new FieldLoadSaveValidator<SwitchCaseTarget>() {
-      private final TransformMetaInterface targetTransformInterface = new DummyMeta();
+      private final ITransform targetTransformInterface = new DummyMeta();
 
       @Override
       public SwitchCaseTarget getTestObject() {
@@ -114,7 +114,7 @@ public class SwitchCaseMetaTest {
 
   @Test
   public void testsearchInfoAndTargetTransformsTwice() {
-    TransformMetaInterface defTransform = new DummyMeta();
+    ITransform defTransform = new DummyMeta();
     TransformMeta transformMeta = new TransformMeta( "id", "default", defTransform );
 
     SwitchCaseMeta meta = new SwitchCaseMeta();

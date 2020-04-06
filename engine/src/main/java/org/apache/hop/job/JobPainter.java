@@ -61,10 +61,9 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   public JobPainter( IGC gc, JobMeta jobMeta, Point area, IScrollBar hori,
                      IScrollBar vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
                      List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                     int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
-    super(
-      gc, jobMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
-      shadowSize, antiAliasing, noteFontName, noteFontHeight, zoomFactor );
+                     int shadowSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
+    super( gc, jobMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
+      shadowSize, noteFontName, noteFontHeight, zoomFactor );
     this.jobMeta = jobMeta;
 
     this.candidate = candidate;

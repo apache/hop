@@ -55,7 +55,7 @@ import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.common.CsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.InputFileMetaInterface;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputField;
@@ -72,7 +72,7 @@ import java.util.Map;
  * @since 2007-07-05
  */
 
-public class CsvInputMeta extends BaseTransformMeta implements TransformMetaInterface, InputFileMetaInterface,
+public class CsvInputMeta extends BaseTransformMeta implements ITransform, InputFileMetaInterface,
   TransformMetaInjectionInterface, CsvInputAwareMeta {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 

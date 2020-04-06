@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.RowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
@@ -288,7 +288,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
     super.dispose();
   }
 
-  public void stopRunning( TransformMetaInterface transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
     if ( getData().mappingPipeline != null ) {
       getData().mappingPipeline.stopAll();
     }

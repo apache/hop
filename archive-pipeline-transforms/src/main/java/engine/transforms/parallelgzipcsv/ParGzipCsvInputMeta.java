@@ -52,7 +52,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaInjectionInterface;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.fileinput.InputFileMetaInterface;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputField;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
@@ -68,7 +68,7 @@ import java.util.Map;
  * @since 2009-03-06
  */
 
-public class ParGzipCsvInputMeta extends BaseTransformMeta implements TransformMetaInterface, InputFileMetaInterface {
+public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform, InputFileMetaInterface {
   private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private String filename;

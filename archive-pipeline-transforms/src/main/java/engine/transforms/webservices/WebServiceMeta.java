@@ -40,14 +40,14 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class WebServiceMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class WebServiceMeta extends BaseTransformMeta implements ITransform {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
   public static final int DEFAULT_TRANSFORM = 1000;

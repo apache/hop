@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformInjectionMetaEntry;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -56,7 +56,7 @@ import java.util.Objects;
  * Created on 22-feb-2007
  */
 
-public class JaninoMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class JaninoMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!
 
   /**

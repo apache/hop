@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -62,7 +62,7 @@ import java.util.Map;
  *
  */
 
-public class SQLFileOutputMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;

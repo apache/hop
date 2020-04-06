@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -51,7 +51,7 @@ import java.util.List;
  *
  * @since 08 september 2005
  */
-public class CalculatorMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class CalculatorMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   /**

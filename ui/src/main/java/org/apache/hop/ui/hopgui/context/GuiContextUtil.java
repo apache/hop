@@ -3,6 +3,7 @@ package org.apache.hop.ui.hopgui.context;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -74,7 +75,8 @@ public class GuiContextUtil {
       ContextDialog contextDialog = new ContextDialog( parent, message, clickLocation, actions );
       GuiAction selectedAction = contextDialog.open();
       if ( selectedAction != null ) {
-        selectedAction.getActionLambda().executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+        IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+        actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
       }
     } catch ( Exception e ) {
       new ErrorDialog( parent, "Error", "An error occurred executing action", e );

@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
@@ -65,7 +65,7 @@ import java.util.Optional;
  *
  */
 @InjectionSupported( localizationPrefix = "FilterRowsMeta.Injection." )
-public class FilterRowsMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class FilterRowsMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**

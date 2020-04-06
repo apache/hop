@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -53,7 +53,7 @@ import java.util.List;
  */
 
 @InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
-public class NullIfMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class NullIfMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
 
   public static class Field implements Cloneable {

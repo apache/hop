@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -57,7 +57,7 @@ import java.util.Locale;
  * Created on 02-jun-2003
  */
 @InjectionSupported( localizationPrefix = "SortRows.Injection.", groups = { "FIELDS" } )
-public class SortRowsMeta extends BaseTransformMeta implements TransformMetaInterface, Serializable {
+public class SortRowsMeta extends BaseTransformMeta implements ITransform, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -57,7 +57,7 @@ import java.util.List;
  *
  */
 
-public class SSHMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SSHMeta extends BaseTransformMeta implements ITransform {
   static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
   private static int DEFAULT_PORT = 22;
 

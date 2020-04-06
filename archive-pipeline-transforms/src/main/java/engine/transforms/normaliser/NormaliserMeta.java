@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ import java.util.Set;
  **/
 
 @InjectionSupported( localizationPrefix = "NormaliserMeta.Injection.", groups = { "FIELDS" } )
-public class NormaliserMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class NormaliserMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private String typeField; // Name of the new type-field.

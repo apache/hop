@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -47,7 +47,7 @@ import java.util.List;
  * <p>
  * Created on 27-apr-2006
  */
-public class SetVariableMeta extends BaseTransformMeta implements TransformMetaInterface {
+public class SetVariableMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int VARIABLE_TYPE_JVM = 0;

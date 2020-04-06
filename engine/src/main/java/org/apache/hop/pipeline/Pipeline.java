@@ -1216,7 +1216,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
       // Just for safety, fire the pipeline finished listeners...
       try {
-        firePipelineFinishedListeners();
+        firePipelineExecutionListeners();
       } catch ( HopException e ) {
         // listeners produces errors
         log.logError( BaseMessages.getString( PKG, "Pipeline.FinishListeners.Exception" ) );
@@ -1257,7 +1257,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStartThreads.id, this );
 
-    firePipelineStartedListeners();
+    firePipelineExecutionStartedListeners();
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       final TransformMetaDataCombi sid = transforms.get( i );
@@ -1296,7 +1296,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
               addTransformPerformanceSnapShot();
 
               try {
-                firePipelineFinishedListeners();
+                firePipelineExecutionListeners();
               } catch ( Exception e ) {
                 transform.setErrors( transform.getErrors() + 1L );
                 log.logError( getName() + " : " + BaseMessages.getString( PKG,
@@ -1456,7 +1456,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStart.id, this );
 
     if ( transforms.isEmpty() ) {
-      firePipelineFinishedListeners();
+      firePipelineExecutionListeners();
     }
 
     if ( log.isDetailed() ) {
@@ -1470,7 +1470,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @throws HopException if any errors occur during notification
    */
-  protected void firePipelineFinishedListeners() throws HopException {
+  protected void firePipelineExecutionListeners() throws HopException {
     // PDI-5229 sync added
     synchronized ( executionListeners ) {
       if ( executionListeners.size() == 0 ) {
@@ -1501,7 +1501,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @throws HopException if any errors occur during notification
    */
-  protected void firePipelineStartedListeners() throws HopException {
+  protected void firePipelineExecutionStartedListeners() throws HopException {
     // PDI-5229 sync added
     synchronized ( executionListeners ) {
       for ( IExecutionListener executionListener : executionListeners ) {
@@ -2145,7 +2145,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
             };
             timer.schedule( timerTask, intervalInSeconds * 1000, intervalInSeconds * 1000 );
 
-            addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+            addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
               @Override
               public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
                 timer.cancel();
@@ -2155,7 +2155,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
           // Add a listener to make sure that the last record is also written when pipeline finishes...
           //
-          addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
               try {
@@ -2177,7 +2177,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         //
         TransformLogTable transformLogTable = pipelineMeta.getTransformLogTable();
         if ( transformLogTable.isDefined() ) {
-          addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
               try {
@@ -2194,7 +2194,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         //
         ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
         if ( channelLogTable.isDefined() ) {
-          addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
               try {
@@ -2231,7 +2231,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
           };
           timer.schedule( timerTask, perfLogInterval * 1000, perfLogInterval * 1000 );
 
-          addPipelineListener( new ExecutionAdapter<PipelineMeta>() {
+          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
             @Override
             public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
               timer.cancel();
@@ -3743,7 +3743,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @param executionListener the pipeline listener
    */
-  public void addPipelineListener( IExecutionListener executionListener ) {
+  public void addExecutionListener( IExecutionListener executionListener ) {
     // PDI-5229 sync added
     synchronized ( executionListeners ) {
       executionListeners.add( executionListener );
@@ -4757,7 +4757,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   @Override public void addFinishedListener( IFinishedListener listener ) throws HopException {
-    addPipelineListener( new ExecutionAdapter() {
+    addExecutionListener( new ExecutionAdapter() {
       @Override public void finished( IPipelineEngine engine ) throws HopException {
         listener.finished( engine );
       }

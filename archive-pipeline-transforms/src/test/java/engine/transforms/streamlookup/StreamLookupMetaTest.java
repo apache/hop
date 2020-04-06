@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -51,7 +51,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class StreamLookupMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class StreamLookupMetaTest implements InitializerInterface<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<StreamLookupMeta> testMetaClass = StreamLookupMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -84,7 +84,7 @@ public class StreamLookupMetaTest implements InitializerInterface<TransformMetaI
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( TransformMetaInterface someMeta ) {
+  public void modify( ITransform someMeta ) {
     if ( someMeta instanceof StreamLookupMeta ) {
       ( (StreamLookupMeta) someMeta ).allocate( 5, 5 );
     }

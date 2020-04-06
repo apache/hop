@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformMetaInterface;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -56,7 +56,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class PropertyInputMetaTest implements InitializerInterface<TransformMetaInterface> {
+public class PropertyInputMetaTest implements InitializerInterface<ITransform> {
   Class<PropertyInputMeta> testMetaClass = PropertyInputMeta.class;
   LoadSaveTester loadSaveTester;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -161,7 +161,7 @@ public class PropertyInputMetaTest implements InitializerInterface<TransformMeta
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( TransformMetaInterface propInputMeta ) {
+  public void modify( ITransform propInputMeta ) {
     if ( propInputMeta instanceof PropertyInputMeta ) {
       ( (PropertyInputMeta) propInputMeta ).allocate( 5, 5 );
     }
