@@ -15,7 +15,6 @@
   </parent>
 
   <properties>
-    <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
 
     <!-- swt -->
     <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
@@ -71,12 +70,6 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>oss-licenses</artifactId>
-      <version>${oss-licenses.version}</version>
-      <type>zip</type>
     </dependency>
     <!-- swt -->
     <dependency>
