@@ -120,7 +120,7 @@
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
     <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
     <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
     <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
@@ -792,6 +792,20 @@
         <configuration>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
         </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>dependencies</report>
+              <report>cim</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+              <report>scm</report>
+              <report>dependency-convergence</report>
+              <report>dependency-management</report>
+              <report>index</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -801,6 +815,22 @@
 <!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
           <show>public</show>
         </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate-no-fork</report>
+              <report>test-aggregate-no-fork</report>
+            </reports>
+            </reportSet>
+            <reportSet>
+              <id>default</id>
+              <reports>
+                <report>javadoc</report>
+              </reports>
+            </reportSet>
+        </reportSets>
       </plugin>
     </plugins>
   </reporting>
