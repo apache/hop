@@ -46,8 +46,7 @@ public class CheckSumMetaTest implements IInitializerInterface<CheckSumMeta> {
   // Call the allocate method on the LoadSaveTester meta class
   @Override
   public void modify( CheckSumMeta someMeta ) {
-    someMeta.allocate( 5 );
-  }
+    someMeta.allocate( 7 );  }
 
   @Test
   public void testConstants() {
@@ -61,13 +60,17 @@ public class CheckSumMetaTest implements IInitializerInterface<CheckSumMeta> {
     assertEquals( "SHA-1", CheckSumMeta.checksumtypeCodes[ 3 ] );
     assertEquals( "SHA-256", CheckSumMeta.TYPE_SHA256 );
     assertEquals( "SHA-256", CheckSumMeta.checksumtypeCodes[ 4 ] );
+    assertEquals( "SHA-384", CheckSumMeta.TYPE_SHA384 );
+    assertEquals( "SHA-384", CheckSumMeta.checksumtypeCodes[ 5 ] );
+    assertEquals( "SHA-512", CheckSumMeta.TYPE_SHA512 );
+    assertEquals( "SHA-512", CheckSumMeta.checksumtypeCodes[ 6 ] );
     assertEquals( CheckSumMeta.checksumtypeCodes.length, CheckSumMeta.checksumtypeDescs.length );
   }
 
   @Test
   public void testSerialization() throws HopException {
     List<String> attributes =
-      Arrays.asList( "FieldName", "ResultFieldName", "CheckSumType", "CompatibilityMode", "ResultType", "oldChecksumBehaviour" );
+      Arrays.asList( "FieldName", "ResultFieldName", "CheckSumType", "ResultType" );
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();

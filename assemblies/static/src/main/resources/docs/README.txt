@@ -1,4 +1,7 @@
-All available (free) documentation for Pentaho Data Integration can be found on our wiki:
+Check the Project Hop website for documentation: 
 
-   http://wiki.pentaho.com/display/EAI/
-
+- Getting Started: https://www.project-hop.org/docs/getting-started/
+- User Manual: https://www.project-hop.org/manual/latest/
+- Technical Documentation: https://www.project-hop.org/tech-manual/latest/
+- Developer Documentation: https://www.project-hop.org/dev-manual/latest/
+- Architecture: https://www.project-hop.org/docs/architecture/

@@ -84,14 +84,6 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
   private Text wResult;
   private FormData fdlResult, fdResult;
 
-  private Label wlCompatibility;
-  private Button wCompatibility;
-  private FormData fdlCompatibility, fdCompatibility;
-
-  private Label wlOldChecksumBehaviour;
-  private Button wOldChecksumBehaviour;
-  private FormData fdlOldChecksumBehaviour, fdOldChecksumBehaviour;
-
   private ColumnInfo[] colinf;
 
   private Map<String, Integer> inputFields;
@@ -203,7 +195,6 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
       @Override
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
-        activeHexa();
       }
     } );
 
@@ -234,62 +225,13 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
 
     setButtonPositions( new Button[] { wOK, wGet, wCancel }, margin, null );
 
-    // Are we operating in compatibility mode?
-    wlCompatibility = new Label( shell, SWT.RIGHT );
-    wlCompatibility.setText( BaseMessages.getString( PKG, "CheckSumDialog.CompatibilityMode.Label" ) );
-    props.setLook( wlCompatibility );
-    fdlCompatibility = new FormData();
-    fdlCompatibility.left = new FormAttachment( 0, 0 );
-    fdlCompatibility.top = new FormAttachment( wResult, margin );
-    fdlCompatibility.right = new FormAttachment( middle, -margin );
-    wlCompatibility.setLayoutData( fdlCompatibility );
-    wCompatibility = new Button( shell, SWT.CHECK );
-    wCompatibility.setToolTipText( BaseMessages.getString( PKG, "CheckSumDialog.CompatibilityMode.Tooltip" ) );
-    props.setLook( wCompatibility );
-    fdCompatibility = new FormData();
-    fdCompatibility.left = new FormAttachment( middle, 0 );
-    fdCompatibility.top = new FormAttachment( wResult, margin );
-    fdCompatibility.right = new FormAttachment( 100, 0 );
-    wCompatibility.setLayoutData( fdCompatibility );
-    SelectionAdapter lsSelR = new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        input.setChanged();
-      }
-    };
-    wCompatibility.addSelectionListener( lsSelR );
-
-    wlOldChecksumBehaviour = new Label( shell, SWT.RIGHT );
-    wlOldChecksumBehaviour.setText( BaseMessages.getString( PKG, "CheckSumDialog.OldChecksumBehaviourMode.Label" ) );
-    props.setLook( wlOldChecksumBehaviour );
-    fdlOldChecksumBehaviour = new FormData();
-    fdlOldChecksumBehaviour.left = new FormAttachment( 0, 0 );
-    fdlOldChecksumBehaviour.top = new FormAttachment( wCompatibility, margin );
-    fdlOldChecksumBehaviour.right = new FormAttachment( middle, -margin );
-    wlOldChecksumBehaviour.setLayoutData( fdlOldChecksumBehaviour );
-    wOldChecksumBehaviour = new Button( shell, SWT.CHECK );
-    wOldChecksumBehaviour.setToolTipText( BaseMessages.getString( PKG, "CheckSumDialog.OldChecksumBehaviourMode.Tooltip" ) );
-    props.setLook( wOldChecksumBehaviour );
-    fdOldChecksumBehaviour = new FormData();
-    fdOldChecksumBehaviour.left = new FormAttachment( middle, 0 );
-    fdOldChecksumBehaviour.top = new FormAttachment( wCompatibility, margin );
-    fdOldChecksumBehaviour.right = new FormAttachment( 100, 0 );
-    wOldChecksumBehaviour.setLayoutData( fdOldChecksumBehaviour );
-    wOldChecksumBehaviour.addSelectionListener( new SelectionAdapter() {
-
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
-
     // Table with fields
     wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "CheckSumDialog.Fields.Label" ) );
     props.setLook( wlFields );
     fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wCompatibility, margin );
+    fdlFields.top = new FormAttachment( wResult, margin );
     wlFields.setLayoutData( fdlFields );
 
     final int FieldsCols = 1;
@@ -380,8 +322,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // Set the shell size, based upon previous time...
     setSize();
 
-    getData();
-    activeHexa();
+    getData();    
     activeResultType();
     input.setChanged( changed );
 
@@ -396,7 +337,8 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
 
   private void activeResultType() {
     int currentType = wType.getSelectionIndex();
-    boolean active = currentType == 2 || currentType == 3 || currentType == 4;
+    // Only available for type MD5 and SHA
+    boolean active = currentType == 2 || currentType == 3 || currentType == 4 || currentType == 5 || currentType == 6;
     wlResultType.setEnabled( active );
     wResultType.setEnabled( active );
   }
@@ -447,9 +389,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
       wResult.setText( input.getResultFieldName() );
     }
     wResultType.setText( input.getResultTypeDesc( input.getResultType() ) );
-    wCompatibility.setSelection( input.isCompatibilityMode() );
-    wOldChecksumBehaviour.setSelection( input.isOldChecksumBehaviour() );
-
+   
     Table table = wFields.table;
     if ( input.getFieldName().length > 0 ) {
       table.removeAll();
@@ -488,9 +428,6 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     input.setResultFieldName( wResult.getText() );
     input.setResultType( input.getResultTypeByDesc( wResultType.getText() ) );
 
-    input.setCompatibilityMode( wCompatibility.getSelection() );
-    input.setOldChecksumBehaviour( wOldChecksumBehaviour.getSelection() );
-
     int nrFields = wFields.nrNonEmpty();
     input.allocate( nrFields );
     for ( int i = 0; i < nrFields; i++ ) {
@@ -499,12 +436,5 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
       input.getFieldName()[ i ] = ti.getText( 1 );
     }
     dispose();
-  }
-
-  private void activeHexa() {
-    boolean activate =
-      ( input.getResultTypeByDesc( wResultType.getText() ) == input.getResultTypeByDesc( "hexadecimal" ) );
-    wlCompatibility.setEnabled( activate );
-    wCompatibility.setEnabled( activate );
   }
 }

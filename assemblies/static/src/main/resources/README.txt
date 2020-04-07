@@ -1,23 +1,39 @@
+----------------------------------------------------------------------
+--                      Welcome to Project Hop                      -- 
+----------------------------------------------------------------------
 
-Please use https://community.hitachivantara.com/community/products-and-solutions/pentaho/ for questions. If you find a defect, please report it in our JIRA system at https://jira.pentaho.com. If you are a subscription customer, please contact Pentaho Support for assistance.
-
-
-Installation instructions:
-
-  OS X:
-    - You can launch Spoon by navigating to the folder this "read me" file is located in and double clicking on the "Data Integration" application icon, depending on your system.
-  Ubuntu 16.04 and later:
-    - The libwebkitgtk package needs to be installed.  This can be done by running "apt-get install libwebkitgtk-1.0.0"
-    - On some installations of Ubuntu 16.04, Unity doesn't display the menu bar. In order to fix that, hopUi.sh has a setting to disable this integration, "export UBUNTU_MENUPROXY=0". You can try to remove that setting if you wish to see if it works propery on your machine
-  CentOS 6 Desktop:
-    - The libwebkitgtk package needs to be installed.  This can be done by running "yum install libwebkitgtk"
+Below are some useful resources to get started with Hop
 
 
-Infobright Bulk Loader:
+-- Getting Started -- 
+---------------------
+- unzip your downloaded Hop zip file to a folder on your system
+- move into the newly create 'hop' folder
 
-  For Windows, make sure to copy the appropriate file for your computer to your Windows system path (for example %WINDIR%/System32/): 
+To start the Hop Gui: 
+- OS X, Linux: run hop-gui.sh 
+- Windows: run hop-gui.bat 
 
-    libswt/win32/infobright_jni_64bit.dll (Windows 64-bit)
-    libswt/win32/infobright_jni.dll       (Windows 32-bit)
+To start the Hop Translator: 
+- OS X, Linux: run hop-translator.sh 
 
-  Rename the file to: infobright_jni.dll
+
+-- Get Help -- 
+--------------
+Chat:    https://chat.project-hop.org/
+Forums:  https://forum.project-hop.org/  
+JIRA:    https://jira.project-hop.org/ (please help us to continuously improve Hop by filing bugs and creating feature requests)
+
+
+-- Code -- 
+----------
+Check out the source code: https://github.com/project-hop/hop
+
+
+-- Social Media -- 
+------------------
+Follow us on social media: 
+Twitter: @projhop 
+LinkedIn: https://www.linkedin.com/company/hop-project
+Facebook: https://www.facebook.com/Project-Hop-114966486808881
+
