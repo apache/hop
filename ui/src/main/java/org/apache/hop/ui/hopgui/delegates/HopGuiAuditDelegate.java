@@ -1,5 +1,6 @@
 package org.apache.hop.ui.hopgui.delegates;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
@@ -70,7 +71,9 @@ public class HopGuiAuditDelegate {
 
         for (String filename : auditList.getNames()) {
           try {
-            hopGui.fileDelegate.fileOpen( filename );
+            if (StringUtils.isNotEmpty( filename )) {
+              hopGui.fileDelegate.fileOpen( filename );
+            }
           } catch(Exception e) {
             new ErrorDialog(hopGui.getShell(), "Error", "Error opening file '"+filename+"'", e);
           }
@@ -96,7 +99,9 @@ public class HopGuiAuditDelegate {
         //
         List<String> files = new ArrayList<>();
         for ( TabItemHandler tabItem : tabItems ) {
-          files.add( tabItem.getTypeHandler().getFilename() );
+          if (StringUtils.isNotEmpty(tabItem.getTypeHandler().getFilename())) {
+            files.add( tabItem.getTypeHandler().getFilename() );
+          }
         }
         AuditList auditList = new AuditList( hopGui.getNamespace(), perspective.getId(), files );
         try {

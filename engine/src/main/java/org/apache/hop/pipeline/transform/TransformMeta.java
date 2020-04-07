@@ -77,7 +77,7 @@ public class TransformMeta implements
 
   public static final String STRING_ID_ETL_META_INJECT = "MetaInject";
 
-  public static final String STRING_ID_JOB_EXECUTOR = "JobExecutor";
+  public static final String STRING_ID_JOB_EXECUTOR = "WorkflowExecutor";
 
   public static final String STRING_ID_MAPPING_INPUT = "MappingInput";
 

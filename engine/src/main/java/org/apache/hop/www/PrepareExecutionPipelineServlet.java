@@ -70,7 +70,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -97,7 +97,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">text:</td>
@@ -123,7 +123,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

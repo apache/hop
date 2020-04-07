@@ -36,7 +36,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class HopServerSingleton {
   private ILogChannel log;
 
   private PipelineMap pipelineMap;
-  private JobMap jobMap;
+  private WorkflowMap workflowMap;
   private List<SlaveServerDetection> detections;
   private SocketRepository socketRepository;
 
@@ -68,12 +68,12 @@ public class HopServerSingleton {
     this.log = new LogChannel( "HopServer" );
     pipelineMap = new PipelineMap();
     pipelineMap.setSlaveServerConfig( config );
-    jobMap = new JobMap();
-    jobMap.setSlaveServerConfig( config );
+    workflowMap = new WorkflowMap();
+    workflowMap.setSlaveServerConfig( config );
     detections = new ArrayList<SlaveServerDetection>();
     socketRepository = new SocketRepository( log );
 
-    installPurgeTimer( config, log, pipelineMap, jobMap );
+    installPurgeTimer( config, log, pipelineMap, workflowMap );
 
     SlaveServer slaveServer = config.getSlaveServer();
     if ( slaveServer != null ) {
@@ -119,7 +119,7 @@ public class HopServerSingleton {
   }
 
   public static void installPurgeTimer( final SlaveServerConfig config, final ILogChannel log,
-                                        final PipelineMap pipelineMap, final JobMap jobMap ) {
+                                        final PipelineMap pipelineMap, final WorkflowMap workflowMap ) {
 
     final int objectTimeout;
     String systemTimeout = EnvUtil.getSystemProperty( Const.HOP_CARTE_OBJECT_TIMEOUT_MINUTES, null );
@@ -181,28 +181,28 @@ public class HopServerSingleton {
                 }
               }
 
-              // And the jobs...
+              // And the workflows...
               //
-              for ( HopServerObjectEntry entry : jobMap.getJobObjects() ) {
-                Job job = jobMap.getJob( entry );
+              for ( HopServerObjectEntry entry : workflowMap.getWorkflowObjects() ) {
+                Workflow workflow = workflowMap.getWorkflow( entry );
 
-                // See if the job is finished or stopped.
+                // See if the workflow is finished or stopped.
                 //
-                if ( job != null && ( job.isFinished() || job.isStopped() ) && job.getLogDate() != null ) {
+                if ( workflow != null && ( workflow.isFinished() || workflow.isStopped() ) && workflow.getLogDate() != null ) {
                   // check the last log time
                   //
                   int diffInMinutes =
-                    (int) Math.floor( ( System.currentTimeMillis() - job.getLogDate().getTime() ) / 60000 );
+                    (int) Math.floor( ( System.currentTimeMillis() - workflow.getLogDate().getTime() ) / 60000 );
                   if ( diffInMinutes >= objectTimeout ) {
-                    // Let's remove this from the job map...
+                    // Let's remove this from the workflow map...
                     //
-                    String id = jobMap.getJob( entry ).getLogChannelId();
+                    String id = workflowMap.getWorkflow( entry ).getLogChannelId();
                     LoggingRegistry.getInstance().removeLogChannelFileWriterBuffer( id );
 
-                    jobMap.removeJob( entry );
+                    workflowMap.removeJob( entry );
 
-                    log.logMinimal( "Cleaned up job "
-                      + entry.getName() + " with id " + entry.getId() + " from " + job.getLogDate() );
+                    log.logMinimal( "Cleaned up workflow "
+                      + entry.getName() + " with id " + entry.getId() + " from " + workflow.getLogDate() );
                   }
                 }
               }
@@ -254,12 +254,12 @@ public class HopServerSingleton {
     this.pipelineMap = pipelineMap;
   }
 
-  public JobMap getJobMap() {
-    return jobMap;
+  public WorkflowMap getWorkflowMap() {
+    return workflowMap;
   }
 
-  public void setJobMap( JobMap jobMap ) {
-    this.jobMap = jobMap;
+  public void setWorkflowMap( WorkflowMap workflowMap ) {
+    this.workflowMap = workflowMap;
   }
 
   public List<SlaveServerDetection> getDetections() {

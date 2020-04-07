@@ -206,9 +206,9 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
       variablesMap.putAll( newVariables );
     }
 
-    // Also add the internal job variables if these are set...
+    // Also add the internal workflow variables if these are set...
     //
-    for ( String variableName : Const.INTERNAL_JOB_VARIABLES ) {
+    for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
       String value = pipelineMeta.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );
@@ -239,9 +239,9 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
       variablesMap.putAll( newVariables );
     }
 
-    // Also add the internal job variables if these are set...
+    // Also add the internal workflow variables if these are set...
     //
-    for ( String variableName : Const.INTERNAL_JOB_VARIABLES ) {
+    for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
       String value = pipelineMeta.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );

@@ -37,7 +37,7 @@ public class BaseHttpServlet extends HttpServlet {
   protected static final long serialVersionUID = -1348342810327662788L;
 
   protected PipelineMap pipelineMap;
-  protected JobMap jobMap;
+  protected WorkflowMap workflowMap;
   protected SocketRepository socketRepository;
   protected List<SlaveServerDetection> detections;
 
@@ -60,14 +60,14 @@ public class BaseHttpServlet extends HttpServlet {
     this.jettyMode = true;
   }
 
-  public BaseHttpServlet( JobMap jobMap ) {
-    this.jobMap = jobMap;
+  public BaseHttpServlet( WorkflowMap workflowMap ) {
+    this.workflowMap = workflowMap;
     this.jettyMode = true;
   }
 
-  public BaseHttpServlet( PipelineMap pipelineMap, JobMap jobMap ) {
+  public BaseHttpServlet( PipelineMap pipelineMap, WorkflowMap workflowMap ) {
     this.pipelineMap = pipelineMap;
-    this.jobMap = jobMap;
+    this.workflowMap = workflowMap;
     this.jettyMode = true;
   }
 
@@ -77,8 +77,8 @@ public class BaseHttpServlet extends HttpServlet {
     this.jettyMode = true;
   }
 
-  public BaseHttpServlet( JobMap jobMap, SocketRepository socketRepository ) {
-    this.jobMap = jobMap;
+  public BaseHttpServlet( WorkflowMap workflowMap, SocketRepository socketRepository ) {
+    this.workflowMap = workflowMap;
     this.socketRepository = socketRepository;
     this.jettyMode = true;
   }
@@ -113,11 +113,11 @@ public class BaseHttpServlet extends HttpServlet {
     return pipelineMap;
   }
 
-  public JobMap getJobMap() {
-    if ( jobMap == null ) {
-      return HopServerSingleton.getInstance().getJobMap();
+  public WorkflowMap getWorkflowMap() {
+    if ( workflowMap == null ) {
+      return HopServerSingleton.getInstance().getWorkflowMap();
     }
-    return jobMap;
+    return workflowMap;
   }
 
   public SocketRepository getSocketRepository() {
@@ -179,10 +179,10 @@ public class BaseHttpServlet extends HttpServlet {
     log.logRowlevel( s );
   }
 
-  public void setup( PipelineMap pipelineMap, JobMap jobMap, SocketRepository socketRepository,
+  public void setup( PipelineMap pipelineMap, WorkflowMap workflowMap, SocketRepository socketRepository,
                      List<SlaveServerDetection> detections ) {
     this.pipelineMap = pipelineMap;
-    this.jobMap = jobMap;
+    this.workflowMap = workflowMap;
     this.socketRepository = socketRepository;
     this.detections = detections;
   }

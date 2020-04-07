@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.sftpput;
 
-import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.workflow.actions.sftp.SFTPClient;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 

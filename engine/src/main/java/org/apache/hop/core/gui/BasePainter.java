@@ -61,21 +61,18 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected List<AreaOwner> areaOwners;
 
   protected Point offset;
-  protected Point drop_candidate;
-  protected int iconsize;
+  protected Point dropCandidate;
+  protected int iconSize;
   protected int gridSize;
-  protected Rectangle selrect;
-  protected int linewidth;
+  protected Rectangle selectionRectangle;
+  protected int lineWidth;
   protected float magnification;
   protected float translationX;
   protected float translationY;
-  protected boolean shadow;
 
   protected Object subject;
 
   protected IGC gc;
-
-  protected int shadowSize;
 
   private String noteFontName;
 
@@ -84,27 +81,24 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected Hop candidate;
 
   public BasePainter( IGC gc, Object subject, Point area, IScrollBar hori,
-                      IScrollBar vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
-                      int linewidth, int gridsize, int shadowSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
+                      IScrollBar vert, Point dropCandidate, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
+                      int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
     this.subject = subject;
     this.area = area;
     this.hori = hori;
     this.vert = vert;
 
-    this.selrect = selrect;
-    this.drop_candidate = drop_candidate;
+    this.selectionRectangle = selectionRectangle;
+    this.dropCandidate = dropCandidate;
 
     this.areaOwners = areaOwners;
     areaOwners.clear(); // clear it before we start filling it up again.
 
     // props = PropsUI.getInstance();
-    this.iconsize = iconsize;
-    this.linewidth = linewidth;
-    this.gridSize = gridsize;
-
-    this.shadowSize = shadowSize;
-    this.shadow = shadowSize > 0;
+    this.iconSize = iconSize;
+    this.lineWidth = lineWidth;
+    this.gridSize = gridSize;
 
     this.magnification = 1.0f;
     this.zoomFactor = zoomFactor;
@@ -179,19 +173,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       note.x, note.y + height + 2 * margin // bottom left
     };
 
-    // Draw shadow around note?
-    if ( notePadMeta.isDrawShadow() ) {
-      int s = shadowSize;
-      int[] shadowa = new int[] {
-        note.x + s, note.y + s, // Top left
-        note.x + width + 2 * margin + s, note.y + s, // Top right
-        note.x + width + 2 * margin + s, note.y + height + s, // bottom right 1
-        note.x + width + s, note.y + height + 2 * margin + s, // bottom right 2
-        note.x + s, note.y + height + 2 * margin + s // bottom left
-      };
-      gc.setBackground( EColor.LIGHTGRAY );
-      gc.fillPolygon( shadowa );
-    }
     gc.setBackground( notePadMeta.getBackGroundColorRed(), notePadMeta.getBackGroundColorGreen(), notePadMeta
       .getBackGroundColorBlue() );
     gc.setForeground( notePadMeta.getBorderColorRed(), notePadMeta.getBorderColorGreen(), notePadMeta
@@ -217,9 +198,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     // Add to the list of areas...
     //
-    if ( !shadow ) {
-      areaOwners.add( new AreaOwner( AreaType.NOTE, note.x, note.y, width, height, offset, subject, notePadMeta ) );
-    }
+    areaOwners.add( new AreaOwner( AreaType.NOTE, note.x, note.y, width, height, offset, subject, notePadMeta ) );
   }
 
   protected int translateTo1To1( int value ) {
@@ -283,7 +262,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       return;
     }
     gc.setLineStyle( ELineStyle.DASHDOT );
-    gc.setLineWidth( linewidth );
+    gc.setLineWidth( lineWidth );
     gc.setForeground( EColor.GRAY );
     // PDI-2619: SWT on Windows doesn't cater for negative rect.width/height so handle here.
     Point s = real2screen( rect.x, rect.y );
@@ -307,7 +286,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected int calcArrowLength() {
-    return 19 + ( linewidth - 1 ) * 5; // arrowhead length;
+    return 19 + ( lineWidth - 1 ) * 5; // arrowhead length;
   }
 
   /**
@@ -364,20 +343,20 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.offset = offset;
   }
 
-  public Point getDrop_candidate() {
-    return drop_candidate;
+  public Point getDropCandidate() {
+    return dropCandidate;
   }
 
-  public void setDrop_candidate( Point drop_candidate ) {
-    this.drop_candidate = drop_candidate;
+  public void setDropCandidate( Point dropCandidate ) {
+    this.dropCandidate = dropCandidate;
   }
 
-  public int getIconsize() {
-    return iconsize;
+  public int getIconSize() {
+    return iconSize;
   }
 
-  public void setIconsize( int iconsize ) {
-    this.iconsize = iconsize;
+  public void setIconSize( int iconSize ) {
+    this.iconSize = iconSize;
   }
 
   public int getGridSize() {
@@ -388,20 +367,20 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.gridSize = gridSize;
   }
 
-  public Rectangle getSelrect() {
-    return selrect;
+  public Rectangle getSelectionRectangle() {
+    return selectionRectangle;
   }
 
-  public void setSelrect( Rectangle selrect ) {
-    this.selrect = selrect;
+  public void setSelectionRectangle( Rectangle selectionRectangle ) {
+    this.selectionRectangle = selectionRectangle;
   }
 
-  public int getLinewidth() {
-    return linewidth;
+  public int getLineWidth() {
+    return lineWidth;
   }
 
-  public void setLinewidth( int linewidth ) {
-    this.linewidth = linewidth;
+  public void setLineWidth( int lineWidth ) {
+    this.lineWidth = lineWidth;
   }
 
   public float getTranslationX() {
@@ -420,14 +399,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.translationY = translationY;
   }
 
-  public boolean isShadow() {
-    return shadow;
-  }
-
-  public void setShadow( boolean shadow ) {
-    this.shadow = shadow;
-  }
-
   public Object getSubject() {
     return subject;
   }
@@ -442,14 +413,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public void setGc( IGC gc ) {
     this.gc = gc;
-  }
-
-  public int getShadowSize() {
-    return shadowSize;
-  }
-
-  public void setShadowSize( int shadowSize ) {
-    this.shadowSize = shadowSize;
   }
 
   public String getNoteFontName() {
@@ -489,11 +452,11 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     Point from = fs.getLocation();
     Point to = ts.getLocation();
 
-    int x1 = from.x + iconsize / 2;
-    int y1 = from.y + iconsize / 2;
+    int x1 = from.x + iconSize / 2;
+    int y1 = from.y + iconSize / 2;
 
-    int x2 = to.x + iconsize / 2;
-    int y2 = to.y + iconsize / 2;
+    int x2 = to.x + iconSize / 2;
+    int y2 = to.y + iconSize / 2;
 
     return new int[] { x1, y1, x2, y2 };
   }

@@ -22,16 +22,16 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.job.IDelegationListener;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobConfiguration;
-import org.apache.hop.job.JobExecutionConfiguration;
+import org.apache.hop.workflow.IDelegationListener;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 
 /**
- * A handler for registering sub-jobs and sub-pipelines on the carte maps. The trick here is that listeners are
+ * A handler for registering sub-workflows and sub-pipelines on the carte maps. The trick here is that listeners are
  * added recursively down as long as the listener methods are called.
  *
  * @author matt
@@ -39,22 +39,22 @@ import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 public class HopServerDelegationHandler implements IDelegationListener {
 
   protected PipelineMap pipelineMap;
-  protected JobMap jobMap;
+  protected WorkflowMap workflowMap;
 
-  public HopServerDelegationHandler( PipelineMap pipelineMap, JobMap jobMap ) {
+  public HopServerDelegationHandler( PipelineMap pipelineMap, WorkflowMap workflowMap ) {
     super();
     this.pipelineMap = pipelineMap;
-    this.jobMap = jobMap;
+    this.workflowMap = workflowMap;
   }
 
   @Override
-  public synchronized void jobDelegationStarted( Job delegatedJob,
-                                                 JobExecutionConfiguration jobExecutionConfiguration ) {
+  public synchronized void jobDelegationStarted( Workflow delegatedWorkflow,
+                                                 WorkflowExecutionConfiguration workflowExecutionConfiguration ) {
 
-    JobConfiguration jc = new JobConfiguration( delegatedJob.getJobMeta(), jobExecutionConfiguration );
-    jobMap.registerJob( delegatedJob, jc );
+    WorkflowConfiguration jc = new WorkflowConfiguration( delegatedWorkflow.getWorkflowMeta(), workflowExecutionConfiguration );
+    workflowMap.registerWorkflow( delegatedWorkflow, jc );
 
-    delegatedJob.addDelegationListener( this );
+    delegatedWorkflow.addDelegationListener( this );
   }
 
   @Override

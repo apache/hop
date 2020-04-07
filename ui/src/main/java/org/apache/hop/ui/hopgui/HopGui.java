@@ -35,12 +35,14 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
@@ -60,6 +62,7 @@ import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.shared.Sleak;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.FormAttachment;
@@ -295,6 +298,8 @@ public class HopGui implements IActionContextHandlersProvider {
 
     shell.addListener( SWT.Close, this::closeEvent );
 
+    BaseTransformDialog.setSize( shell );
+
     // Open the Hop GUI shell and wait until it's closed
     //
     // shell.pack();
@@ -480,6 +485,9 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiOSXKeyboardShortcut( command = true, key = 'q' )
   public void menuFileExit() {
     if (fileDelegate.fileExit()) {
+      // Save the shell size and position
+      //
+      props.setScreen( new WindowProperty( shell ) );
       shell.dispose();
     }
   }

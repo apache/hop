@@ -289,7 +289,6 @@ public class PropsUI extends Props {
 
       properties.setProperty( STRING_ICON_SIZE, "" + getIconSize() );
       properties.setProperty( STRING_LINE_WIDTH, "" + getLineWidth() );
-      properties.setProperty( STRING_SHADOW_SIZE, "" + getShadowSize() );
       properties.setProperty( STRING_MAX_UNDO, "" + getMaxUndo() );
 
       setSashWeights( getSashWeights() );
@@ -534,14 +533,6 @@ public class PropsUI extends Props {
 
   public int getLineWidth() {
     return Const.toInt( properties.getProperty( STRING_LINE_WIDTH ), ConstUI.LINE_WIDTH );
-  }
-
-  public void setShadowSize( int size ) {
-    properties.setProperty( STRING_SHADOW_SIZE, "" + size );
-  }
-
-  public int getShadowSize() {
-    return Const.toInt( properties.getProperty( STRING_SHADOW_SIZE ), Const.SHADOW_SIZE );
   }
 
   public void setLastPipeline( String pipeline ) {
@@ -833,8 +824,8 @@ public class PropsUI extends Props {
   }
 
 
-  public int getJobsDialogStyle() {
-    String prop = properties.getProperty( "JobDialogStyle" );
+  public int getWorkflowsDialogStyle() {
+    String prop = properties.getProperty( "WorkflowDialogStyle" );
     return parseStyle( prop );
   }
 

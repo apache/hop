@@ -74,7 +74,7 @@
   </transform>
   <transform id="JobExecutor">
     <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.JobExecutor</description>
-    <classname>org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorMeta</classname>
+    <classname>org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta</classname>
     <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.JobExecutor</tooltip>
     <iconfile>ui/images/JOBEx.svg</iconfile>

@@ -243,7 +243,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   }
 
   /*
-   * Do not translate following values!!! They are will end up in the job export.
+   * Do not translate following values!!! They are will end up in the workflow export.
    */
   public static final String ACTION_APPEND = "APPEND";
   public static final String ACTION_INSERT = "INSERT";
@@ -251,14 +251,14 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   public static final String ACTION_TRUNCATE = "TRUNCATE";
 
   /*
-   * Do not translate following values!!! They are will end up in the job export.
+   * Do not translate following values!!! They are will end up in the workflow export.
    */
   public static final String METHOD_AUTO_CONCURRENT = "AUTO_CONCURRENT";
   public static final String METHOD_AUTO_END = "AUTO_END";
   public static final String METHOD_MANUAL = "MANUAL";
 
   /*
-   * Do not translate following values!!! They are will end up in the job export.
+   * Do not translate following values!!! They are will end up in the workflow export.
    */
   public static final String DATE_MASK_DATE = "DATE";
   public static final String DATE_MASK_DATETIME = "DATETIME";

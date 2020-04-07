@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.job.entries.pgpencryptfiles.GPG;
+import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 

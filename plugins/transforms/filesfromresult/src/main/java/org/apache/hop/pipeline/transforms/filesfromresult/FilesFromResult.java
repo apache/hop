@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /**
- * Reads results from a previous pipeline in a Job
+ * Reads results from a previous pipeline in a Workflow
  *
  * @author Matt
  * @since 2-jun-2003

@@ -613,7 +613,7 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a pipeline, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return new String[] { BaseMessages.getString( PKG, "MappingMeta.ReferencedObject.Description" ), };

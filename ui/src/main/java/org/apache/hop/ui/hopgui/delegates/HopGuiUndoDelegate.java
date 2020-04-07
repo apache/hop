@@ -3,7 +3,7 @@ package org.apache.hop.ui.hopgui.delegates;
 import org.apache.hop.core.IAddUndoPosition;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 
@@ -43,7 +43,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   public void addUndoPosition( IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso ) {
     // It's better to store the indexes of the objects, not the objects
     // itself!
-    undoInterface.addUndo( obj, null, pos, prev, curr, JobMeta.TYPE_UNDO_POSITION, false );
+    undoInterface.addUndo( obj, null, pos, prev, curr, WorkflowMeta.TYPE_UNDO_POSITION, false );
     hopUi.setUndoMenu( undoInterface );
   }
 
@@ -54,7 +54,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
 
   // Change of transform, connection, hop or note...
   public void addUndoChange( IUndo undoInterface, Object[] from, Object[] to, int[] pos, boolean nextAlso ) {
-    undoInterface.addUndo( from, to, pos, null, null, JobMeta.TYPE_UNDO_CHANGE, nextAlso );
+    undoInterface.addUndo( from, to, pos, null, null, WorkflowMeta.TYPE_UNDO_CHANGE, nextAlso );
     hopUi.setUndoMenu( undoInterface );
   }
 

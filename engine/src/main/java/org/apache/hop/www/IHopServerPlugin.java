@@ -28,7 +28,7 @@ import java.util.List;
 
 public interface IHopServerPlugin extends IHopServerServlet {
 
-  void setup( PipelineMap pipelineMap, JobMap jobMap, SocketRepository socketRepository,
+  void setup( PipelineMap pipelineMap, WorkflowMap workflowMap, SocketRepository socketRepository,
               List<SlaveServerDetection> detections );
 
   void doGet( HttpServletRequest request, HttpServletResponse response ) throws Exception;

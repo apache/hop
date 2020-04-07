@@ -342,13 +342,13 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
   }
 
   /**
-   * This returns the expected name for the dialog that edits a job entry. The expected name is in the org.apache.hop.ui
-   * tree and has a class name that is the name of the job entry with 'Dialog' added to the end.
+   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
+   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
    * <p>
-   * e.g. if the job entry is org.apache.hop.job.entries.zipfile.JobEntryZipFile the dialog would be
-   * org.apache.hop.ui.job.entries.zipfile.JobEntryZipFileDialog
+   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
+   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
    * <p>
-   * If the dialog class for a job entry does not match this pattern it should override this method and return the
+   * If the dialog class for a action does not match this pattern it should override this method and return the
    * appropriate class name
    *
    * @return full class name of the dialog
@@ -795,7 +795,7 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a pipeline, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return null;

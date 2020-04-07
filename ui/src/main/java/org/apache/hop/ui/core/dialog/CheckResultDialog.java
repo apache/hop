@@ -245,7 +245,7 @@ public class CheckResultDialog extends Dialog {
       ICheckResult cr = remarks.get( i );
       if ( show_successful_results || cr.getType() != ICheckResult.TYPE_RESULT_OK ) {
         TableItem ti = new TableItem( wFields.table, SWT.NONE );
-        // MB - Support both JobEntry and Transform Checking
+        // MB - Support both Action and Transform Checking
         // 6/25/07
         ICheckResultSource sourceMeta = cr.getSourceInfo();
         if ( sourceMeta != null ) {

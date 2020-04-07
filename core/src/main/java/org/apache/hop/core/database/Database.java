@@ -344,7 +344,7 @@ public class Database implements IVariables, ILoggingObject {
 
       // Before anything else, let's see if we already have a connection defined
       // for this group/partition!
-      // The group is called after the thread-name of the pipeline or job
+      // The group is called after the thread-name of the pipeline or workflow
       // that is running
       // The name of that thread name is expected to be unique (it is in Hop)
       // So the deal is that if there is another thread using that, we go for
@@ -1502,7 +1502,7 @@ public class Database implements IVariables, ILoggingObject {
    * <p/>
    * Multiple statements have to be split into parts We use the ";" to separate statements...
    * <p/>
-   * We keep the results in Result object from Jobs
+   * We keep the results in Result object from Workflows
    *
    * @param script The SQL script to be execute
    * @return A result with counts of the number or records updates, inserted, deleted or read.
@@ -1519,7 +1519,7 @@ public class Database implements IVariables, ILoggingObject {
    * <p/>
    * Multiple statements have to be split into parts We use the ";" to separate statements...
    * <p/>
-   * We keep the results in Result object from Jobs
+   * We keep the results in Result object from Workflows
    *
    * @param script The SQL script to be execute
    * @param params Parameters Meta
@@ -2589,7 +2589,7 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     // Ask all the value meta types if they want to handle the SQL type.
-    // The first to reply something gets the job...
+    // The first to reply something gets the workflow...
     //
     IValueMeta valueMeta = null;
     for ( IValueMeta valueMetaClass : valueMetaPluginClasses ) {
@@ -3577,11 +3577,11 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  public Object[] getLastLogDate( String logtable, String name, boolean job, LogStatus status )
+  public Object[] getLastLogDate( String logtable, String name, boolean workflow, LogStatus status )
     throws HopDatabaseException {
     Object[] row = null;
 
-    String jobPipeline = job ? databaseMeta.quoteField( "JOBNAME" ) : databaseMeta.quoteField( "PIPELINE_NAME" );
+    String jobPipeline = workflow ? databaseMeta.quoteField( "WORKFLOW_NAME" ) : databaseMeta.quoteField( "PIPELINE_NAME" );
 
     String sql = "";
     sql +=

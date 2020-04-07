@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class RegisterPipelineServlet extends BaseJobServlet {
+public class RegisterPipelineServlet extends BaseWorkflowServlet {
 
   private static final long serialVersionUID = 468054102740138751L;
   public static final String CONTEXT_PATH = "/hop/registerPipeline";

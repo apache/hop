@@ -81,7 +81,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -130,7 +130,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">element:</td>
@@ -198,7 +198,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

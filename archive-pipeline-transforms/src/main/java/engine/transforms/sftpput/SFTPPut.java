@@ -33,13 +33,12 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
+import org.apache.hop.workflow.actions.sftp.SFTPClient;
+import org.apache.hop.workflow.actions.sftpput.JobEntrySFTPPUT;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 

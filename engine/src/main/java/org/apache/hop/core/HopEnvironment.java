@@ -32,8 +32,8 @@ import org.apache.hop.core.lifecycle.HopLifecycleSupport;
 import org.apache.hop.core.logging.LogTablePluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
-import org.apache.hop.core.plugins.JobEntryDialogFragmentType;
-import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.ActionDialogFragmentType;
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -85,8 +85,8 @@ public class HopEnvironment {
       TransformPluginType.getInstance(),
       TransformDialogFragmentType.getInstance(),
       PartitionerPluginType.getInstance(),
-      JobEntryPluginType.getInstance(),
-      JobEntryDialogFragmentType.getInstance(),
+      ActionPluginType.getInstance(),
+      ActionDialogFragmentType.getInstance(),
       LogTablePluginType.getInstance(),
       LifecyclePluginType.getInstance(),
       HopLifecyclePluginType.getInstance(),

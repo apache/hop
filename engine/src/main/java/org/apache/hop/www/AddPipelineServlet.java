@@ -81,7 +81,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
    * transformation_execution_configuration wrapped in transformation_configuration tag).</p>
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -99,7 +99,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">element:</td>
@@ -125,7 +125,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

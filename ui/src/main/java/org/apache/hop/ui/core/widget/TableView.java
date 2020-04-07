@@ -860,7 +860,7 @@ public class TableView extends Composite {
     /*
      * It seems there is an other keyListener active to help control the cursor. There is support for keys like
      * LEFT/RIGHT/UP/DOWN/HOME/END/etc It presents us with a problem because we only get the position of the row/column
-     * AFTER the other listener did it's job. Therefor we added global variables prev_rownr and prev_colnr
+     * AFTER the other listener did it's workflow. Therefor we added global variables prev_rownr and prev_colnr
      */
 
     KeyListener lsKeyTable = new KeyAdapter() {

@@ -77,6 +77,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
   private boolean shiftClicked;
   private boolean ctrlClicked;
+  private boolean focusLost;
 
   public ContextDialog( Shell parent, String message, Point location, List<GuiAction> actions ) {
     this.parent = parent;
@@ -99,7 +100,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       selectedAction = actions.get( 0 );
     }
 
-    iconSize = (int) Math.round( props.getZoomFactor() * props.getIconSize() );
+    // Make the icons a bit smaller to fit more
+    //
+    iconSize = (int) Math.round( props.getZoomFactor() * props.getIconSize() * 0.75 ) ;
   }
 
   public GuiAction open() {
@@ -132,8 +135,8 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       imageMap.put( action.getId(), image );
       filteredActions.add( action.getId() );
 
-      if ( action.getName() != null ) {
-        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
+      if ( action.getShortName() != null ) {
+        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getShortName() );
         if ( extent.x > maxNameWidth ) {
           maxNameWidth = extent.x;
         }
@@ -194,8 +197,8 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     // TODO: Calcualte a more dynamic size based on number of actions, screen size and so on
     //
-    int width = (int) Math.round( 1000 * props.getZoomFactor() );
-    int height = (int) Math.round( 750 * props.getZoomFactor() );
+    int width = (int) Math.round( 400 * props.getZoomFactor() );
+    int height = (int) Math.round( 300 * props.getZoomFactor() );
     shell.setSize( width, height );
 
     // Position the dialog where there was a click to be more intuitive
@@ -333,7 +336,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       Rectangle selectionBox = new Rectangle( x, y, maxNameWidth, iconSize + margin + maxNameHeight );
       selectionMap.put( action.getId(), selectionBox );
 
-      org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
+      org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getShortName() );
       Image image = imageMap.get( action.getId() );
 
       boolean selected = selectedAction != null && action.equals( selectedAction );
@@ -345,7 +348,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       }
 
       gc.drawImage( image, x + ( maxNameWidth - iconSize ) / 2, y );
-      gc.drawText( action.getName(), x + ( maxNameWidth - extent.x ) / 2, y + iconSize + margin );
+      gc.drawText( action.getShortName(), x + ( maxNameWidth - extent.x ) / 2, y + iconSize + margin );
 
       x += cellWidth;
 
@@ -422,6 +425,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   }
 
   @Override public void focusLost( FocusEvent e ) {
+    focusLost=true;
     cancel();
   }
 
@@ -634,5 +638,21 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
    */
   public void setCtrlClicked( boolean ctrlClicked ) {
     this.ctrlClicked = ctrlClicked;
+  }
+
+  /**
+   * Gets focusLost
+   *
+   * @return value of focusLost
+   */
+  public boolean isFocusLost() {
+    return focusLost;
+  }
+
+  /**
+   * @param focusLost The focusLost to set
+   */
+  public void setFocusLost( boolean focusLost ) {
+    this.focusLost = focusLost;
   }
 }

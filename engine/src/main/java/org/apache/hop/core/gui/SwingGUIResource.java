@@ -29,13 +29,13 @@ import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -86,9 +86,9 @@ public class SwingGUIResource {
   private Map<String, SwingUniversalImage> loadEntryImages() {
     Map<String, SwingUniversalImage> map = new HashMap<>();
 
-    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( JobEntryPluginType.class ) ) {
+    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( ActionPluginType.class ) ) {
       try {
-        if ( JobMeta.STRING_SPECIAL.equals( plugin.getIds()[ 0 ] ) ) {
+        if ( WorkflowMeta.STRING_SPECIAL.equals( plugin.getIds()[ 0 ] ) ) {
           continue;
         }
 
@@ -100,7 +100,7 @@ public class SwingGUIResource {
 
         map.put( plugin.getIds()[ 0 ], image );
       } catch ( Exception e ) {
-        log.logError( "Unable to load job entry icon image for plugin: "
+        log.logError( "Unable to load action icon image for plugin: "
           + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
       }
     }

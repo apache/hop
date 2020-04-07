@@ -27,7 +27,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
 
 /**
- * The job to be executed in the pipeline can receive parameters. These are either coming from an input row (the
+ * The workflow to be executed in the pipeline can receive parameters. These are either coming from an input row (the
  * first row in a group of rows) or from a static variable or value.
  *
  * @author matt
@@ -41,7 +41,7 @@ public class PipelineExecutorParameters implements Cloneable {
   private static final String XML_VARIABLES_TAG = "variable_mapping";
 
   /**
-   * The name of the variable to set in the job
+   * The name of the variable to set in the workflow
    */
   private String[] variable;
 
@@ -53,7 +53,7 @@ public class PipelineExecutorParameters implements Cloneable {
   private String[] input;
 
   /**
-   * This flag causes the job to inherit all variables from the parent pipeline
+   * This flag causes the workflow to inherit all variables from the parent pipeline
    */
   private boolean inheritingAllVariables;
 

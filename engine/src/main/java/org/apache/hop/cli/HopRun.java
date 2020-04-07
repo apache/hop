@@ -18,9 +18,9 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
@@ -30,7 +30,7 @@ import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.www.SlaveServerJobStatus;
+import org.apache.hop.www.SlaveServerWorkflowStatus;
 import org.apache.hop.www.SlaveServerPipelineStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
@@ -47,7 +47,7 @@ public class HopRun implements Runnable {
   public static final String XP_CREATE_ENVIRONMENT = "CreateEnvironment";
   public static final String XP_IMPORT_ENVIRONMENT = "ImportEnvironment";
 
-  @Option( names = { "-f", "-z", "--file" }, description = "The filename of the job or pipeline to run" )
+  @Option( names = { "-f", "-z", "--file" }, description = "The filename of the workflow or pipeline to run" )
   private String filename;
 
   @Option( names = { "-l", "--level" }, description = "The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL" )
@@ -65,7 +65,7 @@ public class HopRun implements Runnable {
   @Option( names = { "-t", "--pipeline" }, description = "Force execution of a pipeline" )
   private boolean runPipeline = false;
 
-  @Option( names = { "-j", "--job" }, description = "Force execution of a job" )
+  @Option( names = { "-j", "--workflow" }, description = "Force execution of a workflow" )
   private boolean runJob = false;
 
   @Option( names = { "-s", "--slave" }, description = "The slave server to run on" )
@@ -77,7 +77,7 @@ public class HopRun implements Runnable {
   @Option( names = { "-q", "--querydelay" }, description = "Delay between querying of remote servers" )
   private String queryDelay;
 
-  @Option( names = { "-d", "--dontwait" }, description = "Do not wait until the remote job or pipeline is done" )
+  @Option( names = { "-d", "--dontwait" }, description = "Do not wait until the remote workflow or pipeline is done" )
   private boolean dontWait = false;
 
   @Option( names = { "-g", "--remotelog" }, description = "Write out the remote log of remote executions" )
@@ -298,13 +298,13 @@ public class HopRun implements Runnable {
     try {
       calculateRealFilename();
 
-      // Run the job with the given filename
+      // Run the workflow with the given filename
       //
-      JobMeta jobMeta = new JobMeta( variables, realFilename, metaStore );
+      WorkflowMeta workflowMeta = new WorkflowMeta( variables, realFilename, metaStore );
 
       // Configure the basic execution settings
       //
-      JobExecutionConfiguration configuration = new JobExecutionConfiguration();
+      WorkflowExecutionConfiguration configuration = new WorkflowExecutionConfiguration();
 
       // Copy run config details from the metastore over to the run configuration
       //
@@ -312,11 +312,11 @@ public class HopRun implements Runnable {
 
       // Overwrite the run configuration with optional command line options
       //
-      parseOptions( cmd, configuration, jobMeta );
+      parseOptions( cmd, configuration, workflowMeta );
 
       // Certain Pentaho plugins rely on this.  Meh.
       //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobBeforeStart.id, new Object[] { configuration, null, jobMeta, null } );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
 
       // Before running, do we print the options?
       //
@@ -324,52 +324,52 @@ public class HopRun implements Runnable {
         printOptions( configuration );
       }
 
-      // Now we can run the job
+      // Now we can run the workflow
       //
       if ( configuration.isExecutingLocally() ) {
-        runJobLocal( cmd, log, configuration, jobMeta );
+        runJobLocal( cmd, log, configuration, workflowMeta );
       } else if ( configuration.isExecutingRemotely() ) {
         // Simply remote execution.
         //
-        runJobRemote( cmd, log, jobMeta, configuration );
+        runJobRemote( cmd, log, workflowMeta, configuration );
       }
 
 
     } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "There was an error during execution of job '" + filename + "'", e );
+      throw new ExecutionException( cmd, "There was an error during execution of workflow '" + filename + "'", e );
     }
   }
 
-  private void runJobLocal( CommandLine cmd, ILogChannel log, JobExecutionConfiguration configuration, JobMeta jobMeta ) {
+  private void runJobLocal( CommandLine cmd, ILogChannel log, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
     try {
-      Job job = new Job( null, jobMeta );
-      job.initializeVariablesFrom( null );
-      job.getJobMeta().setInternalHopVariables( job );
-      job.injectVariables( configuration.getVariablesMap() );
+      Workflow workflow = new Workflow( null, workflowMeta );
+      workflow.initializeVariablesFrom( null );
+      workflow.getWorkflowMeta().setInternalHopVariables( workflow );
+      workflow.injectVariables( configuration.getVariablesMap() );
 
-      job.setLogLevel( configuration.getLogLevel() );
+      workflow.setLogLevel( configuration.getLogLevel() );
 
       // Explicitly set parameters
       for ( String parameterName : configuration.getParametersMap().keySet() ) {
-        jobMeta.setParameterValue( parameterName, configuration.getParametersMap().get( parameterName ) );
+        workflowMeta.setParameterValue( parameterName, configuration.getParametersMap().get( parameterName ) );
       }
 
       // Also copy the parameters over...
       //
-      job.copyParametersFrom( jobMeta );
-      jobMeta.activateParameters();
-      job.activateParameters();
+      workflow.copyParametersFrom( workflowMeta );
+      workflowMeta.activateParameters();
+      workflow.activateParameters();
 
-      job.start();
-      job.waitUntilFinished();
+      workflow.start();
+      workflow.waitUntilFinished();
     } catch ( Exception e ) {
-      throw new ExecutionException( cmd, "Error running job locally", e );
+      throw new ExecutionException( cmd, "Error running workflow locally", e );
     }
   }
 
-  private void runJobRemote( CommandLine cmd, ILogChannel log, JobMeta jobMeta, JobExecutionConfiguration configuration ) {
+  private void runJobRemote( CommandLine cmd, ILogChannel log, WorkflowMeta workflowMeta, WorkflowExecutionConfiguration configuration ) {
     SlaveServer slaveServer = configuration.getRemoteServer();
-    slaveServer.shareVariablesWith( jobMeta );
+    slaveServer.shareVariablesWith( workflowMeta );
 
     try {
 
@@ -378,27 +378,27 @@ public class HopRun implements Runnable {
     }
   }
 
-  public static Result runJobOnSlaveServer( ILogChannel log, JobMeta jobMeta, SlaveServer slaveServer, JobExecutionConfiguration configuration, IMetaStore metaStore, boolean dontWait,
+  public static Result runJobOnSlaveServer( ILogChannel log, WorkflowMeta workflowMeta, SlaveServer slaveServer, WorkflowExecutionConfiguration configuration, IMetaStore metaStore, boolean dontWait,
                                             boolean remoteLogging, int queryDelay ) throws Exception {
     try {
-      String carteObjectId = Job.sendToSlaveServer( jobMeta, configuration, metaStore );
+      String carteObjectId = Workflow.sendToSlaveServer( workflowMeta, configuration, metaStore );
 
       // Monitor until finished...
       //
-      SlaveServerJobStatus jobStatus = null;
+      SlaveServerWorkflowStatus jobStatus = null;
       Result oneResult = new Result();
 
       while ( !dontWait ) {
         try {
-          jobStatus = slaveServer.getJobStatus( jobMeta.getName(), carteObjectId, 0 );
+          jobStatus = slaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
           if ( jobStatus.getResult() != null ) {
-            // The job is finished, get the result...
+            // The workflow is finished, get the result...
             //
             oneResult = jobStatus.getResult();
             break;
           }
         } catch ( Exception e1 ) {
-          log.logError( "Unable to contact slave server [" + slaveServer + "] to verify the status of job [" + jobMeta.getName() + "]", e1 );
+          log.logError( "Unable to contact slave server [" + slaveServer + "] to verify the status of workflow [" + workflowMeta.getName() + "]", e1 );
           oneResult.setNrErrors( 1L );
           break; // Stop looking too, chances are too low the server will
           // come back on-line
@@ -415,20 +415,20 @@ public class HopRun implements Runnable {
       // Get the status
       //
       if ( !dontWait ) {
-        jobStatus = slaveServer.getJobStatus( jobMeta.getName(), carteObjectId, 0 );
+        jobStatus = slaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
         if ( remoteLogging ) {
           log.logBasic( jobStatus.getLoggingString() );
         }
         Result result = jobStatus.getResult();
         if ( result.getNrErrors() > 0 ) {
           // Error
-          throw new Exception( "Remote job ended with an error" );
+          throw new Exception( "Remote workflow ended with an error" );
         }
         return result;
       }
       return null;
     } catch ( Exception e ) {
-      throw new Exception( "Error executing job remotely on server '" + slaveServer.getName() + "'", e );
+      throw new Exception( "Error executing workflow remotely on server '" + slaveServer.getName() + "'", e );
     }
   }
 
@@ -483,7 +483,7 @@ public class HopRun implements Runnable {
     if ( StringUtils.isEmpty( filename ) ) {
       return false;
     }
-    return filename.toLowerCase().endsWith( ".kjb" );
+    return filename.toLowerCase().endsWith( ".hwf" );
   }
 
 
@@ -540,7 +540,7 @@ public class HopRun implements Runnable {
    */
   private void configureParametersAndVariables( CommandLine cmd, IExecutionConfiguration configuration, IVariables variables, INamedParams namedParams ) {
 
-    // Copy variables over to the pipeline or job metadata
+    // Copy variables over to the pipeline or workflow metadata
     //
     variables.injectVariables( configuration.getVariablesMap() );
 
@@ -598,7 +598,7 @@ public class HopRun implements Runnable {
     }
 
     if ( StringUtils.isEmpty( filename ) ) {
-      throw new ParameterException( new CommandLine( this ), "A filename is needed to run a job or pipeline" );
+      throw new ParameterException( new CommandLine( this ), "A filename is needed to run a workflow or pipeline" );
     }
   }
 
@@ -642,7 +642,7 @@ public class HopRun implements Runnable {
       log.logMinimal( "OPTION: Remote server query delay : " + getQueryDelay() );
     }
     if ( dontWait ) {
-      log.logMinimal( "OPTION: Do not wait for remote job or pipeline to finish" );
+      log.logMinimal( "OPTION: Do not wait for remote workflow or pipeline to finish" );
     }
     if ( remoteLogging ) {
       log.logMinimal( "OPTION: Printing remote execution log" );

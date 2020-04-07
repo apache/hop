@@ -80,11 +80,11 @@ public class HelpUtils {
       return "";
     }
     String msg = "";
-    // TODO currently support only Transform and JobEntry - extend if required.
+    // TODO currently support only Transform and Action - extend if required.
     if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
       msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.TransformPluginType.Title", plugin.getName() );
     } else {
-      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.JobEntryPluginType.Title", plugin.getName() );
+      msg = BaseMessages.getString( PKG,"System.ShowHelpDialog.ActionPluginType.Title", plugin.getName() );
     }
     return msg;
   }
@@ -106,11 +106,11 @@ public class HelpUtils {
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       String msg = "";
-      // TODO currently support only Transform and JobEntry - extend if required.
+      // TODO currently support only Transform and Action - extend if required.
       if ( plugin.getPluginType().equals( TransformPluginType.class ) ) {
         msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Transform.HelpIsNotAvailable", plugin.getName());
       } else {
-        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.JobEntry.HelpIsNotAvailable", plugin.getName());
+        msg = BaseMessages.getString( PKG, "System.ShowHelpDialog.Action.HelpIsNotAvailable", plugin.getName());
       }
       mb.setMessage(msg );
       mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );

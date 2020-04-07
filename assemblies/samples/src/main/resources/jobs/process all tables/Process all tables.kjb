@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>Process all tables</name>
   <directory>&#47;</directory>
   <modified_user>admin</modified_user>
@@ -131,4 +131,4 @@
     </hops>
   <notepads>
     </notepads>
-  </job>
+  </workflow>

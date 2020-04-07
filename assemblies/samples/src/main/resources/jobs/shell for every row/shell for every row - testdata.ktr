@@ -54,7 +54,7 @@
       <heigth>25</heigth>
     </notepad>
     <notepad>
-      <note>put the rows to the result set processed by the job</note>
+      <note>put the rows to the result set processed by the workflow</note>
       <xloc>461</xloc>
       <yloc>222</yloc>
       <width>272</width>

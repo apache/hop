@@ -137,8 +137,8 @@ public class PrintSpool {
         double actual_sizex = size_on_paperx * epd.scale / 100;
         double actual_sizey = size_on_papery * epd.scale / 100;
 
-        // Create new print job.
-        printer.startJob( "HopGui : print job" );
+        // Create new print workflow.
+        printer.startJob( "HopGui : print workflow" );
 
         // How much of the image do we print on each page: all or just a page worth of pixels?
 

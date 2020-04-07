@@ -79,7 +79,7 @@ public class WebServerTest {
   private PipelineMap trMapMock = mock( PipelineMap.class );
   private SlaveServerConfig sServerConfMock = mock( SlaveServerConfig.class );
   private SlaveServer sServer = mock( SlaveServer.class );
-  private JobMap jbMapMock = mock( JobMap.class );
+  private WorkflowMap jbMapMock = mock( WorkflowMap.class );
   private SocketRepository sRepoMock = mock( SocketRepository.class );
   private List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
   private ILogChannel logMock = mock( ILogChannel.class );

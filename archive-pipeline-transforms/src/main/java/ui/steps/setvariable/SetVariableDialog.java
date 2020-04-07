@@ -392,7 +392,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
             public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
               tableItem.setText( 2, v.getName().toUpperCase() );
               tableItem.setText( 3, SetVariableMeta
-                .getVariableTypeDescription( SetVariableMeta.VARIABLE_TYPE_ROOT_JOB ) );
+                .getVariableTypeDescription( SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW ) );
               return true;
             }
           } );

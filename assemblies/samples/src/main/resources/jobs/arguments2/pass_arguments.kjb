@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>pass_arguments</name>
   <description/>
   <extended_description/>
@@ -14,7 +14,7 @@
     </parameters>
     <slaveservers>
     </slaveservers>
-      <job-log-table>
+      <workflow-log-table>
         <connection>SampleData</connection>
         <schema/>
         <table>L_JOB</table>
@@ -126,7 +126,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </job-log-table>
+      </workflow-log-table>
       <jobentry-log-table>
         <connection/>
         <schema/>
@@ -355,7 +355,7 @@
   <entries>
     <entry>
       <name>START</name>
-      <description>A job starts to process here.</description>
+      <description>A workflow starts to process here.</description>
       <type>SPECIAL</type>
       <start>Y</start>
       <dummy>N</dummy>
@@ -467,7 +467,7 @@
   </hops>
   <notepads>
     <notepad>
-      <note>This job passes command line arguments to a transformation.&#xa;This transformation writes them back to a file to see that it works.</note>
+      <note>This workflow passes command line arguments to a transformation.&#xa;This transformation writes them back to a file to see that it works.</note>
       <xloc>43</xloc>
       <yloc>33</yloc>
       <width>445</width>
@@ -488,4 +488,4 @@
       <drawshadow>N</drawshadow>
     </notepad>
   </notepads>
-</job>
+</workflow>

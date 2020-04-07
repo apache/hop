@@ -23,13 +23,13 @@
 package org.apache.hop.core.logging;
 
 /**
- * The logging hierarchy of a pipeline or job
+ * The logging hierarchy of a pipeline or workflow
  *
  * @author matt
  */
 public class LoggingHierarchy {
-  private String rootChannelId; // from the xform or job
-  private long batchId; // from the xform or job
+  private String rootChannelId; // from the xform or workflow
+  private long batchId; // from the xform or workflow
   private ILoggingObject loggingObject;
 
   /**

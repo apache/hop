@@ -127,13 +127,13 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
   private boolean stopOnError;
 
   /*
-   * Do not translate following values!!! They are will end up in the job export.
+   * Do not translate following values!!! They are will end up in the workflow export.
    */
   public static final String ACTION_INSERT = "INSERT";
   public static final String ACTION_TRUNCATE = "TRUNCATE";
 
   /*
-   * Do not translate following values!!! They are will end up in the job export.
+   * Do not translate following values!!! They are will end up in the workflow export.
    */
   public static final String DATE_MASK_PASS_THROUGH = "PASS THROUGH";
   public static final String DATE_MASK_DATE = "DATE";

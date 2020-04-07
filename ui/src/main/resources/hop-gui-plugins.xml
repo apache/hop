@@ -47,12 +47,12 @@
 
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph</classname>
+    <classname>org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph</classname>
     <description>Job Graph tab</description>
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobLogDelegate</classname>
+    <classname>org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate</classname>
     <description>Job Graph Log Delegate</description>
   </gui-plugin>
 

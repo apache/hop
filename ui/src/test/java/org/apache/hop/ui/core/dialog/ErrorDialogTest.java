@@ -43,7 +43,7 @@ public class ErrorDialogTest {
 
   @Test
   public void setErrorTextWithNoCauseException() {
-    Exception e = new HopException( "kettleMessage" );
+    Exception e = new HopException( "hopMessage" );
 
     StringBuilder text = new StringBuilder();
     StringBuilder details = new StringBuilder();
@@ -60,7 +60,7 @@ public class ErrorDialogTest {
   @Test
   public void setErrorTextWithCauseMessageException() {
     ClientProtocolException cpe = new ClientProtocolException( "causeMessage" );
-    Exception e = new HopException( "kettleMessage", cpe );
+    Exception e = new HopException( "hopMessage", cpe );
 
 
     StringBuilder text = new StringBuilder();
@@ -81,7 +81,7 @@ public class ErrorDialogTest {
   public void setErrorTextWithCauseExceptionWithoutCauseMessage() {
     //cause without message
     ClientProtocolException cpe = new ClientProtocolException();
-    Exception e = new HopException( "kettleMessage", cpe );
+    Exception e = new HopException( "hopMessage", cpe );
 
 
     StringBuilder text = new StringBuilder();

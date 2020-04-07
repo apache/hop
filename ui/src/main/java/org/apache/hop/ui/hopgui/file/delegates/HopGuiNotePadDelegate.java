@@ -61,8 +61,7 @@ public class HopGuiNotePadDelegate {
         new NotePadMeta( n.getNote(), x, y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
           .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
-          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
-          .isDrawShadow() );
+          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue() );
       meta.addNote( npi );
       hopUi.undoDelegate.addUndoNew( meta, new NotePadMeta[] { npi }, new int[] { meta.indexOfNote( npi ) } );
       handler.updateGui();

@@ -575,7 +575,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   protected void getParametersFromPipeline( PipelineMeta inputPipelineMeta ) {
     try {
-      // Load the job in executorPipelineMeta
+      // Load the workflow in executorPipelineMeta
       //
       if ( inputPipelineMeta == null ) {
         loadPipeline();

@@ -65,7 +65,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -87,7 +87,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">binary streak:</td>
@@ -102,7 +102,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
    * <p>A binary PNG image or empty response is presented if no pipeline is found.</p>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>
@@ -189,8 +189,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
     SwingGC gc = new SwingGC( null, maximum, 32, 0, 0 );
     PipelinePainter pipelinePainter =
-      new PipelinePainter(
-        gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, 0, true, "Arial", 10, 1.0d );
+      new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, true, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.buildPipelineImage();
 

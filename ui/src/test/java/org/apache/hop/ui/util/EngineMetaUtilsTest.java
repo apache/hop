@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.util;
 
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class EngineMetaUtilsTest {
 
   @Test
   public void isJobOrPipeline_withJob() {
-    JobMeta jobInstance = new JobMeta();
+    WorkflowMeta jobInstance = new WorkflowMeta();
     assertTrue( EngineMetaUtils.isJobOrPipeline( jobInstance ) );
   }
 

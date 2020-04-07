@@ -24,14 +24,14 @@ package org.apache.hop.core;
 
 import org.apache.hop.core.logging.BaseLogTable;
 import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.JobEntryLogTable;
-import org.apache.hop.core.logging.JobLogTable;
+import org.apache.hop.core.logging.ActionLogTable;
+import org.apache.hop.core.logging.WorkflowLogTable;
 import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
 import org.apache.hop.core.logging.PipelineLogTable;
 import org.apache.hop.core.logging.TransformLogTable;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 
 import java.util.ArrayList;
@@ -89,31 +89,31 @@ public class XmlExportHelper {
   }
 
   /**
-   * @param jobMeta contains log tables to be refactored before export
+   * @param workflowMeta contains log tables to be refactored before export
    */
-  public static void swapTables( JobMeta jobMeta ) {
-    JobLogTable jobLogTable = jobMeta.getJobLogTable();
-    if ( jobLogTable != null ) {
-      JobLogTable cloneJobLogTable = (JobLogTable) jobLogTable.clone();
-      cloneJobLogTable.setAllGlobalParametersToNull();
-      jobMeta.setJobLogTable( cloneJobLogTable );
+  public static void swapTables( WorkflowMeta workflowMeta ) {
+    WorkflowLogTable workflowLogTable = workflowMeta.getWorkflowLogTable();
+    if ( workflowLogTable != null ) {
+      WorkflowLogTable cloneWorkflowLogTable = (WorkflowLogTable) workflowLogTable.clone();
+      cloneWorkflowLogTable.setAllGlobalParametersToNull();
+      workflowMeta.setWorkflowLogTable( cloneWorkflowLogTable );
     }
 
-    JobEntryLogTable jobEntryLogTable = jobMeta.getJobEntryLogTable();
-    if ( jobEntryLogTable != null ) {
-      JobEntryLogTable cloneEntryLogTable = (JobEntryLogTable) jobEntryLogTable.clone();
+    ActionLogTable actionLogTable = workflowMeta.getActionsLogTable();
+    if ( actionLogTable != null ) {
+      ActionLogTable cloneEntryLogTable = (ActionLogTable) actionLogTable.clone();
       cloneEntryLogTable.setAllGlobalParametersToNull();
-      jobMeta.setJobEntryLogTable( cloneEntryLogTable );
+      workflowMeta.setActionsLogTable( cloneEntryLogTable );
     }
 
-    ChannelLogTable channelLogTable = jobMeta.getChannelLogTable();
+    ChannelLogTable channelLogTable = workflowMeta.getChannelLogTable();
     if ( channelLogTable != null ) {
       ChannelLogTable cloneChannelLogTable = (ChannelLogTable) channelLogTable.clone();
       cloneChannelLogTable.setAllGlobalParametersToNull();
-      jobMeta.setChannelLogTable( cloneChannelLogTable );
+      workflowMeta.setChannelLogTable( cloneChannelLogTable );
     }
 
-    List<ILogTable> extraLogTables = jobMeta.getExtraLogTables();
+    List<ILogTable> extraLogTables = workflowMeta.getExtraLogTables();
     if ( extraLogTables != null ) {
       List<ILogTable> cloneExtraLogTables = new ArrayList<>();
       for ( ILogTable logTable : extraLogTables ) {
@@ -125,7 +125,7 @@ public class XmlExportHelper {
           }
         }
       }
-      jobMeta.setExtraLogTables( cloneExtraLogTables );
+      workflowMeta.setExtraLogTables( cloneExtraLogTables );
     }
   }
 }

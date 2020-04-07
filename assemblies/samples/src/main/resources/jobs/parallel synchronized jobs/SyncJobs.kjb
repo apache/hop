@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>SyncJobs</name>
     <description/>
     <extended_description/>
@@ -159,9 +159,9 @@
   <notepads>
     <notepad>
       <note>By design Jobs can not be run in parallel. 
-If you need this, you might start multiple job processes by the operating system
-or the Shell job entry.
-To synchronize multiple jobs you can use the File job entries.</note>
+If you need this, you might start multiple workflow processes by the operating system
+or the Shell workflow entry.
+To synchronize multiple jobs you can use the File workflow entries.</note>
       <xloc>40</xloc>
       <yloc>33</yloc>
       <width>429</width>
@@ -184,7 +184,7 @@ this Job. Note: In the log view you see enries of all Jobs.</note>
       <heigth>25</heigth>
     </notepad>
     <notepad>
-      <note>Make sure the timing is enough for this job to start and delete the two files
+      <note>Make sure the timing is enough for this workflow to start and delete the two files
 before the other Jobs will be finished. Otherwise you could run into
 race conditions.</note>
       <xloc>454</xloc>
@@ -201,4 +201,4 @@ If the Jobs are started parallel this Job entry has no delay.</note>
       <heigth>40</heigth>
     </notepad>
   </notepads>
-</job>
+</workflow>

@@ -28,14 +28,13 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Job;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Convert Values in a certain fields to other values
@@ -154,8 +153,8 @@ public class SetVariable extends BaseTransform implements ITransform {
       pipeline.setVariable( varname, value );
     }
 
-    // The pipeline object we have now is the pipeline being executed by a job.
-    // It has one or more parent jobs.
+    // The pipeline object we have now is the pipeline being executed by a workflow.
+    // It has one or more parent workflows.
     // Below we see where we need to this value as well...
     //
     switch ( meta.getVariableType()[ i ] ) {
@@ -170,7 +169,7 @@ public class SetVariable extends BaseTransform implements ITransform {
         }
 
         break;
-      case SetVariableMeta.VARIABLE_TYPE_ROOT_JOB:
+      case SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW:
         // Comments by SB
         // iVariables rootJob = null;
         parentJob = pipeline.getParentJob();
@@ -181,37 +180,37 @@ public class SetVariable extends BaseTransform implements ITransform {
         }
         break;
 
-      case SetVariableMeta.VARIABLE_TYPE_GRAND_PARENT_JOB:
-        // Set the variable in the parent job
+      case SetVariableMeta.VARIABLE_TYPE_GRAND_PARENT_WORKFLOW:
+        // Set the variable in the parent workflow
         //
         parentJob = pipeline.getParentJob();
         if ( parentJob != null ) {
           parentJob.setVariable( varname, value );
         } else {
           throw new HopTransformException( "Can't set variable ["
-            + varname + "] on parent job: the parent job is not available" );
+            + varname + "] on parent workflow: the parent workflow is not available" );
         }
 
-        // Set the variable on the grand-parent job
+        // Set the variable on the grand-parent workflow
         //
         iVariables gpJob = pipeline.getParentJob().getParentJob();
         if ( gpJob != null ) {
           gpJob.setVariable( varname, value );
         } else {
           throw new HopTransformException( "Can't set variable ["
-            + varname + "] on grand parent job: the grand parent job is not available" );
+            + varname + "] on grand parent workflow: the grand parent workflow is not available" );
         }
         break;
 
-      case SetVariableMeta.VARIABLE_TYPE_PARENT_JOB:
-        // Set the variable in the parent job
+      case SetVariableMeta.VARIABLE_TYPE_PARENT_WORKFLOW:
+        // Set the variable in the parent workflow
         //
         parentJob = pipeline.getParentJob();
         if ( parentJob != null ) {
           parentJob.setVariable( varname, value );
         } else {
           throw new HopTransformException( "Can't set variable ["
-            + varname + "] on parent job: the parent job is not available" );
+            + varname + "] on parent workflow: the parent workflow is not available" );
         }
         break;
 

@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginTypeListener;
@@ -159,9 +159,9 @@ public class GUIResource {
 
   private Map<String, Image> imagesTransformsSmall = new Hashtable<>();
 
-  private Map<String, SwtUniversalImage> imagesJobentries;
+  private Map<String, SwtUniversalImage> imagesActions;
 
-  private Map<String, Image> imagesJobentriesSmall;
+  private Map<String, Image> imagesActionsSmall;
 
   private SwtUniversalImage imageHop;
 
@@ -382,7 +382,7 @@ public class GUIResource {
 
   private Image imagePipelineCanvas;
 
-  private Image imageJobCanvas;
+  private Image imageWorkflowCanvas;
 
   private Image imageAddAll;
 
@@ -415,7 +415,8 @@ public class GUIResource {
   private Image imageToolbarBack;
   private Image imageToolbarCleanup;
   private Image imageToolbarClose;
-  private Image imageToolbarJob;
+  private Image imageToolbarPipeline;
+  private Image imageToolbarWorkflow;
   private Image imageToolbarPause;
   private Image imageToolbarRun;
   private Image imageToolbarRunOption;
@@ -423,8 +424,8 @@ public class GUIResource {
   private Image imageToolbarView;
   private Image imageToolbarViewAsXml;
 
-  private Image imageToolbarPipeline;
-  private Image imageToolbarPipelineInactive;
+  private Image imageToolbarDataOrchestration;
+  private Image imageToolbarDataOrchestrationInactive;
 
   private Image imageToolbarSearch;
   private Image imageToolbarSearchInactive;
@@ -465,14 +466,14 @@ public class GUIResource {
       }
     } );
 
-    PluginRegistry.getInstance().addPluginListener( JobEntryPluginType.class, new IPluginTypeListener() {
+    PluginRegistry.getInstance().addPluginListener( ActionPluginType.class, new IPluginTypeListener() {
       @Override public void pluginAdded( Object serviceObject ) {
-        // make sure we load up the images for any new job entries that have been registered
+        // make sure we load up the images for any new actions that have been registered
         loadJobEntryImages();
       }
 
       @Override public void pluginRemoved( Object serviceObject ) {
-        // rebuild the image map, in effect removing the image(s) for job entries that have gone away
+        // rebuild the image map, in effect removing the image(s) for actions that have gone away
         loadJobEntryImages();
       }
 
@@ -676,7 +677,7 @@ public class GUIResource {
       imageHadoop.dispose();
       imageDropHere.dispose();
       imagePipelineCanvas.dispose();
-      imageJobCanvas.dispose();
+      imageWorkflowCanvas.dispose();
       imageAddAll.dispose();
       imageAddSingle.dispose();
       imageRemoveAll.dispose();
@@ -730,13 +731,14 @@ public class GUIResource {
       imageToolbarBack.dispose();
       imageToolbarCleanup.dispose();
       imageToolbarClose.dispose();
-      imageToolbarJob.dispose();
+      imageToolbarWorkflow.dispose();
+      imageToolbarPipeline.dispose();
       imageToolbarPause.dispose();
       imageToolbarRun.dispose();
       imageToolbarRunOption.dispose();
       imageToolbarStop.dispose();
-      imageToolbarPipeline.dispose();
-      imageToolbarPipelineInactive.dispose();
+      imageToolbarDataOrchestration.dispose();
+      imageToolbarDataOrchestrationInactive.dispose();
       imageToolbarSearch.dispose();
       imageToolbarSearchInactive.dispose();
       imageToolbarView.dispose();
@@ -1136,7 +1138,7 @@ public class GUIResource {
     imagePipelineCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "PipelineCanvas_image" ), 800, 250 );
 
     // "ui/images/job_canvas.svg
-    imageJobCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "JobCanvas_image" ), 800, 250 );
+    imageWorkflowCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "WorkflowCanvas_image" ), 800, 250 );
 
     // "ui/images/add_all.png
     imageAddAll = loadAsResource( display, BasePropertyHandler.getProperty( "AddAll_image" ), 12 );
@@ -1235,13 +1237,14 @@ public class GUIResource {
     imageToolbarBack = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarBack_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarCleanup = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarCleanup_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarClose = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarClose_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarJob = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarJob_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarWorkflow = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarWorkflow_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarPause = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPause_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarRun = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRun_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarRunOption = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarStop = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarDataOrchestration = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarDataOrchestration_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarDataOrchestrationInactive = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarDataOrchestration_Inactive_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarPipeline = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPipeline_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarPipelineInactive = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPipelineInactive_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarSearch = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarSearch_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarSearchInactive = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarSearchInactive_image" ), ConstUI.SMALL_ICON_SIZE );
     imageToolbarView = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -1252,15 +1255,15 @@ public class GUIResource {
    * Load all transform images from files.
    */
   private void loadJobEntryImages() {
-    imagesJobentries = new Hashtable<String, SwtUniversalImage>();
-    imagesJobentriesSmall = new Hashtable<String, Image>();
+    imagesActions = new Hashtable<String, SwtUniversalImage>();
+    imagesActionsSmall = new Hashtable<String, Image>();
 
     // //
     // // JOB ENTRY IMAGES TO LOAD
     // //
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    List<IPlugin> plugins = registry.getPlugins( JobEntryPluginType.class );
+    List<IPlugin> plugins = registry.getPlugins( ActionPluginType.class );
     for ( int i = 0; i < plugins.size(); i++ ) {
       IPlugin plugin = plugins.get( i );
 
@@ -1290,8 +1293,8 @@ public class GUIResource {
         small_image = image.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
       }
 
-      imagesJobentries.put( plugin.getIds()[ 0 ], image );
-      imagesJobentriesSmall.put( plugin.getIds()[ 0 ], small_image );
+      imagesActions.put( plugin.getIds()[ 0 ], image );
+      imagesActionsSmall.put( plugin.getIds()[ 0 ], small_image );
     }
   }
 
@@ -1695,31 +1698,31 @@ public class GUIResource {
   }
 
   /**
-   * @return Returns the imagesJobentries.
+   * @return Returns the imagesActions.
    */
-  public Map<String, SwtUniversalImage> getImagesJobentries() {
-    return imagesJobentries;
+  public Map<String, SwtUniversalImage> getImagesActions() {
+    return imagesActions;
   }
 
   /**
-   * @param imagesJobentries The imagesJobentries to set.
+   * @param imagesActions The imagesActions to set.
    */
-  public void setImagesJobentries( Hashtable<String, SwtUniversalImage> imagesJobentries ) {
-    this.imagesJobentries = imagesJobentries;
+  public void setImagesActions( Hashtable<String, SwtUniversalImage> imagesActions ) {
+    this.imagesActions = imagesActions;
   }
 
   /**
-   * @return Returns the imagesJobentriesSmall.
+   * @return Returns the imagesActionsSmall.
    */
-  public Map<String, Image> getImagesJobentriesSmall() {
-    return imagesJobentriesSmall;
+  public Map<String, Image> getImagesActionsSmall() {
+    return imagesActionsSmall;
   }
 
   /**
-   * @param imagesJobentriesSmall The imagesJobentriesSmall to set.
+   * @param imagesActionsSmall The imagesActionsSmall to set.
    */
-  public void setImagesJobentriesSmall( Hashtable<String, Image> imagesJobentriesSmall ) {
-    this.imagesJobentriesSmall = imagesJobentriesSmall;
+  public void setImagesActionsSmall( Hashtable<String, Image> imagesActionsSmall ) {
+    this.imagesActionsSmall = imagesActionsSmall;
   }
 
   /**
@@ -2520,12 +2523,12 @@ public class GUIResource {
     this.imagePipelineCanvas = imagePipelineCanvas;
   }
 
-  public Image getImageJobCanvas() {
-    return imageJobCanvas;
+  public Image getImageWorkflowCanvas() {
+    return imageWorkflowCanvas;
   }
 
-  public void setImageJobCanvas( Image imageJobCanvas ) {
-    this.imageJobCanvas = imageJobCanvas;
+  public void setImageWorkflowCanvas( Image imageWorkflowCanvas ) {
+    this.imageWorkflowCanvas = imageWorkflowCanvas;
   }
 
   public void setImageAddAll( Image imageAddAll ) {
@@ -2662,8 +2665,8 @@ public class GUIResource {
    *
    * @return value of imageToolbarJob
    */
-  public Image getImageToolbarJob() {
-    return imageToolbarJob;
+  public Image getImageToolbarWorkflow() {
+    return imageToolbarWorkflow;
   }
 
   /**
@@ -2730,15 +2733,6 @@ public class GUIResource {
   }
 
   /**
-   * Gets imageToolbarPipelineInactive
-   *
-   * @return value of imageToolbarPipelineInactive
-   */
-  public Image getImageToolbarPipelineInactive() {
-    return imageToolbarPipelineInactive;
-  }
-
-  /**
    * Gets imageToolbarSearch
    *
    * @return value of imageToolbarSearch
@@ -2754,5 +2748,24 @@ public class GUIResource {
    */
   public Image getImageToolbarSearchInactive() {
     return imageToolbarSearchInactive;
+  }
+
+
+  /**
+   * Gets imageToolbarDataOrchestration
+   *
+   * @return value of imageToolbarDataOrchestration
+   */
+  public Image getImageToolbarDataOrchestration() {
+    return imageToolbarDataOrchestration;
+  }
+
+  /**
+   * Gets imageToolbarDataOrchestrationInactive
+   *
+   * @return value of imageToolbarDataOrchestrationInactive
+   */
+  public Image getImageToolbarDataOrchestrationInactive() {
+    return imageToolbarDataOrchestrationInactive;
   }
 }

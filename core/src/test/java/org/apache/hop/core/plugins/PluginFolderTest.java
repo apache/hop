@@ -49,14 +49,14 @@ public class PluginFolderTest {
 
   private static final String BASE_TEMP_DIR = System.getProperty( "java.io.tmpdir" );
   private static final String PLUGINS_DIR_NAME = "plugins";
-  private static final String WITH_JAR_IN_NAME_DIR_NAME = "job.jar";
+  private static final String WITH_JAR_IN_NAME_DIR_NAME = "workflow.jar";
   private static final String TEST_DIR_NAME = "test_dir";
   /**
    *
    */
   private static final Path PATH_TO_HOP_IGNORE_FILE =
     Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, ".kettle-ignore" );
-  private static final String JAR_FILE1_NAME = "job.jar";
+  private static final String JAR_FILE1_NAME = "workflow.jar";
   private static final String JAR_FILE2_NAME = "test.jar";
   /**
    *
@@ -68,11 +68,11 @@ public class PluginFolderTest {
   /**
    * Paths below represent the following structure of the folder and files in them:
    * <p>
-   * <TMP_DIR>/plugins/job.jar - folder
+   * <TMP_DIR>/plugins/workflow.jar - folder
    * <p>
-   * <TMP_DIR>/plugins/job.jar/job.jar - file
+   * <TMP_DIR>/plugins/workflow.jar/workflow.jar - file
    * <p>
-   * <TMP_DIR>/plugins/job.jar/test.txt - file
+   * <TMP_DIR>/plugins/workflow.jar/test.txt - file
    */
   private static final Path PATH_TO_DIR_WITH_JAR_IN_NAME =
     Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME );
@@ -86,7 +86,7 @@ public class PluginFolderTest {
    * <p>
    * <TMP_DIR>/plugins/test_dir - folder
    * <p>
-   * <TMP_DIR>/plugins/test_dir/job.jar - file
+   * <TMP_DIR>/plugins/test_dir/workflow.jar - file
    * <p>
    * <TMP_DIR>/plugins/test_dir/test.txt - file
    */
@@ -174,7 +174,7 @@ public class PluginFolderTest {
 
   @Test
   public void testFindJarFiles_SeveralJarsInDifferentDirs() throws IOException, HopFileException {
-    // Files in plugins/job.jar folder
+    // Files in plugins/workflow.jar folder
     Files.createDirectories( PATH_TO_DIR_WITH_JAR_IN_NAME );
     Files.createFile( PATH_TO_JAR_FILE1 );
     Files.createFile( PATH_TO_NOT_JAR_FILE );

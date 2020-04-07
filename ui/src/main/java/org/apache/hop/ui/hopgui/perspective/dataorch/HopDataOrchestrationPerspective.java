@@ -7,7 +7,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -18,8 +19,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
-import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -53,7 +53,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   private static HopDataOrchestrationPerspective perspective;
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
-  private final HopJobFileType<JobMeta> jobFileType;
+  private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
 
   private HopGui hopGui;
   private Composite parent;
@@ -83,7 +83,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionIndex = 0;
 
     pipelineFileType = new HopPipelineFileType<>();
-    jobFileType = new HopJobFileType<>();
+    workflowFileType = new HopWorkflowFileType<>();
   }
 
   @Override public String getId() {
@@ -104,12 +104,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override public void show() {
     composite.setVisible( true );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarPipeline() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarDataOrchestration() );
   }
 
   @Override public void hide() {
     composite.setVisible( false );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarPipelineInactive() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarDataOrchestrationInactive() );
   }
 
   @Override public boolean isActive() {
@@ -265,7 +265,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public TabItemHandler findTabItemHandler( IHopFileTypeHandler handler ) {
     for ( TabItemHandler item : items ) {
-      // This compares the handler payload, typically PipelineMeta, JobMeta and so on.
+      // This compares the handler payload, typically PipelineMeta, WorkflowMeta and so on.
       if ( item.getTypeHandler().equals( handler ) ) {
         return item;
       }
@@ -320,20 +320,20 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   /**
-   * Add a new job tab to the tab folder...
+   * Add a new workflow tab to the tab folder...
    *
-   * @param jobMeta
+   * @param workflowMeta
    * @return The file type handler
    */
-  public IHopFileTypeHandler addJob( Composite parent, HopGui hopGui, JobMeta jobMeta, HopJobFileType jobFile ) throws HopException {
+  public IHopFileTypeHandler addWorkflow( Composite parent, HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GUIResource.getInstance().getImageToolbarJob() );
-    HopGuiJobGraph jobGraph = new HopGuiJobGraph( tabFolder, hopGui, tabItem, this, jobMeta, jobFile );
+    tabItem.setImage( GUIResource.getInstance().getImageToolbarWorkflow() );
+    HopGuiWorkflowGraph jobGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
     tabItem.setControl( jobGraph );
 
     // Set the tab name
     //
-    updateTabLabel(tabItem, jobMeta.getFilename(), jobMeta.getName());
+    updateTabLabel(tabItem, workflowMeta.getFilename(), workflowMeta.getName());
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
@@ -352,7 +352,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     try {
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewJobTab.id, jobGraph );
     } catch ( Exception e ) {
-      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new job tab", e );
+      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new workflow tab", e );
     }
 
     jobGraph.setFocus();
@@ -403,7 +403,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   public List<IHopFileType> getSupportedHopFileTypes() {
-    return Arrays.asList( pipelineFileType, jobFileType );
+    return Arrays.asList( pipelineFileType, workflowFileType );
   }
 
   @Override public void navigateToPreviousFile() {
@@ -587,8 +587,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    *
    * @return value of jobFileType
    */
-  public HopJobFileType<JobMeta> getJobFileType() {
-    return jobFileType;
+  public HopWorkflowFileType<WorkflowMeta> getWorkflowFileType() {
+    return workflowFileType;
   }
 
 }

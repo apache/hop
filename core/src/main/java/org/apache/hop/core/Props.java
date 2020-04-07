@@ -245,8 +245,8 @@ public class Props implements Cloneable {
   }
 
   protected void addDefaultEntries() {
-    if ( !properties.containsKey( "JobDialogStyle" ) ) {
-      properties.setProperty( "JobDialogStyle", "RESIZE,MAX,MIN" );
+    if ( !properties.containsKey( "WorkflowDialogStyle" ) ) {
+      properties.setProperty( "WorkflowDialogStyle", "RESIZE,MAX,MIN" );
     }
   }
 

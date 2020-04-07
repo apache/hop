@@ -86,11 +86,11 @@ public class CommandExecutorCodes {
    */
   public enum Kitchen {
 
-    SUCCESS( 0, "The job ran without a problem" ),
+    SUCCESS( 0, "The workflow ran without a problem" ),
     ERRORS_DURING_PROCESSING( 1, "Errors occurred during processing" ),
-    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading or running of the job" ),
+    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading or running of the workflow" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_JOB( 7, "The job couldn't be de-serialized" ),
+    COULD_NOT_LOAD_JOB( 7, "The workflow couldn't be de-serialized" ),
     ERROR_LOADING_TRANSFORMS_PLUGINS( 8, "Error loading transforms or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 

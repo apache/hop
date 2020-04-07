@@ -41,7 +41,7 @@ public class StringSearchResultTest {
     assertNotNull( rm );
     assertEquals( 4, rm.getValueMetaList().size() );
     assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ), rm.getValueMeta( 0 ).getName() );
+    assertEquals( BaseMessages.getString( PKG, "SearchResult.PipelineOrWorkflow" ), rm.getValueMeta( 0 ).getName() );
     assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
     assertEquals( BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ), rm.getValueMeta( 1 ).getName() );
     assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 2 ).getType() );

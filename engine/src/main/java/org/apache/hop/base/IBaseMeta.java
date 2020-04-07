@@ -24,7 +24,7 @@ package org.apache.hop.base;
 import org.apache.hop.core.gui.Point;
 
 /**
- * Common methods of TransformMeta and JobEntryCopy.
+ * Common methods of TransformMeta and ActionCopy.
  *
  * @author Alexander Buloichik
  */

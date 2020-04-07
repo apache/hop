@@ -35,15 +35,14 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.IDelegationListener;
+import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutor;
+import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 
@@ -59,8 +58,8 @@ import java.util.Map;
  * <p>
  * <b>Note:</b><br/>
  * Be aware, logic of the classes methods is very similar to corresponding methods of
- * {@link org.apache.hop.pipeline.transforms.jobexecutor.JobExecutor JobExecutor}.
- * If you change something in this class, consider copying your changes to JobExecutor as well.
+ * {@link WorkflowExecutor WorkflowExecutor}.
+ * If you change something in this class, consider copying your changes to WorkflowExecutor as well.
  * </p>
  *
  * @author Matt

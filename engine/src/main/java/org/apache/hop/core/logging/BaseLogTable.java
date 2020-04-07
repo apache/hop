@@ -416,8 +416,8 @@ public abstract class BaseLogTable {
   protected String getLogBuffer( IVariables variables, String logChannelId, LogStatus status, String limit ) {
 
     LoggingBuffer loggingBuffer = HopLogStore.getAppender();
-    // if job is starting, then remove all previous events from buffer with that job logChannelId.
-    // Prevents recursive job calls logging issue.
+    // if workflow is starting, then remove all previous events from buffer with that workflow logChannelId.
+    // Prevents recursive workflow calls logging issue.
     if ( status.getStatus().equalsIgnoreCase( String.valueOf( LogStatus.START ) ) ) {
       loggingBuffer.removeChannelFromBuffer( logChannelId );
     }
@@ -448,7 +448,7 @@ public abstract class BaseLogTable {
     return buffer.append( Const.CR + status.getStatus().toUpperCase() + Const.CR ).toString();
   }
 
-  // PDI-7070: implement equals for comparison of job/pipeline log table to its parent log table
+  // PDI-7070: implement equals for comparison of workflow/pipeline log table to its parent log table
   @Override
   public boolean equals( Object obj ) {
     if ( obj == null || !( obj instanceof BaseLogTable ) ) {

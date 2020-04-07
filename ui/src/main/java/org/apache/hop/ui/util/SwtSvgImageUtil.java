@@ -110,6 +110,9 @@ public class SwtSvgImageUtil {
    * Load image from several sources.
    */
   public static SwtUniversalImage getImageAsResource( Display display, String location ) {
+    if (location==null) {
+      throw new RuntimeException( "No location given to load image resource");
+    }
     SwtUniversalImage result = null;
     if ( result == null && SvgSupport.isSvgEnabled() ) {
       result = getImageAsResourceInternal( display, SvgSupport.toSvgName( location ) );

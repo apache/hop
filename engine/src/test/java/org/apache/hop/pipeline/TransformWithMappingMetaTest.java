@@ -210,7 +210,7 @@ public class TransformWithMappingMetaTest {
   public void replaceVariablesWithJobInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    String[] jobVariables = Const.INTERNAL_JOB_VARIABLES;
+    String[] jobVariables = Const.INTERNAL_WORKFLOW_VARIABLES;
     IVariables ChildVariables = new Variables();
     IVariables replaceByParentVariables = new Variables();
 

@@ -24,7 +24,7 @@ package org.apache.hop.core.reflection;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 
@@ -45,7 +45,7 @@ public class StringSearcher {
   static {
     PluginRegistry registry = PluginRegistry.getInstance();
     transformPluginPackages = registry.getPluginPackages( TransformPluginType.class );
-    jobEntryPluginPackages = registry.getPluginPackages( JobEntryPluginType.class );
+    jobEntryPluginPackages = registry.getPluginPackages( ActionPluginType.class );
   }
 
   public static final void findMetaData( Object object, int level, List<StringSearchResult> stringList,
@@ -60,7 +60,7 @@ public class StringSearcher {
       transformPluginPackages = registry.getPluginPackages( TransformPluginType.class );
     }
     if ( jobEntryPluginPackages == null ) {
-      jobEntryPluginPackages = registry.getPluginPackages( JobEntryPluginType.class );
+      jobEntryPluginPackages = registry.getPluginPackages( ActionPluginType.class );
     }
 
     Class<? extends Object> baseClass = object.getClass();

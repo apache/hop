@@ -25,8 +25,8 @@ package org.apache.hop.core.undo;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobHopMeta;
-import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -78,16 +78,16 @@ public class ChangeAction {
     PositionTransform( BaseMessages.getString( PKG, "TransAction.label.PositionTransform" ) ),
     PositionNote( BaseMessages.getString( PKG, "TransAction.label.PositionNote" ) ),
 
-    ChangeJobEntry( BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" ) ),
-    ChangeJobHop( BaseMessages.getString( PKG, "TransAction.label.ChangeJobHop" ) ),
+    ChangeAction( BaseMessages.getString( PKG, "TransAction.label.ChangeAction" ) ),
+    ChangeWorkflowHop( BaseMessages.getString( PKG, "TransAction.label.ChangeWorkflowHop" ) ),
 
-    NewJobEntry( BaseMessages.getString( PKG, "TransAction.label.NewJobEntry" ) ),
-    NewJobHop( BaseMessages.getString( PKG, "TransAction.label.NewJobHop" ) ),
+    NewAction( BaseMessages.getString( PKG, "TransAction.label.NewAction" ) ),
+    NewWorkflowHop( BaseMessages.getString( PKG, "TransAction.label.NewWorkflowHop" ) ),
 
-    DeleteJobEntry( BaseMessages.getString( PKG, "TransAction.label.DeleteJobEntry" ) ),
-    DeleteJobHop( BaseMessages.getString( PKG, "TransAction.label.DeleteJobHop" ) ),
+    DeleteAction( BaseMessages.getString( PKG, "TransAction.label.DeleteAction" ) ),
+    DeleteWorkflowHop( BaseMessages.getString( PKG, "TransAction.label.DeleteWorkflowHop" ) ),
 
-    PositionJobEntry( BaseMessages.getString( PKG, "TransAction.label.PositionJobEntry" ) ),
+    PositionAction( BaseMessages.getString( PKG, "TransAction.label.PositionAction" ) ),
 
     ChangeTableRow( BaseMessages.getString( PKG, "TransAction.label.ChangeTableRow" ) ),
     NewTableRow( BaseMessages.getString( PKG, "TransAction.label.NewTableRow" ) ),
@@ -140,11 +140,11 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.DeleteNote;
     }
-    if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = ActionType.DeleteJobEntry;
+    if ( prev[ 0 ] instanceof ActionCopy ) {
+      type = ActionType.DeleteAction;
     }
-    if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = ActionType.DeleteJobHop;
+    if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
+      type = ActionType.DeleteWorkflowHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
       type = ActionType.DeleteTableRow;
@@ -166,11 +166,11 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.ChangeNote;
     }
-    if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = ActionType.ChangeJobEntry;
+    if ( prev[ 0 ] instanceof ActionCopy ) {
+      type = ActionType.ChangeAction;
     }
-    if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = ActionType.ChangeJobHop;
+    if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
+      type = ActionType.ChangeWorkflowHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
       type = ActionType.ChangeTableRow;
@@ -195,11 +195,11 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.NewNote;
     }
-    if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = ActionType.NewJobEntry;
+    if ( prev[ 0 ] instanceof ActionCopy ) {
+      type = ActionType.NewAction;
     }
-    if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = ActionType.NewJobHop;
+    if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
+      type = ActionType.NewWorkflowHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
       type = ActionType.NewTableRow;
@@ -228,8 +228,8 @@ public class ChangeAction {
     if ( fobj instanceof NotePadMeta ) {
       type = ActionType.PositionNote;
     }
-    if ( fobj instanceof JobEntryCopy ) {
-      type = ActionType.PositionJobEntry;
+    if ( fobj instanceof ActionCopy ) {
+      type = ActionType.PositionAction;
     }
   }
 

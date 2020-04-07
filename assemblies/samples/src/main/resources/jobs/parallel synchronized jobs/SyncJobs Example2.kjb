@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>SyncJobs Example2</name>
     <description/>
     <extended_description/>
@@ -104,4 +104,4 @@
       <heigth>25</heigth>
     </notepad>
   </notepads>
-</job>
+</workflow>

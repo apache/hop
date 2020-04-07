@@ -27,7 +27,7 @@
       <modules>
         <module>databases</module>
         <module>transforms</module>
-        <module>jobentries</module>
+        <module>actions</module>
         <module>misc</module>
       </modules>
     </profile>

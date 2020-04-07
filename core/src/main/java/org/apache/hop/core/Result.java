@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Describes the result of the execution of a Pipeline or a Job. The information available includes the following:
  * <p>
  * <ul>
- * <li>Number of errors the job or pipeline encountered</li>
+ * <li>Number of errors the workflow or pipeline encountered</li>
  * <li>Number of lines input</li>
  * <li>Number of lines output</li>
  * <li>Number of lines updated</li>
@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li>Logging information (channel ID and text)</li>
  * </p>
  * <p>
- * After execution of a job or pipeline, the Result can be evaluated.
+ * After execution of a workflow or pipeline, the Result can be evaluated.
  *
  * @author Matt
  * @since 05-11-2003
@@ -85,7 +85,7 @@ public class Result implements Cloneable {
   public static final String XML_ROWS_TAG = "result-rows";
 
   /**
-   * The number of errors during the pipeline or job
+   * The number of errors during the pipeline or workflow
    */
   private long nrErrors;
 
@@ -125,7 +125,7 @@ public class Result implements Cloneable {
   private long nrFilesRetrieved;
 
   /**
-   * The result of the job or pipeline, true if successful, false otherwise.
+   * The result of the workflow or pipeline, true if successful, false otherwise.
    */
   private boolean result;
 
@@ -150,7 +150,7 @@ public class Result implements Cloneable {
   private Map<String, ResultFile> resultFiles;
 
   /**
-   * Whether the job or pipeline was stopped.
+   * Whether the workflow or pipeline was stopped.
    */
   public boolean stopped;
 
@@ -319,7 +319,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of files retrieved during execution of this pipeline or job
+   * Returns the number of files retrieved during execution of this pipeline or workflow
    *
    * @return the number of files retrieved
    */
@@ -373,7 +373,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of errors that occurred during this pipeline or job
+   * Returns the number of errors that occurred during this pipeline or workflow
    *
    * @return the number of errors
    */
@@ -382,7 +382,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of errors that occurred during execution of this pipeline or job
+   * Sets the number of errors that occurred during execution of this pipeline or workflow
    *
    * @param nrErrors The number of errors to set
    */
@@ -391,7 +391,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines input during execution of this pipeline or job
+   * Returns the number of lines input during execution of this pipeline or workflow
    *
    * @return the number of lines input
    */
@@ -400,7 +400,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines input during execution of this pipeline or job
+   * Sets the number of lines input during execution of this pipeline or workflow
    *
    * @param nrLinesInput The number of lines input to set.
    */
@@ -409,7 +409,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines output during execution of this pipeline or job
+   * Returns the number of lines output during execution of this pipeline or workflow
    *
    * @return the number of lines output
    */
@@ -418,7 +418,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines output during execution of this pipeline or job
+   * Sets the number of lines output during execution of this pipeline or workflow
    *
    * @param nrLinesOutput The number of lines output to set
    */
@@ -427,7 +427,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines read during execution of this pipeline or job
+   * Returns the number of lines read during execution of this pipeline or workflow
    *
    * @return the number of lines read
    */
@@ -436,7 +436,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines read during execution of this pipeline or job
+   * Sets the number of lines read during execution of this pipeline or workflow
    *
    * @param nrLinesRead The number of lines read to set.
    */
@@ -445,7 +445,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines updated during execution of this pipeline or job
+   * Returns the number of lines updated during execution of this pipeline or workflow
    *
    * @return the number of lines updated
    */
@@ -454,7 +454,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines updated during execution of this pipeline or job
+   * Sets the number of lines updated during execution of this pipeline or workflow
    *
    * @param nrLinesUpdated The number of lines updated to set.
    */
@@ -463,7 +463,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines written during execution of this pipeline or job
+   * Returns the number of lines written during execution of this pipeline or workflow
    *
    * @return the number of lines written
    */
@@ -472,7 +472,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines written during execution of this pipeline or job
+   * Sets the number of lines written during execution of this pipeline or workflow
    *
    * @param nrLinesWritten The number of lines written to set.
    */
@@ -481,7 +481,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines deleted during execution of this pipeline or job
+   * Returns the number of lines deleted during execution of this pipeline or workflow
    *
    * @return the number of lines deleted
    */
@@ -490,7 +490,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines deleted during execution of this pipeline or job
+   * Sets the number of lines deleted during execution of this pipeline or workflow
    *
    * @param nrLinesDeleted The number of lines deleted to set.
    */
@@ -499,16 +499,16 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the boolean result of this pipeline or job
+   * Returns the boolean result of this pipeline or workflow
    *
-   * @return true if the pipeline or job was successful, false otherwise
+   * @return true if the pipeline or workflow was successful, false otherwise
    */
   public boolean getResult() {
     return result;
   }
 
   /**
-   * Sets the result of the pipeline or job. A value of true should indicate a successful execution, a value of
+   * Sets the result of the pipeline or workflow. A value of true should indicate a successful execution, a value of
    * false should indicate an error condition.
    *
    * @param result The boolean result to set.
@@ -518,18 +518,18 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the resulting rowset from the job or pipeline. For example, Result rows are used in jobs where
-   * entries wish to receive the results of previous executions of jobs or pipelines. The Result rows can be used
-   * to do many kinds of pipeline or job post-processing.
+   * Returns the resulting rowset from the workflow or pipeline. For example, Result rows are used in workflows where
+   * entries wish to receive the results of previous executions of workflows or pipelines. The Result rows can be used
+   * to do many kinds of pipeline or workflow post-processing.
    *
-   * @return a List of rows associated with the result of execution of a job or pipeline
+   * @return a List of rows associated with the result of execution of a workflow or pipeline
    */
   public List<RowMetaAndData> getRows() {
     return rows;
   }
 
   /**
-   * Sets the resulting rowset from the job or pipeline execution
+   * Sets the resulting rowset from the workflow or pipeline execution
    *
    * @param rows The List of rows to set.
    */
@@ -538,7 +538,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns whether the pipeline or job was stopped before completion
+   * Returns whether the pipeline or workflow was stopped before completion
    *
    * @return true if stopped, false otherwise
    */
@@ -547,9 +547,9 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets whether the pipeline or job was stopped before completion
+   * Sets whether the pipeline or workflow was stopped before completion
    *
-   * @param stopped true if the pipeline or job was stopped, false otherwise
+   * @param stopped true if the pipeline or workflow was stopped, false otherwise
    */
   public void setStopped( boolean stopped ) {
     this.stopped = stopped;
@@ -629,7 +629,7 @@ public class Result implements Cloneable {
 
       return xml.toString();
     } catch ( IOException e ) {
-      throw new RuntimeException( "Unexpected error encoding job result as XML", e );
+      throw new RuntimeException( "Unexpected error encoding workflow result as XML", e );
     }
   }
 
@@ -762,7 +762,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the number of lines rejected during execution of this pipeline or job
+   * Returns the number of lines rejected during execution of this pipeline or workflow
    *
    * @return the number of lines rejected
    */
@@ -771,7 +771,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the number of lines rejected during execution of this pipeline or job
+   * Sets the number of lines rejected during execution of this pipeline or workflow
    *
    * @param nrLinesRejected the number of lines rejected to set
    */
@@ -780,7 +780,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns the log channel id of the object that was executed (pipeline, job, job entry, etc)
+   * Returns the log channel id of the object that was executed (pipeline, workflow, action, etc)
    *
    * @return the log channel id
    */
@@ -789,7 +789,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Sets the log channel id of the object that was executed (pipeline, job, job entry, etc)
+   * Sets the log channel id of the object that was executed (pipeline, workflow, action, etc)
    *
    * @param logChannelId the logChannelId to set
    */
@@ -870,7 +870,7 @@ public class Result implements Cloneable {
   }
 
   /**
-   * Returns all the text from any logging performed by the pipeline or job
+   * Returns all the text from any logging performed by the pipeline or workflow
    *
    * @return the logging text as a string
    */

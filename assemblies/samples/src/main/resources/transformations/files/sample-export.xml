@@ -234,7 +234,7 @@ encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encry
 </transformation>
 </transformations>
 <jobs>
-<job>
+<workflow>
   <name/>
   <directory>/</directory>
   <modified_user>-</modified_user>
@@ -266,7 +266,7 @@ encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encry
   <entries>
     <entry>
       <name>START</name>
-      <description>A job starts to process here.</description>
+      <description>A workflow starts to process here.</description>
       <type>SPECIAL</type>
       <start>Y</start>
       <dummy>N</dummy>
@@ -471,7 +471,7 @@ encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encry
     </hops>
   <notepads>
     </notepads>
-  </job>
+  </workflow>
 </jobs>
 </repository>
 

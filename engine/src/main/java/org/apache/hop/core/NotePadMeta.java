@@ -31,7 +31,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
 
 /**
- * Describes a note displayed on a Pipeline, Job, Schema, or Report.
+ * Describes a note displayed on a Pipeline, Workflow, Schema, or Report.
  *
  * @author Matt
  * @since 28-11-2003
@@ -69,8 +69,6 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
   private int bordercolorgreen;
   private int bordercolorblue;
 
-  private boolean drawshadow;
-
   private Point location;
   public int width, height;
   private boolean selected;
@@ -102,7 +100,7 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
   public NotePadMeta( String n, int xl, int yl, int w, int h, String fontname, int fontsize, boolean fontbold,
                       boolean fontitalic, int fontColorRed, int fontColorGreen, int fontColorBlue, int backGrounColorRed,
                       int backGrounColorGreen, int backGrounColorBlue, int borderColorRed, int borderColorGreen,
-                      int borderColorBlue, boolean drawshadow ) {
+                      int borderColorBlue ) {
     this.note = n;
     this.location = new Point( xl, yl );
     this.width = w;
@@ -124,13 +122,12 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
     this.bordercolorred = borderColorRed;
     this.bordercolorgreen = borderColorGreen;
     this.bordercolorblue = borderColorBlue;
-    this.drawshadow = drawshadow;
   }
 
   public NotePadMeta( NotePadMeta n ) {
     this( n.note, n.location.x, n.location.y, n.width, n.height, n.fontname, n.fontsize, n.fontbold, n.fontitalic,
       n.fontcolorred, n.backgroundcolorgreen, n.fontcolorblue, n.backgroundcolorred,
-      n.backgroundcolorgreen, n.backgroundcolorblue, n.bordercolorred, n.bordercolorgreen, n.bordercolorblue, n.drawshadow );
+      n.backgroundcolorgreen, n.backgroundcolorblue, n.bordercolorred, n.bordercolorgreen, n.bordercolorblue );
   }
 
   public NotePadMeta( Node notepadnode ) throws HopXMLException {
@@ -170,7 +167,6 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
         Const.toInt( XMLHandler.getTagValue( notepadnode, "bordercolorgreen" ), COLOR_RGB_DEFAULT_BORDER_GREEN );
       this.bordercolorblue =
         Const.toInt( XMLHandler.getTagValue( notepadnode, "bordercolorblue" ), COLOR_RGB_DEFAULT_BORDER_BLUE );
-      this.drawshadow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( notepadnode, "drawshadow" ) );
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to read Notepad info from XML", e );
     }
@@ -290,20 +286,6 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
     this.selected = !this.selected;
   }
 
-  /**
-   * @param drawshadow The drawshadow to set.
-   */
-  public void setDrawShadow( boolean drawshadow ) {
-    this.drawshadow = drawshadow;
-  }
-
-  /**
-   * Change a drawshadow state
-   */
-  public boolean isDrawShadow() {
-    return this.drawshadow;
-  }
-
   public NotePadMeta clone() {
     return new NotePadMeta( this );
   }
@@ -350,8 +332,6 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
     retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorred", bordercolorred ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorgreen", bordercolorgreen ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorblue", bordercolorblue ) );
-    // draw shadow
-    retval.append( "      " ).append( XMLHandler.addTagValue( "drawshadow", drawshadow ) );
     retval.append( "    </notepad>" ).append( Const.CR );
 
     return retval.toString();
@@ -524,7 +504,5 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
     this.bordercolorred = COLOR_RGB_DEFAULT_BORDER_RED;
     this.bordercolorgreen = COLOR_RGB_DEFAULT_BORDER_GREEN;
     this.bordercolorblue = COLOR_RGB_DEFAULT_BORDER_BLUE;
-
-    this.drawshadow = true;
   }
 }

@@ -56,7 +56,7 @@ import java.util.Map;
     "BaseTransform.Category.Cryptography",
     "BaseTransform.Category.Palo",
     "BaseTransform.Category.OpenERP",
-    "BaseTransform.Category.Job",
+    "BaseTransform.Category.Workflow",
     "BaseTransform.Category.Mapping",
     "BaseTransform.Category.Bulk",
     "BaseTransform.Category.Inline",

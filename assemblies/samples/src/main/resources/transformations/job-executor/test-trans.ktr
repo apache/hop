@@ -471,7 +471,7 @@
     <specification_method>filename</specification_method>
     <job_object_id/>
     <job_name/>
-    <filename>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;test-job.kjb</filename>
+    <filename>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;test-workflow.kjb</filename>
     <directory_path/>
     <group_size>1</group_size>
     <group_field/>

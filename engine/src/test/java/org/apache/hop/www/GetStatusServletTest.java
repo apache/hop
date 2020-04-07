@@ -45,14 +45,14 @@ import static org.mockito.Mockito.when;
 
 public class GetStatusServletTest {
   private PipelineMap mockPipelineMap;
-  private JobMap mockJobMap;
+  private WorkflowMap mockWorkflowMap;
   private GetStatusServlet getStatusServlet;
 
   @Before
   public void setup() {
     mockPipelineMap = mock( PipelineMap.class );
-    mockJobMap = mock( JobMap.class );
-    getStatusServlet = new GetStatusServlet( mockPipelineMap, mockJobMap );
+    mockWorkflowMap = mock( WorkflowMap.class );
+    getStatusServlet = new GetStatusServlet( mockPipelineMap, mockWorkflowMap );
   }
 
   @Test

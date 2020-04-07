@@ -67,7 +67,7 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -100,7 +100,7 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">text:</td>
@@ -126,7 +126,7 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

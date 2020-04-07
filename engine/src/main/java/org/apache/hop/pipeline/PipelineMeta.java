@@ -31,12 +31,12 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.DBCache;
-import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SQLStatement;
@@ -56,10 +56,10 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.MetricsLogTable;
 import org.apache.hop.core.logging.PerformanceLogTable;
@@ -75,29 +75,29 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XMLFormatter;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transforms.mapping.MappingMeta;
 import org.apache.hop.pipeline.transforms.missing.Missing;
-import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
+import org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta;
+import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transforms.jobexecutor.JobExecutorMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingMeta;
-import org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta;
-import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -214,7 +214,7 @@ public class PipelineMeta extends AbstractMeta
   protected double maxDateOffset;
 
   /**
-   * The maximum date difference used for "max date" auditing and limiting job sizes.
+   * The maximum date difference used for "max date" auditing and limiting workflow sizes.
    */
   protected double maxDateDifference;
 
@@ -724,7 +724,7 @@ public class PipelineMeta extends AbstractMeta
    * Add a new transform to the pipeline at the specified index. This method sets the transform's parent pipeline to
    * the this pipeline, and marks that the pipelines' transforms have changed.
    *
-   * @param p        The index into the transform list
+   * @param p             The index into the transform list
    * @param transformMeta The transform to be added.
    */
   public void addTransform( int p, TransformMeta transformMeta ) {
@@ -928,7 +928,7 @@ public class PipelineMeta extends AbstractMeta
    * specified index to the specified meta-data object. The new transform's parent pipeline is updated to be this
    * pipeline.
    *
-   * @param i        The index into the transforms list
+   * @param i             The index into the transforms list
    * @param transformMeta The transform meta-data to set
    */
   public void setTransform( int i, TransformMeta transformMeta ) {
@@ -1148,7 +1148,7 @@ public class PipelineMeta extends AbstractMeta
    * Counts the number of previous transforms for a transform name taking into account whether or not they are informational.
    *
    * @param transformName The name of the transform to start from
-   * @param info     true if only the informational transforms are desired, false otherwise
+   * @param info          true if only the informational transforms are desired, false otherwise
    * @return The number of preceding transforms.
    * @deprecated
    */
@@ -1171,7 +1171,7 @@ public class PipelineMeta extends AbstractMeta
    * Find the previous transform on a certain location (i.e. the specified index).
    *
    * @param transformName The source transform name
-   * @param nr       the index into the transform list
+   * @param nr            the index into the transform list
    * @return The preceding transform found.
    * @deprecated
    */
@@ -1184,8 +1184,8 @@ public class PipelineMeta extends AbstractMeta
    * Find the previous transform on a certain location taking into account the transforms being informational or not.
    *
    * @param transformName The name of the transform
-   * @param nr       The index into the transform list
-   * @param info     true if only the informational transforms are desired, false otherwise
+   * @param nr            The index into the transform list
+   * @param info          true if only the informational transforms are desired, false otherwise
    * @return The transform information
    * @deprecated
    */
@@ -1198,7 +1198,7 @@ public class PipelineMeta extends AbstractMeta
    * Find the previous transform on a certain location (i.e. the specified index).
    *
    * @param transformMeta The source transform information
-   * @param nr       the index into the hops list
+   * @param nr            the index into the hops list
    * @return The preceding transform found.
    */
   public TransformMeta findPrevTransform( TransformMeta transformMeta, int nr ) {
@@ -1209,7 +1209,7 @@ public class PipelineMeta extends AbstractMeta
    * Count the number of previous transforms on a certain location taking into account the transforms being informational or not.
    *
    * @param transformMeta The name of the transform
-   * @param info     true if only the informational transforms are desired, false otherwise
+   * @param info          true if only the informational transforms are desired, false otherwise
    * @return The number of preceding transforms
    * @deprecated please use method findPreviousTransforms
    */
@@ -1235,8 +1235,8 @@ public class PipelineMeta extends AbstractMeta
    * Find the previous transform on a certain location taking into account the transforms being informational or not.
    *
    * @param transformMeta The transform
-   * @param nr       The index into the hops list
-   * @param info     true if we only want the informational transforms.
+   * @param nr            The index into the hops list
+   * @param info          true if we only want the informational transforms.
    * @return The preceding transform information
    * @deprecated please use method findPreviousTransforms
    */
@@ -1274,7 +1274,7 @@ public class PipelineMeta extends AbstractMeta
    * Get the previous transforms on a certain location taking into account the transforms being informational or not.
    *
    * @param transformMeta The name of the transform
-   * @param info     true if we only want the informational transforms.
+   * @param info          true if we only want the informational transforms.
    * @return The list of the preceding transforms
    */
   public List<TransformMeta> findPreviousTransforms( TransformMeta transformMeta, boolean info ) {
@@ -1409,7 +1409,7 @@ public class PipelineMeta extends AbstractMeta
    * Find the succeeding transform at a location for an originating transform.
    *
    * @param transformMeta The originating transform
-   * @param nr       The location
+   * @param nr            The location
    * @return The transform found.
    * @deprecated use {@link #getNextTransforms(TransformMeta)}
    */
@@ -1547,12 +1547,10 @@ public class PipelineMeta extends AbstractMeta
     s = transforms.size();
     for ( i = s - 1; i >= 0; i-- ) { // Back to front because drawing goes from start to end
       TransformMeta transformMeta = transforms.get( i );
-      if ( partOfPipelineHop( transformMeta ) ) { // Only consider transforms from active or inactive hops!
-        Point p = transformMeta.getLocation();
-        if ( p != null ) {
-          if ( x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize + 20 ) {
-            return transformMeta;
-          }
+      Point p = transformMeta.getLocation();
+      if ( p != null ) {
+        if ( x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize + 20 ) {
+          return transformMeta;
         }
       }
     }
@@ -1629,7 +1627,7 @@ public class PipelineMeta extends AbstractMeta
    * Returns the fields that are emitted by a certain transform.
    *
    * @param transformMeta The transform to be queried.
-   * @param monitor  The progress monitor for progress dialog. (null if not used!)
+   * @param monitor       The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
    * @throws HopTransformException the kettle transform exception
    */
@@ -1643,7 +1641,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta   The transform to be queried.
    * @param targetTransform the target transform
-   * @param monitor    The progress monitor for progress dialog. (null if not used!)
+   * @param monitor         The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
    * @throws HopTransformException the kettle transform exception
    */
@@ -1753,7 +1751,7 @@ public class PipelineMeta extends AbstractMeta
    * Find the fields that are entering a certain transform.
    *
    * @param transformMeta The transform queried
-   * @param monitor  The progress monitor for progress dialog. (null if not used!)
+   * @param monitor       The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields (w/ origin) entering the transform
    * @throws HopTransformException the kettle transform exception
    */
@@ -1817,7 +1815,7 @@ public class PipelineMeta extends AbstractMeta
    * Return the fields that are emitted by a transform with a certain name.
    *
    * @param transformName The name of the transform that's being queried.
-   * @param row      A row containing the input fields or an empty row if no input is required.
+   * @param row           A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
    * @throws HopTransformException the kettle transform exception
    */
@@ -1830,7 +1828,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta : The TransformMeta object that's being queried
    * @param nextTransform : if non-null this is the next transform that's call back to ask what's being sent
-   * @param row      : A row containing the input fields or an empty row if no input is required.
+   * @param row           : A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
    * @throws HopTransformException the kettle transform exception
    */
@@ -1843,8 +1841,8 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta : The TransformMeta object that's being queried
    * @param nextTransform : if non-null this is the next transform that's call back to ask what's being sent
-   * @param row      : A row containing the input fields or an empty row if no input is required.
-   * @param monitor  the monitor
+   * @param row           : A row containing the input fields or an empty row if no input is required.
+   * @param monitor       the monitor
    * @return A Row containing the output fields.
    * @throws HopTransformException the kettle transform exception
    */
@@ -1956,8 +1954,8 @@ public class PipelineMeta extends AbstractMeta
       if ( transform.getTransformMetaInterface() instanceof SingleThreaderMeta ) {
         ( (SingleThreaderMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
-      if ( transform.getTransformMetaInterface() instanceof JobExecutorMeta ) {
-        ( (JobExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransformMetaInterface() instanceof WorkflowExecutorMeta ) {
+        ( (WorkflowExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
       if ( transform.getTransformMetaInterface() instanceof PipelineExecutorMeta ) {
         ( (PipelineExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
@@ -2022,7 +2020,7 @@ public class PipelineMeta extends AbstractMeta
    * Gets the XML representation of this pipeline, including or excluding transform, database, slave server, cluster,
    * or partition information as specified by the parameters
    *
-   * @param includeTransforms           whether to include transform data
+   * @param includeTransforms      whether to include transform data
    * @param includeNamedParameters whether to include named parameters data
    * @param includeLog             whether to include log data
    * @param includeDependencies    whether to include dependencies data
@@ -2269,7 +2267,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
-   * @param pipelineNode            The XML node to load from
+   * @param pipelineNode         The XML node to load from
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @throws HopXMLException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
@@ -2282,7 +2280,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
-   * @param pipelineNode            The XML node to load from
+   * @param pipelineNode         The XML node to load from
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
    * @throws HopXMLException            if any errors occur during parsing of the specified file
@@ -2295,7 +2293,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
-   * @param pipelineNode            The XML node to load from
+   * @param pipelineNode         The XML node to load from
    * @param fname                The filename
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
@@ -2310,7 +2308,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
-   * @param pipelineNode            The XML node to load from
+   * @param pipelineNode         The XML node to load from
    * @param fname                The filename
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
@@ -2870,7 +2868,7 @@ public class PipelineMeta extends AbstractMeta
    * Checks for loop.
    *
    * @param transformMeta the transformmeta
-   * @param lookup   the lookup
+   * @param lookup        the lookup
    * @return true, if successful
    */
 
@@ -2882,7 +2880,7 @@ public class PipelineMeta extends AbstractMeta
    * See if there are any loops in the pipeline, starting at the indicated transform. This works by looking at all the
    * previous transforms. If you keep going backward and find the original transform again, there is a loop.
    *
-   * @param transformMeta       The transform position to start looking
+   * @param transformMeta  The transform position to start looking
    * @param lookup         The original transform when wandering around the pipeline.
    * @param checkedEntries Already checked entries
    * @return true if a loop has been found, false if no loop is found.
@@ -3282,14 +3280,14 @@ public class PipelineMeta extends AbstractMeta
    * Otherwise, the previous transforms are determined and added to the map recursively, and a cache is constructed for later
    * use.
    *
-   * @param previousCache    the previous cache, must be non-null
-   * @param beforeCache      the before cache, must be non-null
+   * @param previousCache         the previous cache, must be non-null
+   * @param beforeCache           the before cache, must be non-null
    * @param originTransformMeta   the origin transform meta
    * @param previousTransformMeta the previous transform meta
    * @return the map
    */
   private Map<TransformMeta, Boolean> updateFillTransformMap( Map<TransformMeta, List<TransformMeta>> previousCache,
-                                                         Map<TransformMeta, Map<TransformMeta, Boolean>> beforeCache, TransformMeta originTransformMeta, TransformMeta previousTransformMeta ) {
+                                                              Map<TransformMeta, Map<TransformMeta, Boolean>> beforeCache, TransformMeta originTransformMeta, TransformMeta previousTransformMeta ) {
 
     // See if we have a hash map to store transform occurrence (located before the transform)
     //
@@ -4056,7 +4054,7 @@ public class PipelineMeta extends AbstractMeta
    * Gets a list of all the strings used in this pipeline. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchTransforms      true if transforms should be searched, false otherwise
+   * @param searchTransforms true if transforms should be searched, false otherwise
    * @param searchDatabases  true if databases should be searched, false otherwise
    * @param searchNotes      true if notes should be searched, false otherwise
    * @param includePasswords true if passwords should be searched, false otherwise
@@ -4137,9 +4135,9 @@ public class PipelineMeta extends AbstractMeta
    * Get a list of all the strings used in this pipeline. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchTransforms     true if transforms should be searched, false otherwise
-   * @param searchDatabases true if databases should be searched, false otherwise
-   * @param searchNotes     true if notes should be searched, false otherwise
+   * @param searchTransforms true if transforms should be searched, false otherwise
+   * @param searchDatabases  true if databases should be searched, false otherwise
+   * @param searchNotes      true if notes should be searched, false otherwise
    * @return a list of search results for strings used in the pipeline.
    */
   public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes ) {
@@ -4249,7 +4247,7 @@ public class PipelineMeta extends AbstractMeta
    * the same in layout. We only want to ONLY use the DBCache for this to prevent GUI stalls.
    *
    * @param transformMeta the transform to check
-   * @param monitor  the monitor
+   * @param monitor       the monitor
    * @throws HopRowException in case we detect a row mixing violation
    */
   public void checkRowMixingStatically( TransformMeta transformMeta, IProgressMonitor monitor ) throws HopRowException {
@@ -4285,16 +4283,16 @@ public class PipelineMeta extends AbstractMeta
     setInternalFilenameHopVariables( var );
     setInternalNameHopVariable( var );
 
-    // Here we don't remove the job specific parameters, as they may come in handy.
+    // Here we don't remove the workflow specific parameters, as they may come in handy.
     //
-    if ( variables.getVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY ) == null ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "Parent Job File Directory" );
+    if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY ) == null ) {
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "Parent Workflow File Directory" );
     }
-    if ( variables.getVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME ) == null ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME, "Parent Job Filename" );
+    if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME ) == null ) {
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "Parent Workflow Filename" );
     }
-    if ( variables.getVariable( Const.INTERNAL_VARIABLE_JOB_NAME ) == null ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_NAME, "Parent Job Name" );
+    if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME ) == null ) {
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, "Parent Workflow Name" );
     }
 
     setInternalEntryCurrentDirectory();
@@ -4444,10 +4442,10 @@ public class PipelineMeta extends AbstractMeta
    * supplied resource naming interface allows the object to name appropriately without worrying about those parts of
    * the implementation specific details.
    *
-   * @param variables                   the variable space to use
+   * @param variables       the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-kettle metadata could reside.
+   * @param metaStore       the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override

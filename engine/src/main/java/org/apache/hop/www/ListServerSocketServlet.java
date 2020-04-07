@@ -64,7 +64,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements IHopServ
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -87,7 +87,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements IHopServ
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">text:</td>
@@ -139,7 +139,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements IHopServ
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

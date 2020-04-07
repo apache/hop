@@ -65,36 +65,36 @@
     <classname>org.apache.hop.www.GetPipelineImageServlet</classname>
   </servlet>
 
-  <!-- The job handlers... -->
+  <!-- The workflow handlers... -->
 
   <servlet id="startJob">
-    <description>Start a job</description>
-    <classname>org.apache.hop.www.StartJobServlet</classname>
+    <description>Start a workflow</description>
+    <classname>org.apache.hop.www.StartWorkflowServlet</classname>
   </servlet>
   <servlet id="stopJob">
-    <description>Stop a job</description>
-    <classname>org.apache.hop.www.StopJobServlet</classname>
+    <description>Stop a workflow</description>
+    <classname>org.apache.hop.www.StopWorkflowServlet</classname>
   </servlet>
   <servlet id="jobStatus">
-    <description>Get the status of a job</description>
-    <classname>org.apache.hop.www.GetJobStatusServlet</classname>
+    <description>Get the status of a workflow</description>
+    <classname>org.apache.hop.www.GetWorkflowStatusServlet</classname>
   </servlet>
   <servlet id="addJob">
-    <description>Add a job to the server</description>
-    <classname>org.apache.hop.www.AddJobServlet</classname>
+    <description>Add a workflow to the server</description>
+    <classname>org.apache.hop.www.AddWorkflowServlet</classname>
   </servlet>
   <servlet id="removeJob">
-    <description>Remove a job from the server</description>
-    <classname>org.apache.hop.www.RemoveJobServlet</classname>
+    <description>Remove a workflow from the server</description>
+    <classname>org.apache.hop.www.RemoveWorkflowServlet</classname>
   </servlet>
   <servlet id="jobImage">
-    <description>Generate a PNG image of a job</description>
-    <classname>org.apache.hop.www.GetJobImageServlet</classname>
+    <description>Generate a PNG image of a workflow</description>
+    <classname>org.apache.hop.www.GetWorkflowImageServlet</classname>
   </servlet>
 
   <servlet id="registerJob">
-    <description>Add a job to the server</description>
-    <classname>org.apache.hop.www.RegisterJobServlet</classname>
+    <description>Add a workflow to the server</description>
+    <classname>org.apache.hop.www.RegisterWorkflowServlet</classname>
   </servlet>
   <servlet id="registerPipeline">
     <description>Add a pipeline to the server</description>

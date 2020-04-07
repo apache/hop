@@ -29,16 +29,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * This class resolve and update system variables
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
- * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY}
+ * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
- * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_NAME}
+ * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
  */
 public class CurrentDirectoryResolver {
 
@@ -72,12 +72,12 @@ public class CurrentDirectoryResolver {
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME, fileName.getBaseName() );
+        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
 
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI() );
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, fileDir.getURI() );
+        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, fileDir.getURI() );
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, fileDir.getURI() );
       } catch ( Exception e ) {
         throw new RuntimeException( "Unable to figure out the current directory", e );
@@ -95,13 +95,13 @@ public class CurrentDirectoryResolver {
     return resolveCurrentDirectory( parentVariables, filename );
   }
 
-  public IVariables resolveCurrentDirectory( IVariables parentVariables, Job job, String filename ) {
-    if ( job != null && filename == null ) {
-      filename = job.getFilename();
-    } else if ( JobMeta.class.isAssignableFrom( parentVariables.getClass() ) ) {
+  public IVariables resolveCurrentDirectory( IVariables parentVariables, Workflow workflow, String filename ) {
+    if ( workflow != null && filename == null ) {
+      filename = workflow.getFilename();
+    } else if ( WorkflowMeta.class.isAssignableFrom( parentVariables.getClass() ) ) {
       // additional fallback protection for design mode
-      JobMeta realParent = null;
-      realParent = (JobMeta) parentVariables;
+      WorkflowMeta realParent = null;
+      realParent = (WorkflowMeta) parentVariables;
       filename = realParent.getFilename();
     }
     return resolveCurrentDirectory( parentVariables, filename );

@@ -22,7 +22,7 @@
 
 package org.apache.hop.www.jaxrs;
 
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
@@ -45,8 +45,8 @@ public class HopServerResource {
     return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getCarteObjectEntry( id ) );
   }
 
-  public static Job getJob( String id ) {
-    return HopServerSingleton.getInstance().getJobMap().getJob( getCarteObjectEntry( id ) );
+  public static Workflow getWorkflow( String id ) {
+    return HopServerSingleton.getInstance().getWorkflowMap().getWorkflow( getCarteObjectEntry( id ) );
   }
 
   public static HopServerObjectEntry getCarteObjectEntry( String id ) {
@@ -57,8 +57,8 @@ public class HopServerResource {
         return entry;
       }
     }
-    List<HopServerObjectEntry> jobList = HopServerSingleton.getInstance().getJobMap().getJobObjects();
-    for ( HopServerObjectEntry entry : jobList ) {
+    List<HopServerObjectEntry> workflowList = HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
+    for ( HopServerObjectEntry entry : workflowList ) {
       if ( entry.getId().equals( id ) ) {
         return entry;
       }
@@ -113,24 +113,24 @@ public class HopServerResource {
   }
 
   @GET
-  @Path( "/jobs" )
+  @Path( "/workflows" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<HopServerObjectEntry> getJobs() {
-    List<HopServerObjectEntry> jobEntries = HopServerSingleton.getInstance().getJobMap().getJobObjects();
-    return jobEntries;
+  public List<HopServerObjectEntry> getWorkflows() {
+    List<HopServerObjectEntry> actions = HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
+    return actions;
   }
 
   @GET
-  @Path( "/jobs/detailed" )
+  @Path( "/workflows/detailed" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<JobStatus> getJobsDetails() {
-    List<HopServerObjectEntry> jobEntries = HopServerSingleton.getInstance().getJobMap().getJobObjects();
+  public List<WorkflowStatus> getWorkflowsDetails() {
+    List<HopServerObjectEntry> actions = HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
 
-    List<JobStatus> details = new ArrayList<JobStatus>();
+    List<WorkflowStatus> details = new ArrayList<WorkflowStatus>();
 
-    JobResource jobRes = new JobResource();
-    for ( HopServerObjectEntry entry : jobEntries ) {
-      details.add( jobRes.getJobStatus( entry.getId() ) );
+    WorkflowResource jobRes = new WorkflowResource();
+    for ( HopServerObjectEntry entry : actions ) {
+      details.add( jobRes.getWorkflowStatus( entry.getId() ) );
     }
     return details;
   }

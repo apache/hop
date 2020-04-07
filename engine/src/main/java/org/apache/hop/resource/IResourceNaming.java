@@ -53,7 +53,7 @@ public interface IResourceNaming {
    * Create a (file) name based on the passed FileObject
    *
    * @param fileObject    fileObject The file in which the name ....
-   * @param variables variable(space) of the pipeline or job.
+   * @param variables variable(space) of the pipeline or workflow.
    * @param pathOnly      Set to true to just return the path, false to return file name and path
    * @return String The file name with the path set as a variable. If pathOnly is set to true then the file name will be
    * left out.

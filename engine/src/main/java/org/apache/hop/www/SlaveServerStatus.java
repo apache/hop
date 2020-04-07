@@ -39,7 +39,7 @@ public class SlaveServerStatus {
   private String errorDescription;
 
   private List<SlaveServerPipelineStatus> pipelineStatusList;
-  private List<SlaveServerJobStatus> jobStatusList;
+  private List<SlaveServerWorkflowStatus> jobStatusList;
 
   private long memoryFree;
   private long memoryTotal;
@@ -61,7 +61,7 @@ public class SlaveServerStatus {
 
   public SlaveServerStatus() {
     pipelineStatusList = new ArrayList<SlaveServerPipelineStatus>();
-    jobStatusList = new ArrayList<SlaveServerJobStatus>();
+    jobStatusList = new ArrayList<SlaveServerWorkflowStatus>();
   }
 
   public SlaveServerStatus( String statusDescription ) {
@@ -75,7 +75,7 @@ public class SlaveServerStatus {
    * @param jobStatusList
    */
   public SlaveServerStatus( String statusDescription, List<SlaveServerPipelineStatus> pipelineStatusList,
-                            List<SlaveServerJobStatus> jobStatusList ) {
+                            List<SlaveServerWorkflowStatus> jobStatusList ) {
     this.statusDescription = statusDescription;
     this.pipelineStatusList = pipelineStatusList;
     this.jobStatusList = jobStatusList;
@@ -111,7 +111,7 @@ public class SlaveServerStatus {
 
     xml.append( "  <job_status_list>" ).append( Const.CR );
     for ( int i = 0; i < jobStatusList.size(); i++ ) {
-      SlaveServerJobStatus jobStatus = jobStatusList.get( i );
+      SlaveServerWorkflowStatus jobStatus = jobStatusList.get( i );
       xml.append( "    " ).append( jobStatus.getXML() ).append( Const.CR );
     }
     xml.append( "  </job_status_list>" ).append( Const.CR );
@@ -142,19 +142,19 @@ public class SlaveServerStatus {
     osArchitecture = XMLHandler.getTagValue( statusNode, "os_arch" );
 
     Node listPipelineNode = XMLHandler.getSubNode( statusNode, "pipeline_status_list" );
-    Node listJobsNode = XMLHandler.getSubNode( statusNode, "job_status_list" );
+    Node listWorkflowsNode = XMLHandler.getSubNode( statusNode, "job_status_list" );
 
     int nrPipelines = XMLHandler.countNodes( listPipelineNode, SlaveServerPipelineStatus.XML_TAG );
-    int nrJobs = XMLHandler.countNodes( listJobsNode, SlaveServerJobStatus.XML_TAG );
+    int nrWorkflows = XMLHandler.countNodes( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG );
 
     for ( int i = 0; i < nrPipelines; i++ ) {
       Node pipelineStatusNode = XMLHandler.getSubNodeByNr( listPipelineNode, SlaveServerPipelineStatus.XML_TAG, i );
       pipelineStatusList.add( new SlaveServerPipelineStatus( pipelineStatusNode ) );
     }
 
-    for ( int i = 0; i < nrJobs; i++ ) {
-      Node jobStatusNode = XMLHandler.getSubNodeByNr( listJobsNode, SlaveServerJobStatus.XML_TAG, i );
-      jobStatusList.add( new SlaveServerJobStatus( jobStatusNode ) );
+    for ( int i = 0; i < nrWorkflows; i++ ) {
+      Node jobStatusNode = XMLHandler.getSubNodeByNr( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG, i );
+      jobStatusList.add( new SlaveServerWorkflowStatus( jobStatusNode ) );
     }
   }
 
@@ -216,10 +216,10 @@ public class SlaveServerStatus {
     return null;
   }
 
-  public SlaveServerJobStatus findJobStatus( String jobName, String id ) {
+  public SlaveServerWorkflowStatus findJobStatus( String workflowName, String id ) {
     for ( int i = 0; i < jobStatusList.size(); i++ ) {
-      SlaveServerJobStatus jobStatus = jobStatusList.get( i );
-      if ( jobStatus.getJobName().equalsIgnoreCase( jobName )
+      SlaveServerWorkflowStatus jobStatus = jobStatusList.get( i );
+      if ( jobStatus.getWorkflowName().equalsIgnoreCase( workflowName )
         && ( Utils.isEmpty( id ) || jobStatus.getId().equals( id ) ) ) {
         return jobStatus;
       }
@@ -230,14 +230,14 @@ public class SlaveServerStatus {
   /**
    * @return the jobStatusList
    */
-  public List<SlaveServerJobStatus> getJobStatusList() {
+  public List<SlaveServerWorkflowStatus> getJobStatusList() {
     return jobStatusList;
   }
 
   /**
    * @param jobStatusList the jobStatusList to set
    */
-  public void setJobStatusList( List<SlaveServerJobStatus> jobStatusList ) {
+  public void setJobStatusList( List<SlaveServerWorkflowStatus> jobStatusList ) {
     this.jobStatusList = jobStatusList;
   }
 

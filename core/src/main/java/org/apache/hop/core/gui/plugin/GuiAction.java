@@ -125,6 +125,21 @@ public class GuiAction {
       '}';
   }
 
+  /**
+   * For any name longer than 30 characters we return the first 28 characters + "...";
+   * @return the short name
+   */
+  public String getShortName() {
+    if (name==null) {
+      return null;
+    }
+    if (name.length()<30) {
+      return name;
+    } else {
+      return name.substring( 0, 28 ) + "...";
+    }
+  }
+
   @Override public boolean equals( Object o ) {
     if ( this == o ) {
       return true;

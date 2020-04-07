@@ -46,7 +46,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -492,7 +492,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private void checkCancel( ShellEvent e ) {
     if ( changedInDialog ) {
-      int save = HopGuiJobGraph.showChangedWarning( shell, wTransformName.getText() );
+      int save = HopGuiWorkflowGraph.showChangedWarning( shell, wTransformName.getText() );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

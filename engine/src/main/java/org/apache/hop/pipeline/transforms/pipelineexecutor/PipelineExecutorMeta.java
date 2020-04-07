@@ -77,17 +77,17 @@ public class PipelineExecutorMeta
   static final String F_EXECUTOR_OUTPUT_TRANSFORM = "executors_output_transform";
 
   /**
-   * The number of input rows that are sent as result rows to the job in one go, defaults to "1"
+   * The number of input rows that are sent as result rows to the workflow in one go, defaults to "1"
    */
   private String groupSize;
 
   /**
-   * Optional name of a field to group rows together that are sent together to the job as result rows (empty default)
+   * Optional name of a field to group rows together that are sent together to the workflow as result rows (empty default)
    */
   private String groupField;
 
   /**
-   * Optional time in ms that is spent waiting and accumulating rows before they are given to the job as result rows
+   * Optional time in ms that is spent waiting and accumulating rows before they are given to the workflow as result rows
    * (empty default, "0")
    */
   private String groupTime;

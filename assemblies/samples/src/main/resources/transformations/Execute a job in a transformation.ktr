@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>Execute a job in a transformation</name>
+    <name>Execute a workflow in a transformation</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -482,7 +482,7 @@
       </field>
     </fields>
     <data>
-      <line> <item>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;test-job.kjb</item> </line>
+      <line> <item>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;test-workflow.kjb</item> </line>
     </data>
     <cluster_schema/>
 
@@ -554,7 +554,7 @@
     <fields>
       <field>
         <name>filename</name>
-        <value>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;test-job.kjb</value>
+        <value>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;files&#x2f;test-workflow.kjb</value>
         <mask/>
         <set_empty_string>N</set_empty_string>
         </field>
@@ -625,7 +625,7 @@
 
         <class_name>Processor</class_name>
 
-        <class_source><![CDATA[import org.pentaho.di.job.*;
+        <class_source><![CDATA[import org.pentaho.di.workflow.*;
 import org.pentaho.di.core.*;
 
 public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
@@ -638,17 +638,17 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
     r = createOutputRow(r, data.outputRowMeta.size());
 	
-	// What is the job filename?
+	// What is the workflow filename?
  	//
     String jobFile = get(Fields.In, getParameter("FILENAME_FIELD")).getString(r);
 
-    // Execute the job
+    // Execute the workflow
     //
-	JobMeta jobMeta = new JobMeta(jobFile, null);
-	Job job = new Job(null, jobMeta, getTrans());
-    job.start();
-    job.waitUntilFinished();
-    Result result = job.getResult();    
+	JobMeta workflowMeta = new JobMeta(jobFile, null);
+	Job workflow = new Job(null, workflowMeta, getTrans());
+    workflow.start();
+    workflow.waitUntilFinished();
+    Result result = workflow.getResult();
     
     // Set a value in a new output field
     get(Fields.Out, "result").setValue(r, Boolean.valueOf(result.getResult()));
@@ -686,7 +686,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </fields><clear_result_fields>N</clear_result_fields>
 <info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters><usage_parameter><parameter_tag>FILENAME_FIELD</parameter_tag>
 <parameter_value>filename</parameter_value>
-<parameter_description>The name of the input field containing the job filename</parameter_description>
+<parameter_description>The name of the input field containing the workflow filename</parameter_description>
 </usage_parameter></usage_parameters>    <cluster_schema/>
 
       <input>

@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Displays the delete message box to confirm deletes of multiple transforms or job entries
+ * Displays the delete message box to confirm deletes of multiple transforms or actions
  *
  * @author David Kincade
  */

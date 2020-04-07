@@ -201,36 +201,36 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Gets the description of the job.
+   * Gets the description of the workflow.
    *
-   * @return The description of the job
+   * @return The description of the workflow
    */
   public String getDescription() {
     return description;
   }
 
   /**
-   * Set the description of the job.
+   * Set the description of the workflow.
    *
-   * @param description The new description of the job
+   * @param description The new description of the workflow
    */
   public void setDescription( String description ) {
     this.description = description;
   }
 
   /**
-   * Gets the extended description of the job.
+   * Gets the extended description of the workflow.
    *
-   * @return The extended description of the job
+   * @return The extended description of the workflow
    */
   public String getExtendedDescription() {
     return extendedDescription;
   }
 
   /**
-   * Set the description of the job.
+   * Set the description of the workflow.
    *
-   * @param extendedDescription The new extended description of the job
+   * @param extendedDescription The new extended description of the workflow
    */
   public void setExtendedDescription( String extendedDescription ) {
     this.extendedDescription = extendedDescription;
@@ -258,9 +258,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Set the filename of the job
+   * Set the filename of the workflow
    *
-   * @param newFilename The new filename of the job
+   * @param newFilename The new filename of the workflow
    */
   @Override
   public void setFilename( String newFilename ) {
@@ -895,9 +895,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Gets the channel log table for the job.
+   * Gets the channel log table for the workflow.
    *
-   * @return the channel log table for the job.
+   * @return the channel log table for the workflow.
    */
   public ChannelLogTable getChannelLogTable() {
     return channelLogTable;
@@ -932,7 +932,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Sets the channel log table for the job.
+   * Sets the channel log table for the workflow.
    *
    * @param channelLogTable the channelLogTable to set
    */
@@ -1395,7 +1395,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Checks whether the job can be saved. For JobMeta, this method always returns true
+   * Checks whether the workflow can be saved. For WorkflowMeta, this method always returns true
    *
    * @return true
    * @see IEngineMeta#canSave()

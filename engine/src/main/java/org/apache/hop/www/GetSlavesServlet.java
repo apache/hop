@@ -71,7 +71,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugi
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">element:</td>
@@ -104,7 +104,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugi
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

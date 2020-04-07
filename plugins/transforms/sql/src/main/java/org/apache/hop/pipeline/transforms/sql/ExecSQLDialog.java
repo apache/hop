@@ -38,7 +38,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
@@ -699,7 +699,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
   private void checkCancel( ShellEvent e ) {
     if ( changedInDialog ) {
-      int save = HopGuiJobGraph.showChangedWarning( shell, wTransformName.getText() );
+      int save = HopGuiWorkflowGraph.showChangedWarning( shell, wTransformName.getText() );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

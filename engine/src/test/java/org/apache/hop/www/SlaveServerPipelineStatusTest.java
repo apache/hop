@@ -31,7 +31,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.www.SlaveServerJobStatusTest.LoggingStringLoadSaveValidator;
+import org.apache.hop.www.SlaveServerWorkflowStatusTest.LoggingStringLoadSaveValidator;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;

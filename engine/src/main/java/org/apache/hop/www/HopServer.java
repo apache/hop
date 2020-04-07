@@ -81,8 +81,8 @@ public class HopServer {
 
     final PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
     pipelineMap.setSlaveServerConfig( config );
-    final JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
-    jobMap.setSlaveServerConfig( config );
+    final WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
+    workflowMap.setSlaveServerConfig( config );
     List<SlaveServerDetection> detections = new CopyOnWriteArrayList<SlaveServerDetection>();
     SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
@@ -144,7 +144,7 @@ public class HopServer {
 
     // If we need to time out finished or idle objects, we should create a timer in the background to clean
     // this is done automatically now
-    // HopServerSingleton.installPurgeTimer(config, log, pipelineMap, jobMap);
+    // HopServerSingleton.installPurgeTimer(config, log, pipelineMap, workflowMap);
 
     if ( allOK ) {
       boolean shouldJoin = config.isJoining();
@@ -153,7 +153,7 @@ public class HopServer {
       }
 
       this.webServer =
-        new WebServer( log, pipelineMap, jobMap, socketRepository, detections, hostname, port, shouldJoin,
+        new WebServer( log, pipelineMap, workflowMap, socketRepository, detections, hostname, port, shouldJoin,
           config.getPasswordFile(), slaveServer.getSslConfig() );
     }
   }

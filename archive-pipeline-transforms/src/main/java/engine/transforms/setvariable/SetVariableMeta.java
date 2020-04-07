@@ -51,14 +51,14 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int VARIABLE_TYPE_JVM = 0;
-  public static final int VARIABLE_TYPE_PARENT_JOB = 1;
-  public static final int VARIABLE_TYPE_GRAND_PARENT_JOB = 2;
-  public static final int VARIABLE_TYPE_ROOT_JOB = 3;
+  public static final int VARIABLE_TYPE_PARENT_WORKFLOW = 1;
+  public static final int VARIABLE_TYPE_GRAND_PARENT_WORKFLOW = 2;
+  public static final int VARIABLE_TYPE_ROOT_WORKFLOW = 3;
 
-  private static final String[] variableTypeCode = { "JVM", "PARENT_JOB", "GP_JOB", "ROOT_JOB" };
+  private static final String[] variableTypeCode = { "JVM", "PARENT_WORKFLOW", "GP_WORKFLOW", "ROOT_WORKFLOW" };
   private static final String[] variableTypeDesc = {
-    "Valid in the Java Virtual Machine", "Valid in the parent job", "Valid in the grand-parent job",
-    "Valid in the root job" };
+    "Valid in the Java Virtual Machine", "Valid in the parent workflow", "Valid in the grand-parent workflow",
+    "Valid in the root workflow" };
 
   private String[] fieldName;
   private String[] variableName;
@@ -100,7 +100,7 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
   }
 
   /**
-   * @return Returns the local variable flag: true if this variable is only valid in the parents job.
+   * @return Returns the local variable flag: true if this variable is only valid in the parents workflow.
    */
   public int[] getVariableType() {
     return variableType;

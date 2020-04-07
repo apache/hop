@@ -6,7 +6,7 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-jobentry-checkfilelocked</artifactId>
+            <artifactId>hop-action-checkfilelocked</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

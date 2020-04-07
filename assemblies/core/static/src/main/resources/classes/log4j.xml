@@ -126,7 +126,7 @@
     <appender-ref ref="hop-execution-appender"/>
   </logger>
 
-  <logger name="org.apache.hop.job.Job" additivity="false">
+  <logger name="org.apache.hop.workflow.Workflow" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="hop-execution-appender"/>
   </logger>

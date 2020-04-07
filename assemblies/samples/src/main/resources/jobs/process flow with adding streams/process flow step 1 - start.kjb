@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>process flow step 1 - start</name>
   <description/>
   <extended_description/>
@@ -13,7 +13,7 @@
     </parameters>
     <slaveservers>
     </slaveservers>
-      <job-log-table>
+      <workflow-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -125,7 +125,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </job-log-table>
+      </workflow-log-table>
       <jobentry-log-table>
         <connection/>
         <schema/>
@@ -354,7 +354,7 @@
   <entries>
     <entry>
       <name>START</name>
-      <description>A job starts to process here.</description>
+      <description>A workflow starts to process here.</description>
       <type>SPECIAL</type>
       <start>Y</start>
       <dummy>N</dummy>
@@ -616,4 +616,4 @@
       <drawshadow>N</drawshadow>
     </notepad>
   </notepads>
-</job>
+</workflow>

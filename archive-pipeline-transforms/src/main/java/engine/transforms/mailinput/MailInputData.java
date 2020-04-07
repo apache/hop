@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.mailinput;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.job.entries.getpop.MailConnection;
+import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 

@@ -23,14 +23,14 @@
 package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
 public interface ISubComponentExecutionListener {
 
   /**
    * This method is called right before a sub-pipeline, mapping, single threader template, ... is to be executed
-   * in a parent job or pipeline.
+   * in a parent workflow or pipeline.
    *
    * @param pipeline The pipeline that is about to be executed.
    * @throws HopException In case something goes wrong
@@ -39,7 +39,7 @@ public interface ISubComponentExecutionListener {
 
   /**
    * This method is called right after a sub-pipeline, mapping, single threader template, ... was executed in a
-   * parent job or pipeline.
+   * parent workflow or pipeline.
    *
    * @param pipeline The pipeline that was just executed.
    * @throws HopException In case something goes wrong
@@ -47,20 +47,20 @@ public interface ISubComponentExecutionListener {
   void afterPipelineExecution( Pipeline pipeline ) throws HopException;
 
   /**
-   * This method is called right before a job is to be executed in a parent job or pipeline (Job job-entry, Job
+   * This method is called right before a workflow is to be executed in a parent workflow or pipeline (Workflow workflow-entry, Workflow
    * Executor transform).
    *
-   * @param job The job that is about to be executed.
+   * @param workflow The workflow that is about to be executed.
    * @throws HopException In case something goes wrong
    */
-  void beforeJobExecution( Job job ) throws HopException;
+  void beforeJobExecution( Workflow workflow ) throws HopException;
 
   /**
-   * This method is called right after a job was executed in a parent job or pipeline (Job job-entry, Job Executor
+   * This method is called right after a workflow was executed in a parent workflow or pipeline (Workflow workflow-entry, Workflow Executor
    * transform).
    *
-   * @param job The job that was executed.
+   * @param workflow The workflow that was executed.
    * @throws HopException In case something goes wrong
    */
-  void afterJobExecution( Job job ) throws HopException;
+  void afterJobExecution( Workflow workflow ) throws HopException;
 }

@@ -163,11 +163,11 @@ public class HopServerServlet extends HttpServlet {
 
   private void registerServlet( IHopServerPlugin servlet ) {
     PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
-    JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
+    WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
     SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
     hopServerPluginRegistry.put( getServletKey( servlet ), servlet );
-    servlet.setup( pipelineMap, jobMap, socketRepository, detections );
+    servlet.setup( pipelineMap, workflowMap, socketRepository, detections );
     servlet.setJettyMode( false );
   }
 }

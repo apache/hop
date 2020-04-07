@@ -361,7 +361,7 @@ public class SingleThreaderMeta
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a pipeline, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return new String[] { BaseMessages.getString( PKG, "SingleThreaderMeta.ReferencedObject.Description" ), };

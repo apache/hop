@@ -115,7 +115,7 @@ public class LoggingBuffer {
   public List<HopLoggingEvent> getLogBufferFromTo( String parentLogChannelId, boolean includeGeneral, int from,
                                                    int to ) {
 
-    // Typically, the log channel id is the one from the pipeline or job running currently.
+    // Typically, the log channel id is the one from the pipeline or workflow running currently.
     // However, we also want to see the details of the transforms etc.
     // So we need to look at the parents all the way up if needed...
     //

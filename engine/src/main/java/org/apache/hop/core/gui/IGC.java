@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public interface IGC extends IPrimitiveGC {
 
-  void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy, float magnification );
+  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification );
 
-  void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy );
+  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy );
 
   void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification );
 

@@ -29,7 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -253,7 +253,7 @@ public class EnterTextDialog extends Dialog {
   public void checkCancel( ShellEvent e ) {
     String newText = wDesc.getText();
     if ( !newText.equals( origText ) ) {
-      int save = HopGuiJobGraph.showChangedWarning( shell, title );
+      int save = HopGuiWorkflowGraph.showChangedWarning( shell, title );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

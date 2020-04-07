@@ -31,13 +31,13 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGC;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.IPrimitiveGC.EColor;
 import org.apache.hop.core.gui.IPrimitiveGC.EFont;
 import org.apache.hop.core.gui.IPrimitiveGC.EImage;
 import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
-import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.IScrollBar;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -88,10 +88,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public PipelinePainter( IGC gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
                           IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                          int shadowSize, String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
+                          String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
                           boolean slowTransformIndicatorEnabled, double zoomFactor ) {
     super( gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
-      shadowSize, noteFontName, noteFontHeight, zoomFactor );
+      noteFontName, noteFontHeight, zoomFactor );
     this.pipelineMeta = pipelineMeta;
 
     this.candidate = candidate;
@@ -105,10 +105,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public PipelinePainter( IGC gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
                           IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                          int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
+                          boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
 
     this( gc, pipelineMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, iconsize,
-      linewidth, gridsize, shadowSize, noteFontName, noteFontHeight, new Pipeline( pipelineMeta ), false, zoomFactor );
+      linewidth, gridsize, noteFontName, noteFontHeight, new Pipeline( pipelineMeta ), false, zoomFactor );
   }
 
   private static String[] getPeekTitles() {
@@ -131,7 +131,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   public void buildPipelineImage() {
-    if (pipeline==null) {
+    if ( pipeline == null ) {
       engineMetrics = new EngineMetrics();
     } else {
       engineMetrics = pipeline.getEngineMetrics();
@@ -145,19 +145,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.setBackground( EColor.BACKGROUND );
     gc.fillRectangle( 0, 0, area.x, area.y );
 
-    // If there is a shadow, we draw the pipeline first with an alpha setting
-    //
-    if ( shadowSize > 0 ) {
-      shadow = true;
-      gc.setTransform( translationX, translationY, shadowSize, magnification );
-      gc.setAlpha( 20 );
-
-      drawPipeline( thumb );
-    }
-
     // Draw the pipeline onto the image
     //
-    shadow = false;
     gc.setTransform( translationX, translationY, 0, magnification );
     gc.setAlpha( 255 );
     drawPipeline( thumb );
@@ -166,7 +155,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   private void drawPipeline( Point thumb ) {
-    if ( !shadow && gridSize > 1 ) {
+    if ( gridSize > 1 ) {
       drawGrid();
     }
 
@@ -211,7 +200,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           gc.setForeground( EColor.BLUE );
           arrow = EImage.ARROW_DEFAULT;
         }
-        Point start = real2screen( fr.x + iconsize / 2, fr.y + iconsize / 2 );
+        Point start = real2screen( fr.x + iconSize / 2, fr.y + iconSize / 2 );
         Point end = real2screen( to.x, to.y );
         drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopTransform,
           endHopTransform == null ? endHopLocation : endHopTransform );
@@ -226,7 +215,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           arrow = EImage.ARROW_DEFAULT;
         }
         Point start = real2screen( fr.x, fr.y );
-        Point end = real2screen( to.x + iconsize / 2, to.y + iconsize / 2 );
+        Point end = real2screen( to.x + iconSize / 2, to.y + iconSize / 2 );
         drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopTransform == null
           ? endHopLocation : startHopTransform, endHopTransform );
       }
@@ -295,15 +284,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       gc.setLineWidth( 2 );
       gc.setForeground( EColor.RED );
       Point n = noInputTransform.getLocation();
-      gc.drawLine( n.x - 5, n.y - 5, n.x + iconsize + 10, n.y + iconsize + 10 );
-      gc.drawLine( n.x - 5, n.y + iconsize + 5, n.x + iconsize + 5, n.y - 5 );
+      gc.drawLine( n.x - 5, n.y - 5, n.x + iconSize + 10, n.y + iconSize + 10 );
+      gc.drawLine( n.x - 5, n.y + iconSize + 5, n.x + iconSize + 5, n.y - 5 );
     }
 
-    if ( drop_candidate != null ) {
+    if ( dropCandidate != null ) {
       gc.setLineStyle( ELineStyle.SOLID );
       gc.setForeground( EColor.BLACK );
-      Point screen = real2screen( drop_candidate.x, drop_candidate.y );
-      gc.drawRectangle( screen.x, screen.y, iconsize, iconsize );
+      Point screen = real2screen( dropCandidate.x, dropCandidate.y );
+      gc.drawRectangle( screen.x, screen.y, iconSize, iconSize );
     }
 
     try {
@@ -312,10 +301,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       LogChannel.GENERAL.logError( "Error in PipelinePainterEnd extension point", e );
     }
 
-    if ( !shadow ) {
-      drawRect( selrect );
-    }
-
+    drawRect( selectionRectangle );
   }
 
   private void checkDrawSlowTransformIndicator( TransformMeta transformMeta ) {
@@ -346,23 +332,23 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             // if the transform can't keep up with its input, mark it by drawing an animation
             boolean isSlow = inputRows * 0.85 > outputRows;
             if ( isSlow ) {
-              gc.setLineWidth( linewidth + 1 );
+              gc.setLineWidth( lineWidth + 1 );
               if ( System.currentTimeMillis() % 2000 > 1000 ) {
                 gc.setForeground( EColor.BACKGROUND );
                 gc.setLineStyle( ELineStyle.SOLID );
-                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
                 gc.setForeground( EColor.DARKGRAY );
                 gc.setLineStyle( ELineStyle.DOT );
-                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
               } else {
                 gc.setForeground( EColor.DARKGRAY );
                 gc.setLineStyle( ELineStyle.SOLID );
-                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
                 gc.setForeground( EColor.BACKGROUND );
                 gc.setLineStyle( ELineStyle.DOT );
-                gc.drawRectangle( x + 1, y + 1, iconsize - 2, iconsize - 2 );
+                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
               }
 
             }
@@ -426,7 +412,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           popupWidth += transforms.size() * colWidth;
 
           // determine popup position
-          popupX = popupX + ( iconsize - popupWidth ) / 2;
+          popupX = popupX + ( iconSize - popupWidth ) / 2;
           popupY = popupY - popupHeight - MINI_ICON_MARGIN;
 
           // draw the frame
@@ -533,13 +519,13 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       int x = screen.x;
       int y = screen.y;
 
-      if (pipeline!=null) {
+      if ( pipeline != null ) {
         List<IEngineComponent> transforms = pipeline.getComponentCopies( transformMeta.getName() );
 
         for ( IEngineComponent transform : transforms ) {
           String transformStatus = engineMetrics.getComponentStatusMap().get( transform );
           if ( transformStatus != null && transformStatus.equals( TransformExecutionStatus.STATUS_FINISHED ) ) {
-            gc.drawImage( EImage.TRUE, ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
+            gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
           }
         }
       }
@@ -612,15 +598,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         // Draw it a 2 icons above the transform icon.
         // Draw it an icon and a half to the left
         //
-        Point point = new Point( x - iconsize - iconsize / 2, y - iconsize - iconsize );
+        Point point = new Point( x - iconSize - iconSize / 2, y - iconSize - iconSize );
         gc.drawRectangle( point.x, point.y, textExtent.x, textExtent.y );
         gc.drawText( nrInput, point.x + 1, point.y + 1 );
 
         // Now we draw an arrow from the cube to the transform...
         //
-        gc.drawLine( point.x + textExtent.x, point.y + textExtent.y / 2, x - iconsize / 2, point.y
+        gc.drawLine( point.x + textExtent.x, point.y + textExtent.y / 2, x - iconSize / 2, point.y
           + textExtent.y / 2 );
-        gc.drawLine( x - iconsize / 2, point.y + textExtent.y / 2, x + iconsize / 3, y );
+        gc.drawLine( x - iconSize / 2, point.y + textExtent.y / 2, x + iconSize / 3, y );
 
         // Also draw the name of the partition schema below the box
         //
@@ -630,29 +616,26 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         // Add to the list of areas...
         //
-        if ( !shadow ) {
-          areaOwners.add( new AreaOwner(
-            AreaType.TRANSFORM_PARTITIONING, point.x, point.y, textExtent.x, textExtent.y, offset, transformMeta,
-            STRING_PARTITIONING_CURRENT_TRANSFORM ) );
-        }
+        areaOwners.add( new AreaOwner(
+          AreaType.TRANSFORM_PARTITIONING, point.x, point.y, textExtent.x, textExtent.y, offset, transformMeta,
+          STRING_PARTITIONING_CURRENT_TRANSFORM ) );
+
       }
     }
 
     String name = transformMeta.getName();
 
     if ( transformMeta.isSelected() ) {
-      gc.setLineWidth( linewidth + 2 );
+      gc.setLineWidth( lineWidth + 2 );
     } else {
-      gc.setLineWidth( linewidth );
+      gc.setLineWidth( lineWidth );
     }
 
     // Add to the list of areas...
-    if ( !shadow ) {
-      areaOwners.add( new AreaOwner( AreaType.TRANSFORM_ICON, x, y, iconsize, iconsize, offset, pipelineMeta, transformMeta ) );
-    }
+    areaOwners.add( new AreaOwner( AreaType.TRANSFORM_ICON, x, y, iconSize, iconSize, offset, pipelineMeta, transformMeta ) );
 
     gc.setBackground( EColor.BACKGROUND );
-    gc.fillRoundRectangle( x - 1, y - 1, iconsize + 1, iconsize + 1, 8, 8 );
+    gc.fillRoundRectangle( x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8 );
     gc.drawTransformIcon( x, y, transformMeta, magnification );
     if ( transformError || transformMeta.isMissing() ) {
       gc.setForeground( EColor.RED );
@@ -668,9 +651,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         gc.setForeground( 0, 93, 166 );
       }
     }
-    gc.drawRoundRectangle( x - 1, y - 1, iconsize + 1, iconsize + 1, 8, 8 );
+    gc.drawRoundRectangle( x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8 );
 
-    Point namePosition = getNamePosition( name, screen, iconsize );
+    Point namePosition = getNamePosition( name, screen, iconSize );
 
     if ( transformMeta.isSelected() ) {
       int tmpAlpha = gc.getAlpha();
@@ -709,19 +692,18 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       // Show an error lines icon in the upper right corner of the transform...
       //
-      int xError = ( x + iconsize ) - ( MINI_ICON_SIZE / 2 ) + 4;
+      int xError = ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4;
       int yError = y - ( MINI_ICON_SIZE / 2 ) - 1;
       Point ib = gc.getImageBounds( EImage.TRANSFORM_ERROR_RED );
       gc.drawImage( EImage.TRANSFORM_ERROR_RED, xError, yError, magnification );
-      if ( !shadow ) {
-        areaOwners.add( new AreaOwner(
-          AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconsize - 3, pt.y - 8, ib.x, ib.y, offset, log,
-          STRING_TRANSFORM_ERROR_LOG ) );
-      }
+
+      areaOwners.add( new AreaOwner(
+        AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconSize - 3, pt.y - 8, ib.x, ib.y, offset, log,
+        STRING_TRANSFORM_ERROR_LOG ) );
     }
 
 
-    PipelinePainterExtension extension = new PipelinePainterExtension( gc, shadow, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconsize );
+    PipelinePainterExtension extension = new PipelinePainterExtension( gc, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconSize );
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelinePainterTransform.id, extension );
     } catch ( Exception e ) {
@@ -747,7 +729,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     EColor col;
     ELineStyle linestyle = ELineStyle.SOLID;
-    int activeLinewidth = linewidth;
+    int activeLinewidth = lineWidth;
 
     EImage arrow;
     if ( is_candidate ) {
@@ -758,7 +740,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if ( fs.isSendingErrorRowsToTransform( ts ) ) {
           col = EColor.RED;
           linestyle = ELineStyle.DASH;
-          activeLinewidth = linewidth + 1;
+          activeLinewidth = lineWidth + 1;
           arrow = EImage.ARROW_ERROR;
         } else {
           col = EColor.HOP_DEFAULT;
@@ -770,7 +752,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       }
     }
     if ( hi.split ) {
-      activeLinewidth = linewidth + 2;
+      activeLinewidth = lineWidth + 2;
     }
 
     // Check to see if the source transform is an info transform for the target transform.
@@ -803,7 +785,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     drawArrow( arrow, line, hi, fs, ts );
 
     if ( hi.split ) {
-      gc.setLineWidth( linewidth );
+      gc.setLineWidth( lineWidth );
     }
 
     gc.setForeground( EColor.BLACK );
@@ -831,7 +813,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     // determine factor (position of arrow to left side or right side
     // 0-->100%)
     if ( factor < 0 ) {
-      if ( dist >= 2 * iconsize ) {
+      if ( dist >= 2 * iconSize ) {
         factor = 1.3;
       } else {
         factor = 1.2;
@@ -878,10 +860,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           EImage hopsIcon = BasePainter.getStreamIconImage( targetStream.getStreamIcon() );
           Point bounds = gc.getImageBounds( hopsIcon );
           gc.drawImage( hopsIcon, mx, my, magnification );
-          if ( !shadow ) {
-            areaOwners.add( new AreaOwner(
-              AreaType.TRANSFORM_TARGET_HOP_ICON, mx, my, bounds.x, bounds.y, offset, fs, targetStream ) );
-          }
+
+          areaOwners.add( new AreaOwner(
+            AreaType.TRANSFORM_TARGET_HOP_ICON, mx, my, bounds.x, bounds.y, offset, fs, targetStream ) );
         }
       } else if ( fs.isDistributes()
         && fs.getRowDistribution() != null && !ts.getTransformPartitioningMeta().isMethodMirror() && !errorHop ) {
@@ -893,10 +874,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           Point bounds = gc.getImageBounds( eImage );
           gc.drawImage( eImage, mx, my, magnification );
 
-          if ( !shadow ) {
-            areaOwners.add( new AreaOwner(
-              AreaType.ROW_DISTRIBUTION_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_ROW_DISTRIBUTION ) );
-          }
+          areaOwners.add( new AreaOwner(
+            AreaType.ROW_DISTRIBUTION_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_ROW_DISTRIBUTION ) );
           mx += 16;
         }
 
@@ -907,19 +886,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         Point bounds = gc.getImageBounds( EImage.COPY_ROWS );
         gc.drawImage( EImage.COPY_ROWS, mx, my, magnification );
 
-        if ( !shadow ) {
-          areaOwners.add( new AreaOwner(
-            AreaType.HOP_COPY_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_HOP_TYPE_COPY ) );
-        }
+        areaOwners.add( new AreaOwner( AreaType.HOP_COPY_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_HOP_TYPE_COPY ) );
         mx += 16;
       }
 
       if ( errorHop ) {
         Point bounds = gc.getImageBounds( EImage.COPY_ROWS );
         gc.drawImage( EImage.FALSE, mx, my, magnification );
-        if ( !shadow ) {
-          areaOwners.add( new AreaOwner( AreaType.HOP_ERROR_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
-        }
+        areaOwners.add( new AreaOwner( AreaType.HOP_ERROR_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
         mx += 16;
       }
 
@@ -930,9 +904,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         || Const.indexOfString( fs.getName(), infoTransformNames ) >= 0 ) {
         Point bounds = gc.getImageBounds( EImage.INFO );
         gc.drawImage( EImage.INFO, mx, my, magnification );
-        if ( !shadow ) {
-          areaOwners.add( new AreaOwner( AreaType.HOP_INFO_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
-        }
+        areaOwners.add( new AreaOwner( AreaType.HOP_INFO_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
         mx += 16;
       }
 
@@ -951,10 +923,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               // We do this by drawing an error icon over the hop...
               //
               gc.drawImage( EImage.ERROR, mx, my, magnification );
-              if ( !shadow ) {
-                areaOwners.add( new AreaOwner(
-                  AreaType.HOP_INFO_TRANSFORM_COPIES_ERROR, mx, my, MINI_ICON_SIZE, MINI_ICON_SIZE, offset, fs, ts ) );
-              }
+              areaOwners.add( new AreaOwner( AreaType.HOP_INFO_TRANSFORM_COPIES_ERROR, mx, my, MINI_ICON_SIZE, MINI_ICON_SIZE, offset, fs, ts ) );
               mx += 16;
 
             }
@@ -964,9 +933,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     }
 
-    PipelinePainterExtension extension =
-      new PipelinePainterExtension(
-        gc, shadow, areaOwners, pipelineMeta, null, pipelineHop, x1, y1, x2, y2, mx, my, offset, iconsize );
+    PipelinePainterExtension extension = new PipelinePainterExtension( gc, areaOwners, pipelineMeta, null, pipelineHop, x1, y1, x2, y2, mx, my, offset, iconSize );
     try {
       ExtensionPointHandler.callExtensionPoint(
         LogChannel.GENERAL, HopExtensionPoint.PipelinePainterArrow.id, extension );

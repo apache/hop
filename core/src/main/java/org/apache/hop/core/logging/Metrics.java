@@ -158,13 +158,13 @@ public class Metrics implements IMetrics {
   // Job
   //
   public static Metrics METRIC_JOB_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_JOB_EXECUTION", "Execute a job" );
+    MetricsSnapshotType.START, "METRIC_JOB_EXECUTION", "Execute a workflow" );
   public static Metrics METRIC_JOB_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_JOB_EXECUTION", "Execute a job" );
+    MetricsSnapshotType.STOP, "METRIC_JOB_EXECUTION", "Execute a workflow" );
   public static Metrics METRIC_JOBENTRY_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_JOBENTRY_EXECUTION", "Execute a job entry" );
+    MetricsSnapshotType.START, "METRIC_JOBENTRY_EXECUTION", "Execute a action" );
   public static Metrics METRIC_JOBENTRY_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_JOBENTRY_EXECUTION", "Execute a job entry" );
+    MetricsSnapshotType.STOP, "METRIC_JOBENTRY_EXECUTION", "Execute a action" );
 
   private String code;
   private String description;

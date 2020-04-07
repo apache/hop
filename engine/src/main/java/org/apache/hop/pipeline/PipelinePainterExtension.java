@@ -32,21 +32,19 @@ import java.util.List;
 public class PipelinePainterExtension {
 
   public IGC gc;
-  public boolean shadow;
   public List<AreaOwner> areaOwners;
   public PipelineMeta pipelineMeta;
   public TransformMeta transformMeta;
   public PipelineHopMeta pipelineHop;
   public int x1, y1, x2, y2, mx, my;
   public Point offset;
-  public int iconsize;
+  public int iconSize;
 
-  public PipelinePainterExtension( IGC gc, boolean shadow, List<AreaOwner> areaOwners, PipelineMeta pipelineMeta,
+  public PipelinePainterExtension( IGC gc, List<AreaOwner> areaOwners, PipelineMeta pipelineMeta,
                                    TransformMeta transformMeta, PipelineHopMeta pipelineHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
-                                   int iconsize ) {
+                                   int iconSize ) {
     super();
     this.gc = gc;
-    this.shadow = shadow;
     this.areaOwners = areaOwners;
     this.pipelineMeta = pipelineMeta;
     this.transformMeta = transformMeta;
@@ -58,6 +56,6 @@ public class PipelinePainterExtension {
     this.mx = mx;
     this.my = my;
     this.offset = offset;
-    this.iconsize = iconsize;
+    this.iconSize = iconSize;
   }
 }

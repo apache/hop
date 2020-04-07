@@ -68,7 +68,7 @@ public class StringSearchResult {
   public static final IRowMeta getResultRowMeta() {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.PipelineOrJob" ) ) );
+      BaseMessages.getString( PKG, "SearchResult.PipelineOrWorkflow" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(
       BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ) ) );
     rowMeta.addValueMeta( new ValueMetaString(

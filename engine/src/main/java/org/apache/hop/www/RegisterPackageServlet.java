@@ -29,10 +29,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobConfiguration;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 
-public class RegisterPackageServlet extends BaseJobServlet {
+public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   public static final String CONTEXT_PATH = "/hop/registerPackage";
 
@@ -55,7 +55,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
 
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
-  public static final String TYPE_JOB = "job";
+  public static final String TYPE_JOB = "workflow";
   public static final String TYPE_PIPELINE = "pipeline";
 
   private static final String ZIP_CONT = "zip:{0}!{1}";
@@ -82,14 +82,14 @@ public class RegisterPackageServlet extends BaseJobServlet {
       String resultId;
 
       if ( isJob ) {
-        Node node = getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
-        JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration( node );
+        Node node = getConfigNodeFromZIP( archiveUrl, Workflow.CONFIGURATION_IN_EXPORT_FILENAME, WorkflowExecutionConfiguration.XML_TAG );
+        WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration( node );
 
-        JobMeta jobMeta = new JobMeta( fileUrl );
-        JobConfiguration jobConfiguration = new JobConfiguration( jobMeta, jobExecutionConfiguration );
+        WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
+        WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration );
 
-        Job job = createJob( jobConfiguration );
-        resultId = job.getContainerObjectId();
+        Workflow workflow = createJob( workflowConfiguration );
+        resultId = workflow.getContainerObjectId();
       } else {
         Node node =
           getConfigNodeFromZIP( archiveUrl, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,

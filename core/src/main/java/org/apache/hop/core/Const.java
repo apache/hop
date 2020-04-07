@@ -146,7 +146,7 @@ public class Const {
   public static final int SORT_SIZE = 5000;
 
   /**
-   * job/pipeline heartbeat scheduled executor periodic interval ( in seconds )
+   * workflow/pipeline heartbeat scheduled executor periodic interval ( in seconds )
    */
   public static final int HEARTBEAT_PERIODIC_INTERVAL_IN_SECS = 10;
 
@@ -396,33 +396,33 @@ public class Const {
   public static final String INTERNAL_VARIABLE_HOP_BUILD_DATE = INTERNAL_VARIABLE_PREFIX + ".Hop.Build.Date";
 
   /**
-   * The job filename directory
+   * The workflow filename directory
    */
-  public static final String INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Job.Filename.Directory";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
+    + ".Workflow.Filename.Directory";
 
   /**
-   * The job filename name
+   * The workflow filename name
    */
-  public static final String INTERNAL_VARIABLE_JOB_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX + ".Job.Filename.Name";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX + ".Workflow.Filename.Name";
 
   /**
-   * The job name
+   * The workflow name
    */
-  public static final String INTERNAL_VARIABLE_JOB_NAME = INTERNAL_VARIABLE_PREFIX + ".Job.Name";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_NAME = INTERNAL_VARIABLE_PREFIX + ".Workflow.Name";
 
   /**
-   * The job run ID
+   * The workflow run ID
    */
-  public static final String INTERNAL_VARIABLE_JOB_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Job.Run.ID";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Workflow.Run.ID";
 
   /**
-   * The job run attempt nr
+   * The workflow run attempt nr
    */
-  public static final String INTERNAL_VARIABLE_JOB_RUN_ATTEMPTNR = INTERNAL_VARIABLE_PREFIX + ".Job.Run.AttemptNr";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_RUN_ATTEMPTNR = INTERNAL_VARIABLE_PREFIX + ".Workflow.Run.AttemptNr";
 
   /**
-   * job/pipeline heartbeat scheduled executor periodic interval ( in seconds )
+   * workflow/pipeline heartbeat scheduled executor periodic interval ( in seconds )
    */
   public static final String VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS = "heartbeat.periodic.interval.seconds";
 
@@ -447,13 +447,13 @@ public class Const {
   };
 
   /**
-   * All the internal job variables
+   * All the internal workflow variables
    */
-  public static final String[] INTERNAL_JOB_VARIABLES = new String[] {
+  public static final String[] INTERNAL_WORKFLOW_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
-    Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME,
-    Const.INTERNAL_VARIABLE_JOB_NAME,
-    Const.INTERNAL_VARIABLE_JOB_RUN_ID, Const.INTERNAL_VARIABLE_JOB_RUN_ATTEMPTNR, };
+    Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
+    Const.INTERNAL_VARIABLE_WORKFLOW_NAME,
+    Const.INTERNAL_VARIABLE_WORKFLOW_RUN_ID, Const.INTERNAL_VARIABLE_WORKFLOW_RUN_ATTEMPTNR, };
 
   /*
    * Deprecated variables array.
@@ -563,7 +563,7 @@ public class Const {
   public static final String HOP_VARIABLES_FILE = "hop-variables.xml";
 
   /**
-   * If you set this environment variable you can limit the log size of all pipelines and jobs that don't have the
+   * If you set this environment variable you can limit the log size of all pipelines and workflows that don't have the
    * "log size limit" property set in their respective properties.
    */
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
@@ -584,14 +584,14 @@ public class Const {
   public static final String HOP_PIPELINE_LOG_TABLE = "HOP_PIPELINE_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the log database connection by default for all jobs
+   * The name of the variable that defines the log database connection by default for all workflows
    */
-  public static final String HOP_JOB_LOG_DB = "HOP_JOB_LOG_DB";
+  public static final String HOP_WORKFLOW_LOG_DB = "HOP_WORKFLOW_LOG_DB";
 
   /**
-   * The name of the variable that defines the logging schema for all jobs
+   * The name of the variable that defines the logging schema for all workflows
    */
-  public static final String HOP_JOB_LOG_SCHEMA = "HOP_JOB_LOG_SCHEMA";
+  public static final String HOP_WORKFLOW_LOG_SCHEMA = "HOP_WORKFLOW_LOG_SCHEMA";
 
   /**
    * The name of the variable that defines the timer used for detecting slave nodes.
@@ -599,9 +599,9 @@ public class Const {
   public static final String HOP_SLAVE_DETECTION_TIMER = "HOP_SLAVE_DETECTION_TIMER";
 
   /**
-   * The name of the variable that defines the logging table for all jobs
+   * The name of the variable that defines the logging table for all workflows
    */
-  public static final String HOP_JOB_LOG_TABLE = "HOP_JOB_LOG_TABLE";
+  public static final String HOP_WORKFLOW_LOG_TABLE = "HOP_WORKFLOW_LOG_TABLE";
 
   /**
    * The name of the variable that defines the pipeline performance log schema by default for all pipelines
@@ -620,19 +620,19 @@ public class Const {
   public static final String HOP_PIPELINE_PERFORMANCE_LOG_TABLE = "HOP_PIPELINE_PERFORMANCE_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the job entry log database by default for all jobs
+   * The name of the variable that defines the action log database by default for all workflows
    */
-  public static final String HOP_JOBENTRY_LOG_DB = "HOP_JOBENTRY_LOG_DB";
+  public static final String HOP_ACTION_LOG_DB = "HOP_ACTION_LOG_DB";
 
   /**
-   * The name of the variable that defines the job entry log schema by default for all jobs
+   * The name of the variable that defines the action log schema by default for all workflows
    */
-  public static final String HOP_JOBENTRY_LOG_SCHEMA = "HOP_JOBENTRY_LOG_SCHEMA";
+  public static final String HOP_ACTION_LOG_SCHEMA = "HOP_ACTION_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the job entry log table by default for all jobs
+   * The name of the variable that defines the action log table by default for all workflows
    */
-  public static final String HOP_JOBENTRY_LOG_TABLE = "HOP_JOBENTRY_LOG_TABLE";
+  public static final String HOP_ACTION_LOG_TABLE = "HOP_ACTION_LOG_TABLE";
 
   /**
    * The name of the variable that defines the transforms log database by default for all pipelines
@@ -650,52 +650,52 @@ public class Const {
   public static final String HOP_TRANSFORM_LOG_TABLE = "HOP_TRANSFORM_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the log channel log database by default for all pipelines and jobs
+   * The name of the variable that defines the log channel log database by default for all pipelines and workflows
    */
   public static final String HOP_CHANNEL_LOG_DB = "HOP_CHANNEL_LOG_DB";
 
   /**
-   * The name of the variable that defines the log channel log schema by default for all pipelines and jobs
+   * The name of the variable that defines the log channel log schema by default for all pipelines and workflows
    */
   public static final String HOP_CHANNEL_LOG_SCHEMA = "HOP_CHANNEL_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the log channel log table by default for all pipelines and jobs
+   * The name of the variable that defines the log channel log table by default for all pipelines and workflows
    */
   public static final String HOP_CHANNEL_LOG_TABLE = "HOP_CHANNEL_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the metrics log database by default for all pipelines and jobs
+   * The name of the variable that defines the metrics log database by default for all pipelines and workflows
    */
   public static final String HOP_METRICS_LOG_DB = "HOP_METRICS_LOG_DB";
 
   /**
-   * The name of the variable that defines the metrics log schema by default for all pipelines and jobs
+   * The name of the variable that defines the metrics log schema by default for all pipelines and workflows
    */
   public static final String HOP_METRICS_LOG_SCHEMA = "HOP_METRICS_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the metrics log table by default for all pipelines and jobs
+   * The name of the variable that defines the metrics log table by default for all pipelines and workflows
    */
   public static final String HOP_METRICS_LOG_TABLE = "HOP_METRICS_LOG_TABLE";
 
   /**
-   * The name of the variable that defines the checkpoint log database by default for all jobs
+   * The name of the variable that defines the checkpoint log database by default for all workflows
    */
   public static final String HOP_CHECKPOINT_LOG_DB = "HOP_CHECKPOINT_LOG_DB";
 
   /**
-   * The name of the variable that defines the checkpoint log schema by default for all jobs
+   * The name of the variable that defines the checkpoint log schema by default for all workflows
    */
   public static final String HOP_CHECKPOINT_LOG_SCHEMA = "HOP_CHECKPOINT_LOG_SCHEMA";
 
   /**
-   * The name of the variable that defines the checkpoint log table by default for all jobs
+   * The name of the variable that defines the checkpoint log table by default for all workflows
    */
   public static final String HOP_CHECKPOINT_LOG_TABLE = "HOP_CHECKPOINT_LOG_TABLE";
 
   /**
-   * Name of the environment variable to set the location of the shared object file (xml) for pipelines and jobs
+   * Name of the environment variable to set the location of the shared object file (xml) for pipelines and workflows
    */
   public static final String HOP_SHARED_OBJECTS = "HOP_SHARED_OBJECTS";
 
@@ -754,7 +754,7 @@ public class Const {
 
   /**
    * You can use this variable to speed up hostname lookup.
-   * Hostname lookup is performed by Hop so that it is capable of logging the server on which a job or pipeline is executed.
+   * Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.
    */
   public static final String HOP_SYSTEM_HOSTNAME = "HOP_SYSTEM_HOSTNAME";
 
@@ -783,7 +783,7 @@ public class Const {
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
   /**
-   * This environment variable will set a time-out after which waiting, completed or stopped pipelines and jobs
+   * This environment variable will set a time-out after which waiting, completed or stopped pipelines and workflows
    * will be automatically cleaned up. The default value is 1440 (one day).
    */
   public static final String HOP_CARTE_OBJECT_TIMEOUT_MINUTES = "HOP_CARTE_OBJECT_TIMEOUT_MINUTES";
@@ -795,14 +795,14 @@ public class Const {
   public static final String HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT = "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT";
 
   /**
-   * A variable to configure the maximum number of job trackers kept in memory.
+   * A variable to configure the maximum number of workflow trackers kept in memory.
    */
-  public static final String HOP_MAX_JOB_TRACKER_SIZE = "HOP_MAX_JOB_TRACKER_SIZE";
+  public static final String HOP_MAX_WORKFLOW_TRACKER_SIZE = "HOP_MAX_WORKFLOW_TRACKER_SIZE";
 
   /**
-   * A variable to configure the maximum number of job entry results kept in memory for logging purposes.
+   * A variable to configure the maximum number of action results kept in memory for logging purposes.
    */
-  public static final String HOP_MAX_JOB_ENTRIES_LOGGED = "HOP_MAX_JOB_ENTRIES_LOGGED";
+  public static final String HOP_MAX_ACTIONS_LOGGED = "HOP_MAX_ACTIONS_LOGGED";
 
   /**
    * A variable to configure the maximum number of logging registry entries kept in memory for logging purposes.
@@ -873,9 +873,9 @@ public class Const {
   public static final String XML_FILE_HOP_PARTITION_PLUGINS = "hop-partition-plugins.xml";
 
   /**
-   * The name of the environment variable that will contain the alternative location of the hop-job-entries.xml file
+   * The name of the environment variable that will contain the alternative location of the hop-workflow-actions.xml file
    */
-  public static final String HOP_CORE_JOBENTRIES_FILE = "HOP_CORE_JOBENTRIES_FILE";
+  public static final String HOP_CORE_WORKFLOW_ACTIONS_FILE = "HOP_CORE_WORKFLOW_ACTIONS_FILE";
 
   /**
    * The XML file that contains the list of native Hop Carte Servlets
@@ -963,9 +963,9 @@ public class Const {
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
   /**
-   * The XML file that contains the list of native Hop job entries
+   * The XML file that contains the list of native Hop actions
    */
-  public static final String XML_FILE_HOP_JOB_ENTRIES = "hop-job-entries.xml";
+  public static final String XML_FILE_HOP_WORKFLOW_ACTIONS = "hop-workflow-actions.xml";
 
   /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
@@ -1062,8 +1062,8 @@ public class Const {
   public static final String HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES = "HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES";
 
   /**
-   * Set this variable to false to preserve global log variables defined in pipeline / job Properties -> Log panel.
-   * Changing it to true will clear all global log variables when export pipeline / job
+   * Set this variable to false to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
+   * Changing it to true will clear all global log variables when export pipeline / workflow
    */
   public static final String HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT = "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT";
 
@@ -1079,8 +1079,7 @@ public class Const {
    * Compatibility settings for setNrErrors
    */
   // see PDI-10270 for details.
-  public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_JOB_ENTRIES =
-    "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_JOB_ENTRIES";
+  public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS = "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS";
 
   // See PDI-15781 for details
   public static final String HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS = "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS";
@@ -1134,7 +1133,7 @@ public class Const {
   public static final String HOP_CARTE_JETTY_RES_MAX_IDLE_TIME = "HOP_CARTE_JETTY_RES_MAX_IDLE_TIME";
 
   /**
-   * A variable to configure refresh for carte job/pipeline status page
+   * A variable to configure refresh for carte workflow/pipeline status page
    */
   public static final String HOP_CARTE_REFRESH_STATUS = "HOP_CARTE_REFRESH_STATUS";
 
@@ -2823,7 +2822,7 @@ public class Const {
     }
 
     String pureFilename = filenameOnly( filename );
-    if ( pureFilename.endsWith( ".hpl" ) || pureFilename.endsWith( ".kjb" ) || pureFilename.endsWith( ".xml" ) ) {
+    if ( pureFilename.endsWith( ".hpl" ) || pureFilename.endsWith( ".hwf" ) || pureFilename.endsWith( ".xml" ) ) {
       pureFilename = pureFilename.substring( 0, pureFilename.length() - 4 );
     }
     StringBuilder sb = new StringBuilder();

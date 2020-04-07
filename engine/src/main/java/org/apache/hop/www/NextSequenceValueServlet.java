@@ -70,7 +70,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -93,7 +93,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">text:</td>
@@ -113,7 +113,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

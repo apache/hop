@@ -73,7 +73,7 @@ public class BaseLogTableTest {
 
   @Test
   public void testRemoveChannelFromBufferCallInGetLogBufferInRecursiveJobExecution() {
-    StringBuffer sb = new StringBuffer( "Event previously executed for the same Job" );
+    StringBuffer sb = new StringBuffer( "Event previously executed for the same Workflow" );
     LoggingBuffer lb = mock( LoggingBuffer.class );
     doReturn( sb ).when( lb ).getBuffer( anyString(), anyBoolean() );
 
@@ -91,8 +91,8 @@ public class BaseLogTableTest {
     String s2 = baseLogTable.getLogBuffer( vs, "1", LogStatus.END, null );
 
     //removeChannelFromBuffer function is void - need to simulate the behaviour here
-    s1 = s1.replace( "Event previously executed for the same Job", "" );
-    s2 = s2.replace( "Event previously executed for the same Job", "" );
+    s1 = s1.replace( "Event previously executed for the same Workflow", "" );
+    s2 = s2.replace( "Event previously executed for the same Workflow", "" );
 
 
     assertEquals( Const.CR + "START" + Const.CR, s1 );

@@ -26,7 +26,7 @@ public class FileDialogOperation {
   public static String ORIGIN_SPOON = "hopui";
   public static String ORIGIN_OTHER = "other";
   public static String PIPELINE = "pipeline";
-  public static String JOB = "job";
+  public static String JOB = "workflow";
 
   private String command;
   private String filter;

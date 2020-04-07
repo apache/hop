@@ -25,7 +25,7 @@ import org.apache.hop.core.xml.IXml;
 
 
 /**
- * This class defines a base hop from one job entry copy to another, or from one transform to another.
+ * This class defines a base hop from one action copy to another, or from one transform to another.
  *
  * @author Alexander Buloichik
  */

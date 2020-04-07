@@ -476,7 +476,7 @@ public class PipelineTest {
 
   /**
    * This test demonstrates the issue fixed in PDI-17436.
-   * When a job is scheduled twice, it gets the same log channel Id and both logs get merged
+   * When a workflow is scheduled twice, it gets the same log channel Id and both logs get merged
    */
   @Test
   public void testTwoPipelineGetSameLogChannelId() throws Exception {

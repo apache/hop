@@ -23,20 +23,20 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.core.IEngineMeta;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 
 public class EngineMetaUtils {
 
   /**
-   * Validates if {@code engineMetaInterface} is Job or Pipeline.
+   * Validates if {@code engineMetaInterface} is Workflow or Pipeline.
    *
    * @param engineMetaInterface
-   * @return true if engineMetaInterface instance is Job or Pipeline, otherwise false.
+   * @return true if engineMetaInterface instance is Workflow or Pipeline, otherwise false.
    */
   public static boolean isJobOrPipeline( IEngineMeta engineMetaInterface ) {
 
-    return ( engineMetaInterface instanceof PipelineMeta ) || ( engineMetaInterface instanceof JobMeta );
+    return ( engineMetaInterface instanceof PipelineMeta ) || ( engineMetaInterface instanceof WorkflowMeta );
   }
 
 }

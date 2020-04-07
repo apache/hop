@@ -23,7 +23,7 @@
 package org.apache.hop.core.logging;
 
 /**
- * This enumeration describes the logging status in a logging table for pipelines and jobs.
+ * This enumeration describes the logging status in a logging table for pipelines and workflows.
  *
  * @author matt
  */

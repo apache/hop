@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.mailinput;
 
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.job.entries.getpop.MailConnectionMeta;
+import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Assert;

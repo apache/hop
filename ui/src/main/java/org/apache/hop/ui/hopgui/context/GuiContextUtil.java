@@ -60,9 +60,18 @@ public class GuiContextUtil {
     handleActionSelection( parent, message, clickLocation, actions );
   }
 
-  public static void handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
+  /**
+   *
+   * @param parent
+   * @param message
+   * @param clickLocation
+   * @param actions
+   *
+   * @return true if the action dialog lost focus
+   */
+  public static boolean handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
     if ( actions.isEmpty() ) {
-      return;
+      return false;
     }
 
     try {
@@ -77,10 +86,12 @@ public class GuiContextUtil {
       if ( selectedAction != null ) {
         IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
         actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+      } else {
+        return contextDialog.isFocusLost();
       }
     } catch ( Exception e ) {
       new ErrorDialog( parent, "Error", "An error occurred executing action", e );
     }
-
+    return false;
   }
 }

@@ -370,7 +370,7 @@ public class PipelineMetaTest {
   @Test
   public void testLoadXml() throws HopException {
     String directory = "/home/admin";
-    Node jobNode = Mockito.mock( Node.class );
+    Node workflowNode = Mockito.mock( Node.class );
     NodeList nodeList = new NodeList() {
       ArrayList<Node> nodes = new ArrayList<>();
 
@@ -400,14 +400,14 @@ public class PipelineMetaTest {
       }
     };
 
-    Mockito.when( jobNode.getChildNodes() ).thenReturn( nodeList );
+    Mockito.when( workflowNode.getChildNodes() ).thenReturn( nodeList );
 
     PipelineMeta meta = new PipelineMeta();
 
     IVariables variables = Mockito.mock( IVariables.class );
     Mockito.when( variables.listVariables() ).thenReturn( new String[ 0 ] );
 
-    meta.loadXML( jobNode, null, metaStore, false, variables );
+    meta.loadXML( workflowNode, null, metaStore, false, variables );
     meta.setInternalHopVariables( null );
   }
 

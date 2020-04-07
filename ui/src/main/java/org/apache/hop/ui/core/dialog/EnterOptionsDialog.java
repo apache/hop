@@ -109,8 +109,6 @@ public class EnterOptionsDialog extends Dialog {
 
   private Text wLineWidth;
 
-  private Text wShadowSize;
-
   private Text wDefaultPreview;
 
   private Text wMaxNrLogLines;
@@ -241,7 +239,6 @@ public class EnterOptionsDialog extends Dialog {
     };
     wIconsize.addSelectionListener( lsDef );
     wLineWidth.addSelectionListener( lsDef );
-    wShadowSize.addSelectionListener( lsDef );
     wMiddlePct.addSelectionListener( lsDef );
     wDefaultPreview.addSelectionListener( lsDef );
     wMaxNrLogLines.addSelectionListener( lsDef );
@@ -706,7 +703,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdIconsize = new FormData();
     fdIconsize.left = new FormAttachment( middle, 0 );
     fdIconsize.right = new FormAttachment( 100, -margin );
-    fdIconsize.top = new FormAttachment( wTabColor, margin );
+    fdIconsize.top = new FormAttachment( wlIconsize, 0, SWT.CENTER );
     wIconsize.setLayoutData( fdIconsize );
 
     // LineWidth line
@@ -724,26 +721,8 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdLineWidth = new FormData();
     fdLineWidth.left = new FormAttachment( middle, 0 );
     fdLineWidth.right = new FormAttachment( 100, -margin );
-    fdLineWidth.top = new FormAttachment( wIconsize, margin );
+    fdLineWidth.top = new FormAttachment( wlLineWidth, 0, SWT.CENTER );
     wLineWidth.setLayoutData( fdLineWidth );
-
-    // ShadowSize line
-    Label wlShadowSize = new Label( wLookComp, SWT.RIGHT );
-    wlShadowSize.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ShadowSize.Label" ) );
-    props.setLook( wlShadowSize );
-    FormData fdlShadowSize = new FormData();
-    fdlShadowSize.left = new FormAttachment( 0, 0 );
-    fdlShadowSize.right = new FormAttachment( middle, -margin );
-    fdlShadowSize.top = new FormAttachment( wLineWidth, margin );
-    wlShadowSize.setLayoutData( fdlShadowSize );
-    wShadowSize = new Text( wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wShadowSize.setText( Integer.toString( props.getShadowSize() ) );
-    props.setLook( wShadowSize );
-    FormData fdShadowSize = new FormData();
-    fdShadowSize.left = new FormAttachment( middle, 0 );
-    fdShadowSize.right = new FormAttachment( 100, -margin );
-    fdShadowSize.top = new FormAttachment( wLineWidth, margin );
-    wShadowSize.setLayoutData( fdShadowSize );
 
     // MiddlePct line
     Label wlMiddlePct = new Label( wLookComp, SWT.RIGHT );
@@ -752,7 +731,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlMiddlePct = new FormData();
     fdlMiddlePct.left = new FormAttachment( 0, 0 );
     fdlMiddlePct.right = new FormAttachment( middle, -margin );
-    fdlMiddlePct.top = new FormAttachment( wShadowSize, margin );
+    fdlMiddlePct.top = new FormAttachment( wLineWidth, margin );
     wlMiddlePct.setLayoutData( fdlMiddlePct );
     wMiddlePct = new Text( wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wMiddlePct.setText( Integer.toString( props.getMiddlePct() ) );
@@ -760,7 +739,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdMiddlePct = new FormData();
     fdMiddlePct.left = new FormAttachment( middle, 0 );
     fdMiddlePct.right = new FormAttachment( 100, -margin );
-    fdMiddlePct.top = new FormAttachment( wShadowSize, margin );
+    fdMiddlePct.top = new FormAttachment( wlMiddlePct, 0, SWT.CENTER );
     wMiddlePct.setLayoutData( fdMiddlePct );
 
     // GridSize line
@@ -1330,7 +1309,6 @@ public class EnterOptionsDialog extends Dialog {
     props.setTabColorRGB( tabColorRGB );
     props.setIconSize( Const.toInt( wIconsize.getText(), props.getIconSize() ) );
     props.setLineWidth( Const.toInt( wLineWidth.getText(), props.getLineWidth() ) );
-    props.setShadowSize( Const.toInt( wShadowSize.getText(), props.getShadowSize() ) );
     props.setMiddlePct( Const.toInt( wMiddlePct.getText(), props.getMiddlePct() ) );
     props.setCanvasGridSize( Const.toInt( wGridSize.getText(), 1 ) );
 

@@ -78,7 +78,7 @@ public interface ILoggingObject {
 
   /**
    * Gets the execution container (Carte/DI server/BI Server) object id. We use this to see to which copy of the
-   * job/pipeline hierarchy this object belongs. If it is null, we assume that we are running a single copy in
+   * workflow/pipeline hierarchy this object belongs. If it is null, we assume that we are running a single copy in
    * HopGui/Pan/Kitchen.
    *
    * @return The execution container (Carte/DI server/BI Server) object id.

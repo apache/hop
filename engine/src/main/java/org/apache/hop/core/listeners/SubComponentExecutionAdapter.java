@@ -23,7 +23,7 @@
 package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
 public class SubComponentExecutionAdapter implements ISubComponentExecutionListener {
@@ -37,11 +37,11 @@ public class SubComponentExecutionAdapter implements ISubComponentExecutionListe
   }
 
   @Override
-  public void beforeJobExecution( Job job ) throws HopException {
+  public void beforeJobExecution( Workflow workflow ) throws HopException {
   }
 
   @Override
-  public void afterJobExecution( Job job ) throws HopException {
+  public void afterJobExecution( Workflow workflow ) throws HopException {
   }
 
 }

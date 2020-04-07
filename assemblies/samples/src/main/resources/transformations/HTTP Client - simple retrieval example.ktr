@@ -2,7 +2,7 @@
 <pipeline>
   <info>
     <name>HTTP Client - simple retrieval example</name>
-    <description>This transformation extracts the names of the job entries in a job stored on a web server.</description>
+    <description>This transformation extracts the names of the workflow entries in a workflow stored on a web server.</description>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
@@ -436,7 +436,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>This transformation extracts the names of the job entries in a job stored on a web server.</note>
+      <note>This transformation extracts the names of the workflow entries in a workflow stored on a web server.</note>
       <xloc>40</xloc>
       <yloc>140</yloc>
       <width>547</width>
@@ -507,7 +507,7 @@
     </file>
     <fields>
       <field>
-        <name>job-name</name>
+        <name>workflow-name</name>
         <xpath>..&#x2f;..&#x2f;name</xpath>
         <element_type>node</element_type>
         <result_type>valueof</result_type>
@@ -553,10 +553,10 @@
       </field>
     </fields>
     <limit>0</limit>
-    <loopxpath>&#x2f;job&#x2f;entries&#x2f;entry</loopxpath>
+    <loopxpath>&#x2f;workflow&#x2f;entries&#x2f;entry</loopxpath>
     <IsInFields>Y</IsInFields>
     <IsAFile>N</IsAFile>
-    <XmlField>job-xml</XmlField>
+    <XmlField>workflow-xml</XmlField>
     <prunePath/>
     <shortFileFieldName/>
     <pathFieldName/>
@@ -605,7 +605,7 @@
     <lookup>
     </lookup>
     <result>
-      <name>job-xml</name>
+      <name>workflow-xml</name>
       <code/>
       <response_time/>
       <response_header/>
@@ -636,7 +636,7 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>filename</name>
-      </field>      <field>        <name>job-name</name>
+      </field>      <field>        <name>workflow-name</name>
       </field>      <field>        <name>name</name>
       </field>      <field>        <name>type</name>
       </field>        <select_unspecified>N</select_unspecified>

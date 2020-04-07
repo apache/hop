@@ -73,7 +73,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Send mail transform. based on Mail job entry
+ * Send mail transform. based on Mail action
  *
  * @author Samatar
  * @since 28-07-2008

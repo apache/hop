@@ -86,8 +86,8 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.IDelegationListener;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.IDelegationListener;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -218,10 +218,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   protected IMetaStore metaStore;
 
   /**
-   * The job that's launching this pipeline. This gives us access to the whole chain, including the parent
+   * The workflow that's launching this pipeline. This gives us access to the whole chain, including the parent
    * variables, etc.
    */
-  private Job parentJob;
+  private Workflow parentWorkflow;
 
   /**
    * The pipeline that is executing this pipeline in case of mappings.
@@ -229,7 +229,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private Pipeline parentPipeline;
 
   /**
-   * The parent logging object interface (this could be a pipeline or a job).
+   * The parent logging object interface (this could be a pipeline or a workflow).
    */
   private ILoggingObject parent;
 
@@ -254,7 +254,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private Date startDate, endDate, currentDate, logDate, depDate;
 
   /**
-   * The job start and end date.
+   * The workflow start and end date.
    */
   private Date jobStartDate, jobEndDate;
 
@@ -264,7 +264,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private long batchId;
 
   /**
-   * This is the batch ID that is passed from job to job to pipeline, if nothing is passed, it's the
+   * This is the batch ID that is passed from workflow to workflow to pipeline, if nothing is passed, it's the
    * pipeline's batch id.
    */
   private long passedBatchId;
@@ -437,7 +437,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private List<IPipelineStoppedListener> pipelineStoppedListeners;
 
   /**
-   * In case this pipeline starts to delegate work to a local pipeline or job
+   * In case this pipeline starts to delegate work to a local pipeline or workflow
    */
   private List<IDelegationListener> delegationListeners;
 
@@ -489,7 +489,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * The active subjobs
    */
-  private Map<String, Job> activeSubjobs;
+  private Map<String, Workflow> activeSubjobs;
 
   /**
    * The transform performance snapshot size limit.
@@ -591,10 +591,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
   /**
    * Initializes a pipeline from pipeline meta-data defined in memory. Also take into account the parent log
-   * channel interface (job or pipeline) for logging lineage purposes.
+   * channel interface (workflow or pipeline) for logging lineage purposes.
    *
    * @param pipelineMeta the pipeline meta-data to use.
-   * @param parent    the parent job that is executing this pipeline
+   * @param parent    the parent workflow that is executing this pipeline
    */
   public Pipeline( PipelineMeta pipelineMeta, ILoggingObject parent ) {
     this();
@@ -1055,8 +1055,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     // Make sure we synchronize appropriately to avoid duplicate batch IDs.
     //
     Object syncObject = this;
-    if ( parentJob != null ) {
-      syncObject = parentJob; // parallel execution in a job
+    if ( parentWorkflow != null ) {
+      syncObject = parentWorkflow; // parallel execution in a workflow
     }
     if ( parentPipeline != null ) {
       syncObject = parentPipeline; // multiple sub-pipelines
@@ -2264,7 +2264,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     Database db = null;
     ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
 
-    // PDI-7070: If parent pipeline or job has the same channel logging info, don't duplicate log entries
+    // PDI-7070: If parent pipeline or workflow has the same channel logging info, don't duplicate log entries
     Pipeline t = getParentPipeline();
     if ( t != null ) {
       if ( channelLogTable.equals( t.getPipelineMeta().getChannelLogTable() ) ) {
@@ -2272,10 +2272,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
     }
 
-    Job j = getParentJob();
+    Workflow j = getParentWorkflow();
 
     if ( j != null ) {
-      if ( channelLogTable.equals( j.getJobMeta().getChannelLogTable() ) ) {
+      if ( channelLogTable.equals( j.getWorkflowMeta().getChannelLogTable() ) ) {
         return;
       }
     }
@@ -2633,10 +2633,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   @Override
   public void closeUniqueDatabaseConnections( Result result ) {
 
-    // Don't close any connections if the parent job is using the same transaction
+    // Don't close any connections if the parent workflow is using the same transaction
     //
-    if ( parentJob != null && transactionId != null && parentJob.getTransactionId() != null && transactionId.equals(
-      parentJob.getTransactionId() ) ) {
+    if ( parentWorkflow != null && transactionId != null && parentWorkflow.getTransactionId() != null && transactionId.equals(
+      parentWorkflow.getTransactionId() ) ) {
       return;
     }
 
@@ -3093,23 +3093,23 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Gets the parent job, or null if there is no parent.
+   * Gets the parent workflow, or null if there is no parent.
    *
-   * @return the parent job, or null if there is no parent
+   * @return the parent workflow, or null if there is no parent
    */
-  public Job getParentJob() {
-    return parentJob;
+  public Workflow getParentWorkflow() {
+    return parentWorkflow;
   }
 
   /**
-   * Sets the parent job for the pipeline.
+   * Sets the parent workflow for the pipeline.
    *
-   * @param parentJob The parent job to set
+   * @param parentWorkflow The parent workflow to set
    */
-  public void setParentJob( Job parentJob ) {
-    this.logLevel = parentJob.getLogLevel();
+  public void setParentWorkflow( Workflow parentWorkflow ) {
+    this.logLevel = parentWorkflow.getLogLevel();
     this.log.setLogLevel( logLevel );
-    this.parentJob = parentJob;
+    this.parentWorkflow = parentWorkflow;
 
     transactionId = calculateTransactionId();
   }
@@ -3157,25 +3157,25 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Gets the job start date.
+   * Gets the workflow start date.
    *
-   * @return the job start date
+   * @return the workflow start date
    */
   public Date getJobStartDate() {
     return jobStartDate;
   }
 
   /**
-   * Gets the job end date.
+   * Gets the workflow end date.
    *
-   * @return the job end date
+   * @return the workflow end date
    */
   public Date getJobEndDate() {
     return jobEndDate;
   }
 
   /**
-   * Sets the job end date.
+   * Sets the workflow end date.
    *
    * @param jobEndDate the jobEndDate to set
    */
@@ -3184,7 +3184,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Sets the job start date.
+   * Sets the workflow start date.
    *
    * @param jobStartDate the jobStartDate to set
    */
@@ -3193,17 +3193,17 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Get the batch ID that is passed from the parent job to the pipeline. If nothing is passed, it's the
+   * Get the batch ID that is passed from the parent workflow to the pipeline. If nothing is passed, it's the
    * pipeline's batch ID
    *
-   * @return the parent job's batch ID, or the pipeline's batch ID if there is no parent job
+   * @return the parent workflow's batch ID, or the pipeline's batch ID if there is no parent workflow
    */
   public long getPassedBatchId() {
     return passedBatchId;
   }
 
   /**
-   * Sets the passed batch ID of the pipeline from the batch ID of the parent job.
+   * Sets the passed batch ID of the pipeline from the batch ID of the parent workflow.
    *
    * @param jobBatchId the jobBatchId to set
    */
@@ -3350,7 +3350,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
       vars.put( var, pipelineMeta.getVariable( var ) );
     }
-    for ( String var : Const.INTERNAL_JOB_VARIABLES ) {
+    for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
       vars.put( var, pipelineMeta.getVariable( var ) );
     }
 
@@ -3362,7 +3362,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     try {
       if ( executionConfiguration.isPassingExport() ) {
 
-        // First export the job...
+        // First export the workflow...
         //
         FileObject tempFile = HopVFS.createTempFile( "pipelineExport", HopVFS.Suffix.ZIP, pipelineMeta );
 
@@ -3477,8 +3477,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     // The name of the pipeline
     variables.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL( pipelineMeta.getName(), "" ) );
 
-    // Here we don't clear the definition of the job specific parameters, as they may come in handy.
-    // A pipeline can be called from a job and may inherit the job internal variables
+    // Here we don't clear the definition of the workflow specific parameters, as they may come in handy.
+    // A pipeline can be called from a workflow and may inherit the workflow internal variables
     // but the other around is not possible.
 
     setInternalEntryCurrentDirectory( hasFilename );
@@ -4153,11 +4153,11 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Gets the active sub-jobs.
+   * Gets the active sub-workflows.
    *
-   * @return a map (by name) of the active sub-jobs
+   * @return a map (by name) of the active sub-workflows
    */
-  public Map<String, Job> getActiveSubjobs() {
+  public Map<String, Workflow> getActiveSubjobs() {
     return activeSubjobs;
   }
 
@@ -4349,8 +4349,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public String calculateTransactionId() {
     if ( getPipelineMeta() != null && getPipelineMeta().isUsingUniqueConnections() ) {
-      if ( parentJob != null && parentJob.getTransactionId() != null ) {
-        return parentJob.getTransactionId();
+      if ( parentWorkflow != null && parentWorkflow.getTransactionId() != null ) {
+        return parentWorkflow.getTransactionId();
       } else if ( parentPipeline != null && parentPipeline.getPipelineMeta().isUsingUniqueConnections() ) {
         return parentPipeline.getTransactionId();
       } else {

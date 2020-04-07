@@ -26,8 +26,8 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
@@ -42,8 +42,8 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGC;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -53,12 +53,12 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -75,11 +75,11 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.ExecutionAdapter;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
@@ -92,9 +92,9 @@ import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PrintSpool;
@@ -118,8 +118,6 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
-import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
@@ -133,7 +131,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDel
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelinePainterFlyoutTooltipExtension;
+import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.shared.SWTGC;
@@ -238,24 +238,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS = "HopGuiPipelineGraph-ToolBar-10400-Execution-Results";
 
-  public static final String LOAD_TAB = "loadTab";
-  public static final String PREVIEW_PIPELINE = "previewPipeline";
-
   private ILogChannel log;
 
   private static final int HOP_SEL_MARGIN = 9;
-
-  public static final String START_TEXT = BaseMessages.getString( PKG, "PipelineLog.Button.StartPipeline" );
-
-  public static final String PAUSE_TEXT = BaseMessages.getString( PKG, "PipelineLog.Button.PausePipeline" );
-
-  public static final String RESUME_TEXT = BaseMessages.getString( PKG, "PipelineLog.Button.ResumePipeline" );
-
-  public static final String STOP_TEXT = BaseMessages.getString( PKG, "PipelineLog.Button.StopPipeline" );
-
-  public static final String PIPELINE_GRAPH_ENTRY_SNIFF = "pipeline-graph-entry-sniff";
-
-  public static final String PIPELINE_GRAPH_ENTRY_AGAIN = "pipeline-graph-entry-align";
 
   private static final int TOOLTIP_HIDE_DELAY_SHORT = 5000;
 
@@ -396,6 +381,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private Combo zoomLabel;
 
   private HopPipelineFileType fileType;
+  private boolean ignoreNextClick;
+  private boolean doubleClick;
 
   public void setCurrentNote( NotePadMeta ni ) {
     this.ni = ni;
@@ -751,6 +738,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDoubleClick( MouseEvent e ) {
+    doubleClick = true;
     clearSettings();
 
     Point real = screen2real( e.x, e.y );
@@ -811,6 +799,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown( MouseEvent e ) {
+    doubleClick = false;
+
+    if ( ignoreNextClick ) {
+      ignoreNextClick = false;
+      return;
+    }
 
     boolean alt = ( e.stateMask & SWT.ALT ) != 0;
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
@@ -989,6 +983,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp( MouseEvent e ) {
+
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension( null, e, getArea() );
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseUp.id, ext );
@@ -1164,34 +1159,50 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Just a single click on the background:
-    // We have a bunch of possible actions for you...
+    // Only do this "mouseUp()" if this is not part of a double click...
     //
-    if ( singleClick && singleClickType != null ) {
-      IGuiContextHandler contextHandler = null;
-      String message = null;
-      switch ( singleClickType ) {
-        case Pipeline:
-          message = "Select the action to execute or the transform to create:";
-          contextHandler = new HopGuiPipelineContext( pipelineMeta, this, real );
-          break;
-        case Transform:
-          message = "Select the action to take on transform '" + singleClickTransform.getName() + "':";
-          contextHandler = new HopGuiPipelineTransformContext( pipelineMeta, singleClickTransform, this, real );
-          break;
-        case Note:
-          message = "Select the note action to take:";
-          contextHandler = new HopGuiPipelineNoteContext( pipelineMeta, singleClickNote, this, real );
-          break;
-        default:
-          break;
-      }
-      if ( contextHandler != null ) {
-        Shell parent = hopShell();
-        org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
-        GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
-      }
-    }
+    final boolean fSingleClick = singleClick;
+    final SingleClickType fSingleClickType = singleClickType;
+    final TransformMeta fSingleClickTransform = singleClickTransform;
+    final NotePadMeta fSingleClickNote = singleClickNote;
+
+    Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
+      () -> {
+        if ( !doubleClick ) {
+          // Just a single click on the background:
+          // We have a bunch of possible actions for you...
+          //
+          if ( fSingleClick && fSingleClickType != null ) {
+            IGuiContextHandler contextHandler = null;
+            String message = null;
+            switch ( fSingleClickType ) {
+              case Pipeline:
+                message = "Select the action to execute or the transform to create:";
+                contextHandler = new HopGuiPipelineContext( pipelineMeta, this, real );
+                break;
+              case Transform:
+                message = "Select the action to take on transform '" + fSingleClickTransform.getName() + "':";
+                contextHandler = new HopGuiPipelineTransformContext( pipelineMeta, fSingleClickTransform, this, real );
+                break;
+              case Note:
+                message = "Select the note action to take:";
+                contextHandler = new HopGuiPipelineNoteContext( pipelineMeta, fSingleClickNote, this, real );
+                break;
+              default:
+                break;
+            }
+            if ( contextHandler != null ) {
+              Shell parent = hopShell();
+              org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
+
+              // If we lost focus ignore the next left click
+              //
+              ignoreNextClick = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
+            }
+
+          }
+        }
+      } );
 
     lastButton = 0;
   }
@@ -2436,8 +2447,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
           .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
-          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
-          .isDrawShadow() );
+          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue()
+        );
       pipelineMeta.addNote( npi );
       hopUi.undoDelegate.addUndoNew( pipelineMeta, new NotePadMeta[] { npi }, new int[] { pipelineMeta.indexOfNote( npi ) } );
       updateGui();
@@ -2450,7 +2461,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit pipeline",
     tooltip = "Edit pipeline properties",
-    image = "ui/images/TRN.svg"
+    image = "ui/images/toolbar/pipeline.svg"
   )
   public void editPipelineProperties( HopGuiPipelineContext context ) {
     editProperties( pipelineMeta, hopUi, true );
@@ -2770,8 +2781,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * Display the input- or outputfields for a transform.
    *
    * @param transformMeta The transform (it's metadata) to query
-   * @param before   set to true if you want to have the fields going INTO the transform, false if you want to see all the
-   *                 fields that exit the transform.
+   * @param before        set to true if you want to have the fields going INTO the transform, false if you want to see all the
+   *                      fields that exit the transform.
    */
   private void inputOutputFields( TransformMeta transformMeta, boolean before ) {
     redraw();
@@ -2870,7 +2881,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
       candidate, drop_candidate, selectionRegion, areaOwners,
       PropsUI.getInstance().getIconSize(), PropsUI.getInstance().getLineWidth(), gridSize,
-      PropsUI.getInstance().getShadowSize(), PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
+      PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
       .getNoteFont().getHeight(), pipeline, PropsUI.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUI.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor
@@ -2933,7 +2944,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       ni.setBorderColorRed( n.getBorderColorRed() );
       ni.setBorderColorGreen( n.getBorderColorGreen() );
       ni.setBorderColorBlue( n.getBorderColorBlue() );
-      ni.setDrawShadow( n.isDrawShadow() );
       ni.width = ConstUI.NOTE_MIN_SIZE;
       ni.height = ConstUI.NOTE_MIN_SIZE;
 
@@ -3252,7 +3262,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     PipelineDialog tid = new PipelineDialog( hopUi.getShell(), SWT.NONE, pipelineMeta, currentTab );
     tid.setDirectoryChangeAllowed( allowDirectoryChange );
-    if (tid.open()!=null) {
+    if ( tid.open() != null ) {
       hopUi.setParametersAsVariablesInUI( pipelineMeta, pipelineMeta );
       updateGui();
       perspective.updateTabs();
@@ -4189,7 +4199,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void sniff( HopGuiPipelineTransformContext context ) {
     TransformMeta transformMeta = context.getTransformMeta();
 
-    if (pipeline==null || pipeline.isFinished()) {
+    if ( pipeline == null || pipeline.isFinished() ) {
       MessageBox messageBox = new MessageBox( hopShell(), SWT.ICON_INFORMATION | SWT.OK );
       messageBox.setText( BaseMessages.getString( PKG, "PipelineGraph.SniffTestingAvailableWhenRunning.Title" ) );
       messageBox.setMessage( BaseMessages.getString( PKG, "PipelineGraph.SniffTestingAvailableWhenRunning.Message" ) );

@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
 import javax.servlet.ServletException;
@@ -52,8 +52,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
   public GetStatusServlet() {
   }
 
-  public GetStatusServlet( PipelineMap pipelineMap, JobMap jobMap ) {
-    super( pipelineMap, jobMap );
+  public GetStatusServlet( PipelineMap pipelineMap, WorkflowMap workflowMap ) {
+    super( pipelineMap, workflowMap );
   }
 
   /**
@@ -62,7 +62,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
    * <a name="GET"></a>
    * <h2>GET</h2>
    * <p>Retrieve server status. The status contains information about the server itself (OS, memory, etc)
-   * and information about jobs and pipelines present on the server.</p>
+   * and information about workflows and pipelines present on the server.</p>
    *
    * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
@@ -71,7 +71,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -89,7 +89,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">element:</td>
@@ -148,7 +148,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
    * </pipeline_status>
    * <jobstatuslist>
    * <jobstatus>
-   * <jobname>dummy_job</jobname>
+   * <workflowname>dummy_job</workflowname>
    * <id>abd61143-8174-4f27-9037-6b22fbd3e229</id>
    * <status_desc>Stopped</status_desc>
    * <error_desc/>
@@ -161,7 +161,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>
@@ -205,7 +205,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     PrintWriter out = response.getWriter();
 
     List<HopServerObjectEntry> pipelineEntries = getPipelineMap().getPipelineObjects();
-    List<HopServerObjectEntry> jobEntries = getJobMap().getJobObjects();
+    List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();
 
     if ( useXML ) {
       out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
@@ -224,11 +224,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         serverStatus.getPipelineStatusList().add( sstatus );
       }
 
-      for ( HopServerObjectEntry entry : jobEntries ) {
-        Job job = getJobMap().getJob( entry );
-        String status = job.getStatus();
-        SlaveServerJobStatus jobStatus = new SlaveServerJobStatus( entry.getName(), entry.getId(), status );
-        jobStatus.setLogDate( job.getLogDate() );
+      for ( HopServerObjectEntry entry : actions ) {
+        Workflow workflow = getWorkflowMap().getWorkflow( entry );
+        String status = workflow.getStatus();
+        SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( entry.getName(), entry.getId(), status );
+        jobStatus.setLogDate( workflow.getLogDate() );
         serverStatus.getJobStatusList().add( jobStatus );
       }
 
@@ -399,12 +399,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
         // Tooltips
         String runJ = BaseMessages.getString( PKG, "CarteStatusServlet.Run" );
-        String stopJ = BaseMessages.getString( PKG, "CarteStatusServlet.StopJob" );
+        String stopJ = BaseMessages.getString( PKG, "CarteStatusServlet.StopWorkflow" );
         String viewJ = BaseMessages.getString( PKG, "CarteStatusServlet.ViewJobDetails" );
-        String removeJ = BaseMessages.getString( PKG, "CarteStatusServlet.RemoveJob" );
+        String removeJ = BaseMessages.getString( PKG, "CarteStatusServlet.RemoveWorkflow" );
 
         out.println( "<div class=\"row\" style=\"padding: 0px 30px 75px 0px;\">" );
-        out.println( "<" + htmlClass + " class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 0px;\">Jobs</" + htmlClass + ">" );
+        out.println( "<" + htmlClass + " class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 0px;\">Workflows</" + htmlClass + ">" );
         out.println( "<table cellspacing=\"0\" cellpadding=\"0\"><tbody><tr><td align=\"left\" width=\"100%\" style=\"vertical-align:middle;\">" );
         out.println( "<table cellspacing=\"0\" cellpadding=\"0\" class=\"toolbar\" style=\"width: 100%; height: 26px; margin-bottom: 2px; border: 0;\">" );
         out.println( "<tbody><tr>" );
@@ -437,11 +437,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         Comparator<HopServerObjectEntry> jobComparator = new Comparator<HopServerObjectEntry>() {
           @Override
           public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-            Job t1 = getJobMap().getJob( o1 );
-            Job t2 = getJobMap().getJob( o2 );
+            Workflow t1 = getWorkflowMap().getWorkflow( o1 );
+            Workflow t2 = getWorkflowMap().getWorkflow( o2 );
             Date d1 = t1.getLogDate();
             Date d2 = t2.getLogDate();
-            // if both jobs have last log date, desc sort by log date
+            // if both workflows have last log date, desc sort by log date
             if ( d1 != null && d2 != null ) {
               int logDateCompare = d2.compareTo( d1 );
               if ( logDateCompare != 0 ) {
@@ -452,14 +452,14 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           }
         };
 
-        Collections.sort( jobEntries, jobComparator );
+        Collections.sort( actions, jobComparator );
 
         evenRow = true;
-        for ( int i = 0; i < jobEntries.size(); i++ ) {
-          String name = jobEntries.get( i ).getName();
-          String id = jobEntries.get( i ).getId();
-          Job job = getJobMap().getJob( jobEntries.get( i ) );
-          String status = job.getStatus();
+        for ( int i = 0; i < actions.size(); i++ ) {
+          String name = actions.get( i ).getName();
+          String id = actions.get( i ).getId();
+          Workflow workflow = getWorkflowMap().getWorkflow( actions.get( i ) );
+          String status = workflow.getStatus();
           String trClass = evenRow ? "cellTableEvenRow" : "cellTableOddRow"; // alternating row color
           String tdClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
           evenRow = !evenRow; // flip
@@ -479,12 +479,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"j-cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XMLHandler.date2string( job.getLogDate() );
+          String dateStr = XMLHandler.date2string( workflow.getLogDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"j-cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">"
-            + ( job.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
+            + ( workflow.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
@@ -595,7 +595,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "function resumeFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
       out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupJobURI( convertContextPath( StartJobServlet.CONTEXT_PATH ) ),
+      out.println( setupAjaxCall( setupJobURI( convertContextPath( StartWorkflowServlet.CONTEXT_PATH ) ),
         BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Title" ),
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Success.Body" ) + "'",
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Failure.Body" ) + "'" ) );
@@ -624,7 +624,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "function stopFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
       out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupJobURI( convertContextPath( StopJobServlet.CONTEXT_PATH ) ),
+      out.println( setupAjaxCall( setupJobURI( convertContextPath( StopWorkflowServlet.CONTEXT_PATH ) ),
         BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Title" ),
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' "
           + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body2" ) + "'",
@@ -693,7 +693,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
       out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
       out.println( "window.location.replace( '"
-        + convertContextPath( GetJobStatusServlet.CONTEXT_PATH ) + "'"
+        + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "'"
         + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedJobRowIndex ).innerHTML"
         + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedJobRowIndex ).innerHTML );" );
       out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
@@ -765,7 +765,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "setSelectedNames();" );
       out.println( "}" );
 
-      // Function to set the pipeline or job name of the selected pipeline or job
+      // Function to set the pipeline or workflow name of the selected pipeline or workflow
       out.println( "function setSelectedNames() {" );
       out.println( "  selectedJobName = selectedPipelineName = \"\";" );
       out.println( "  var selectedElementNames = document.getElementsByClassName( \"cellTableFirstColumn cellTableSelectedRowCell\" );" );
@@ -848,11 +848,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "  }" );
       out.println( "}" );
 
-      // Function to remove selected pipeline/job after user confirms
+      // Function to remove selected pipeline/workflow after user confirms
       out.println( "function removeSelection() {" );
       out.println( "  if( removeElement !== null ) {" );
       out.println( "    if( removeElement.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupJobURI( convertContextPath( RemoveJobServlet.CONTEXT_PATH ) ),
+      out.println( setupAjaxCall( setupJobURI( convertContextPath( RemoveWorkflowServlet.CONTEXT_PATH ) ),
         BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Title" ),
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Success.Body" ) + "'",
         "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Failure.Body" ) + "'" ) );

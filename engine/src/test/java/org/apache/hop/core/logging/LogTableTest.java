@@ -75,11 +75,11 @@ public class LogTableTest {
     commonTableFieldsValueChecker( performanceLogTable, expectedAfterNullingGlobalParams );
     assertEquals( performanceLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
 
-    JobLogTable jobLogTable = getJobLogTableWithAllEqFields( valueForAllFields );
-    jobLogTable.setAllGlobalParametersToNull();
-    commonTableFieldsValueChecker( jobLogTable, expectedAfterNullingGlobalParams );
-    assertEquals( jobLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
-    assertEquals( jobLogTable.getLogSizeLimit(), expectedAfterNullingGlobalParams );
+    WorkflowLogTable workflowLogTable = getJobLogTableWithAllEqFields( valueForAllFields );
+    workflowLogTable.setAllGlobalParametersToNull();
+    commonTableFieldsValueChecker( workflowLogTable, expectedAfterNullingGlobalParams );
+    assertEquals( workflowLogTable.getLogInterval(), expectedAfterNullingGlobalParams );
+    assertEquals( workflowLogTable.getLogSizeLimit(), expectedAfterNullingGlobalParams );
 
     PipelineLogTable pipelineLogTable = getPipelineLogTableWithAllEqFields( valueForAllFields );
     pipelineLogTable.setAllGlobalParametersToNull();
@@ -97,13 +97,13 @@ public class LogTableTest {
     return performanceLogTable;
   }
 
-  private JobLogTable getJobLogTableWithAllEqFields( String fieldsValue ) {
-    JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
-    initCommonTableFields( jobLogTable, fieldsValue );
-    jobLogTable.setLogSizeLimit( fieldsValue );
-    jobLogTable.setLogInterval( fieldsValue );
+  private WorkflowLogTable getJobLogTableWithAllEqFields( String fieldsValue ) {
+    WorkflowLogTable workflowLogTable = WorkflowLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
+    initCommonTableFields( workflowLogTable, fieldsValue );
+    workflowLogTable.setLogSizeLimit( fieldsValue );
+    workflowLogTable.setLogInterval( fieldsValue );
 
-    return jobLogTable;
+    return workflowLogTable;
   }
 
   private PipelineLogTable getPipelineLogTableWithAllEqFields( String fieldsValue ) {

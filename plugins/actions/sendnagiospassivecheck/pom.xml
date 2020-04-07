@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.hop</groupId>
+		<artifactId>hop-plugins-actions</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>hop-action-sendnagiospassivecheck</artifactId>
+	<packaging>jar</packaging>
+
+	<name>Hop Plugins Actions Send Nagios passive check</name>
+
+	<properties>
+		<jsendnsca.version>2.0.1</jsendnsca.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.googlecode.jsendnsca</groupId>
+			<artifactId>jsendnsca</artifactId>
+			<version>${jsendnsca.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+</project>

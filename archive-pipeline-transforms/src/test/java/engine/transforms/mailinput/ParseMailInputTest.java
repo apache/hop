@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.job.entries.getpop.MailConnection;
+import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mailinput.MailInput.MessageParser;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;

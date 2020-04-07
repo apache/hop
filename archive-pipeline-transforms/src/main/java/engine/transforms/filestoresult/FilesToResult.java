@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 
 /**
- * Writes filenames to a next job entry in a Job
+ * Writes filenames to a next action in a Job
  *
  * @author matt
  * @since 26-may-2006

@@ -116,7 +116,7 @@ public class ImageUtil {
   }
 
   /**
-   * TODO: Load job and transform images.
+   * TODO: Load workflow and transform images.
    */
   public static Image getImage( Display display, ClassLoader classLoader, String filename ) {
     try {

@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 /**
- * Send mail transform. based on Mail job entry
+ * Send mail transform. based on Mail action
  *
  * @author Samatar
  * @since 28-07-2008

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
+<workflow>
   <name>Evaluate result rows</name>
   <description/>
   <extended_description/>
@@ -13,7 +13,7 @@
     </parameters>
     <slaveservers>
     </slaveservers>
-      <job-log-table>
+      <workflow-log-table>
         <connection/>
         <schema/>
         <table/>
@@ -125,7 +125,7 @@
           <enabled>N</enabled>
           <name>CLIENT</name>
         </field>
-      </job-log-table>
+      </workflow-log-table>
       <jobentry-log-table>
         <connection/>
         <schema/>
@@ -499,4 +499,4 @@
   </hops>
   <notepads>
   </notepads>
-</job>
+</workflow>

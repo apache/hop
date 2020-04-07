@@ -35,11 +35,11 @@ public interface ILogTable extends ILogTableCore {
   String getXML();
 
   /**
-   * Load the information for this logging table from the job XML node
+   * Load the information for this logging table from the workflow XML node
    *
-   * @param jobNode the node to load from
+   * @param workflowNode the node to load from
    * @param transforms   the transforms to reference (or null)
    */
-  void loadXML( Node jobNode, List<TransformMeta> transforms );
+  void loadXML( Node workflowNode, List<TransformMeta> transforms );
 
 }

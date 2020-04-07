@@ -52,8 +52,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
 
 /**
@@ -77,17 +77,17 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
    * @return new var space with follow vars from parent space or just new space if parent was null
    * <p>
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY}
+   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY}
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_NAME}
+   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
    */
   private static IVariables getVarSpaceOnlyWithRequiredParentVars( IVariables parentSpace ) {
     Variables tmpSpace = new Variables();
     if ( parentSpace != null ) {
       tmpSpace.setVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-      tmpSpace.setVariable( INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY ) );
+      tmpSpace.setVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY ) );
       tmpSpace.setVariable( INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY ) );
-      tmpSpace.setVariable( INTERNAL_VARIABLE_JOB_FILENAME_NAME, parentSpace.getVariable( INTERNAL_VARIABLE_JOB_FILENAME_NAME ) );
+      tmpSpace.setVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, parentSpace.getVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME ) );
     }
     return tmpSpace;
   }
@@ -249,7 +249,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       //
       mappingPipelineMeta.setFilename( newFilename );
 
-      // change it in the job entry
+      // change it in the action
       //
       replaceFileName( newFilename );
 
@@ -289,7 +289,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
 
   private static boolean isInternalVariable( String variableName, String type ) {
     return type.equals( "Pipeline" ) ? isPipelineInternalVariable( variableName )
-      : type.equals( "Job" ) ? isJobInternalVariable( variableName )
+      : type.equals( "Workflow" ) ? isJobInternalVariable( variableName )
       : isJobInternalVariable( variableName ) || isPipelineInternalVariable( variableName );
   }
 
@@ -298,7 +298,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   }
 
   private static boolean isJobInternalVariable( String variableName ) {
-    return ( Arrays.asList( Const.INTERNAL_JOB_VARIABLES ).contains( variableName ) );
+    return ( Arrays.asList( Const.INTERNAL_WORKFLOW_VARIABLES ).contains( variableName ) );
   }
 
   /**

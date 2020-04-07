@@ -214,7 +214,7 @@ public class TeraFastMeta extends AbstractTransformMeta {
           remarks.add( checkResult );
         }
       }
-      // else { job mode. no input rows. pentaho doesn't seem to allow to check jobs. Default Warning: Transform is not
+      // else { workflow mode. no input rows. pentaho doesn't seem to allow to check workflows. Default Warning: Transform is not
       // in pipeline.
     } catch ( HopDatabaseException e ) {
       checkResult =

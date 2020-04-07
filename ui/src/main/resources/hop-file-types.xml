@@ -7,7 +7,7 @@
 
   <hop-file-type id="FileType-Job">
     <description>Job File Type plugin</description>
-    <classname>org.apache.hop.ui.hopgui.file.job.HopJobFileType</classname>
+    <classname>org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType</classname>
   </hop-file-type>
 
 </hop-file-types>

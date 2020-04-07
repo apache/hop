@@ -51,7 +51,7 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filestoresult",
         name = "BaseTransform.TypeLongDesc.FilesToResult",
         description = "BaseTransform.TypeTooltipDesc.FilesToResult",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Job",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
         documentationUrl = ""
 )
 public class FilesToResultMeta extends BaseTransformMeta implements ITransformMeta<FilesToResult, FilesToResultData> {

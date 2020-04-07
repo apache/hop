@@ -30,7 +30,7 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>jobentries</directory>
+      <directory>actions</directory>
       <includes>
         <include>**/*.zip</include>
       </includes>

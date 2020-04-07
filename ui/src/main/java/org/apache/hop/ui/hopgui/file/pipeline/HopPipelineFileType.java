@@ -6,6 +6,7 @@ import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -139,7 +140,8 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       @Override public List<GuiAction> getSupportedActions() {
         List<GuiAction> actions = new ArrayList<>();
 
-        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New pipeline", "Create a new pipeline", "ui/images/TRN.svg",
+        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New pipeline", "Create a new pipeline",
+          BasePropertyHandler.getProperty( "Pipeline_image" ),
           ( shiftClicked, controlClicked, parameters ) -> {
             try {
               HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );

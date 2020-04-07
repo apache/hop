@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.util.SwingSvgImageUtil;
-import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.jfree.text.TextUtilities;
@@ -673,22 +673,22 @@ public class SwingDirectGC implements IGC {
     }
   }
 
-  public void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy, float magnification ) {
-    if ( jobEntryCopy == null ) {
+  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
+    if ( actionCopy == null ) {
       return; // Don't draw anything
     }
 
     SwingUniversalImage image = null;
 
-    if ( jobEntryCopy.isSpecial() ) {
-      if ( jobEntryCopy.isStart() ) {
+    if ( actionCopy.isSpecial() ) {
+      if ( actionCopy.isStart() ) {
         image = imageStart;
       }
-      if ( jobEntryCopy.isDummy() ) {
+      if ( actionCopy.isDummy() ) {
         image = imageDummy;
       }
     } else {
-      String configId = jobEntryCopy.getEntry().getPluginId();
+      String configId = actionCopy.getEntry().getPluginId();
       if ( configId != null ) {
         image = entryImages.get( configId );
       }
@@ -702,8 +702,8 @@ public class SwingDirectGC implements IGC {
   }
 
   @Override
-  public void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy ) {
-    drawJobEntryIcon( x, y, jobEntryCopy, 1.0f );
+  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy ) {
+    drawJobEntryIcon( x, y, actionCopy, 1.0f );
   }
 
   @Override

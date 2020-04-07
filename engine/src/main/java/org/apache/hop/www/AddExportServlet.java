@@ -30,10 +30,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobConfiguration;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobMeta;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * This servlet allows you to transport an exported job or transformation over to the carte server as a zip file. It
+ * This servlet allows you to transport an exported workflow or transformation over to the carte server as a zip file. It
  * ends up in a temporary file.
  * <p>
  * The servlet returns the name of the file stored.
@@ -63,7 +63,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
 
-  public static final String TYPE_JOB = "job";
+  public static final String TYPE_JOB = "workflow";
   public static final String TYPE_PIPELINE = "pipeline";
 
   private static final long serialVersionUID = -6850701762586992604L;
@@ -72,8 +72,8 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
   public AddExportServlet() {
   }
 
-  public AddExportServlet( JobMap jobMap, PipelineMap transformationMap ) {
-    super( transformationMap, jobMap );
+  public AddExportServlet( WorkflowMap workflowMap, PipelineMap transformationMap ) {
+    super( transformationMap, workflowMap );
   }
 
   /**
@@ -82,8 +82,8 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
    * <a name="POST"></a>
    * <h2>POST</h2>
    * <p>Returns the list of users in the platform. This list is in an xml format as shown in the example response.
-   * Uploads and executes previously exported job or transformation.
-   * Uploads zip file containing job or transformation to be executed and executes it.
+   * Uploads and executes previously exported workflow or transformation.
+   * Uploads zip file containing workflow or transformation to be executed and executes it.
    * Method relies on the input parameters to find the entity to be executed. The archive is
    * transferred within request body.
    *
@@ -93,12 +93,12 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
    *
    * <p><b>Example Request:</b><br />
    * <pre function="syntax.xml">
-   * POST /hop/addExport/?type=job&load=dummy_job.kjb
+   * POST /hop/addExport/?type=workflow&load=dummy_job.hwf
    * </pre>
    * Request body should contain zip file prepared for HopServer execution.
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -107,7 +107,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
    * </tr>
    * <tr>
    * <td>type</td>
-   * <td>The type of the entity to be executed either <code>job</code> or <code>pipeline</code>.</td>
+   * <td>The type of the entity to be executed either <code>workflow</code> or <code>pipeline</code>.</td>
    * <td>query</td>
    * </tr>
    * <tr>
@@ -120,7 +120,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">element:</td>
@@ -140,13 +140,13 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
    * <?xml version="1.0" encoding="UTF-8"?>
    * <webresult>
    * <result>OK</result>
-   * <message>zip&#x3a;file&#x3a;&#x2f;&#x2f;&#x2f;temp&#x2f;export_ee2a67de-6a72-11e4-82c0-4701a2bac6a5.zip&#x21;dummy_job.kjb</message>
+   * <message>zip&#x3a;file&#x3a;&#x2f;&#x2f;&#x2f;temp&#x2f;export_ee2a67de-6a72-11e4-82c0-4701a2bac6a5.zip&#x21;dummy_job.hwf</message>
    * <id>74cf4219-c881-4633-a71a-2ed16b7db7b8</id>
    * </webresult>
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>
@@ -222,48 +222,48 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
         fileUrl = "zip:" + archiveUrl + "!" + load;
 
         if ( isJob ) {
-          // Open the job from inside the ZIP archive
+          // Open the workflow from inside the ZIP archive
           //
           HopVFS.getFileObject( fileUrl );
 
-          JobMeta jobMeta = new JobMeta( fileUrl );
+          WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
 
           // Also read the execution configuration information
           //
-          String configUrl = "zip:" + archiveUrl + "!" + Job.CONFIGURATION_IN_EXPORT_FILENAME;
+          String configUrl = "zip:" + archiveUrl + "!" + Workflow.CONFIGURATION_IN_EXPORT_FILENAME;
           Document configDoc = XMLHandler.loadXMLFile( configUrl );
-          JobExecutionConfiguration jobExecutionConfiguration =
-            new JobExecutionConfiguration( XMLHandler.getSubNode( configDoc, JobExecutionConfiguration.XML_TAG ) );
+          WorkflowExecutionConfiguration workflowExecutionConfiguration =
+            new WorkflowExecutionConfiguration( XMLHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
 
           carteObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId( carteObjectId );
-          servletLoggingObject.setLogLevel( jobExecutionConfiguration.getLogLevel() );
+          servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
-          Job job = new Job( jobMeta, servletLoggingObject );
+          Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
 
-          // Do we need to expand the job when it's running?
-          // Note: the plugin (Job and Pipeline) job entries need to call the delegation listeners in the parent job.
+          // Do we need to expand the workflow when it's running?
+          // Note: the plugin (Workflow and Pipeline) actions need to call the delegation listeners in the parent workflow.
           //
-          if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-            job.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getJobMap() ) );
+          if ( workflowExecutionConfiguration.isExpandingRemoteJob() ) {
+            workflow.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getWorkflowMap() ) );
           }
 
           // store it all in the map...
           //
-          getJobMap().addJob(
-            job.getJobname(), carteObjectId, job, new JobConfiguration( jobMeta, jobExecutionConfiguration ) );
+          getWorkflowMap().addWorkflow(
+            workflow.getJobname(), carteObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration ) );
 
           // Apply the execution configuration...
           //
-          log.setLogLevel( jobExecutionConfiguration.getLogLevel() );
-          jobMeta.injectVariables( jobExecutionConfiguration.getVariablesMap() );
+          log.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
+          workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
           // Also copy the parameters over...
           //
-          Map<String, String> params = jobExecutionConfiguration.getParametersMap();
+          Map<String, String> params = workflowExecutionConfiguration.getParametersMap();
           for ( String param : params.keySet() ) {
             String value = params.get( param );
-            jobMeta.setParameterValue( param, value );
+            workflowMeta.setParameterValue( param, value );
           }
 
         } else {

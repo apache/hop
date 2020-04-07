@@ -25,7 +25,7 @@ package org.apache.hop.ui.hopgui.shared;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.IGC;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
@@ -428,8 +428,8 @@ public class SWTGC implements IGC {
     }
   }
 
-  public void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy, float magnification ) {
-    if ( jobEntryCopy == null ) {
+  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
+    if ( actionCopy == null ) {
       return; // Don't draw anything
     }
 
@@ -438,20 +438,20 @@ public class SWTGC implements IGC {
     int w = Math.round( iconsize * magnification );
     int h = Math.round( iconsize * magnification );
 
-    if ( jobEntryCopy.isSpecial() ) {
-      if ( jobEntryCopy.isStart() ) {
+    if ( actionCopy.isSpecial() ) {
+      if ( actionCopy.isStart() ) {
         swtImage = GUIResource.getInstance().getSwtImageStart();
       }
-      if ( jobEntryCopy.isDummy() ) {
+      if ( actionCopy.isDummy() ) {
         swtImage = GUIResource.getInstance().getSwtImageDummy();
       }
     } else {
-      String configId = jobEntryCopy.getEntry().getPluginId();
+      String configId = actionCopy.getEntry().getPluginId();
       if ( configId != null ) {
-        swtImage = GUIResource.getInstance().getImagesJobentries().get( configId );
+        swtImage = GUIResource.getInstance().getImagesActions().get( configId );
       }
     }
-    if ( jobEntryCopy.isMissing() ) {
+    if ( actionCopy.isMissing() ) {
       swtImage = GUIResource.getInstance().getSwtImageMissing();
     }
     if ( swtImage == null ) {
@@ -465,8 +465,8 @@ public class SWTGC implements IGC {
   }
 
   @Override
-  public void drawJobEntryIcon( int x, int y, JobEntryCopy jobEntryCopy ) {
-    drawJobEntryIcon( x, y, jobEntryCopy, currentMagnification );
+  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy ) {
+    drawJobEntryIcon( x, y, actionCopy, currentMagnification );
   }
 
   @Override

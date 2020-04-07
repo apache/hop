@@ -63,7 +63,7 @@ public class RowsFromResult extends BaseTransform implements ITransform {
 
     data = (RowsFromResultData) sdi;
 
-    // We don't get the meta-data from the previous transforms (there aren't any) but from the previous pipeline or job
+    // We don't get the meta-data from the previous transforms (there aren't any) but from the previous pipeline or workflow
     //
     data.outputRowMeta = row.getRowMeta();
 

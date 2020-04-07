@@ -41,7 +41,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 
   @VisibleForTesting Logger pipelineLogger = LoggerFactory.getLogger( "org.apache.hop.pipeline.Pipeline" );
 
-  @VisibleForTesting Logger jobLogger = LoggerFactory.getLogger( "org.apache.hop.job.Job" );
+  @VisibleForTesting Logger jobLogger = LoggerFactory.getLogger( "org.apache.hop.workflow.Workflow" );
 
   @VisibleForTesting Logger diLogger = LoggerFactory.getLogger( "org.apache.hop" );
 

@@ -212,7 +212,7 @@ public class MessagesSourceCrawler {
    */
   public void lookForOccurrencesInFile( String sourceFolder, FileObject javaFile ) throws IOException {
 
-    if (javaFile.toString().contains( "HopGuiJobClipboardDelegate" )) {
+    if (javaFile.toString().contains( "HopGuiWorkflowClipboardDelegate" )) {
       System.out.println();
     }
 

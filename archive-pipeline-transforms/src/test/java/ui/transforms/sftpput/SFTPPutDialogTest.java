@@ -23,7 +23,7 @@ package org.apache.hop.ui.pipeline.transforms.sftpput;
 
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.apache.hop.core.Props;
-import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.workflow.actions.sftp.SFTPClient;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta;

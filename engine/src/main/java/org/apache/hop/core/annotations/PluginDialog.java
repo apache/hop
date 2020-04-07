@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 public @interface PluginDialog {
 
   enum PluginType {
-    TRANSFORM, JOBENTRY
+    TRANSFORM, ACTION
   }
 
   /**

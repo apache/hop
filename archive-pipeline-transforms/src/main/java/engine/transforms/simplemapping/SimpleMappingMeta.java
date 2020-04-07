@@ -362,7 +362,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   /**
-   * @return The objects referenced in the transform, like a mapping, a pipeline, a job, ...
+   * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
   public String[] getReferencedObjectDescriptions() {
     return new String[] { BaseMessages.getString( PKG, "SimpleMappingMeta.ReferencedObject.Description" ), };

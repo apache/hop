@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.scriptvalues_mod;
 
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.job.Job;
+import org.apache.hop.workflow.Job;
 import org.apache.hop.pipeline.Pipeline;
 import org.junit.Assert;
 import org.junit.Test;
@@ -225,9 +225,9 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   private Job createJob() {
-    Job job = new Job();
-    job = spy( job );
+    Job workflow = new Job();
+    workflow = spy( workflow );
 
-    return job;
+    return workflow;
   }
 }

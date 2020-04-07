@@ -64,7 +64,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
    *
    * </p>
    * <h3>Parameters</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>name</th>
@@ -96,7 +96,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
    *
    * <h3>Response Body</h3>
    *
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <td align="right">text:</td>
@@ -122,7 +122,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
    * </pre>
    *
    * <h3>Status Codes</h3>
-   * <table class="pentaho-table">
+   * <table class="hop-table">
    * <tbody>
    * <tr>
    * <th>code</th>

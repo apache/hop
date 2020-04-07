@@ -72,10 +72,10 @@ public class HopVariablesList {
         throw new HopPluginException( "Unable to find standard kettle variables definition file: " + Const.HOP_VARIABLES_FILE );
       }
       Document doc = XMLHandler.loadXMLFile( inputStream, null, false, false );
-      Node varsNode = XMLHandler.getSubNode( doc, "kettle-variables" );
-      int nrVars = XMLHandler.countNodes( varsNode, "kettle-variable" );
+      Node varsNode = XMLHandler.getSubNode( doc, "hop-variables" );
+      int nrVars = XMLHandler.countNodes( varsNode, "hop-variable" );
       for ( int i = 0; i < nrVars; i++ ) {
-        Node varNode = XMLHandler.getSubNodeByNr( varsNode, "kettle-variable", i );
+        Node varNode = XMLHandler.getSubNodeByNr( varsNode, "hop-variable", i );
         String description = XMLHandler.getTagValue( varNode, "description" );
         String variable = XMLHandler.getTagValue( varNode, "variable" );
         String defaultValue = XMLHandler.getTagValue( varNode, "default-value" );

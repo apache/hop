@@ -99,10 +99,6 @@ public class NotePadDialog extends Dialog {
   private Button wFontBold;
   private FormData fdlFontBold, fdFontBold;
 
-  private Label wlDrawShadow;
-  private Button wDrawShadow;
-  private FormData fdlDrawShadow, fdDrawShadow;
-
   private Label wlFontItalic;
   private Button wFontItalic;
   private FormData fdlFontItalic, fdFontItalic;
@@ -151,10 +147,6 @@ public class NotePadDialog extends Dialog {
   /**
    * Dialog to allow someone to show or enter a text in variable width font
    *
-   * @param parent  The parent shell to use
-   * @param title   The dialog title
-   * @param message The message to display
-   * @param text    The text to display or edit
    */
   public NotePadDialog( IVariables variables, Shell parent, String title, NotePadMeta nMeta ) {
     super( parent, SWT.NONE );
@@ -482,24 +474,6 @@ public class NotePadDialog extends Dialog {
     fdBorderColor.right = new FormAttachment( wbBorderColorChange, -margin );
     wBorderColor.setLayoutData( fdBorderColor );
 
-    // Draw note?
-    wlDrawShadow = new Label( wNoteFontComp, SWT.RIGHT );
-    wlDrawShadow.setText( BaseMessages.getString( PKG, "NotePadDialog.DrawShadow.Label" ) );
-    props.setLook( wlDrawShadow );
-    fdlDrawShadow = new FormData();
-    fdlDrawShadow.left = new FormAttachment( margin, margin );
-    fdlDrawShadow.top = new FormAttachment( wBorderColor, margin );
-    fdlDrawShadow.right = new FormAttachment( middle, -margin );
-    wlDrawShadow.setLayoutData( fdlDrawShadow );
-    wDrawShadow = new Button( wNoteFontComp, SWT.CHECK );
-    wDrawShadow.setToolTipText( BaseMessages.getString( PKG, "NotePadDialog.DrawShadow.Tooltip" ) );
-    props.setLook( wDrawShadow );
-    fdDrawShadow = new FormData();
-    fdDrawShadow.left = new FormAttachment( middle, 0 );
-    fdDrawShadow.top = new FormAttachment( wBorderColor, margin );
-    fdDrawShadow.right = new FormAttachment( 100, -margin );
-    wDrawShadow.setLayoutData( fdDrawShadow );
-
     fdNoteFontComp = new FormData();
     fdNoteFontComp.left = new FormAttachment( 0, 0 );
     fdNoteFontComp.top = new FormAttachment( 0, 0 );
@@ -593,7 +567,6 @@ public class NotePadDialog extends Dialog {
       borderColor =
         new Color( shell.getDisplay(), new RGB( notePadMeta.getBorderColorRed(), notePadMeta
           .getBorderColorGreen(), notePadMeta.getBorderColorBlue() ) );
-      wDrawShadow.setSelection( notePadMeta.isDrawShadow() );
     } else {
       wFontName.setText( props.getNoteFont().getName() );
       wFontSize.setSelection( props.getNoteFont().getHeight() );
@@ -612,7 +585,6 @@ public class NotePadDialog extends Dialog {
         new Color( shell.getDisplay(), new RGB(
           NotePadMeta.COLOR_RGB_DEFAULT_BORDER_RED, NotePadMeta.COLOR_RGB_DEFAULT_BORDER_GREEN,
           NotePadMeta.COLOR_RGB_DEFAULT_BORDER_BLUE ) );
-      wDrawShadow.setSelection( true );
     }
 
     wFontColor.setBackground( fontColor );
@@ -654,7 +626,6 @@ public class NotePadDialog extends Dialog {
     notePadMeta.setBorderColorRed( wBorderColor.getBackground().getRed() );
     notePadMeta.setBorderColorGreen( wBorderColor.getBackground().getGreen() );
     notePadMeta.setBorderColorBlue( wBorderColor.getBackground().getBlue() );
-    notePadMeta.setDrawShadow( wDrawShadow.getSelection() );
     dispose();
   }
 

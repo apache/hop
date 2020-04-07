@@ -29,8 +29,6 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,7 +48,7 @@ import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.www.CleanupPipelineServlet;
-import org.apache.hop.www.GetJobStatusServlet;
+import org.apache.hop.www.GetWorkflowStatusServlet;
 import org.apache.hop.www.GetPropertiesServlet;
 import org.apache.hop.www.GetSlavesServlet;
 import org.apache.hop.www.GetStatusServlet;
@@ -58,17 +56,17 @@ import org.apache.hop.www.GetPipelineStatusServlet;
 import org.apache.hop.www.NextSequenceValueServlet;
 import org.apache.hop.www.PausePipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
-import org.apache.hop.www.RemoveJobServlet;
+import org.apache.hop.www.RemoveWorkflowServlet;
 import org.apache.hop.www.RemovePipelineServlet;
 import org.apache.hop.www.SlaveServerDetection;
-import org.apache.hop.www.SlaveServerJobStatus;
+import org.apache.hop.www.SlaveServerWorkflowStatus;
 import org.apache.hop.www.SlaveServerStatus;
 import org.apache.hop.www.SlaveServerPipelineStatus;
 import org.apache.hop.www.SniffTransformServlet;
 import org.apache.hop.www.SslConfiguration;
-import org.apache.hop.www.StartJobServlet;
+import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.StartPipelineServlet;
-import org.apache.hop.www.StopJobServlet;
+import org.apache.hop.www.StopWorkflowServlet;
 import org.apache.hop.www.StopPipelineServlet;
 import org.apache.hop.www.WebResult;
 import org.apache.http.HttpEntity;
@@ -568,7 +566,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    *
    * @param filename The archive to send
    * @param type     The type of file to add to the slave server (AddExportServlet.TYPE_*)
-   * @param load     The filename to load in the archive (the .kjb or .hpl)
+   * @param load     The filename to load in the archive (the .hwf or .hpl)
    * @return the XML of the web result
    * @throws Exception in case something goes awry
    */
@@ -842,12 +840,12 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return SlaveServerPipelineStatus.fromXML( xml );
   }
 
-  public SlaveServerJobStatus getJobStatus( String jobName, String carteObjectId, int startLogLineNr )
+  public SlaveServerWorkflowStatus getJobStatus( String workflowName, String carteObjectId, int startLogLineNr )
     throws Exception {
     String xml =
-      execService( GetJobStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( jobName, "UTF-8" ) + "&id="
+      execService( GetWorkflowStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y&from=" + startLogLineNr, true );
-    return SlaveServerJobStatus.fromXML( xml );
+    return SlaveServerWorkflowStatus.fromXML( xml );
   }
 
   public WebResult stopPipeline( String pipelineName, String carteObjectId ) throws Exception {
@@ -871,16 +869,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult removeJob( String jobName, String carteObjectId ) throws Exception {
+  public WebResult removeJob( String workflowName, String carteObjectId ) throws Exception {
     String xml =
-      execService( RemoveJobServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( jobName, "UTF-8" ) + "&id="
+      execService( RemoveWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
   public WebResult stopJob( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
-      execService( StopJobServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
+      execService( StopWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( carteObjectId, "" ) );
     return WebResult.fromXMLString( xml );
   }
@@ -892,9 +890,9 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult startJob( String jobName, String carteObjectId ) throws Exception {
+  public WebResult startJob( String workflowName, String carteObjectId ) throws Exception {
     String xml =
-      execService( StartJobServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( jobName, "UTF-8" ) + "&xml=Y&id="
+      execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( carteObjectId, "" ) );
     return WebResult.fromXMLString( xml );
   }
@@ -1180,25 +1178,25 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
 
   /**
-   * Monitors a remote job every 5 seconds.
+   * Monitors a remote workflow every 5 seconds.
    *
    * @param log           the log channel interface
    * @param carteObjectId the HopServer object ID
-   * @param jobName       the job name
+   * @param workflowName       the workflow name
    */
-  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String jobName ) {
-    monitorRemoteJob( log, carteObjectId, jobName, 5 );
+  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String workflowName ) {
+    monitorRemoteJob( log, carteObjectId, workflowName, 5 );
   }
 
   /**
-   * Monitors a remote job at the specified interval.
+   * Monitors a remote workflow at the specified interval.
    *
    * @param log              the log channel interface
    * @param carteObjectId    the HopServer object ID
-   * @param jobName          the job name
+   * @param workflowName          the workflow name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String jobName, int sleepTimeSeconds ) {
+  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String workflowName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {
@@ -1208,22 +1206,22 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       // Check the remote server
       if ( allFinished && errors == 0 ) {
         try {
-          SlaveServerJobStatus jobStatus = getJobStatus( jobName, carteObjectId, 0 );
+          SlaveServerWorkflowStatus jobStatus = getJobStatus( workflowName, carteObjectId, 0 );
           if ( jobStatus.isRunning() ) {
             if ( log.isDetailed() ) {
-              log.logDetailed( jobName, "Remote job is still running." );
+              log.logDetailed( workflowName, "Remote workflow is still running." );
             }
             allFinished = false;
           } else {
             if ( log.isDetailed() ) {
-              log.logDetailed( jobName, "Remote job has finished." );
+              log.logDetailed( workflowName, "Remote workflow has finished." );
             }
           }
           Result result = jobStatus.getResult();
           errors += result.getNrErrors();
         } catch ( Exception e ) {
           errors += 1;
-          log.logError( jobName, "Unable to contact remote slave server '" + this.getName() + "' to check job status : " + e.toString() );
+          log.logError( workflowName, "Unable to contact remote slave server '" + this.getName() + "' to check workflow status : " + e.toString() );
         }
       }
 
@@ -1234,7 +1232,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       if ( !allFinished ) {
         // Not finished or error: wait a bit longer
         if ( log.isDetailed() ) {
-          log.logDetailed( jobName, "The remote job is still running, waiting a few seconds..." );
+          log.logDetailed( workflowName, "The remote workflow is still running, waiting a few seconds..." );
         }
         try {
           Thread.sleep( sleepTimeSeconds * 1000 );
@@ -1244,7 +1242,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       }
     }
 
-    log.logMinimal( jobName, "The remote job has finished." );
+    log.logMinimal( workflowName, "The remote workflow has finished." );
   }
 
 
