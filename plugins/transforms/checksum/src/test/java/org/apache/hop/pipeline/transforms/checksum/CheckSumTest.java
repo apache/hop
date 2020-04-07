@@ -130,9 +130,9 @@ public class CheckSumTest {
     private List<Object[]> error;
 
     public MockRowListener() {
-      written = new ArrayList<Object[]>();
-      read = new ArrayList<Object[]>();
-      error = new ArrayList<Object[]>();
+      written = new ArrayList<>();
+      read = new ArrayList<>();
+      error = new ArrayList<>();
     }
 
     public List<Object[]> getWritten() {
@@ -204,7 +204,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 2, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( "dfc7a6a6bd7bb9cf40cba4acdd1d14bc", results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( "51ca1b68773e139db99e658c1241d316", results.getWritten().get( 0 )[ 1 ] );
   }
 
 
@@ -225,7 +225,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 3, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( "1cdea9516882591cd1ae1b49c2106edc6b806c85", results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( "9e812d0f291cdc3474f8bf45138124a8af950784", results.getWritten().get( 0 )[ 1 ] );
   }
 
   @Test
@@ -272,7 +272,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 5, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( "6d245086b2df4ea66dc2a913bd6a96d99d0a3f107402f9c1a31b64550378eafa736a1b3e9508454981f4651e516b8013", results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( "b79282749c275ad44fca5ea95d0bd9f9a697990438bec4260d3619ffc96d7b3773762627a861e1b19a788d21cce31ed0", results.getWritten().get( 0 )[ 1 ] );
   }
 
   @Test
@@ -295,7 +295,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 6, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( "290a43e5079b618c541b54938c16c92dae4da4dceb44e38d12fa62e8bcc29c7b7db46521fbf2efd1d94d8ad663cc14a08429f15f6fff49eddee1f91c6e84611d", results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( "ecc6fef551e3914f2365d7cd749d63501a50676ce10f397b52bec574f04582bb5fe93901ff42951e7065471916b75abe40649a6db76b468e92091f7e61e2fa8e", results.getWritten().get( 0 )[ 1 ] );
   }
   
   @Test
@@ -315,7 +315,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 1, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( Long.valueOf( "1272404858" ), results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( Long.valueOf( "2120244337" ), results.getWritten().get( 0 )[ 1 ] );
   }
 
 
@@ -336,7 +336,7 @@ public class CheckSumTest {
     byte[] input = IOUtils.toByteArray( getFile( "/CheckSum.svg" ).getContent().getInputStream() );
     results = executeHexTest( 0, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( Long.valueOf( "3750787798" ), results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( Long.valueOf( "2613142791" ), results.getWritten().get( 0 )[ 1 ] );
     
   }
 
