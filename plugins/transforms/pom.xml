@@ -102,6 +102,7 @@
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
+        <module>streamlookup</module>
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>

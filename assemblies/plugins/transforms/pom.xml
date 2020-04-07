@@ -70,6 +70,7 @@
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
+        <module>streamlookup</module>
         <module>terafast</module>
         <module>textfile</module>
     </modules>
