@@ -741,7 +741,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
     try {
       Properties sysprops = System.getProperties();
       String strActPath = sysprops.getProperty( "user.dir" );
-      Document dom = XmlHandler.loadXMLFile( strActPath + "/plugins/transforms/ScriptValues_mod/plugin.xml" );
+      Document dom = XmlHandler.loadXmlFile( strActPath + "/plugins/transforms/ScriptValues_mod/plugin.xml" );
       Node transformNode = dom.getDocumentElement();
       Node libraries = XmlHandler.getSubNode( transformNode, "js_libraries" );
       int nbOfLibs = XmlHandler.countNodes( libraries, "js_lib" );

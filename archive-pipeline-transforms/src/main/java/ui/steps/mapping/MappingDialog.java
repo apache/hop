@@ -320,12 +320,12 @@ public class MappingDialog extends BaseTransformDialog implements ITransformDial
     fdCancel.bottom = new FormAttachment( 100, 0 );
     wCancel.setLayoutData( fdCancel );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fdOk = new FormData();
     fdOk.right = new FormAttachment( wCancel, -5 );
     fdOk.bottom = new FormAttachment( 100, 0 );
-    wOK.setLayoutData( fdOk );
+    wOk.setLayoutData( fdOk );
 
     Label hSpacer = new Label( shell, SWT.HORIZONTAL | SWT.SEPARATOR );
     FormData fdhSpacer = new FormData();
@@ -347,14 +347,14 @@ public class MappingDialog extends BaseTransformDialog implements ITransformDial
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

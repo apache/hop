@@ -47,7 +47,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -58,9 +57,9 @@ import java.util.List;
  * Created on 10-sep-2005
  */
 
-@InjectionSupported( localizationPrefix = "ExecSQLMeta.Injection.", groups = { "PARAMETERS" } )
-public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
+@InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
+public class ExecSqlMeta extends BaseTransformMeta implements ITransform {
+  private static Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
 
@@ -102,7 +101,7 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
     databaseMeta = DatabaseMeta.findDatabase( getParentTransformMeta().getParentPipelineMeta().getDatabases(), connectionName );
   }
 
-  public ExecSQLMeta() {
+  public ExecSqlMeta() {
     super();
   }
 
@@ -237,7 +236,7 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
   }
 
   public Object clone() {
-    ExecSQLMeta retval = (ExecSQLMeta) super.clone();
+    ExecSqlMeta retval = (ExecSqlMeta) super.clone();
     int nrArgs = arguments.length;
     retval.allocate( nrArgs );
     System.arraycopy( arguments, 0, retval.arguments, 0, nrArgs );
@@ -287,7 +286,7 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          iVariables variables, IMetaStore metaStore ) throws HopTransformException {
     RowMetaAndData add =
-      ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
+      ExecSql.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
     r.mergeRowMeta( add.getRowMeta() );
   }
@@ -400,11 +399,11 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
 
   public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQL( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+    return new ExecSql( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public ITransformData getTransformData() {
-    return new ExecSQLData();
+    return new ExecSqlData();
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMeta prev,

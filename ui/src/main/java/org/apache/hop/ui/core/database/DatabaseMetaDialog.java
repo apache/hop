@@ -119,7 +119,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private Button wForceUppercase;
   private Button wPreserveCase;
   private TextVar wPreferredSchema;
-  private TextVar wSQLStatements;
+  private TextVar wSqlStatements;
 
   private CTabItem wOptionsTab;
   private Composite wOptionsComp;
@@ -191,9 +191,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     shell.setLayout( formLayout );
 
     // Add buttons at the bottom
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, this::ok );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, this::ok );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -203,7 +203,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wTest.setText( BaseMessages.getString( PKG, "System.Button.Test" ) );
     wTest.addListener( SWT.Selection, this::test );
 
-    Button[] buttons = new Button[] { wOK, wTest, wCancel };
+    Button[] buttons = new Button[] { wOk, wTest, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // Now create the tabs above the buttons...
@@ -226,7 +226,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOK, -margin * 3 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -margin * 3 );
     wTabFolder.setLayoutData( fdTabFolder );
 
     BaseTransformDialog.setSize( shell );
@@ -617,15 +617,15 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     fdlSQLStatements.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlSQLStatements.right = new FormAttachment( 100, 0 );
     wlSQLStatements.setLayoutData( fdlSQLStatements );
-    wSQLStatements = new TextVar( databaseMeta, wAdvancedComp, SWT.MULTI | SWT.LEFT | SWT.BORDER );
-    props.setLook( wSQLStatements );
+    wSqlStatements = new TextVar( databaseMeta, wAdvancedComp, SWT.MULTI | SWT.LEFT | SWT.BORDER );
+    props.setLook( wSqlStatements );
     FormData fdSQLStatements = new FormData();
     fdSQLStatements.top = new FormAttachment( wlSQLStatements, margin );
     fdSQLStatements.bottom = new FormAttachment( 100, 0 );
     fdSQLStatements.left = new FormAttachment( 0, 0 ); // To the right of the label
     fdSQLStatements.right = new FormAttachment( 100, 0 );
-    wSQLStatements.setLayoutData( fdSQLStatements );
-    // lastControl = wSQLStatements;
+    wSqlStatements.setLayoutData( fdSQLStatements );
+    // lastControl = wSqlStatements;
 
     fdAdvancedComp = new FormData();
     fdAdvancedComp.left = new FormAttachment( 0, 0 );
@@ -744,7 +744,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wForceUppercase.setSelection( workingMeta.isForcingIdentifiersToUpperCase() );
     wPreserveCase.setSelection( workingMeta.preserveReservedCase() );
     wPreferredSchema.setText( Const.NVL( workingMeta.getPreferredSchemaName(), "" ) );
-    wSQLStatements.setText( Const.NVL( workingMeta.getConnectSQL(), "" ) );
+    wSqlStatements.setText( Const.NVL( workingMeta.getConnectSQL(), "" ) );
 
     wOptions.clearAll( false );
     Map<String, String> optionsMap = workingMeta.getExtraOptionsMap();
@@ -784,7 +784,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     meta.setForcingIdentifiersToUpperCase( wForceUppercase.getSelection() );
     meta.setPreserveReservedCase( wPreserveCase.getSelection() );
     meta.setPreferredSchemaName( wPreferredSchema.getText() );
-    meta.setConnectSQL( wSQLStatements.getText() );
+    meta.setConnectSQL( wSqlStatements.getText() );
 
     meta.getExtraOptions().clear();
     for ( int i = 0; i < wOptions.nrNonEmpty(); i++ ) {

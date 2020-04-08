@@ -155,9 +155,9 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     }
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -177,7 +177,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
       }
     } );
 
-    setButtonPositions( new Button[] { wOK, wGet, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     Label wlFields = new Label( shell, SWT.LEFT );
     wlFields.setText( BaseMessages.getString( PKG, "SASInputDialog.Fields.Label" ) );
@@ -246,7 +246,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );
-    fdFields.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdFields.bottom = new FormAttachment( wOk, -margin * 2 );
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     wFields.setLayoutData( fdFields );

@@ -755,48 +755,48 @@ public class PostgreSQLValueMetaBaseTest {
     Node xmlNode = null;
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>String val</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>String val</value-data>" ).getFirstChild();
     assertEquals( "String val", valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_INTEGER );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>68933</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>68933</value-data>" ).getFirstChild();
     assertEquals( 68933l, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_DATE );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
     assertEquals( XmlHandler.stringToDate( "2017/11/27 08:47:10.000" ), valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_TIMESTAMP );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
     assertEquals( XmlHandler.stringToTimestamp( "2017/11/27 08:47:10.123456789" ), valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BOOLEAN );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>Y</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>Y</value-data>" ).getFirstChild();
     assertEquals( true, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BINARY );
     byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     String s = XmlHandler.encodeBinaryData( bytes );
-    xmlNode = XmlHandler.loadXMLString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
     assertArrayEquals( bytes, (byte[]) valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
-    xmlNode = XmlHandler.loadXMLString( "<value-data></value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXmlString( "<value-data></value-data>" ).getFirstChild();
     assertNull( valueMetaBase.getValue( xmlNode ) );
   }
 
   @Test( expected = HopException.class )
   public void testGetValueUnknownType() throws Exception {
     ValueMetaBase valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NONE );
-    valueMetaBase.getValue( XmlHandler.loadXMLString( "<value-data>not empty</value-data>" ).getFirstChild() );
+    valueMetaBase.getValue( XmlHandler.loadXmlString( "<value-data>not empty</value-data>" ).getFirstChild() );
   }
 
   //TODO: fix timestamp comversion

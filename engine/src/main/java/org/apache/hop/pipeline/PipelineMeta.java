@@ -2210,7 +2210,7 @@ public class PipelineMeta extends AbstractMeta
       if ( !pipelineFile.exists() ) {
         throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
       }
-      doc = XmlHandler.loadXMLFile( pipelineFile );
+      doc = XmlHandler.loadXmlFile( pipelineFile );
     } catch ( HopXmlException ke ) {
       // if we have a HopXmlException, simply re-throw it
       throw ke;
@@ -2248,7 +2248,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public PipelineMeta( InputStream xmlStream, boolean setInternalVariables, IVariables parentVariableSpace )
     throws HopXmlException, HopMissingPluginsException {
-    Document doc = XmlHandler.loadXMLFile( xmlStream, null, false, false );
+    Document doc = XmlHandler.loadXmlFile( xmlStream, null, false, false );
     Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG );
     loadXml( pipelineNode, setInternalVariables, parentVariableSpace );
   }

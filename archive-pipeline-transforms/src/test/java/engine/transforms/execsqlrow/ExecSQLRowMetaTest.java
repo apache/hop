@@ -35,9 +35,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExecSQLRowMetaTest {
+public class ExecSqlRowMetaTest {
   LoadSaveTester loadSaveTester;
-  Class<ExecSQLRowMeta> testMetaClass = ExecSQLRowMeta.class;
+  Class<ExecSqlRowMeta> testMetaClass = ExecSqlRowMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before

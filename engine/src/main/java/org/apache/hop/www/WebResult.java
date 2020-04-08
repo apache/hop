@@ -100,7 +100,7 @@ public class WebResult {
 
   public static WebResult fromXMLString( String xml ) throws HopXmlException {
     try {
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, XML_TAG );
 
       return new WebResult( node );

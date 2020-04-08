@@ -63,7 +63,7 @@ public class SlaveServerPipelineStatusTest {
     String status = Pipeline.STRING_FINISHED;
     SlaveServerPipelineStatus ts = new SlaveServerPipelineStatus( pipelineName, id, status );
     String resultXML = ts.getXml();
-    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
+    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
       SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );
@@ -82,7 +82,7 @@ public class SlaveServerPipelineStatusTest {
     SlaveServerPipelineStatus ts = new SlaveServerPipelineStatus( pipelineName, id, status );
     ts.setLogDate( logDate );
     String resultXML = ts.getXml();
-    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
+    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
       SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );

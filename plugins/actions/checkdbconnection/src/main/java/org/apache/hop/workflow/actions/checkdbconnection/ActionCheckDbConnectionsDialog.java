@@ -198,14 +198,14 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fdFields.bottom = new FormAttachment( 100, -50 );
     wFields.setLayoutData( fdFields );
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
-    wOK.setLayoutData( fd );
-    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wOk.setLayoutData( fd );
+    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -216,7 +216,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wCancel.setLayoutData( fd );
     wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener( new SelectionAdapter() {

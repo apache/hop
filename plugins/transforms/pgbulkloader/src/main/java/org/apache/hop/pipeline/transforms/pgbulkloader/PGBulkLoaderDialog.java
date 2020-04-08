@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -363,14 +363,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( shell, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.SQL.Button" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.SQL.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wSQL }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
 
     // The field Table
     wlReturn = new Label( shell, SWT.NONE );
@@ -430,7 +430,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdReturn.left = new FormAttachment( 0, 0 );
     fdReturn.top = new FormAttachment( wlReturn, margin );
     fdReturn.right = new FormAttachment( wDoMapping, -margin ); // fix margin error
-    fdReturn.bottom = new FormAttachment( wOK, -2 * margin );
+    fdReturn.bottom = new FormAttachment( wOk, -2 * margin );
     wReturn.setLayoutData( fdReturn );
 
     //
@@ -459,7 +459,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -469,7 +469,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         getUpdate();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         create();
       }
@@ -480,9 +480,9 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGetLU.addListener( SWT.Selection, lsGetLU );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -866,8 +866,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
-          SQLEditor sqledit =
-            new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+          SqlEditor sqledit =
+            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
               .getSql() );
           sqledit.open();
         } else {

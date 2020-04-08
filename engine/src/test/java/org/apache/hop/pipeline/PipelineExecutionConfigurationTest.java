@@ -74,7 +74,7 @@ public class PipelineExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = tec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );
@@ -83,7 +83,7 @@ public class PipelineExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = tec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );
@@ -92,7 +92,7 @@ public class PipelineExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = tec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );

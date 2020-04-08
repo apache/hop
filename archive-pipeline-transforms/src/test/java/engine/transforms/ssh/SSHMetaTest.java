@@ -72,7 +72,7 @@ public class SSHMetaTest {
     xmlString.append( XmlHandler.openTag( "transform" ) ).append( Const.CR );
     xmlString.append( sshMeta.getXml() );
     xmlString.append( XmlHandler.closeTag( "transform" ) ).append( Const.CR );
-    Node sshXMLNode = XmlHandler.loadXMLString( xmlString.toString(), "transform" );
+    Node sshXMLNode = XmlHandler.loadXmlString( xmlString.toString(), "transform" );
 
     assertEquals( Encr.encryptPasswordIfNotUsingVariables( plaintextPassword ),
       XmlHandler.getTagValue( sshXMLNode, "password" ) );

@@ -90,8 +90,8 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
   private TextVar wFilename2;
   private FormData fdlFilename2, fdbFilename2, fdFilename2, fdbDirectory2;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionFoldersCompare jobEntry;
   private Shell shell;
@@ -471,12 +471,12 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFilename2 );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFilename2 );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -484,14 +484,14 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

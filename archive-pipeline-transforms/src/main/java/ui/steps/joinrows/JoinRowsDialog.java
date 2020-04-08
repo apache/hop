@@ -266,12 +266,12 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
         .getString( PKG, "JoinRowsDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     wCondition = new ConditionEditor( shell, SWT.BORDER, condition, inputfields );
 
@@ -279,12 +279,12 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     fdCondition.left = new FormAttachment( 0, 0 );
     fdCondition.top = new FormAttachment( wlCondition, margin );
     fdCondition.right = new FormAttachment( 100, 0 );
-    fdCondition.bottom = new FormAttachment( wOK, -2 * margin );
+    fdCondition.bottom = new FormAttachment( wOk, -2 * margin );
     wCondition.setLayoutData( fdCondition );
     wCondition.addModifyListener( lsMod );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -295,7 +295,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

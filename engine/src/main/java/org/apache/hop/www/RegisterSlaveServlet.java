@@ -136,7 +136,7 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements IHopServerP
       // First read the slave server information in memory from the request
       // Parse the XML, create a pipeline configuration
       //
-      Document document = XmlHandler.loadXMLFile( request.getInputStream() );
+      Document document = XmlHandler.loadXmlFile( request.getInputStream() );
       Node node = XmlHandler.getSubNode( document, SlaveServerDetection.XML_TAG );
       SlaveServerDetection slaveServerDetection = new SlaveServerDetection( node );
 

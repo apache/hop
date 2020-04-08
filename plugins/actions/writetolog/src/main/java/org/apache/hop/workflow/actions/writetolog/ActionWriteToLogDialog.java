@@ -84,9 +84,9 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
   private FormData fdlLogMessage, fdLogMessage;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionWriteToLog jobEntry;
 
@@ -142,13 +142,13 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // at the bottom
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );
@@ -224,7 +224,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdLogMessage.left = new FormAttachment( middle, 0 );
     fdLogMessage.top = new FormAttachment( wLogSubject, margin );
     fdLogMessage.right = new FormAttachment( 100, 0 );
-    fdLogMessage.bottom = new FormAttachment( wOK, -margin );
+    fdLogMessage.bottom = new FormAttachment( wOk, -margin );
     wLogMessage.setLayoutData( fdLogMessage );
 
     // SelectionAdapter lsVar = VariableButtonListenerFactory.getSelectionAdapter(shell, wLogMessage, workflowMeta);
@@ -237,14 +237,14 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
       }
     };
 
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

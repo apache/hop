@@ -509,9 +509,9 @@ public class XmlHandler {
    * @param filename The filename to load into a document
    * @return the Document if all went well, null if an error occurred!
    */
-  public static Document loadXMLFile( String filename ) throws HopXmlException {
+  public static Document loadXmlFile( String filename ) throws HopXmlException {
     try {
-      return loadXMLFile( HopVFS.getFileObject( filename ) );
+      return loadXmlFile( HopVFS.getFileObject( filename ) );
     } catch ( Exception e ) {
       throw new HopXmlException( e );
     }
@@ -523,8 +523,8 @@ public class XmlHandler {
    * @param fileObject The fileObject to load into a document
    * @return the Document if all went well, null if an error occured!
    */
-  public static Document loadXMLFile( FileObject fileObject ) throws HopXmlException {
-    return loadXMLFile( fileObject, null, false, false );
+  public static Document loadXmlFile( FileObject fileObject ) throws HopXmlException {
+    return loadXmlFile( fileObject, null, false, false );
   }
 
   /**
@@ -536,10 +536,10 @@ public class XmlHandler {
    * @param namespaceAware support XML namespaces.
    * @return the Document if all went well, null if an error occured!
    */
-  public static Document loadXMLFile( FileObject fileObject, String systemID, boolean ignoreEntities,
+  public static Document loadXmlFile( FileObject fileObject, String systemID, boolean ignoreEntities,
                                       boolean namespaceAware ) throws HopXmlException {
     try {
-      return loadXMLFile( HopVFS.getInputStream( fileObject ), systemID, ignoreEntities, namespaceAware );
+      return loadXmlFile( HopVFS.getInputStream( fileObject ), systemID, ignoreEntities, namespaceAware );
     } catch ( IOException e ) {
       throw new HopXmlException( "Unable to read file [" + fileObject.toString() + "]", e );
     }
@@ -551,8 +551,8 @@ public class XmlHandler {
    * @param inputStream The filename input stream to read the document from
    * @return the Document if all went well, null if an error occurred!
    */
-  public static Document loadXMLFile( InputStream inputStream ) throws HopXmlException {
-    return loadXMLFile( inputStream, null, false, false );
+  public static Document loadXmlFile( InputStream inputStream ) throws HopXmlException {
+    return loadXmlFile( inputStream, null, false, false );
   }
 
   /**
@@ -564,7 +564,7 @@ public class XmlHandler {
    * @param namespaceAware support XML namespaces.
    * @return the Document if all went well, null if an error occured!
    */
-  public static Document loadXMLFile( InputStream inputStream, String systemID, boolean ignoreEntities,
+  public static Document loadXmlFile( InputStream inputStream, String systemID, boolean ignoreEntities,
                                       boolean namespaceAware ) throws HopXmlException {
     try {
       // Check and open XML document
@@ -614,9 +614,9 @@ public class XmlHandler {
     }
   }
 
-  public static Document loadXMLFile( File resource ) throws HopXmlException {
+  public static Document loadXmlFile( File resource ) throws HopXmlException {
     try {
-      return loadXMLFile( resource.toURI().toURL() );
+      return loadXmlFile( resource.toURI().toURL() );
     } catch ( MalformedURLException e ) {
       throw new HopXmlException( e );
     }
@@ -628,7 +628,7 @@ public class XmlHandler {
    * @param resource The resource to load into a document
    * @return the Document if all went well, null if an error occured!
    */
-  public static Document loadXMLFile( URL resource ) throws HopXmlException {
+  public static Document loadXmlFile( URL resource ) throws HopXmlException {
     DocumentBuilderFactory dbf;
     DocumentBuilder db;
     Document doc;
@@ -653,15 +653,15 @@ public class XmlHandler {
   }
 
   /**
-   * Calls loadXMLString with deferNodeExpansion = TRUE
+   * Calls loadXmlString with deferNodeExpansion = TRUE
    *
    * @param string
    * @return
    * @throws HopXmlException
    */
-  public static Document loadXMLString( String string ) throws HopXmlException {
+  public static Document loadXmlString( String string ) throws HopXmlException {
 
-    return loadXMLString( string, Boolean.FALSE, Boolean.TRUE );
+    return loadXmlString( string, Boolean.FALSE, Boolean.TRUE );
 
   }
 
@@ -673,8 +673,8 @@ public class XmlHandler {
    * @return the requested node
    * @throws HopXmlException in case there is a problem reading the XML
    */
-  public static Node loadXMLString( String xml, String tag ) throws HopXmlException {
-    Document doc = loadXMLString( xml );
+  public static Node loadXmlString( String xml, String tag ) throws HopXmlException {
+    Document doc = loadXmlString( xml );
     return getSubNode( doc, tag );
   }
 
@@ -685,12 +685,12 @@ public class XmlHandler {
    * @param deferNodeExpansion true to defer node expansion, false to not defer.
    * @return the Document if all went well, null if an error occurred!
    */
-  public static Document loadXMLString( String string, Boolean namespaceAware, Boolean deferNodeExpansion ) throws HopXmlException {
+  public static Document loadXmlString( String string, Boolean namespaceAware, Boolean deferNodeExpansion ) throws HopXmlException {
     DocumentBuilder db = createDocumentBuilder( namespaceAware, deferNodeExpansion );
-    return loadXMLString( db, string );
+    return loadXmlString( db, string );
   }
 
-  public static Document loadXMLString( DocumentBuilder db, String string ) throws HopXmlException {
+  public static Document loadXmlString( DocumentBuilder db, String string ) throws HopXmlException {
 
     try {
       StringReader stringReader = new java.io.StringReader( string );

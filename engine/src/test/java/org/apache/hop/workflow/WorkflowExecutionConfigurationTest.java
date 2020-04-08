@@ -87,7 +87,7 @@ public class WorkflowExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = jec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );
@@ -96,7 +96,7 @@ public class WorkflowExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = jec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );
@@ -105,7 +105,7 @@ public class WorkflowExecutionConfigurationTest {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       String xml = jec.getXml();
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );

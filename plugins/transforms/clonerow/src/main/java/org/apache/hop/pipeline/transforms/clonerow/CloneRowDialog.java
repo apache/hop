@@ -328,12 +328,12 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     // ///////////////////////////////////////////////////////////
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wOutpuFields );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wOutpuFields );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -341,14 +341,14 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

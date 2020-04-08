@@ -114,7 +114,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   @Override public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
     try {
       if ( checkContent ) {
-        Document document = XmlHandler.loadXMLFile( filename );
+        Document document = XmlHandler.loadXmlFile( filename );
         Node pipelineNode = XmlHandler.getSubNode( document, PipelineMeta.XML_TAG );
         return pipelineNode != null;
       } else {

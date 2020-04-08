@@ -93,7 +93,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
   private FormData fdlTablename, fdTablename;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
   private ActionColumnsExist jobEntry;
 
@@ -308,13 +308,13 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
-    wOK.setLayoutData( fd );
+    wOk.setLayoutData( fd );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -326,8 +326,8 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
     // Add listeners
     wCancel.addListener( SWT.Selection,  ( Event e ) -> { cancel(); } );
-    wOK.addListener( SWT.Selection, ( Event e ) -> { ok(); } );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
+    wOk.addListener( SWT.Selection, ( Event e ) -> { ok(); } );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

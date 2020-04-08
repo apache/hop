@@ -90,8 +90,8 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private TextVar wZipFilename;
   private FormData fdlZipFilename, fdbZipFilename, fdZipFilename, fdbSourceDirectory;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionUnZip jobEntry;
   private Shell shell;
@@ -980,12 +980,12 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -993,14 +993,14 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

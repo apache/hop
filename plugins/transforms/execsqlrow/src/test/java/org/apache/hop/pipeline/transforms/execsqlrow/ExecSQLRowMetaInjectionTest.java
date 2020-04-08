@@ -31,11 +31,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLRowMeta> {
+public class ExecSqlRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecSqlRowMeta> {
 
   @Before
   public void setup() throws Exception {
-    setup( new ExecSQLRowMeta() );
+    setup( new ExecSqlRowMeta() );
   }
 
   @Test

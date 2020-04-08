@@ -127,7 +127,7 @@ public class WorkflowEntryCopyFilesTest {
     ActionCopyFiles loadedentry = new ActionCopyFiles();
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
     loadedentry.loadXml( XmlHandler.getSubNode(
-      XmlHandler.loadXMLFile( is,
+      XmlHandler.loadXmlFile( is,
         null,
         false,
         false ),

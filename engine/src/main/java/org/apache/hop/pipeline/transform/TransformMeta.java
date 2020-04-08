@@ -292,7 +292,7 @@ public class TransformMeta implements
   public static TransformMeta fromXml( String metaXml ) {
     Document doc;
     try {
-      doc = XmlHandler.loadXMLString( metaXml );
+      doc = XmlHandler.loadXmlString( metaXml );
       Node transformNode = XmlHandler.getSubNode( doc, "transform" );
       return new TransformMeta( transformNode, null );
     } catch ( HopXmlException | HopPluginLoaderException e ) {

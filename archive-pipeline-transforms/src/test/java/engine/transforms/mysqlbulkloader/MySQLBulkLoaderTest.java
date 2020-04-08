@@ -112,7 +112,7 @@ public class MySQLBulkLoaderTest {
   @Test
   public void testFieldFormatType() throws HopXmlException {
     MySQLBulkLoaderMeta lm = new MySQLBulkLoaderMeta();
-    Document document = XmlHandler.loadXMLFile( this.getClass().getResourceAsStream( "transform.xml" ) );
+    Document document = XmlHandler.loadXmlFile( this.getClass().getResourceAsStream( "transform.xml" ) );
     IMetaStore metastore = null;
     Node transformNode = (Node) document.getDocumentElement();
     lm.loadXml( transformNode, metastore );

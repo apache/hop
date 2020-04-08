@@ -1131,8 +1131,8 @@ public class LDAPInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "LDAPInputDialog.Button.PreviewRows" ) );
@@ -1140,10 +1140,10 @@ public class LDAPInputDialog extends BaseTransformDialog implements ITransformDi
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wPreview, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -1169,7 +1169,7 @@ public class LDAPInputDialog extends BaseTransformDialog implements ITransformDi
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wTest.addListener( SWT.Selection, lsTest );
     wPreview.addListener( SWT.Selection, lsPreview );

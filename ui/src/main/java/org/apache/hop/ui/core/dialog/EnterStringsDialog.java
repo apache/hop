@@ -63,8 +63,8 @@ public class EnterStringsDialog extends Dialog {
   private TableView wFields;
   private FormData fdlFields, fdFields;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private RowMetaAndData strings;
@@ -141,16 +141,16 @@ public class EnterStringsDialog extends Dialog {
     fdFields.bottom = new FormAttachment( 100, -50 );
     wFields.setLayoutData( fdFields );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -163,7 +163,7 @@ public class EnterStringsDialog extends Dialog {
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     // Detect X or ALT-F4 or something that kills this window...

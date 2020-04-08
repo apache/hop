@@ -479,8 +479,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wOrderBy.addModifyListener( lsMod );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.GetFields.Button" ) );
     wGetLU = new Button( shell, SWT.PUSH );
@@ -488,10 +488,10 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet, wGetLU }, margin, wOrderBy );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, wOrderBy );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -512,7 +512,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wGetLU.addListener( SWT.Selection, lsGetLU );
     wCancel.addListener( SWT.Selection, lsCancel );

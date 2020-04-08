@@ -90,8 +90,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   private Button wDeleteAllBefore;
   private FormData fdlDeleteAllBefore, fdDeleteAllBefore;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionAddResultFilenamesI jobEntry;
   private Shell shell;
@@ -473,12 +473,12 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -486,14 +486,14 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

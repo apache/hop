@@ -609,7 +609,7 @@ public class ConditionEditor extends Composite {
           public void widgetSelected( SelectionEvent e ) {
             String xml = GUIResource.getInstance().fromClipboard();
             try {
-              Document d = XmlHandler.loadXMLString( xml );
+              Document d = XmlHandler.loadXmlString( xml );
               Node condNode = XmlHandler.getSubNode( d, "condition" );
               if ( condNode != null ) {
                 Condition c = new Condition( condNode );
@@ -636,7 +636,7 @@ public class ConditionEditor extends Composite {
           public void widgetSelected( SelectionEvent e ) {
             String xml = GUIResource.getInstance().fromClipboard();
             try {
-              Document d = XmlHandler.loadXMLString( xml );
+              Document d = XmlHandler.loadXmlString( xml );
               Node condNode = XmlHandler.getSubNode( d, "condition" );
               if ( condNode != null ) {
                 Condition c = new Condition( condNode );

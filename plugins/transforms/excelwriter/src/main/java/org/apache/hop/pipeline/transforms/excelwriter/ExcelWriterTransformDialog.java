@@ -1345,16 +1345,16 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     // / END OF CONTENT TAB
     // ///////////////////////////////////////////////////////////
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, sc );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, sc );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -1379,7 +1379,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wMinWidth.addListener( SWT.Selection, lsMinWidth );
     wCancel.addListener( SWT.Selection, lsCancel );

@@ -310,7 +310,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         cancel();
       }
     };
-    this.lsOK = new Listener() {
+    this.lsOk = new Listener() {
       public void handleEvent( final Event event ) {
         ok();
       }
@@ -323,7 +323,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     this.wCancel.addListener( SWT.Selection, this.lsCancel );
-    this.wOK.addListener( SWT.Selection, this.lsOK );
+    this.wOk.addListener( SWT.Selection, this.lsOk );
 
     this.lsDef = new SelectionAdapter() {
       @Override
@@ -555,10 +555,10 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.buildFieldTable( factory );
     this.buildAscLink( factory );
 
-    this.wOK = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    this.wOk = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.OK" ) );
     this.wCancel = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     this.wAbout = factory.createPushButton( BaseMessages.getString( PKG, "TeraFastDialog.About.Button" ) );
-    setButtonPositions( new Button[] { this.wOK, this.wCancel, this.wAbout }, factory.getMargin(), this.wAscLink );
+    setButtonPositions( new Button[] { this.wOk, this.wCancel, this.wAbout }, factory.getMargin(), this.wAscLink );
     
     this.wTransformName.addModifyListener( lsMod );
     this.wControlFile.addModifyListener( lsMod );

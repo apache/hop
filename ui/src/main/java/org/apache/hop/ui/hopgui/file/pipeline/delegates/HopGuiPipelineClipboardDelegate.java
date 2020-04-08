@@ -62,7 +62,7 @@ public class HopGuiPipelineClipboardDelegate {
   public void pasteXML( PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
 
     try {
-      Document doc = XmlHandler.loadXMLString( clipcontent );
+      Document doc = XmlHandler.loadXmlString( clipcontent );
       Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG_PIPELINE_TRANSFORMS );
       // De-select all, re-select pasted transforms...
       pipelineMeta.unselectAll();

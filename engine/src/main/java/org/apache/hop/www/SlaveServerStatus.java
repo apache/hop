@@ -159,7 +159,7 @@ public class SlaveServerStatus {
   }
 
   public static SlaveServerStatus fromXML( String xml ) throws HopException {
-    Document document = XmlHandler.loadXMLString( xml );
+    Document document = XmlHandler.loadXmlString( xml );
     return new SlaveServerStatus( XmlHandler.getSubNode( document, XML_TAG ) );
   }
 

@@ -247,6 +247,6 @@ public class TableOutputMetaTest {
         + "      <draw>Y</draw>\n"
         + "      </GUI>\n"
         + "    </transform>\n";
-    return XmlHandler.loadXMLString( xml, "transform" );
+    return XmlHandler.loadXmlString( xml, "transform" );
   }
 }

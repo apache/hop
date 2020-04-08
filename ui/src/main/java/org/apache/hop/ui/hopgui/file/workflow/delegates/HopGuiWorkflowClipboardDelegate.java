@@ -61,7 +61,7 @@ public class HopGuiWorkflowClipboardDelegate {
   public void pasteXML( WorkflowMeta workflowMeta, String clipcontent, Point loc ) {
 
     try {
-      Document doc = XmlHandler.loadXMLString( clipcontent );
+      Document doc = XmlHandler.loadXmlString( clipcontent );
       Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG_WORKFLOW_ACTIONS );
       // De-select all, re-select pasted transforms...
       workflowMeta.unselectAll();

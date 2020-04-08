@@ -20,45 +20,37 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.pipeline.transforms.dynamicsqlrow;
+package org.apache.hop.pipeline.transforms.sql;
 
+import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Matt
- * @since 24-jan-2005
+ * @since 20-jan-2005
  */
-public class DynamicSQLRowData extends BaseTransformData implements ITransformData {
-  IRowMeta outputRowMeta;
-  IRowMeta lookupRowMeta;
-
+public class ExecSqlData extends BaseTransformData implements ITransformData {
   public Database db;
-
-  public Object[] notfound; // Values in case nothing is found...
-
-  public int indexOfSQLField;
-
-  public boolean skipPreviousRow;
-
-  public String previousSQL;
-
-  public ArrayList<Object[]> previousrowbuffer;
-
+  public Result result;
+  public int[] argumentIndexes;
+  public List<Integer> markerPositions;
+  public IRowMeta outputRowMeta;
+  public String sql;
   public boolean isCanceled;
+  public IRowMeta paramsMeta;
 
-  public DynamicSQLRowData() {
+  public ExecSqlData() {
     super();
 
     db = null;
-    notfound = null;
-    indexOfSQLField = -1;
-    skipPreviousRow = false;
-    previousSQL = null;
-    previousrowbuffer = new ArrayList<Object[]>();
+    result = null;
+    argumentIndexes = null;
+    markerPositions = null;
+    paramsMeta = null;
   }
 }

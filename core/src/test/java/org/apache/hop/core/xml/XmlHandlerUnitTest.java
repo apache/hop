@@ -236,14 +236,14 @@ public class XmlHandlerUnitTest {
 
   @Test( expected = HopXmlException.class )
   public void loadingXmlFromStreamThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities() throws Exception {
-    XmlHandler.loadXMLFile( new ByteArrayInputStream( MALICIOUS_XML.getBytes() ), "<def>", false, false );
+    XmlHandler.loadXmlFile( new ByteArrayInputStream( MALICIOUS_XML.getBytes() ), "<def>", false, false );
   }
 
   @Test( expected = HopXmlException.class )
   public void loadingXmlFromURLThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities() throws Exception {
     File tmpFile = createTmpFile( MALICIOUS_XML );
 
-    XmlHandler.loadXMLFile( tmpFile.toURI().toURL() );
+    XmlHandler.loadXmlFile( tmpFile.toURI().toURL() );
   }
 
   private File createTmpFile( String content ) throws Exception {

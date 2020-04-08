@@ -97,7 +97,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   // Proxy
   private TextVar wProxyHost, wProxyPort, wNonProxyHosts;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
   private ModifyListener lsMod;
 
@@ -144,13 +144,13 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     // First, add the buttons...
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    Button[] buttons = new Button[] { wOK, wCancel };
+    Button[] buttons = new Button[] { wOk, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // The rest stays above the buttons...
@@ -165,11 +165,11 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOK, -margin );
+    fdTabFolder.bottom = new FormAttachment( wOk, -margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }

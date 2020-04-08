@@ -143,17 +143,17 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     fdMessageAbort.right = new FormAttachment( 100, 0 );
     wMessageAbort.setLayoutData( fdMessageAbort );
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // at the bottom
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wMessageAbort );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wMessageAbort );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
-    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
     SelectionAdapter lsDef = new SelectionAdapter() {
       @Override

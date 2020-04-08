@@ -57,7 +57,7 @@ public class UserDefinedJavaClassCodeSnippits {
 
   public void addSnippits( String strFileName ) throws HopXmlException {
     Document doc =
-      XmlHandler.loadXMLFile(
+      XmlHandler.loadXmlFile(
         UserDefinedJavaClassCodeSnippits.class.getResourceAsStream( strFileName ), null, false, false );
     buildSnippitList( doc );
   }

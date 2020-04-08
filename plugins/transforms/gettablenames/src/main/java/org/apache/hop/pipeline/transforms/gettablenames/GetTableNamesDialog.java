@@ -72,7 +72,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
   private Text wTablenameField;
   private FormData fdlTablenameField, fdTablenameField;
   private Label wlSQLCreationField;
-  private Text wSQLCreationField;
+  private Text wSqlCreationField;
   private FormData fdlSQLCreationField, fdSQLCreationField;
   private Button wincludeTable;
   private FormData fdincludeTable;
@@ -545,16 +545,16 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     fdlSQLCreationField.right = new FormAttachment( middle, -margin );
     fdlSQLCreationField.top = new FormAttachment( wisSystemObjectField, margin );
     wlSQLCreationField.setLayoutData( fdlSQLCreationField );
-    wSQLCreationField = new Text( wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wSQLCreationField
+    wSqlCreationField = new Text( wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSqlCreationField
       .setToolTipText( BaseMessages.getString( PKG, "GetTableNamesDialog.CreationSQLName.Tooltip" ) );
-    props.setLook( wSQLCreationField );
-    wSQLCreationField.addModifyListener( lsMod );
+    props.setLook( wSqlCreationField );
+    wSqlCreationField.addModifyListener( lsMod );
     fdSQLCreationField = new FormData();
     fdSQLCreationField.left = new FormAttachment( middle, 0 );
     fdSQLCreationField.top = new FormAttachment( wisSystemObjectField, margin );
     fdSQLCreationField.right = new FormAttachment( 100, 0 );
-    wSQLCreationField.setLayoutData( fdSQLCreationField );
+    wSqlCreationField.setLayoutData( fdSQLCreationField );
 
     FormData fdOutputFields = new FormData();
     fdOutputFields.left = new FormAttachment( 0, margin );
@@ -567,8 +567,8 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     // ///////////////////////////////////////////////////////////
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "GetTableNamesDialog.Preview.Button" ) );
@@ -576,10 +576,10 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wPreview, wCancel }, margin, wOutputFields );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wOutputFields );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -595,7 +595,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
         preview();
       }
     };
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
     wCancel.addListener( SWT.Selection, lsCancel );
 
@@ -679,7 +679,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
       wisSystemObjectField.setText( input.isSystemObjectFieldName() );
     }
     if ( input.getSqlCreationFieldName() != null ) {
-      wSQLCreationField.setText( input.getSqlCreationFieldName() );
+      wSqlCreationField.setText( input.getSqlCreationFieldName() );
     }
     wincludeCatalog.setSelection( input.isIncludeCatalog() );
     wincludeSchema.setSelection( input.isIncludeSchema() );
@@ -746,7 +746,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     info.setDatabase( pipelineMeta.findDatabase( wConnection.getText() ) );
     info.setSchemaName( wschemaname.getText() );
     info.setTablenameFieldName( wTablenameField.getText() );
-    info.setSqlCreationFieldName( wSQLCreationField.getText() );
+    info.setSqlCreationFieldName( wSqlCreationField.getText() );
     info.setObjectTypeFieldName( wObjectTypeField.getText() );
     info.setIsSystemObjectFieldName( wisSystemObjectField.getText() );
     info.setIncludeCatalog( wincludeCatalog.getSelection() );

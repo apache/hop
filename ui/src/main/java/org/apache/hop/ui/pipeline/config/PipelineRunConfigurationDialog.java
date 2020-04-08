@@ -156,15 +156,15 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     shell.setLayout( formLayout );
 
     // Add buttons at the bottom
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, this::ok );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, this::ok );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, this::cancel );
 
-    Button[] buttons = new Button[] { wOK, wCancel };
+    Button[] buttons = new Button[] { wOk, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
 

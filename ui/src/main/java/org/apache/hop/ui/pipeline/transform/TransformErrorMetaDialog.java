@@ -77,7 +77,7 @@ public class TransformErrorMetaDialog extends Dialog {
   private TextVar wNrErrors, wErrDesc, wErrFields, wErrCodes;
   private TextVar wMaxErrors, wMaxPct, wMinPctRows;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
   private ModifyListener lsMod;
 
@@ -127,13 +127,13 @@ public class TransformErrorMetaDialog extends Dialog {
     // First, add the buttons...
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( " &OK " );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( " &OK " );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( " &Cancel " );
 
-    Button[] buttons = new Button[] { wOK, wCancel };
+    Button[] buttons = new Button[] { wOk, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // The rest stays above the buttons...
@@ -338,11 +338,11 @@ public class TransformErrorMetaDialog extends Dialog {
     fdComposite.left = new FormAttachment( 0, 0 );
     fdComposite.top = new FormAttachment( 0, 0 );
     fdComposite.right = new FormAttachment( 100, 0 );
-    fdComposite.bottom = new FormAttachment( wOK, -margin );
+    fdComposite.bottom = new FormAttachment( wOk, -margin );
     composite.setLayoutData( fdComposite );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }

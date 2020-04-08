@@ -261,15 +261,15 @@ public class RandomCCNumberGeneratorDialog extends BaseTransformDialog implement
     wFields.setLayoutData( fdFields );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "RandomCCNumberGeneratorDialog.Button.PreviewRows" ) );
 
-    setButtonPositions( new Button[] { wOK, wPreview, wCancel }, margin, wFields );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wFields );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -277,14 +277,14 @@ public class RandomCCNumberGeneratorDialog extends BaseTransformDialog implement
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     lsPreview = new Listener() {
       public void handleEvent( Event e ) {
         preview();

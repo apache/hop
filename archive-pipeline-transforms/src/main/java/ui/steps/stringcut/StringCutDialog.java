@@ -198,8 +198,8 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     new Thread( runnable ).start();
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
@@ -210,10 +210,10 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     fdGet.top = new FormAttachment( wTransformName, 3 * middle );
     wGet.setLayoutData( fdGet );
 
-    setButtonPositions( new Button[] { wOK, wGet, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -229,7 +229,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCancel.addListener( SWT.Selection, lsCancel );
 

@@ -106,7 +106,7 @@ public class DatabaseExplorerDialog extends Dialog {
   private Tree wTree;
   private TreeItem tiTree;
 
-  private Button wOK;
+  private Button wOk;
   private Button wRefresh;
   private Button wCancel;
 
@@ -190,8 +190,8 @@ public class DatabaseExplorerDialog extends Dialog {
     }
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wRefresh = new Button( shell, SWT.PUSH );
     wRefresh.setText( BaseMessages.getString( PKG, "System.Button.Refresh" ) );
@@ -212,7 +212,7 @@ public class DatabaseExplorerDialog extends Dialog {
     wTree.setLayoutData( fdTree );
 
     if ( !justLook ) {
-      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, wRefresh }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel, wRefresh }, margin, null );
 
       // Add listeners
       wCancel.addListener( SWT.Selection, new Listener() {
@@ -224,11 +224,11 @@ public class DatabaseExplorerDialog extends Dialog {
         }
       );
     } else {
-      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh }, margin, null );
+      BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wRefresh }, margin, null );
     }
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
         public void handleEvent( Event e ) {
           handleOK();
         }
@@ -768,7 +768,7 @@ public class DatabaseExplorerDialog extends Dialog {
       db.connect();
       IRowMeta r = db.getTableFields( tableName );
       String sql = db.getCreateTableStatement( tableName, r, null, false, null, true );
-      SQLEditor se = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, sql );
+      SqlEditor se = new SqlEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, sql );
       se.open();
     } catch ( HopDatabaseException dbe ) {
       new ErrorDialog( shell,
@@ -808,7 +808,7 @@ public class DatabaseExplorerDialog extends Dialog {
           Database targetdb = new Database( targetdbi );
 
           String sql = targetdb.getCreateTableStatement( tableName, r, null, false, null, true );
-          SQLEditor se = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, sql );
+          SqlEditor se = new SqlEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, sql );
           se.open();
         }
       } catch ( HopDatabaseException dbe ) {
@@ -827,7 +827,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
 
   public void getSql( String tableName ) {
-    SQLEditor sql = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, "SELECT * FROM " + tableName );
+    SqlEditor sql = new SqlEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, "SELECT * FROM " + tableName );
     sql.open();
   }
 
@@ -873,7 +873,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
 
   public void getTruncate( String activeSchemaTable ) {
-    SQLEditor sql = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable );
+    SqlEditor sql = new SqlEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, "-- TRUNCATE TABLE " + activeSchemaTable );
     sql.open();
   }
 

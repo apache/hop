@@ -128,12 +128,12 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     createRulesTable( lsMod );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( "OK" );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( "OK" );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( "Cancel" );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), rulesControl );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), rulesControl );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -141,14 +141,14 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

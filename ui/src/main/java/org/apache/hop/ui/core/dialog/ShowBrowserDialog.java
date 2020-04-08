@@ -54,9 +54,9 @@ public class ShowBrowserDialog extends Dialog {
   private String dialogTitle;
   private String content;
 
-  private Button wOK;
-  private FormData fdOK;
-  private Listener lsOK;
+  private Button wOk;
+  private FormData fdOk;
+  private Listener lsOk;
 
   private Browser wBrowser;
   private FormData fdBrowser;
@@ -107,21 +107,21 @@ public class ShowBrowserDialog extends Dialog {
     wBrowser.setLayoutData( fdBrowser );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    fdOK = new FormData();
-    fdOK.left = new FormAttachment( 50, 0 );
-    fdOK.bottom = new FormAttachment( 100, 0 );
-    wOK.setLayoutData( fdOK );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    fdOk = new FormData();
+    fdOk.left = new FormAttachment( 50, 0 );
+    fdOk.bottom = new FormAttachment( 100, 0 );
+    wOk.setLayoutData( fdOk );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

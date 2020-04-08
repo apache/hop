@@ -68,8 +68,8 @@ import java.util.regex.Pattern;
 public class RegexEvalHelperDialog extends Dialog {
   private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private PropsUI props;
@@ -367,15 +367,15 @@ public class RegexEvalHelperDialog extends Dialog {
 
     // Some buttons
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wNoteFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wNoteFolder );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -385,7 +385,7 @@ public class RegexEvalHelperDialog extends Dialog {
         cancel();
       }
     };
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     wValue1.addModifyListener( new ModifyListener() {

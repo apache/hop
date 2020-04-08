@@ -80,7 +80,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlSQL;
-  private StyledTextComp wSQL;
+  private StyledTextComp wSql;
   private FormData fdlSQL, fdSQL;
 
   private Label wlLimit;
@@ -173,25 +173,25 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     fdlSQL.top = new FormAttachment( wConnection, margin * 2 );
     wlSQL.setLayoutData( fdlSQL );
 
-    wSQL =
+    wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
-    props.setLook( wSQL, Props.WIDGET_STYLE_FIXED );
-    wSQL.addModifyListener( lsMod );
+    props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
+    wSql.addModifyListener( lsMod );
     fdSQL = new FormData();
     fdSQL.left = new FormAttachment( 0, 0 );
     fdSQL.top = new FormAttachment( wlSQL, margin );
     fdSQL.right = new FormAttachment( 100, -2 * margin );
     fdSQL.bottom = new FormAttachment( 60, 0 );
-    wSQL.setLayoutData( fdSQL );
+    wSql.setLayoutData( fdSQL );
 
-    wSQL.addModifyListener( new ModifyListener() {
+    wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setPosition();
       }
 
     } );
 
-    wSQL.addKeyListener( new KeyAdapter() {
+    wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
         setPosition();
       }
@@ -200,7 +200,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
         setPosition();
       }
     } );
-    wSQL.addFocusListener( new FocusAdapter() {
+    wSql.addFocusListener( new FocusAdapter() {
       public void focusGained( FocusEvent e ) {
         setPosition();
       }
@@ -209,7 +209,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
         setPosition();
       }
     } );
-    wSQL.addMouseListener( new MouseAdapter() {
+    wSql.addMouseListener( new MouseAdapter() {
       public void mouseDoubleClick( MouseEvent e ) {
         setPosition();
       }
@@ -224,13 +224,13 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // SQL Higlighting
-    wSQL.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SQLValuesHighlight() );
 
     wlPosition = new Label( shell, SWT.NONE );
     props.setLook( wlPosition );
     fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
-    fdlPosition.top = new FormAttachment( wSQL, margin );
+    fdlPosition.top = new FormAttachment( wSql, margin );
     fdlPosition.right = new FormAttachment( 100, 0 );
     wlPosition.setLayoutData( fdlPosition );
 
@@ -299,14 +299,14 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.GetFields.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
     // The parameters
     wlParam = new Label( shell, SWT.NONE );
@@ -339,7 +339,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     fdParam.left = new FormAttachment( 0, 0 );
     fdParam.top = new FormAttachment( wlParam, margin );
     fdParam.right = new FormAttachment( 100, 0 );
-    fdParam.bottom = new FormAttachment( wOK, -2 * margin );
+    fdParam.bottom = new FormAttachment( wOk, -2 * margin );
     wParam.setLayoutData( fdParam );
 
     //
@@ -366,7 +366,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -382,7 +382,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCancel.addListener( SWT.Selection, lsCancel );
 
@@ -436,9 +436,9 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
   public void setPosition() {
 
-    String scr = wSQL.getText();
-    int linenr = wSQL.getLineAtOffset( wSQL.getCaretOffset() ) + 1;
-    int posnr = wSQL.getCaretOffset();
+    String scr = wSql.getText();
+    int linenr = wSql.getLineAtOffset( wSql.getCaretOffset() ) + 1;
+    int posnr = wSql.getCaretOffset();
 
     // Go back from position to last CR: how many positions?
     int colnr = 0;
@@ -458,7 +458,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
   public void getData() {
     logDebug( BaseMessages.getString( PKG, "DatabaseJoinDialog.Log.GettingKeyInfo" ) );
 
-    wSQL.setText( Const.NVL( input.getSql(), "" ) );
+    wSql.setText( Const.NVL( input.getSql(), "" ) );
     wLimit.setText( "" + input.getRowLimit() );
     wOuter.setSelection( input.isOuterJoin() );
     wuseVars.setSelection( input.isVariableReplace() );
@@ -501,7 +501,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     input.allocate( nrparam );
 
     input.setRowLimit( Const.toInt( wLimit.getText(), 0 ) );
-    input.setSql( wSQL.getText() );
+    input.setSql( wSql.getText() );
 
     input.setOuterJoin( wOuter.getSelection() );
     input.setVariableReplace( wuseVars.getSelection() );

@@ -294,12 +294,12 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
         .getTransformIOMeta().getTargetStreams().size(), lsMod, props );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // The name of the field to validate
     //
@@ -309,14 +309,14 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     FormData fdlDefaultTarget = new FormData();
     fdlDefaultTarget.left = new FormAttachment( 0, 0 );
     fdlDefaultTarget.right = new FormAttachment( middle, 0 );
-    fdlDefaultTarget.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdlDefaultTarget.bottom = new FormAttachment( wOk, -margin * 2 );
     wlDefaultTarget.setLayoutData( fdlDefaultTarget );
     wDefaultTarget = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDefaultTarget );
     FormData fdDefaultTarget = new FormData();
     fdDefaultTarget.left = new FormAttachment( middle, margin );
     fdDefaultTarget.right = new FormAttachment( 100, 0 );
-    fdDefaultTarget.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdDefaultTarget.bottom = new FormAttachment( wOk, -margin * 2 );
     wDefaultTarget.setLayoutData( fdDefaultTarget );
     wDefaultTarget.setItems( nextTransformNames );
     wDefaultTarget.addModifyListener( lsMod );
@@ -334,14 +334,14 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -108,7 +108,7 @@ public class UnivariateStatsMetaTest {
               "org/apache/hop/pipeline/transforms/univariatestats/legacyUnivariateStatsMetaTest.xml") );
     IMetaStore mockMetaStore = mock( IMetaStore.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    meta.loadXml( XmlHandler.loadXMLString( legacyXml ).getFirstChild(), mockMetaStore );
+    meta.loadXml( XmlHandler.loadXmlString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );
     UnivariateStatsMetaFunction first = meta.getInputFieldMetaFunctions()[ 0 ];
     assertEquals( "a", first.getSourceFieldName() );

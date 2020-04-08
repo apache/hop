@@ -34,7 +34,7 @@ import java.util.List;
  * @author Matt
  * @since 20-jan-2005
  */
-public class ExecSQLData extends BaseTransformData implements ITransformData {
+public class ExecSqlData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;
   public int[] argumentIndexes;
@@ -44,7 +44,7 @@ public class ExecSQLData extends BaseTransformData implements ITransformData {
   public boolean isCanceled;
   public IRowMeta paramsMeta;
 
-  public ExecSQLData() {
+  public ExecSqlData() {
     super();
 
     db = null;

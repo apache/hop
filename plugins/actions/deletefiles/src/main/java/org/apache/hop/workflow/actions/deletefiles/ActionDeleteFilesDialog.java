@@ -426,15 +426,15 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
     // Add listeners
     lsDef = new SelectionAdapter() {

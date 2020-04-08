@@ -115,7 +115,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   @Override public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
     try {
       if ( checkContent ) {
-        Document document = XmlHandler.loadXMLFile( filename );
+        Document document = XmlHandler.loadXmlFile( filename );
         Node workflowNode = XmlHandler.getSubNode( document, WorkflowMeta.XML_TAG );
         return workflowNode != null;
       } else {

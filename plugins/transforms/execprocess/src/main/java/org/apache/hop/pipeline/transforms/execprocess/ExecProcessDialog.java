@@ -357,15 +357,15 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     // ////////////////////
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -379,7 +379,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

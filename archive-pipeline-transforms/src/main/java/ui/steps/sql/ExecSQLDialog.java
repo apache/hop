@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.sql.ExecSQLMeta;
+import org.apache.hop.pipeline.transforms.sql.ExecSqlMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -75,14 +75,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ExecSQLDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
+public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
+  private static Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlSQL;
 
-  private StyledTextComp wSQL;
+  private StyledTextComp wSql;
 
   private FormData fdlSQL, fdSQL;
 
@@ -135,7 +135,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
   private Button wQuoteString;
   private FormData fdlQuoteString, fdQuoteString;
 
-  private ExecSQLMeta input;
+  private ExecSqlMeta input;
   private boolean changedInDialog;
 
   private Label wlPosition;
@@ -145,9 +145,9 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
   private ColumnInfo[] colinf;
 
-  public ExecSQLDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public ExecSqlDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
-    input = (ExecSQLMeta) in;
+    input = (ExecSqlMeta) in;
     inputFields = new HashMap<String, Integer>();
   }
 
@@ -215,18 +215,18 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
     fdlSQL.top = new FormAttachment( wConnection, margin * 2 );
     wlSQL.setLayoutData( fdlSQL );
 
-    wSQL =
+    wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
-    props.setLook( wSQL, Props.WIDGET_STYLE_FIXED );
-    wSQL.addModifyListener( lsMod );
-    wSQL.addModifyListener( new ModifyListener() {
+    props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
+    wSql.addModifyListener( lsMod );
+    wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setPosition();
       }
 
     } );
 
-    wSQL.addKeyListener( new KeyAdapter() {
+    wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
         setPosition();
       }
@@ -235,7 +235,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
         setPosition();
       }
     } );
-    wSQL.addFocusListener( new FocusAdapter() {
+    wSql.addFocusListener( new FocusAdapter() {
       public void focusGained( FocusEvent e ) {
         setPosition();
       }
@@ -244,7 +244,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
         setPosition();
       }
     } );
-    wSQL.addMouseListener( new MouseAdapter() {
+    wSql.addMouseListener( new MouseAdapter() {
       public void mouseDoubleClick( MouseEvent e ) {
         setPosition();
       }
@@ -259,17 +259,17 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     // Text Higlighting
-    wSQL.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SQLValuesHighlight() );
 
     // Some buttons
     //
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "ExecSQLDialog.GetFields.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { wOK, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
     // Build it up from the bottom up...
     // Read field
@@ -280,14 +280,14 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
     fdlReadField = new FormData();
     fdlReadField.left = new FormAttachment( middle, margin );
     fdlReadField.right = new FormAttachment( middle * 2, -margin );
-    fdlReadField.bottom = new FormAttachment( wOK, -3 * margin );
+    fdlReadField.bottom = new FormAttachment( wOk, -3 * margin );
     wlReadField.setLayoutData( fdlReadField );
     wReadField = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReadField );
     wReadField.addModifyListener( lsMod );
     fdReadField = new FormData();
     fdReadField.left = new FormAttachment( middle * 2, 0 );
-    fdReadField.bottom = new FormAttachment( wOK, -3 * margin );
+    fdReadField.bottom = new FormAttachment( wOk, -3 * margin );
     fdReadField.right = new FormAttachment( 100, 0 );
     wReadField.setLayoutData( fdReadField );
 
@@ -375,7 +375,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( middle, 0 );
-    fdFields.bottom = new FormAttachment( wOK, -3 * margin );
+    fdFields.bottom = new FormAttachment( wOk, -3 * margin );
     wFields.setLayoutData( fdFields );
 
     // For the "execute for each row" and "variable substitution" labels,
@@ -514,7 +514,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
     fdSQL.top = new FormAttachment( wlSQL, margin );
     fdSQL.right = new FormAttachment( 100, -2 * margin );
     fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSQL.setLayoutData( fdSQL );
+    wSql.setLayoutData( fdSQL );
 
     // Search the fields in the background
     //
@@ -550,7 +550,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
         get();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -558,7 +558,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wGet.addListener( SWT.Selection, lsGet );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -570,8 +570,8 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
     wEachRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        ExecSQLDialog.this.setExecutedEachInputRow();
-        ExecSQLDialog.this.input.setChanged();
+        ExecSqlDialog.this.setExecutedEachInputRow();
+        ExecSqlDialog.this.input.setChanged();
       }
     } );
 
@@ -627,9 +627,9 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
   public void setPosition() {
 
-    String scr = wSQL.getText();
-    int linenr = wSQL.getLineAtOffset( wSQL.getCaretOffset() ) + 1;
-    int posnr = wSQL.getCaretOffset();
+    String scr = wSql.getText();
+    int linenr = wSql.getLineAtOffset( wSql.getCaretOffset() ) + 1;
+    int posnr = wSql.getCaretOffset();
 
     // Go back from position to last CR: how many positions?
     int colnr = 0;
@@ -663,7 +663,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
    */
   public void getData() {
     if ( input.getSql() != null ) {
-      wSQL.setText( input.getSql() );
+      wSql.setText( input.getSql() );
     }
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
@@ -726,7 +726,7 @@ public class ExecSQLDialog extends BaseTransformDialog implements ITransformDial
 
     transformName = wTransformName.getText(); // return value
     // copy info to TextFileInputMeta class (input)
-    input.setSql( wSQL.getText() );
+    input.setSql( wSql.getText() );
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setExecutedEachInputRow( wEachRow.getSelection() );
     input.setSingleStatement( wSingleStatement.getSelection() );

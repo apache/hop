@@ -93,7 +93,7 @@ public class ScriptHelp {
         buffer.append( (char) c );
       }
       is.close();
-      dom = XmlHandler.loadXMLString( buffer.toString() );
+      dom = XmlHandler.loadXmlString( buffer.toString() );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to read script values help file from file [" + strFileName + "]", e );
     }

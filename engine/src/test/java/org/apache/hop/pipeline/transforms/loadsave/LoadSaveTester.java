@@ -163,7 +163,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXml() + "</transform>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXMLFile( is, null, false, false ), "transform" ),
+    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXmlFile( is, null, false, false ), "transform" ),
       metaStore );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
 

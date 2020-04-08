@@ -96,7 +96,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private Button wUseSubs;
 
-  private Button wSQLFromFile;
+  private Button wSqlFromFile;
 
   private Label wlSQLFromFile;
 
@@ -106,7 +106,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private Label wlSQL;
 
-  private StyledTextComp wSQL;
+  private StyledTextComp wSql;
 
   private FormData fdlSQL, fdSQL;
 
@@ -114,9 +114,9 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdlPosition;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionSQL jobEntry;
 
@@ -171,12 +171,12 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );
@@ -208,15 +208,15 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     fdlSQLFromFile.top = new FormAttachment( wConnection, 2 * margin );
     fdlSQLFromFile.right = new FormAttachment( middle, -margin );
     wlSQLFromFile.setLayoutData( fdlSQLFromFile );
-    wSQLFromFile = new Button( shell, SWT.CHECK );
-    props.setLook( wSQLFromFile );
-    wSQLFromFile.setToolTipText( BaseMessages.getString( PKG, "JobSQL.SQLFromFile.Tooltip" ) );
+    wSqlFromFile = new Button( shell, SWT.CHECK );
+    props.setLook( wSqlFromFile );
+    wSqlFromFile.setToolTipText( BaseMessages.getString( PKG, "JobSQL.SQLFromFile.Tooltip" ) );
     fdSQLFromFile = new FormData();
     fdSQLFromFile.left = new FormAttachment( middle, 0 );
     fdSQLFromFile.top = new FormAttachment( wConnection, 2 * margin );
     fdSQLFromFile.right = new FormAttachment( 100, 0 );
-    wSQLFromFile.setLayoutData( fdSQLFromFile );
-    wSQLFromFile.addSelectionListener( new SelectionAdapter() {
+    wSqlFromFile.setLayoutData( fdSQLFromFile );
+    wSqlFromFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeSQLFromFile();
         jobEntry.setChanged();
@@ -229,7 +229,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     props.setLook( wlFilename );
     fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment( wSQLFromFile, margin );
+    fdlFilename.top = new FormAttachment( wSqlFromFile, margin );
     fdlFilename.right = new FormAttachment( middle, -margin );
     wlFilename.setLayoutData( fdlFilename );
 
@@ -238,7 +238,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
     fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment( wSQLFromFile, margin );
+    fdbFilename.top = new FormAttachment( wSqlFromFile, margin );
     wbFilename.setLayoutData( fdbFilename );
 
     wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -247,7 +247,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wFilename.addModifyListener( lsMod );
     fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, 0 );
-    fdFilename.top = new FormAttachment( wSQLFromFile, margin );
+    fdFilename.top = new FormAttachment( wSqlFromFile, margin );
     fdFilename.right = new FormAttachment( wbFilename, -margin );
     wFilename.setLayoutData( fdFilename );
 
@@ -325,7 +325,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.right = new FormAttachment( 100, 0 );
-    fdlPosition.bottom = new FormAttachment( wOK, -margin );
+    fdlPosition.bottom = new FormAttachment( wOk, -margin );
     wlPosition.setLayoutData( fdlPosition );
 
     // Script line
@@ -337,16 +337,16 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     fdlSQL.top = new FormAttachment( wUseSubs, margin );
     wlSQL.setLayoutData( fdlSQL );
 
-    wSQL =
+    wSql =
       new StyledTextComp( jobEntry, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
-    props.setLook( wSQL, Props.WIDGET_STYLE_FIXED );
-    wSQL.addModifyListener( lsMod );
+    props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
+    wSql.addModifyListener( lsMod );
     fdSQL = new FormData();
     fdSQL.left = new FormAttachment( 0, 0 );
     fdSQL.top = new FormAttachment( wlSQL, margin );
     fdSQL.right = new FormAttachment( 100, -10 );
     fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSQL.setLayoutData( fdSQL );
+    wSql.setLayoutData( fdSQL );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -354,14 +354,14 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -378,14 +378,14 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
       }
     } );
 
-    wSQL.addModifyListener( new ModifyListener() {
+    wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setPosition();
       }
 
     } );
 
-    wSQL.addKeyListener( new KeyAdapter() {
+    wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
         setPosition();
       }
@@ -394,7 +394,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
         setPosition();
       }
     } );
-    wSQL.addFocusListener( new FocusAdapter() {
+    wSql.addFocusListener( new FocusAdapter() {
       public void focusGained( FocusEvent e ) {
         setPosition();
       }
@@ -403,7 +403,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
         setPosition();
       }
     } );
-    wSQL.addMouseListener( new MouseAdapter() {
+    wSql.addMouseListener( new MouseAdapter() {
       public void mouseDoubleClick( MouseEvent e ) {
         setPosition();
       }
@@ -416,10 +416,10 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
         setPosition();
       }
     } );
-    wSQL.addModifyListener( lsMod );
+    wSql.addModifyListener( lsMod );
 
     // Text Higlighting
-    wSQL.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SQLValuesHighlight() );
 
     getData();
     activeSQLFromFile();
@@ -438,9 +438,9 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   public void setPosition() {
 
-    String scr = wSQL.getText();
-    int linenr = wSQL.getLineAtOffset( wSQL.getCaretOffset() ) + 1;
-    int posnr = wSQL.getCaretOffset();
+    String scr = wSql.getText();
+    int linenr = wSql.getLineAtOffset( wSql.getCaretOffset() ) + 1;
+    int posnr = wSql.getCaretOffset();
 
     // Go back from position to last CR: how many positions?
     int colnr = 0;
@@ -463,7 +463,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
    */
   public void getData() {
     wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wSQL.setText( Const.nullToEmpty( jobEntry.getSql() ) );
+    wSql.setText( Const.nullToEmpty( jobEntry.getSql() ) );
     DatabaseMeta dbinfo = jobEntry.getDatabase();
     if ( dbinfo != null && dbinfo.getName() != null ) {
       wConnection.setText( dbinfo.getName() );
@@ -472,7 +472,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     }
 
     wUseSubs.setSelection( jobEntry.getUseVariableSubstitution() );
-    wSQLFromFile.setSelection( jobEntry.getSqlFromFile() );
+    wSqlFromFile.setSelection( jobEntry.getSqlFromFile() );
     wSendOneStatement.setSelection( jobEntry.isSendOneStatement() );
 
     wFilename.setText( Const.nullToEmpty( jobEntry.getSqlFilename() ) );
@@ -482,12 +482,12 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
   }
 
   private void activeSQLFromFile() {
-    wlFilename.setEnabled( wSQLFromFile.getSelection() );
-    wFilename.setEnabled( wSQLFromFile.getSelection() );
-    wbFilename.setEnabled( wSQLFromFile.getSelection() );
-    wSQL.setEnabled( !wSQLFromFile.getSelection() );
-    wlSQL.setEnabled( !wSQLFromFile.getSelection() );
-    wlPosition.setEnabled( !wSQLFromFile.getSelection() );
+    wlFilename.setEnabled( wSqlFromFile.getSelection() );
+    wFilename.setEnabled( wSqlFromFile.getSelection() );
+    wbFilename.setEnabled( wSqlFromFile.getSelection() );
+    wSql.setEnabled( !wSqlFromFile.getSelection() );
+    wlSQL.setEnabled( !wSqlFromFile.getSelection() );
+    wlPosition.setEnabled( !wSqlFromFile.getSelection() );
 
   }
 
@@ -506,9 +506,9 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
       return;
     }
     jobEntry.setName( wName.getText() );
-    jobEntry.setSql( wSQL.getText() );
+    jobEntry.setSql( wSql.getText() );
     jobEntry.setUseVariableSubstitution( wUseSubs.getSelection() );
-    jobEntry.setSqlFromFile( wSQLFromFile.getSelection() );
+    jobEntry.setSqlFromFile( wSqlFromFile.getSelection() );
     jobEntry.setSqlFilename( wFilename.getText() );
     jobEntry.setSendOneStatement( wSendOneStatement.getSelection() );
     jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );

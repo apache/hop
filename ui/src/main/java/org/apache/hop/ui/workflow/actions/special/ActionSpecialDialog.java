@@ -69,9 +69,9 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
 
   private static final String MONTHLY = BaseMessages.getString( PKG, "JobSpecial.Type.Monthly" );
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
 
@@ -228,12 +228,12 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
       BaseTransformDialog.setSize( shell, 370, 285, true );
     }
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wDayOfMonth );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wDayOfMonth );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -241,13 +241,13 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
 

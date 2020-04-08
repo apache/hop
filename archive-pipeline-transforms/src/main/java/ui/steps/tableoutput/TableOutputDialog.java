@@ -793,24 +793,24 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     new Thread( runnable ).start();
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCreate = new Button( shell, SWT.PUSH );
     wCreate.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wCreate }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wCreate }, margin, null );
 
     fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wSpecifyFields, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOK, -margin );
+    fdTabFolder.bottom = new FormAttachment( wOk, -margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -831,7 +831,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCreate.addListener( SWT.Selection, lsCreate );
     wCancel.addListener( SWT.Selection, lsCancel );
     wGetFields.addListener( SWT.Selection, lsGet );

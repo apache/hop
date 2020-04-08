@@ -87,7 +87,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
   private Label wlPartitions;
   private TableView wPartitions;
 
-  private Button wOK, wGet, wCancel;
+  private Button wOk, wGet, wCancel;
 
   private ModifyListener lsMod;
 
@@ -137,13 +137,13 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
     // First, add the buttons...
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( " &OK " );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( " &OK " );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( " &Cancel " );
 
-    Button[] buttons = new Button[] { wOK, wCancel };
+    Button[] buttons = new Button[] { wOk, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // The rest stays above the buttons, so we added those first...
@@ -233,11 +233,11 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
     fdPartitions.left = new FormAttachment( middle, margin );
     fdPartitions.right = new FormAttachment( 100, 0 );
     fdPartitions.top = new FormAttachment( lastControl, margin );
-    fdPartitions.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdPartitions.bottom = new FormAttachment( wOk, -margin * 2 );
     wPartitions.setLayoutData( fdPartitions );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, e -> ok() );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wCancel.addListener( SWT.Selection, e -> cancel() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {

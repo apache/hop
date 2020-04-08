@@ -701,7 +701,7 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
         inputStream = getClass().getResourceAsStream( transformAttributesFile );
       }
       if ( inputStream != null ) {
-        Document document = XmlHandler.loadXMLFile( inputStream );
+        Document document = XmlHandler.loadXmlFile( inputStream );
         Node attrsNode = XmlHandler.getSubNode( document, "attributes" );
         List<Node> nodes = XmlHandler.getNodes( attrsNode, "attribute" );
         attributes = new ArrayList<IHopAttribute>();

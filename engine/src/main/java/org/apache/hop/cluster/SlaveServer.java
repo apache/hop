@@ -810,7 +810,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public List<SlaveServerDetection> getSlaveServerDetections() throws Exception {
     String xml = execService( GetSlavesServlet.CONTEXT_PATH + "/" );
-    Document document = XmlHandler.loadXMLString( xml );
+    Document document = XmlHandler.loadXmlString( xml );
     Node detectionsNode = XmlHandler.getSubNode( document, GetSlavesServlet.XML_TAG_SLAVESERVER_DETECTIONS );
     int nrDetections = XmlHandler.countNodes( detectionsNode, SlaveServerDetection.XML_TAG );
 
@@ -1060,7 +1060,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
           + URLEncoder.encode( slaveSequenceName, "UTF-8" ) + "&" + NextSequenceValueServlet.PARAM_INCREMENT + "="
           + Long.toString( incrementValue ) );
 
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node seqNode = XmlHandler.getSubNode( doc, NextSequenceValueServlet.XML_TAG );
       String nextValueString = XmlHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_VALUE );
       String errorString = XmlHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_ERROR );

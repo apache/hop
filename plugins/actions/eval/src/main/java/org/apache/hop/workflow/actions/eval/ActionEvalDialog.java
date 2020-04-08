@@ -91,9 +91,9 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdlPosition;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionEval jobEntry;
 
@@ -136,13 +136,13 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // at the bottom
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Filename line
     wlName = new Label( shell, SWT.NONE );
@@ -166,7 +166,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     props.setLook( wlPosition );
     fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
-    fdlPosition.bottom = new FormAttachment( wOK, -margin );
+    fdlPosition.bottom = new FormAttachment( wOk, -margin );
     wlPosition.setLayoutData( fdlPosition );
 
     // Script line
@@ -233,14 +233,14 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

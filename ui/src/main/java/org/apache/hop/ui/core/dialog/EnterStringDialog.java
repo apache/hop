@@ -72,9 +72,9 @@ public class EnterStringDialog extends Dialog {
 
   private FormData fdlString, fdString;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
 
@@ -184,12 +184,12 @@ public class EnterStringDialog extends Dialog {
     }
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, lastControl );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, lastControl );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -197,13 +197,13 @@ public class EnterStringDialog extends Dialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -243,7 +243,7 @@ public class EnterStringDialog extends Dialog {
   protected void setFlags() {
     String string = ( allowVariables ? wStringVar.getText() : wString.getText() );
     boolean enabled = !mandatory || !Utils.isEmpty( string );
-    wOK.setEnabled( enabled );
+    wOk.setEnabled( enabled );
   }
 
   public void dispose() {

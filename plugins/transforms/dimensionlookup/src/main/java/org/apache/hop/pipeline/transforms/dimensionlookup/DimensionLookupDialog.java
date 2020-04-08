@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -971,8 +971,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wMaxyear.setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.Maxyear.ToolTip" ) );
 
     // THE BOTTOM BUTTONS
-    wOK = new Button( comp, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( comp, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( comp, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.GetFields.Button" ) );
     wCreate = new Button( comp, SWT.PUSH );
@@ -980,7 +980,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wCancel = new Button( comp, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet, wCreate }, margin, wMaxyear );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wCreate }, margin, wMaxyear );
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment( 0, 0 );
@@ -999,7 +999,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     sComp.setMinHeight( bounds.height );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -1020,7 +1020,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCreate.addListener( SWT.Selection, lsCreate );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -1788,8 +1788,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
-            SQLEditor sqledit =
-              new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+            SqlEditor sqledit =
+              new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
                 .getSql() );
             sqledit.open();
           } else {

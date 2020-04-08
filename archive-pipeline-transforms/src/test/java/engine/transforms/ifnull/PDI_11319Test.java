@@ -42,8 +42,8 @@ public class PDI_11319Test {
   public void init() throws Exception {
     File v4 = new File( this.getClass().getResource( "v4.hpl" ).getFile() );
     File v5 = new File( this.getClass().getResource( "v5.hpl" ).getFile() );
-    xmlVersion4 = XmlHandler.loadXMLFile( v4 );
-    xmlVersion5 = XmlHandler.loadXMLFile( v5 );
+    xmlVersion4 = XmlHandler.loadXmlFile( v4 );
+    xmlVersion5 = XmlHandler.loadXmlFile( v5 );
     meta = new IfNullMeta();
   }
 

@@ -197,7 +197,7 @@ public class HopServer {
       }
       usingConfigFile = true;
       FileObject file = HopVFS.getFileObject( arguments[ 0 ] );
-      Document document = XmlHandler.loadXMLFile( file );
+      Document document = XmlHandler.loadXmlFile( file );
       setHopEnvironment(); // Must stand up server now to allow decryption of password
       Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
       config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );

@@ -198,7 +198,7 @@ public class TransformStatus {
   }
 
   public TransformStatus fromXML( String xml ) throws HopException {
-    Document document = XmlHandler.loadXMLString( xml );
+    Document document = XmlHandler.loadXmlString( xml );
     return new TransformStatus( XmlHandler.getSubNode( document, XML_TAG ) );
   }
 

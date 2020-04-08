@@ -46,13 +46,13 @@ import java.sql.ResultSet;
  * @author Samatar
  * @since 13-10-2008
  */
-public class DynamicSQLRow extends BaseTransform implements ITransform {
+public class DynamicSqlRow extends BaseTransform implements ITransform {
   private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private DynamicSQLRowMeta meta;
   private DynamicSQLRowData data;
 
-  public DynamicSQLRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public DynamicSqlRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }

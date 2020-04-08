@@ -231,7 +231,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Workflow.CONFIGURATION_IN_EXPORT_FILENAME;
-          Document configDoc = XmlHandler.loadXMLFile( configUrl );
+          Document configDoc = XmlHandler.loadXmlFile( configUrl );
           WorkflowExecutionConfiguration workflowExecutionConfiguration =
             new WorkflowExecutionConfiguration( XmlHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
 
@@ -275,7 +275,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Pipeline.CONFIGURATION_IN_EXPORT_FILENAME;
-          Document configDoc = XmlHandler.loadXMLFile( configUrl );
+          Document configDoc = XmlHandler.loadXmlFile( configUrl );
           PipelineExecutionConfiguration executionConfiguration =
             new PipelineExecutionConfiguration( XmlHandler.getSubNode(
               configDoc, PipelineExecutionConfiguration.XML_TAG ) );

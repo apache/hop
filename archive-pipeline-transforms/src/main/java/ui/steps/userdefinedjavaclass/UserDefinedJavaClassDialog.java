@@ -389,8 +389,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wSash.setWeights( new int[] { 75, 25 } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wTest = new Button( shell, SWT.PUSH );
     wTest.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.TestClass.Button" ) );
     // wCreatePlugin = new Button(shell, SWT.PUSH);
@@ -398,7 +398,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wTest /* , wCreatePlugin */ }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wTest /* , wCreatePlugin */ }, margin, null );
 
     lsCancel = new Listener() {
       public void handleEvent( Event e ) {
@@ -410,7 +410,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         test();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -426,7 +426,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wTest.addListener( SWT.Selection, lsTest );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     // wCreatePlugin.addListener(SWT.Selection, lsCreatePlugin);
     wTree.addListener( SWT.MouseDoubleClick, lsTree );
 

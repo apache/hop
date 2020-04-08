@@ -133,14 +133,14 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData( fdTransformName );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
     wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "SortedMergeDialog.Fields.Label" ) );
@@ -173,7 +173,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( wOK, -2 * margin );
+    fdFields.bottom = new FormAttachment( wOk, -2 * margin );
     wFields.setLayoutData( fdFields );
 
     //
@@ -210,7 +210,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
         get();
       }
     } );
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }

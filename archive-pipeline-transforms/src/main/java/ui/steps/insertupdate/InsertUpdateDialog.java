@@ -338,14 +338,14 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wKey.setLayoutData( fdKey );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( shell, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.SQL.Button" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.SQL.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wSQL }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
 
     // THE UPDATE/INSERT TABLE
     wlReturn = new Label( shell, SWT.NONE );
@@ -402,7 +402,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     fdReturn.left = new FormAttachment( 0, 0 );
     fdReturn.top = new FormAttachment( wlReturn, margin );
     fdReturn.right = new FormAttachment( wGetLU, -margin );
-    fdReturn.bottom = new FormAttachment( wOK, -2 * margin );
+    fdReturn.bottom = new FormAttachment( wOk, -2 * margin );
     wReturn.setLayoutData( fdReturn );
 
     //
@@ -431,7 +431,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -446,7 +446,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
         getUpdate();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         create();
       }
@@ -457,10 +457,10 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wGetLU.addListener( SWT.Selection, lsGetLU );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

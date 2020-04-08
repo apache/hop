@@ -166,9 +166,9 @@ public class EnterSearchDialog {
     fdFilter.right = new FormAttachment( 100, 0 );
     wFilter.setLayoutData( fdFilter );
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addSelectionListener( new SelectionAdapter() {
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ok();
       }
@@ -182,7 +182,7 @@ public class EnterSearchDialog {
       }
     } );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), wFilter );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), wFilter );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

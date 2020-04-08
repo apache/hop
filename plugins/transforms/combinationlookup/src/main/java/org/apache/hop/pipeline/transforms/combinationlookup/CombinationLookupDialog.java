@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -366,8 +366,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         nrKeyRows, lsMod, props );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "CombinationLookupDialog.GetFields.Button" ) );
     wCreate = new Button( shell, SWT.PUSH );
@@ -375,7 +375,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet, wCreate }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wCreate }, margin, null );
 
     // Last update field:
     wlLastUpdateField = new Label( shell, SWT.RIGHT );
@@ -384,7 +384,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     FormData fdlLastUpdateField = new FormData();
     fdlLastUpdateField.left = new FormAttachment( 0, 0 );
     fdlLastUpdateField.right = new FormAttachment( middle, -margin );
-    fdlLastUpdateField.bottom = new FormAttachment( wOK, -2 * margin );
+    fdlLastUpdateField.bottom = new FormAttachment( wOk, -2 * margin );
     wlLastUpdateField.setLayoutData( fdlLastUpdateField );
     wLastUpdateField = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastUpdateField );
@@ -392,7 +392,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     FormData fdLastUpdateField = new FormData();
     fdLastUpdateField.left = new FormAttachment( middle, 0 );
     fdLastUpdateField.right = new FormAttachment( 100, 0 );
-    fdLastUpdateField.bottom = new FormAttachment( wOK, -2 * margin );
+    fdLastUpdateField.bottom = new FormAttachment( wOk, -2 * margin );
     wLastUpdateField.setLayoutData( fdLastUpdateField );
 
     // Hash field:
@@ -583,7 +583,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -604,7 +604,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCreate.addListener( SWT.Selection, lsCreate );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -1024,8 +1024,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
-          SQLEditor sqledit =
-            new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+          SqlEditor sqledit =
+            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
               .getSql() );
           sqledit.open();
         } else {

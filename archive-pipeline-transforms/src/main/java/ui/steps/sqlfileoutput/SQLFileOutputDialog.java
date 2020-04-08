@@ -764,17 +764,17 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCreate = new Button( shell, SWT.PUSH );
     wCreate.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCreate, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCreate, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -790,7 +790,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCreate.addListener( SWT.Selection, lsCreate );
     wCancel.addListener( SWT.Selection, lsCancel );
 

@@ -39,7 +39,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transforms.sql.ExecSQL;
+import org.apache.hop.pipeline.transforms.sql.ExecSql;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -50,16 +50,16 @@ import java.util.List;
  * Created on 10-sep-2008
  */
 @Transform(
-        id = "ExecSQLRow",
+        id = "ExecSqlRow",
         image = "ui/images/SQLR.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.execsqlrow",
-        name = "BaseTransform.TypeLongDesc.ExecSQLRow",
-        description = "BaseTransform.TypeTooltipDesc.ExecSQLRow",
+        name = "BaseTransform.TypeLongDesc.ExecSqlRow",
+        description = "BaseTransform.TypeTooltipDesc.ExecSqlRow",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
 )
-@InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
-public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSQLRow, ExecSQLRowData> {
-  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
+@InjectionSupported( localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
+public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {
+  private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private IMetaStore metaStore;
 
@@ -95,7 +95,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
   @Injection( name = "SEND_SINGLE_STATEMENT" )
   private boolean sendOneStatement;
 
-  public ExecSQLRowMeta() {
+  public ExecSqlRowMeta() {
     super();
   }
 
@@ -239,7 +239,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public Object clone() {
-    ExecSQLRowMeta retval = (ExecSQLRowMeta) super.clone();
+    ExecSqlRowMeta retval = (ExecSqlRowMeta) super.clone();
     return retval;
   }
 
@@ -263,7 +263,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
         "Y".equalsIgnoreCase( Const.NVL( XmlHandler.getTagValue( transformNode, "sendOneStatement" ), "Y" ) );
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString(
-        PKG, "ExecSQLRowMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
+        PKG, "ExecSqlRowMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
 
@@ -278,7 +278,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     RowMetaAndData add =
-      ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
+      ExecSql.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
     r.mergeRowMeta( add.getRowMeta() );
   }
@@ -308,7 +308,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
     if ( databaseMeta != null ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "ExecSQLRowMeta.CheckResult.ConnectionExists" ), transformMeta );
+          PKG, "ExecSqlRowMeta.CheckResult.ConnectionExists" ), transformMeta );
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
@@ -318,23 +318,23 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
         db.connect();
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "ExecSQLRowMeta.CheckResult.DBConnectionOK" ), transformMeta );
+            PKG, "ExecSqlRowMeta.CheckResult.DBConnectionOK" ), transformMeta );
         remarks.add( cr );
 
         if ( sqlField != null && sqlField.length() != 0 ) {
           cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-              PKG, "ExecSQLRowMeta.CheckResult.SQLFieldNameEntered" ), transformMeta );
+              PKG, "ExecSqlRowMeta.CheckResult.SQLFieldNameEntered" ), transformMeta );
         } else {
           cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "ExecSQLRowMeta.CheckResult.SQLFieldNameMissing" ), transformMeta );
+              PKG, "ExecSqlRowMeta.CheckResult.SQLFieldNameMissing" ), transformMeta );
         }
         remarks.add( cr );
       } catch ( HopException e ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "ExecSQLRowMeta.CheckResult.ErrorOccurred" )
+            PKG, "ExecSqlRowMeta.CheckResult.ErrorOccurred" )
             + e.getMessage(), transformMeta );
         remarks.add( cr );
       } finally {
@@ -343,31 +343,31 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
     } else {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "ExecSQLRowMeta.CheckResult.ConnectionNeeded" ), transformMeta );
+          PKG, "ExecSqlRowMeta.CheckResult.ConnectionNeeded" ), transformMeta );
       remarks.add( cr );
     }
 
     if ( input.length > 0 ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "ExecSQLRowMeta.CheckResult.TransformReceivingInfoOK" ), transformMeta );
+          PKG, "ExecSqlRowMeta.CheckResult.TransformReceivingInfoOK" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "ExecSQLRowMeta.CheckResult.NoInputReceivedError" ), transformMeta );
+          PKG, "ExecSqlRowMeta.CheckResult.NoInputReceivedError" ), transformMeta );
       remarks.add( cr );
     }
 
   }
 
-  public ExecSQLRow createTransform( TransformMeta transformMeta, ExecSQLRowData data, int cnr,
+  public ExecSqlRow createTransform( TransformMeta transformMeta, ExecSqlRowData data, int cnr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecSQLRow( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+    return new ExecSqlRow( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
-  public ExecSQLRowData getTransformData() {
-    return new ExecSQLRowData();
+  public ExecSqlRowData getTransformData() {
+    return new ExecSqlRowData();
   }
 
   public DatabaseMeta[] getUsedDatabaseConnections() {
@@ -400,6 +400,6 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override
   public String getDialogClassName(){
-    return ExecSQLRowDialog.class.getName();
+    return ExecSqlRowDialog.class.getName();
   }
 }

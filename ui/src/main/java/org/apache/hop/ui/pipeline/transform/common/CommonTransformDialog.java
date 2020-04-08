@@ -105,7 +105,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   private void initListeners() {
     // define the listener for the ok button
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -327,12 +327,12 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   protected Button buildOkButton() {
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) ); //$NON-NLS-1$
-    wOK.setLayoutData( new FormDataBuilder().bottom().right(
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) ); //$NON-NLS-1$
+    wOk.setLayoutData( new FormDataBuilder().bottom().right(
       wCancel, Const.isOSX() ? 0 : -BaseDialog.LABEL_SPACING ).result() );
-    wOK.addListener( SWT.Selection, lsOK );
-    return wOK;
+    wOk.addListener( SWT.Selection, lsOk );
+    return wOk;
   }
 
   /**

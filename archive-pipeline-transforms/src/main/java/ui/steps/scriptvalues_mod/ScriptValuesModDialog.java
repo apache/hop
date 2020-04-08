@@ -511,8 +511,8 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
 
     wSash.setWeights( new int[] { 75, 25 } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wVars = new Button( shell, SWT.PUSH );
     wVars.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.GetVariables.Button" ) );
     wTest = new Button( shell, SWT.PUSH );
@@ -520,7 +520,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wVars, wTest }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wVars, wTest }, margin, null );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -539,7 +539,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
         test( true, true );
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -555,7 +555,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
     // wGet.addListener (SWT.Selection, lsGet );
     wTest.addListener( SWT.Selection, lsTest );
     wVars.addListener( SWT.Selection, lsVars );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wTree.addListener( SWT.MouseDoubleClick, lsTree );
 
     lsDef = new SelectionAdapter() {

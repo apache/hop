@@ -379,8 +379,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     refreshArgFromPrevious();
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
@@ -391,10 +391,10 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     fdBottomSeparator.right = new FormAttachment( 100, 0 );
     lBottomSeparator.setLayoutData( fdBottomSeparator );
 
-    BaseTransformDialog.positionBottomRightButtons( shell, new Button[] { wOK, wCancel }, margin, lBottomSeparator );
-    FormData fdOK = (FormData) wOK.getLayoutData();
+    BaseTransformDialog.positionBottomRightButtons( shell, new Button[] { wOk, wCancel }, margin, lBottomSeparator );
+    FormData fdOk = (FormData) wOk.getLayoutData();
     FormData fdHelpButton = new FormData();
-    fdHelpButton.top = fdOK.top;
+    fdHelpButton.top = fdOk.top;
     fdHelpButton.left = new FormAttachment( 0, margin );
     helpButton.setLayoutData( fdHelpButton );
 
@@ -402,7 +402,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wCancel.addListener( SWT.Selection, ( Event e ) -> {
       cancel();
     } );
-    wOK.addListener( SWT.Selection, ( Event e ) -> {
+    wOk.addListener( SWT.Selection, ( Event e ) -> {
       ok();
     } );
 

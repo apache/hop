@@ -355,7 +355,7 @@ public final class Wsdl implements java.io.Serializable {
 
     try {
       HTTPProtocol http = new HTTPProtocol();
-      Document doc = XmlHandler.loadXMLString( http.get( wsdlURI.toString(), username, password ), true, false );
+      Document doc = XmlHandler.loadXmlString( http.get( wsdlURI.toString(), username, password ), true, false );
       if ( doc != null ) {
         return ( wsdlReader.readWSDL( doc.getBaseURI(), doc ) );
       } else {

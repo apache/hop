@@ -777,7 +777,7 @@ public class Condition implements Cloneable, IXml {
   }
 
   public Condition( String xml ) throws HopXmlException {
-    this( XmlHandler.loadXMLString( xml, Condition.XML_TAG ) );
+    this( XmlHandler.loadXmlString( xml, Condition.XML_TAG ) );
   }
 
   /**

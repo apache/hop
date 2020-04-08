@@ -563,7 +563,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     this.metaStore = metaStore;
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XmlHandler.loadXMLFile( HopVFS.getFileObject( fname, this ) );
+      Document doc = XmlHandler.loadXmlFile( HopVFS.getFileObject( fname, this ) );
       if ( doc != null ) {
         // The jobnode
         Node jobnode = XmlHandler.getSubNode( doc, XML_TAG );
@@ -587,7 +587,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public WorkflowMeta( InputStream inputStream ) throws HopXmlException {
     this();
-    Document doc = XmlHandler.loadXMLFile( inputStream, null, false, false );
+    Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
     Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
     loadXml( subNode, null );
   }

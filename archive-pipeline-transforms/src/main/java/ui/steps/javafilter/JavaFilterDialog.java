@@ -128,12 +128,12 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setLayoutData( fdTransformName );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // /////////////////////////////////
     // START OF Settings GROUP
@@ -229,7 +229,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     fdSettingsGroup.left = new FormAttachment( 0, margin );
     fdSettingsGroup.top = new FormAttachment( wTransformName, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
-    fdSettingsGroup.bottom = new FormAttachment( wOK, -margin );
+    fdSettingsGroup.bottom = new FormAttachment( wOk, -margin );
     wSettingsGroup.setLayoutData( fdSettingsGroup );
 
     // ///////////////////////////////////////////////////////////
@@ -242,14 +242,14 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

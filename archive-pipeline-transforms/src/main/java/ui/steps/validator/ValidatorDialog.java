@@ -227,8 +227,8 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
     wTransformName.setLayoutData( fdTransformName );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wNew = new Button( shell, SWT.PUSH );
     wNew.setText( BaseMessages.getString( PKG, "ValidatorDialog.NewButton.Label" ) );
     wClear = new Button( shell, SWT.PUSH );
@@ -236,7 +236,7 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wNew, wClear, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wNew, wClear, wCancel }, margin, null );
 
     // List of fields to the left...
     //
@@ -261,7 +261,7 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
     fdFieldList.left = new FormAttachment( 0, 0 );
     fdFieldList.top = new FormAttachment( wlFieldList, margin );
     fdFieldList.right = new FormAttachment( middle, -margin );
-    fdFieldList.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdFieldList.bottom = new FormAttachment( wOk, -margin * 2 );
     wValidationsList.setLayoutData( fdFieldList );
 
     // General: an option to allow ALL the options to be checked.
@@ -314,7 +314,7 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
     fdComp.left = new FormAttachment( middle, 0 );
     fdComp.top = new FormAttachment( wConcatSeparator, 2 * margin );
     fdComp.right = new FormAttachment( 100, 0 );
-    fdComp.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdComp.bottom = new FormAttachment( wOk, -margin * 2 );
     wSComp.setLayoutData( fdComp );
 
     Composite wComp = new Composite( wSComp, SWT.BORDER );
@@ -942,14 +942,14 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wClear.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         // Clear the validation rules for a certain field...

@@ -64,8 +64,8 @@ public class EnterNumberDialog extends Dialog {
   protected Text wNumber;
   private FormData fdlNumber, fdNumber, fdlCheckbox, fdCheckbox;
 
-  protected Button wOK, wCancel, wCheckbox;
-  private Listener lsOK, lsCancel;
+  protected Button wOk, wCancel, wCheckbox;
+  private Listener lsOk, lsCancel;
   private boolean hideCancelButton;
 
   protected Shell shell;
@@ -171,8 +171,8 @@ public class EnterNumberDialog extends Dialog {
     }
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     if ( !hideCancelButton ) {
       wCancel = new Button( shell, SWT.PUSH );
       wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -180,11 +180,11 @@ public class EnterNumberDialog extends Dialog {
 
     wCancel.setLayoutData( new FormDataBuilder().top(
       lastControl, BaseDialog.ELEMENT_SPACING * 2 ).right( 100, 0 ).result() );
-    wOK.setLayoutData( new FormDataBuilder().top( lastControl, BaseDialog.ELEMENT_SPACING * 2 ).right(
+    wOk.setLayoutData( new FormDataBuilder().top( lastControl, BaseDialog.ELEMENT_SPACING * 2 ).right(
       wCancel, Const.isOSX() ? 0 : -BaseDialog.LABEL_SPACING ).result() );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -196,7 +196,7 @@ public class EnterNumberDialog extends Dialog {
         }
       };
     }
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

@@ -999,8 +999,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wMaxyear.setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.Maxyear.ToolTip" ) );
 
     // THE BOTTOM BUTTONS
-    wOK = new Button( comp, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( comp, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( comp, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.GetFields.Button" ) );
     wCreate = new Button( comp, SWT.PUSH );
@@ -1008,7 +1008,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wCancel = new Button( comp, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet, wCreate }, margin, wMaxyear );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wCreate }, margin, wMaxyear );
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment( 0, 0 );
@@ -1027,7 +1027,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     sComp.setMinHeight( bounds.height );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -1048,7 +1048,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCreate.addListener( SWT.Selection, lsCreate );
     wCancel.addListener( SWT.Selection, lsCancel );

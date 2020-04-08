@@ -237,15 +237,15 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     fdCancel.bottom = new FormAttachment( 100, 0 );
     wCancel.setLayoutData( fdCancel );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fdOk = new FormData();
     fdOk.right = new FormAttachment( wCancel, -margin );
     fdOk.bottom = new FormAttachment( 100, 0 );
-    wOK.setLayoutData( fdOk );
-    wOK.setLayoutData( fdOk );
+    wOk.setLayoutData( fdOk );
+    wOk.setLayoutData( fdOk );
 
-    //positionBottomRightButtons( shell, new Button[] { wOK, wCancel }, fdMargin, null );
+    //positionBottomRightButtons( shell, new Button[] { wOk, wCancel }, fdMargin, null );
 
     // Draw line separator
     Label hSeparator = new Label( shell, SWT.HORIZONTAL | SWT.SEPARATOR );
@@ -313,7 +313,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -321,7 +321,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       @Override

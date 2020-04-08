@@ -862,14 +862,14 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // THE BUTTONS
-    wOK = new Button( comp, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( comp, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.SQL.Button" ) );
+    wOk = new Button( comp, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( comp, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.SQL.Button" ) );
     wCancel = new Button( comp, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wSQL }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
 
     // The field Table
     wlReturn = new Label( comp, SWT.NONE );
@@ -929,7 +929,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdReturn.left = new FormAttachment( 0, 0 );
     fdReturn.top = new FormAttachment( wlReturn, margin );
     fdReturn.right = new FormAttachment( wDoMapping, -margin );
-    fdReturn.bottom = new FormAttachment( wOK, -2 * margin );
+    fdReturn.bottom = new FormAttachment( wOk, -2 * margin );
     wReturn.setLayoutData( fdReturn );
 
     FormData fdComp = new FormData();
@@ -1058,7 +1058,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -1068,7 +1068,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
         getUpdate();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         create();
       }
@@ -1079,9 +1079,9 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGetLU.addListener( SWT.Selection, lsGetLU );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

@@ -66,7 +66,7 @@ public class SlaveServerWorkflowStatusTest {
     String status = Pipeline.STRING_FINISHED;
     SlaveServerWorkflowStatus js = new SlaveServerWorkflowStatus( workflowName, id, status );
     String resultXML = js.getXml();
-    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
+    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
       SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );
@@ -85,7 +85,7 @@ public class SlaveServerWorkflowStatusTest {
     SlaveServerWorkflowStatus js = new SlaveServerWorkflowStatus( workflowName, id, status );
     js.setLogDate( logDate );
     String resultXML = js.getXml();
-    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
+    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
       SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );

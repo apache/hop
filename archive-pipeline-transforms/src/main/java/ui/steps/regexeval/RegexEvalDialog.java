@@ -650,8 +650,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wSash.setWeights( new int[] { 60, 40 } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -663,7 +663,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     };
     wbTestRegExScript.addListener( SWT.Selection, lsbTestRegExScript );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -672,7 +672,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
       }
     };
 
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -680,7 +680,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wCancel.addListener( SWT.Selection, lsCancel );
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

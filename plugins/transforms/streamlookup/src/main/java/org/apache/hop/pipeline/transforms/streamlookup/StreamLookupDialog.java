@@ -337,8 +337,8 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     // END MEMORY PRESERVE
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetFields.Button" ) );
     wGetLU = new Button( shell, SWT.PUSH );
@@ -346,10 +346,10 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet, wGetLU }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, null );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -370,7 +370,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wGetLU.addListener( SWT.Selection, lsGetLU );
     wCancel.addListener( SWT.Selection, lsCancel );

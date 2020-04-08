@@ -99,8 +99,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
   private TextVar wTablename;
   private FormData fdlTablename, fdTablename;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
   private ActionMysqlBulkLoad jobEntry;
   private Shell shell;
   private SelectionAdapter lsDef;
@@ -596,13 +596,13 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     // / END OF FilesRsult GROUP
     // ///////////////////////////////////////////////////////////
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
-    wOK.setLayoutData( fd );
+    wOk.setLayoutData( fd );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -618,14 +618,14 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

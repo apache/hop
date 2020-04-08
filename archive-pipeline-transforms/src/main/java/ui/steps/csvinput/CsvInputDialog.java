@@ -521,8 +521,8 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // Some buttons first, so that the dialog scales nicely...
     //
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wPreview = new Button( shell, SWT.PUSH );
@@ -532,7 +532,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
     wGet.setEnabled( !isReceivingInput );
 
-    setButtonPositions( new Button[] { wOK, wGet, wPreview, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wPreview, wCancel }, margin, null );
 
     // Fields
     ColumnInfo[] colinf =
@@ -591,7 +591,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );
-    fdFields.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdFields.bottom = new FormAttachment( wOk, -margin * 2 );
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     wFields.setLayoutData( fdFields );
@@ -603,7 +603,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -620,7 +620,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
     wGet.addListener( SWT.Selection, lsGet );
 

@@ -60,7 +60,7 @@ public class SelectFolderDialog extends Dialog {
 
   private Tree wTree;
   private TreeItem tiTree;
-  private Button wOK;
+  private Button wOk;
   private Button wRefresh;
   private Button wCancel;
   private String selection;
@@ -96,8 +96,8 @@ public class SelectFolderDialog extends Dialog {
     }
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wRefresh = new Button( shell, SWT.PUSH );
     wRefresh.setText( BaseMessages.getString( PKG, "System.Button.Refresh" ) );
@@ -112,7 +112,7 @@ public class SelectFolderDialog extends Dialog {
     fdTree.bottom = new FormAttachment( 100, -50 );
     wTree.setLayoutData( fdTree );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh, wCancel }, Const.MARGIN, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wRefresh, wCancel }, Const.MARGIN, null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, new Listener() {
@@ -122,7 +122,7 @@ public class SelectFolderDialog extends Dialog {
     } );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         handleOK();
       }

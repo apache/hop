@@ -164,9 +164,9 @@ public class EnterMappingDialog extends Dialog {
 
   private FormData fdDelete;
 
-  private Button wOK, wGuess, wCancel;
+  private Button wOk, wGuess, wCancel;
 
-  private Listener lsOK, lsGuess, lsCancel;
+  private Listener lsOk, lsGuess, lsCancel;
 
   private Shell shell;
 
@@ -400,15 +400,15 @@ public class EnterMappingDialog extends Dialog {
     wResult.setLayoutData( fdResult );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    lsOK = new Listener() {
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
       }
     };
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     // Some buttons
     wGuess = new Button( shell, SWT.PUSH );
@@ -431,7 +431,7 @@ public class EnterMappingDialog extends Dialog {
     };
     wCancel.addListener( SWT.Selection, lsCancel );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wGuess, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wGuess, wCancel }, margin, null );
 
     wSource.addSelectionListener( new SelectionAdapter() {
       @Override

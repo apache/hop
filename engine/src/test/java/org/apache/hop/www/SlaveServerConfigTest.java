@@ -200,7 +200,7 @@ public class SlaveServerConfigTest {
   }
 
   private Node getConfigNode( String configString ) throws HopXmlException {
-    Document document = XmlHandler.loadXMLString( configString );
+    Document document = XmlHandler.loadXmlString( configString );
     Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
     return configNode;
   }

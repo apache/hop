@@ -158,7 +158,7 @@ public class DragAndDropContainer implements IXml {
    */
   public DragAndDropContainer( String xml ) throws HopXmlException {
     try {
-      Document doc = XmlHandler.loadXMLString( xml );
+      Document doc = XmlHandler.loadXmlString( xml );
       Node dnd = XmlHandler.getSubNode( doc, XML_TAG );
 
       id = XmlHandler.getTagValue( dnd, "ID" );

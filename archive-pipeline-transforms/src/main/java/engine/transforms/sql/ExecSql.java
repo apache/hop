@@ -28,18 +28,18 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.ArrayList;
 
@@ -49,11 +49,14 @@ import java.util.ArrayList;
  * @author Matt
  * @since 10-sep-2005
  */
-public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements ITransform<ExecSQLMeta, ExecSQLData> {
+public class ExecSql extends BaseTransform implements ITransform {
+  private static Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!
 
-  private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator!!
+  private ExecSqlMeta meta;
 
-  public ExecSQL( TransformMeta transformMeta, ExecSQLMeta meta, ExecSQLData data, int copyNr, PipelineMeta pipelineMeta,
+  private ExecSqlData data;
+
+  public ExecSql( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -90,6 +93,8 @@ public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements 
 
   @Override
   public boolean processRow() throws HopException {
+    meta = (ExecSqlMeta) smi;
+    data = (ExecSqlData) sdi;
 
     if ( !meta.isExecutedEachInputRow() ) {
       RowMetaAndData resultRow =
@@ -240,7 +245,9 @@ public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements 
   }
 
   @Override
-  public void dispose(){
+  public void.dispose() {
+    meta = (ExecSqlMeta) smi;
+    data = (ExecSqlData) sdi;
 
     if ( log.isBasic() ) {
       logBasic( BaseMessages.getString( PKG, "ExecSQL.Log.FinishingReadingQuery" ) );
@@ -257,7 +264,9 @@ public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements 
    * Stop the running query
    */
   @Override
-  public void stopRunning()throws HopException {
+  public void stopRunning( ITransform smi, ITransformData sdi ) throws HopException {
+    meta = (ExecSqlMeta) smi;
+    data = (ExecSqlData) sdi;
 
     if ( data.db != null && !data.isCanceled ) {
       synchronized ( data.db ) {
@@ -268,7 +277,9 @@ public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements 
   }
 
   @Override
-  public boolean init(){
+  public boolean init() {
+    meta = (ExecSqlMeta) smi;
+    data = (ExecSqlData) sdi;
 
     if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
@@ -282,10 +293,10 @@ public class ExecSQL extends BaseTransform<ExecSQLMeta, ExecSQLData> implements 
       try {
         if ( getPipelineMeta().isUsingUniqueConnections() ) {
           synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
+            data.db.connect( getPipeline().getTransactionId(), getPartitionID() );
           }
         } else {
-          data.db.connect( getPartitionId() );
+          data.db.connect( getPartitionID() );
         }
 
         if ( log.isDetailed() ) {

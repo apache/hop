@@ -155,7 +155,7 @@ public class SQLStatementsDialog extends Dialog {
     wClose.setLayoutData( fdClose );
 
     wView = new Button( shell, SWT.PUSH );
-    wView.setText( BaseMessages.getString( PKG, "SQLStatementDialog.Button.ViewSQL" ) );
+    wView.setText( BaseMessages.getString( PKG, "SQLStatementDialog.Button.ViewSql" ) );
     fdView = new FormData();
     fdView.left = new FormAttachment( wClose, margin );
     fdView.bottom = new FormAttachment( 100, 0 );
@@ -304,8 +304,8 @@ public class SQLStatementsDialog extends Dialog {
     String sql = getSql();
     EnterTextDialog etd =
       new EnterTextDialog(
-        shell, BaseMessages.getString( PKG, "SQLStatementDialog.ViewSQL.Title" ), BaseMessages.getString(
-        PKG, "SQLStatementDialog.ViewSQL.Message" ), sql, true );
+        shell, BaseMessages.getString( PKG, "SQLStatementDialog.ViewSql.Title" ), BaseMessages.getString(
+        PKG, "SQLStatementDialog.ViewSql.Message" ), sql, true );
     etd.setReadOnly();
     etd.open();
   }

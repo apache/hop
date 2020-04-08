@@ -66,7 +66,7 @@ public class WorkflowConfiguration {
   }
 
   public static final WorkflowConfiguration fromXML( String xml ) throws HopException {
-    Document document = XmlHandler.loadXMLString( xml );
+    Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new WorkflowConfiguration( configNode );
   }

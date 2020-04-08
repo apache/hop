@@ -184,14 +184,14 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
     new Thread( runnable ).start();
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet }, margin, wFields );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, wFields );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -204,7 +204,7 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
         get();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -212,7 +212,7 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wGet.addListener( SWT.Selection, lsGet );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -74,8 +74,8 @@ public class EnterSelectionDialog extends Dialog {
   private TextVar wConstantValue;
   private Button wbUseConstant;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
 
@@ -274,20 +274,20 @@ public class EnterSelectionDialog extends Dialog {
     }
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
+    wOk = new Button( shell, SWT.PUSH );
     if ( viewOnly ) {
-      wOK.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
+      wOk.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
     } else {
-      wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+      wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     }
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
-    Button[] buttons = new Button[] { wOK };
+    Button[] buttons = new Button[] { wOk };
 
     if ( !viewOnly ) {
       wCancel = new Button( shell, SWT.PUSH );
@@ -299,12 +299,12 @@ public class EnterSelectionDialog extends Dialog {
       };
       wCancel.addListener( SWT.Selection, lsCancel );
 
-      buttons = new Button[] { wOK, wCancel };
+      buttons = new Button[] { wOk, wCancel };
     }
 
     BaseTransformDialog.positionBottomRightButtons( shell, buttons, margin, null );
 
-    Control nextControl = wOK;
+    Control nextControl = wOk;
 
     if ( constant != null ) {
       wConstantValue = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -314,7 +314,7 @@ public class EnterSelectionDialog extends Dialog {
       props.setLook( wConstantValue );
       FormData fdConstantValue = new FormData();
       fdConstantValue.left = new FormAttachment( 0, 0 );
-      fdConstantValue.bottom = new FormAttachment( wOK, -10 );
+      fdConstantValue.bottom = new FormAttachment( wOk, -10 );
       fdConstantValue.right = new FormAttachment( 100, 0 );
       wConstantValue.setLayoutData( fdConstantValue );
 
@@ -374,7 +374,7 @@ public class EnterSelectionDialog extends Dialog {
       shell.setSize( shellWidth, shellHeight );
     }
 
-    wOK.setFocus();
+    wOk.setFocus();
 
     shell.open();
 
@@ -480,21 +480,21 @@ public class EnterSelectionDialog extends Dialog {
     };
     wCancel.addListener( SWT.Selection, lsCancel );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    FormData fd_wOK = new FormData();
-    fd_wOK.top = new FormAttachment( separator, 12 );
-    fd_wOK.right = new FormAttachment( wCancel, -5 );
-    fd_wOK.bottom = new FormAttachment( 100, -10 );
-    fd_wOK.width = width;
-    wOK.setLayoutData( fd_wOK );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    FormData fd_wOk = new FormData();
+    fd_wOk.top = new FormAttachment( separator, 12 );
+    fd_wOk.right = new FormAttachment( wCancel, -5 );
+    fd_wOk.bottom = new FormAttachment( 100, -10 );
+    fd_wOk.width = width;
+    wOk.setLayoutData( fd_wOk );
 
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     fdSelection = new FormData();
     fdSelection.left = new FormAttachment( 0, 10 );
@@ -528,7 +528,7 @@ public class EnterSelectionDialog extends Dialog {
 
     BaseTransformDialog.setSize( shell );
 
-    wOK.setFocus();
+    wOk.setFocus();
     shell.pack();
     shell.open();
 

@@ -255,7 +255,7 @@ public abstract class BasePluginType implements IPluginType {
    * @throws HopXmlException
    */
   protected void registerPlugins( InputStream inputStream ) throws HopPluginException, HopXmlException {
-    Document document = XmlHandler.loadXMLFile( inputStream, null, true, false );
+    Document document = XmlHandler.loadXmlFile( inputStream, null, true, false );
 
     Node repsNode = XmlHandler.getSubNode( document, getMainTag() );
     List<Node> repsNodes = XmlHandler.getNodes( repsNode, getSubTag() );
@@ -660,7 +660,7 @@ public abstract class BasePluginType implements IPluginType {
       if ( dependenciesFile.exists() ) {
         // Add the files in the dependencies folders to the classpath...
         //
-        Document document = XmlHandler.loadXMLFile( dependenciesFile );
+        Document document = XmlHandler.loadXmlFile( dependenciesFile );
         Node dependenciesNode = XmlHandler.getSubNode( document, "dependencies" );
         List<Node> folderNodes = XmlHandler.getNodes( dependenciesNode, "folder" );
         for ( Node folderNode : folderNodes ) {

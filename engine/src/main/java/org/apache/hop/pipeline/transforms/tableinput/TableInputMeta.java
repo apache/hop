@@ -214,19 +214,19 @@ public class TableInputMeta
     super.databases = new Database[] { db }; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
-    String sNewSQL = sql;
+    String sNewSql = sql;
     if ( isVariableReplacementActive() ) {
-      sNewSQL = db.environmentSubstitute( sql );
+      sNewSql = db.environmentSubstitute( sql );
       if ( variables != null ) {
-        sNewSQL = variables.environmentSubstitute( sNewSQL );
+        sNewSql = variables.environmentSubstitute( sNewSql );
       }
     }
 
     IRowMeta add = null;
     try {
-      add = db.getQueryFields( sNewSQL, param );
+      add = db.getQueryFields( sNewSql, param );
     } catch ( HopDatabaseException dbe ) {
-      throw new HopTransformException( "Unable to get queryfields for SQL: " + Const.CR + sNewSQL, dbe );
+      throw new HopTransformException( "Unable to get queryfields for SQL: " + Const.CR + sNewSql, dbe );
     }
 
     if ( add != null ) {
@@ -251,7 +251,7 @@ public class TableInputMeta
           }
         }
 
-        add = db.getQueryFields( sNewSQL, param, paramRowMeta, paramData );
+        add = db.getQueryFields( sNewSql, param, paramRowMeta, paramData );
 
         if ( add == null ) {
           return;
@@ -262,7 +262,7 @@ public class TableInputMeta
         }
         row.addRowMeta( add );
       } catch ( HopException ke ) {
-        throw new HopTransformException( "Unable to get queryfields for SQL: " + Const.CR + sNewSQL, ke );
+        throw new HopTransformException( "Unable to get queryfields for SQL: " + Const.CR + sNewSql, ke );
       } finally {
         db.disconnect();
       }

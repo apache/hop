@@ -136,13 +136,13 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     }
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    fdOK = new FormData();
+    fdOk = new FormData();
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -150,14 +150,14 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -181,10 +181,10 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     partitioningMeta.hasChanged( changed );
 
     setSize();
-    wOK.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
+    wOk.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
     ModifyListener modifyListener = new ModifyListener() {
       @Override public void modifyText( ModifyEvent modifyEvent ) {
-        wOK.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
+        wOk.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
       }
     };
     wFieldname.addModifyListener( modifyListener );

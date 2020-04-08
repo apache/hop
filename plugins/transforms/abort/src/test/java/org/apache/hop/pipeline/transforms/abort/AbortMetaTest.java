@@ -81,7 +81,7 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "    <abort_with_error>Y</abort_with_error>\n"
       + "  </transform>";
-    Node node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    Node node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
     meta.loadXml( node, metaStore );
     assertTrue( meta.isAbortWithError() );
 
@@ -91,7 +91,7 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "    <abort_with_error>N</abort_with_error>\n"
       + "  </transform>";
-    node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
     meta.loadXml( node, metaStore );
     assertTrue( meta.isAbort() );
 
@@ -100,7 +100,7 @@ public class AbortMetaTest {
       + "    <name>Abort</name>\n"
       + "    <type>Abort</type>\n"
       + "  </transform>";
-    node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
     meta.loadXml( node, metaStore );
     assertTrue( meta.isAbortWithError() );
   }

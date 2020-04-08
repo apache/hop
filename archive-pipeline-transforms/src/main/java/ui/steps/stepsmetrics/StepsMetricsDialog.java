@@ -185,14 +185,14 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     // Get the previous transforms...
     setTransformNames();
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "TransformsMetricsDialog.getTransforms.Label" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wGet, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Table with fields
     wlFields = new Label( wGeneralComp, SWT.NONE );
@@ -459,14 +459,14 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
         get();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
 
     lsDef = new SelectionAdapter() {

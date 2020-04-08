@@ -108,7 +108,7 @@ public class RowMetaTest {
     try ( InputStream in = RowMetaTest.class.getResourceAsStream( "rowMetaNode.xml" ) ) {
       testXmlNode = IOUtils.toString( in );
     }
-    Document xmlDoc = XmlHandler.loadXMLString( testXmlNode );
+    Document xmlDoc = XmlHandler.loadXmlString( testXmlNode );
     RowMeta rowMeta = spy( new RowMeta( xmlDoc.getFirstChild() ) );
     assertEquals( 2, rowMeta.getValueMetaList().size() );
     IValueMeta valueMeta = rowMeta.getValueMeta( 0 );

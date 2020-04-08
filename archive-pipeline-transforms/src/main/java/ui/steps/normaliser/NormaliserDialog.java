@@ -161,14 +161,14 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     fdlFields.top = new FormAttachment( wTypefield, margin );
     wlFields.setLayoutData( fdlFields );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "NormaliserDialog.GetFields.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
     final int fieldsCols = 3;
     final int fieldsRows = input.getNormaliserFields().length;
@@ -194,7 +194,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( wOK, -2 * margin );
+    fdFields.bottom = new FormAttachment( wOk, -2 * margin );
     wFields.setLayoutData( fdFields );
 
     //
@@ -221,7 +221,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -237,7 +237,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wCancel.addListener( SWT.Selection, lsCancel );
 

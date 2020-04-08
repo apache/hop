@@ -68,9 +68,9 @@ public class PipelineHopDialog extends Dialog {
   private Button wEnabled;
   private FormData fdlEnabled, fdEnabled;
 
-  private Button wOK, wCancel;
-  private FormData fdOK, fdCancel;
-  private Listener lsOK, lsCancel, lsFlip;
+  private Button wOk, wCancel;
+  private FormData fdOk, fdCancel;
+  private Listener lsOk, lsCancel, lsFlip;
 
   private PipelineHopMeta input;
   private Shell shell;
@@ -194,10 +194,10 @@ public class PipelineHopDialog extends Dialog {
     wFlip.setLayoutData( fdFlip );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.pack( true );
-    Rectangle rOK = wOK.getBounds();
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.pack( true );
+    Rectangle rOK = wOk.getBounds();
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -207,12 +207,12 @@ public class PipelineHopDialog extends Dialog {
     width = ( rOK.width > rCancel.width ? rOK.width : rCancel.width );
     width += margin;
 
-    fdOK = new FormData();
-    fdOK.top = new FormAttachment( wFlip, margin * 5 );
-    fdOK.left = new FormAttachment( 50, -width );
-    fdOK.right = new FormAttachment( 50, -( margin / 2 ) );
-    // fdOK.bottom = new FormAttachment(100, 0);
-    wOK.setLayoutData( fdOK );
+    fdOk = new FormData();
+    fdOk.top = new FormAttachment( wFlip, margin * 5 );
+    fdOk.left = new FormAttachment( 50, -width );
+    fdOk.right = new FormAttachment( 50, -( margin / 2 ) );
+    // fdOk.bottom = new FormAttachment(100, 0);
+    wOk.setLayoutData( fdOk );
 
     fdCancel = new FormData();
     fdCancel.top = new FormAttachment( wFlip, margin * 5 );
@@ -227,7 +227,7 @@ public class PipelineHopDialog extends Dialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -238,7 +238,7 @@ public class PipelineHopDialog extends Dialog {
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
     wFlip.addListener( SWT.Selection, lsFlip );
 

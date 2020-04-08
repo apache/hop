@@ -129,17 +129,17 @@ public class BaseTransformDialog extends Dialog {
   /**
    * Common dialog buttons.
    */
-  protected Button wOK, wGet, wPreview, wSQL, wCreate, wCancel;
+  protected Button wOk, wGet, wPreview, wSql, wCreate, wCancel;
 
   /**
    * FormData for the common dialog buttons.
    */
-  protected FormData fdOK, fdGet, fdPreview, fdSQL, fdCreate, fdCancel;
+  protected FormData fdOk, fdGet, fdPreview, fdSQL, fdCreate, fdCancel;
 
   /**
    * Listeners for the common dialog buttons.
    */
-  protected Listener lsOK, lsGet, lsPreview, lsSQL, lsCreate, lsCancel;
+  protected Listener lsOk, lsGet, lsPreview, lsSql, lsCreate, lsCancel;
 
   /**
    * The metadata for the associated pipeline.

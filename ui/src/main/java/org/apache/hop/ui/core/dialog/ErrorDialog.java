@@ -69,7 +69,7 @@ public class ErrorDialog extends Dialog {
   private Text wDesc;
   private FormData fdlDesc, fdDesc;
 
-  private Button wOK, wDetails, wCancel;
+  private Button wOk, wDetails, wCancel;
 
   private Shell shell;
   private SelectionAdapter lsDef;
@@ -168,8 +168,8 @@ public class ErrorDialog extends Dialog {
     wDesc.setLayoutData( fdDesc );
     wDesc.setEditable( false );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     if ( showCancelButton ) {
       wCancel = new Button( shell, SWT.PUSH );
       wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -179,15 +179,15 @@ public class ErrorDialog extends Dialog {
 
     Button[] buttons;
     if ( showCancelButton ) {
-      buttons = new Button[] { wOK, wCancel, wDetails, };
+      buttons = new Button[] { wOk, wCancel, wDetails, };
     } else {
-      buttons = new Button[] { wOK, wDetails, };
+      buttons = new Button[] { wOk, wDetails, };
     }
 
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -227,7 +227,7 @@ public class ErrorDialog extends Dialog {
     BaseTransformDialog.setSize( shell );
 
     // Set the focus on the "OK" button
-    wOK.setFocus();
+    wOk.setFocus();
 
     shell.open();
     while ( !shell.isDisposed() ) {

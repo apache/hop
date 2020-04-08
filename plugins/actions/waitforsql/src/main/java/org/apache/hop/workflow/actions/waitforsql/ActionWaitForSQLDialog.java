@@ -97,9 +97,9 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Button wOK, wCancel;
+  private Button wOk, wCancel;
 
-  private Listener lsOK, lsCancel, lsbSQLTable;
+  private Listener lsOk, lsCancel, lsbSQLTable;
 
   private ActionWaitForSQL jobEntry;
 
@@ -131,7 +131,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
 
   private Label wlSQL;
 
-  private StyledTextComp wSQL;
+  private StyledTextComp wSql;
 
   private Label wlPosition;
 
@@ -209,13 +209,13 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
-    wOK.setLayoutData( fd );
+    wOk.setLayoutData( fd );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -225,7 +225,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     fd.width = 100;
     wCancel.setLayoutData( fd );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );
@@ -540,7 +540,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.right = new FormAttachment( 100, 0 );
-    // fdlPosition.top= new FormAttachment(wSQL , 0);
+    // fdlPosition.top= new FormAttachment(wSql , 0);
     fdlPosition.bottom = new FormAttachment( 100, -margin );
     wlPosition.setLayoutData( fdlPosition );
 
@@ -561,26 +561,26 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     fdbSQLTable.top = new FormAttachment( wAddRowsToResult, margin );
     wbSQLTable.setLayoutData( fdbSQLTable );
 
-    wSQL =
+    wSql =
       new StyledTextComp( jobEntry, wCustomGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
-    props.setLook( wSQL, Props.WIDGET_STYLE_FIXED );
-    wSQL.addModifyListener( lsMod );
+    props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
+    wSql.addModifyListener( lsMod );
     fdSQL = new FormData();
     fdSQL.left = new FormAttachment( 0, 0 );
     fdSQL.top = new FormAttachment( wbSQLTable, margin );
     fdSQL.right = new FormAttachment( 100, -10 );
     fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSQL.setLayoutData( fdSQL );
+    wSql.setLayoutData( fdSQL );
 
-    wSQL.addModifyListener( new ModifyListener() {
+    wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setPosition();
       }
 
     } );
 
-    wSQL.addKeyListener( new KeyAdapter() {
+    wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
         setPosition();
       }
@@ -589,7 +589,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
         setPosition();
       }
     } );
-    wSQL.addFocusListener( new FocusAdapter() {
+    wSql.addFocusListener( new FocusAdapter() {
       public void focusGained( FocusEvent e ) {
         setPosition();
       }
@@ -598,7 +598,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
         setPosition();
       }
     } );
-    wSQL.addMouseListener( new MouseAdapter() {
+    wSql.addMouseListener( new MouseAdapter() {
       public void mouseDoubleClick( MouseEvent e ) {
         setPosition();
       }
@@ -611,16 +611,16 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
         setPosition();
       }
     } );
-    wSQL.addModifyListener( lsMod );
+    wSql.addModifyListener( lsMod );
 
     // Text Higlighting
-    wSQL.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SQLValuesHighlight() );
 
     fdCustomGroup = new FormData();
     fdCustomGroup.left = new FormAttachment( 0, margin );
     fdCustomGroup.top = new FormAttachment( wSuccessGroup, margin );
     fdCustomGroup.right = new FormAttachment( 100, -margin );
-    fdCustomGroup.bottom = new FormAttachment( wOK, -margin );
+    fdCustomGroup.bottom = new FormAttachment( wOk, -margin );
     wCustomGroup.setLayoutData( fdCustomGroup );
     // ///////////////////////////////////////////////////////////
     // / END OF CustomGroup GROUP
@@ -632,7 +632,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -644,7 +644,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -685,7 +685,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
           "SELECT *"
             + Const.CR + "FROM "
             + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() ) + Const.CR;
-        wSQL.setText( sql );
+        wSql.setText( sql );
 
         MessageBox yn = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
         yn.setMessage( BaseMessages.getString( PKG, "ActionWaitForSQL.IncludeFieldNamesInSQL" ) );
@@ -695,7 +695,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
           case SWT.CANCEL:
             break;
           case SWT.NO:
-            wSQL.setText( sql );
+            wSql.setText( sql );
             break;
           case SWT.YES:
             Database db = new Database( loggingObject, inf );
@@ -717,7 +717,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
                   "FROM "
                     + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() )
                     + Const.CR;
-                wSQL.setText( sql );
+                wSql.setText( sql );
               } else {
                 MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
                 mb.setMessage( BaseMessages.getString( PKG, "ActionWaitForSQL.ERROR_CouldNotRetrieveFields" )
@@ -750,9 +750,9 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
 
   public void setPosition() {
 
-    String scr = wSQL.getText();
-    int linenr = wSQL.getLineAtOffset( wSQL.getCaretOffset() ) + 1;
-    int posnr = wSQL.getCaretOffset();
+    String scr = wSql.getText();
+    int linenr = wSql.getLineAtOffset( wSql.getCaretOffset() ) + 1;
+    int posnr = wSql.getCaretOffset();
 
     // Go back from position to last CR: how many positions?
     int colnr = 0;
@@ -769,7 +769,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wlClearResultList.setEnabled( wcustomSQL.getSelection() );
     wClearResultList.setEnabled( wcustomSQL.getSelection() );
     wlSQL.setEnabled( wcustomSQL.getSelection() );
-    wSQL.setEnabled( wcustomSQL.getSelection() );
+    wSql.setEnabled( wcustomSQL.getSelection() );
     wlAddRowsToResult.setEnabled( wcustomSQL.getSelection() );
     wAddRowsToResult.setEnabled( wcustomSQL.getSelection() );
     wlUseSubs.setEnabled( wcustomSQL.getSelection() );
@@ -807,7 +807,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wUseSubs.setSelection( jobEntry.isUseVars );
     wAddRowsToResult.setSelection( jobEntry.isAddRowsResult );
     wClearResultList.setSelection( jobEntry.isClearResultList );
-    wSQL.setText( Const.nullToEmpty( jobEntry.customSQL ) );
+    wSql.setText( Const.nullToEmpty( jobEntry.customSQL ) );
     wMaximumTimeout.setText( Const.NVL( jobEntry.getMaximumTimeout(), "" ) );
     wCheckCycleTime.setText( Const.NVL( jobEntry.getCheckCycleTime(), "" ) );
     wSuccesOnTimeout.setSelection( jobEntry.isSuccessOnTimeout() );
@@ -841,7 +841,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     jobEntry.isUseVars = wUseSubs.getSelection();
     jobEntry.isAddRowsResult = wAddRowsToResult.getSelection();
     jobEntry.isClearResultList = wClearResultList.getSelection();
-    jobEntry.customSQL = wSQL.getText();
+    jobEntry.customSQL = wSql.getText();
     jobEntry.setMaximumTimeout( wMaximumTimeout.getText() );
     jobEntry.setCheckCycleTime( wCheckCycleTime.getText() );
     jobEntry.setSuccessOnTimeout( wSuccesOnTimeout.getSelection() );

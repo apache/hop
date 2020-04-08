@@ -66,7 +66,7 @@ public class PipelineConfiguration {
   }
 
   public static final PipelineConfiguration fromXML( String xml ) throws HopException {
-    Document document = XmlHandler.loadXMLString( xml );
+    Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new PipelineConfiguration( configNode );
   }

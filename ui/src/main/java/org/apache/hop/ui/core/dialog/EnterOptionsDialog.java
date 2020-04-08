@@ -199,18 +199,18 @@ public class EnterOptionsDialog extends Dialog {
     addLookTab();
 
     // Some buttons
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOK, -margin );
+    fdTabFolder.bottom = new FormAttachment( wOk, -margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     // ///////////////////////////////////////////////////////////
@@ -223,13 +223,13 @@ public class EnterOptionsDialog extends Dialog {
         cancel();
       }
     };
-    Listener lsOK = new Listener() {
+    Listener lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     SelectionAdapter lsDef = new SelectionAdapter() {

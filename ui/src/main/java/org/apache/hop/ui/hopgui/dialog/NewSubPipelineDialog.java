@@ -55,8 +55,8 @@ public class NewSubPipelineDialog extends Dialog {
   private Label wlInfo, wiInfo;
   private FormData fdlInfo, fdiInfo, fdShowButton;
 
-  private Button wOK;
-  private Listener lsOK;
+  private Button wOk;
+  private Listener lsOk;
 
   private Shell shell;
   private PropsUI props;
@@ -113,21 +113,21 @@ public class NewSubPipelineDialog extends Dialog {
     fdShowButton.top = new FormAttachment( wlInfo, 15, SWT.BOTTOM );
     wShow.setLayoutData( fdShowButton );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     FormData fdOk = new FormData();
     fdOk.right = new FormAttachment( 100, 0 );
     fdOk.top = new FormAttachment( wShow, 30, SWT.BOTTOM );
-    wOK.setLayoutData( fdOk );
+    wOk.setLayoutData( fdOk );
 
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         close();
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

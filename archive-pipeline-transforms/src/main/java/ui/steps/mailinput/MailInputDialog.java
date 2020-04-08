@@ -1216,15 +1216,15 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "MailInputDialog.Preview" ) );
 
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wPreview, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
     lsGet = new Listener() {
       public void handleEvent( Event e ) {
         getFields();
@@ -1236,7 +1236,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -1247,7 +1247,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
       }
     };
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

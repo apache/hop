@@ -41,9 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExecSQLMetaTest implements IInitializerInterface<ITransformMeta> {
+public class ExecSqlMetaTest implements IInitializerInterface<ITransformMeta> {
   LoadSaveTester loadSaveTester;
-  Class<ExecSQLMeta> testMetaClass = ExecSQLMeta.class;
+  Class<ExecSqlMeta> testMetaClass = ExecSqlMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
@@ -77,8 +77,8 @@ public class ExecSQLMetaTest implements IInitializerInterface<ITransformMeta> {
   // Call the allocate method on the LoadSaveTester meta class
   @Override
   public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof ExecSQLMeta ) {
-      ( (ExecSQLMeta) someMeta ).allocate( 5 );
+    if ( someMeta instanceof ExecSqlMeta ) {
+      ( (ExecSqlMeta) someMeta ).allocate( 5 );
     }
   }
 

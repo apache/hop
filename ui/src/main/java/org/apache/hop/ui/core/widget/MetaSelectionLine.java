@@ -440,9 +440,9 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     fdConnection.right = new FormAttachment( 100, 0 );
     wConnection.setLayoutData( fdConnection );
 
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( "Owkeej" );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK }, PropsUI.getInstance().getMargin(), wConnection );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( "Owkeej" );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk }, PropsUI.getInstance().getMargin(), wConnection );
 
     BaseTransformDialog.setSize( shell );
 

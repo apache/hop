@@ -38,12 +38,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ExecSQLMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLMeta> {
+public class ExecSqlMetaInjectionTest extends BaseMetadataInjectionTest<ExecSqlMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() throws Exception {
-    setup( new ExecSQLMeta() );
+    setup( new ExecSqlMeta() );
   }
 
   @Test

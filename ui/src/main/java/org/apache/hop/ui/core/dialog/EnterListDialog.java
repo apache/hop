@@ -80,7 +80,7 @@ public class EnterListDialog extends Dialog {
   private Shell shell;
   private List wListSource, wListDest;
   private Label wlListSource, wlListDest;
-  private Button wOK;
+  private Button wOk;
   private Button wCancel;
 
   private Button wAddOne, wAddAll, wRemoveAll, wRemoveOne;
@@ -269,20 +269,20 @@ public class EnterListDialog extends Dialog {
     // THE BOTTOM BUTTONS...
     // //////////////////////////////////////////////////////////////
 
-    wOK = new Button( bottom, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( bottom, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( bottom, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    FormData fdOK = new FormData();
+    FormData fdOk = new FormData();
     FormData fdCancel = new FormData();
 
-    fdOK.left = new FormAttachment( 35, 0 );
-    fdOK.bottom = new FormAttachment( 100, 0 );
-    wOK.setLayoutData( fdOK );
+    fdOk.left = new FormAttachment( 35, 0 );
+    fdOk.bottom = new FormAttachment( 100, 0 );
+    wOk.setLayoutData( fdOk );
 
-    fdCancel.left = new FormAttachment( wOK, 10 );
+    fdCancel.left = new FormAttachment( wOk, 10 );
     fdCancel.bottom = new FormAttachment( 100, 0 );
     wCancel.setLayoutData( fdCancel );
 
@@ -294,7 +294,7 @@ public class EnterListDialog extends Dialog {
     } );
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         handleOK();
       }

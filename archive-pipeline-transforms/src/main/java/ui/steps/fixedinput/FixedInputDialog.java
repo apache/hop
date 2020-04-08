@@ -393,8 +393,8 @@ public class FixedInputDialog extends BaseTransformDialog implements ITransformD
 
     // Some buttons first, so that the dialog scales nicely...
     //
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "System.Button.Preview" ) );
     wGet = new Button( shell, SWT.PUSH );
@@ -402,7 +402,7 @@ public class FixedInputDialog extends BaseTransformDialog implements ITransformD
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wGet, wPreview, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wPreview, wCancel }, margin, null );
 
     // Fields
     ColumnInfo[] colinf =
@@ -464,7 +464,7 @@ public class FixedInputDialog extends BaseTransformDialog implements ITransformD
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );
-    fdFields.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdFields.bottom = new FormAttachment( wOk, -margin * 2 );
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     wFields.setLayoutData( fdFields );
@@ -475,7 +475,7 @@ public class FixedInputDialog extends BaseTransformDialog implements ITransformD
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -492,7 +492,7 @@ public class FixedInputDialog extends BaseTransformDialog implements ITransformD
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
     wGet.addListener( SWT.Selection, lsGet );
 

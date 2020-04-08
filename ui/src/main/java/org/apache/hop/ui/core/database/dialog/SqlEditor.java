@@ -77,8 +77,8 @@ import java.util.List;
  * @author Matt
  * @since 13-10-2003
  */
-public class SQLEditor {
-  private static Class<?> PKG = SQLEditor.class; // for i18n purposes, needed by Translator!!
+public class SqlEditor {
+  private static Class<?> PKG = SqlEditor.class; // for i18n purposes, needed by Translator!!
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Editor", LoggingObjectType.HOPUI, null );
@@ -110,11 +110,11 @@ public class SQLEditor {
 
   private SQLValuesHighlight highlight;
 
-  public SQLEditor( Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
+  public SqlEditor( Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
     this( null, parent, style, ci, dbc, sql );
   }
 
-  public SQLEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
+  public SqlEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
     props = PropsUI.getInstance();
     log = new LogChannel( ci );
     input = sql;

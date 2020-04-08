@@ -47,13 +47,13 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @author Matt
  * @since 10-sep-2005
  */
-public class ExecSQLRow extends BaseTransform implements ITransform {
-  private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator!!
+public class ExecSqlRow extends BaseTransform implements ITransform {
+  private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ExecSQLRowMeta meta;
-  private ExecSQLRowData data;
+  private ExecSqlRowMeta meta;
+  private ExecSqlRowData data;
 
-  public ExecSQLRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public ExecSqlRow( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -90,8 +90,8 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
 
   @Override
   public boolean processRow() throws HopException {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+    meta = (ExecSqlRowMeta) smi;
+    data = (ExecSqlRowData) sdi;
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -112,7 +112,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
 
       // Check is SQL field is provided
       if ( Utils.isEmpty( meta.getSqlFieldName() ) ) {
-        throw new HopException( BaseMessages.getString( PKG, "ExecSQLRow.Error.SQLFieldFieldMissing" ) );
+        throw new HopException( BaseMessages.getString( PKG, "ExecSqlRow.Error.SQLFieldFieldMissing" ) );
       }
 
       // cache the position of the field
@@ -120,7 +120,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
         data.indexOfSQLFieldname = this.getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
         if ( data.indexOfSQLFieldname < 0 ) {
           // The field is unreachable !
-          throw new HopException( BaseMessages.getString( PKG, "ExecSQLRow.Exception.CouldnotFindField", meta
+          throw new HopException( BaseMessages.getString( PKG, "ExecSqlRow.Exception.CouldnotFindField", meta
             .getSqlFieldName() ) );
         }
       }
@@ -134,15 +134,15 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
       if ( meta.isSqlFromfile() ) {
         if ( Utils.isEmpty( sql ) ) {
           // empty filename
-          throw new HopException( BaseMessages.getString( PKG, "ExecSQLRow.Log.EmptySQLFromFile" ) );
+          throw new HopException( BaseMessages.getString( PKG, "ExecSqlRow.Log.EmptySQLFromFile" ) );
         }
         if ( log.isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "ExecSQLRow.Log.ExecutingSQLFromFile", sql ) );
+          logDebug( BaseMessages.getString( PKG, "ExecSqlRow.Log.ExecutingSQLFromFile", sql ) );
         }
         data.result = data.db.execStatementsFromFile( sql, meta.IsSendOneStatement() );
       } else {
         if ( log.isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "ExecSQLRow.Log.ExecutingSQLScript" ) + Const.CR + sql );
+          logDebug( BaseMessages.getString( PKG, "ExecSqlRow.Log.ExecutingSQLScript" ) + Const.CR + sql );
         }
         if ( meta.IsSendOneStatement() ) {
           data.result = data.db.execStatement( sql );
@@ -170,7 +170,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
 
       if ( checkFeedback( getLinesWritten() ) ) {
         if ( log.isBasic() ) {
-          logBasic( BaseMessages.getString( PKG, "ExecSQLRow.Log.LineNumber" ) + getLinesWritten() );
+          logBasic( BaseMessages.getString( PKG, "ExecSqlRow.Log.LineNumber" ) + getLinesWritten() );
         }
       }
     } catch ( HopException e ) {
@@ -178,7 +178,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "ExecSQLRow.Log.ErrorInTransform" ) + e.getMessage() );
+        logError( BaseMessages.getString( PKG, "ExecSqlRow.Log.ErrorInTransform" ) + e.getMessage() );
         setErrors( 1 );
         stopAll();
         setOutputDone(); // signal end to receiver(s)
@@ -186,7 +186,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
       }
       if ( sendToErrorRow ) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), row, 1, errorMessage, null, "ExecSQLRow001" );
+        putError( getInputRowMeta(), row, 1, errorMessage, null, "ExecSqlRow001" );
       }
     }
     return true;
@@ -194,11 +194,11 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
 
   @Override
   public void.dispose() {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+    meta = (ExecSqlRowMeta) smi;
+    data = (ExecSqlRowData) sdi;
 
     if ( log.isBasic() ) {
-      logBasic( BaseMessages.getString( PKG, "ExecSQLRow.Log.FinishingReadingQuery" ) );
+      logBasic( BaseMessages.getString( PKG, "ExecSqlRow.Log.FinishingReadingQuery" ) );
     }
 
     if ( data.db != null ) {
@@ -227,8 +227,8 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
    */
   @Override
   public void stopRunning( ITransform smi, ITransformData sdi ) throws HopException {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+    meta = (ExecSqlRowMeta) smi;
+    data = (ExecSqlRowData) sdi;
 
     if ( data.db != null ) {
       data.db.cancelQuery();
@@ -237,12 +237,12 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
 
   @Override
   public boolean init() {
-    meta = (ExecSQLRowMeta) smi;
-    data = (ExecSQLRowData) sdi;
+    meta = (ExecSqlRowMeta) smi;
+    data = (ExecSqlRowData) sdi;
 
     if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
-        logError( BaseMessages.getString( PKG, "ExecSQLRow.Init.ConnectionMissing", getTransformName() ) );
+        logError( BaseMessages.getString( PKG, "ExecSqlRow.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
@@ -259,7 +259,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
         }
 
         if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ExecSQLRow.Log.ConnectedToDB" ) );
+          logDetailed( BaseMessages.getString( PKG, "ExecSqlRow.Log.ConnectedToDB" ) );
         }
 
         if ( meta.getCommitSize() >= 1 ) {
@@ -267,7 +267,7 @@ public class ExecSQLRow extends BaseTransform implements ITransform {
         }
         return true;
       } catch ( HopException e ) {
-        logError( BaseMessages.getString( PKG, "ExecSQLRow.Log.ErrorOccurred" ) + e.getMessage() );
+        logError( BaseMessages.getString( PKG, "ExecSqlRow.Log.ErrorOccurred" ) + e.getMessage() );
         setErrors( 1 );
         stopAll();
       }

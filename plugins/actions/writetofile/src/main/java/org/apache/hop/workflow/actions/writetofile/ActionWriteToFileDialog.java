@@ -110,8 +110,8 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
   private Text wContent;
   private FormData fdlContent, fdContent;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionWriteToFile jobEntry;
   private Shell shell;
@@ -173,12 +173,12 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // ////////////////////////
     // START OF File GROUP
@@ -359,7 +359,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     fdContentGroup.left = new FormAttachment( 0, margin );
     fdContentGroup.top = new FormAttachment( wFileGroup, margin );
     fdContentGroup.right = new FormAttachment( 100, -margin );
-    fdContentGroup.bottom = new FormAttachment( wOK, -margin );
+    fdContentGroup.bottom = new FormAttachment( wOk, -margin );
     wContentGroup.setLayoutData( fdContentGroup );
 
     // ///////////////////////////////////////////////////////////
@@ -372,14 +372,14 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

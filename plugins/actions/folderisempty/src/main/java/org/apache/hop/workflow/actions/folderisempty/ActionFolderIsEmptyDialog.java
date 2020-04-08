@@ -91,8 +91,8 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
   private TextVar wWildcard;
   private FormData fdlWildcard, fdWildcard;
 
-  private Button wOK, wCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private Listener lsOk, lsCancel;
 
   private ActionFolderIsEmpty jobEntry;
   private Shell shell;
@@ -272,12 +272,12 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wWildcard );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wWildcard );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -285,14 +285,14 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

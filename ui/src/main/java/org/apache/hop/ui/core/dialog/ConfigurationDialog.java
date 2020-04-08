@@ -91,7 +91,7 @@ public abstract class ConfigurationDialog extends Dialog {
   private TableView wParams;
   private Display display;
   private Shell parent;
-  private Button wOK;
+  private Button wOk;
   private Button wCancel;
   protected FormData fdDetails;
   private FormData fd_tabFolder;
@@ -337,13 +337,13 @@ public abstract class ConfigurationDialog extends Dialog {
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
-    FormData fd_wOK = new FormData();
-    fd_wOK.right = new FormAttachment( wCancel, -5 );
-    fd_wOK.bottom = new FormAttachment( 100, -15 );
-    wOK.setLayoutData( fd_wOK );
-    wOK.setText( BaseMessages.getString( "System.Button.Launch" ) );
-    wOK.addSelectionListener( new SelectionAdapter() {
+    wOk = new Button( shell, SWT.PUSH );
+    FormData fd_wOk = new FormData();
+    fd_wOk.right = new FormAttachment( wCancel, -5 );
+    fd_wOk.bottom = new FormAttachment( 100, -15 );
+    wOk.setLayoutData( fd_wOk );
+    wOk.setText( BaseMessages.getString( "System.Button.Launch" ) );
+    wOk.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ok();
       }
@@ -369,7 +369,7 @@ public abstract class ConfigurationDialog extends Dialog {
     FormData fd_separator = new FormData();
     fd_separator.right = new FormAttachment( 100, -15 );
     fd_separator.left = new FormAttachment( 0, 15 );
-    fd_separator.bottom = new FormAttachment( wOK, -15 );
+    fd_separator.bottom = new FormAttachment( wOk, -15 );
     separator.setLayoutData( fd_separator );
 
     alwaysShowOption = new Button( shell, SWT.CHECK );
@@ -390,7 +390,7 @@ public abstract class ConfigurationDialog extends Dialog {
     BaseTransformDialog.setSize( shell );
 
     // Set the focus on the OK button
-    wOK.setFocus();
+    wOk.setFocus();
 
     shell.open();
     while ( !shell.isDisposed() ) {

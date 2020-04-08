@@ -57,7 +57,7 @@ public class EnterConditionDialog extends Dialog {
   private Shell shell;
   private ConditionEditor wCond;
 
-  private Button wOK;
+  private Button wOk;
   private Button wCancel;
 
   private Condition condition;
@@ -92,8 +92,8 @@ public class EnterConditionDialog extends Dialog {
     }
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -108,7 +108,7 @@ public class EnterConditionDialog extends Dialog {
     fdCond.bottom = new FormAttachment( 100, -50 );
     wCond.setLayoutData( fdCond );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, new Listener() {
@@ -118,7 +118,7 @@ public class EnterConditionDialog extends Dialog {
       }
     } );
 
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         handleOK();
       }

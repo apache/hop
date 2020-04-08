@@ -115,11 +115,11 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
 
     // Some buttons
     //
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // The check box to pass through and sort unspecified fields...
     //
@@ -129,7 +129,7 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
     fdUnspecified = new FormData();
     fdUnspecified.left = new FormAttachment( 0, 0 );
     fdUnspecified.right = new FormAttachment( 100, 0 );
-    fdUnspecified.bottom = new FormAttachment( wOK, -margin * 2 );
+    fdUnspecified.bottom = new FormAttachment( wOk, -margin * 2 );
     wUnspecified.setLayoutData( fdUnspecified );
     wUnspecified.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -181,14 +181,14 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

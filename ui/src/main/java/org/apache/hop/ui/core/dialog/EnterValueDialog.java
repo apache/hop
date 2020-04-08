@@ -102,9 +102,9 @@ public class EnterValueDialog extends Dialog {
 
   private FormData fdlPrecision, fdPrecision;
 
-  private Button wOK, wCancel, wTest;
+  private Button wOk, wCancel, wTest;
 
-  private Listener lsOK, lsCancel, lsTest;
+  private Listener lsOk, lsCancel, lsTest;
 
   private Shell shell;
 
@@ -240,14 +240,14 @@ public class EnterValueDialog extends Dialog {
     wPrecision.setLayoutData( fdPrecision );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wTest = new Button( shell, SWT.PUSH );
     wTest.setText( BaseMessages.getString( PKG, "System.Button.Test" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wTest, wCancel }, margin, wPrecision );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wTest, wCancel }, margin, wPrecision );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -256,7 +256,7 @@ public class EnterValueDialog extends Dialog {
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -270,7 +270,7 @@ public class EnterValueDialog extends Dialog {
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wTest.addListener( SWT.Selection, lsTest );
 
     lsDef = new SelectionAdapter() {

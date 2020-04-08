@@ -297,7 +297,7 @@ public class Translator {
     if ( file.exists() ) {
 
       try {
-        Document doc = XmlHandler.loadXMLFile( file );
+        Document doc = XmlHandler.loadXmlFile( file );
         Node configNode = XmlHandler.getSubNode( doc, "translator-config" );
 
         referenceLocale = XmlHandler.getTagValue( configNode, "reference-locale" );

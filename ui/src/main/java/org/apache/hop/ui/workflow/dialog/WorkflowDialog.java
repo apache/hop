@@ -47,7 +47,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -129,9 +129,9 @@ public class WorkflowDialog extends Dialog {
 
   private FormData fdlBatchPipeline, fdBatchPipeline;
 
-  protected Button wOK, wSQL, wCancel;
+  protected Button wOk, wSql, wCancel;
 
-  protected Listener lsOK, lsSQL, lsCancel, lsHelp;
+  protected Listener lsOk, lsSql, lsCancel, lsHelp;
 
   private WorkflowMeta workflowMeta;
 
@@ -283,23 +283,23 @@ public class WorkflowDialog extends Dialog {
     wTabFolder.setLayoutData( fdTabFolder );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( shell, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    // BaseTransformDialog.positionBottomButtons(shell, new Button[] { wOK, wSQL, wCancel }, margin, wSharedObjectsFile);
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
+    // BaseTransformDialog.positionBottomButtons(shell, new Button[] { wOk, wSql, wCancel }, margin, wSharedObjectsFile);
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wSql, wCancel }, props.getMargin(), null );
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         sql();
       }
@@ -310,8 +310,8 @@ public class WorkflowDialog extends Dialog {
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wOk.addListener( SWT.Selection, lsOk );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -1423,8 +1423,8 @@ public class WorkflowDialog extends Dialog {
             }
 
             if ( ddl.length() > 0 ) {
-              SQLEditor sqledit =
-                new SQLEditor( workflowMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), DBCache.getInstance(), ddl
+              SqlEditor sqledit =
+                new SqlEditor( workflowMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), DBCache.getInstance(), ddl
                   .toString() );
               sqledit.open();
             } else {

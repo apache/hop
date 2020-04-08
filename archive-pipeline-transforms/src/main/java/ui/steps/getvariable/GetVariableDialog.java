@@ -181,8 +181,8 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     wFields.setLayoutData( fdFields );
 
     // Some buttons
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( this.shell, 8 );
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetVariables" ) );
     wPreview = new Button( this.shell, 8 );
@@ -191,7 +191,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wPreview, wGet, wCancel }, margin, wFields );
+    setButtonPositions( new Button[] { wOk, wPreview, wGet, wCancel }, margin, wFields );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -199,7 +199,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
         cancel();
       }
     };
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -217,7 +217,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     wGet.addListener( 13, this.lsGet );
     wPreview.addListener( 13, this.lsPreview );
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -32,13 +32,13 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * @author Matt
  * @since 20-jan-2005
  */
-public class ExecSQLRowData extends BaseTransformData implements ITransformData {
+public class ExecSqlRowData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;
   public int indexOfSQLFieldname;
   public IRowMeta outputRowMeta;
 
-  public ExecSQLRowData() {
+  public ExecSqlRowData() {
     super();
     db = null;
     result = null;

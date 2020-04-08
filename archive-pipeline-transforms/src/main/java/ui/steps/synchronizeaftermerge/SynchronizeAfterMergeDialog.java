@@ -467,14 +467,14 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wKey.setLayoutData( fdKey );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( shell, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.SQL.Button" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.SQL.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wSQL, wCancel }, margin, null );
+    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
 
     // THE UPDATE/INSERT TABLE
     wlReturn = new Label( wGeneralComp, SWT.NONE );
@@ -561,7 +561,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -576,7 +576,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         getUpdate();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         create();
       }
@@ -772,10 +772,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wGetLU.addListener( SWT.Selection, lsGetLU );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -1026,7 +1026,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTable.setEnabled( !wTablenameInField.getSelection() );
     wTable.setEnabled( !wTablenameInField.getSelection() );
     wbTable.setEnabled( !wTablenameInField.getSelection() );
-    wSQL.setEnabled( !wTablenameInField.getSelection() );
+    wSql.setEnabled( !wTablenameInField.getSelection() );
 
   }
 

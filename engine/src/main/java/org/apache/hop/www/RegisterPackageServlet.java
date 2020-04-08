@@ -119,7 +119,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   protected Node getConfigNodeFromZIP( Object archiveUrl, Object fileName, String xml_tag ) throws HopXmlException {
     String configUrl = MessageFormat.format( ZIP_CONT, archiveUrl, fileName );
-    Document configDoc = XmlHandler.loadXMLFile( configUrl );
+    Document configDoc = XmlHandler.loadXmlFile( configUrl );
     return XmlHandler.getSubNode( configDoc, xml_tag );
   }
 }

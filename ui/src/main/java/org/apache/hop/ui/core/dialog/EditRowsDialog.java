@@ -75,7 +75,7 @@ public class EditRowsDialog {
 
   private FormData fdlFields, fdFields;
 
-  private Button wOK;
+  private Button wOk;
 
   private Button wCancel;
 
@@ -143,9 +143,9 @@ public class EditRowsDialog {
     shell.setLayout( formLayout );
     shell.setText( title );
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, new Listener() {
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -161,7 +161,7 @@ public class EditRowsDialog {
 
     // Position the buttons...
     //
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, }, props.getMargin(), null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel, }, props.getMargin(), null );
 
     if ( addFields() ) {
       return null;

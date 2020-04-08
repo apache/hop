@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -161,9 +161,9 @@ public class PipelineDialog extends Dialog {
 
   private Button wUniqueConnections;
 
-  private Button wOK, wGet, wSQL, wCancel;
+  private Button wOk, wGet, wSql, wCancel;
   private FormData fdGet;
-  private Listener lsOK, lsGet, lsSQL, lsCancel;
+  private Listener lsOk, lsGet, lsSql, lsCancel;
 
   private PipelineMeta pipelineMeta;
   private Shell shell;
@@ -292,17 +292,17 @@ public class PipelineDialog extends Dialog {
     wTabFolder.setLayoutData( fdTabFolder );
 
     // THE BUTTONS
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSQL = new Button( shell, SWT.PUSH );
-    wSQL.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wSql, wCancel }, props.getMargin(), null );
 
     // Add listeners
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       public void handleEvent( Event e ) {
         ok();
       }
@@ -312,7 +312,7 @@ public class PipelineDialog extends Dialog {
         get();
       }
     };
-    lsSQL = new Listener() {
+    lsSql = new Listener() {
       public void handleEvent( Event e ) {
         sql();
       }
@@ -323,9 +323,9 @@ public class PipelineDialog extends Dialog {
       }
     };
 
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
-    wSQL.addListener( SWT.Selection, lsSQL );
+    wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -2242,8 +2242,8 @@ public class PipelineDialog extends Dialog {
 
             if ( ddl.length() > 0 ) {
               allOK = false;
-              SQLEditor sqledit =
-                new SQLEditor(
+              SqlEditor sqledit =
+                new SqlEditor(
                   pipelineMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), pipelineMeta.getDbCache(), ddl
                   .toString() );
               sqledit.open();

@@ -60,9 +60,9 @@ public class EnterPasswordDialog extends Dialog {
   private Text wDesc;
   private FormData fdlDesc, fdDesc;
 
-  private Button wOK, wCancel;
-  private FormData fdOK, fdCancel;
-  private Listener lsOK, lsCancel;
+  private Button wOk, wCancel;
+  private FormData fdOk, fdCancel;
+  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private SelectionAdapter lsDef;
@@ -141,14 +141,14 @@ public class EnterPasswordDialog extends Dialog {
 
     // Some buttons
     if ( !readonly ) {
-      wOK = new Button( shell, SWT.PUSH );
-      wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+      wOk = new Button( shell, SWT.PUSH );
+      wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
       wCancel = new Button( shell, SWT.PUSH );
       wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-      fdOK = new FormData();
-      fdOK.left = new FormAttachment( 33, 0 );
-      fdOK.bottom = new FormAttachment( 100, 0 );
-      wOK.setLayoutData( fdOK );
+      fdOk = new FormData();
+      fdOk.left = new FormAttachment( 33, 0 );
+      fdOk.bottom = new FormAttachment( 100, 0 );
+      wOk.setLayoutData( fdOk );
       fdCancel = new FormData();
       fdCancel.left = new FormAttachment( 66, 0 );
       fdCancel.bottom = new FormAttachment( 100, 0 );
@@ -160,29 +160,29 @@ public class EnterPasswordDialog extends Dialog {
           cancel();
         }
       };
-      lsOK = new Listener() {
+      lsOk = new Listener() {
         public void handleEvent( Event e ) {
           ok();
         }
       };
 
-      wOK.addListener( SWT.Selection, lsOK );
+      wOk.addListener( SWT.Selection, lsOk );
       wCancel.addListener( SWT.Selection, lsCancel );
     } else {
-      wOK = new Button( shell, SWT.PUSH );
-      wOK.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
-      fdOK = new FormData();
-      fdOK.left = new FormAttachment( 50, 0 );
-      fdOK.bottom = new FormAttachment( 100, 0 );
-      wOK.setLayoutData( fdOK );
+      wOk = new Button( shell, SWT.PUSH );
+      wOk.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
+      fdOk = new FormData();
+      fdOk.left = new FormAttachment( 50, 0 );
+      fdOk.bottom = new FormAttachment( 100, 0 );
+      wOk.setLayoutData( fdOk );
 
       // Add listeners
-      lsOK = new Listener() {
+      lsOk = new Listener() {
         public void handleEvent( Event e ) {
           ok();
         }
       };
-      wOK.addListener( SWT.Selection, lsOK );
+      wOk.addListener( SWT.Selection, lsOk );
     }
 
     lsDef = new SelectionAdapter() {

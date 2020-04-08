@@ -1224,8 +1224,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     // Boutons OK / Cancel
 
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
     wAddInput = new Button( shell, SWT.PUSH );
     wAddInput.setText( BaseMessages.getString( PKG, "WebServiceDialog.Label.AddInputButton" ) );
@@ -1236,7 +1236,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wAddInput, wAddOutput, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wAddInput, wAddOutput, wCancel }, margin, wTabFolder );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -1245,7 +1245,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wOK.addSelectionListener( new SelectionAdapter() {
+    wOk.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ok();
       }

@@ -187,7 +187,7 @@ public class ZipFileMetaTest {
       + "  <draw>Y</draw>" + Const.CR
       + "</GUI>" + Const.CR
       + "</transform>" + Const.CR;
-    return XmlHandler.loadXMLString( xml, "transform" );
+    return XmlHandler.loadXmlString( xml, "transform" );
   }
 
   private void assertXmlOutputMeta( ZipFileMeta zipOutputFile ) {
