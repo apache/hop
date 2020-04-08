@@ -44,7 +44,7 @@ public class GetTableNamesMetaTest {
   @Test
   public void testLoadSave() throws HopException {
     List<String> attributes = Arrays.asList( "Database", "SchemaName", "TablenameFieldName", "ObjectTypeFieldName",
-      "SystemObjectFieldName", "SQLCreationFieldName", "includeCatalog", "includeSchema", "includeTable",
+      "SystemObjectFieldName", "sqlCreationFieldName", "includeCatalog", "includeSchema", "includeTable",
       "includeView", "includeProcedure", "includeSynonym", "AddSchemaInOut", "DynamicSchema", "SchemaFieldName" );
 
     LoadSaveTester<GetTableNamesMeta> loadSaveTester =

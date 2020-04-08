@@ -53,7 +53,7 @@ import java.util.StringTokenizer;
  * as are all the contents of a Partitioned Data Set. 4- When downloading from a folder, the Recfm must start with V or
  * F.
  * <p>
- * Note - the location for this is completely up for debate. I modeled this after the ftpsget/FTPSConnection and how
+ * Note - the location for this is completely up for debate. I modeled this after the ftpsget/FtpsConnection and how
  * ftpsput reaches up and into the ftpsget package to get it. However, I think a better solution is to have an
  * entry/common. James and I agreed (in Matt's absense) to model the behavior after something already existing rather
  * than introduce a new folder (like entry/common or entry/util).

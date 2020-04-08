@@ -3145,6 +3145,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/preview.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
+  @GuiContextAction(
+    id = "pipeline-graph-transform-11500-preview-output",
+    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+    type = GuiActionType.Info,
+    name = "Preview data",
+    tooltip = "Execute the pipeline and see the output of the transform",
+    image = "ui/images/preview.svg"
+  )
   @Override
   public void preview() {
     try {

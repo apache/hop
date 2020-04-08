@@ -282,7 +282,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       }
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString(
-        PKG, "ExecSQLMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
+        PKG, "ExecSqlMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
 
@@ -336,7 +336,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     if ( databaseMeta != null ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "ExecSQLMeta.CheckResult.ConnectionExists" ), transformMeta );
+          PKG, "ExecSqlMeta.CheckResult.ConnectionExists" ), transformMeta );
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
@@ -348,24 +348,24 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
         db.connect();
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.DBConnectionOK" ), transformMeta );
+            PKG, "ExecSqlMeta.CheckResult.DBConnectionOK" ), transformMeta );
         remarks.add( cr );
 
         if ( sql != null && sql.length() != 0 ) {
           cr =
             new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-              PKG, "ExecSQLMeta.CheckResult.SQLStatementEntered" ), transformMeta );
+              PKG, "ExecSqlMeta.CheckResult.SQLStatementEntered" ), transformMeta );
           remarks.add( cr );
         } else {
           cr =
             new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "ExecSQLMeta.CheckResult.SQLStatementMissing" ), transformMeta );
+              PKG, "ExecSqlMeta.CheckResult.SQLStatementMissing" ), transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.ErrorOccurred" )
+            PKG, "ExecSqlMeta.CheckResult.ErrorOccurred" )
             + e.getMessage(), transformMeta );
         remarks.add( cr );
       } finally {
@@ -374,7 +374,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "ExecSQLMeta.CheckResult.ConnectionNeeded" ), transformMeta );
+          PKG, "ExecSqlMeta.CheckResult.ConnectionNeeded" ), transformMeta );
       remarks.add( cr );
     }
 
@@ -383,24 +383,24 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       if ( input.length > 0 ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.TransformReceivingInfoOK" ), transformMeta );
+            PKG, "ExecSqlMeta.CheckResult.TransformReceivingInfoOK" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.NoInputReceivedError" ), transformMeta );
+            PKG, "ExecSqlMeta.CheckResult.NoInputReceivedError" ), transformMeta );
         remarks.add( cr );
       }
     } else {
       if ( input.length > 0 ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.SQLOnlyExecutedOnce" ), transformMeta );
+            PKG, "ExecSqlMeta.CheckResult.SQLOnlyExecutedOnce" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "ExecSQLMeta.CheckResult.InputReceivedOKForSQLOnlyExecuteOnce" ), transformMeta );
+            PKG, "ExecSqlMeta.CheckResult.InputReceivedOKForSQLOnlyExecuteOnce" ), transformMeta );
         remarks.add( cr );
       }
     }
@@ -421,10 +421,10 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       new DatabaseImpact(
         DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
         databaseMeta.getDatabaseName(),
-        BaseMessages.getString( PKG, "ExecSQLMeta.DatabaseMeta.Unknown.Label" ),
-        BaseMessages.getString( PKG, "ExecSQLMeta.DatabaseMeta.Unknown2.Label" ),
-        BaseMessages.getString( PKG, "ExecSQLMeta.DatabaseMeta.Unknown3.Label" ), transformMeta.getName(), sql,
-        BaseMessages.getString( PKG, "ExecSQLMeta.DatabaseMeta.Title" ) );
+        BaseMessages.getString( PKG, "ExecSqlMeta.DatabaseMeta.Unknown.Label" ),
+        BaseMessages.getString( PKG, "ExecSqlMeta.DatabaseMeta.Unknown2.Label" ),
+        BaseMessages.getString( PKG, "ExecSqlMeta.DatabaseMeta.Unknown3.Label" ), transformMeta.getName(), sql,
+        BaseMessages.getString( PKG, "ExecSqlMeta.DatabaseMeta.Title" ) );
     impact.add( ii );
   }
 

@@ -119,8 +119,8 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
       for ( int i = 0; i < meta.getArguments().length; i++ ) {
         data.argumentIndexes[ i ] = this.getInputRowMeta().indexOfValue( meta.getArguments()[ i ] );
         if ( data.argumentIndexes[ i ] < 0 ) {
-          logError( BaseMessages.getString( PKG, "ExecSQL.Log.ErrorFindingField" ) + meta.getArguments()[ i ] + "]" );
-          throw new HopTransformException( BaseMessages.getString( PKG, "ExecSQL.Exception.CouldNotFindField", meta
+          logError( BaseMessages.getString( PKG, "ExecSql.Log.ErrorFindingField" ) + meta.getArguments()[ i ] + "]" );
+          throw new HopTransformException( BaseMessages.getString( PKG, "ExecSql.Exception.CouldNotFindField", meta
             .getArguments()[ i ] ) );
         }
         if ( meta.isParams() ) {
@@ -193,7 +193,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
       }
     }
     if ( log.isRowLevel() ) {
-      logRowlevel( BaseMessages.getString( PKG, "ExecSQL.Log.ExecutingSQLScript" ) + Const.CR + sql );
+      logRowlevel( BaseMessages.getString( PKG, "ExecSql.Log.ExecutingSQLScript" ) + Const.CR + sql );
     }
 
     boolean sendToErrorRow = false;
@@ -220,7 +220,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
 
       if ( checkFeedback( getLinesWritten() ) ) {
         if ( log.isBasic() ) {
-          logBasic( BaseMessages.getString( PKG, "ExecSQL.Log.LineNumber" ) + getLinesWritten() );
+          logBasic( BaseMessages.getString( PKG, "ExecSql.Log.LineNumber" ) + getLinesWritten() );
         }
       }
     } catch ( HopException e ) {
@@ -228,12 +228,12 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        throw new HopTransformException( BaseMessages.getString( PKG, "ExecSQL.Log.ErrorInTransform" ), e );
+        throw new HopTransformException( BaseMessages.getString( PKG, "ExecSql.Log.ErrorInTransform" ), e );
       }
 
       if ( sendToErrorRow ) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), row, 1, errorMessage, null, "ExecSQL001" );
+        putError( getInputRowMeta(), row, 1, errorMessage, null, "ExecSql001" );
       }
     }
     return true;
@@ -243,7 +243,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
   public void dispose(){
 
     if ( log.isBasic() ) {
-      logBasic( BaseMessages.getString( PKG, "ExecSQL.Log.FinishingReadingQuery" ) );
+      logBasic( BaseMessages.getString( PKG, "ExecSql.Log.FinishingReadingQuery" ) );
     }
 
     if ( data.db != null ) {
@@ -272,7 +272,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
 
     if ( super.init() ) {
       if ( meta.getDatabaseMeta() == null ) {
-        logError( BaseMessages.getString( PKG, "ExecSQL.Init.ConnectionMissing", getTransformName() ) );
+        logError( BaseMessages.getString( PKG, "ExecSql.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
@@ -289,7 +289,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         }
 
         if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ExecSQL.Log.ConnectedToDB" ) );
+          logDetailed( BaseMessages.getString( PKG, "ExecSql.Log.ConnectedToDB" ) );
         }
 
         if ( meta.isReplaceVariables() ) {
@@ -311,7 +311,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         }
         return true;
       } catch ( HopException e ) {
-        logError( BaseMessages.getString( PKG, "ExecSQL.Log.ErrorOccurred" ) + e.getMessage() );
+        logError( BaseMessages.getString( PKG, "ExecSql.Log.ErrorOccurred" ) + e.getMessage() );
         setErrors( 1 );
         stopAll();
       }

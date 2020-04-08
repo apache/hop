@@ -178,14 +178,14 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "ExecSQLDialog.Shell.Label" ) );
+    shell.setText( BaseMessages.getString( PKG, "ExecSqlDialog.Shell.Label" ) );
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "ExecSQLDialog.TransformName.Label" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "ExecSqlDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -207,7 +207,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Table line...
     wlSQL = new Label( shell, SWT.LEFT );
-    wlSQL.setText( BaseMessages.getString( PKG, "ExecSQLDialog.SQL.Label" ) );
+    wlSQL.setText( BaseMessages.getString( PKG, "ExecSqlDialog.SQL.Label" ) );
     props.setLook( wlSQL );
     fdlSQL = new FormData();
     fdlSQL.left = new FormAttachment( 0, 0 );
@@ -265,7 +265,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "ExecSQLDialog.GetFields.Button" ) );
+    wGet.setText( BaseMessages.getString( PKG, "ExecSqlDialog.GetFields.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
@@ -274,7 +274,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // Read field
     //
     wlReadField = new Label( shell, SWT.RIGHT );
-    wlReadField.setText( BaseMessages.getString( PKG, "ExecSQLDialog.ReadField.Label" ) );
+    wlReadField.setText( BaseMessages.getString( PKG, "ExecSqlDialog.ReadField.Label" ) );
     props.setLook( wlReadField );
     fdlReadField = new FormData();
     fdlReadField.left = new FormAttachment( middle, margin );
@@ -293,7 +293,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // Delete field
     //
     wlDeleteField = new Label( shell, SWT.RIGHT );
-    wlDeleteField.setText( BaseMessages.getString( PKG, "ExecSQLDialog.DeleteField.Label" ) );
+    wlDeleteField.setText( BaseMessages.getString( PKG, "ExecSqlDialog.DeleteField.Label" ) );
     props.setLook( wlDeleteField );
     fdlDeleteField = new FormData();
     fdlDeleteField.left = new FormAttachment( middle, margin );
@@ -312,7 +312,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // Update field
     //
     wlUpdateField = new Label( shell, SWT.RIGHT );
-    wlUpdateField.setText( BaseMessages.getString( PKG, "ExecSQLDialog.UpdateField.Label" ) );
+    wlUpdateField.setText( BaseMessages.getString( PKG, "ExecSqlDialog.UpdateField.Label" ) );
     props.setLook( wlUpdateField );
     fdlUpdateField = new FormData();
     fdlUpdateField.left = new FormAttachment( middle, margin );
@@ -331,7 +331,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // insert field
     //
     wlInsertField = new Label( shell, SWT.RIGHT );
-    wlInsertField.setText( BaseMessages.getString( PKG, "ExecSQLDialog.InsertField.Label" ) );
+    wlInsertField.setText( BaseMessages.getString( PKG, "ExecSqlDialog.InsertField.Label" ) );
     props.setLook( wlInsertField );
     fdlInsertField = new FormData();
     fdlInsertField.left = new FormAttachment( middle, margin );
@@ -350,7 +350,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // Setup the "Parameters" label
     //
     wlFields = new Label( shell, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "ExecSQLDialog.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "ExecSqlDialog.Fields.Label" ) );
     props.setLook( wlFields );
     fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -364,7 +364,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     colinf =
       new ColumnInfo[] { new ColumnInfo(
-        BaseMessages.getString( PKG, "ExecSQLDialog.ColumnInfo.ArgumentFieldname" ),
+        BaseMessages.getString( PKG, "ExecSqlDialog.ColumnInfo.ArgumentFieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false ), };
 
     wFields =
@@ -382,16 +382,16 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // and use that in the alignment
     //
     wlEachRow = new Label( shell, SWT.RIGHT );
-    wlEachRow.setText( BaseMessages.getString( PKG, "ExecSQLDialog.EachRow.Label" ) );
+    wlEachRow.setText( BaseMessages.getString( PKG, "ExecSqlDialog.EachRow.Label" ) );
     wlEachRow.pack();
     wlSingleStatement = new Label( shell, SWT.RIGHT );
-    wlSingleStatement.setText( BaseMessages.getString( PKG, "ExecSQLDialog.SingleStatement.Label" ) );
+    wlSingleStatement.setText( BaseMessages.getString( PKG, "ExecSqlDialog.SingleStatement.Label" ) );
     wlSingleStatement.pack();
     wlVariables = new Label( shell, SWT.RIGHT );
-    wlVariables.setText( BaseMessages.getString( PKG, "ExecSQLDialog.ReplaceVariables" ) );
+    wlVariables.setText( BaseMessages.getString( PKG, "ExecSqlDialog.ReplaceVariables" ) );
     wlVariables.pack();
     wlQuoteString = new Label( shell, SWT.RIGHT );
-    wlQuoteString.setText( BaseMessages.getString( PKG, "ExecSQLDialog.QuoteString.Label" ) );
+    wlQuoteString.setText( BaseMessages.getString( PKG, "ExecSqlDialog.QuoteString.Label" ) );
     wlQuoteString.pack();
     Rectangle rEachRow = wlEachRow.getBounds();
     Rectangle rSingleStatement = wlSingleStatement.getBounds();
@@ -411,7 +411,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wlQuoteString.setLayoutData( fdlQuoteString );
     wQuoteString = new Button( shell, SWT.CHECK );
     props.setLook( wQuoteString );
-    wQuoteString.setToolTipText( BaseMessages.getString( PKG, "ExecSQLDialog.QuoteString.Tooltip" ) );
+    wQuoteString.setToolTipText( BaseMessages.getString( PKG, "ExecSqlDialog.QuoteString.Tooltip" ) );
     fdQuoteString = new FormData();
     fdQuoteString.left = new FormAttachment( wlQuoteString, margin );
     fdQuoteString.bottom = new FormAttachment( wlFields, -2 * margin );
@@ -422,7 +422,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // Setup the "Bind parameters" label and checkbox
     //
     wlSetParams = new Label( this.shell, SWT.RIGHT );
-    wlSetParams.setText( BaseMessages.getString( PKG, "ExecSQLDialog.SetParams.Label" ) );
+    wlSetParams.setText( BaseMessages.getString( PKG, "ExecSqlDialog.SetParams.Label" ) );
     props.setLook( this.wlSetParams );
     fdlSetParams = new FormData();
     fdlSetParams.left = new FormAttachment( 0, margin );
@@ -431,7 +431,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wlSetParams.setLayoutData( this.fdlSetParams );
     wSetParams = new Button( shell, SWT.CHECK );
     props.setLook( this.wSetParams );
-    wSetParams.setToolTipText( BaseMessages.getString( PKG, "ExecSQLDialog.SetParams.Tooltip" ) );
+    wSetParams.setToolTipText( BaseMessages.getString( PKG, "ExecSqlDialog.SetParams.Tooltip" ) );
     fdSetParams = new FormData();
     fdSetParams.left = new FormAttachment( wlSetParams, margin );
     fdSetParams.bottom = new FormAttachment( wQuoteString, -margin );
@@ -636,7 +636,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
       posnr--;
       colnr++;
     }
-    wlPosition.setText( BaseMessages.getString( PKG, "ExecSQLDialog.Position.Label", "" + linenr, "" + colnr ) );
+    wlPosition.setText( BaseMessages.getString( PKG, "ExecSqlDialog.Position.Label", "" + linenr, "" + colnr ) );
 
   }
 
@@ -740,7 +740,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     int nrargs = wFields.nrNonEmpty();
     input.allocate( nrargs );
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "ExecSQLDialog.Log.FoundArguments", +nrargs + "" ) );
+      logDebug( BaseMessages.getString( PKG, "ExecSqlDialog.Log.FoundArguments", +nrargs + "" ) );
     }
     for ( int i = 0; i < nrargs; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
@@ -750,8 +750,8 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     if ( input.getDatabaseMeta() == null ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "ExecSQLDialog.InvalidConnection.DialogMessage" ) );
-      mb.setText( BaseMessages.getString( PKG, "ExecSQLDialog.InvalidConnection.DialogTitle" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "ExecSqlDialog.InvalidConnection.DialogMessage" ) );
+      mb.setText( BaseMessages.getString( PKG, "ExecSqlDialog.InvalidConnection.DialogTitle" ) );
       mb.open();
     }
 
@@ -766,8 +766,8 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
       }
     } catch ( HopException ke ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "ExecSQLDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-        .getString( PKG, "ExecSQLDialog.FailedToGetFields.DialogMessage" ), ke );
+        shell, BaseMessages.getString( PKG, "ExecSqlDialog.FailedToGetFields.DialogTitle" ), BaseMessages
+        .getString( PKG, "ExecSqlDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
