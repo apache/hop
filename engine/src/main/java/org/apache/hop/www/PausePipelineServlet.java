@@ -197,10 +197,10 @@ public class PausePipelineServlet extends BaseHttpServlet implements IHopServerP
       if ( pipeline != null ) {
         String message;
         if ( pipeline.isPaused() ) {
-          pipeline.resumeRunning();
+          pipeline.resumeExecution();
           message = BaseMessages.getString( PKG, "PausePipelineServlet.PipelineResumeRequested", pipelineName );
         } else {
-          pipeline.pauseRunning();
+          pipeline.pauseExecution();
           message = BaseMessages.getString( PKG, "PausePipelineServlet.PipelinePauseRequested", pipelineName );
         }
 

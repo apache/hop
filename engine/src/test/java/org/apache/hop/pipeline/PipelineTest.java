@@ -120,7 +120,7 @@ public class PipelineTest {
 
     // check pipeline lifecycle is not corrupted
     verify( pipelineWithNoTransforms ).firePipelineExecutionStartedListeners();
-    verify( pipelineWithNoTransforms ).firePipelineExecutionListeners();
+    verify( pipelineWithNoTransforms ).fireExecutionFinishedListeners();
   }
 
   /**
@@ -224,10 +224,10 @@ public class PipelineTest {
   @Test
   public void testFirePipelineFinishedListeners() throws Exception {
     Pipeline pipeline = new Pipeline();
-    IExecutionListener mockListener = mock( IExecutionListener.class );
-    pipeline.setExecutionListeners( Collections.singletonList( mockListener ) );
+    IExecutionFinishedListener mockListener = mock( IExecutionFinishedListener.class );
+    pipeline.setExecutionFinishedListeners( Collections.singletonList( mockListener ) );
 
-    pipeline.firePipelineExecutionListeners();
+    pipeline.fireExecutionFinishedListeners();
 
     verify( mockListener ).finished( pipeline );
   }
@@ -235,11 +235,11 @@ public class PipelineTest {
   @Test( expected = HopException.class )
   public void testFirePipelineFinishedListenersExceptionOnPipelineFinished() throws Exception {
     Pipeline pipeline = new Pipeline();
-    IExecutionListener mockListener = mock( IExecutionListener.class );
+    IExecutionFinishedListener mockListener = mock( IExecutionFinishedListener.class );
     doThrow( HopException.class ).when( mockListener ).finished( pipeline );
-    pipeline.setExecutionListeners( Collections.singletonList( mockListener ) );
+    pipeline.setExecutionFinishedListeners( Collections.singletonList( mockListener ) );
 
-    pipeline.firePipelineExecutionListeners();
+    pipeline.fireExecutionFinishedListeners();
   }
 
   @Test
@@ -382,7 +382,7 @@ public class PipelineTest {
       }
       // run
       while ( !isStopped() ) {
-        tr.addExecutionListener( listener );
+        tr.addExecutionFinishedListener( listener );
       }
     }
   }
@@ -402,7 +402,7 @@ public class PipelineTest {
       // run
       while ( !isStopped() ) {
         try {
-          tr.firePipelineExecutionListeners();
+          tr.fireExecutionFinishedListeners();
           // clean array blocking queue
           tr.waitUntilFinished();
         } catch ( HopException e ) {
@@ -435,15 +435,7 @@ public class PipelineTest {
     }
   }
 
-  private final IExecutionListener<PipelineMeta> listener = new IExecutionListener<PipelineMeta>() {
-    @Override
-    public void started( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
-    }
-
-    @Override
-    public void becameActive( IPipelineEngine<PipelineMeta> pipeline ) {
-    }
-
+  private final IExecutionFinishedListener<PipelineMeta> listener = new IExecutionFinishedListener<PipelineMeta>() {
     @Override
     public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     }

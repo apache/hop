@@ -32,17 +32,16 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
-import org.apache.hop.pipeline.ExecutionAdapter;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.util.Map;
 import java.util.UUID;
@@ -125,14 +124,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
             HopVFS.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
-        pipeline.addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-          @Override
-          public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+        pipeline.addExecutionFinishedListener((IExecutionFinishedListener<PipelineMeta>) pipelineEngine -> {
             if ( logChannelFileWriter != null ) {
               logChannelFileWriter.stopLogging();
             }
-          }
-        } );
+          });
       } catch ( HopException e ) {
         logError( Const.getStackTracker( e ) );
       }

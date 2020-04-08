@@ -24,6 +24,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -50,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener, ShellListener {
+public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener, ShellListener, MouseMoveListener {
   private Shell parent;
   private String message;
   private Point location;
@@ -232,6 +233,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     wSearch.addKeyListener( this );
     wCanvas.addPaintListener( this );
     wCanvas.addMouseListener( this );
+    wCanvas.addMouseMoveListener( this );
     wCanvas.getVerticalBar().addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent e ) {
         wCanvas.redraw();
@@ -531,6 +533,16 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
   }
 
+  @Override public void mouseMove( MouseEvent mouseEvent ) {
+    // Do we mouse over an action?
+    //
+    GuiAction action = findAction( mouseEvent.x, mouseEvent.y );
+    if (action!=null) {
+      changeSelectedAction( action );
+      wCanvas.redraw();
+    }
+  }
+
   @Override public void mouseDoubleClick( MouseEvent e ) {
 
   }
@@ -655,4 +667,6 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   public void setFocusLost( boolean focusLost ) {
     this.focusLost = focusLost;
   }
+
+
 }

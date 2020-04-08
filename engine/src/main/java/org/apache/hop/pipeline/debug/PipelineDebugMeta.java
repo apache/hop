@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.debug;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -33,6 +34,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -120,7 +122,7 @@ public class PipelineDebugMeta {
                        } else {
                          // pause the pipeline...
                          //
-                         pipeline.pauseRunning();
+                         pipeline.pauseExecution();
 
                          // Also call the pause / break-point listeners on the transform debugger...
                          //
@@ -161,7 +163,7 @@ public class PipelineDebugMeta {
                        if ( transformDebugMeta.getCondition().evaluate( rowMeta, row ) ) {
                          // We hit the break-point: pause the pipeline
                          //
-                         pipeline.pauseRunning();
+                         pipeline.pauseExecution();
 
                          // Also fire off the break point listeners...
                          //
@@ -177,6 +179,25 @@ public class PipelineDebugMeta {
           );
         }
       }
+    }
+
+    // Also add a finished listener to the pipeline.
+    // If no preview rows are shown before the end of the pipeline we can do this now...
+    //
+    try {
+      pipeline.addExecutionFinishedListener( p -> {
+        for (TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
+          TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
+          if (transformDebugMeta!=null) {
+            List<Object[]> rowBuffer = transformDebugMeta.getRowBuffer();
+            if (rowBuffer!=null && !rowBuffer.isEmpty()) {
+              transformDebugMeta.fireBreakPointListeners( this );
+            }
+          }
+        }
+      } );
+    } catch(Exception e) {
+      e.printStackTrace();
     }
   }
 

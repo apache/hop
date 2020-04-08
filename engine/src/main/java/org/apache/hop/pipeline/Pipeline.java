@@ -106,7 +106,6 @@ import org.apache.hop.pipeline.engine.EngineMetric;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IEngineMetric;
-import org.apache.hop.pipeline.engine.IFinishedListener;
 import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
@@ -426,10 +425,21 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   private Timer transformPerformanceSnapShotTimer;
 
+
   /**
-   * A list of listeners attached to the pipeline.
+   * A list of started listeners attached to the pipeline.
    */
-  private List<IExecutionListener<PipelineMeta>> executionListeners;
+  private List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners;
+
+  /**
+   * A list of became active listeners attached to the pipeline.
+   */
+  private List<IExecutionBecameActiveListener<PipelineMeta>> executionBecameActiveListeners;
+
+  /**
+   * A list of finished listeners attached to the pipeline.
+   */
+  private List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners;
 
   /**
    * A list of stop-event listeners attached to the pipeline.
@@ -502,9 +512,9 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private PrintWriter servletPrintWriter;
 
   /**
-   * The pipeline finished blocking queue.
+   * The wait until finished method need this blocking queue.
    */
-  private ArrayBlockingQueue<Object> pipelineFinishedBlockingQueue;
+  private ArrayBlockingQueue<Object> pipelineWaitUntilFinishedBlockingQueue;
 
   /**
    * The name of the executing server
@@ -556,7 +566,9 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   public Pipeline() {
     status = new AtomicInteger();
 
-    executionListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionBecameActiveListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     pipelineStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
     delegationListeners = new ArrayList<>();
 
@@ -1216,7 +1228,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
       // Just for safety, fire the pipeline finished listeners...
       try {
-        firePipelineExecutionListeners();
+        fireExecutionFinishedListeners();
       } catch ( HopException e ) {
         // listeners produces errors
         log.logError( BaseMessages.getString( PKG, "Pipeline.FinishListeners.Exception" ) );
@@ -1273,8 +1285,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
           if ( nrOfActiveTransforms == 1 ) {
             // Pipeline goes from in-active to active...
             // PDI-5229 sync added
-            synchronized ( executionListeners ) {
-              for ( IExecutionListener listener : executionListeners ) {
+            synchronized ( executionStartedListeners ) {
+              for ( IExecutionBecameActiveListener<PipelineMeta> listener : executionBecameActiveListeners ) {
                 listener.becameActive( Pipeline.this );
               }
             }
@@ -1296,7 +1308,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
               addTransformPerformanceSnapShot();
 
               try {
-                firePipelineExecutionListeners();
+                fireExecutionFinishedListeners();
               } catch ( Exception e ) {
                 transform.setErrors( transform.getErrors() + 1L );
                 log.logError( getName() + " : " + BaseMessages.getString( PKG,
@@ -1358,58 +1370,57 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     setPaused( false );
     setStopped( false );
 
-    pipelineFinishedBlockingQueue = new ArrayBlockingQueue<>( 10 );
+    pipelineWaitUntilFinishedBlockingQueue = new ArrayBlockingQueue<>( 10 );
 
-    IExecutionListener executionListener = new ExecutionAdapter<PipelineMeta>() {
-      @Override
-      public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
+    // Do all sorts of nifty things at the end of the pipeline execution
+    ///
+    IExecutionFinishedListener<PipelineMeta> executionListener = pipeline -> {
 
-        try {
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineFinish.id, pipeline );
-        } catch ( HopException e ) {
-          throw new RuntimeException( "Error calling extension point at end of pipeline", e );
-        }
-
-        // First of all, stop the performance snapshot timer if there is is
-        // one...
-        //
-        if ( pipelineMeta.isCapturingTransformPerformanceSnapShots() && transformPerformanceSnapShotTimer != null ) {
-          transformPerformanceSnapShotTimer.cancel();
-        }
-
-        setFinished( true );
-        setRunning( false ); // no longer running
-
-        log.snap( Metrics.METRIC_PIPELINE_EXECUTION_STOP );
-
-        // If the user ran with metrics gathering enabled and a metrics logging table is configured, add another
-        // listener...
-        //
-        MetricsLogTable metricsLogTable = pipelineMeta.getMetricsLogTable();
-        if ( metricsLogTable.isDefined() ) {
-          try {
-            writeMetricsInformation();
-          } catch ( Exception e ) {
-            log.logError( "Error writing metrics information", e );
-            errors.incrementAndGet();
-          }
-        }
-
-        // Close the unique connections when running database transactionally.
-        // This will commit or roll back the transaction based on the result of this pipeline.
-        //
-        if ( pipelineMeta.isUsingUniqueConnections() ) {
-          pipeline.closeUniqueDatabaseConnections( getResult() );
-        }
-
-        // release unused vfs connections
-        HopVFS.freeUnusedResources();
+      try {
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineFinish.id, pipeline );
+      } catch ( HopException e ) {
+        throw new RuntimeException( "Error calling extension point at end of pipeline", e );
       }
+
+      // First of all, stop the performance snapshot timer if there is is
+      // one...
+      //
+      if ( pipelineMeta.isCapturingTransformPerformanceSnapShots() && transformPerformanceSnapShotTimer != null ) {
+        transformPerformanceSnapShotTimer.cancel();
+      }
+
+      setFinished( true );
+      setRunning( false ); // no longer running
+
+      log.snap( Metrics.METRIC_PIPELINE_EXECUTION_STOP );
+
+      // If the user ran with metrics gathering enabled and a metrics logging table is configured, add another
+      // listener...
+      //
+      MetricsLogTable metricsLogTable = pipelineMeta.getMetricsLogTable();
+      if ( metricsLogTable.isDefined() ) {
+        try {
+          writeMetricsInformation();
+        } catch ( Exception e ) {
+          log.logError( "Error writing metrics information", e );
+          errors.incrementAndGet();
+        }
+      }
+
+      // Close the unique connections when running database transactionally.
+      // This will commit or roll back the transaction based on the result of this pipeline.
+      //
+      if ( pipelineMeta.isUsingUniqueConnections() ) {
+        pipeline.closeUniqueDatabaseConnections( getResult() );
+      }
+
+      // release unused vfs connections
+      HopVFS.freeUnusedResources();
     };
     // This should always be done first so that the other listeners achieve a clean state to start from (setFinished and
     // so on)
     //
-    executionListeners.add( 0, executionListener );
+    executionFinishedListeners.add( 0, executionListener );
 
     setRunning( true );
 
@@ -1456,7 +1467,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStart.id, this );
 
     if ( transforms.isEmpty() ) {
-      firePipelineExecutionListeners();
+      fireExecutionFinishedListeners();
     }
 
     if ( log.isDetailed() ) {
@@ -1466,28 +1477,28 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Make attempt to fire all registered listeners if possible.
+   * Make attempt to fire all registered finished listeners if possible.
    *
    * @throws HopException if any errors occur during notification
    */
-  protected void firePipelineExecutionListeners() throws HopException {
-    // PDI-5229 sync added
-    synchronized ( executionListeners ) {
-      if ( executionListeners.size() == 0 ) {
+  protected void fireExecutionFinishedListeners() throws HopException {
+
+    synchronized ( executionFinishedListeners ) {
+      if ( executionFinishedListeners.size() == 0 ) {
         return;
       }
       // prevent Exception from one listener to block others execution
-      List<HopException> badGuys = new ArrayList<>( executionListeners.size() );
-      for ( IExecutionListener executionListener : executionListeners ) {
+      List<HopException> badGuys = new ArrayList<>( executionFinishedListeners.size() );
+      for ( IExecutionFinishedListener executionListener : executionFinishedListeners ) {
         try {
           executionListener.finished( this );
         } catch ( HopException e ) {
           badGuys.add( e );
         }
       }
-      if ( pipelineFinishedBlockingQueue != null ) {
+      if ( pipelineWaitUntilFinishedBlockingQueue != null ) {
         // Signal for the the waitUntilFinished blocker...
-        pipelineFinishedBlockingQueue.add( new Object() );
+        pipelineWaitUntilFinishedBlockingQueue.add( new Object() );
       }
       if ( !badGuys.isEmpty() ) {
         // FIFO
@@ -1502,9 +1513,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * @throws HopException if any errors occur during notification
    */
   protected void firePipelineExecutionStartedListeners() throws HopException {
-    // PDI-5229 sync added
-    synchronized ( executionListeners ) {
-      for ( IExecutionListener executionListener : executionListeners ) {
+    synchronized ( executionStartedListeners ) {
+      for ( IExecutionStartedListener executionListener : executionStartedListeners ) {
         executionListener.started( this );
       }
     }
@@ -1581,12 +1591,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void waitUntilFinished() {
     try {
-      if ( pipelineFinishedBlockingQueue == null ) {
+      if ( pipelineWaitUntilFinishedBlockingQueue == null ) {
         return;
       }
       boolean wait = true;
       while ( wait ) {
-        wait = pipelineFinishedBlockingQueue.poll( 1, TimeUnit.DAYS ) == null;
+        wait = pipelineWaitUntilFinishedBlockingQueue.poll( 1, TimeUnit.DAYS ) == null;
         if ( wait ) {
           // poll returns immediately - this was hammering the CPU with poll checks. Added
           // a sleep to let the CPU breathe
@@ -1659,12 +1669,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
 
       transform.stopAll();
-      try {
-        Thread.sleep( 20 );
-      } catch ( Exception e ) {
-        log.logError( BaseMessages.getString( PKG, "Pipeline.Log.PipelineErrors" ) + e.toString() );
-        return;
-      }
     }
   }
 
@@ -2145,19 +2149,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
             };
             timer.schedule( timerTask, intervalInSeconds * 1000, intervalInSeconds * 1000 );
 
-            addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-              @Override
-              public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
-                timer.cancel();
-              }
-            } );
+            addExecutionFinishedListener( pipeline -> timer.cancel() );
           }
 
           // Add a listener to make sure that the last record is also written when pipeline finishes...
           //
-          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-            @Override
-            public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+          addExecutionFinishedListener( pipeline -> {
               try {
                 endProcessing();
 
@@ -2168,8 +2165,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
                 throw new HopException( BaseMessages.getString( PKG,
                   "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
               }
-            }
-          } );
+            } );
 
         }
 
@@ -2177,34 +2173,28 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         //
         TransformLogTable transformLogTable = pipelineMeta.getTransformLogTable();
         if ( transformLogTable.isDefined() ) {
-          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-            @Override
-            public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
               try {
                 writeTransformLogInformation();
               } catch ( HopException e ) {
                 throw new HopException( BaseMessages.getString( PKG,
                   "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
               }
-            }
-          } );
+            } );
         }
 
         // If we need to write the log channel hierarchy and lineage information, add a listener for that too...
         //
         ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
         if ( channelLogTable.isDefined() ) {
-          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-            @Override
-            public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
               try {
                 writeLogChannelInformation();
               } catch ( HopException e ) {
                 throw new HopException( BaseMessages.getString( PKG,
                   "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
               }
-            }
-          } );
+            });
         }
 
         // See if we need to write the transform performance records at intervals too...
@@ -2231,12 +2221,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
           };
           timer.schedule( timerTask, perfLogInterval * 1000, perfLogInterval * 1000 );
 
-          addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-            @Override
-            public void finished( IPipelineEngine<PipelineMeta> pipeline ) {
+          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
               timer.cancel();
-            }
-          } );
+            });
+
         }
       } catch ( HopException e ) {
         throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorWritingLogRecordToTable",
@@ -3666,7 +3654,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * Pauses the pipeline (pause all transforms).
    */
-  public void pauseRunning() {
+  public void pauseExecution() {
     setPaused( true );
     for ( TransformMetaDataCombi combi : transforms ) {
       combi.transform.pauseRunning();
@@ -3676,7 +3664,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * Resumes running the pipeline after a pause (resume all transforms).
    */
-  public void resumeRunning() {
+  public void resumeExecution() {
     for ( TransformMetaDataCombi combi : transforms ) {
       combi.transform.resumeRunning();
     }
@@ -3719,34 +3707,37 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     this.transformPerformanceSnapShots = transformPerformanceSnapShots;
   }
 
+
   /**
-   * Gets a list of the pipeline listeners. Please do not attempt to modify this list externally. Returned list is
-   * mutable only for backward compatibility purposes.
+   * Adds a pipeline started listener.
    *
-   * @return the executionListeners
+   * @param executionStartedListener the pipeline started listener
    */
-  public List<IExecutionListener<PipelineMeta>> getExecutionListeners() {
-    return executionListeners;
+  public void addExecutionStartedListener( IExecutionStartedListener executionStartedListener ) {
+    synchronized ( executionStartedListener ) {
+      executionStartedListeners.add( executionStartedListener );
+    }
   }
 
   /**
-   * Sets the list of pipeline listeners.
+   * Adds a pipeline became active listener.
    *
-   * @param executionListeners the executionListeners to set
+   * @param executionBecameActiveListener the pipeline became active listener
    */
-  public void setExecutionListeners( List<IExecutionListener<PipelineMeta>> executionListeners ) {
-    this.executionListeners = Collections.synchronizedList( executionListeners );
+  public void addExecutionBecameActiveListener( IExecutionBecameActiveListener executionBecameActiveListener ) {
+    synchronized ( executionBecameActiveListener ) {
+      executionBecameActiveListeners.add( executionBecameActiveListener );
+    }
   }
 
   /**
-   * Adds a pipeline listener.
+   * Adds a pipeline finished listener.
    *
-   * @param executionListener the pipeline listener
+   * @param executionFinishedListener the pipeline finished listener
    */
-  public void addExecutionListener( IExecutionListener executionListener ) {
-    // PDI-5229 sync added
-    synchronized ( executionListeners ) {
-      executionListeners.add( executionListener );
+  public void addExecutionFinishedListener( IExecutionFinishedListener executionFinishedListener ) {
+    synchronized ( executionFinishedListener ) {
+      executionFinishedListeners.add( executionFinishedListener );
     }
   }
 
@@ -4584,6 +4575,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate( getStartDate() );
     metrics.setEndDate( getEndDate() );
+
     if ( transforms != null ) {
       synchronized ( transforms ) {
         for ( TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData> combi : transforms ) {
@@ -4756,12 +4748,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     } );
   }
 
-  @Override public void addFinishedListener( IFinishedListener listener ) throws HopException {
-    addExecutionListener( new ExecutionAdapter() {
-      @Override public void finished( IPipelineEngine engine ) throws HopException {
-        listener.finished( engine );
-      }
-    } );
+  public void addStartedListener( IExecutionStartedListener<PipelineMeta> listener) throws HopException {
+    executionStartedListeners.add(listener);
+  }
+
+  public void addFinishedListener( IExecutionFinishedListener<PipelineMeta> listener) throws HopException {
+    executionFinishedListeners.add(listener);
   }
 
   /**
@@ -4810,5 +4802,37 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void setFeedbackSize( int feedbackSize ) {
     this.feedbackSize = feedbackSize;
+  }
+
+  /**
+   * Gets executionStartedListeners
+   *
+   * @return value of executionStartedListeners
+   */
+  public List<IExecutionStartedListener<PipelineMeta>> getExecutionStartedListeners() {
+    return executionStartedListeners;
+  }
+
+  /**
+   * @param executionStartedListeners The executionStartedListeners to set
+   */
+  public void setExecutionStartedListeners( List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners ) {
+    this.executionStartedListeners = executionStartedListeners;
+  }
+
+  /**
+   * Gets executionFinishedListeners
+   *
+   * @return value of executionFinishedListeners
+   */
+  public List<IExecutionFinishedListener<PipelineMeta>> getExecutionFinishedListeners() {
+    return executionFinishedListeners;
+  }
+
+  /**
+   * @param executionFinishedListeners The executionFinishedListeners to set
+   */
+  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners ) {
+    this.executionFinishedListeners = executionFinishedListeners;
   }
 }

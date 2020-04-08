@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineMetrics;
@@ -350,11 +351,11 @@ public class HopGuiPipelinePreviewDelegate {
     // In case there were errors during preview...
     //
     try {
-      pipelineEngine.addFinishedListener( ( pe ) -> {
+      pipelineEngine.addExecutionFinishedListener( pipeline -> {
         // Copy over the data from the previewDelegate...
         //
-        pe.getEngineMetrics();
-        if ( pe.getErrors() != 0 ) {
+        pipeline.getEngineMetrics();
+        if ( pipeline.getErrors() != 0 ) {
           // capture logging and store it...
           //
           for ( IEngineComponent component : pipelineEngine.getComponents() ) {

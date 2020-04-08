@@ -259,10 +259,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private ToolBar toolBar;
   private GuiCompositeWidgets toolBarWidgets;
 
-  private boolean running;
-  private boolean halted;
   private boolean halting;
-  private boolean pausing;
 
   public HopGuiWorkflowLogDelegate jobLogDelegate;
   public HopGuiWorkflowGridDelegate jobGridDelegate;
@@ -1465,13 +1462,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void stop() {
 
-    if ( ( running && !halting ) ) {
+    if ( ( isRunning() && !halting ) ) {
       halting = true;
       workflow.stopAll();
       log.logMinimal( BaseMessages.getString( PKG, "JobLog.Log.ProcessingOfJobStopped" ) );
 
-      running = false;
-      halted = false;
       halting = false;
 
       updateGui();
@@ -2071,21 +2066,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void setHopUnconditional() {
     currentHop.setUnconditional();
     updateGui();
-    ;
   }
 
   public void setHopEvaluationTrue() {
     currentHop.setConditional();
     currentHop.setEvaluation( true );
     updateGui();
-    ;
   }
 
   public void setHopEvaluationFalse() {
     currentHop.setConditional();
     currentHop.setEvaluation( false );
     updateGui();
-    ;
   }
 
   protected void setCurrentHop( WorkflowHopMeta hop ) {
@@ -2872,6 +2864,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     forceFocus();
   }
 
+  public boolean isRunning() {
+    if (workflow==null) {
+      return false;
+    }
+    if (workflow.isActive()) {
+      return true;
+    }
+    if (workflow.isInitialized()) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Update the representation, toolbar, menus and so on. This is needed after a file, context or capabilities changes
    */
@@ -2903,6 +2908,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedEntries );
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedEntries );
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedEntries );
+
+        boolean running = isRunning() && !workflow.isStopped();
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
 
         hopUi.setUndoMenu( workflowMeta );
         hopUi.handleFileCapabilities( fileType );

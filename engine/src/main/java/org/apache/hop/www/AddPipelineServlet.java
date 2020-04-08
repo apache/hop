@@ -30,12 +30,11 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.pipeline.ExecutionAdapter;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -225,12 +224,9 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
               .getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
           logChannelFileWriter.startLogging();
 
-          pipeline.addExecutionListener( new ExecutionAdapter<PipelineMeta>() {
-            @Override
-            public void finished( IPipelineEngine<PipelineMeta> pipelineEngine ) throws HopException {
-              if ( logChannelFileWriter != null ) {
-                logChannelFileWriter.stopLogging();
-              }
+          pipeline.addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipelineEngine -> {
+            if ( logChannelFileWriter != null ) {
+              logChannelFileWriter.stopLogging();
             }
           } );
 

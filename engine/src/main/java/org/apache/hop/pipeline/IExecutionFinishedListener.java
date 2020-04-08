@@ -26,27 +26,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
- * A listener for execution engines
+ * A finished listener for executions of a pipeline
  *
- * @param <T> The executing object/subject (PipelineMeta)
+ * @param <T> The executing object/subject
  */
-public interface IExecutionListener<T> {
-
-  /**
-   * The execution started
-   *
-   * @param engine
-   * @throws HopException
-   */
-  void started( IPipelineEngine<T> engine ) throws HopException;
-
-  /**
-   * This pipeline went from an in-active to an active state.
-   *
-   * @param engine
-   * @throws HopException
-   */
-  public void becameActive( IPipelineEngine<T> engine );
+public interface IExecutionFinishedListener<T> {
 
   /**
    * The pipeline has finished.
@@ -54,5 +38,5 @@ public interface IExecutionListener<T> {
    * @param engine
    * @throws HopException
    */
-  public void finished( IPipelineEngine<T> engine ) throws HopException;
+  void finished( IPipelineEngine<T> engine ) throws HopException;
 }

@@ -266,7 +266,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private int copyNr;
 
-  private Date start_time, stop_time;
+  private Date startTime, stopTime;
 
   /**
    * if true then the row being processed is the first row
@@ -403,6 +403,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private IRowHandler rowHandler;
 
+  private AtomicBoolean markStopped = new AtomicBoolean(false);
+
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this class to implement your own
    * transforms.
@@ -464,8 +466,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // debug="-";
 
-    start_time = null;
-    stop_time = null;
+    startTime = null;
+    stopTime = null;
 
     distributed = transformMeta.isDistributes();
     rowDistribution = transformMeta.getRowDistribution();
@@ -2727,7 +2729,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void markStart() {
     Calendar cal = Calendar.getInstance();
-    start_time = cal.getTime();
+    startTime = cal.getTime();
 
     setInternalVariables();
   }
@@ -2746,22 +2748,37 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#markStop()
    */
   @Override
-  public void markStop() {
-    Calendar cal = Calendar.getInstance();
-    stop_time = cal.getTime();
+  public synchronized void markStop() {
 
-    // Here we are completely done with the pipeline.
-    // Call all the attached listeners and notify the outside world that the transform has finished.
+    // Only mark a transform as stopped once
     //
-    synchronized ( transformListeners ) {
-      for ( ITransformListener transformListener : transformListeners ) {
-        transformListener.transformFinished( pipeline, transformMeta, this );
+    if (!markStopped.get()) {
+      markStopped.set( true );
+
+      System.out.println( "####> markStop() on Transform : " + getTransformName() + " copy " + getCopy() );
+
+      Calendar cal = Calendar.getInstance();
+      stopTime = cal.getTime();
+
+      // Here we are completely done with the pipeline.
+      // Call all the attached listeners and notify the outside world that the transform has finished.
+      //
+      synchronized ( transformListeners ) {
+        for ( ITransformListener transformListener : transformListeners ) {
+          if ("/tmp/all.txt".equals(getTransformName())) {
+            System.out.println( "------------> MARKING STOP on Transform : " + getTransformName() + " copy " + getCopy() + ". Listener = " + transformListener.toString() );
+          }
+          transformListener.transformFinished( pipeline, transformMeta, this );
+          // System.out.println( "<------------ MARKED STOP on Transform : " + getTransformName() + " copy " + getCopy() + ". Listener = " + transformListener.toString() );
+        }
       }
-    }
 
-    // We're finally completely done with this transform.
-    //
-    setRunning( false );
+      // We're finally completely done with this transform.
+      //
+      setRunning( false );
+
+      System.out.println( "<#### markStop() on Transform : " + getTransformName() + " copy " + getCopy() );
+    }
   }
 
   /*
@@ -2772,13 +2789,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public long getRuntime() {
     long lapsed;
-    if ( start_time != null && stop_time == null ) {
+    if ( startTime != null && stopTime == null ) {
       Calendar cal = Calendar.getInstance();
       long now = cal.getTimeInMillis();
-      long st = start_time.getTime();
+      long st = startTime.getTime();
       lapsed = now - st;
-    } else if ( start_time != null && stop_time != null ) {
-      lapsed = stop_time.getTime() - start_time.getTime();
+    } else if ( startTime != null && stopTime != null ) {
+      lapsed = stopTime.getTime() - startTime.getTime();
     } else {
       lapsed = 0;
     }

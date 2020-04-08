@@ -147,7 +147,7 @@ public class PipelineResource {
   @Path( "/pause/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public PipelineStatus pausePipeline( @PathParam( "id" ) String id ) {
-    HopServerResource.getPipeline( id ).pauseRunning();
+    HopServerResource.getPipeline( id ).pauseExecution();
     return getPipelineStatus( id );
   }
 
@@ -156,7 +156,7 @@ public class PipelineResource {
   @Path( "/resume/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public PipelineStatus resumePipeline( @PathParam( "id" ) String id ) {
-    HopServerResource.getPipeline( id ).resumeRunning();
+    HopServerResource.getPipeline( id ).resumeExecution();
     return getPipelineStatus( id );
   }
 

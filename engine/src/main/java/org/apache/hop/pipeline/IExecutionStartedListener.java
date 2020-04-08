@@ -26,21 +26,18 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
- * Utility class to allow only certain methods of IExecutionListener to be overridden.
+ * A started listener for pipeline engines
  *
- * @author matt
+ * @param <T> The executing object/subject (PipelineMeta)
  */
-public class ExecutionAdapter<T> implements IExecutionListener<T> {
+public interface IExecutionStartedListener<T> {
 
-  @Override public void started( IPipelineEngine<T> engine ) throws HopException {
+  /**
+   * The execution started
+   *
+   * @param engine
+   * @throws HopException
+   */
+  void started( IPipelineEngine<T> engine ) throws HopException;
 
-  }
-
-  @Override public void becameActive( IPipelineEngine<T> engine ) {
-
-  }
-
-  @Override public void finished( IPipelineEngine<T> engine ) throws HopException {
-
-  }
 }

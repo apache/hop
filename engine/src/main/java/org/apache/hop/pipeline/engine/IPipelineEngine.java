@@ -6,6 +6,9 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.IExecutionBecameActiveListener;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
+import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 
 import java.util.List;
@@ -112,14 +115,20 @@ public interface IPipelineEngine<T> {
   boolean isRunning();
 
   /**
+   * Indicates whether or not the engine is stopped.
+   * @return True is the engine execution has stopped
+   */
+  boolean isStopped();
+
+  /**
    * Pauses the execution (all components).
    */
-  void pauseRunning();
+  void pauseExecution();
 
   /**
    * Resume the execution (all components).
    */
-  void resumeRunning();
+  void resumeExecution();
 
   /**
    * @return a number larger than 0 in case of errors
@@ -134,12 +143,36 @@ public interface IPipelineEngine<T> {
   boolean isFinished();
 
   /**
+   * See if the engine is paused
+   *
+   * @return true if the engine is paused
+   */
+  boolean isPaused();
+
+  /**
+   * Call the given listener lambda when this pipeline engine has started execution.
+   *
+   * @param listener
+   * @throws HopException
+   */
+  void addExecutionStartedListener( IExecutionStartedListener<T> listener ) throws HopException;
+
+  /**
+   * Call the given listener lambda when this pipeline engine has become active.
+   *
+   * @param listener
+   * @throws HopException
+   */
+  void addExecutionBecameActiveListener( IExecutionBecameActiveListener<T> listener ) throws HopException;
+
+
+  /**
    * Call the given listener lambda when this pipeline engine has completed execution.
    *
    * @param listener
    * @throws HopException
    */
-  void addFinishedListener( IFinishedListener listener ) throws HopException;
+  void addExecutionFinishedListener( IExecutionFinishedListener<T> listener ) throws HopException;
 
   /**
    * Close unique database connections. If there are errors in the Result, perform a rollback
