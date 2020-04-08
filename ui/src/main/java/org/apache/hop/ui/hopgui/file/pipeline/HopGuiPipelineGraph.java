@@ -3153,7 +3153,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10100-preview-output",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Info,
-    name = "Preview rows",
+    name = "Preview output",
     tooltip = "Execute the pipeline and see the output of the transform",
     image = "ui/images/preview.svg"
   )
@@ -3187,6 +3187,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       new ErrorDialog( hopShell(), "Error", "Error debugging pipeline", e );
     }
   }
+
+  @GuiContextAction(
+    id = "pipeline-graph-transform-10150-debug-output",
+    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+    type = GuiActionType.Info,
+    name = "Debug output",
+    tooltip = "Execute the pipeline and debug output of the transform. Pause the pipeline when the condition is met.",
+    image = "ui/images/debug.svg"
+  )
+  /**
+   *
+   * Debug a single step
+   */
+  public void debug( HopGuiPipelineTransformContext context ) {
+    try {
+      context.getPipelineMeta().unselectAll();
+      context.getTransformMeta().setSelected( true );
+      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, false, true, true, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
+    } catch ( Exception e ) {
+      new ErrorDialog( hopShell(), "Error", "Error previewing pipeline", e );
+    }
+  }
+
 
   public void newProps() {
     iconsize = hopUi.getProps().getIconSize();
